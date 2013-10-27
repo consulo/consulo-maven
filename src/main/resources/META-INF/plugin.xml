@@ -6,6 +6,7 @@
   <vendor>JetBrains</vendor>
   <depends>com.intellij.xml</depends>
   <depends>org.consulo.java</depends>
+  <depends>com.intellij.properties</depends>
   <extensionPoints>
     <extensionPoint name="importer" interface="org.jetbrains.idea.maven.importing.MavenImporter"/>
     <extensionPoint name="additional.importing.settings" interface="org.jetbrains.idea.maven.project.AdditionalMavenImportingSettings"/>
@@ -13,9 +14,6 @@
 
     <extensionPoint name="pluginDescriptor" beanClass="org.jetbrains.idea.maven.plugins.api.MavenPluginDescriptor"/>
   </extensionPoints>
-
-  <depends>com.intellij.properties</depends>
-  <depends optional="true" config-file="groovy-support.xml">org.intellij.groovy</depends>
 
   <extensions defaultExtensionNs="com.intellij.xml.dom">
     <fileDescription implementation="org.jetbrains.idea.maven.dom.MavenDomProjectModelDescription"/>

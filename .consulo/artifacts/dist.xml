@@ -1,0 +1,37 @@
+<component name="ArtifactManager">
+  <artifact name="dist">
+    <output-path>$PROJECT_DIR$/out/artifacts/dist</output-path>
+    <root id="root">
+      <element id="directory" name="maven">
+        <element id="directory" name="lib">
+          <element id="zip-archive" name="maven.jar">
+            <element id="module-output" name="consulo-maven" />
+            <element id="module-production-resource-output" name="consulo-maven" />
+          </element>
+          <element id="file-copy" path="$PROJECT_DIR$/lib/plexus-utils-2.0.6.jar" />
+          <element id="file-copy" path="$PROJECT_DIR$/lib/wadl-core.jar" />
+          <element id="zip-archive" name="maven-server-api.jar">
+            <element id="module-output" name="maven-server-api" />
+          </element>
+          <element id="file-copy" path="$PROJECT_DIR$/maven-server-api/lib/lucene-core-2.4.1.jar" />
+          <element id="directory" name="maven2">
+            <element id="library" level="project" name="Maven2" />
+          </element>
+          <element id="directory" name="maven3">
+            <element id="library" level="project" name="Maven3" />
+          </element>
+          <element id="zip-archive" name="maven3-server-impl.jar">
+            <element id="module-output" name="maven3-server-impl" />
+            <element id="module-production-resource-output" name="artifact-resolver-m3" />
+            <element id="module-output" name="artifact-resolver-m3" />
+          </element>
+          <element id="zip-archive" name="maven2-server-impl.jar">
+            <element id="module-output" name="maven2-server-impl" />
+            <element id="module-output" name="artifact-resolver-m2" />
+            <element id="module-production-resource-output" name="artifact-resolver-m2" />
+          </element>
+        </element>
+      </element>
+    </root>
+  </artifact>
+</component>

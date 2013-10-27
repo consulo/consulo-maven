@@ -1,16 +1,16 @@
 package org.jetbrains.idea.maven.execution;
 
-import com.intellij.codeInsight.completion.CompletionResultSet;
-import com.intellij.codeInsight.lookup.LookupElement;
-import com.intellij.openapi.project.Project;
-import groovyjarjarcommonscli.OptionBuilder;
-import groovyjarjarcommonscli.Options;
+import java.util.List;
+
+import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.Options;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.idea.maven.execution.cmd.CommandLineCompletionProvider;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.utils.MavenUtil;
-
-import java.util.List;
+import com.intellij.codeInsight.completion.CompletionResultSet;
+import com.intellij.codeInsight.lookup.LookupElement;
+import com.intellij.openapi.project.Project;
 
 /**
  * @author Sergey Evdokimov
