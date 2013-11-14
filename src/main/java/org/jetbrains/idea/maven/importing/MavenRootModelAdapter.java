@@ -15,6 +15,24 @@
  */
 package org.jetbrains.idea.maven.importing;
 
+import java.io.File;
+
+import org.consulo.compiler.CompilerPathsManager;
+import org.consulo.java.platform.module.extension.JavaMutableModuleExtensionImpl;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.idea.maven.model.MavenArtifact;
+import org.jetbrains.idea.maven.model.MavenConstants;
+import org.jetbrains.idea.maven.project.MavenProject;
+import org.jetbrains.idea.maven.project.MavenProjectsManager;
+import org.jetbrains.idea.maven.utils.Path;
+import org.jetbrains.idea.maven.utils.Url;
+import org.mustbe.consulo.roots.ContentFolderScopes;
+import org.mustbe.consulo.roots.impl.ExcludedContentFolderTypeProvider;
+import org.mustbe.consulo.roots.impl.ProductionContentFolderTypeProvider;
+import org.mustbe.consulo.roots.impl.ProductionResourceContentFolderTypeProvider;
+import org.mustbe.consulo.roots.impl.TestContentFolderTypeProvider;
+import org.mustbe.consulo.roots.impl.TestResourceContentFolderTypeProvider;
 import com.intellij.openapi.application.AccessToken;
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.module.ModifiableModuleModel;
@@ -30,18 +48,6 @@ import com.intellij.openapi.vfs.JarFileSystem;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.pom.java.LanguageLevel;
 import com.intellij.util.Processor;
-import org.consulo.compiler.CompilerPathsManager;
-import org.consulo.java.platform.module.extension.JavaMutableModuleExtensionImpl;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.jetbrains.idea.maven.model.MavenArtifact;
-import org.jetbrains.idea.maven.model.MavenConstants;
-import org.jetbrains.idea.maven.project.MavenProject;
-import org.jetbrains.idea.maven.project.MavenProjectsManager;
-import org.jetbrains.idea.maven.utils.Path;
-import org.jetbrains.idea.maven.utils.Url;
-
-import java.io.File;
 
 public class MavenRootModelAdapter {
 
@@ -108,8 +114,12 @@ public class MavenRootModelAdapter {
   }
 
   public void clearSourceFolders() {
-    for (ContentEntry each : myRootModel.getContentEntries()) {
-      each.clearFolders(ContentFolderType.PRODUCTION);
+    for (ContentEntry each : myRootModel.getContentEntries())
+	{
+		for(ContentFolder contentFolder : each.getFolders(ContentFolderScopes.of(ProductionContentFolderTypeProvider.getInstance())))
+		{
+			each.removeFolder(contentFolder);
+		}
     }
   }
 
@@ -131,7 +141,7 @@ public class MavenRootModelAdapter {
     if (e == null) return;
     unregisterAll(path, true, true);
     unregisterAll(path, false, true);
-    e.addFolder(url.getUrl(), testSource ? ContentFolderType.TEST : ContentFolderType.PRODUCTION);
+    e.addFolder(url.getUrl(), testSource ? TestContentFolderTypeProvider.getInstance() : ProductionContentFolderTypeProvider.getInstance());
   }
 
   public void addSourceFolderSoft(String path, boolean testSource) {
@@ -142,14 +152,14 @@ public class MavenRootModelAdapter {
     if (e == null) return;
 
     if (!hasCollision(path)) {
-      e.addFolder(url.getUrl(), testSource ? ContentFolderType.PRODUCTION : ContentFolderType.TEST);
+      e.addFolder(url.getUrl(), testSource ? ProductionContentFolderTypeProvider.getInstance() : TestContentFolderTypeProvider.getInstance());
     }
   }
 
   public boolean hasRegisteredSourceSubfolder(File f) {
     String url = toUrl(f.getPath()).getUrl();
     for (ContentEntry eachEntry : myRootModel.getContentEntries()) {
-      for (ContentFolder eachFolder : eachEntry.getFolders(ContentFolderType.PRODUCTION)) {
+      for (ContentFolder eachFolder : eachEntry.getFolders(ContentFolderScopes.of(ProductionContentFolderTypeProvider.getInstance()))) {
         if (isEqualOrAncestor(url, eachFolder.getUrl())) return true;
       }
     }
@@ -159,7 +169,7 @@ public class MavenRootModelAdapter {
   public boolean isAlreadyExcluded(File f) {
     String url = toUrl(f.getPath()).getUrl();
     for (ContentEntry eachEntry : myRootModel.getContentEntries()) {
-      for (ContentFolder eachFolder : eachEntry.getFolders(ContentFolderType.EXCLUDED)) {
+      for (ContentFolder eachFolder : eachEntry.getFolders(ContentFolderScopes.excluded())) {
         if (isEqualOrAncestor(eachFolder.getUrl(), url)) return true;
       }
     }
@@ -180,7 +190,7 @@ public class MavenRootModelAdapter {
     ContentEntry e = getContentRootFor(url);
     if (e == null) return;
     if (e.getUrl().equals(url.getUrl())) return;
-    e.addFolder(url.getUrl(), ContentFolderType.EXCLUDED);
+    e.addFolder(url.getUrl(), ExcludedContentFolderTypeProvider.getInstance());
   }
 
   public void unregisterAll(String path, boolean under, boolean unregisterSources) {
@@ -188,7 +198,7 @@ public class MavenRootModelAdapter {
 
     for (ContentEntry eachEntry : myRootModel.getContentEntries()) {
       if (unregisterSources) {
-        for (ContentFolder eachFolder : eachEntry.getFolders(ContentFolderType.PRODUCTION)) {
+        for (ContentFolder eachFolder : eachEntry.getFolders(ContentFolderScopes.of(ProductionContentFolderTypeProvider.getInstance()))) {
           String ancestor = under ? url.getUrl() : eachFolder.getUrl();
           String child = under ? eachFolder.getUrl() : url.getUrl();
           if (isEqualOrAncestor(ancestor, child)) {
@@ -197,7 +207,7 @@ public class MavenRootModelAdapter {
         }
       }
 
-      for (ContentFolder eachFolder : eachEntry.getFolders(ContentFolderType.EXCLUDED)) {
+      for (ContentFolder eachFolder : eachEntry.getFolders(ContentFolderScopes.excluded())) {
         String ancestor = under ? url.getUrl() : eachFolder.getUrl();
         String child = under ? eachFolder.getUrl() : url.getUrl();
 
@@ -218,7 +228,7 @@ public class MavenRootModelAdapter {
     Url url = toUrl(sourceRootPath);
 
     for (ContentEntry eachEntry : myRootModel.getContentEntries()) {
-      for (ContentFolder eachFolder : eachEntry.getFolders(ContentFolderType.PRODUCTION)) {
+      for (ContentFolder eachFolder : eachEntry.getFolders(ContentFolderScopes.of(ProductionContentFolderTypeProvider.getInstance()))) {
         String ancestor = url.getUrl();
         String child = eachFolder.getUrl();
         if (isEqualOrAncestor(ancestor, child) || isEqualOrAncestor(child, ancestor)) {
@@ -226,7 +236,7 @@ public class MavenRootModelAdapter {
         }
       }
 
-      for (ContentFolder eachFolder : eachEntry.getFolders(ContentFolderType.EXCLUDED)) {
+      for (ContentFolder eachFolder : eachEntry.getFolders(ContentFolderScopes.excluded())) {
         String ancestor = url.getUrl();
         String child = eachFolder.getUrl();
 
@@ -243,10 +253,10 @@ public class MavenRootModelAdapter {
     CompilerPathsManager compilerPathsManager = CompilerPathsManager.getInstance(myRootModel.getProject());
 
     compilerPathsManager.setInheritedCompilerOutput(getModule(), false);
-    compilerPathsManager.setCompilerOutputUrl(getModule(), ContentFolderType.PRODUCTION, toUrl(production).getUrl());
-    compilerPathsManager.setCompilerOutputUrl(getModule(), ContentFolderType.PRODUCTION_RESOURCE, toUrl(production).getUrl());
-    compilerPathsManager.setCompilerOutputUrl(getModule(), ContentFolderType.TEST, toUrl(test).getUrl());
-    compilerPathsManager.setCompilerOutputUrl(getModule(), ContentFolderType.TEST_RESOURCE, toUrl(test).getUrl());
+    compilerPathsManager.setCompilerOutputUrl(getModule(), ProductionContentFolderTypeProvider.getInstance(), toUrl(production).getUrl());
+    compilerPathsManager.setCompilerOutputUrl(getModule(), ProductionResourceContentFolderTypeProvider.getInstance(), toUrl(production).getUrl());
+    compilerPathsManager.setCompilerOutputUrl(getModule(), TestContentFolderTypeProvider.getInstance(), toUrl(test).getUrl());
+    compilerPathsManager.setCompilerOutputUrl(getModule(), TestResourceContentFolderTypeProvider.getInstance(), toUrl(test).getUrl());
     compilerPathsManager.setInheritedCompilerOutput(getModule(), false);
   }
 

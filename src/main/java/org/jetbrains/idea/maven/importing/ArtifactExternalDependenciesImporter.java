@@ -15,6 +15,13 @@
  */
 package org.jetbrains.idea.maven.importing;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import com.intellij.openapi.roots.ui.configuration.artifacts.ManifestFilesInfo;
 import com.intellij.openapi.util.Pair;
 import com.intellij.packaging.artifacts.Artifact;
@@ -28,13 +35,6 @@ import com.intellij.packaging.impl.artifacts.PackagingElementProcessor;
 import com.intellij.packaging.impl.elements.ArtifactElementType;
 import com.intellij.packaging.impl.elements.ArtifactPackagingElement;
 import com.intellij.packaging.ui.ManifestFileConfiguration;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * @author nik
@@ -63,7 +63,7 @@ public class ArtifactExternalDependenciesImporter {
     final List<Pair<? extends CompositePackagingElement<?>, List<PackagingElement<?>>>> elementsToInclude =
       new ArrayList<Pair<? extends CompositePackagingElement<?>, List<PackagingElement<?>>>>();
     for (Artifact artifact : artifactModel.getArtifacts()) {
-      ArtifactUtil.processPackagingElements(artifact, ArtifactElementType.ARTIFACT_ELEMENT_TYPE,
+      ArtifactUtil.processPackagingElements(artifact, ArtifactElementType.getInstance(),
                                             new PackagingElementProcessor<ArtifactPackagingElement>() {
                                               @Override
                                               public boolean process(@NotNull ArtifactPackagingElement artifactPackagingElement,
