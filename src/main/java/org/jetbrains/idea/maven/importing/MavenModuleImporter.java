@@ -15,15 +15,9 @@
  */
 package org.jetbrains.idea.maven.importing;
 
-import com.intellij.openapi.module.Module;
-import com.intellij.openapi.roots.*;
-import com.intellij.openapi.roots.libraries.Library;
-import com.intellij.openapi.roots.libraries.LibraryTable;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.openapi.vfs.VfsUtil;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.vfs.util.ArchiveVfsUtil;
-import com.intellij.pom.java.LanguageLevel;
+import java.util.List;
+import java.util.Map;
+
 import org.consulo.java.platform.module.extension.JavaMutableModuleExtensionImpl;
 import org.consulo.maven.module.extension.MavenMutableModuleExtension;
 import org.jdom.Element;
@@ -31,238 +25,316 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.idea.maven.model.MavenArtifact;
 import org.jetbrains.idea.maven.model.MavenConstants;
-import org.jetbrains.idea.maven.project.*;
+import org.jetbrains.idea.maven.project.MavenImportingSettings;
+import org.jetbrains.idea.maven.project.MavenProject;
+import org.jetbrains.idea.maven.project.MavenProjectChanges;
+import org.jetbrains.idea.maven.project.MavenProjectsProcessorTask;
+import org.jetbrains.idea.maven.project.MavenProjectsTree;
+import org.jetbrains.idea.maven.project.SupportedRequestType;
 import org.jetbrains.idea.maven.utils.MavenUtil;
+import com.intellij.openapi.module.Module;
+import com.intellij.openapi.projectRoots.JavaSdk;
+import com.intellij.openapi.projectRoots.JavaSdkVersion;
+import com.intellij.openapi.projectRoots.Sdk;
+import com.intellij.openapi.projectRoots.SdkTable;
+import com.intellij.openapi.roots.DependencyScope;
+import com.intellij.openapi.roots.LibraryOrderEntry;
+import com.intellij.openapi.roots.ModifiableRootModel;
+import com.intellij.openapi.roots.OrderRootType;
+import com.intellij.openapi.roots.libraries.Library;
+import com.intellij.openapi.roots.libraries.LibraryTable;
+import com.intellij.openapi.util.text.StringUtil;
+import com.intellij.openapi.vfs.VfsUtil;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.vfs.util.ArchiveVfsUtil;
+import com.intellij.pom.java.LanguageLevel;
+import lombok.val;
 
-import java.util.List;
-import java.util.Map;
+public class MavenModuleImporter
+{
 
-public class MavenModuleImporter {
+	public static final String SUREFIRE_PLUGIN_LIBRARY_NAME = "maven-surefire-plugin urls";
 
-  public static final String SUREFIRE_PLUGIN_LIBRARY_NAME = "maven-surefire-plugin urls";
+	private final Module myModule;
+	private final MavenProjectsTree myMavenTree;
+	private final MavenProject myMavenProject;
 
-  private final Module myModule;
-  private final MavenProjectsTree myMavenTree;
-  private final MavenProject myMavenProject;
+	@Nullable
+	private final MavenProjectChanges myMavenProjectChanges;
+	private final Map<MavenProject, String> myMavenProjectToModuleName;
+	private final MavenImportingSettings mySettings;
+	private final MavenModifiableModelsProvider myModifiableModelsProvider;
+	private MavenRootModelAdapter myRootModelAdapter;
 
-  @Nullable
-  private final MavenProjectChanges myMavenProjectChanges;
-  private final Map<MavenProject, String> myMavenProjectToModuleName;
-  private final MavenImportingSettings mySettings;
-  private final MavenModifiableModelsProvider myModifiableModelsProvider;
-  private MavenRootModelAdapter myRootModelAdapter;
+	public MavenModuleImporter(Module module, MavenProjectsTree mavenTree, MavenProject mavenProject, @Nullable MavenProjectChanges changes, Map<MavenProject, String> mavenProjectToModuleName, MavenImportingSettings settings, MavenModifiableModelsProvider modifiableModelsProvider)
+	{
+		myModule = module;
+		myMavenTree = mavenTree;
+		myMavenProject = mavenProject;
+		myMavenProjectChanges = changes;
+		myMavenProjectToModuleName = mavenProjectToModuleName;
+		mySettings = settings;
+		myModifiableModelsProvider = modifiableModelsProvider;
+	}
 
-  public MavenModuleImporter(Module module,
-                             MavenProjectsTree mavenTree,
-                             MavenProject mavenProject,
-                             @Nullable MavenProjectChanges changes,
-                             Map<MavenProject, String> mavenProjectToModuleName,
-                             MavenImportingSettings settings,
-                             MavenModifiableModelsProvider modifiableModelsProvider) {
-    myModule = module;
-    myMavenTree = mavenTree;
-    myMavenProject = mavenProject;
-    myMavenProjectChanges = changes;
-    myMavenProjectToModuleName = mavenProjectToModuleName;
-    mySettings = settings;
-    myModifiableModelsProvider = modifiableModelsProvider;
-  }
+	public ModifiableRootModel getRootModel()
+	{
+		return myRootModelAdapter.getRootModel();
+	}
 
-  public ModifiableRootModel getRootModel() {
-    return myRootModelAdapter.getRootModel();
-  }
+	public void config(boolean isNewlyCreatedModule)
+	{
+		myRootModelAdapter = new MavenRootModelAdapter(myMavenProject, myModule, myModifiableModelsProvider);
+		myRootModelAdapter.init(isNewlyCreatedModule);
 
-  public void config(boolean isNewlyCreatedModule) {
-    myRootModelAdapter = new MavenRootModelAdapter(myMavenProject, myModule, myModifiableModelsProvider);
-    myRootModelAdapter.init(isNewlyCreatedModule);
+		val rootModel = myModifiableModelsProvider.getRootModel(myModule);
 
-    final ModifiableRootModel rootModel = myModifiableModelsProvider.getRootModel(myModule);
-    rootModel.getExtensionWithoutCheck(JavaMutableModuleExtensionImpl.class).setEnabled(true);
-    rootModel.getExtensionWithoutCheck(MavenMutableModuleExtension.class).setEnabled(true);
+		JavaMutableModuleExtensionImpl javaModuleExtension = rootModel.getExtensionWithoutCheck(JavaMutableModuleExtensionImpl.class);
+		javaModuleExtension.setEnabled(true);
 
-    configFolders();
-    configDependencies();
-    configLanguageLevel();
-  }
+		LanguageLevel level = LanguageLevel.parse(myMavenProject.getSourceLevel());
+		if(level == null)
+		{
+			level = LanguageLevel.HIGHEST;
+		}
 
-  public void preConfigFacets() {
-    MavenUtil.invokeAndWaitWriteAction(myModule.getProject(), new Runnable() {
-      public void run() {
-        if (myModule.isDisposed()) return;
+		List<Sdk> sdksOfType = SdkTable.getInstance().getSdksOfType(JavaSdk.getInstance());
+		for(Sdk sdk : sdksOfType)
+		{
+			JavaSdkVersion version = JavaSdk.getInstance().getVersion(sdk);
+			if(version != null && version.getMaxLanguageLevel().isAtLeast(level))
+			{
+				javaModuleExtension.getInheritableSdk().set(null, sdk);
+				break;
+			}
+		}
 
-        for (final MavenImporter importer : getSuitableImporters()) {
-          final MavenProjectChanges changes;
-          if (myMavenProjectChanges == null) {
-            if (importer.processChangedModulesOnly()) continue;
-            changes = MavenProjectChanges.NONE;
-          }
-          else {
-            changes = myMavenProjectChanges;
-          }
+		javaModuleExtension.getInheritableLanguageLevel().set(null, level.name());
 
-          importer.preProcess(myModule, myMavenProject, changes, myModifiableModelsProvider);
-        }
-      }
-    });
-  }
+		rootModel.getExtensionWithoutCheck(MavenMutableModuleExtension.class).setEnabled(true);
 
-  public void configFacets(final List<MavenProjectsProcessorTask> postTasks) {
-    MavenUtil.invokeAndWaitWriteAction(myModule.getProject(), new Runnable() {
-      public void run() {
-        if (myModule.isDisposed()) return;
+		configFolders();
+		configDependencies();
+	}
 
-        for (final MavenImporter importer : getSuitableImporters()) {
-          final MavenProjectChanges changes;
-          if (myMavenProjectChanges == null) {
-            if (importer.processChangedModulesOnly()) continue;
-            changes = MavenProjectChanges.NONE;
-          }
-          else {
-            changes = myMavenProjectChanges;
-          }
+	public void preConfigFacets()
+	{
+		MavenUtil.invokeAndWaitWriteAction(myModule.getProject(), new Runnable()
+		{
+			public void run()
+			{
+				if(myModule.isDisposed())
+				{
+					return;
+				}
 
-          importer.process(myModifiableModelsProvider,
-                           myModule,
-                           myRootModelAdapter,
-                           myMavenTree,
-                           myMavenProject,
-                           changes,
-                           myMavenProjectToModuleName,
-                           postTasks);
-        }
-      }
-    });
-  }
+				for(final MavenImporter importer : getSuitableImporters())
+				{
+					final MavenProjectChanges changes;
+					if(myMavenProjectChanges == null)
+					{
+						if(importer.processChangedModulesOnly())
+						{
+							continue;
+						}
+						changes = MavenProjectChanges.NONE;
+					}
+					else
+					{
+						changes = myMavenProjectChanges;
+					}
 
-  private List<MavenImporter> getSuitableImporters() {
-    return myMavenProject.getSuitableImporters();
-  }
+					importer.preProcess(myModule, myMavenProject, changes, myModifiableModelsProvider);
+				}
+			}
+		});
+	}
 
-  private void configFolders() {
-    new MavenFoldersImporter(myMavenProject, mySettings, myRootModelAdapter).config();
-  }
+	public void configFacets(final List<MavenProjectsProcessorTask> postTasks)
+	{
+		MavenUtil.invokeAndWaitWriteAction(myModule.getProject(), new Runnable()
+		{
+			public void run()
+			{
+				if(myModule.isDisposed())
+				{
+					return;
+				}
 
-  private void configDependencies() {
-    for (MavenArtifact artifact : myMavenProject.getDependencies()) {
-      if (!myMavenProject.isSupportedDependency(artifact, SupportedRequestType.FOR_IMPORT)) continue;
+				for(final MavenImporter importer : getSuitableImporters())
+				{
+					final MavenProjectChanges changes;
+					if(myMavenProjectChanges == null)
+					{
+						if(importer.processChangedModulesOnly())
+						{
+							continue;
+						}
+						changes = MavenProjectChanges.NONE;
+					}
+					else
+					{
+						changes = myMavenProjectChanges;
+					}
 
-      DependencyScope scope = selectScope(artifact.getScope());
+					importer.process(myModifiableModelsProvider, myModule, myRootModelAdapter, myMavenTree, myMavenProject, changes, myMavenProjectToModuleName, postTasks);
+				}
+			}
+		});
+	}
 
-      MavenProject depProject = myMavenTree.findProject(artifact.getMavenId());
+	private List<MavenImporter> getSuitableImporters()
+	{
+		return myMavenProject.getSuitableImporters();
+	}
 
-      if (depProject != null && !myMavenTree.isIgnored(depProject)) {
-        if (depProject == myMavenProject) continue;
-        boolean isTestJar = MavenConstants.TYPE_TEST_JAR.equals(artifact.getType()) || "tests".equals(artifact.getClassifier());
-        myRootModelAdapter.addModuleDependency(myMavenProjectToModuleName.get(depProject), scope, isTestJar);
+	private void configFolders()
+	{
+		new MavenFoldersImporter(myMavenProject, mySettings, myRootModelAdapter).config();
+	}
 
-        Element buildHelperCfg = depProject.getPluginGoalConfiguration("org.codehaus.mojo", "build-helper-maven-plugin", "attach-artifact");
-        if (buildHelperCfg != null) {
-          addAttachArtifactDependency(buildHelperCfg, scope, depProject, artifact);
-        }
+	private void configDependencies()
+	{
+		for(MavenArtifact artifact : myMavenProject.getDependencies())
+		{
+			if(!myMavenProject.isSupportedDependency(artifact, SupportedRequestType.FOR_IMPORT))
+			{
+				continue;
+			}
 
-        if (artifact.getClassifier() != null
-            && !"system".equals(artifact.getScope())
-            && !"false".equals(System.getProperty("idea.maven.classifier.dep"))) {
-          MavenArtifact a = new MavenArtifact(
-            artifact.getGroupId(),
-            artifact.getArtifactId(),
-            artifact.getVersion(),
-            artifact.getBaseVersion(),
-            artifact.getType(),
-            artifact.getClassifier(),
-            artifact.getScope(),
-            artifact.isOptional(),
-            artifact.getExtension(),
-            null,
-            myMavenProject.getLocalRepository(),
-            false, false
-          );
+			DependencyScope scope = selectScope(artifact.getScope());
 
-          myRootModelAdapter.addLibraryDependency(a, scope, myModifiableModelsProvider, myMavenProject);
-        }
-      }
-      else if ("system".equals(artifact.getScope())) {
-        myRootModelAdapter.addSystemDependency(artifact, scope);
-      }
-      else {
-        myRootModelAdapter.addLibraryDependency(artifact, scope, myModifiableModelsProvider, myMavenProject);
-      }
-    }
+			MavenProject depProject = myMavenTree.findProject(artifact.getMavenId());
 
-    configSurefirePlugin();
-  }
+			if(depProject != null && !myMavenTree.isIgnored(depProject))
+			{
+				if(depProject == myMavenProject)
+				{
+					continue;
+				}
+				boolean isTestJar = MavenConstants.TYPE_TEST_JAR.equals(artifact.getType()) || "tests".equals(artifact.getClassifier());
+				myRootModelAdapter.addModuleDependency(myMavenProjectToModuleName.get(depProject), scope, isTestJar);
 
-  private void configSurefirePlugin() {
-    // Remove "maven-surefire-plugin urls" library created by previous version of IDEA.
-    // todo remove this code after 01.06.2013
-    LibraryTable moduleLibraryTable = myRootModelAdapter.getRootModel().getModuleLibraryTable();
+				Element buildHelperCfg = depProject.getPluginGoalConfiguration("org.codehaus.mojo", "build-helper-maven-plugin", "attach-artifact");
+				if(buildHelperCfg != null)
+				{
+					addAttachArtifactDependency(buildHelperCfg, scope, depProject, artifact);
+				}
 
-    Library library = moduleLibraryTable.getLibraryByName(SUREFIRE_PLUGIN_LIBRARY_NAME);
-    if (library != null) {
-      moduleLibraryTable.removeLibrary(library);
-    }
-  }
+				if(artifact.getClassifier() != null && !"system".equals(artifact.getScope()) && !"false".equals(System.getProperty("idea.maven.classifier.dep")))
+				{
+					MavenArtifact a = new MavenArtifact(artifact.getGroupId(), artifact.getArtifactId(), artifact.getVersion(), artifact.getBaseVersion(), artifact.getType(), artifact.getClassifier(), artifact.getScope(), artifact.isOptional(), artifact.getExtension(), null, myMavenProject.getLocalRepository(), false, false);
 
-  private void addAttachArtifactDependency(@NotNull Element buildHelperCfg,
-                                           @NotNull DependencyScope scope,
-                                           @NotNull MavenProject mavenProject,
-                                           @NotNull MavenArtifact artifact) {
-    Library.ModifiableModel libraryModel = null;
+					myRootModelAdapter.addLibraryDependency(a, scope, myModifiableModelsProvider, myMavenProject);
+				}
+			}
+			else if("system".equals(artifact.getScope()))
+			{
+				myRootModelAdapter.addSystemDependency(artifact, scope);
+			}
+			else
+			{
+				myRootModelAdapter.addLibraryDependency(artifact, scope, myModifiableModelsProvider, myMavenProject);
+			}
+		}
 
-    for (Element artifactsElement : (List<Element>)buildHelperCfg.getChildren("artifacts")) {
-      for (Element artifactElement : (List<Element>)artifactsElement.getChildren("artifact")) {
-        String typeString = artifactElement.getChildTextTrim("type");
-        if (typeString != null && !typeString.equals("jar")) continue;
+		configSurefirePlugin();
+	}
 
-        OrderRootType rootType = OrderRootType.CLASSES;
+	private void configSurefirePlugin()
+	{
+		// Remove "maven-surefire-plugin urls" library created by previous version of IDEA.
+		// todo remove this code after 01.06.2013
+		LibraryTable moduleLibraryTable = myRootModelAdapter.getRootModel().getModuleLibraryTable();
 
-        String classifier = artifactElement.getChildTextTrim("classifier");
-        if ("sources".equals(classifier)) {
-          rootType = OrderRootType.SOURCES;
-        }
-        else if ("javadoc".equals(classifier)) {
-          rootType = OrderRootType.DOCUMENTATION;
-        }
+		Library library = moduleLibraryTable.getLibraryByName(SUREFIRE_PLUGIN_LIBRARY_NAME);
+		if(library != null)
+		{
+			moduleLibraryTable.removeLibrary(library);
+		}
+	}
 
-        String filePath = artifactElement.getChildTextTrim("file");
-        if (StringUtil.isEmpty(filePath)) continue;
+	private void addAttachArtifactDependency(@NotNull Element buildHelperCfg, @NotNull DependencyScope scope, @NotNull MavenProject mavenProject, @NotNull MavenArtifact artifact)
+	{
+		Library.ModifiableModel libraryModel = null;
 
-        VirtualFile file = VfsUtil.findRelativeFile(filePath, mavenProject.getDirectoryFile());
-        if (file == null) continue;
+		for(Element artifactsElement : (List<Element>) buildHelperCfg.getChildren("artifacts"))
+		{
+			for(Element artifactElement : (List<Element>) artifactsElement.getChildren("artifact"))
+			{
+				String typeString = artifactElement.getChildTextTrim("type");
+				if(typeString != null && !typeString.equals("jar"))
+				{
+					continue;
+				}
 
-        file = ArchiveVfsUtil.getJarRootForLocalFile(file);
-        if (file == null) continue;
+				OrderRootType rootType = OrderRootType.CLASSES;
 
-        if (libraryModel == null) {
-          String libraryName = artifact.getLibraryName();
-          assert libraryName.startsWith(MavenArtifact.MAVEN_LIB_PREFIX);
-          libraryName = MavenArtifact.MAVEN_LIB_PREFIX + "ATTACHED-JAR: " + libraryName.substring(MavenArtifact.MAVEN_LIB_PREFIX.length());
+				String classifier = artifactElement.getChildTextTrim("classifier");
+				if("sources".equals(classifier))
+				{
+					rootType = OrderRootType.SOURCES;
+				}
+				else if("javadoc".equals(classifier))
+				{
+					rootType = OrderRootType.DOCUMENTATION;
+				}
 
-          Library library = myModifiableModelsProvider.getLibraryByName(libraryName);
-          if (library == null) {
-            library = myModifiableModelsProvider.createLibrary(libraryName);
-          }
-          libraryModel = myModifiableModelsProvider.getLibraryModel(library);
+				String filePath = artifactElement.getChildTextTrim("file");
+				if(StringUtil.isEmpty(filePath))
+				{
+					continue;
+				}
 
-          LibraryOrderEntry entry = myRootModelAdapter.getRootModel().addLibraryEntry(library);
-          entry.setScope(scope);
-        }
+				VirtualFile file = VfsUtil.findRelativeFile(filePath, mavenProject.getDirectoryFile());
+				if(file == null)
+				{
+					continue;
+				}
 
-        libraryModel.addRoot(file, rootType);
-      }
-    }
-  }
+				file = ArchiveVfsUtil.getJarRootForLocalFile(file);
+				if(file == null)
+				{
+					continue;
+				}
 
-  @NotNull
-  public static DependencyScope selectScope(String mavenScope) {
-    if (MavenConstants.SCOPE_RUNTIME.equals(mavenScope)) return DependencyScope.RUNTIME;
-    if (MavenConstants.SCOPE_TEST.equals(mavenScope)) return DependencyScope.TEST;
-    if (MavenConstants.SCOPE_PROVIDEED.equals(mavenScope)) return DependencyScope.PROVIDED;
-    return DependencyScope.COMPILE;
-  }
+				if(libraryModel == null)
+				{
+					String libraryName = artifact.getLibraryName();
+					assert libraryName.startsWith(MavenArtifact.MAVEN_LIB_PREFIX);
+					libraryName = MavenArtifact.MAVEN_LIB_PREFIX + "ATTACHED-JAR: " + libraryName.substring(MavenArtifact.MAVEN_LIB_PREFIX.length());
 
-  private void configLanguageLevel() {
-    final LanguageLevel level = LanguageLevel.parse(myMavenProject.getSourceLevel());
-    myRootModelAdapter.setLanguageLevel(level);
-  }
+					Library library = myModifiableModelsProvider.getLibraryByName(libraryName);
+					if(library == null)
+					{
+						library = myModifiableModelsProvider.createLibrary(libraryName);
+					}
+					libraryModel = myModifiableModelsProvider.getLibraryModel(library);
+
+					LibraryOrderEntry entry = myRootModelAdapter.getRootModel().addLibraryEntry(library);
+					entry.setScope(scope);
+				}
+
+				libraryModel.addRoot(file, rootType);
+			}
+		}
+	}
+
+	@NotNull
+	public static DependencyScope selectScope(String mavenScope)
+	{
+		if(MavenConstants.SCOPE_RUNTIME.equals(mavenScope))
+		{
+			return DependencyScope.RUNTIME;
+		}
+		if(MavenConstants.SCOPE_TEST.equals(mavenScope))
+		{
+			return DependencyScope.TEST;
+		}
+		if(MavenConstants.SCOPE_PROVIDEED.equals(mavenScope))
+		{
+			return DependencyScope.PROVIDED;
+		}
+		return DependencyScope.COMPILE;
+	}
 }

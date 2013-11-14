@@ -28,11 +28,10 @@ import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.utils.Path;
 import org.jetbrains.idea.maven.utils.Url;
 import org.mustbe.consulo.roots.ContentFolderScopes;
+import org.mustbe.consulo.roots.ContentFolderTypeProvider;
 import org.mustbe.consulo.roots.impl.ExcludedContentFolderTypeProvider;
 import org.mustbe.consulo.roots.impl.ProductionContentFolderTypeProvider;
-import org.mustbe.consulo.roots.impl.ProductionResourceContentFolderTypeProvider;
 import org.mustbe.consulo.roots.impl.TestContentFolderTypeProvider;
-import org.mustbe.consulo.roots.impl.TestResourceContentFolderTypeProvider;
 import com.intellij.openapi.application.AccessToken;
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.module.ModifiableModuleModel;
@@ -49,425 +48,561 @@ import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.pom.java.LanguageLevel;
 import com.intellij.util.Processor;
 
-public class MavenRootModelAdapter {
+public class MavenRootModelAdapter
+{
 
-  private final MavenProject myMavenProject;
-  private final ModifiableModuleModel myModuleModel;
-  private final ModifiableRootModel myRootModel;
+	private final MavenProject myMavenProject;
+	private final ModifiableModuleModel myModuleModel;
+	private final ModifiableRootModel myRootModel;
 
-  public MavenRootModelAdapter(@NotNull MavenProject p, @NotNull Module module, final MavenModifiableModelsProvider rootModelsProvider) {
-    myMavenProject = p;
-    myModuleModel = rootModelsProvider.getModuleModel();
-    myRootModel = rootModelsProvider.getRootModel(module);
-  }
-
-  public void init(boolean isNewlyCreatedModule) {
-    setupInitialValues(isNewlyCreatedModule);
-    initContentRoots();
-    initOrderEntries();
-  }
-
-  private void setupInitialValues(boolean newlyCreatedModule) {
-    /*
-    //TODO [VISTALL] something new ?
-    if (newlyCreatedModule || myRootModel.getSdk() == null) {
-      myRootModel.inheritSdk();
-    }
-    if (newlyCreatedModule) {
-      getCompilerExtension().setExcludeOutput(true);
-    } */
-  }
-
-  private void initContentRoots() {
-    Url url = toUrl(myMavenProject.getDirectory());
-    if (getContentRootFor(url) != null) return;
-    myRootModel.addContentEntry(url.getUrl());
-  }
-
-  private ContentEntry getContentRootFor(Url url) {
-    for (ContentEntry e : myRootModel.getContentEntries()) {
-      if (isEqualOrAncestor(e.getUrl(), url.getUrl())) return e;
-    }
-    return null;
-  }
-
-  private void initOrderEntries() {
-    for (OrderEntry e : myRootModel.getOrderEntries()) {
-      if (e instanceof ModuleSourceOrderEntry || e instanceof SdkOrderEntry) continue;
-      if (e instanceof LibraryOrderEntry) {
-        if (!isMavenLibrary(((LibraryOrderEntry)e).getLibrary())) continue;
-      }
-      if (e instanceof ModuleOrderEntry) {
-        Module m = ((ModuleOrderEntry)e).getModule();
-        if (m != null && !MavenProjectsManager.getInstance(myRootModel.getProject()).isMavenizedModule(m)) continue;
-      }
-      myRootModel.removeOrderEntry(e);
-    }
-  }
-
-  public ModifiableRootModel getRootModel() {
-    return myRootModel;
-  }
-
-  public Module getModule() {
-    return myRootModel.getModule();
-  }
-
-  public void clearSourceFolders() {
-    for (ContentEntry each : myRootModel.getContentEntries())
+	public MavenRootModelAdapter(@NotNull MavenProject p, @NotNull Module module, final MavenModifiableModelsProvider rootModelsProvider)
 	{
-		for(ContentFolder contentFolder : each.getFolders(ContentFolderScopes.of(ProductionContentFolderTypeProvider.getInstance())))
+		myMavenProject = p;
+		myModuleModel = rootModelsProvider.getModuleModel();
+		myRootModel = rootModelsProvider.getRootModel(module);
+	}
+
+	public void init(boolean isNewlyCreatedModule)
+	{
+		setupInitialValues(isNewlyCreatedModule);
+		initContentRoots();
+		initOrderEntries();
+	}
+
+	private void setupInitialValues(boolean newlyCreatedModule)
+	{
+	}
+
+	private void initContentRoots()
+	{
+		Url url = toUrl(myMavenProject.getDirectory());
+		if(getContentRootFor(url) != null)
 		{
-			each.removeFolder(contentFolder);
+			return;
 		}
-    }
-  }
+		myRootModel.addContentEntry(url.getUrl());
+	}
 
-  public void addSourceFolder(String path, boolean testSource) {
-    addSourceFolder(path, testSource, false);
-  }
+	private ContentEntry getContentRootFor(Url url)
+	{
+		for(ContentEntry e : myRootModel.getContentEntries())
+		{
+			if(isEqualOrAncestor(e.getUrl(), url.getUrl()))
+			{
+				return e;
+			}
+		}
+		return null;
+	}
 
-  public void addSourceFolder(String path, boolean testSource, boolean ifNotEmpty) {
-    if (ifNotEmpty) {
-      String[] childs = new File(toPath(path).getPath()).list();
-      if (childs == null || childs.length == 0) return;
-    }
-    else {
-      if (!exists(path)) return;
-    }
+	private void initOrderEntries()
+	{
+		for(OrderEntry e : myRootModel.getOrderEntries())
+		{
+			if(e instanceof ModuleSourceOrderEntry || e instanceof SdkOrderEntry)
+			{
+				continue;
+			}
+			if(e instanceof LibraryOrderEntry)
+			{
+				if(!isMavenLibrary(((LibraryOrderEntry) e).getLibrary()))
+				{
+					continue;
+				}
+			}
+			if(e instanceof ModuleOrderEntry)
+			{
+				Module m = ((ModuleOrderEntry) e).getModule();
+				if(m != null && !MavenProjectsManager.getInstance(myRootModel.getProject()).isMavenizedModule(m))
+				{
+					continue;
+				}
+			}
+			myRootModel.removeOrderEntry(e);
+		}
+	}
 
-    Url url = toUrl(path);
-    ContentEntry e = getContentRootFor(url);
-    if (e == null) return;
-    unregisterAll(path, true, true);
-    unregisterAll(path, false, true);
-    e.addFolder(url.getUrl(), testSource ? TestContentFolderTypeProvider.getInstance() : ProductionContentFolderTypeProvider.getInstance());
-  }
+	public ModifiableRootModel getRootModel()
+	{
+		return myRootModel;
+	}
 
-  public void addSourceFolderSoft(String path, boolean testSource) {
-    if (!exists(path)) return;
+	public Module getModule()
+	{
+		return myRootModel.getModule();
+	}
 
-    Url url = toUrl(path);
-    ContentEntry e = getContentRootFor(url);
-    if (e == null) return;
+	public void clearSourceFolders()
+	{
+		for(ContentEntry each : myRootModel.getContentEntries())
+		{
+			for(ContentFolder contentFolder : each.getFolders(ContentFolderScopes.of(ProductionContentFolderTypeProvider.getInstance())))
+			{
+				each.removeFolder(contentFolder);
+			}
+		}
+	}
 
-    if (!hasCollision(path)) {
-      e.addFolder(url.getUrl(), testSource ? ProductionContentFolderTypeProvider.getInstance() : TestContentFolderTypeProvider.getInstance());
-    }
-  }
+	public void addSourceFolder(String path, ContentFolderTypeProvider contentFolderTypeProvider)
 
-  public boolean hasRegisteredSourceSubfolder(File f) {
-    String url = toUrl(f.getPath()).getUrl();
-    for (ContentEntry eachEntry : myRootModel.getContentEntries()) {
-      for (ContentFolder eachFolder : eachEntry.getFolders(ContentFolderScopes.of(ProductionContentFolderTypeProvider.getInstance()))) {
-        if (isEqualOrAncestor(url, eachFolder.getUrl())) return true;
-      }
-    }
-    return false;
-  }
+	{
+		addSourceFolder(path, contentFolderTypeProvider, false);
+	}
 
-  public boolean isAlreadyExcluded(File f) {
-    String url = toUrl(f.getPath()).getUrl();
-    for (ContentEntry eachEntry : myRootModel.getContentEntries()) {
-      for (ContentFolder eachFolder : eachEntry.getFolders(ContentFolderScopes.excluded())) {
-        if (isEqualOrAncestor(eachFolder.getUrl(), url)) return true;
-      }
-    }
-    return false;
-  }
+	public void addSourceFolder(String path, ContentFolderTypeProvider contentFolderTypeProvider, boolean ifNotEmpty)
+	{
+		if(ifNotEmpty)
+		{
+			String[] childs = new File(toPath(path).getPath()).list();
+			if(childs == null || childs.length == 0)
+			{
+				return;
+			}
+		}
+		else
+		{
+			if(!exists(path))
+			{
+				return;
+			}
+		}
 
-  public static boolean isEqualOrAncestor(String ancestor, String child) {
-    return ancestor.equals(child) || StringUtil.startsWithConcatenationOf(child, ancestor, "/");
-  }
+		Url url = toUrl(path);
+		ContentEntry e = getContentRootFor(url);
+		if(e == null)
+		{
+			return;
+		}
+		unregisterAll(path, true, true);
+		unregisterAll(path, false, true);
+		e.addFolder(url.getUrl(), contentFolderTypeProvider);
+	}
 
-  private boolean exists(String path) {
-    return new File(toPath(path).getPath()).exists();
-  }
+	public void addSourceFolderSoft(String path, boolean testSource)
+	{
+		if(!exists(path))
+		{
+			return;
+		}
 
-  public void addExcludedFolder(String path) {
-    unregisterAll(path, true, false);
-    Url url = toUrl(path);
-    ContentEntry e = getContentRootFor(url);
-    if (e == null) return;
-    if (e.getUrl().equals(url.getUrl())) return;
-    e.addFolder(url.getUrl(), ExcludedContentFolderTypeProvider.getInstance());
-  }
+		Url url = toUrl(path);
+		ContentEntry e = getContentRootFor(url);
+		if(e == null)
+		{
+			return;
+		}
 
-  public void unregisterAll(String path, boolean under, boolean unregisterSources) {
-    Url url = toUrl(path);
+		if(!hasCollision(path))
+		{
+			e.addFolder(url.getUrl(), testSource ? ProductionContentFolderTypeProvider.getInstance() : TestContentFolderTypeProvider.getInstance());
+		}
+	}
 
-    for (ContentEntry eachEntry : myRootModel.getContentEntries()) {
-      if (unregisterSources) {
-        for (ContentFolder eachFolder : eachEntry.getFolders(ContentFolderScopes.of(ProductionContentFolderTypeProvider.getInstance()))) {
-          String ancestor = under ? url.getUrl() : eachFolder.getUrl();
-          String child = under ? eachFolder.getUrl() : url.getUrl();
-          if (isEqualOrAncestor(ancestor, child)) {
-            eachEntry.removeFolder(eachFolder);
-          }
-        }
-      }
+	public boolean hasRegisteredSourceSubfolder(File f)
+	{
+		String url = toUrl(f.getPath()).getUrl();
+		for(ContentEntry eachEntry : myRootModel.getContentEntries())
+		{
+			for(ContentFolder eachFolder : eachEntry.getFolders(ContentFolderScopes.of(ProductionContentFolderTypeProvider.getInstance())))
+			{
+				if(isEqualOrAncestor(url, eachFolder.getUrl()))
+				{
+					return true;
+				}
+			}
+		}
+		return false;
+	}
 
-      for (ContentFolder eachFolder : eachEntry.getFolders(ContentFolderScopes.excluded())) {
-        String ancestor = under ? url.getUrl() : eachFolder.getUrl();
-        String child = under ? eachFolder.getUrl() : url.getUrl();
+	public boolean isAlreadyExcluded(File f)
+	{
+		String url = toUrl(f.getPath()).getUrl();
+		for(ContentEntry eachEntry : myRootModel.getContentEntries())
+		{
+			for(ContentFolder eachFolder : eachEntry.getFolders(ContentFolderScopes.excluded()))
+			{
+				if(isEqualOrAncestor(eachFolder.getUrl(), url))
+				{
+					return true;
+				}
+			}
+		}
+		return false;
+	}
 
-        if (isEqualOrAncestor(ancestor, child)) {
-          if (eachFolder.isSynthetic()) {
-            CompilerPathsManager compilerPathsManager = CompilerPathsManager.getInstance(myRootModel.getProject());
-            compilerPathsManager.setExcludeOutput(getModule(), false);
-          }
-          else {
-            eachEntry.removeFolder(eachFolder);
-          }
-        }
-      }
-    }
-  }
+	public static boolean isEqualOrAncestor(String ancestor, String child)
+	{
+		return ancestor.equals(child) || StringUtil.startsWithConcatenationOf(child, ancestor, "/");
+	}
 
-  public boolean hasCollision(String sourceRootPath) {
-    Url url = toUrl(sourceRootPath);
+	private boolean exists(String path)
+	{
+		return new File(toPath(path).getPath()).exists();
+	}
 
-    for (ContentEntry eachEntry : myRootModel.getContentEntries()) {
-      for (ContentFolder eachFolder : eachEntry.getFolders(ContentFolderScopes.of(ProductionContentFolderTypeProvider.getInstance()))) {
-        String ancestor = url.getUrl();
-        String child = eachFolder.getUrl();
-        if (isEqualOrAncestor(ancestor, child) || isEqualOrAncestor(child, ancestor)) {
-          return true;
-        }
-      }
+	public void addExcludedFolder(String path)
+	{
+		unregisterAll(path, true, false);
+		Url url = toUrl(path);
+		ContentEntry e = getContentRootFor(url);
+		if(e == null)
+		{
+			return;
+		}
+		if(e.getUrl().equals(url.getUrl()))
+		{
+			return;
+		}
+		e.addFolder(url.getUrl(), ExcludedContentFolderTypeProvider.getInstance());
+	}
 
-      for (ContentFolder eachFolder : eachEntry.getFolders(ContentFolderScopes.excluded())) {
-        String ancestor = url.getUrl();
-        String child = eachFolder.getUrl();
+	public void unregisterAll(String path, boolean under, boolean unregisterSources)
+	{
+		Url url = toUrl(path);
 
-        if (isEqualOrAncestor(ancestor, child) || isEqualOrAncestor(child, ancestor)) {
-          return true;
-        }
-      }
-    }
+		for(ContentEntry eachEntry : myRootModel.getContentEntries())
+		{
+			if(unregisterSources)
+			{
+				for(ContentFolder eachFolder : eachEntry.getFolders(ContentFolderScopes.of(ProductionContentFolderTypeProvider.getInstance())))
+				{
+					String ancestor = under ? url.getUrl() : eachFolder.getUrl();
+					String child = under ? eachFolder.getUrl() : url.getUrl();
+					if(isEqualOrAncestor(ancestor, child))
+					{
+						eachEntry.removeFolder(eachFolder);
+					}
+				}
+			}
 
-    return false;
-  }
+			for(ContentFolder eachFolder : eachEntry.getFolders(ContentFolderScopes.excluded()))
+			{
+				String ancestor = under ? url.getUrl() : eachFolder.getUrl();
+				String child = under ? eachFolder.getUrl() : url.getUrl();
 
-  public void useModuleOutput(String production, String test) {
-    CompilerPathsManager compilerPathsManager = CompilerPathsManager.getInstance(myRootModel.getProject());
+				if(isEqualOrAncestor(ancestor, child))
+				{
+					if(eachFolder.isSynthetic())
+					{
+						CompilerPathsManager compilerPathsManager = CompilerPathsManager.getInstance(myRootModel.getProject());
+						compilerPathsManager.setExcludeOutput(getModule(), false);
+					}
+					else
+					{
+						eachEntry.removeFolder(eachFolder);
+					}
+				}
+			}
+		}
+	}
 
-    compilerPathsManager.setInheritedCompilerOutput(getModule(), false);
-    compilerPathsManager.setCompilerOutputUrl(getModule(), ProductionContentFolderTypeProvider.getInstance(), toUrl(production).getUrl());
-    compilerPathsManager.setCompilerOutputUrl(getModule(), ProductionResourceContentFolderTypeProvider.getInstance(), toUrl(production).getUrl());
-    compilerPathsManager.setCompilerOutputUrl(getModule(), TestContentFolderTypeProvider.getInstance(), toUrl(test).getUrl());
-    compilerPathsManager.setCompilerOutputUrl(getModule(), TestResourceContentFolderTypeProvider.getInstance(), toUrl(test).getUrl());
-    compilerPathsManager.setInheritedCompilerOutput(getModule(), false);
-  }
+	public boolean hasCollision(String sourceRootPath)
+	{
+		Url url = toUrl(sourceRootPath);
 
-  private Url toUrl(String path) {
-    return toPath(path).toUrl();
-  }
+		for(ContentEntry eachEntry : myRootModel.getContentEntries())
+		{
+			for(ContentFolder eachFolder : eachEntry.getFolders(ContentFolderScopes.of(ProductionContentFolderTypeProvider.getInstance())))
+			{
+				String ancestor = url.getUrl();
+				String child = eachFolder.getUrl();
+				if(isEqualOrAncestor(ancestor, child) || isEqualOrAncestor(child, ancestor))
+				{
+					return true;
+				}
+			}
 
-  public Path toPath(String path) {
-    if (!FileUtil.isAbsolute(path)) {
-      path = new File(myMavenProject.getDirectory(), path).getPath();
-    }
-    return new Path(path);
-  }
+			for(ContentFolder eachFolder : eachEntry.getFolders(ContentFolderScopes.excluded()))
+			{
+				String ancestor = url.getUrl();
+				String child = eachFolder.getUrl();
 
-  public void addModuleDependency(@NotNull String moduleName,
-                                  @NotNull DependencyScope scope,
-                                  boolean testJar) {
-    Module m = findModuleByName(moduleName);
+				if(isEqualOrAncestor(ancestor, child) || isEqualOrAncestor(child, ancestor))
+				{
+					return true;
+				}
+			}
+		}
 
-    ModuleOrderEntry e;
-    if (m != null) {
-      e = myRootModel.addModuleOrderEntry(m);
-    }
-    else {
-      AccessToken accessToken = ReadAction.start();
-      try {
-        e = myRootModel.addInvalidModuleEntry(moduleName);
-      }
-      finally {
-        accessToken.finish();
-      }
-    }
+		return false;
+	}
 
-    e.setScope(scope);
-    if (testJar) {
-      ((ModuleOrderEntryImpl)e).setProductionOnTestDependency(true);
-    }
-  }
+	public void useModuleOutput(String production, String test)
+	{
+		CompilerPathsManager compilerPathsManager = CompilerPathsManager.getInstance(myRootModel.getProject());
 
-  @Nullable
-  public Module findModuleByName(String moduleName) {
-    return myModuleModel.findModuleByName(moduleName);
-  }
+		compilerPathsManager.setInheritedCompilerOutput(getModule(), false);
 
-  public void addSystemDependency(MavenArtifact artifact, DependencyScope scope) {
-    assert MavenConstants.SCOPE_SYSTEM.equals(artifact.getScope());
+		compilerPathsManager.setCompilerOutputUrl(getModule(), ProductionContentFolderTypeProvider.getInstance(), toUrl(production).getUrl());
+		compilerPathsManager.setCompilerOutputUrl(getModule(), TestContentFolderTypeProvider.getInstance(), toUrl(test).getUrl());
 
-    String libraryName = artifact.getLibraryName();
+		compilerPathsManager.setInheritedCompilerOutput(getModule(), false);
+	}
 
-    Library library = myRootModel.getModuleLibraryTable().getLibraryByName(libraryName);
-    if (library == null) {
-      library = myRootModel.getModuleLibraryTable().createLibrary(libraryName);
-    }
+	private Url toUrl(String path)
+	{
+		return toPath(path).toUrl();
+	}
 
-    LibraryOrderEntry orderEntry = myRootModel.findLibraryOrderEntry(library);
-    assert orderEntry != null;
-    orderEntry.setScope(scope);
+	public Path toPath(String path)
+	{
+		if(!FileUtil.isAbsolute(path))
+		{
+			path = new File(myMavenProject.getDirectory(), path).getPath();
+		}
+		return new Path(path);
+	}
 
-    Library.ModifiableModel modifiableModel = library.getModifiableModel();
-    updateUrl(modifiableModel, OrderRootType.CLASSES, artifact, null, null, true);
-    modifiableModel.commit();
-  }
+	public void addModuleDependency(@NotNull String moduleName, @NotNull DependencyScope scope, boolean testJar)
+	{
+		Module m = findModuleByName(moduleName);
 
-  public void addLibraryDependency(MavenArtifact artifact,
-                                   DependencyScope scope,
-                                   MavenModifiableModelsProvider provider,
-                                   MavenProject project) {
-    assert !MavenConstants.SCOPE_SYSTEM.equals(artifact.getScope()); // System dependencies must be added ad module library, not as project wide library.
+		ModuleOrderEntry e;
+		if(m != null)
+		{
+			e = myRootModel.addModuleOrderEntry(m);
+		}
+		else
+		{
+			AccessToken accessToken = ReadAction.start();
+			try
+			{
+				e = myRootModel.addInvalidModuleEntry(moduleName);
+			}
+			finally
+			{
+				accessToken.finish();
+			}
+		}
 
-    String libraryName = artifact.getLibraryName();
+		e.setScope(scope);
+		if(testJar)
+		{
+			((ModuleOrderEntryImpl) e).setProductionOnTestDependency(true);
+		}
+	}
 
-    Library library = provider.getLibraryByName(libraryName);
-    if (library == null) {
-      library = provider.createLibrary(libraryName);
-    }
-    Library.ModifiableModel libraryModel = provider.getLibraryModel(library);
+	@Nullable
+	public Module findModuleByName(String moduleName)
+	{
+		return myModuleModel.findModuleByName(moduleName);
+	}
 
-    updateUrl(libraryModel, OrderRootType.CLASSES, artifact, null, null, true);
-    updateUrl(libraryModel, OrderRootType.SOURCES, artifact, MavenExtraArtifactType.SOURCES, project, false);
-    updateUrl(libraryModel, OrderRootType.DOCUMENTATION, artifact, MavenExtraArtifactType.DOCS, project, false);
+	public void addSystemDependency(MavenArtifact artifact, DependencyScope scope)
+	{
+		assert MavenConstants.SCOPE_SYSTEM.equals(artifact.getScope());
 
-    LibraryOrderEntry e = myRootModel.addLibraryEntry(library);
-    e.setScope(scope);
-  }
+		String libraryName = artifact.getLibraryName();
 
-  private static void updateUrl(Library.ModifiableModel library,
-                                OrderRootType type,
-                                MavenArtifact artifact,
-                                MavenExtraArtifactType artifactType,
-                                MavenProject project,
-                                boolean clearAll) {
-    String classifier = null;
-    String extension = null;
+		Library library = myRootModel.getModuleLibraryTable().getLibraryByName(libraryName);
+		if(library == null)
+		{
+			library = myRootModel.getModuleLibraryTable().createLibrary(libraryName);
+		}
 
-    if (artifactType != null) {
-      Pair<String, String> result = project.getClassifierAndExtension(artifact, artifactType);
-      classifier = result.first;
-      extension = result.second;
-    }
+		LibraryOrderEntry orderEntry = myRootModel.findLibraryOrderEntry(library);
+		assert orderEntry != null;
+		orderEntry.setScope(scope);
+
+		Library.ModifiableModel modifiableModel = library.getModifiableModel();
+		updateUrl(modifiableModel, OrderRootType.CLASSES, artifact, null, null, true);
+		modifiableModel.commit();
+	}
+
+	public void addLibraryDependency(MavenArtifact artifact, DependencyScope scope, MavenModifiableModelsProvider provider, MavenProject project)
+	{
+		assert !MavenConstants.SCOPE_SYSTEM.equals(artifact.getScope()); // System dependencies must be added ad module library, not as project wide library.
+
+		String libraryName = artifact.getLibraryName();
+
+		Library library = provider.getLibraryByName(libraryName);
+		if(library == null)
+		{
+			library = provider.createLibrary(libraryName);
+		}
+		Library.ModifiableModel libraryModel = provider.getLibraryModel(library);
+
+		updateUrl(libraryModel, OrderRootType.CLASSES, artifact, null, null, true);
+		updateUrl(libraryModel, OrderRootType.SOURCES, artifact, MavenExtraArtifactType.SOURCES, project, false);
+		updateUrl(libraryModel, OrderRootType.DOCUMENTATION, artifact, MavenExtraArtifactType.DOCS, project, false);
+
+		LibraryOrderEntry e = myRootModel.addLibraryEntry(library);
+		e.setScope(scope);
+	}
+
+	private static void updateUrl(Library.ModifiableModel library, OrderRootType type, MavenArtifact artifact, MavenExtraArtifactType artifactType, MavenProject project, boolean clearAll)
+	{
+		String classifier = null;
+		String extension = null;
+
+		if(artifactType != null)
+		{
+			Pair<String, String> result = project.getClassifierAndExtension(artifact, artifactType);
+			classifier = result.first;
+			extension = result.second;
+		}
 
 
-    String newPath = artifact.getPathForExtraArtifact(classifier, extension);
-    String newUrl = VirtualFileManager.constructUrl(JarFileSystem.PROTOCOL, newPath) + JarFileSystem.JAR_SEPARATOR;
+		String newPath = artifact.getPathForExtraArtifact(classifier, extension);
+		String newUrl = VirtualFileManager.constructUrl(JarFileSystem.PROTOCOL, newPath) + JarFileSystem.JAR_SEPARATOR;
 
-    boolean urlExists = false;
+		boolean urlExists = false;
 
-    for (String url : library.getUrls(type)) {
-      if (newUrl.equals(url)) {
-        urlExists = true;
-        continue;
-      }
-      if (clearAll || isRepositoryUrl(artifact, url)) {
-        library.removeRoot(url, type);
-      }
-    }
+		for(String url : library.getUrls(type))
+		{
+			if(newUrl.equals(url))
+			{
+				urlExists = true;
+				continue;
+			}
+			if(clearAll || isRepositoryUrl(artifact, url))
+			{
+				library.removeRoot(url, type);
+			}
+		}
 
-    if (!urlExists) {
-      library.addRoot(newUrl, type);
-    }
-  }
+		if(!urlExists)
+		{
+			library.addRoot(newUrl, type);
+		}
+	}
 
-  private static boolean isRepositoryUrl(MavenArtifact artifact, String url) {
-    return url.contains(artifact.getGroupId().replace('.', '/') + '/' + artifact.getArtifactId() + '/' + artifact.getBaseVersion() + '/' + artifact.getArtifactId() + '-');
-  }
+	private static boolean isRepositoryUrl(MavenArtifact artifact, String url)
+	{
+		return url.contains(artifact.getGroupId().replace('.', '/') + '/' + artifact.getArtifactId() + '/' + artifact.getBaseVersion() + '/' + artifact.getArtifactId() + '-');
+	}
 
-  public static boolean isChangedByUser(Library library) {
-    String[] classRoots = library.getUrls(OrderRootType.CLASSES);
-    if (classRoots.length != 1) return true;
+	public static boolean isChangedByUser(Library library)
+	{
+		String[] classRoots = library.getUrls(OrderRootType.CLASSES);
+		if(classRoots.length != 1)
+		{
+			return true;
+		}
 
-    String classes = classRoots[0];
+		String classes = classRoots[0];
 
-    if (!classes.endsWith("!/")) return true;
+		if(!classes.endsWith("!/"))
+		{
+			return true;
+		}
 
-    int dotPos = classes.lastIndexOf("/", classes.length() - 2 /* trim ending !/ */);
-    if (dotPos == -1) return true;
-    String pathToJar = classes.substring(0, dotPos);
+		int dotPos = classes.lastIndexOf("/", classes.length() - 2 /* trim ending !/ */);
+		if(dotPos == -1)
+		{
+			return true;
+		}
+		String pathToJar = classes.substring(0, dotPos);
 
-    if (hasUserPaths(OrderRootType.SOURCES, library, pathToJar)) return true;
-    if (hasUserPaths(OrderRootType.DOCUMENTATION, library, pathToJar)) return true;
+		if(hasUserPaths(OrderRootType.SOURCES, library, pathToJar))
+		{
+			return true;
+		}
+		if(hasUserPaths(OrderRootType.DOCUMENTATION, library, pathToJar))
+		{
+			return true;
+		}
 
-    return false;
-  }
+		return false;
+	}
 
-  private static boolean hasUserPaths(OrderRootType rootType, Library library, String pathToJar) {
-    String[] sources = library.getUrls(rootType);
-    for (String each : sources) {
-      if (!FileUtil.startsWith(each, pathToJar)) return true;
-    }
-    return false;
-  }
+	private static boolean hasUserPaths(OrderRootType rootType, Library library, String pathToJar)
+	{
+		String[] sources = library.getUrls(rootType);
+		for(String each : sources)
+		{
+			if(!FileUtil.startsWith(each, pathToJar))
+			{
+				return true;
+			}
+		}
+		return false;
+	}
 
-  public Library findLibrary(@NotNull final MavenArtifact artifact) {
-    final String name = artifact.getLibraryName();
-    final Ref<Library> result = Ref.create(null);
-    myRootModel.orderEntries().forEachLibrary(new Processor<Library>() {
-      @Override
-      public boolean process(Library library) {
-        if (name.equals(library.getName())) {
-          result.set(library);
-        }
-        return true;
-      }
-    });
-    return result.get();
-  }
+	public Library findLibrary(@NotNull final MavenArtifact artifact)
+	{
+		final String name = artifact.getLibraryName();
+		final Ref<Library> result = Ref.create(null);
+		myRootModel.orderEntries().forEachLibrary(new Processor<Library>()
+		{
+			@Override
+			public boolean process(Library library)
+			{
+				if(name.equals(library.getName()))
+				{
+					result.set(library);
+				}
+				return true;
+			}
+		});
+		return result.get();
+	}
 
-  @Deprecated // Use artifact.getLibraryName();
-  public static String makeLibraryName(@NotNull MavenArtifact artifact) {
-    return artifact.getLibraryName();
-  }
+	@Deprecated // Use artifact.getLibraryName();
+	public static String makeLibraryName(@NotNull MavenArtifact artifact)
+	{
+		return artifact.getLibraryName();
+	}
 
-  public static boolean isMavenLibrary(@Nullable Library library) {
-    return library != null && MavenArtifact.isMavenLibrary(library.getName());
-  }
+	public static boolean isMavenLibrary(@Nullable Library library)
+	{
+		return library != null && MavenArtifact.isMavenLibrary(library.getName());
+	}
 
-  @Nullable
-  public static OrderEntry findLibraryEntry(@NotNull Module m, @NotNull MavenArtifact artifact) {
-    String name = artifact.getLibraryName();
-    for (OrderEntry each : ModuleRootManager.getInstance(m).getOrderEntries()) {
-      if (each instanceof LibraryOrderEntry && name.equals(((LibraryOrderEntry)each).getLibraryName())) {
-        return each;
-      }
-    }
-    return null;
-  }
+	@Nullable
+	public static OrderEntry findLibraryEntry(@NotNull Module m, @NotNull MavenArtifact artifact)
+	{
+		String name = artifact.getLibraryName();
+		for(OrderEntry each : ModuleRootManager.getInstance(m).getOrderEntries())
+		{
+			if(each instanceof LibraryOrderEntry && name.equals(((LibraryOrderEntry) each).getLibraryName()))
+			{
+				return each;
+			}
+		}
+		return null;
+	}
 
-  @Nullable
-  public static MavenArtifact findArtifact(@NotNull MavenProject project, @Nullable Library library) {
-    if (library == null) return null;
+	@Nullable
+	public static MavenArtifact findArtifact(@NotNull MavenProject project, @Nullable Library library)
+	{
+		if(library == null)
+		{
+			return null;
+		}
 
-    String name = library.getName();
+		String name = library.getName();
 
-    if (!MavenArtifact.isMavenLibrary(name)) return null;
+		if(!MavenArtifact.isMavenLibrary(name))
+		{
+			return null;
+		}
 
-    for (MavenArtifact each : project.getDependencies()) {
-      if (each.getLibraryName().equals(name)) return each;
-    }
-    return null;
-  }
+		for(MavenArtifact each : project.getDependencies())
+		{
+			if(each.getLibraryName().equals(name))
+			{
+				return each;
+			}
+		}
+		return null;
+	}
 
-  public void setLanguageLevel(LanguageLevel level) {
-    try {
-      if(level == null) {
-        return;
-      }
-      final JavaMutableModuleExtensionImpl extension = myRootModel.getExtension(JavaMutableModuleExtensionImpl.class);
-      assert extension != null;
-      extension.getInheritableLanguageLevel().set(null, level.name());
-    }
-    catch (IllegalArgumentException e) {
-      //bad value was stored
-    }
-  }
+	public void setLanguageLevel(LanguageLevel level)
+	{
+		try
+		{
+			if(level == null)
+			{
+				return;
+			}
+			final JavaMutableModuleExtensionImpl extension = myRootModel.getExtension(JavaMutableModuleExtensionImpl.class);
+			assert extension != null;
+			extension.getInheritableLanguageLevel().set(null, level.name());
+		}
+		catch(IllegalArgumentException e)
+		{
+			//bad value was stored
+		}
+	}
 }

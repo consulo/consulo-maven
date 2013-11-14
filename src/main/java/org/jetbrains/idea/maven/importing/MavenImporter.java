@@ -15,98 +15,142 @@
  */
 package org.jetbrains.idea.maven.importing;
 
-import com.intellij.openapi.extensions.ExtensionPointName;
-import com.intellij.openapi.module.Module;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.roots.ModifiableRootModel;
-import com.intellij.openapi.util.Pair;
-import org.consulo.module.extension.ModuleExtension;
-import org.consulo.module.extension.MutableModuleExtension;
-import org.jetbrains.annotations.Nullable;
-import org.jetbrains.idea.maven.model.MavenArtifact;
-import org.jetbrains.idea.maven.project.*;
-import org.jetbrains.idea.maven.server.MavenEmbedderWrapper;
-import org.jetbrains.idea.maven.server.NativeMavenProjectHolder;
-import org.jetbrains.idea.maven.utils.MavenProcessCanceledException;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-public abstract class MavenImporter {
-  public static ExtensionPointName<MavenImporter> EXTENSION_POINT_NAME = ExtensionPointName.create("org.jetbrains.idea.maven.importer");
+import org.consulo.module.extension.ModuleExtension;
+import org.consulo.module.extension.MutableModuleExtension;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.idea.maven.model.MavenArtifact;
+import org.jetbrains.idea.maven.project.MavenProject;
+import org.jetbrains.idea.maven.project.MavenProjectChanges;
+import org.jetbrains.idea.maven.project.MavenProjectsProcessorTask;
+import org.jetbrains.idea.maven.project.MavenProjectsTree;
+import org.jetbrains.idea.maven.project.SupportedRequestType;
+import org.jetbrains.idea.maven.server.MavenEmbedderWrapper;
+import org.jetbrains.idea.maven.server.NativeMavenProjectHolder;
+import org.jetbrains.idea.maven.utils.MavenProcessCanceledException;
+import org.mustbe.consulo.roots.ContentFolderTypeProvider;
+import org.mustbe.consulo.roots.impl.ProductionContentFolderTypeProvider;
+import org.mustbe.consulo.roots.impl.TestContentFolderTypeProvider;
+import com.intellij.openapi.extensions.ExtensionPointName;
+import com.intellij.openapi.module.Module;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.roots.ModifiableRootModel;
+import com.intellij.openapi.util.Pair;
+import com.intellij.util.SmartList;
+import com.intellij.util.containers.MultiMap;
+import lombok.val;
+
+public abstract class MavenImporter
+{
+	public static ExtensionPointName<MavenImporter> EXTENSION_POINT_NAME = ExtensionPointName.create("org.jetbrains.idea.maven.importer");
 
 
-  public static List<MavenImporter> getSuitableImporters(MavenProject p) {
-    final List<MavenImporter> result = new ArrayList<MavenImporter>();
-    for (MavenImporter importer : EXTENSION_POINT_NAME.getExtensions()) {
-      if (importer.isApplicable(p)) {
-        result.add(importer);
-      }
-    }
-    return result;
-  }
+	public static List<MavenImporter> getSuitableImporters(MavenProject p)
+	{
+		final List<MavenImporter> result = new ArrayList<MavenImporter>();
+		for(MavenImporter importer : EXTENSION_POINT_NAME.getExtensions())
+		{
+			if(importer.isApplicable(p))
+			{
+				result.add(importer);
+			}
+		}
+		return result;
+	}
 
-  public abstract boolean isApplicable(MavenProject mavenProject);
+	public abstract boolean isApplicable(MavenProject mavenProject);
 
-  public void getSupportedPackagings(Collection <String> result) {
-  }
+	public void getSupportedPackagings(Collection<String> result)
+	{
+	}
 
-  public void getSupportedDependencyTypes(Collection<String> result, SupportedRequestType type) {
-  }
+	public void getSupportedDependencyTypes(Collection<String> result, SupportedRequestType type)
+	{
+	}
 
-  public void getSupportedDependencyScopes(Collection<String> result) {
-  }
+	public void getSupportedDependencyScopes(Collection<String> result)
+	{
+	}
 
-  @Nullable
-  public Pair<String, String> getExtraArtifactClassifierAndExtension(MavenArtifact artifact, MavenExtraArtifactType type) {
-    return null;
-  }
+	@Nullable
+	public Pair<String, String> getExtraArtifactClassifierAndExtension(MavenArtifact artifact, MavenExtraArtifactType type)
+	{
+		return null;
+	}
 
-  public void resolve(Project project,
-                      MavenProject mavenProject,
-                      NativeMavenProjectHolder nativeMavenProject,
-                      MavenEmbedderWrapper embedder) throws MavenProcessCanceledException {
-  }
+	public void resolve(Project project, MavenProject mavenProject, NativeMavenProjectHolder nativeMavenProject, MavenEmbedderWrapper embedder) throws MavenProcessCanceledException
+	{
+	}
 
-  public abstract void preProcess(Module module,
-                                  MavenProject mavenProject,
-                                  MavenProjectChanges changes,
-                                  MavenModifiableModelsProvider modifiableModelsProvider);
+	public abstract void preProcess(Module module, MavenProject mavenProject, MavenProjectChanges changes, MavenModifiableModelsProvider modifiableModelsProvider);
 
-  public abstract void process(MavenModifiableModelsProvider modifiableModelsProvider,
-                               Module module,
-                               MavenRootModelAdapter rootModel,
-                               MavenProjectsTree mavenModel,
-                               MavenProject mavenProject,
-                               MavenProjectChanges changes,
-                               Map<MavenProject, String> mavenProjectToModuleName,
-                               List<MavenProjectsProcessorTask> postTasks);
+	public abstract void process(MavenModifiableModelsProvider modifiableModelsProvider, Module module, MavenRootModelAdapter rootModel, MavenProjectsTree mavenModel, MavenProject mavenProject, MavenProjectChanges changes, Map<MavenProject, String> mavenProjectToModuleName, List<MavenProjectsProcessorTask> postTasks);
 
-  @SuppressWarnings("unchecked")
-  public <T extends ModuleExtension<T>> T enableModuleExtension(Module module,
-                                                                MavenModifiableModelsProvider modelsProvider,
-                                                                Class<T> clazz) {
-    final ModifiableRootModel rootModel = modelsProvider.getRootModel(module);
+	@SuppressWarnings("unchecked")
+	public <T extends ModuleExtension<T>> T enableModuleExtension(Module module, MavenModifiableModelsProvider modelsProvider, Class<T> clazz)
+	{
+		final ModifiableRootModel rootModel = modelsProvider.getRootModel(module);
 
-    final MutableModuleExtension<T> extensionWithoutCheck = (MutableModuleExtension<T>) rootModel.getExtensionWithoutCheck(clazz);
+		final MutableModuleExtension<T> extensionWithoutCheck = (MutableModuleExtension<T>) rootModel.getExtensionWithoutCheck(clazz);
 
-    extensionWithoutCheck.setEnabled(true);
+		extensionWithoutCheck.setEnabled(true);
 
-    return (T)extensionWithoutCheck;
-  }
+		return (T) extensionWithoutCheck;
+	}
 
-  public boolean processChangedModulesOnly() {
-    return true;
-  }
+	public boolean processChangedModulesOnly()
+	{
+		return true;
+	}
 
-  public void collectSourceFolders(MavenProject mavenProject, List<String> result) {
-  }
+	public void collectContentFolders(MavenProject mavenProject, MultiMap<ContentFolderTypeProvider, String> result)
+	{
+		val list = new SmartList<String>();
 
-  public void collectTestFolders(MavenProject mavenProject, List<String> result) {
-  }
+		collectSourceFolders(mavenProject, list);
 
-  public void collectExcludedFolders(MavenProject mavenProject, List<String> result) {
-  }
+		for(String s : list)
+		{
+			result.putValue(ProductionContentFolderTypeProvider.getInstance(), s);
+		}
+
+		list.clear();
+
+		collectTestFolders(mavenProject, list);
+
+		for(String s : list)
+		{
+			result.putValue(TestContentFolderTypeProvider.getInstance(), s);
+		}
+
+		list.clear();
+
+		/*collectExcludedFolders(mavenProject, list);
+
+		for(String s : list)
+		{
+			result.putValue(ExcludedContentFolderTypeProvider.getInstance(), s);
+		}
+
+		list.clear();  */
+	}
+
+	@Deprecated
+	public void collectSourceFolders(MavenProject mavenProject, List<String> result)
+	{
+	}
+
+	@Deprecated
+	public void collectTestFolders(MavenProject mavenProject, List<String> result)
+	{
+	}
+
+	//@Deprecated
+	public void collectExcludedFolders(MavenProject mavenProject, List<String> result)
+	{
+	}
 }
