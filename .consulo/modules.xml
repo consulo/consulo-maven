@@ -3,9 +3,9 @@
   <component name="ModuleManager">
     <modules>
       <module name="consulo-maven" dirurl="file://$PROJECT_DIR$">
+        <extension id="consulo-plugin" sdk-module-name="" sdk-name="Consulo 1.SNAPSHOT" custom-plugin-dir-url="file://$MODULE_DIR$/dep" />
         <extension id="java" sdk-module-name="" sdk-name="1.6" language-level-module-name="" language-level-name="JDK_1_6" special-dir-location="SOURCE_DIR" />
         <extension id="lombok" />
-        <extension id="consulo-plugin" sdk-module-name="" sdk-name="Consulo 1.SNAPSHOT" custom-plugin-dir-url="file://$MODULE_DIR$/dep" />
         <content url="file://$MODULE_DIR$">
           <content-folder type="PRODUCTION" url="file://$MODULE_DIR$/src/main/java" />
           <content-folder type="PRODUCTION_RESOURCE" url="file://$MODULE_DIR$/src/main/resources" />
@@ -72,8 +72,8 @@
         <orderEntry type="module" module-name="artifact-resolver-m3" />
       </module>
       <module name="maven-server-api" dirurl="file://$PROJECT_DIR$/maven-server-api">
-        <extension id="java" sdk-module-name="consulo-maven" sdk-name="" language-level-module-name="consulo-maven" language-level-name="" special-dir-location="SOURCE_DIR" />
         <extension id="consulo-plugin" sdk-module-name="consulo-maven" sdk-name="" />
+        <extension id="java" sdk-module-name="consulo-maven" sdk-name="" language-level-module-name="consulo-maven" language-level-name="" special-dir-location="SOURCE_DIR" />
         <content url="file://$MODULE_DIR$">
           <content-folder type="PRODUCTION" url="file://$MODULE_DIR$/src" />
         </content>
@@ -91,8 +91,8 @@
         </orderEntry>
       </module>
       <module name="artifact-resolver-m2" dirurl="file://$PROJECT_DIR$/artifact-resolver-m2">
-        <extension id="java" sdk-module-name="consulo-maven" sdk-name="" language-level-module-name="consulo-maven" language-level-name="" special-dir-location="MODULE_DIR" />
         <extension id="consulo-plugin" sdk-module-name="consulo-maven" sdk-name="" />
+        <extension id="java" sdk-module-name="consulo-maven" sdk-name="" language-level-module-name="consulo-maven" language-level-name="" special-dir-location="MODULE_DIR" />
         <content url="file://$MODULE_DIR$">
           <content-folder type="PRODUCTION" url="file://$MODULE_DIR$/src" />
           <content-folder type="PRODUCTION_RESOURCE" url="file://$MODULE_DIR$/resources" />
@@ -103,8 +103,8 @@
         <orderEntry type="library" name="Maven2" level="project" />
       </module>
       <module name="maven2-server-impl" dirurl="file://$PROJECT_DIR$/maven2-server-impl">
-        <extension id="java" sdk-module-name="consulo-maven" sdk-name="" language-level-module-name="consulo-maven" language-level-name="" special-dir-location="SOURCE_DIR" />
         <extension id="consulo-plugin" sdk-module-name="consulo-maven" sdk-name="" />
+        <extension id="java" sdk-module-name="consulo-maven" sdk-name="" language-level-module-name="consulo-maven" language-level-name="" special-dir-location="SOURCE_DIR" />
         <content url="file://$MODULE_DIR$">
           <content-folder type="PRODUCTION" url="file://$MODULE_DIR$/src" />
         </content>
@@ -115,8 +115,8 @@
         <orderEntry type="library" name="Maven2" level="project" />
       </module>
       <module name="maven3-server-impl" dirurl="file://$PROJECT_DIR$/maven3-server-impl">
-        <extension id="java" sdk-module-name="consulo-maven" sdk-name="" language-level-module-name="consulo-maven" language-level-name="" special-dir-location="MODULE_DIR" />
         <extension id="consulo-plugin" sdk-module-name="consulo-maven" sdk-name="" />
+        <extension id="java" sdk-module-name="consulo-maven" sdk-name="" language-level-module-name="consulo-maven" language-level-name="" special-dir-location="MODULE_DIR" />
         <content url="file://$MODULE_DIR$">
           <content-folder type="PRODUCTION" url="file://$MODULE_DIR$/src" />
         </content>
@@ -127,8 +127,8 @@
         <orderEntry type="library" name="Maven3" level="project" />
       </module>
       <module name="artifact-resolver-m3" dirurl="file://$PROJECT_DIR$/artifact-resolver-m3">
-        <extension id="java" sdk-module-name="consulo-maven" sdk-name="" language-level-module-name="consulo-maven" language-level-name="" special-dir-location="SOURCE_DIR" />
         <extension id="consulo-plugin" sdk-module-name="consulo-maven" sdk-name="" />
+        <extension id="java" sdk-module-name="consulo-maven" sdk-name="" language-level-module-name="consulo-maven" language-level-name="" special-dir-location="SOURCE_DIR" />
         <content url="file://$MODULE_DIR$">
           <content-folder type="PRODUCTION" url="file://$MODULE_DIR$/src" />
           <content-folder type="PRODUCTION_RESOURCE" url="file://$MODULE_DIR$/resources" />

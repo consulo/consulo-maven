@@ -15,13 +15,13 @@
  */
 package org.consulo.maven.module.extension;
 
-import com.intellij.openapi.module.Module;
-import icons.MavenIcons;
+import javax.swing.Icon;
+
 import org.consulo.module.extension.ModuleExtensionProvider;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import javax.swing.*;
+import com.intellij.openapi.module.Module;
+import icons.MavenIcons;
 
 /**
  * @author VISTALL
@@ -38,12 +38,6 @@ public class MavenModuleExtensionProvider implements ModuleExtensionProvider<Mav
   @Override
   public String getName() {
     return "Maven";
-  }
-
-  @NotNull
-  @Override
-  public Class<MavenModuleExtension> getImmutableClass() {
-    return MavenModuleExtension.class;
   }
 
   @NotNull
