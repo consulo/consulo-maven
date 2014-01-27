@@ -15,45 +15,41 @@
  */
 package org.consulo.maven.module.extension;
 
-import com.intellij.openapi.module.Module;
-import com.intellij.openapi.roots.ModifiableRootModel;
+import javax.swing.JComponent;
+
 import org.consulo.module.extension.MutableModuleExtension;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import javax.swing.*;
+import com.intellij.openapi.module.Module;
+import com.intellij.openapi.roots.ModifiableRootModel;
 
 /**
  * @author VISTALL
  * @since 15:17/12.07.13
  */
-public class MavenMutableModuleExtension extends MavenModuleExtension implements MutableModuleExtension<MavenModuleExtension> {
-  @NotNull
-  private final MavenModuleExtension myMavenModuleExtension;
+public class MavenMutableModuleExtension extends MavenModuleExtension implements MutableModuleExtension<MavenModuleExtension>
+{
+	public MavenMutableModuleExtension(@NotNull String id, @NotNull Module module)
+	{
+		super(id, module);
+	}
 
-  public MavenMutableModuleExtension(@NotNull String id, @NotNull Module module, @NotNull MavenModuleExtension mavenModuleExtension) {
-    super(id, module);
-    myMavenModuleExtension = mavenModuleExtension;
-  }
+	@Nullable
+	@Override
+	public JComponent createConfigurablePanel(@NotNull ModifiableRootModel rootModel, @Nullable Runnable updateOnCheck)
+	{
+		return null;
+	}
 
-  @Nullable
-  @Override
-  public JComponent createConfigurablePanel(@NotNull ModifiableRootModel rootModel, @Nullable Runnable updateOnCheck) {
-    return null;
-  }
+	@Override
+	public void setEnabled(boolean val)
+	{
+		myIsEnabled = val;
+	}
 
-  @Override
-  public void setEnabled(boolean val) {
-    myIsEnabled = val;
-  }
-
-  @Override
-  public boolean isModified() {
-    return myMavenModuleExtension.isEnabled() != myIsEnabled;
-  }
-
-  @Override
-  public void commit() {
-    myMavenModuleExtension.commit(this);
-  }
+	@Override
+	public boolean isModified(@NotNull MavenModuleExtension extension)
+	{
+		return extension.isEnabled() != myIsEnabled;
+	}
 }

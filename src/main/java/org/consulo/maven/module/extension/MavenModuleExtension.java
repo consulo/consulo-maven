@@ -15,16 +15,18 @@
  */
 package org.consulo.maven.module.extension;
 
-import com.intellij.openapi.module.Module;
 import org.consulo.module.extension.impl.ModuleExtensionImpl;
 import org.jetbrains.annotations.NotNull;
+import com.intellij.openapi.module.Module;
 
 /**
  * @author VISTALL
  * @since 15:17/12.07.13
  */
-public class MavenModuleExtension extends ModuleExtensionImpl<MavenModuleExtension> {
-  public MavenModuleExtension(@NotNull String id, @NotNull Module module) {
-    super(id, module);
-  }
+public class MavenModuleExtension extends ModuleExtensionImpl<MavenModuleExtension>
+{
+	public MavenModuleExtension(@NotNull String id, @NotNull Module module)
+	{
+		super(id, module);
+	}
 }

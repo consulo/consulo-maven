@@ -27,30 +27,33 @@ import icons.MavenIcons;
  * @author VISTALL
  * @since 15:19/12.07.13
  */
-public class MavenModuleExtensionProvider implements ModuleExtensionProvider<MavenModuleExtension, MavenMutableModuleExtension> {
-  @Nullable
-  @Override
-  public Icon getIcon() {
-    return MavenIcons.MavenLogo;
-  }
+public class MavenModuleExtensionProvider implements ModuleExtensionProvider<MavenModuleExtension, MavenMutableModuleExtension>
+{
+	@Nullable
+	@Override
+	public Icon getIcon()
+	{
+		return MavenIcons.MavenLogo;
+	}
 
-  @NotNull
-  @Override
-  public String getName() {
-    return "Maven";
-  }
+	@NotNull
+	@Override
+	public String getName()
+	{
+		return "Maven";
+	}
 
-  @NotNull
-  @Override
-  public MavenModuleExtension createImmutable(@NotNull String id, @NotNull Module module) {
-    return new MavenModuleExtension(id, module);
-  }
+	@NotNull
+	@Override
+	public MavenModuleExtension createImmutable(@NotNull String id, @NotNull Module module)
+	{
+		return new MavenModuleExtension(id, module);
+	}
 
-  @NotNull
-  @Override
-  public MavenMutableModuleExtension createMutable(@NotNull String id,
-                                                   @NotNull Module module,
-                                                   @NotNull MavenModuleExtension mavenModuleExtension) {
-    return new MavenMutableModuleExtension(id, module, mavenModuleExtension);
-  }
+	@NotNull
+	@Override
+	public MavenMutableModuleExtension createMutable(@NotNull String id, @NotNull Module module)
+	{
+		return new MavenMutableModuleExtension(id, module);
+	}
 }
