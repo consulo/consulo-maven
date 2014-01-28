@@ -17,24 +17,31 @@
 
 package org.jetbrains.idea.maven.execution;
 
+import java.awt.BorderLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Properties;
+
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.idea.maven.project.MavenProject;
+import org.jetbrains.idea.maven.project.MavenProjectsManager;
+import org.jetbrains.idea.maven.utils.ComboBoxUtil;
 import com.intellij.execution.configuration.EnvironmentVariablesComponent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.JavaSdk;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.projectRoots.SdkTable;
-import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.ui.IdeBorderFactory;
 import com.intellij.ui.RawCommandLineEditor;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.idea.maven.project.MavenProject;
-import org.jetbrains.idea.maven.project.MavenProjectsManager;
-import org.jetbrains.idea.maven.utils.ComboBoxUtil;
-
-import javax.swing.*;
-import java.awt.*;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Properties;
 
 public class MavenRunnerPanel {
   protected final Project myProject;
@@ -181,15 +188,7 @@ public class MavenRunnerPanel {
 
     result.put(MavenRunnerSettings.USE_INTERNAL_JAVA, RunnerBundle.message("maven.java.internal"));
 
-    String projectJdkTitle;
-
-    String projectJdk = ProjectRootManager.getInstance(myProject).getProjectSdkName();
-    if (projectJdk == null) {
-      projectJdkTitle = "Use Project JDK (not defined yet)";
-    }
-    else {
-      projectJdkTitle = "Use Project JDK (" + projectJdk + ')';
-    }
+    String projectJdkTitle = "Use Project JDK (not defined yet)";
 
     result.put(MavenRunnerSettings.USE_PROJECT_JDK, projectJdkTitle);
     result.put(MavenRunnerSettings.USE_JAVA_HOME, RunnerBundle.message("maven.java.home.env"));

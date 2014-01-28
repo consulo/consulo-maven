@@ -18,6 +18,34 @@
 
 package org.jetbrains.idea.maven.execution;
 
+import java.io.BufferedOutputStream;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Scanner;
+import java.util.zip.ZipOutputStream;
+
+import javax.swing.event.HyperlinkEvent;
+import javax.swing.event.HyperlinkListener;
+
+import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.idea.maven.artifactResolver.MavenArtifactResolvedM2RtMarker;
+import org.jetbrains.idea.maven.artifactResolver.MavenArtifactResolvedM3RtMarker;
+import org.jetbrains.idea.maven.artifactResolver.common.MavenModuleMap;
+import org.jetbrains.idea.maven.project.MavenGeneralSettings;
+import org.jetbrains.idea.maven.project.MavenProject;
+import org.jetbrains.idea.maven.project.MavenProjectsManager;
+import org.jetbrains.idea.maven.utils.MavenSettings;
+import org.jetbrains.idea.maven.utils.MavenUtil;
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.RunManager;
 import com.intellij.execution.configurations.JavaParameters;
@@ -32,9 +60,8 @@ import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.JavaSdk;
-import com.intellij.openapi.projectRoots.SdkTable;
 import com.intellij.openapi.projectRoots.Sdk;
-import com.intellij.openapi.roots.ProjectRootManager;
+import com.intellij.openapi.projectRoots.SdkTable;
 import com.intellij.openapi.roots.ui.configuration.ProjectSettingsService;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.text.StringUtil;
@@ -42,23 +69,6 @@ import com.intellij.openapi.vfs.encoding.EncodingManager;
 import com.intellij.openapi.vfs.encoding.EncodingProjectManager;
 import com.intellij.util.PathUtil;
 import com.intellij.util.io.ZipUtil;
-import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.jetbrains.idea.maven.artifactResolver.MavenArtifactResolvedM2RtMarker;
-import org.jetbrains.idea.maven.artifactResolver.MavenArtifactResolvedM3RtMarker;
-import org.jetbrains.idea.maven.artifactResolver.common.MavenModuleMap;
-import org.jetbrains.idea.maven.project.MavenGeneralSettings;
-import org.jetbrains.idea.maven.project.MavenProject;
-import org.jetbrains.idea.maven.project.MavenProjectsManager;
-import org.jetbrains.idea.maven.utils.MavenSettings;
-import org.jetbrains.idea.maven.utils.MavenUtil;
-
-import javax.swing.event.HyperlinkEvent;
-import javax.swing.event.HyperlinkListener;
-import java.io.*;
-import java.util.*;
-import java.util.zip.ZipOutputStream;
 
 /**
  * @author Ralf Quebbemann
@@ -283,7 +293,7 @@ public class MavenExternalParameters {
 
     if (name.equals(MavenRunnerSettings.USE_PROJECT_JDK)) {
       if (project != null) {
-        Sdk res = ProjectRootManager.getInstance(project).getProjectSdk();
+        Sdk res = null;
         if (res != null) {
           return res;
         }
