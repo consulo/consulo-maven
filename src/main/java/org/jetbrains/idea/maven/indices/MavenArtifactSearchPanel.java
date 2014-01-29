@@ -15,21 +15,28 @@
  */
 package org.jetbrains.idea.maven.indices;
 
-import com.intellij.icons.AllIcons;
-import com.intellij.openapi.editor.colors.EditorColorsManager;
-import com.intellij.openapi.editor.colors.EditorFontType;
-import com.intellij.openapi.project.Project;
-import com.intellij.ui.*;
-import com.intellij.ui.treeStructure.Tree;
-import com.intellij.util.Alarm;
-import com.intellij.util.ui.AbstractLayoutManager;
-import com.intellij.util.ui.UIUtil;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.idea.maven.model.MavenArtifactInfo;
-import org.jetbrains.idea.maven.model.MavenId;
-import org.jetbrains.idea.maven.utils.MavenLog;
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Insets;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 
-import javax.swing.*;
+import javax.swing.JPanel;
+import javax.swing.JScrollBar;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
+import javax.swing.JTree;
+import javax.swing.ScrollPaneConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.TreeModelListener;
 import javax.swing.event.TreeSelectionEvent;
@@ -37,328 +44,507 @@ import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.TreeCellRenderer;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
-import java.awt.*;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseEvent;
-import java.util.ArrayList;
-import java.util.List;
 
-public class MavenArtifactSearchPanel extends JPanel {
-  private final Project myProject;
-  private final MavenArtifactSearchDialog myDialog;
-  private final boolean myClassMode;
-  private final Listener myListener;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.idea.maven.model.MavenArtifactInfo;
+import org.jetbrains.idea.maven.model.MavenId;
+import org.jetbrains.idea.maven.utils.MavenLog;
+import com.intellij.icons.AllIcons;
+import com.intellij.openapi.editor.colors.EditorColorsManager;
+import com.intellij.openapi.editor.colors.EditorFontType;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Comparing;
+import com.intellij.openapi.util.Pair;
+import com.intellij.ui.DocumentAdapter;
+import com.intellij.ui.DoubleClickListener;
+import com.intellij.ui.ScrollPaneFactory;
+import com.intellij.ui.SimpleColoredComponent;
+import com.intellij.ui.SimpleTextAttributes;
+import com.intellij.ui.treeStructure.Tree;
+import com.intellij.util.Alarm;
+import com.intellij.util.ui.AbstractLayoutManager;
+import com.intellij.util.ui.UIUtil;
 
-  private JTextField mySearchField;
-  private Tree myResultList;
+public class MavenArtifactSearchPanel extends JPanel
+{
+	private final Project myProject;
+	private final MavenArtifactSearchDialog myDialog;
+	private final boolean myClassMode;
+	private final Listener myListener;
 
-  private final Alarm myAlarm;
+	private JTextField mySearchField;
+	private Tree myResultList;
 
-  public MavenArtifactSearchPanel(Project project,
-                                  String initialText,
-                                  boolean classMode,
-                                  Listener listener,
-                                  MavenArtifactSearchDialog dialog) {
-    myProject = project;
-    myDialog = dialog;
-    myClassMode = classMode;
-    myListener = listener;
+	private final Alarm myAlarm;
 
-    initComponents(initialText);
-    myAlarm = new Alarm(Alarm.ThreadToUse.POOLED_THREAD, dialog.getDisposable());
-  }
+	private final Map<Pair<String, String>, String> myManagedDependenciesMap;
 
-  public JTextField getSearchField() {
-    return mySearchField;
-  }
+	public MavenArtifactSearchPanel(Project project, String initialText, boolean classMode, Listener listener, MavenArtifactSearchDialog dialog,
+			Map<Pair<String, String>, String> managedDependenciesMap)
+	{
+		myProject = project;
+		myDialog = dialog;
+		myClassMode = classMode;
+		myListener = listener;
+		myManagedDependenciesMap = managedDependenciesMap;
 
-  private void initComponents(String initialText) {
-    mySearchField = new JTextField(initialText);
-    myResultList = new Tree();
-    myResultList.getExpandableItemsHandler().setEnabled(false);
-    myResultList.getEmptyText().setText("Loading...");
-    myResultList.setRootVisible(false);
-    myResultList.setShowsRootHandles(true);
-    myResultList.setModel(null);
-    MyArtifactCellRenderer renderer = myClassMode ? new MyClassCellRenderer(myResultList)
-                                                  : new MyArtifactCellRenderer(myResultList);
-    myResultList.setCellRenderer(renderer);
-    myResultList.setRowHeight(renderer.getPreferredSize().height);
+		initComponents(initialText);
+		myAlarm = new Alarm(Alarm.ThreadToUse.POOLED_THREAD, dialog.getDisposable());
+	}
 
-    setLayout(new BorderLayout());
-    add(mySearchField, BorderLayout.NORTH);
-    JScrollPane pane = ScrollPaneFactory.createScrollPane(myResultList);
-    pane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-    pane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS); // Don't remove this line.
-                                                                                    // Without VERTICAL_SCROLLBAR_ALWAYS policy our custom layout
-                                                                                    // works incorrectly, see http://youtrack.jetbrains.com/issue/IDEA-72986
+	public JTextField getSearchField()
+	{
+		return mySearchField;
+	}
 
-    add(pane, BorderLayout.CENTER);
+	private void initComponents(String initialText)
+	{
+		myResultList = new Tree();
+		myResultList.getExpandableItemsHandler().setEnabled(false);
+		myResultList.getEmptyText().setText("Loading...");
+		myResultList.setRootVisible(false);
+		myResultList.setShowsRootHandles(true);
+		myResultList.setModel(null);
+		MyArtifactCellRenderer renderer = myClassMode ? new MyClassCellRenderer(myResultList) : new MyArtifactCellRenderer(myResultList);
+		myResultList.setCellRenderer(renderer);
+		myResultList.setRowHeight(renderer.getPreferredSize().height);
 
-    mySearchField.getDocument().addDocumentListener(new DocumentAdapter() {
-      protected void textChanged(DocumentEvent e) {
-        scheduleSearch();
-      }
-    });
+		mySearchField = new JTextField(initialText);
+		mySearchField.addKeyListener(new KeyAdapter()
+		{
+			@Override
+			public void keyPressed(KeyEvent e)
+			{
+				int d;
+				if(e.getKeyCode() == KeyEvent.VK_DOWN)
+				{
+					d = 1;
+				}
+				else if(e.getKeyCode() == KeyEvent.VK_UP)
+				{
+					d = -1;
+				}
+				else
+				{
+					return;
+				}
 
-    myResultList.addTreeSelectionListener(new TreeSelectionListener() {
-      public void valueChanged(TreeSelectionEvent e) {
-        if (myAlarm.getActiveRequestCount() > 0) return;
+				int row = myResultList.getSelectionModel().getLeadSelectionRow();
+				row += d;
 
-        boolean hasSelection = !myResultList.isSelectionEmpty();
-        myListener.canSelectStateChanged(MavenArtifactSearchPanel.this, hasSelection);
-      }
-    });
+				if(row >= 0 && row < myResultList.getRowCount())
+				{
+					myResultList.setSelectionRow(row);
+				}
+			}
+		});
 
-    myResultList.addKeyListener(new KeyAdapter() {
-      @Override
-      public void keyPressed(KeyEvent e) {
-        if (e.getKeyCode() == KeyEvent.VK_ENTER && myResultList.getLastSelectedPathComponent() != null) {
-          myListener.itemSelected();
-          e.consume();
-        }
-      }
-    });
+		setLayout(new BorderLayout());
+		add(mySearchField, BorderLayout.NORTH);
+		JScrollPane pane = ScrollPaneFactory.createScrollPane(myResultList);
+		pane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		pane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS); // Don't remove this line.
+		// Without VERTICAL_SCROLLBAR_ALWAYS policy our custom layout
+		// works incorrectly, see http://youtrack.jetbrains.com/issue/IDEA-72986
 
-    new DoubleClickListener() {
-      @Override
-      protected boolean onDoubleClick(MouseEvent e) {
-        final TreePath path = myResultList.getPathForLocation(e.getX(), e.getY());
-        if (path != null && myResultList.isPathSelected(path)) {
-          Object sel = path.getLastPathComponent();
-          if (sel != null && myResultList.getModel().isLeaf(sel)) {
-            myListener.itemSelected();
-            return true;
-          }
-        }
-        return false;
-      }
-    }.installOn(myResultList);
-  }
+		add(pane, BorderLayout.CENTER);
 
-  public void scheduleSearch() {
-    myListener.canSelectStateChanged(this, false);
-    myResultList.setPaintBusy(true);
+		mySearchField.getDocument().addDocumentListener(new DocumentAdapter()
+		{
+			@Override
+			protected void textChanged(DocumentEvent e)
+			{
+				scheduleSearch();
+			}
+		});
 
-    // evaluate text value in the swing thread
-    final String text = mySearchField.getText();
+		myResultList.addTreeSelectionListener(new TreeSelectionListener()
+		{
+			@Override
+			public void valueChanged(TreeSelectionEvent e)
+			{
+				if(!myAlarm.isEmpty())
+				{
+					return;
+				}
 
-    myAlarm.cancelAllRequests();
-    myAlarm.addRequest(new Runnable() {
-        public void run() {
-          try {
-            doSearch(text);
-          }
-          catch (Throwable e) {
-            MavenLog.LOG.warn(e);
-          }
-        }
-      }, 500);
-  }
+				boolean hasSelection = !myResultList.isSelectionEmpty();
+				myListener.canSelectStateChanged(MavenArtifactSearchPanel.this, hasSelection);
+			}
+		});
 
-  private void doSearch(String searchText) {
-    MavenSearcher searcher = myClassMode ? new MavenClassSearcher() : new MavenArtifactSearcher();
-    List<MavenArtifactSearchResult> result = searcher.search(myProject, searchText, 200);
-    final TreeModel model = new MyTreeModel(result);
+		myResultList.addKeyListener(new KeyAdapter()
+		{
+			@Override
+			public void keyPressed(KeyEvent e)
+			{
+				if(e.getKeyCode() == KeyEvent.VK_ENTER && myResultList.getLastSelectedPathComponent() != null)
+				{
+					myListener.itemSelected();
+					e.consume();
+				}
+			}
+		});
 
-    SwingUtilities.invokeLater(new Runnable() {
-      public void run() {
-        if (!myDialog.isVisible()) return;
+		new DoubleClickListener()
+		{
+			@Override
+			protected boolean onDoubleClick(MouseEvent e)
+			{
+				final TreePath path = myResultList.getPathForLocation(e.getX(), e.getY());
+				if(path != null && myResultList.isPathSelected(path))
+				{
+					Object sel = path.getLastPathComponent();
+					if(sel != null && myResultList.getModel().isLeaf(sel))
+					{
+						myListener.itemSelected();
+						return true;
+					}
+				}
+				return false;
+			}
+		}.installOn(myResultList);
+	}
 
-        myResultList.getEmptyText().setText("No results");
-        myResultList.setModel(model);
-        myResultList.setSelectionRow(0);
-        myResultList.setPaintBusy(false);
-      }
-    });
-  }
+	public void scheduleSearch()
+	{
+		myListener.canSelectStateChanged(this, false);
+		myResultList.setPaintBusy(true);
 
-  @NotNull
-  public List<MavenId> getResult() {
-    List<MavenId> result = new ArrayList<MavenId>();
+		// evaluate text value in the swing thread
+		final String text = mySearchField.getText();
 
-    for (TreePath each : myResultList.getSelectionPaths()) {
-      Object sel = each.getLastPathComponent();
-      MavenArtifactInfo info;
-      if (sel instanceof MavenArtifactInfo) {
-        info = (MavenArtifactInfo)sel;
-      }
-      else {
-        info = ((MavenArtifactSearchResult)sel).versions.get(0);
-      }
-      result.add(new MavenId(info.getGroupId(), info.getArtifactId(), info.getVersion()));
-    }
+		myAlarm.cancelAllRequests();
+		myAlarm.addRequest(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				try
+				{
+					doSearch(text);
+				}
+				catch(Throwable e)
+				{
+					MavenLog.LOG.warn(e);
+				}
+			}
+		}, 500);
+	}
 
-    return result;
-  }
+	private void resortUsingDependencyVersionMap(List<MavenArtifactSearchResult> result)
+	{
+		for(MavenArtifactSearchResult searchResult : result)
+		{
+			if(searchResult.versions.isEmpty())
+			{
+				continue;
+			}
 
-  private static class MyTreeModel implements TreeModel {
-    List<? extends MavenArtifactSearchResult> myItems;
+			MavenArtifactInfo artifactInfo = searchResult.versions.get(0);
+			final String managedVersion = myManagedDependenciesMap.get(Pair.create(artifactInfo.getGroupId(), artifactInfo.getArtifactId()));
+			if(managedVersion != null)
+			{
+				Collections.sort(searchResult.versions, new Comparator<MavenArtifactInfo>()
+				{
+					@Override
+					public int compare(MavenArtifactInfo o1, MavenArtifactInfo o2)
+					{
+						String v1 = o1.getVersion();
+						String v2 = o2.getVersion();
+						if(Comparing.equal(v1, v2))
+						{
+							return 0;
+						}
+						if(managedVersion.equals(v1))
+						{
+							return -1;
+						}
+						if(managedVersion.equals(v2))
+						{
+							return 1;
+						}
+						return 0;
+					}
+				});
+			}
+		}
+	}
 
-    private MyTreeModel(List<? extends MavenArtifactSearchResult> items) {
-      myItems = items;
-    }
+	private void doSearch(String searchText)
+	{
+		MavenSearcher searcher = myClassMode ? new MavenClassSearcher() : new MavenArtifactSearcher();
+		List<MavenArtifactSearchResult> result = searcher.search(myProject, searchText, 200);
 
-    public Object getRoot() {
-      return myItems;
-    }
+		resortUsingDependencyVersionMap(result);
 
-    public Object getChild(Object parent, int index) {
-      return getList(parent).get(index);
-    }
+		final TreeModel model = new MyTreeModel(result);
 
-    public int getChildCount(Object parent) {
-      List list = getList(parent);
-      assert list != null : parent;
-      return list.size();
-    }
+		SwingUtilities.invokeLater(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				if(!myDialog.isVisible())
+				{
+					return;
+				}
 
-    public List getList(Object parent) {
-      if (parent == myItems) return myItems;
-      if (parent instanceof MavenArtifactSearchResult) return ((MavenArtifactSearchResult)parent).versions;
-      return null;
-    }
+				myResultList.getEmptyText().setText("No results");
+				myResultList.setModel(model);
+				myResultList.setSelectionRow(0);
+				myResultList.setPaintBusy(false);
+			}
+		});
+	}
 
-    public boolean isLeaf(Object node) {
-      return node != myItems && (getList(node) == null || getChildCount(node) < 2);
-    }
+	@NotNull
+	public List<MavenId> getResult()
+	{
+		List<MavenId> result = new ArrayList<MavenId>();
 
-    public int getIndexOfChild(Object parent, Object child) {
-      return getList(parent).indexOf(child);
-    }
+		for(TreePath each : myResultList.getSelectionPaths())
+		{
+			Object sel = each.getLastPathComponent();
+			MavenArtifactInfo info;
+			if(sel instanceof MavenArtifactInfo)
+			{
+				info = (MavenArtifactInfo) sel;
+			}
+			else
+			{
+				info = ((MavenArtifactSearchResult) sel).versions.get(0);
+			}
+			result.add(new MavenId(info.getGroupId(), info.getArtifactId(), info.getVersion()));
+		}
 
-    public void valueForPathChanged(TreePath path, Object newValue) {
-    }
+		return result;
+	}
 
-    public void addTreeModelListener(TreeModelListener l) {
-    }
+	private static class MyTreeModel implements TreeModel
+	{
+		List<? extends MavenArtifactSearchResult> myItems;
 
-    public void removeTreeModelListener(TreeModelListener l) {
-    }
-  }
+		private MyTreeModel(List<? extends MavenArtifactSearchResult> items)
+		{
+			myItems = items;
+		}
 
-  private static class MyArtifactCellRenderer extends JPanel implements TreeCellRenderer {
-    protected SimpleColoredComponent myLeftComponent = new SimpleColoredComponent();
-    protected SimpleColoredComponent myRightComponent = new SimpleColoredComponent();
+		@Override
+		public Object getRoot()
+		{
+			return myItems;
+		}
 
-    private MyArtifactCellRenderer(final Tree tree) {
-      myLeftComponent.setOpaque(false);
-      myRightComponent.setOpaque(false);
-      myLeftComponent.setIconOpaque(false);
-      myRightComponent.setIconOpaque(false);
-      add(myLeftComponent);
-      add(myRightComponent);
+		@Override
+		public Object getChild(Object parent, int index)
+		{
+			return getList(parent).get(index);
+		}
 
-      Font font = EditorColorsManager.getInstance().getGlobalScheme().getFont(EditorFontType.PLAIN);
-      myLeftComponent.setFont(font);
-      myRightComponent.setFont(font);
+		@Override
+		public int getChildCount(Object parent)
+		{
+			List list = getList(parent);
+			assert list != null : parent;
+			return list.size();
+		}
 
-      setPreferredSize(new Dimension(2000, myLeftComponent.getPreferredSize().height));
+		public List getList(Object parent)
+		{
+			if(parent == myItems)
+			{
+				return myItems;
+			}
+			if(parent instanceof MavenArtifactSearchResult)
+			{
+				return ((MavenArtifactSearchResult) parent).versions;
+			}
+			return null;
+		}
 
-      setLayout(new AbstractLayoutManager() {
-        @Override
-        public Dimension preferredLayoutSize(Container parent) {
-          return new Dimension(getVisibleWidth(), myLeftComponent.getPreferredSize().height);
-        }
+		@Override
+		public boolean isLeaf(Object node)
+		{
+			return node != myItems && (getList(node) == null || getChildCount(node) < 2);
+		}
 
-        @Override
-        public void layoutContainer(Container parent) {
-          int w = getVisibleWidth();
+		@Override
+		public int getIndexOfChild(Object parent, Object child)
+		{
+			return getList(parent).indexOf(child);
+		}
 
-          Dimension ls = myLeftComponent.getPreferredSize();
-          Dimension rs = myRightComponent.getPreferredSize();
+		@Override
+		public void valueForPathChanged(TreePath path, Object newValue)
+		{
+		}
 
-          int lw = w - rs.width - 10;
-          int rw = rs.width;
+		@Override
+		public void addTreeModelListener(TreeModelListener l)
+		{
+		}
 
-          myLeftComponent.setBounds(0, 0, lw, ls.height);
-          myRightComponent.setBounds(w - rw, 0, rw, rs.height);
-        }
+		@Override
+		public void removeTreeModelListener(TreeModelListener l)
+		{
+		}
+	}
 
-        private int getVisibleWidth() {
-          int w = tree.getVisibleRect().width - 10;
-          Insets insets = tree.getInsets();
-          w -= insets.left + insets.right;
+	private class MyArtifactCellRenderer extends JPanel implements TreeCellRenderer
+	{
+		protected SimpleColoredComponent myLeftComponent = new SimpleColoredComponent();
+		protected SimpleColoredComponent myRightComponent = new SimpleColoredComponent();
 
-          Container parent = tree.getParent();
-          if (parent != null) {
-            Container parentParent = parent.getParent();
-            if (parentParent instanceof JScrollPane) {
-              JScrollBar sb = ((JScrollPane)parentParent).getVerticalScrollBar();
-              if (sb != null) {
-                w -= sb.getWidth();
-              }
-            }
-          }
-          return w;
-        }
-      });
-    }
+		private MyArtifactCellRenderer(final Tree tree)
+		{
+			myLeftComponent.setOpaque(false);
+			myRightComponent.setOpaque(false);
+			myLeftComponent.setIconOpaque(false);
+			myRightComponent.setIconOpaque(false);
+			add(myLeftComponent);
+			add(myRightComponent);
 
-    public Component getTreeCellRendererComponent(JTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row,
-                                                  boolean hasFocus) {
-      myLeftComponent.clear();
-      myRightComponent.clear();
+			Font font = EditorColorsManager.getInstance().getGlobalScheme().getFont(EditorFontType.PLAIN);
+			myLeftComponent.setFont(font);
+			myRightComponent.setFont(font);
 
-      setBackground(selected ? UIUtil.getTreeSelectionBackground() : tree.getBackground());
+			setPreferredSize(new Dimension(2000, myLeftComponent.getPreferredSize().height));
 
-      myLeftComponent.setForeground(selected ? UIUtil.getTreeSelectionForeground() : null);
-      myRightComponent.setForeground(selected ? UIUtil.getTreeSelectionForeground() : null);
+			setLayout(new AbstractLayoutManager()
+			{
+				@Override
+				public Dimension preferredLayoutSize(Container parent)
+				{
+					return new Dimension(getVisibleWidth(), myLeftComponent.getPreferredSize().height);
+				}
 
-      if (value == tree.getModel().getRoot()) {
-        myLeftComponent.append("Results", SimpleTextAttributes.REGULAR_ATTRIBUTES);
-      }
-      else if (value instanceof MavenArtifactSearchResult) {
-        formatSearchResult(tree, (MavenArtifactSearchResult)value, selected);
-      }
-      else if (value instanceof MavenArtifactInfo) {
-        MavenArtifactInfo info = (MavenArtifactInfo)value;
-        myLeftComponent.append(info.getVersion(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
-      }
+				@Override
+				public void layoutContainer(Container parent)
+				{
+					int w = getVisibleWidth();
 
-      return this;
-    }
+					Dimension ls = myLeftComponent.getPreferredSize();
+					Dimension rs = myRightComponent.getPreferredSize();
 
-    protected void formatSearchResult(JTree tree, MavenArtifactSearchResult searchResult, boolean selected) {
-      MavenArtifactInfo info = searchResult.versions.get(0);
-      myLeftComponent.setIcon(AllIcons.Nodes.PpLib);
-      appendArtifactInfo(myLeftComponent, info, selected);
-    }
+					int lw = w - rs.width - 10;
+					int rw = rs.width;
 
-    protected void appendArtifactInfo(SimpleColoredComponent component, MavenArtifactInfo info, boolean selected) {
-      component.append(info.getGroupId() + ":", getGrayAttributes(selected));
-      component.append(info.getArtifactId(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
-      component.append(":" + info.getVersion(), getGrayAttributes(selected));
-    }
+					myLeftComponent.setBounds(0, 0, lw, ls.height);
+					myRightComponent.setBounds(w - rw, 0, rw, rs.height);
+				}
 
-    protected SimpleTextAttributes getGrayAttributes(boolean selected) {
-      return !selected ? SimpleTextAttributes.GRAY_ATTRIBUTES : SimpleTextAttributes.REGULAR_ATTRIBUTES;
-    }
-  }
+				private int getVisibleWidth()
+				{
+					int w = tree.getVisibleRect().width - 10;
+					Insets insets = tree.getInsets();
+					w -= insets.left + insets.right;
 
-  private static class MyClassCellRenderer extends MyArtifactCellRenderer {
+					Container parent = tree.getParent();
+					if(parent != null)
+					{
+						Container parentParent = parent.getParent();
+						if(parentParent instanceof JScrollPane)
+						{
+							JScrollBar sb = ((JScrollPane) parentParent).getVerticalScrollBar();
+							if(sb != null)
+							{
+								w -= sb.getWidth();
+							}
+						}
+					}
+					return w;
+				}
+			});
+		}
 
-    private MyClassCellRenderer(Tree tree) {
-      super(tree);
-    }
+		@Override
+		public Component getTreeCellRendererComponent(JTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row,
+				boolean hasFocus)
+		{
+			myLeftComponent.clear();
+			myRightComponent.clear();
 
-    @Override
-    protected void formatSearchResult(JTree tree, MavenArtifactSearchResult searchResult, boolean selected) {
-      MavenClassSearchResult classResult = (MavenClassSearchResult)searchResult;
-      MavenArtifactInfo info = searchResult.versions.get(0);
+			setBackground(selected ? UIUtil.getTreeSelectionBackground() : tree.getBackground());
 
-      myLeftComponent.setIcon(AllIcons.Nodes.Class);
-      myLeftComponent.append(classResult.className, SimpleTextAttributes.REGULAR_ATTRIBUTES);
-      myLeftComponent.append(" (" + classResult.packageName + ")", getGrayAttributes(selected));
+			myLeftComponent.setForeground(selected ? UIUtil.getTreeSelectionForeground() : null);
+			myRightComponent.setForeground(selected ? UIUtil.getTreeSelectionForeground() : null);
 
-      appendArtifactInfo(myRightComponent, info, selected);
-    }
-  }
+			if(value == tree.getModel().getRoot())
+			{
+				myLeftComponent.append("Results", SimpleTextAttributes.REGULAR_ATTRIBUTES);
+			}
+			else if(value instanceof MavenArtifactSearchResult)
+			{
+				formatSearchResult(tree, (MavenArtifactSearchResult) value, selected);
+			}
+			else if(value instanceof MavenArtifactInfo)
+			{
+				MavenArtifactInfo info = (MavenArtifactInfo) value;
+				String version = info.getVersion();
 
-  public interface Listener {
-    void itemSelected();
+				String managedVersion = myManagedDependenciesMap.get(Pair.create(info.getGroupId(), info.getArtifactId()));
 
-    void canSelectStateChanged(MavenArtifactSearchPanel from, boolean canSelect);
-  }
+				if(managedVersion != null && managedVersion.equals(version))
+				{
+					myLeftComponent.append(version, SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
+					myLeftComponent.append(" (from <dependencyManagement>)", SimpleTextAttributes.GRAYED_ATTRIBUTES);
+				}
+				else
+				{
+					myLeftComponent.append(version, SimpleTextAttributes.REGULAR_ATTRIBUTES);
+				}
+			}
+
+			return this;
+		}
+
+		protected void formatSearchResult(JTree tree, MavenArtifactSearchResult searchResult, boolean selected)
+		{
+			MavenArtifactInfo info = searchResult.versions.get(0);
+			myLeftComponent.setIcon(AllIcons.Nodes.PpLib);
+			appendArtifactInfo(myLeftComponent, info, selected);
+		}
+
+		protected void appendArtifactInfo(SimpleColoredComponent component, MavenArtifactInfo info, boolean selected)
+		{
+			component.append(info.getGroupId() + ":", getGrayAttributes(selected));
+			component.append(info.getArtifactId(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
+			component.append(":" + info.getVersion(), getGrayAttributes(selected));
+		}
+
+		protected SimpleTextAttributes getGrayAttributes(boolean selected)
+		{
+			return !selected ? SimpleTextAttributes.GRAY_ATTRIBUTES : SimpleTextAttributes.REGULAR_ATTRIBUTES;
+		}
+	}
+
+	private class MyClassCellRenderer extends MyArtifactCellRenderer
+	{
+
+		private MyClassCellRenderer(Tree tree)
+		{
+			super(tree);
+		}
+
+		@Override
+		protected void formatSearchResult(JTree tree, MavenArtifactSearchResult searchResult, boolean selected)
+		{
+			MavenClassSearchResult classResult = (MavenClassSearchResult) searchResult;
+			MavenArtifactInfo info = searchResult.versions.get(0);
+
+			myLeftComponent.setIcon(AllIcons.Nodes.Class);
+			myLeftComponent.append(classResult.className, SimpleTextAttributes.REGULAR_ATTRIBUTES);
+			myLeftComponent.append(" (" + classResult.packageName + ")", getGrayAttributes(selected));
+
+			appendArtifactInfo(myRightComponent, info, selected);
+		}
+	}
+
+	public interface Listener
+	{
+		void itemSelected();
+
+		void canSelectStateChanged(MavenArtifactSearchPanel from, boolean canSelect);
+	}
 }

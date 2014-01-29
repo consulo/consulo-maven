@@ -15,57 +15,110 @@
  */
 package org.jetbrains.idea.maven.dom.generate;
 
+import java.util.List;
+import java.util.Map;
+
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.idea.maven.dom.DependencyConflictId;
+import org.jetbrains.idea.maven.dom.MavenDomBundle;
+import org.jetbrains.idea.maven.dom.MavenDomUtil;
+import org.jetbrains.idea.maven.dom.model.MavenDomDependency;
+import org.jetbrains.idea.maven.dom.model.MavenDomDependencyManagement;
+import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
+import org.jetbrains.idea.maven.indices.MavenArtifactSearchDialog;
+import org.jetbrains.idea.maven.model.MavenId;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.application.Result;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Comparing;
 import com.intellij.psi.PsiDocumentManager;
+import com.intellij.psi.xml.XmlElement;
 import com.intellij.psi.xml.XmlFile;
 import com.intellij.util.xml.DomUtil;
 import com.intellij.util.xml.ui.actions.generate.GenerateDomElementAction;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.jetbrains.idea.maven.dom.MavenDomBundle;
-import org.jetbrains.idea.maven.dom.MavenDomUtil;
-import org.jetbrains.idea.maven.dom.model.MavenDomDependency;
-import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
-import org.jetbrains.idea.maven.indices.MavenArtifactSearchDialog;
-import org.jetbrains.idea.maven.model.MavenId;
-import org.jetbrains.idea.maven.project.MavenProject;
-import org.jetbrains.idea.maven.project.MavenProjectsManager;
 
-import java.util.List;
+public class GenerateDependencyAction extends GenerateDomElementAction
+{
+	public GenerateDependencyAction()
+	{
+		super(new MavenGenerateProvider<MavenDomDependency>(MavenDomBundle.message("generate.dependency"), MavenDomDependency.class)
+		{
+			@Nullable
+			@Override
+			protected MavenDomDependency doGenerate(@NotNull final MavenDomProjectModel mavenModel, final Editor editor)
+			{
+				Project project = mavenModel.getManager().getProject();
 
-public class GenerateDependencyAction extends GenerateDomElementAction {
-  public GenerateDependencyAction() {
-    super(new MavenGenerateProvider<MavenDomDependency>(MavenDomBundle.message("generate.dependency"), MavenDomDependency.class) {
-        @Nullable
-        @Override
-        protected MavenDomDependency doGenerate(@NotNull final MavenDomProjectModel mavenModel, final Editor editor) {
-          MavenProjectsManager manager = MavenProjectsManager.getInstance(editor.getProject());
-          MavenProject project = manager.findProject(mavenModel.getModule());
-          if (project == null) return null;
+				final Map<DependencyConflictId, MavenDomDependency> managedDependencies = GenerateManagedDependencyAction
+						.collectManagingDependencies(mavenModel);
 
-          final List<MavenId> ids = MavenArtifactSearchDialog.searchForArtifact(editor.getProject());
-          if (ids.isEmpty()) return null;
+				final List<MavenId> ids = MavenArtifactSearchDialog.searchForArtifact(project, managedDependencies.values());
+				if(ids.isEmpty())
+				{
+					return null;
+				}
 
-          PsiDocumentManager.getInstance(mavenModel.getManager().getProject()).commitAllDocuments();
+				PsiDocumentManager.getInstance(project).commitAllDocuments();
 
-          XmlFile psiFile = DomUtil.getFile(mavenModel);
-          return new WriteCommandAction<MavenDomDependency>(psiFile.getProject(), "Generate Dependency", psiFile) {
-            @Override
-            protected void run(Result<MavenDomDependency> result) throws Throwable {
-              for (MavenId each : ids) {
-                result.setResult(MavenDomUtil.createDomDependency(mavenModel, editor, each));
-              }
-            }
-          }.execute().getResultObject();
-        }
-      }, AllIcons.Nodes.PpLib);
-  }
+				XmlFile psiFile = DomUtil.getFile(mavenModel);
+				return new WriteCommandAction<MavenDomDependency>(psiFile.getProject(), "Generate Dependency", psiFile)
+				{
+					@Override
+					protected void run(Result<MavenDomDependency> result) throws Throwable
+					{
+						boolean isInsideManagedDependencies;
 
-  @Override
-  protected boolean startInWriteAction() {
-    return false;
-  }
+						MavenDomDependencyManagement dependencyManagement = mavenModel.getDependencyManagement();
+						XmlElement managedDependencyXml = dependencyManagement.getXmlElement();
+						if(managedDependencyXml != null && managedDependencyXml.getTextRange().contains(editor.getCaretModel().getOffset()))
+						{
+							isInsideManagedDependencies = true;
+						}
+						else
+						{
+							isInsideManagedDependencies = false;
+						}
+
+						for(MavenId each : ids)
+						{
+							MavenDomDependency res;
+							if(isInsideManagedDependencies)
+							{
+								res = MavenDomUtil.createDomDependency(dependencyManagement.getDependencies(), editor, each);
+							}
+							else
+							{
+								DependencyConflictId conflictId = new DependencyConflictId(each.getGroupId(), each.getArtifactId(), null, null);
+								MavenDomDependency managedDependenciesDom = managedDependencies.get(conflictId);
+
+								if(managedDependenciesDom != null && Comparing.equal(each.getVersion(), managedDependenciesDom.getVersion()
+										.getStringValue()))
+								{
+									// Generate dependency without <version> tag
+									res = MavenDomUtil.createDomDependency(mavenModel.getDependencies(), editor);
+
+									res.getGroupId().setStringValue(conflictId.getGroupId());
+									res.getArtifactId().setStringValue(conflictId.getArtifactId());
+								}
+								else
+								{
+									res = MavenDomUtil.createDomDependency(mavenModel.getDependencies(), editor, each);
+								}
+							}
+							result.setResult(res);
+						}
+					}
+				}.execute().getResultObject();
+			}
+		}, AllIcons.Nodes.PpLib);
+	}
+
+	@Override
+	protected boolean startInWriteAction()
+	{
+		return false;
+	}
 }
