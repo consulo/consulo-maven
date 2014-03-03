@@ -15,9 +15,40 @@
  */
 package org.jetbrains.idea.maven.navigator;
 
+import gnu.trove.THashMap;
+import gnu.trove.THashSet;
+
+import java.awt.Component;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.StringTokenizer;
+
+import javax.swing.TransferHandler;
+
+import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.idea.maven.execution.MavenGoalLocation;
+import org.jetbrains.idea.maven.model.MavenArtifact;
+import org.jetbrains.idea.maven.model.MavenConstants;
+import org.jetbrains.idea.maven.project.MavenProject;
+import org.jetbrains.idea.maven.project.MavenProjectsManager;
+import org.jetbrains.idea.maven.utils.MavenDataKeys;
+import org.jetbrains.idea.maven.utils.actions.MavenActionUtil;
 import com.intellij.execution.Location;
 import com.intellij.ide.dnd.FileCopyPasteUtil;
-import com.intellij.openapi.actionSystem.*;
+import com.intellij.openapi.actionSystem.ActionGroup;
+import com.intellij.openapi.actionSystem.ActionManager;
+import com.intellij.openapi.actionSystem.ActionToolbar;
+import com.intellij.openapi.actionSystem.CommonDataKeys;
+import com.intellij.openapi.actionSystem.DataProvider;
+import com.intellij.openapi.actionSystem.DefaultActionGroup;
+import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.openapi.util.text.StringUtil;
@@ -30,23 +61,6 @@ import com.intellij.ui.PopupHandler;
 import com.intellij.ui.ScrollPaneFactory;
 import com.intellij.ui.treeStructure.SimpleTree;
 import com.intellij.util.containers.ContainerUtil;
-import gnu.trove.THashMap;
-import gnu.trove.THashSet;
-import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.Nullable;
-import org.jetbrains.idea.maven.execution.MavenGoalLocation;
-import org.jetbrains.idea.maven.model.MavenArtifact;
-import org.jetbrains.idea.maven.model.MavenConstants;
-import org.jetbrains.idea.maven.project.MavenProject;
-import org.jetbrains.idea.maven.project.MavenProjectsManager;
-import org.jetbrains.idea.maven.utils.MavenDataKeys;
-import org.jetbrains.idea.maven.utils.actions.MavenActionUtil;
-
-import javax.swing.*;
-import java.awt.*;
-import java.io.File;
-import java.util.*;
-import java.util.List;
 
 public class MavenProjectsNavigatorPanel extends SimpleToolWindowPanel implements DataProvider {
   private final Project myProject;
@@ -307,7 +321,7 @@ public class MavenProjectsNavigatorPanel extends SimpleToolWindowPanel implement
 
     @Override
     public boolean canImport(final TransferSupport support) {
-      return FileCopyPasteUtil.isFileListFlavorSupported(support.getDataFlavors());
+		return FileCopyPasteUtil.isFileListFlavorAvailable(support.getDataFlavors());
     }
   }
 }
