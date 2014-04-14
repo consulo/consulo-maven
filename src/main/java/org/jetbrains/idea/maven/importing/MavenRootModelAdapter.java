@@ -232,7 +232,7 @@ public class MavenRootModelAdapter
 
 	public static boolean isEqualOrAncestor(String ancestor, String child)
 	{
-		return ancestor.equals(child) || StringUtil.startsWithConcatenationOf(child, ancestor, "/");
+		return ancestor.equals(child) || StringUtil.startsWithConcatenation(child, ancestor, "/");
 	}
 
 	private boolean exists(String path)
