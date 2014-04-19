@@ -15,13 +15,47 @@
  */
 package org.jetbrains.idea.maven.importing;
 
+import gnu.trove.THashMap;
+import gnu.trove.THashSet;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.consulo.java.platform.module.extension.JavaMutableModuleExtensionImpl;
+import org.consulo.maven.module.extension.MavenMutableModuleExtension;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.idea.maven.importing.configurers.MavenModuleConfigurer;
+import org.jetbrains.idea.maven.model.MavenArtifact;
+import org.jetbrains.idea.maven.project.MavenConsole;
+import org.jetbrains.idea.maven.project.MavenEmbeddersManager;
+import org.jetbrains.idea.maven.project.MavenImportingSettings;
+import org.jetbrains.idea.maven.project.MavenProject;
+import org.jetbrains.idea.maven.project.MavenProjectChanges;
+import org.jetbrains.idea.maven.project.MavenProjectsManager;
+import org.jetbrains.idea.maven.project.MavenProjectsProcessorTask;
+import org.jetbrains.idea.maven.project.MavenProjectsTree;
+import org.jetbrains.idea.maven.project.ProjectBundle;
+import org.jetbrains.idea.maven.utils.MavenProcessCanceledException;
+import org.jetbrains.idea.maven.utils.MavenProgressIndicator;
+import org.jetbrains.idea.maven.utils.MavenUtil;
 import com.intellij.compiler.impl.javaCompiler.javac.JavacCompilerConfiguration;
 import com.intellij.compiler.impl.javaCompiler.javac.JpsJavaCompilerOptions;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.module.ModifiableModuleModel;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.roots.*;
+import com.intellij.openapi.roots.LibraryOrderEntry;
+import com.intellij.openapi.roots.ModifiableRootModel;
+import com.intellij.openapi.roots.ModuleRootManager;
+import com.intellij.openapi.roots.ModuleRootModel;
+import com.intellij.openapi.roots.OrderEntry;
 import com.intellij.openapi.roots.libraries.Library;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.Pair;
@@ -31,20 +65,6 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.ArrayUtil;
 import com.intellij.util.Function;
 import com.intellij.util.containers.Stack;
-import gnu.trove.THashMap;
-import gnu.trove.THashSet;
-import org.consulo.java.platform.module.extension.JavaMutableModuleExtensionImpl;
-import org.consulo.maven.module.extension.MavenMutableModuleExtension;
-import org.jetbrains.annotations.Nullable;
-import org.jetbrains.idea.maven.importing.configurers.MavenModuleConfigurer;
-import org.jetbrains.idea.maven.model.MavenArtifact;
-import org.jetbrains.idea.maven.project.*;
-import org.jetbrains.idea.maven.utils.MavenProcessCanceledException;
-import org.jetbrains.idea.maven.utils.MavenProgressIndicator;
-import org.jetbrains.idea.maven.utils.MavenUtil;
-
-import java.io.File;
-import java.util.*;
 
 public class MavenProjectImporter {
   private final Project myProject;
@@ -188,7 +208,7 @@ public class MavenProjectImporter {
   private Set<MavenProject> selectProjectsToImport(Collection<MavenProject> originalProjects) {
     Set<MavenProject> result = new THashSet<MavenProject>();
     for (MavenProject each : originalProjects) {
-     /// if (!shouldCreateModuleFor(each)) continue;   //TODO [VISTALL] maven - search why it return true
+      if (!shouldCreateModuleFor(each)) continue;
       result.add(each);
     }
     return result;
