@@ -43,11 +43,13 @@ import com.intellij.openapi.roots.ModifiableRootModel;
 import com.intellij.openapi.roots.OrderRootType;
 import com.intellij.openapi.roots.libraries.Library;
 import com.intellij.openapi.roots.libraries.LibraryTable;
+import com.intellij.openapi.util.Condition;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.util.ArchiveVfsUtil;
 import com.intellij.pom.java.LanguageLevel;
+import com.intellij.util.containers.ContainerUtil;
 import lombok.val;
 
 public class MavenModuleImporter
@@ -66,7 +68,14 @@ public class MavenModuleImporter
 	private final MavenModifiableModelsProvider myModifiableModelsProvider;
 	private MavenRootModelAdapter myRootModelAdapter;
 
-	public MavenModuleImporter(Module module, MavenProjectsTree mavenTree, MavenProject mavenProject, @Nullable MavenProjectChanges changes, Map<MavenProject, String> mavenProjectToModuleName, MavenImportingSettings settings, MavenModifiableModelsProvider modifiableModelsProvider)
+	public MavenModuleImporter(
+			Module module,
+			MavenProjectsTree mavenTree,
+			MavenProject mavenProject,
+			@Nullable MavenProjectChanges changes,
+			Map<MavenProject, String> mavenProjectToModuleName,
+			MavenImportingSettings settings,
+			MavenModifiableModelsProvider modifiableModelsProvider)
 	{
 		myModule = module;
 		myMavenTree = mavenTree;
@@ -92,25 +101,50 @@ public class MavenModuleImporter
 		JavaMutableModuleExtensionImpl javaModuleExtension = rootModel.getExtensionWithoutCheck(JavaMutableModuleExtensionImpl.class);
 		javaModuleExtension.setEnabled(true);
 
-		LanguageLevel level = LanguageLevel.parse(myMavenProject.getSourceLevel());
-		if(level == null)
-		{
-			level = LanguageLevel.HIGHEST;
-		}
+		val languageLevel = LanguageLevel.parse(myMavenProject.getSourceLevel());
 
 		List<Sdk> sdksOfType = SdkTable.getInstance().getSdksOfType(JavaSdk.getInstance());
-		for(Sdk sdk : sdksOfType)
+
+		LanguageLevel targetLevel = null;
+		Sdk targetSdk = null;
+		if(languageLevel != null)
 		{
-			JavaSdkVersion version = JavaSdk.getInstance().getVersion(sdk);
-			if(version != null && version.getMaxLanguageLevel().isAtLeast(level))
+			targetLevel = languageLevel;
+
+			targetSdk = ContainerUtil.find(sdksOfType, new Condition<Sdk>()
 			{
-				javaModuleExtension.getInheritableSdk().set(null, sdk);
-				break;
+				@Override
+				public boolean value(Sdk sdk)
+				{
+					JavaSdkVersion version = JavaSdk.getInstance().getVersion(sdk);
+					return version != null && version.getMaxLanguageLevel().isAtLeast(languageLevel);
+				}
+			});
+		}
+		else
+		{
+			Sdk bundleSdkByType = SdkTable.getInstance().findBundleSdkByType(JavaSdk.class);
+			if(bundleSdkByType == null)
+			{
+				bundleSdkByType = ContainerUtil.getFirstItem(sdksOfType);
+			}
+
+			if(bundleSdkByType != null)
+			{
+				targetSdk = bundleSdkByType;
+				JavaSdkVersion version = JavaSdk.getInstance().getVersion(targetSdk);
+				targetLevel = version != null ? version.getMaxLanguageLevel() : LanguageLevel.HIGHEST;
+			}
+			else
+			{
+				targetLevel = LanguageLevel.HIGHEST;
 			}
 		}
 
-		javaModuleExtension.getInheritableLanguageLevel().set(null, level.name());
+		javaModuleExtension.getInheritableSdk().set(null, targetSdk);
+		javaModuleExtension.getInheritableLanguageLevel().set(null, targetLevel);
 
+		rootModel.addModuleExtensionSdkEntry(javaModuleExtension);
 		rootModel.getExtensionWithoutCheck(MavenMutableModuleExtension.class).setEnabled(true);
 
 		configFolders();
@@ -177,7 +211,8 @@ public class MavenModuleImporter
 						changes = myMavenProjectChanges;
 					}
 
-					importer.process(myModifiableModelsProvider, myModule, myRootModelAdapter, myMavenTree, myMavenProject, changes, myMavenProjectToModuleName, postTasks);
+					importer.process(myModifiableModelsProvider, myModule, myRootModelAdapter, myMavenTree, myMavenProject, changes,
+							myMavenProjectToModuleName, postTasks);
 				}
 			}
 		});
@@ -221,9 +256,12 @@ public class MavenModuleImporter
 					addAttachArtifactDependency(buildHelperCfg, scope, depProject, artifact);
 				}
 
-				if(artifact.getClassifier() != null && !"system".equals(artifact.getScope()) && !"false".equals(System.getProperty("idea.maven.classifier.dep")))
+				if(artifact.getClassifier() != null && !"system".equals(artifact.getScope()) && !"false".equals(System.getProperty("idea.maven" + "" +
+						".classifier.dep")))
 				{
-					MavenArtifact a = new MavenArtifact(artifact.getGroupId(), artifact.getArtifactId(), artifact.getVersion(), artifact.getBaseVersion(), artifact.getType(), artifact.getClassifier(), artifact.getScope(), artifact.isOptional(), artifact.getExtension(), null, myMavenProject.getLocalRepository(), false, false);
+					MavenArtifact a = new MavenArtifact(artifact.getGroupId(), artifact.getArtifactId(), artifact.getVersion(),
+							artifact.getBaseVersion(), artifact.getType(), artifact.getClassifier(), artifact.getScope(), artifact.isOptional(),
+							artifact.getExtension(), null, myMavenProject.getLocalRepository(), false, false);
 
 					myRootModelAdapter.addLibraryDependency(a, scope, myModifiableModelsProvider, myMavenProject);
 				}
@@ -254,7 +292,8 @@ public class MavenModuleImporter
 		}
 	}
 
-	private void addAttachArtifactDependency(@NotNull Element buildHelperCfg, @NotNull DependencyScope scope, @NotNull MavenProject mavenProject, @NotNull MavenArtifact artifact)
+	private void addAttachArtifactDependency(
+			@NotNull Element buildHelperCfg, @NotNull DependencyScope scope, @NotNull MavenProject mavenProject, @NotNull MavenArtifact artifact)
 	{
 		Library.ModifiableModel libraryModel = null;
 
