@@ -106,13 +106,12 @@ public class MavenProjectImporter {
   public List<MavenProjectsProcessorTask> importProject() {
     List<MavenProjectsProcessorTask> postTasks = new ArrayList<MavenProjectsProcessorTask>();
 
-    boolean hasChanges;
+    boolean hasChanges = false;
 
     // in the case projects are changed during importing we must memorise them
     myAllProjects = new LinkedHashSet<MavenProject>(myProjectsTree.getProjects());
     myAllProjects.addAll(myProjectsToImportWithChanges.keySet()); // some projects may already have been removed from the tree
 
-    hasChanges = deleteIncompatibleModules();
     myProjectsToImportWithChanges = collectProjectsToImport(myProjectsToImportWithChanges);
 
     mapMavenProjectsToModulesAndNames();
@@ -217,77 +216,6 @@ public class MavenProjectImporter {
   private boolean shouldCreateModuleFor(MavenProject project) {
     if (myProjectsTree.isIgnored(project)) return false;
     return !project.isAggregator() || myImportingSettings.isCreateModulesForAggregators();
-  }
-
-  private boolean deleteIncompatibleModules() {
-    final Pair<List<Pair<MavenProject, Module>>, List<Pair<MavenProject, Module>>> incompatible = collectIncompatibleModulesWithProjects();
-    final List<Pair<MavenProject, Module>> incompatibleMavenized = incompatible.first;
-    final List<Pair<MavenProject, Module>> incompatibleNotMavenized = incompatible.second;
-
-    if (incompatibleMavenized.isEmpty() && incompatibleNotMavenized.isEmpty()) return false;
-
-    boolean changed = false;
-
-    // For already mavenized modules the type may change because maven project plugins were resolved and MavenImporter asked to create a module of a different type.
-    // In such cases we must change module type silently.
-    for (Pair<MavenProject, Module> each : incompatibleMavenized) {
-      myFileToModuleMapping.remove(each.first.getFile());
-      myModuleModel.disposeModule(each.second);
-      changed |= true;
-    }
-
-    if (incompatibleNotMavenized.isEmpty()) return changed;
-
-    final int[] result = new int[1];
-    MavenUtil.invokeAndWait(myProject, myModelsProvider.getModalityStateForQuestionDialogs(), new Runnable() {
-      public void run() {
-        String message = ProjectBundle.message("maven.import.incompatible.modules",
-                                               incompatibleNotMavenized.size(),
-                                               formatProjectsWithModules(incompatibleNotMavenized));
-        String[] options = {
-          ProjectBundle.message("maven.import.incompatible.modules.recreate"),
-          ProjectBundle.message("maven.import.incompatible.modules.ignore")
-        };
-
-        result[0] = Messages.showOkCancelDialog(myProject, message,
-                                                ProjectBundle.message("maven.project.import.title"),
-                                                options[0], options[1], Messages.getQuestionIcon());
-      }
-    });
-
-    if (result[0] == 0) {
-      for (Pair<MavenProject, Module> each : incompatibleNotMavenized) {
-        myFileToModuleMapping.remove(each.first.getFile());
-        myModuleModel.disposeModule(each.second);
-      }
-      changed |= true;
-    }
-    else {
-      myProjectsTree.setIgnoredState(MavenUtil.collectFirsts(incompatibleNotMavenized), true, true);
-      changed |= false;
-    }
-
-    return changed;
-  }
-
-  /**
-   * Collects modules that need to change module type
-   * @return the first List in returned Pair contains already mavenized modules, the second List - not mavenized
-   */
-  private Pair<List<Pair<MavenProject, Module>>, List<Pair<MavenProject, Module>>> collectIncompatibleModulesWithProjects() {
-    List<Pair<MavenProject, Module>> incompatibleMavenized = new ArrayList<Pair<MavenProject, Module>>();
-    List<Pair<MavenProject, Module>> incompatibleNotMavenized = new ArrayList<Pair<MavenProject, Module>>();
-
-    MavenProjectsManager manager = MavenProjectsManager.getInstance(myProject);
-    for (MavenProject each : myAllProjects) {
-      Module module = myFileToModuleMapping.get(each.getFile());
-      if (module == null) continue;
-
-      if (shouldCreateModuleFor(each)) {
-        (manager.isMavenizedModule(module) ? incompatibleMavenized : incompatibleNotMavenized).add(Pair.create(each, module));
-      }
-    }
-    return Pair.create(incompatibleMavenized, incompatibleNotMavenized);
   }
 
   private static String formatProjectsWithModules(List<Pair<MavenProject, Module>> projectsWithModules) {
