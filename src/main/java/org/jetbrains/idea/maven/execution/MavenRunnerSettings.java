@@ -18,24 +18,23 @@
 
 package org.jetbrains.idea.maven.execution;
 
-import com.intellij.util.containers.ContainerUtil;
-import com.intellij.util.containers.HashMap;
-import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import com.intellij.util.containers.ContainerUtil;
+import com.intellij.util.containers.HashMap;
+
 public class MavenRunnerSettings implements Cloneable {
 
   @NonNls public static final String USE_INTERNAL_JAVA = "#JAVA_INTERNAL";
-  @NonNls public static final String USE_PROJECT_JDK = "#USE_PROJECT_JDK";
   @NonNls public static final String USE_JAVA_HOME = "#JAVA_HOME";
 
   private boolean runMavenInBackground = true;
-  @NotNull private String jreName = USE_PROJECT_JDK;
+  @NotNull private String jreName = USE_INTERNAL_JAVA;
   @NotNull private String vmOptions = "";
   private boolean skipTests = false;
   private Map<String, String> mavenProperties = new LinkedHashMap<String, String>();

@@ -187,10 +187,6 @@ public class MavenRunnerPanel {
     }
 
     result.put(MavenRunnerSettings.USE_INTERNAL_JAVA, RunnerBundle.message("maven.java.internal"));
-
-    String projectJdkTitle = "Use Project JDK (not defined yet)";
-
-    result.put(MavenRunnerSettings.USE_PROJECT_JDK, projectJdkTitle);
     result.put(MavenRunnerSettings.USE_JAVA_HOME, RunnerBundle.message("maven.java.home.env"));
 
     return result;
