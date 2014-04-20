@@ -15,6 +15,25 @@
  */
 package org.jetbrains.idea.maven.wizards;
 
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+
+import org.jetbrains.annotations.Nls;
+import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.idea.maven.project.MavenEnvironmentForm;
+import org.jetbrains.idea.maven.project.MavenGeneralSettings;
+import org.jetbrains.idea.maven.project.MavenImportingSettings;
+import org.jetbrains.idea.maven.project.MavenImportingSettingsForm;
+import org.jetbrains.idea.maven.project.ProjectBundle;
 import com.intellij.ide.util.projectWizard.NamePathComponent;
 import com.intellij.ide.util.projectWizard.WizardContext;
 import com.intellij.openapi.options.Configurable;
@@ -23,15 +42,6 @@ import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.projectImport.ProjectImportWizardStep;
-import org.jetbrains.annotations.Nls;
-import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.Nullable;
-import org.jetbrains.idea.maven.project.*;
-
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 public class MavenProjectImportStep extends ProjectImportWizardStep {
   private final JPanel myPanel;
@@ -94,9 +104,6 @@ public class MavenProjectImportStep extends ProjectImportWizardStep {
   public void updateDataModel() {
     MavenImportingSettings settings = getImportingSettings();
     myImportingSettingsForm.getData(settings);
-    if (getWizardContext().isCreatingNewProject()) {
-      myImportingSettingsForm.updateData(getWizardContext());
-    }
     suggestProjectNameAndPath(settings.getDedicatedModuleDir(), myRootPathComponent.getPath());
   }
 

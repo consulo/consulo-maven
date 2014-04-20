@@ -15,28 +15,29 @@
  */
 package org.jetbrains.idea.maven.project;
 
-import com.intellij.openapi.updateSettings.impl.LabelTextReplacingUtil;
-import com.intellij.ui.ListCellRendererWrapper;
-import com.intellij.ide.util.projectWizard.WizardContext;
-import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory;
-import com.intellij.openapi.ui.TextFieldWithBrowseButton;
-import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.projectImport.ProjectFormatPanel;
-import com.intellij.ui.EnumComboBoxModel;
-
-import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JList;
+import javax.swing.JPanel;
+
+import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory;
+import com.intellij.openapi.ui.TextFieldWithBrowseButton;
+import com.intellij.openapi.updateSettings.impl.LabelTextReplacingUtil;
+import com.intellij.openapi.util.io.FileUtil;
+import com.intellij.openapi.util.text.StringUtil;
+import com.intellij.ui.EnumComboBoxModel;
+import com.intellij.ui.ListCellRendererWrapper;
 
 public class MavenImportingSettingsForm {
   private JPanel myPanel;
 
   private JCheckBox mySearchRecursivelyCheckBox;
 
-  private JLabel myProjectFormatLabel;
-  private JComboBox myProjectFormatComboBox;
-  private ProjectFormatPanel myProjectFormatPanel;
   private JCheckBox mySeparateModulesDirCheckBox;
   private TextFieldWithBrowseButton mySeparateModulesDirChooser;
 
@@ -56,8 +57,6 @@ public class MavenImportingSettingsForm {
 
   public MavenImportingSettingsForm(boolean isImportStep, boolean isCreatingNewProject) {
     mySearchRecursivelyCheckBox.setVisible(isImportStep);
-    myProjectFormatLabel.setVisible(isImportStep && isCreatingNewProject);
-    myProjectFormatComboBox.setVisible(isImportStep && isCreatingNewProject);
     mySeparateModulesDirPanel.setVisible(isImportStep);
 
     ActionListener listener = new ActionListener() {
@@ -83,11 +82,6 @@ public class MavenImportingSettingsForm {
     });
 
     LabelTextReplacingUtil.replaceText(myPanel);
-  }
-
-  private void createUIComponents() {
-    myProjectFormatPanel = new ProjectFormatPanel();
-    myProjectFormatComboBox = myProjectFormatPanel.getStorageFormatComboBox();
   }
 
   private void updateControls() {
@@ -152,10 +146,6 @@ public class MavenImportingSettingsForm {
     MavenImportingSettings formData = new MavenImportingSettings();
     getData(formData);
     return !formData.equals(settings);
-  }
-
-  public void updateData(WizardContext wizardContext) {
-    myProjectFormatPanel.updateData(wizardContext);
   }
 
   public JPanel getAdditionalSettingsPanel() {
