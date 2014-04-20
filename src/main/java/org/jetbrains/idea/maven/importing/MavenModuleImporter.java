@@ -40,6 +40,7 @@ import com.intellij.openapi.projectRoots.SdkTable;
 import com.intellij.openapi.roots.DependencyScope;
 import com.intellij.openapi.roots.LibraryOrderEntry;
 import com.intellij.openapi.roots.ModifiableRootModel;
+import com.intellij.openapi.roots.ModuleExtensionWithSdkOrderEntry;
 import com.intellij.openapi.roots.OrderRootType;
 import com.intellij.openapi.roots.libraries.Library;
 import com.intellij.openapi.roots.libraries.LibraryTable;
@@ -144,7 +145,11 @@ public class MavenModuleImporter
 		javaModuleExtension.getInheritableSdk().set(null, targetSdk);
 		javaModuleExtension.getInheritableLanguageLevel().set(null, targetLevel);
 
-		rootModel.addModuleExtensionSdkEntry(javaModuleExtension);
+		ModuleExtensionWithSdkOrderEntry moduleExtensionSdkEntry = rootModel.findModuleExtensionSdkEntry(javaModuleExtension);
+		if(moduleExtensionSdkEntry == null)
+		{
+			rootModel.addModuleExtensionSdkEntry(javaModuleExtension);
+		}
 		rootModel.getExtensionWithoutCheck(MavenMutableModuleExtension.class).setEnabled(true);
 
 		configFolders();
