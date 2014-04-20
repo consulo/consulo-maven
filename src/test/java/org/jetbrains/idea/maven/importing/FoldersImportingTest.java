@@ -86,7 +86,7 @@ public class FoldersImportingTest extends MavenImportingTestCase {
         MavenRootModelAdapter adapter = new MavenRootModelAdapter(myProjectsTree.findProject(myProjectPom),
                                                                   getModule("project"),
                                                                   new MavenDefaultModifiableModelsProvider(myProject));
-        adapter.addSourceFolder(dir1.getPath(), false);
+        adapter.addSourceFolder(dir1.getPath(), false, false);
         adapter.addExcludedFolder(dir2.getPath());
         adapter.getRootModel().commit();
       }

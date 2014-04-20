@@ -32,6 +32,7 @@ import org.mustbe.consulo.roots.ContentFolderTypeProvider;
 import org.mustbe.consulo.roots.impl.ExcludedContentFolderTypeProvider;
 import org.mustbe.consulo.roots.impl.ProductionContentFolderTypeProvider;
 import org.mustbe.consulo.roots.impl.TestContentFolderTypeProvider;
+import org.mustbe.consulo.roots.impl.property.GeneratedContentFolderPropertyProvider;
 import com.intellij.openapi.application.AccessToken;
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.module.ModifiableModuleModel;
@@ -136,20 +137,19 @@ public class MavenRootModelAdapter
 	{
 		for(ContentEntry each : myRootModel.getContentEntries())
 		{
-			for(ContentFolder contentFolder : each.getFolders(ContentFolderScopes.of(ProductionContentFolderTypeProvider.getInstance())))
+			for(ContentFolder contentFolder : each.getFolders(ContentFolderScopes.all(false)))
 			{
 				each.removeFolder(contentFolder);
 			}
 		}
 	}
 
-	public void addSourceFolder(String path, ContentFolderTypeProvider contentFolderTypeProvider)
-
+	public void addSourceFolder(String path, ContentFolderTypeProvider contentFolderTypeProvider, boolean generated)
 	{
-		addSourceFolder(path, contentFolderTypeProvider, false);
+		addSourceFolder(path, contentFolderTypeProvider, false, generated);
 	}
 
-	public void addSourceFolder(String path, ContentFolderTypeProvider contentFolderTypeProvider, boolean ifNotEmpty)
+	public void addSourceFolder(String path, ContentFolderTypeProvider contentFolderTypeProvider, boolean ifNotEmpty, boolean generated)
 	{
 		if(ifNotEmpty)
 		{
@@ -175,26 +175,10 @@ public class MavenRootModelAdapter
 		}
 		unregisterAll(path, true, true);
 		unregisterAll(path, false, true);
-		e.addFolder(url.getUrl(), contentFolderTypeProvider);
-	}
-
-	public void addSourceFolderSoft(String path, boolean testSource)
-	{
-		if(!exists(path))
+		ContentFolder contentFolder = e.addFolder(url.getUrl(), contentFolderTypeProvider);
+		if(generated)
 		{
-			return;
-		}
-
-		Url url = toUrl(path);
-		ContentEntry e = getContentRootFor(url);
-		if(e == null)
-		{
-			return;
-		}
-
-		if(!hasCollision(path))
-		{
-			e.addFolder(url.getUrl(), testSource ? ProductionContentFolderTypeProvider.getInstance() : TestContentFolderTypeProvider.getInstance());
+			contentFolder.setPropertyValue(GeneratedContentFolderPropertyProvider.IS_GENERATED, Boolean.TRUE);
 		}
 	}
 
@@ -264,7 +248,7 @@ public class MavenRootModelAdapter
 		{
 			if(unregisterSources)
 			{
-				for(ContentFolder eachFolder : eachEntry.getFolders(ContentFolderScopes.of(ProductionContentFolderTypeProvider.getInstance())))
+				for(ContentFolder eachFolder : eachEntry.getFolders(ContentFolderScopes.all(false)))
 				{
 					String ancestor = under ? url.getUrl() : eachFolder.getUrl();
 					String child = under ? eachFolder.getUrl() : url.getUrl();

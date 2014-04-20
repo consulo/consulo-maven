@@ -328,8 +328,8 @@ public abstract class ResourceFilteringTest extends MavenImportingTestCase {
         MavenRootModelAdapter adapter = new MavenRootModelAdapter(myProjectsTree.findProject(myProjectPom),
                                                                   getModule("project"),
                                                                   new MavenDefaultModifiableModelsProvider(myProject));
-        adapter.addSourceFolder(myProjectRoot.findFileByRelativePath("src/main/resources").getPath(), false);
-        adapter.addSourceFolder(myProjectRoot.findFileByRelativePath("src/main/ideaRes").getPath(), false);
+        adapter.addSourceFolder(myProjectRoot.findFileByRelativePath("src/main/resources").getPath(), false, false);
+        adapter.addSourceFolder(myProjectRoot.findFileByRelativePath("src/main/ideaRes").getPath(), false, false);
         adapter.getRootModel().commit();
       }
     }.execute();
