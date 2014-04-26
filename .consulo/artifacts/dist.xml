@@ -30,6 +30,7 @@
             <element id="module-output" name="artifact-resolver-m2" />
             <element id="module-production-resource-output" name="artifact-resolver-m2" />
           </element>
+          <element id="dir-copy" path="$PROJECT_DIR$/lib" />
         </element>
       </element>
     </root>
