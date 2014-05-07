@@ -15,30 +15,16 @@
  */
 package org.jetbrains.idea.maven.server;
 
-import com.intellij.execution.DefaultExecutionResult;
-import com.intellij.execution.ExecutionException;
-import com.intellij.execution.ExecutionResult;
-import com.intellij.execution.Executor;
-import com.intellij.execution.configurations.*;
-import com.intellij.execution.process.OSProcessHandler;
-import com.intellij.execution.process.ProcessHandler;
-import com.intellij.execution.rmi.RemoteProcessSupport;
-import com.intellij.execution.runners.ProgramRunner;
-import com.intellij.openapi.actionSystem.AnAction;
-import com.intellij.openapi.application.PathManager;
-import com.intellij.openapi.components.*;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.projectRoots.JavaSdkType;
-import com.intellij.openapi.projectRoots.JdkUtil;
-import com.intellij.openapi.projectRoots.Sdk;
-import com.intellij.openapi.projectRoots.SimpleJavaSdkType;
-import com.intellij.openapi.util.ShutDownTracker;
-import com.intellij.openapi.util.SystemInfo;
-import com.intellij.util.Alarm;
-import com.intellij.util.PathUtil;
-import com.intellij.util.SystemProperties;
-import com.intellij.util.containers.ContainerUtil;
 import gnu.trove.THashMap;
+
+import java.io.File;
+import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.lucene.search.Query;
 import org.jdom.Element;
 import org.jetbrains.annotations.NonNls;
@@ -52,15 +38,36 @@ import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.utils.MavenLog;
 import org.jetbrains.idea.maven.utils.MavenProgressIndicator;
 import org.jetbrains.idea.maven.utils.MavenUtil;
-
-import java.io.File;
-import java.nio.charset.Charset;
-import java.rmi.RemoteException;
-import java.rmi.server.UnicastRemoteObject;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import com.intellij.execution.DefaultExecutionResult;
+import com.intellij.execution.ExecutionException;
+import com.intellij.execution.ExecutionResult;
+import com.intellij.execution.Executor;
+import com.intellij.execution.configurations.CommandLineState;
+import com.intellij.execution.configurations.GeneralCommandLine;
+import com.intellij.execution.configurations.ParametersList;
+import com.intellij.execution.configurations.RunProfileState;
+import com.intellij.execution.configurations.SimpleJavaParameters;
+import com.intellij.execution.process.OSProcessHandler;
+import com.intellij.execution.process.ProcessHandler;
+import com.intellij.execution.rmi.RemoteProcessSupport;
+import com.intellij.execution.runners.ProgramRunner;
+import com.intellij.openapi.actionSystem.AnAction;
+import com.intellij.openapi.application.PathManager;
+import com.intellij.openapi.components.PersistentStateComponent;
+import com.intellij.openapi.components.ServiceManager;
+import com.intellij.openapi.components.State;
+import com.intellij.openapi.components.Storage;
+import com.intellij.openapi.components.StoragePathMacros;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.projectRoots.JdkUtil;
+import com.intellij.openapi.projectRoots.Sdk;
+import com.intellij.openapi.projectRoots.SimpleJavaSdkType;
+import com.intellij.openapi.util.ShutDownTracker;
+import com.intellij.openapi.util.SystemInfo;
+import com.intellij.util.Alarm;
+import com.intellij.util.PathUtil;
+import com.intellij.util.SystemProperties;
+import com.intellij.util.containers.ContainerUtil;
 
 @State(
   name = "MavenVersion",
@@ -249,8 +256,7 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
         SimpleJavaParameters params = createJavaParameters();
         Sdk sdk = params.getJdk();
 
-        GeneralCommandLine commandLine =
-          JdkUtil.setupJVMCommandLine(((JavaSdkType)sdk.getSdkType()).getVMExecutablePath(sdk), params, false);
+        GeneralCommandLine commandLine = JdkUtil.setupJVMCommandLine(sdk, params, false);
 
         OSProcessHandler processHandler =
           new OSProcessHandler(commandLine.createProcess(), commandLine.getCommandLineString(), commandLine.getCharset());
