@@ -15,36 +15,19 @@
  */
 package org.jetbrains.idea.maven.project;
 
-import com.intellij.compiler.CompilerWorkspaceConfiguration;
-import com.intellij.compiler.server.BuildManager;
-import com.intellij.ide.startup.StartupManagerEx;
-import com.intellij.openapi.application.AccessToken;
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.application.ReadAction;
-import com.intellij.openapi.compiler.CompileContext;
-import com.intellij.openapi.compiler.CompileTask;
-import com.intellij.openapi.compiler.CompilerManager;
-import com.intellij.openapi.components.*;
-import com.intellij.openapi.fileEditor.FileDocumentManager;
-import com.intellij.openapi.module.Module;
-import com.intellij.openapi.module.ModuleUtilCore;
-import com.intellij.openapi.project.DumbAwareRunnable;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.roots.ModuleRootManager;
-import com.intellij.openapi.roots.ProjectFileIndex;
-import com.intellij.openapi.roots.ProjectRootManager;
-import com.intellij.openapi.util.*;
-import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.vfs.VirtualFileManager;
-import com.intellij.util.Alarm;
-import com.intellij.util.EventDispatcher;
-import com.intellij.util.containers.ContainerUtil;
-import com.intellij.util.ui.UIUtil;
-import com.intellij.util.ui.update.Update;
-import com.intellij.util.xmlb.XmlSerializer;
 import gnu.trove.THashMap;
 import gnu.trove.THashSet;
+
+import java.io.BufferedOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import org.consulo.maven.module.extension.MavenModuleExtension;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -56,17 +39,58 @@ import org.jetbrains.idea.maven.importing.MavenDefaultModifiableModelsProvider;
 import org.jetbrains.idea.maven.importing.MavenFoldersImporter;
 import org.jetbrains.idea.maven.importing.MavenModifiableModelsProvider;
 import org.jetbrains.idea.maven.importing.MavenProjectImporter;
-import org.jetbrains.idea.maven.model.*;
+import org.jetbrains.idea.maven.model.MavenArtifact;
+import org.jetbrains.idea.maven.model.MavenConstants;
+import org.jetbrains.idea.maven.model.MavenId;
+import org.jetbrains.idea.maven.model.MavenProfileKind;
+import org.jetbrains.idea.maven.model.MavenRemoteRepository;
+import org.jetbrains.idea.maven.model.MavenResource;
 import org.jetbrains.idea.maven.model.impl.MavenIdBean;
 import org.jetbrains.idea.maven.model.impl.MavenModuleResourceConfiguration;
 import org.jetbrains.idea.maven.model.impl.MavenProjectConfiguration;
 import org.jetbrains.idea.maven.model.impl.ResourceRootConfiguration;
 import org.jetbrains.idea.maven.server.NativeMavenProjectHolder;
-import org.jetbrains.idea.maven.utils.*;
-
-import java.io.*;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
+import org.jetbrains.idea.maven.utils.MavenJDOMUtil;
+import org.jetbrains.idea.maven.utils.MavenLog;
+import org.jetbrains.idea.maven.utils.MavenMergingUpdateQueue;
+import org.jetbrains.idea.maven.utils.MavenProcessCanceledException;
+import org.jetbrains.idea.maven.utils.MavenProgressIndicator;
+import org.jetbrains.idea.maven.utils.MavenSimpleProjectComponent;
+import org.jetbrains.idea.maven.utils.MavenTask;
+import org.jetbrains.idea.maven.utils.MavenUtil;
+import com.intellij.compiler.server.BuildManager;
+import com.intellij.ide.startup.StartupManagerEx;
+import com.intellij.openapi.application.AccessToken;
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.application.ReadAction;
+import com.intellij.openapi.components.PersistentStateComponent;
+import com.intellij.openapi.components.SettingsSavingComponent;
+import com.intellij.openapi.components.State;
+import com.intellij.openapi.components.Storage;
+import com.intellij.openapi.components.StoragePathMacros;
+import com.intellij.openapi.fileEditor.FileDocumentManager;
+import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.ModuleUtilCore;
+import com.intellij.openapi.project.DumbAwareRunnable;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.roots.ModuleRootManager;
+import com.intellij.openapi.roots.ProjectFileIndex;
+import com.intellij.openapi.roots.ProjectRootManager;
+import com.intellij.openapi.util.AsyncResult;
+import com.intellij.openapi.util.Disposer;
+import com.intellij.openapi.util.JDOMUtil;
+import com.intellij.openapi.util.ModificationTracker;
+import com.intellij.openapi.util.Pair;
+import com.intellij.openapi.util.Ref;
+import com.intellij.openapi.util.io.FileUtil;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.vfs.VirtualFileManager;
+import com.intellij.util.Alarm;
+import com.intellij.util.EventDispatcher;
+import com.intellij.util.containers.ContainerUtil;
+import com.intellij.util.ui.UIUtil;
+import com.intellij.util.ui.update.Update;
+import com.intellij.util.xmlb.XmlSerializer;
 
 @State(name = "MavenProjectsManager", storages = {@Storage(file = StoragePathMacros.PROJECT_FILE)})
 public class MavenProjectsManager extends MavenSimpleProjectComponent
@@ -165,28 +189,6 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent
         boolean wasMavenized = !myState.originalFiles.isEmpty();
         if (!wasMavenized) return;
         initMavenized();
-      }
-    });
-
-    startupManager.registerPostStartupActivity(new Runnable() {
-      @Override
-      public void run() {
-        CompilerManager.getInstance(myProject).addBeforeTask(new CompileTask() {
-          @Override
-          public boolean execute(CompileContext context) {
-            AccessToken token = ReadAction.start();
-
-            try {
-              if (!CompilerWorkspaceConfiguration.getInstance(myProject).useOutOfProcessBuild()) return true;
-
-              generateBuildConfiguration(context.isRebuild());
-            }
-            finally {
-              token.finish();
-            }
-            return true;
-          }
-        });
       }
     });
   }
