@@ -296,7 +296,8 @@ public class MavenUtil
 		return result;
 	}
 
-	public static List<String> collectPaths(List<VirtualFile> files)
+	@NotNull
+	public static List<String> collectPaths(@NotNull List<VirtualFile> files)
 	{
 		return ContainerUtil.map(files, new Function<VirtualFile, String>()
 		{
@@ -308,7 +309,8 @@ public class MavenUtil
 		});
 	}
 
-	public static List<VirtualFile> collectFiles(Collection<MavenProject> projects)
+	@NotNull
+	public static List<VirtualFile> collectFiles(@NotNull Collection<MavenProject> projects)
 	{
 		return ContainerUtil.map(projects, new Function<MavenProject, VirtualFile>()
 		{
