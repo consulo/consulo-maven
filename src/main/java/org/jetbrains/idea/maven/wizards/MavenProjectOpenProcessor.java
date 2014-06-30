@@ -20,39 +20,51 @@
  */
 package org.jetbrains.idea.maven.wizards;
 
-import com.intellij.ide.util.projectWizard.WizardContext;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.projectImport.ProjectOpenProcessorBase;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.jetbrains.idea.maven.model.MavenConstants;
-import org.jetbrains.idea.maven.project.MavenProject;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class MavenProjectOpenProcessor extends ProjectOpenProcessorBase<MavenProjectBuilder> {
-  public MavenProjectOpenProcessor(@NotNull MavenProjectBuilder builder) {
-    super(builder);
-  }
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.idea.maven.model.MavenConstants;
+import org.jetbrains.idea.maven.project.MavenProject;
+import com.intellij.ide.util.projectWizard.WizardContext;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.projectImport.ProjectOpenProcessorBase;
 
-  @Nullable
-  public String[] getSupportedExtensions() {
-    return new String[]{MavenConstants.POM_XML};
-  }
+public class MavenProjectOpenProcessor extends ProjectOpenProcessorBase<MavenProjectBuilder>
+{
+	public MavenProjectOpenProcessor(@NotNull MavenProjectBuilder builder)
+	{
+		super(builder);
+	}
 
-  public boolean doQuickImport(VirtualFile file, WizardContext wizardContext) {
-    getBuilder().setFiles(Arrays.asList(file));
+	@Override
+	@Nullable
+	public String[] getSupportedExtensions()
+	{
+		return new String[]{MavenConstants.POM_XML};
+	}
 
-    if (!getBuilder().setSelectedProfiles(new ArrayList<String>())) return false;
+	@Override
+	public boolean doQuickImport(VirtualFile file, WizardContext wizardContext)
+	{
+		getBuilder().setFiles(Arrays.asList(file));
 
-    List<MavenProject> projects = getBuilder().getList();
-    if (projects.size() != 1) return false;
+		if(!getBuilder().setSelectedProfiles(new ArrayList<String>()))
+		{
+			return false;
+		}
 
-    getBuilder().setList(projects);
-    wizardContext.setProjectName(getBuilder().getSuggestedProjectName());
+		List<MavenProject> projects = getBuilder().getList();
+		if(projects.size() != 1)
+		{
+			return false;
+		}
 
-    return true;
-  }
+		getBuilder().setList(projects);
+		wizardContext.setProjectName(getBuilder().getSuggestedProjectName());
+
+		return true;
+	}
 }

@@ -15,6 +15,25 @@
  */
 package org.jetbrains.idea.maven.wizards;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+
+import javax.swing.Icon;
+
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.idea.maven.importing.MavenDefaultModifiableModelsProvider;
+import org.jetbrains.idea.maven.importing.MavenUIModifiableModelsProvider;
+import org.jetbrains.idea.maven.model.MavenId;
+import org.jetbrains.idea.maven.project.*;
+import org.jetbrains.idea.maven.utils.FileFinder;
+import org.jetbrains.idea.maven.utils.MavenProcessCanceledException;
+import org.jetbrains.idea.maven.utils.MavenProgressIndicator;
+import org.jetbrains.idea.maven.utils.MavenTask;
+import org.jetbrains.idea.maven.utils.MavenUtil;
 import com.intellij.openapi.application.AccessToken;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.module.ModifiableModuleModel;
@@ -32,288 +51,345 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.packaging.artifacts.ModifiableArtifactModel;
 import com.intellij.projectImport.ProjectImportBuilder;
 import icons.MavenIcons;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.jetbrains.idea.maven.importing.MavenDefaultModifiableModelsProvider;
-import org.jetbrains.idea.maven.importing.MavenUIModifiableModelsProvider;
-import org.jetbrains.idea.maven.model.MavenId;
-import org.jetbrains.idea.maven.project.*;
-import org.jetbrains.idea.maven.utils.*;
 
-import javax.swing.*;
-import java.util.*;
+public class MavenProjectBuilder extends ProjectImportBuilder<MavenProject>
+{
+	private static class Parameters
+	{
+		private Project myProjectToUpdate;
 
-public class MavenProjectBuilder extends ProjectImportBuilder<MavenProject> {
-  private static class Parameters {
-    private Project myProjectToUpdate;
+		private MavenGeneralSettings myGeneralSettingsCache;
+		private MavenImportingSettings myImportingSettingsCache;
 
-    private MavenGeneralSettings myGeneralSettingsCache;
-    private MavenImportingSettings myImportingSettingsCache;
+		private VirtualFile myImportRoot;
+		private List<VirtualFile> myFiles;
+		private List<String> myProfiles = new ArrayList<String>();
+		private List<String> mySelectedProfiles = new ArrayList<String>();
 
-    private VirtualFile myImportRoot;
-    private List<VirtualFile> myFiles;
-    private List<String> myProfiles = new ArrayList<String>();
-    private List<String> mySelectedProfiles = new ArrayList<String>();
+		private MavenProjectsTree myMavenProjectTree;
+		private List<MavenProject> mySelectedProjects;
 
-    private MavenProjectsTree myMavenProjectTree;
-    private List<MavenProject> mySelectedProjects;
+		private boolean myOpenModulesConfigurator;
+	}
 
-    private boolean myOpenModulesConfigurator;
-  }
+	private Parameters myParameters;
 
-  private Parameters myParameters;
+	@Override
+	@NotNull
+	public String getName()
+	{
+		return ProjectBundle.message("maven.name");
+	}
 
-  @NotNull
-  public String getName() {
-    return ProjectBundle.message("maven.name");
-  }
+	@Override
+	public Icon getIcon()
+	{
+		return MavenIcons.MavenLogo;
+	}
 
-  public Icon getIcon() {
-    return MavenIcons.MavenLogo;
-  }
+	@Override
+	public void cleanup()
+	{
+		myParameters = null;
+		super.cleanup();
+	}
 
-  public void cleanup() {
-    myParameters = null;
-    super.cleanup();
-  }
+	@Override
+	public boolean isSuitableSdkType(SdkTypeId sdk)
+	{
+		return sdk == JavaSdk.getInstance();
+	}
 
-  @Override
-  public boolean isSuitableSdkType(SdkTypeId sdk) {
-    return sdk == JavaSdk.getInstance();
-  }
+	private Parameters getParameters()
+	{
+		if(myParameters == null)
+		{
+			myParameters = new Parameters();
+		}
+		return myParameters;
+	}
 
-  private Parameters getParameters() {
-    if (myParameters == null) {
-      myParameters = new Parameters();
-    }
-    return myParameters;
-  }
+	@Override
+	public boolean validate(Project current, Project dest)
+	{
+		return true;
+	}
 
-  @Override
-  public boolean validate(Project current, Project dest) {
-    return true;
-  }
+	@Override
+	public List<Module> commit(Project project, ModifiableModuleModel model, ModulesProvider modulesProvider, ModifiableArtifactModel artifactModel)
+	{
+		MavenWorkspaceSettings settings = MavenWorkspaceSettingsComponent.getInstance(project).getSettings();
 
-  @Override
-  public List<Module> commit(Project project,
-                             ModifiableModuleModel model,
-                             ModulesProvider modulesProvider,
-                             ModifiableArtifactModel artifactModel) {
-    MavenWorkspaceSettings settings = MavenWorkspaceSettingsComponent.getInstance(project).getSettings();
+		settings.generalSettings = getGeneralSettings();
+		settings.importingSettings = getImportingSettings();
 
-    settings.generalSettings = getGeneralSettings();
-    settings.importingSettings = getImportingSettings();
+		String settingsFile = System.getProperty("idea.maven.import.settings.file");
+		if(!StringUtil.isEmptyOrSpaces(settingsFile))
+		{
+			settings.generalSettings.setUserSettingsFile(settingsFile.trim());
+		}
 
-    String settingsFile = System.getProperty("idea.maven.import.settings.file");
-    if (!StringUtil.isEmptyOrSpaces(settingsFile)) {
-      settings.generalSettings.setUserSettingsFile(settingsFile.trim());
-    }
+		List<String> selectedProfiles = getSelectedProfiles();
 
-    List<String> selectedProfiles = getSelectedProfiles();
+		String profilesList = System.getProperty("idea.maven.import.enabled.profiles");
+		if(profilesList != null)
+		{
+			Set<String> selectedProfilesSet = new LinkedHashSet<String>(selectedProfiles);
 
-    String profilesList = System.getProperty("idea.maven.import.enabled.profiles");
-    if (profilesList != null) {
-      Set<String> selectedProfilesSet = new LinkedHashSet<String>(selectedProfiles);
+			for(String profile : StringUtil.split(profilesList, ","))
+			{
+				String trimmedProfileName = profile.trim();
+				if(!trimmedProfileName.isEmpty())
+				{
+					selectedProfilesSet.add(trimmedProfileName);
+				}
+			}
 
-      for (String profile : StringUtil.split(profilesList, ",")) {
-        String trimmedProfileName = profile.trim();
-        if (!trimmedProfileName.isEmpty()) {
-          selectedProfilesSet.add(trimmedProfileName);
-        }
-      }
+			selectedProfiles = new ArrayList<String>(selectedProfilesSet);
+		}
 
-      selectedProfiles = new ArrayList<String>(selectedProfilesSet);
-    }
+		MavenProjectsManager manager = MavenProjectsManager.getInstance(project);
+		manager.addManagedFilesWithProfiles(MavenUtil.collectFiles(getParameters().mySelectedProjects), selectedProfiles);
+		manager.waitForReadingCompletion();
 
-    MavenProjectsManager manager = MavenProjectsManager.getInstance(project);
-    manager.addManagedFilesWithProfiles(MavenUtil.collectFiles(getParameters().mySelectedProjects), selectedProfiles);
-    manager.waitForReadingCompletion();
+		boolean isFromUI = model != null;
+		return manager.importProjects(isFromUI ? new MavenUIModifiableModelsProvider(project, model, (ModulesConfigurator) modulesProvider,
+				artifactModel) : new MavenDefaultModifiableModelsProvider(project));
+	}
 
-    boolean isFromUI = model != null;
-    return manager.importProjects(isFromUI
-                                  ? new MavenUIModifiableModelsProvider(project, model, (ModulesConfigurator)modulesProvider, artifactModel)
-                                  : new MavenDefaultModifiableModelsProvider(project));
-  }
+	public boolean setRootDirectory(@Nullable Project projectToUpdate, final String root) throws ConfigurationException
+	{
+		getParameters().myFiles = null;
+		getParameters().myProfiles.clear();
+		getParameters().myMavenProjectTree = null;
 
-  public boolean setRootDirectory(@Nullable Project projectToUpdate, final String root) throws ConfigurationException {
-    getParameters().myFiles = null;
-    getParameters().myProfiles.clear();
-    getParameters().myMavenProjectTree = null;
+		getParameters().myProjectToUpdate = projectToUpdate; // We cannot determinate project in non-EDT thread.
 
-    getParameters().myProjectToUpdate = projectToUpdate; // We cannot determinate project in non-EDT thread.
+		return runConfigurationProcess(ProjectBundle.message("maven.scanning.projects"), new MavenTask()
+		{
+			@Override
+			public void run(MavenProgressIndicator indicator) throws MavenProcessCanceledException
+			{
+				indicator.setText(ProjectBundle.message("maven.locating.files"));
 
-    return runConfigurationProcess(ProjectBundle.message("maven.scanning.projects"), new MavenTask() {
-      public void run(MavenProgressIndicator indicator) throws MavenProcessCanceledException {
-        indicator.setText(ProjectBundle.message("maven.locating.files"));
+				getParameters().myImportRoot = LocalFileSystem.getInstance().refreshAndFindFileByPath(root);
+				if(getParameters().myImportRoot == null)
+				{
+					throw new MavenProcessCanceledException();
+				}
 
-        getParameters().myImportRoot = LocalFileSystem.getInstance().refreshAndFindFileByPath(root);
-        if (getParameters().myImportRoot == null) throw new MavenProcessCanceledException();
+				final VirtualFile file = getRootDirectory();
+				if(file == null)
+				{
+					throw new MavenProcessCanceledException();
+				}
 
-        final VirtualFile file = getRootDirectory();
-        if (file == null) throw new MavenProcessCanceledException();
+				getParameters().myFiles = FileFinder.findPomFiles(file.getChildren(), getImportingSettings().isLookForNested(), indicator,
+						new ArrayList<VirtualFile>());
 
-        getParameters().myFiles = FileFinder.findPomFiles(file.getChildren(),
-                                                          getImportingSettings().isLookForNested(),
-                                                          indicator,
-                                                          new ArrayList<VirtualFile>());
+				collectProfiles(indicator);
+				if(getParameters().myProfiles.isEmpty())
+				{
+					readMavenProjectTree(indicator);
+				}
 
-        collectProfiles(indicator);
-        if (getParameters().myProfiles.isEmpty()) {
-          readMavenProjectTree(indicator);
-        }
+				indicator.setText("");
+				indicator.setText2("");
+			}
+		});
+	}
 
-        indicator.setText("");
-        indicator.setText2("");
-      }
-    });
-  }
+	private void collectProfiles(MavenProgressIndicator process)
+	{
+		process.setText(ProjectBundle.message("maven.searching.profiles"));
 
-  private void collectProfiles(MavenProgressIndicator process) {
-    process.setText(ProjectBundle.message("maven.searching.profiles"));
+		Set<String> uniqueProfiles = new LinkedHashSet<String>();
+		MavenProjectReader reader = new MavenProjectReader();
+		MavenGeneralSettings generalSettings = getGeneralSettings();
+		MavenProjectReaderProjectLocator locator = new MavenProjectReaderProjectLocator()
+		{
+			@Override
+			public VirtualFile findProjectFile(MavenId coordinates)
+			{
+				return null;
+			}
+		};
+		for(VirtualFile f : getParameters().myFiles)
+		{
+			MavenProject project = new MavenProject(f);
+			process.setText2(ProjectBundle.message("maven.reading.pom", f.getPath()));
+			project.read(generalSettings, Collections.<String>emptyList(), reader, locator);
+			uniqueProfiles.addAll(project.getProfilesIds());
+		}
+		getParameters().myProfiles = new ArrayList<String>(uniqueProfiles);
+	}
 
-    Set<String> uniqueProfiles = new LinkedHashSet<String>();
-    MavenProjectReader reader = new MavenProjectReader();
-    MavenGeneralSettings generalSettings = getGeneralSettings();
-    MavenProjectReaderProjectLocator locator = new MavenProjectReaderProjectLocator() {
-      public VirtualFile findProjectFile(MavenId coordinates) {
-        return null;
-      }
-    };
-    for (VirtualFile f : getParameters().myFiles) {
-      MavenProject project = new MavenProject(f);
-      process.setText2(ProjectBundle.message("maven.reading.pom", f.getPath()));
-      project.read(generalSettings, Collections.<String>emptyList(), reader, locator);
-      uniqueProfiles.addAll(project.getProfilesIds());
-    }
-    getParameters().myProfiles = new ArrayList<String>(uniqueProfiles);
-  }
+	public List<String> getProfiles()
+	{
+		return getParameters().myProfiles;
+	}
 
-  public List<String> getProfiles() {
-    return getParameters().myProfiles;
-  }
+	public List<String> getSelectedProfiles()
+	{
+		return getParameters().mySelectedProfiles;
+	}
 
-  public List<String> getSelectedProfiles() {
-    return getParameters().mySelectedProfiles;
-  }
+	public boolean setSelectedProfiles(List<String> profiles)
+	{
+		getParameters().myMavenProjectTree = null;
+		getParameters().mySelectedProfiles = profiles;
 
-  public boolean setSelectedProfiles(List<String> profiles) {
-    getParameters().myMavenProjectTree = null;
-    getParameters().mySelectedProfiles = profiles;
+		return runConfigurationProcess(ProjectBundle.message("maven.scanning.projects"), new MavenTask()
+		{
+			@Override
+			public void run(MavenProgressIndicator indicator) throws MavenProcessCanceledException
+			{
+				readMavenProjectTree(indicator);
+				indicator.setText2("");
+			}
+		});
+	}
 
-    return runConfigurationProcess(ProjectBundle.message("maven.scanning.projects"), new MavenTask() {
-      public void run(MavenProgressIndicator indicator) throws MavenProcessCanceledException {
-        readMavenProjectTree(indicator);
-        indicator.setText2("");
-      }
-    });
-  }
+	private static boolean runConfigurationProcess(String message, MavenTask p)
+	{
+		try
+		{
+			MavenUtil.run(null, message, p);
+		}
+		catch(MavenProcessCanceledException e)
+		{
+			return false;
+		}
+		return true;
+	}
 
-  private static boolean runConfigurationProcess(String message, MavenTask p) {
-    try {
-      MavenUtil.run(null, message, p);
-    }
-    catch (MavenProcessCanceledException e) {
-      return false;
-    }
-    return true;
-  }
+	private void readMavenProjectTree(MavenProgressIndicator process) throws MavenProcessCanceledException
+	{
+		MavenProjectsTree tree = new MavenProjectsTree();
+		tree.addManagedFilesWithProfiles(getParameters().myFiles, getParameters().mySelectedProfiles);
+		tree.updateAll(false, getGeneralSettings(), process);
 
-  private void readMavenProjectTree(MavenProgressIndicator process) throws MavenProcessCanceledException {
-    MavenProjectsTree tree = new MavenProjectsTree();
-    tree.addManagedFilesWithProfiles(getParameters().myFiles, getParameters().mySelectedProfiles);
-    tree.updateAll(false, getGeneralSettings(), process);
+		getParameters().myMavenProjectTree = tree;
+		getParameters().mySelectedProjects = tree.getRootProjects();
+	}
 
-    getParameters().myMavenProjectTree = tree;
-    getParameters().mySelectedProjects = tree.getRootProjects();
-  }
+	@Override
+	public List<MavenProject> getList()
+	{
+		return getParameters().myMavenProjectTree.getRootProjects();
+	}
 
-  public List<MavenProject> getList() {
-    return getParameters().myMavenProjectTree.getRootProjects();
-  }
+	@Override
+	public void setList(List<MavenProject> projects)
+	{
+		getParameters().mySelectedProjects = projects;
+	}
 
-  public void setList(List<MavenProject> projects) {
-    getParameters().mySelectedProjects = projects;
-  }
+	@Override
+	public boolean isMarked(MavenProject element)
+	{
+		return getParameters().mySelectedProjects.contains(element);
+	}
 
-  public boolean isMarked(MavenProject element) {
-    return getParameters().mySelectedProjects.contains(element);
-  }
+	@Override
+	public boolean isOpenProjectSettingsAfter()
+	{
+		return getParameters().myOpenModulesConfigurator;
+	}
 
-  public boolean isOpenProjectSettingsAfter() {
-    return getParameters().myOpenModulesConfigurator;
-  }
+	@Override
+	public void setOpenProjectSettingsAfter(boolean on)
+	{
+		getParameters().myOpenModulesConfigurator = on;
+	}
 
-  public void setOpenProjectSettingsAfter(boolean on) {
-    getParameters().myOpenModulesConfigurator = on;
-  }
+	public MavenGeneralSettings getGeneralSettings()
+	{
+		if(getParameters().myGeneralSettingsCache == null)
+		{
+			AccessToken accessToken = ApplicationManager.getApplication().acquireReadActionLock();
+			try
+			{
+				getParameters().myGeneralSettingsCache = getDirectProjectsSettings().generalSettings.clone();
+			}
+			finally
+			{
+				accessToken.finish();
+			}
+		}
+		return getParameters().myGeneralSettingsCache;
+	}
 
-  public MavenGeneralSettings getGeneralSettings() {
-    if (getParameters().myGeneralSettingsCache == null) {
-      AccessToken accessToken = ApplicationManager.getApplication().acquireReadActionLock();
-      try {
-        getParameters().myGeneralSettingsCache = getDirectProjectsSettings().generalSettings.clone();
-      }
-      finally {
-        accessToken.finish();
-      }
-    }
-    return getParameters().myGeneralSettingsCache;
-  }
+	public MavenImportingSettings getImportingSettings()
+	{
+		if(getParameters().myImportingSettingsCache == null)
+		{
+			AccessToken accessToken = ApplicationManager.getApplication().acquireReadActionLock();
+			try
+			{
+				getParameters().myImportingSettingsCache = getDirectProjectsSettings().importingSettings.clone();
+			}
+			finally
+			{
+				accessToken.finish();
+			}
+		}
+		return getParameters().myImportingSettingsCache;
+	}
 
-  public MavenImportingSettings getImportingSettings() {
-    if (getParameters().myImportingSettingsCache == null) {
-      AccessToken accessToken = ApplicationManager.getApplication().acquireReadActionLock();
-      try {
-        getParameters().myImportingSettingsCache = getDirectProjectsSettings().importingSettings.clone();
-      }
-      finally {
-        accessToken.finish();
-      }
-    }
-    return getParameters().myImportingSettingsCache;
-  }
+	private MavenWorkspaceSettings getDirectProjectsSettings()
+	{
+		ApplicationManager.getApplication().assertReadAccessAllowed();
 
-  private MavenWorkspaceSettings getDirectProjectsSettings() {
-    ApplicationManager.getApplication().assertReadAccessAllowed();
+		Project project = isUpdate() ? getProjectToUpdate() : null;
+		if(project == null || project.isDisposed())
+		{
+			project = ProjectManager.getInstance().getDefaultProject();
+		}
 
-    Project project = isUpdate() ? getProjectToUpdate() : null;
-    if (project == null || project.isDisposed()) project = ProjectManager.getInstance().getDefaultProject();
+		return MavenWorkspaceSettingsComponent.getInstance(project).getSettings();
+	}
 
-    return MavenWorkspaceSettingsComponent.getInstance(project).getSettings();
-  }
+	public void setFiles(List<VirtualFile> files)
+	{
+		getParameters().myFiles = files;
+	}
 
-  public void setFiles(List<VirtualFile> files) {
-    getParameters().myFiles = files;
-  }
+	@Nullable
+	public Project getProjectToUpdate()
+	{
+		if(getParameters().myProjectToUpdate == null)
+		{
+			getParameters().myProjectToUpdate = getCurrentProject();
+		}
+		return getParameters().myProjectToUpdate;
+	}
 
-  @Nullable
-  public Project getProjectToUpdate() {
-    if (getParameters().myProjectToUpdate == null) {
-      getParameters().myProjectToUpdate = getCurrentProject();
-    }
-    return getParameters().myProjectToUpdate;
-  }
+	@Nullable
+	public VirtualFile getRootDirectory()
+	{
+		if(getParameters().myImportRoot == null && isUpdate())
+		{
+			final Project project = getProjectToUpdate();
+			getParameters().myImportRoot = project != null ? project.getBaseDir() : null;
+		}
+		return getParameters().myImportRoot;
+	}
 
-  @Nullable
-  public VirtualFile getRootDirectory() {
-    if (getParameters().myImportRoot == null && isUpdate()) {
-      final Project project = getProjectToUpdate();
-      getParameters().myImportRoot = project != null ? project.getBaseDir() : null;
-    }
-    return getParameters().myImportRoot;
-  }
+	public String getSuggestedProjectName()
+	{
+		final List<MavenProject> list = getParameters().myMavenProjectTree.getRootProjects();
+		if(list.size() == 1)
+		{
+			return list.get(0).getMavenId().getArtifactId();
+		}
+		return null;
+	}
 
-  public String getSuggestedProjectName() {
-    final List<MavenProject> list = getParameters().myMavenProjectTree.getRootProjects();
-    if (list.size() == 1) {
-      return list.get(0).getMavenId().getArtifactId();
-    }
-    return null;
-  }
-
-  @Override
-  public void setFileToImport(String path) {
-    VirtualFile file = LocalFileSystem.getInstance().refreshAndFindFileByPath(path);
-    getParameters().myImportRoot = file == null || file.isDirectory() ? file : file.getParent();
-  }
+	@Override
+	public void setFileToImport(String path)
+	{
+		VirtualFile file = LocalFileSystem.getInstance().refreshAndFindFileByPath(path);
+		getParameters().myImportRoot = file == null || file.isDirectory() ? file : file.getParent();
+	}
 }
