@@ -4,6 +4,7 @@
 	<name>Maven Integration</name>
 	<description>Import Maven projects and execute Maven goals</description>
 	<vendor>JetBrains</vendor>
+	<version>SNAPSHOT</version>
 	<depends>com.intellij.xml</depends>
 	<depends>org.consulo.java</depends>
 	<depends>com.intellij.properties</depends>
