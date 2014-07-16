@@ -15,6 +15,12 @@
  */
 package org.jetbrains.idea.maven.importing;
 
+import gnu.trove.THashMap;
+
+import java.util.IdentityHashMap;
+import java.util.Map;
+
+import org.jetbrains.annotations.NotNull;
 import com.intellij.openapi.module.ModifiableModuleModel;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
@@ -28,14 +34,7 @@ import com.intellij.openapi.roots.ui.configuration.ModulesProvider;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.packaging.artifacts.ArtifactModel;
 import com.intellij.packaging.artifacts.ModifiableArtifactModel;
-import com.intellij.packaging.elements.ManifestFileProvider;
 import com.intellij.packaging.elements.PackagingElementResolvingContext;
-import com.intellij.packaging.impl.artifacts.DefaultManifestFileProvider;
-import gnu.trove.THashMap;
-import org.jetbrains.annotations.NotNull;
-
-import java.util.IdentityHashMap;
-import java.util.Map;
 
 public abstract class MavenBaseModifiableModelsProvider implements MavenModifiableModelsProvider {
   protected ModifiableModuleModel myModuleModel;
@@ -51,6 +50,7 @@ public abstract class MavenBaseModifiableModelsProvider implements MavenModifiab
     myArtifactExternalDependenciesImporter = new ArtifactExternalDependenciesImporter();
   }
 
+  @Override
   public ModifiableModuleModel getModuleModel() {
     if (myModuleModel == null) {
       myModuleModel = doGetModuleModel();
@@ -58,6 +58,7 @@ public abstract class MavenBaseModifiableModelsProvider implements MavenModifiab
     return myModuleModel;
   }
 
+  @Override
   public ModifiableRootModel getRootModel(@NotNull Module module) {
     ModifiableRootModel result = myRootModels.get(module);
     if (result == null) {
@@ -67,6 +68,7 @@ public abstract class MavenBaseModifiableModelsProvider implements MavenModifiab
     return result;
   }
 
+  @Override
   public ModifiableArtifactModel getArtifactModel() {
     if (myArtifactModel == null) {
       myArtifactModel = doGetArtifactModel();
@@ -74,6 +76,7 @@ public abstract class MavenBaseModifiableModelsProvider implements MavenModifiab
     return myArtifactModel;
   }
 
+  @Override
   public PackagingElementResolvingContext getPackagingElementResolvingContext() {
     if (myPackagingElementResolvingContext == null) {
       myPackagingElementResolvingContext = new MyPackagingElementResolvingContext();
@@ -81,10 +84,12 @@ public abstract class MavenBaseModifiableModelsProvider implements MavenModifiab
     return myPackagingElementResolvingContext;
   }
 
+  @Override
   public ArtifactExternalDependenciesImporter getArtifactExternalDependenciesImporter() {
     return myArtifactExternalDependenciesImporter;
   }
 
+  @Override
   public Library.ModifiableModel getLibraryModel(Library library) {
     Library.ModifiableModel result = myLibraryModels.get(library);
     if (result == null) {
@@ -112,6 +117,7 @@ public abstract class MavenBaseModifiableModelsProvider implements MavenModifiab
 
   protected abstract Library.ModifiableModel doGetLibraryModel(Library library);
 
+  @Override
   public Module[] getModules() {
     return getModuleModel().getModules();
   }
@@ -120,55 +126,56 @@ public abstract class MavenBaseModifiableModelsProvider implements MavenModifiab
     myArtifactExternalDependenciesImporter.applyChanges(getArtifactModel(), getPackagingElementResolvingContext());
   }
 
+  @Override
   public VirtualFile[] getContentRoots(Module module) {
     return getRootModel(module).getContentRoots();
   }
 
   private class MyPackagingElementResolvingContext implements PackagingElementResolvingContext {
     private final ModulesProvider myModulesProvider = new MavenModulesProvider();
-    private final DefaultManifestFileProvider myManifestFileProvider = new DefaultManifestFileProvider(this);
 
-    @NotNull
+    @Override
+	@NotNull
     public Project getProject() {
       return myProject;
     }
 
-    @NotNull
+    @Override
+	@NotNull
     public ArtifactModel getArtifactModel() {
       return MavenBaseModifiableModelsProvider.this.getArtifactModel();
     }
 
-    @NotNull
+    @Override
+	@NotNull
     public ModulesProvider getModulesProvider() {
       return myModulesProvider;
     }
 
-    public Library findLibrary(@NotNull String level, @NotNull String libraryName) {
+    @Override
+	public Library findLibrary(@NotNull String level, @NotNull String libraryName) {
       if (level.equals(LibraryTablesRegistrar.PROJECT_LEVEL)) {
         return getLibraryByName(libraryName);
       }
       final LibraryTable table = LibraryTablesRegistrar.getInstance().getLibraryTableByLevel(level, myProject);
       return table != null ? table.getLibraryByName(libraryName) : null;
     }
-
-    @NotNull
-    @Override
-    public ManifestFileProvider getManifestFileProvider() {
-      return myManifestFileProvider;
-    }
   }
 
   private class MavenModulesProvider implements ModulesProvider {
-    @NotNull
+    @Override
+	@NotNull
     public Module[] getModules() {
       return getModuleModel().getModules();
     }
 
-    public Module getModule(String name) {
+    @Override
+	public Module getModule(String name) {
       return getModuleModel().findModuleByName(name);
     }
 
-    public ModuleRootModel getRootModel(@NotNull Module module) {
+    @Override
+	public ModuleRootModel getRootModel(@NotNull Module module) {
       return MavenBaseModifiableModelsProvider.this.getRootModel(module);
     }
   }
