@@ -2,143 +2,155 @@
 <project version="4">
   <component name="ModuleManager">
     <modules>
-      <module name="consulo-maven" dirurl="file://$PROJECT_DIR$">
-        <extension id="consulo-plugin" sdk-module-name="" sdk-name="Consulo 1.SNAPSHOT" custom-plugin-dir-url="file://$MODULE_DIR$/dep" />
-        <extension id="java" sdk-module-name="" sdk-name="1.6" language-level-module-name="" language-level-name="JDK_1_6" special-dir-location="SOURCE_DIR" />
-        <extension id="lombok" />
-        <content url="file://$MODULE_DIR$">
-          <content-folder type="PRODUCTION" url="file://$MODULE_DIR$/src/main/java" />
-          <content-folder type="PRODUCTION_RESOURCE" url="file://$MODULE_DIR$/src/main/resources" />
-          <content-folder type="EXCLUDED" url="file://$MODULE_DIR$/.consulo/sandbox" />
-        </content>
-        <orderEntry type="module-extension-sdk" extension-id="java" />
-        <orderEntry type="module-extension-sdk" extension-id="consulo-plugin" />
-        <orderEntry type="sourceFolder" forTests="false" />
-        <orderEntry type="module-library">
-          <library name="consulo:XML">
-            <CLASSES>
-              <root url="jar://$MODULE_DIR$/dep/xml/lib/jaxen-1.1.3.jar!/" />
-              <root url="jar://$MODULE_DIR$/dep/xml/lib/jsr173_1.0_api.jar!/" />
-              <root url="jar://$MODULE_DIR$/dep/xml/lib/resolver.jar!/" />
-              <root url="jar://$MODULE_DIR$/dep/xml/lib/xbean.jar!/" />
-              <root url="jar://$MODULE_DIR$/dep/xml/lib/xerces.jar!/" />
-              <root url="jar://$MODULE_DIR$/dep/xml/lib/xml.jar!/" />
-            </CLASSES>
-            <DOCUMENTATION />
-            <SOURCES />
-          </library>
-        </orderEntry>
-        <orderEntry type="module-library">
-          <library name="consulo:Properties Support">
-            <CLASSES>
-              <root url="jar://$MODULE_DIR$/dep/properties/lib/properties.jar!/" />
-            </CLASSES>
-            <DOCUMENTATION />
-            <SOURCES />
-          </library>
-        </orderEntry>
-        <orderEntry type="module-library">
-          <library name="consulo:Java">
-            <CLASSES>
-              <root url="jar://$MODULE_DIR$/dep/java/lib/java-manifest.jar!/" />
-              <root url="jar://$MODULE_DIR$/dep/java/lib/java-rt.jar!/" />
-              <root url="jar://$MODULE_DIR$/dep/java/lib/java.jar!/" />
-              <root url="jar://$MODULE_DIR$/dep/java/lib/jdk-annotations.jar!/" />
-            </CLASSES>
-            <DOCUMENTATION />
-            <SOURCES />
-          </library>
-        </orderEntry>
-        <orderEntry type="module-library">
-          <library>
-            <CLASSES>
-              <root url="jar://$MODULE_DIR$/lib/plexus-utils-2.0.6.jar!/" />
-            </CLASSES>
-            <DOCUMENTATION />
-            <SOURCES />
-          </library>
-        </orderEntry>
-        <orderEntry type="module-library">
-          <library>
-            <CLASSES>
-              <root url="jar://$MODULE_DIR$/lib/wadl-core.jar!/" />
-            </CLASSES>
-            <DOCUMENTATION />
-            <SOURCES />
-          </library>
-        </orderEntry>
-        <orderEntry type="module" module-name="maven-server-api" />
-        <orderEntry type="library" name="commons-cli" level="project" />
-        <orderEntry type="module" module-name="artifact-resolver-m2" />
-        <orderEntry type="module" module-name="artifact-resolver-m3" />
+      <module name="consulo-maven" dirurl="file://$PROJECT_DIR$" current-layer="Default">
+        <module-layer name="Default">
+          <extension id="consulo-plugin" sdk-module-name="" sdk-name="Consulo 1.SNAPSHOT" custom-plugin-dir-url="file://$MODULE_DIR$/dep" />
+          <extension id="java" sdk-module-name="" sdk-name="1.6" language-level-module-name="" language-level-name="JDK_1_6" special-dir-location="SOURCE_DIR" />
+          <extension id="lombok" />
+          <content url="file://$MODULE_DIR$">
+            <content-folder type="EXCLUDED" url="file://$MODULE_DIR$/.consulo/sandbox" />
+            <content-folder type="PRODUCTION" url="file://$MODULE_DIR$/src/main/java" />
+            <content-folder type="PRODUCTION_RESOURCE" url="file://$MODULE_DIR$/src/main/resources" />
+          </content>
+          <orderEntry type="module-extension-sdk" extension-id="java" />
+          <orderEntry type="module-extension-sdk" extension-id="consulo-plugin" />
+          <orderEntry type="sourceFolder" forTests="false" />
+          <orderEntry type="module-library">
+            <library name="consulo:XML">
+              <CLASSES>
+                <root url="jar://$MODULE_DIR$/dep/xml/lib/jaxen-1.1.3.jar!/" />
+                <root url="jar://$MODULE_DIR$/dep/xml/lib/jsr173_1.0_api.jar!/" />
+                <root url="jar://$MODULE_DIR$/dep/xml/lib/resolver.jar!/" />
+                <root url="jar://$MODULE_DIR$/dep/xml/lib/xbean.jar!/" />
+                <root url="jar://$MODULE_DIR$/dep/xml/lib/xerces.jar!/" />
+                <root url="jar://$MODULE_DIR$/dep/xml/lib/xml.jar!/" />
+              </CLASSES>
+              <DOCUMENTATION />
+              <SOURCES />
+            </library>
+          </orderEntry>
+          <orderEntry type="module-library">
+            <library name="consulo:Properties Support">
+              <CLASSES>
+                <root url="jar://$MODULE_DIR$/dep/properties/lib/properties.jar!/" />
+              </CLASSES>
+              <DOCUMENTATION />
+              <SOURCES />
+            </library>
+          </orderEntry>
+          <orderEntry type="module-library">
+            <library name="consulo:Java">
+              <CLASSES>
+                <root url="jar://$MODULE_DIR$/dep/java/lib/java-manifest.jar!/" />
+                <root url="jar://$MODULE_DIR$/dep/java/lib/java-rt.jar!/" />
+                <root url="jar://$MODULE_DIR$/dep/java/lib/java.jar!/" />
+                <root url="jar://$MODULE_DIR$/dep/java/lib/jdk-annotations.jar!/" />
+              </CLASSES>
+              <DOCUMENTATION />
+              <SOURCES />
+            </library>
+          </orderEntry>
+          <orderEntry type="module-library">
+            <library>
+              <CLASSES>
+                <root url="jar://$MODULE_DIR$/lib/plexus-utils-2.0.6.jar!/" />
+              </CLASSES>
+              <DOCUMENTATION />
+              <SOURCES />
+            </library>
+          </orderEntry>
+          <orderEntry type="module-library">
+            <library>
+              <CLASSES>
+                <root url="jar://$MODULE_DIR$/lib/wadl-core.jar!/" />
+              </CLASSES>
+              <DOCUMENTATION />
+              <SOURCES />
+            </library>
+          </orderEntry>
+          <orderEntry type="module" module-name="maven-server-api" />
+          <orderEntry type="library" name="commons-cli" level="project" />
+          <orderEntry type="module" module-name="artifact-resolver-m2" />
+          <orderEntry type="module" module-name="artifact-resolver-m3" />
+        </module-layer>
       </module>
-      <module name="maven-server-api" dirurl="file://$PROJECT_DIR$/maven-server-api">
-        <extension id="consulo-plugin" sdk-module-name="consulo-maven" sdk-name="" />
-        <extension id="java" sdk-module-name="consulo-maven" sdk-name="" language-level-module-name="consulo-maven" language-level-name="" special-dir-location="SOURCE_DIR" />
-        <content url="file://$MODULE_DIR$">
-          <content-folder type="PRODUCTION" url="file://$MODULE_DIR$/src" />
-        </content>
-        <orderEntry type="module-extension-sdk" extension-id="java" />
-        <orderEntry type="module-extension-sdk" extension-id="consulo-plugin" />
-        <orderEntry type="sourceFolder" forTests="false" />
-        <orderEntry type="module-library" exported="">
-          <library>
-            <CLASSES>
-              <root url="jar://$MODULE_DIR$/lib/lucene-core-2.4.1.jar!/" />
-            </CLASSES>
-            <DOCUMENTATION />
-            <SOURCES />
-          </library>
-        </orderEntry>
+      <module name="maven-server-api" dirurl="file://$PROJECT_DIR$/maven-server-api" current-layer="Default">
+        <module-layer name="Default">
+          <extension id="consulo-plugin" sdk-module-name="consulo-maven" sdk-name="" />
+          <extension id="java" sdk-module-name="consulo-maven" sdk-name="" language-level-module-name="consulo-maven" language-level-name="" special-dir-location="SOURCE_DIR" />
+          <content url="file://$MODULE_DIR$">
+            <content-folder type="PRODUCTION" url="file://$MODULE_DIR$/src" />
+          </content>
+          <orderEntry type="module-extension-sdk" extension-id="java" />
+          <orderEntry type="module-extension-sdk" extension-id="consulo-plugin" />
+          <orderEntry type="sourceFolder" forTests="false" />
+          <orderEntry type="module-library" exported="">
+            <library>
+              <CLASSES>
+                <root url="jar://$MODULE_DIR$/lib/lucene-core-2.4.1.jar!/" />
+              </CLASSES>
+              <DOCUMENTATION />
+              <SOURCES />
+            </library>
+          </orderEntry>
+        </module-layer>
       </module>
-      <module name="artifact-resolver-m2" dirurl="file://$PROJECT_DIR$/artifact-resolver-m2">
-        <extension id="consulo-plugin" sdk-module-name="consulo-maven" sdk-name="" />
-        <extension id="java" sdk-module-name="consulo-maven" sdk-name="" language-level-module-name="consulo-maven" language-level-name="" special-dir-location="MODULE_DIR" />
-        <content url="file://$MODULE_DIR$">
-          <content-folder type="PRODUCTION" url="file://$MODULE_DIR$/src" />
-          <content-folder type="PRODUCTION_RESOURCE" url="file://$MODULE_DIR$/resources" />
-        </content>
-        <orderEntry type="module-extension-sdk" extension-id="java" />
-        <orderEntry type="module-extension-sdk" extension-id="consulo-plugin" />
-        <orderEntry type="sourceFolder" forTests="false" />
-        <orderEntry type="library" name="Maven2" level="project" />
+      <module name="artifact-resolver-m2" dirurl="file://$PROJECT_DIR$/artifact-resolver-m2" current-layer="Default">
+        <module-layer name="Default">
+          <extension id="consulo-plugin" sdk-module-name="consulo-maven" sdk-name="" />
+          <extension id="java" sdk-module-name="consulo-maven" sdk-name="" language-level-module-name="consulo-maven" language-level-name="" special-dir-location="MODULE_DIR" />
+          <content url="file://$MODULE_DIR$">
+            <content-folder type="PRODUCTION_RESOURCE" url="file://$MODULE_DIR$/resources" />
+            <content-folder type="PRODUCTION" url="file://$MODULE_DIR$/src" />
+          </content>
+          <orderEntry type="module-extension-sdk" extension-id="java" />
+          <orderEntry type="module-extension-sdk" extension-id="consulo-plugin" />
+          <orderEntry type="sourceFolder" forTests="false" />
+          <orderEntry type="library" name="Maven2" level="project" />
+        </module-layer>
       </module>
-      <module name="maven2-server-impl" dirurl="file://$PROJECT_DIR$/maven2-server-impl">
-        <extension id="consulo-plugin" sdk-module-name="consulo-maven" sdk-name="" />
-        <extension id="java" sdk-module-name="consulo-maven" sdk-name="" language-level-module-name="consulo-maven" language-level-name="" special-dir-location="SOURCE_DIR" />
-        <content url="file://$MODULE_DIR$">
-          <content-folder type="PRODUCTION" url="file://$MODULE_DIR$/src" />
-        </content>
-        <orderEntry type="module-extension-sdk" extension-id="java" />
-        <orderEntry type="module-extension-sdk" extension-id="consulo-plugin" />
-        <orderEntry type="sourceFolder" forTests="false" />
-        <orderEntry type="module" module-name="maven-server-api" />
-        <orderEntry type="library" name="Maven2" level="project" />
+      <module name="maven2-server-impl" dirurl="file://$PROJECT_DIR$/maven2-server-impl" current-layer="Default">
+        <module-layer name="Default">
+          <extension id="consulo-plugin" sdk-module-name="consulo-maven" sdk-name="" />
+          <extension id="java" sdk-module-name="consulo-maven" sdk-name="" language-level-module-name="consulo-maven" language-level-name="" special-dir-location="SOURCE_DIR" />
+          <content url="file://$MODULE_DIR$">
+            <content-folder type="PRODUCTION" url="file://$MODULE_DIR$/src" />
+          </content>
+          <orderEntry type="module-extension-sdk" extension-id="java" />
+          <orderEntry type="module-extension-sdk" extension-id="consulo-plugin" />
+          <orderEntry type="sourceFolder" forTests="false" />
+          <orderEntry type="module" module-name="maven-server-api" />
+          <orderEntry type="library" name="Maven2" level="project" />
+        </module-layer>
       </module>
-      <module name="maven3-server-impl" dirurl="file://$PROJECT_DIR$/maven3-server-impl">
-        <extension id="consulo-plugin" sdk-module-name="consulo-maven" sdk-name="" />
-        <extension id="java" sdk-module-name="consulo-maven" sdk-name="" language-level-module-name="consulo-maven" language-level-name="" special-dir-location="MODULE_DIR" />
-        <content url="file://$MODULE_DIR$">
-          <content-folder type="PRODUCTION" url="file://$MODULE_DIR$/src" />
-        </content>
-        <orderEntry type="module-extension-sdk" extension-id="java" />
-        <orderEntry type="module-extension-sdk" extension-id="consulo-plugin" />
-        <orderEntry type="sourceFolder" forTests="false" />
-        <orderEntry type="module" module-name="maven-server-api" />
-        <orderEntry type="library" name="Maven3" level="project" />
+      <module name="maven3-server-impl" dirurl="file://$PROJECT_DIR$/maven3-server-impl" current-layer="Default">
+        <module-layer name="Default">
+          <extension id="consulo-plugin" sdk-module-name="consulo-maven" sdk-name="" />
+          <extension id="java" sdk-module-name="consulo-maven" sdk-name="" language-level-module-name="consulo-maven" language-level-name="" special-dir-location="MODULE_DIR" />
+          <content url="file://$MODULE_DIR$">
+            <content-folder type="PRODUCTION" url="file://$MODULE_DIR$/src" />
+          </content>
+          <orderEntry type="module-extension-sdk" extension-id="java" />
+          <orderEntry type="module-extension-sdk" extension-id="consulo-plugin" />
+          <orderEntry type="sourceFolder" forTests="false" />
+          <orderEntry type="module" module-name="maven-server-api" />
+          <orderEntry type="library" name="Maven3" level="project" />
+        </module-layer>
       </module>
-      <module name="artifact-resolver-m3" dirurl="file://$PROJECT_DIR$/artifact-resolver-m3">
-        <extension id="consulo-plugin" sdk-module-name="consulo-maven" sdk-name="" />
-        <extension id="java" sdk-module-name="consulo-maven" sdk-name="" language-level-module-name="consulo-maven" language-level-name="" special-dir-location="SOURCE_DIR" />
-        <content url="file://$MODULE_DIR$">
-          <content-folder type="PRODUCTION" url="file://$MODULE_DIR$/src" />
-          <content-folder type="PRODUCTION_RESOURCE" url="file://$MODULE_DIR$/resources" />
-        </content>
-        <orderEntry type="module-extension-sdk" extension-id="java" />
-        <orderEntry type="module-extension-sdk" extension-id="consulo-plugin" />
-        <orderEntry type="sourceFolder" forTests="false" />
-        <orderEntry type="library" name="Maven3" level="project" />
-        <orderEntry type="module" module-name="artifact-resolver-m2" />
+      <module name="artifact-resolver-m3" dirurl="file://$PROJECT_DIR$/artifact-resolver-m3" current-layer="Default">
+        <module-layer name="Default">
+          <extension id="consulo-plugin" sdk-module-name="consulo-maven" sdk-name="" />
+          <extension id="java" sdk-module-name="consulo-maven" sdk-name="" language-level-module-name="consulo-maven" language-level-name="" special-dir-location="SOURCE_DIR" />
+          <content url="file://$MODULE_DIR$">
+            <content-folder type="PRODUCTION_RESOURCE" url="file://$MODULE_DIR$/resources" />
+            <content-folder type="PRODUCTION" url="file://$MODULE_DIR$/src" />
+          </content>
+          <orderEntry type="module-extension-sdk" extension-id="java" />
+          <orderEntry type="module-extension-sdk" extension-id="consulo-plugin" />
+          <orderEntry type="sourceFolder" forTests="false" />
+          <orderEntry type="library" name="Maven3" level="project" />
+          <orderEntry type="module" module-name="artifact-resolver-m2" />
+        </module-layer>
       </module>
     </modules>
   </component>
