@@ -1,6 +1,6 @@
 <component name="libraryTable">
   <library name="Maven3">
-    <CLASSES>
+    <binaries>
       <root url="jar://$PROJECT_DIR$/maven3-server-impl/lib/archetype-catalog-2.2.jar!/" />
       <root url="jar://$PROJECT_DIR$/maven3-server-impl/lib/archetype-common-2.2.jar!/" />
       <root url="jar://$PROJECT_DIR$/maven3-server-impl/lib/maven-dependency-tree-1.2.jar!/" />
@@ -38,17 +38,16 @@
       <root url="jar://$PROJECT_DIR$/maven3-server-impl/lib/maven3/lib/wagon-provider-api-1.0-beta-7.jar!/" />
       <root url="jar://$PROJECT_DIR$/maven3-server-impl/lib/maven3/lib/xercesMinimal-1.9.6.2.jar!/" />
       <root url="jar://$PROJECT_DIR$/maven3-server-impl/lib/maven3/boot/plexus-classworlds-2.4.jar!/" />
-    </CLASSES>
-    <DOCUMENTATION />
-    <SOURCES>
+    </binaries>
+    <sources>
       <root url="zip://$PROJECT_DIR$/maven3-server-impl/lib-src/apache-maven-3.0.3-src.zip!/" />
       <root url="jar://$PROJECT_DIR$/maven3-server-impl/lib-src/maven-dependency-tree-1.2-sources.jar!/" />
       <root url="jar://$PROJECT_DIR$/maven3-server-impl/lib-src/nexus-indexer-3.0.4-sources.jar!/" />
       <root url="zip://$PROJECT_DIR$/maven3-server-impl/lib-src/wagon-1.0-beta-7-source-release.zip!/" />
-    </SOURCES>
-    <jarDirectory url="jar://$PROJECT_DIR$/maven3-server-impl/lib-src/maven-dependency-tree-1.2-sources.jar!/" recursive="false" type="SOURCES" />
-    <jarDirectory url="jar://$PROJECT_DIR$/maven3-server-impl/lib-src/nexus-indexer-3.0.4-sources.jar!/" recursive="false" type="SOURCES" />
-    <jarDirectory url="zip://$PROJECT_DIR$/maven3-server-impl/lib-src/apache-maven-3.0.3-src.zip!/" recursive="false" type="SOURCES" />
-    <jarDirectory url="zip://$PROJECT_DIR$/maven3-server-impl/lib-src/wagon-1.0-beta-7-source-release.zip!/" recursive="false" type="SOURCES" />
+    </sources>
+    <jarDirectory url="jar://$PROJECT_DIR$/maven3-server-impl/lib-src/maven-dependency-tree-1.2-sources.jar!/" recursive="false" type="sources" />
+    <jarDirectory url="jar://$PROJECT_DIR$/maven3-server-impl/lib-src/nexus-indexer-3.0.4-sources.jar!/" recursive="false" type="sources" />
+    <jarDirectory url="zip://$PROJECT_DIR$/maven3-server-impl/lib-src/apache-maven-3.0.3-src.zip!/" recursive="false" type="sources" />
+    <jarDirectory url="zip://$PROJECT_DIR$/maven3-server-impl/lib-src/wagon-1.0-beta-7-source-release.zip!/" recursive="false" type="sources" />
   </library>
 </component>

@@ -17,7 +17,7 @@ package org.consulo.maven.module.extension;
 
 import org.consulo.module.extension.impl.ModuleExtensionImpl;
 import org.jetbrains.annotations.NotNull;
-import com.intellij.openapi.roots.ModifiableRootModel;
+import com.intellij.openapi.roots.ModuleRootLayer;
 
 /**
  * @author VISTALL
@@ -25,8 +25,8 @@ import com.intellij.openapi.roots.ModifiableRootModel;
  */
 public class MavenModuleExtension extends ModuleExtensionImpl<MavenModuleExtension>
 {
-	public MavenModuleExtension(@NotNull String id, @NotNull ModifiableRootModel module)
+	public MavenModuleExtension(@NotNull String id, @NotNull ModuleRootLayer moduleRootLayer)
 	{
-		super(id, module);
+		super(id, moduleRootLayer);
 	}
 }

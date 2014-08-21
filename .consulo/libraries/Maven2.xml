@@ -1,6 +1,6 @@
 <component name="libraryTable">
   <library name="Maven2">
-    <CLASSES>
+    <binaries>
       <root url="jar://$PROJECT_DIR$/maven2-server-impl/lib/activation-1.1.jar!/" />
       <root url="jar://$PROJECT_DIR$/maven2-server-impl/lib/archetype-common-2.0-alpha-4-SNAPSHOT.jar!/" />
       <root url="jar://$PROJECT_DIR$/maven2-server-impl/lib/classworlds-1.1.jar!/" />
@@ -10,13 +10,12 @@
       <root url="jar://$PROJECT_DIR$/maven2-server-impl/lib/mercury-artifact-1.0-alpha-6.jar!/" />
       <root url="jar://$PROJECT_DIR$/maven2-server-impl/lib/nexus-indexer-1.2.3.jar!/" />
       <root url="jar://$PROJECT_DIR$/maven2-server-impl/lib/plexus-utils-1.5.5.jar!/" />
-    </CLASSES>
-    <DOCUMENTATION />
-    <SOURCES>
+    </binaries>
+    <sources>
       <root url="zip://$PROJECT_DIR$/maven2-server-impl/lib-src/apache-maven-2.2.1-src.zip!/" />
       <root url="jar://$PROJECT_DIR$/maven2-server-impl/lib-src/nexus-indexer-1.2.3-sources.jar!/" />
-    </SOURCES>
-    <jarDirectory url="jar://$PROJECT_DIR$/maven2-server-impl/lib-src/nexus-indexer-1.2.3-sources.jar!/" recursive="false" type="SOURCES" />
-    <jarDirectory url="zip://$PROJECT_DIR$/maven2-server-impl/lib-src/apache-maven-2.2.1-src.zip!/" recursive="false" type="SOURCES" />
+    </sources>
+    <jarDirectory url="jar://$PROJECT_DIR$/maven2-server-impl/lib-src/nexus-indexer-1.2.3-sources.jar!/" recursive="false" type="sources" />
+    <jarDirectory url="zip://$PROJECT_DIR$/maven2-server-impl/lib-src/apache-maven-2.2.1-src.zip!/" recursive="false" type="sources" />
   </library>
 </component>
