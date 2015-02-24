@@ -176,7 +176,7 @@ public class MavenMergingUpdateQueue extends MergingUpdateQueue
 
 	public void makeModalAware(Project project)
 	{
-		MavenUtil.invokeAndWait(project, new Runnable()
+		MavenUtil.invokeLater(project, new Runnable()
 		{
 			@Override
 			public void run()
