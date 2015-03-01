@@ -32,8 +32,6 @@ import org.mustbe.consulo.roots.impl.ProductionContentFolderTypeProvider;
 import org.mustbe.consulo.roots.impl.ProductionResourceContentFolderTypeProvider;
 import org.mustbe.consulo.roots.impl.TestContentFolderTypeProvider;
 import org.mustbe.consulo.roots.impl.TestResourceContentFolderTypeProvider;
-import com.intellij.ide.util.projectWizard.importSources.JavaModuleSourceRoot;
-import com.intellij.ide.util.projectWizard.importSources.JavaSourceRootDetectionUtil;
 import com.intellij.openapi.application.AccessToken;
 import com.intellij.openapi.application.WriteAction;
 import com.intellij.openapi.module.Module;
@@ -308,7 +306,7 @@ public class MavenFoldersImporter
 				addAllSubDirsAsSources(targetDir, typeProvider, true);
 				break;
 
-			case AUTODETECT:
+			/*case AUTODETECT:
 				Collection<JavaModuleSourceRoot> sourceRoots = JavaSourceRootDetectionUtil.suggestRoots(targetDir);
 
 				for(JavaModuleSourceRoot root : sourceRoots)
@@ -323,7 +321,7 @@ public class MavenFoldersImporter
 				}
 
 				addAllSubDirsAsSources(targetDir, typeProvider, true);
-				break;
+				break;  */
 
 			case IGNORE:
 				break; // Ignore.

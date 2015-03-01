@@ -15,11 +15,11 @@
  */
 package org.jetbrains.idea.maven.project;
 
+import java.util.List;
+
+import org.jetbrains.annotations.NotNull;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.xmlb.annotations.Property;
-import org.jetbrains.annotations.NotNull;
-
-import java.util.List;
 
 public class MavenImportingSettings implements Cloneable {
   private static final String PROCESS_RESOURCES_PHASE = "process-resources";
@@ -48,13 +48,13 @@ public class MavenImportingSettings implements Cloneable {
   private boolean downloadSourcesAutomatically = false;
   private boolean downloadDocsAutomatically = false;
 
-  private GeneratedSourcesFolder generatedSourcesFolder = GeneratedSourcesFolder.AUTODETECT;
+  private GeneratedSourcesFolder generatedSourcesFolder = GeneratedSourcesFolder.GENERATED_SOURCE_FOLDER;
 
   private List<Listener> myListeners = ContainerUtil.createLockFreeCopyOnWriteList();
 
   public enum GeneratedSourcesFolder {
     IGNORE("Don't detect"),
-    AUTODETECT("Detect automatically"),
+    //AUTODETECT("Detect automatically"),
     GENERATED_SOURCE_FOLDER("target/generated-sources"),
     SUBFOLDER("subdirectories of \"target/generated-sources\"");
 

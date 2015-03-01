@@ -26,7 +26,7 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import com.intellij.ide.util.projectWizard.ModuleWizardStep;
-import com.intellij.ide.util.projectWizard.ProjectWizardStepFactory;
+import com.intellij.ide.util.projectWizard.ProjectNameStep;
 import com.intellij.ide.util.projectWizard.WizardContext;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.text.StringUtil;
@@ -45,7 +45,6 @@ public class MavenProjectImportProvider extends ProjectImportProvider
 	@Override
 	public ModuleWizardStep[] createSteps(final WizardContext wizardContext)
 	{
-		final ProjectWizardStepFactory stepFactory = ProjectWizardStepFactory.getInstance();
 		return new ModuleWizardStep[]{
 				new MavenProjectImportStep(wizardContext),
 				new SelectProfilesStep(wizardContext),
@@ -99,7 +98,7 @@ public class MavenProjectImportProvider extends ProjectImportProvider
 						return "reference.dialogs.new.project.import.maven.page3";
 					}
 				},
-				stepFactory.createNameAndLocationStep(wizardContext)
+				new ProjectNameStep(wizardContext)
 		};
 	}
 
