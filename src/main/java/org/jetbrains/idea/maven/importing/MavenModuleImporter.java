@@ -106,7 +106,8 @@ public class MavenModuleImporter
 
 		val languageLevel = LanguageLevel.parse(myMavenProject.getSourceLevel());
 
-		List<Sdk> sdksOfType = SdkTable.getInstance().getSdksOfType(JavaSdk.getInstance());
+		final JavaSdk javaSdk = JavaSdk.getInstance();
+		List<Sdk> sdksOfType = SdkTable.getInstance().getSdksOfType(javaSdk);
 
 		LanguageLevel targetLevel = null;
 		Sdk targetSdk = null;
@@ -119,14 +120,14 @@ public class MavenModuleImporter
 				@Override
 				public boolean value(Sdk sdk)
 				{
-					JavaSdkVersion version = JavaSdk.getInstance().getVersion(sdk);
+					JavaSdkVersion version = javaSdk.getVersion(sdk);
 					return version != null && version.getMaxLanguageLevel().isAtLeast(languageLevel);
 				}
 			});
 		}
 		else
 		{
-			Sdk bundleSdkByType = SdkTable.getInstance().findBundleSdkByType(JavaSdk.class);
+			Sdk bundleSdkByType = SdkTable.getInstance().findPredefinedSdkByType(javaSdk);
 			if(bundleSdkByType == null)
 			{
 				bundleSdkByType = ContainerUtil.getFirstItem(sdksOfType);
@@ -135,7 +136,7 @@ public class MavenModuleImporter
 			if(bundleSdkByType != null)
 			{
 				targetSdk = bundleSdkByType;
-				JavaSdkVersion version = JavaSdk.getInstance().getVersion(targetSdk);
+				JavaSdkVersion version = javaSdk.getVersion(targetSdk);
 				targetLevel = version != null ? version.getMaxLanguageLevel() : LanguageLevel.HIGHEST;
 			}
 			else
