@@ -44,6 +44,9 @@ import com.intellij.openapi.roots.ModuleExtensionWithSdkOrderEntry;
 import com.intellij.openapi.roots.OrderRootType;
 import com.intellij.openapi.roots.libraries.Library;
 import com.intellij.openapi.roots.libraries.LibraryTable;
+import com.intellij.openapi.roots.types.BinariesOrderRootType;
+import com.intellij.openapi.roots.types.DocumentationOrderRootType;
+import com.intellij.openapi.roots.types.SourcesOrderRootType;
 import com.intellij.openapi.util.Condition;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VfsUtil;
@@ -159,6 +162,7 @@ public class MavenModuleImporter
 	{
 		MavenUtil.invokeAndWaitWriteAction(myModule.getProject(), new Runnable()
 		{
+			@Override
 			public void run()
 			{
 				if(myModule.isDisposed())
@@ -192,6 +196,7 @@ public class MavenModuleImporter
 	{
 		MavenUtil.invokeAndWaitWriteAction(myModule.getProject(), new Runnable()
 		{
+			@Override
 			public void run()
 			{
 				if(myModule.isDisposed())
@@ -304,9 +309,9 @@ public class MavenModuleImporter
 	{
 		Library.ModifiableModel libraryModel = null;
 
-		for(Element artifactsElement : (List<Element>) buildHelperCfg.getChildren("artifacts"))
+		for(Element artifactsElement : buildHelperCfg.getChildren("artifacts"))
 		{
-			for(Element artifactElement : (List<Element>) artifactsElement.getChildren("artifact"))
+			for(Element artifactElement : artifactsElement.getChildren("artifact"))
 			{
 				String typeString = artifactElement.getChildTextTrim("type");
 				if(typeString != null && !typeString.equals("jar"))
@@ -314,16 +319,16 @@ public class MavenModuleImporter
 					continue;
 				}
 
-				OrderRootType rootType = OrderRootType.CLASSES;
+				OrderRootType rootType = BinariesOrderRootType.getInstance();
 
 				String classifier = artifactElement.getChildTextTrim("classifier");
 				if("sources".equals(classifier))
 				{
-					rootType = OrderRootType.SOURCES;
+					rootType = SourcesOrderRootType.getInstance();
 				}
 				else if("javadoc".equals(classifier))
 				{
-					rootType = OrderRootType.DOCUMENTATION;
+					rootType = DocumentationOrderRootType.getInstance();
 				}
 
 				String filePath = artifactElement.getChildTextTrim("file");
@@ -338,7 +343,7 @@ public class MavenModuleImporter
 					continue;
 				}
 
-				file = ArchiveVfsUtil.getJarRootForLocalFile(file);
+				file = ArchiveVfsUtil.getArchiveRootForLocalFile(file);
 				if(file == null)
 				{
 					continue;
