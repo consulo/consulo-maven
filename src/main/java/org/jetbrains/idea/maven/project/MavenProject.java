@@ -15,6 +15,33 @@
  */
 package org.jetbrains.idea.maven.project;
 
+import gnu.trove.THashSet;
+
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+
+import org.jdom.Element;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.idea.maven.importing.MavenExtraArtifactType;
+import org.jetbrains.idea.maven.importing.MavenImporter;
+import org.jetbrains.idea.maven.model.*;
+import org.jetbrains.idea.maven.plugins.api.MavenModelPropertiesPatcher;
+import org.jetbrains.idea.maven.server.MavenEmbedderWrapper;
+import org.jetbrains.idea.maven.server.NativeMavenProjectHolder;
+import org.jetbrains.idea.maven.utils.MavenArtifactUtil;
+import org.jetbrains.idea.maven.utils.MavenJDOMUtil;
+import org.jetbrains.idea.maven.utils.MavenProcessCanceledException;
+import org.jetbrains.idea.maven.utils.MavenUtil;
+import org.jetbrains.idea.maven.utils.Path;
 import com.intellij.execution.configurations.ParametersList;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Comparing;
@@ -29,23 +56,6 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.SmartList;
 import com.intellij.util.containers.ContainerUtil;
 
-import gnu.trove.THashSet;
-
-import org.jdom.Element;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.jetbrains.idea.maven.importing.MavenExtraArtifactType;
-import org.jetbrains.idea.maven.importing.MavenImporter;
-import org.jetbrains.idea.maven.model.*;
-import org.jetbrains.idea.maven.plugins.api.MavenModelPropertiesPatcher;
-import org.jetbrains.idea.maven.server.MavenEmbedderWrapper;
-import org.jetbrains.idea.maven.server.NativeMavenProjectHolder;
-import org.jetbrains.idea.maven.utils.*;
-
-import java.io.*;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-
 public class MavenProject
 {
 	@NotNull
@@ -53,8 +63,21 @@ public class MavenProject
 	@NotNull
 	private volatile State myState = new State();
 
-	private static Map<String, String> COMPILER_LEVEL_TABLE = ContainerUtil.<String, String>immutableMapBuilder().put("1.1", "1.1").put("1.2",
-			"1.2").put("1.3", "1.3").put("1.4", "1.4").put("1.5", "1.5").put("5", "1.5").put("1.6", "1.6").put("1.7", "1.7").put("7", "1.7").build();
+	private static Map<String, String> COMPILER_LEVEL_TABLE = ContainerUtil.<String, String>immutableMapBuilder()
+			.put("1.1", "1.1")
+			.put("1.2", "1.2")
+			.put("1.3", "1.3")
+			.put("1.4", "1.4")
+			.put("1.5", "1.5")
+			.put("5", "1.5")
+			.put("1.6", "1.6")
+			.put("1.7", "1.7")
+			.put("7", "1.7")
+			.put("1.8", "1.8")
+			.put("8", "1.8")
+			.put("1.9", "1.9")
+			.put("9", "1.9")
+			.build();
 
 	public enum ProcMode
 	{
