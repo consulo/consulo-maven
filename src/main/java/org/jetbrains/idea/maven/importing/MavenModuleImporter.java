@@ -69,8 +69,7 @@ public class MavenModuleImporter
 	private final MavenModifiableModelsProvider myModifiableModelsProvider;
 	private MavenRootModelAdapter myRootModelAdapter;
 
-	public MavenModuleImporter(
-			Module module,
+	public MavenModuleImporter(Module module,
 			MavenProjectsTree mavenTree,
 			MavenProject mavenProject,
 			@Nullable MavenProjectChanges changes,
@@ -261,7 +260,8 @@ public class MavenModuleImporter
 					addAttachArtifactDependency(buildHelperCfg, scope, depProject, artifact);
 				}
 
-				if(artifact.getClassifier() != null && !"system".equals(artifact.getScope()) && !"false".equals(System.getProperty("idea.maven" + "" +
+				if(artifact.getClassifier() != null && !"system".equals(artifact.getScope()) && !"false".equals(System.getProperty("idea.maven" +
+						"" +
 						".classifier.dep")))
 				{
 					MavenArtifact a = new MavenArtifact(artifact.getGroupId(), artifact.getArtifactId(), artifact.getVersion(),
@@ -297,8 +297,10 @@ public class MavenModuleImporter
 		}
 	}
 
-	private void addAttachArtifactDependency(
-			@NotNull Element buildHelperCfg, @NotNull DependencyScope scope, @NotNull MavenProject mavenProject, @NotNull MavenArtifact artifact)
+	private void addAttachArtifactDependency(@NotNull Element buildHelperCfg,
+			@NotNull DependencyScope scope,
+			@NotNull MavenProject mavenProject,
+			@NotNull MavenArtifact artifact)
 	{
 		Library.ModifiableModel libraryModel = null;
 
