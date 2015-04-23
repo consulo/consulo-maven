@@ -17,7 +17,7 @@ package org.jetbrains.idea.maven.importing;
 
 import java.io.File;
 
-import org.consulo.compiler.CompilerPathsManager;
+import org.consulo.compiler.ModuleCompilerPathsManager;
 import org.consulo.java.platform.module.extension.JavaMutableModuleExtensionImpl;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -31,7 +31,9 @@ import org.mustbe.consulo.roots.ContentFolderScopes;
 import org.mustbe.consulo.roots.ContentFolderTypeProvider;
 import org.mustbe.consulo.roots.impl.ExcludedContentFolderTypeProvider;
 import org.mustbe.consulo.roots.impl.ProductionContentFolderTypeProvider;
+import org.mustbe.consulo.roots.impl.ProductionResourceContentFolderTypeProvider;
 import org.mustbe.consulo.roots.impl.TestContentFolderTypeProvider;
+import org.mustbe.consulo.roots.impl.TestResourceContentFolderTypeProvider;
 import org.mustbe.consulo.roots.impl.property.GeneratedContentFolderPropertyProvider;
 import com.intellij.openapi.application.AccessToken;
 import com.intellij.openapi.application.ReadAction;
@@ -268,8 +270,8 @@ public class MavenRootModelAdapter
 				{
 					if(eachFolder.isSynthetic())
 					{
-						CompilerPathsManager compilerPathsManager = CompilerPathsManager.getInstance(myRootModel.getProject());
-						compilerPathsManager.setExcludeOutput(getModule(), false);
+						ModuleCompilerPathsManager compilerPathsManager = ModuleCompilerPathsManager.getInstance(getModule());
+						compilerPathsManager.setExcludeOutput(false);
 					}
 					else
 					{
@@ -311,16 +313,19 @@ public class MavenRootModelAdapter
 		return false;
 	}
 
-	public void useModuleOutput(String production, String test)
+	public void useModuleOutput(String productionPath, String testPath)
 	{
-		CompilerPathsManager compilerPathsManager = CompilerPathsManager.getInstance(myRootModel.getProject());
+		ModuleCompilerPathsManager compilerPathsManager = ModuleCompilerPathsManager.getInstance(getModule());
 
-		compilerPathsManager.setInheritedCompilerOutput(getModule(), false);
+		compilerPathsManager.setInheritedCompilerOutput(false);
 
-		compilerPathsManager.setCompilerOutputUrl(getModule(), ProductionContentFolderTypeProvider.getInstance(), toUrl(production).getUrl());
-		compilerPathsManager.setCompilerOutputUrl(getModule(), TestContentFolderTypeProvider.getInstance(), toUrl(test).getUrl());
+		// production output
+		compilerPathsManager.setCompilerOutputUrl(ProductionContentFolderTypeProvider.getInstance(), toUrl(productionPath).getUrl());
+		compilerPathsManager.setCompilerOutputUrl(ProductionResourceContentFolderTypeProvider.getInstance(), toUrl(productionPath).getUrl());
 
-		compilerPathsManager.setInheritedCompilerOutput(getModule(), false);
+		// test output
+		compilerPathsManager.setCompilerOutputUrl(TestContentFolderTypeProvider.getInstance(), toUrl(testPath).getUrl());
+		compilerPathsManager.setCompilerOutputUrl(TestResourceContentFolderTypeProvider.getInstance(), toUrl(testPath).getUrl());
 	}
 
 	private Url toUrl(String path)
