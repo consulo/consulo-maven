@@ -34,7 +34,7 @@ import com.intellij.openapi.vfs.util.ArchiveVfsUtil;
 import com.intellij.pom.java.LanguageLevel;
 import com.intellij.util.containers.ContainerUtil;
 import lombok.val;
-import org.consulo.maven.module.extension.MavenMutableModuleExtension;
+import org.mustbe.consulo.maven.module.extension.MavenMutableModuleExtension;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

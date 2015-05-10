@@ -13,42 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.consulo.maven.module.extension;
+package org.mustbe.consulo.maven.module.extension;
 
-import javax.swing.JComponent;
-
-import org.consulo.module.extension.MutableModuleExtension;
+import org.consulo.module.extension.impl.ModuleExtensionImpl;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import com.intellij.openapi.roots.ModuleRootLayer;
 
 /**
  * @author VISTALL
  * @since 15:17/12.07.13
  */
-public class MavenMutableModuleExtension extends MavenModuleExtension implements MutableModuleExtension<MavenModuleExtension>
+public class MavenModuleExtension extends ModuleExtensionImpl<MavenModuleExtension>
 {
-	public MavenMutableModuleExtension(@NotNull String id, @NotNull ModuleRootLayer moduleRootLayer)
+	public MavenModuleExtension(@NotNull String id, @NotNull ModuleRootLayer moduleRootLayer)
 	{
 		super(id, moduleRootLayer);
-	}
-
-	@Nullable
-	@Override
-	public JComponent createConfigurablePanel(@Nullable Runnable updateOnCheck)
-	{
-		return null;
-	}
-
-	@Override
-	public void setEnabled(boolean val)
-	{
-		myIsEnabled = val;
-	}
-
-	@Override
-	public boolean isModified(@NotNull MavenModuleExtension extension)
-	{
-		return extension.isEnabled() != myIsEnabled;
 	}
 }

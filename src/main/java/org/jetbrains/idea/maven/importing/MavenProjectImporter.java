@@ -33,7 +33,7 @@ import com.intellij.util.Function;
 import com.intellij.util.containers.Stack;
 import gnu.trove.THashMap;
 import gnu.trove.THashSet;
-import org.consulo.maven.module.extension.MavenMutableModuleExtension;
+import org.mustbe.consulo.maven.module.extension.MavenMutableModuleExtension;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.idea.maven.importing.configurers.MavenModuleConfigurer;
 import org.jetbrains.idea.maven.model.MavenArtifact;

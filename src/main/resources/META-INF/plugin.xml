@@ -69,8 +69,8 @@
 								 systemOnly="true"
 								 name="Maven"
 								 icon="/images/mavenLogo.png"
-								 immutableClass="org.consulo.maven.module.extension.MavenModuleExtension"
-								 mutableClass="org.consulo.maven.module.extension.MavenMutableModuleExtension"/>
+								 immutableClass="org.mustbe.consulo.maven.module.extension.MavenModuleExtension"
+								 mutableClass="org.mustbe.consulo.maven.module.extension.MavenMutableModuleExtension"/>
 
 		<stepsBeforeRunProvider implementation="org.jetbrains.idea.maven.tasks.MavenBeforeRunTasksProvider"/>
 		<keymapExtension implementation="org.jetbrains.idea.maven.tasks.MavenKeymapExtension"/>

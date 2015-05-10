@@ -28,7 +28,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.consulo.maven.module.extension.MavenModuleExtension;
+import org.mustbe.consulo.maven.module.extension.MavenModuleExtension;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
