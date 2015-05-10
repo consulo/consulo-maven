@@ -15,26 +15,6 @@
  */
 package org.jetbrains.idea.maven.importing;
 
-import java.io.File;
-
-import org.consulo.compiler.ModuleCompilerPathsManager;
-import org.consulo.java.platform.module.extension.JavaMutableModuleExtensionImpl;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.jetbrains.idea.maven.model.MavenArtifact;
-import org.jetbrains.idea.maven.model.MavenConstants;
-import org.jetbrains.idea.maven.project.MavenProject;
-import org.jetbrains.idea.maven.project.MavenProjectsManager;
-import org.jetbrains.idea.maven.utils.Path;
-import org.jetbrains.idea.maven.utils.Url;
-import org.mustbe.consulo.roots.ContentFolderScopes;
-import org.mustbe.consulo.roots.ContentFolderTypeProvider;
-import org.mustbe.consulo.roots.impl.ExcludedContentFolderTypeProvider;
-import org.mustbe.consulo.roots.impl.ProductionContentFolderTypeProvider;
-import org.mustbe.consulo.roots.impl.ProductionResourceContentFolderTypeProvider;
-import org.mustbe.consulo.roots.impl.TestContentFolderTypeProvider;
-import org.mustbe.consulo.roots.impl.TestResourceContentFolderTypeProvider;
-import org.mustbe.consulo.roots.impl.property.GeneratedContentFolderPropertyProvider;
 import com.intellij.openapi.application.AccessToken;
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.module.ModifiableModuleModel;
@@ -50,6 +30,22 @@ import com.intellij.openapi.vfs.JarFileSystem;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.pom.java.LanguageLevel;
 import com.intellij.util.Processor;
+import org.consulo.compiler.ModuleCompilerPathsManager;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.idea.maven.model.MavenArtifact;
+import org.jetbrains.idea.maven.model.MavenConstants;
+import org.jetbrains.idea.maven.project.MavenProject;
+import org.jetbrains.idea.maven.project.MavenProjectsManager;
+import org.jetbrains.idea.maven.utils.Path;
+import org.jetbrains.idea.maven.utils.Url;
+import org.mustbe.consulo.java.module.extension.JavaMutableModuleExtensionImpl;
+import org.mustbe.consulo.roots.ContentFolderScopes;
+import org.mustbe.consulo.roots.ContentFolderTypeProvider;
+import org.mustbe.consulo.roots.impl.*;
+import org.mustbe.consulo.roots.impl.property.GeneratedContentFolderPropertyProvider;
+
+import java.io.File;
 
 public class MavenRootModelAdapter
 {

@@ -23,10 +23,10 @@ import com.intellij.openapi.module.ModuleUtilCore;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.util.io.FileUtil;
-import org.consulo.java.platform.module.extension.JavaModuleExtensionImpl;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.idea.maven.project.MavenProject;
+import org.mustbe.consulo.java.module.extension.JavaModuleExtensionImpl;
 
 import java.io.File;
 import java.util.List;

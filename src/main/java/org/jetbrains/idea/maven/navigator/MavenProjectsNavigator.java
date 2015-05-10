@@ -42,7 +42,6 @@ import com.intellij.ui.treeStructure.SimpleTree;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.messages.MessageBusConnection;
 import icons.MavenIcons;
-import org.consulo.java.platform.module.extension.JavaModuleExtensionImpl;
 import org.jdom.Element;
 import org.jetbrains.annotations.TestOnly;
 import org.jetbrains.idea.maven.execution.MavenRunner;
@@ -54,6 +53,7 @@ import org.jetbrains.idea.maven.tasks.MavenTasksManager;
 import org.jetbrains.idea.maven.utils.MavenLog;
 import org.jetbrains.idea.maven.utils.MavenSimpleProjectComponent;
 import org.jetbrains.idea.maven.utils.MavenUtil;
+import org.mustbe.consulo.java.module.extension.JavaModuleExtensionImpl;
 
 import javax.swing.*;
 import javax.swing.tree.TreeSelectionModel;

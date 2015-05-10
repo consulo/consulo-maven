@@ -40,7 +40,6 @@ import com.intellij.util.xml.DomUtil;
 import com.intellij.xml.XmlElementDescriptor;
 import com.intellij.xml.XmlNSDescriptor;
 import gnu.trove.THashSet;
-import org.consulo.java.platform.module.extension.JavaModuleExtensionImpl;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.idea.maven.dom.MavenDomProjectProcessorUtils;
@@ -55,6 +54,7 @@ import org.jetbrains.idea.maven.model.MavenId;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.utils.MavenUtil;
 import org.jetbrains.idea.maven.vfs.MavenPropertiesVirtualFileSystem;
+import org.mustbe.consulo.java.module.extension.JavaModuleExtensionImpl;
 
 import javax.swing.*;
 import java.util.ArrayList;

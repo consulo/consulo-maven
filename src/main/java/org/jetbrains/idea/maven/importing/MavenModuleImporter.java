@@ -15,33 +15,12 @@
  */
 package org.jetbrains.idea.maven.importing;
 
-import java.util.List;
-import java.util.Map;
-
-import org.consulo.java.platform.module.extension.JavaMutableModuleExtensionImpl;
-import org.consulo.maven.module.extension.MavenMutableModuleExtension;
-import org.jdom.Element;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.jetbrains.idea.maven.model.MavenArtifact;
-import org.jetbrains.idea.maven.model.MavenConstants;
-import org.jetbrains.idea.maven.project.MavenImportingSettings;
-import org.jetbrains.idea.maven.project.MavenProject;
-import org.jetbrains.idea.maven.project.MavenProjectChanges;
-import org.jetbrains.idea.maven.project.MavenProjectsProcessorTask;
-import org.jetbrains.idea.maven.project.MavenProjectsTree;
-import org.jetbrains.idea.maven.project.SupportedRequestType;
-import org.jetbrains.idea.maven.utils.MavenUtil;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.projectRoots.JavaSdk;
 import com.intellij.openapi.projectRoots.JavaSdkVersion;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.projectRoots.SdkTable;
-import com.intellij.openapi.roots.DependencyScope;
-import com.intellij.openapi.roots.LibraryOrderEntry;
-import com.intellij.openapi.roots.ModifiableRootModel;
-import com.intellij.openapi.roots.ModuleExtensionWithSdkOrderEntry;
-import com.intellij.openapi.roots.OrderRootType;
+import com.intellij.openapi.roots.*;
 import com.intellij.openapi.roots.libraries.Library;
 import com.intellij.openapi.roots.libraries.LibraryTable;
 import com.intellij.openapi.roots.types.BinariesOrderRootType;
@@ -55,6 +34,18 @@ import com.intellij.openapi.vfs.util.ArchiveVfsUtil;
 import com.intellij.pom.java.LanguageLevel;
 import com.intellij.util.containers.ContainerUtil;
 import lombok.val;
+import org.consulo.maven.module.extension.MavenMutableModuleExtension;
+import org.jdom.Element;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.idea.maven.model.MavenArtifact;
+import org.jetbrains.idea.maven.model.MavenConstants;
+import org.jetbrains.idea.maven.project.*;
+import org.jetbrains.idea.maven.utils.MavenUtil;
+import org.mustbe.consulo.java.module.extension.JavaMutableModuleExtensionImpl;
+
+import java.util.List;
+import java.util.Map;
 
 public class MavenModuleImporter
 {

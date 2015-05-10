@@ -21,7 +21,6 @@ import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.xml.XmlElement;
 import com.intellij.psi.xml.XmlTag;
-import org.consulo.java.platform.module.extension.JavaModuleExtensionImpl;
 import org.jdom.Element;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.idea.maven.compiler.MavenEscapeWindowsCharacterUtils;
@@ -35,6 +34,7 @@ import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.server.MavenServerUtil;
 import org.jetbrains.idea.maven.utils.MavenJDOMUtil;
 import org.jetbrains.idea.maven.utils.MavenUtil;
+import org.mustbe.consulo.java.module.extension.JavaModuleExtensionImpl;
 
 import java.io.IOException;
 import java.util.Collection;
