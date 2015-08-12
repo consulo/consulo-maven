@@ -18,34 +18,6 @@
 
 package org.jetbrains.idea.maven.execution;
 
-import java.io.BufferedOutputStream;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Scanner;
-import java.util.zip.ZipOutputStream;
-
-import javax.swing.event.HyperlinkEvent;
-import javax.swing.event.HyperlinkListener;
-
-import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.jetbrains.idea.maven.artifactResolver.MavenArtifactResolvedM2RtMarker;
-import org.jetbrains.idea.maven.artifactResolver.MavenArtifactResolvedM3RtMarker;
-import org.jetbrains.idea.maven.artifactResolver.common.MavenModuleMap;
-import org.jetbrains.idea.maven.project.MavenGeneralSettings;
-import org.jetbrains.idea.maven.project.MavenProject;
-import org.jetbrains.idea.maven.project.MavenProjectsManager;
-import org.jetbrains.idea.maven.utils.MavenSettings;
-import org.jetbrains.idea.maven.utils.MavenUtil;
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.RunManager;
 import com.intellij.execution.configurations.JavaParameters;
@@ -69,6 +41,23 @@ import com.intellij.openapi.vfs.encoding.EncodingManager;
 import com.intellij.openapi.vfs.encoding.EncodingProjectManager;
 import com.intellij.util.PathUtil;
 import com.intellij.util.io.ZipUtil;
+import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.idea.maven.artifactResolver.MavenArtifactResolvedM2RtMarker;
+import org.jetbrains.idea.maven.artifactResolver.MavenArtifactResolvedM3RtMarker;
+import org.jetbrains.idea.maven.artifactResolver.common.MavenModuleMap;
+import org.jetbrains.idea.maven.project.MavenGeneralSettings;
+import org.jetbrains.idea.maven.project.MavenProject;
+import org.jetbrains.idea.maven.project.MavenProjectsManager;
+import org.jetbrains.idea.maven.utils.MavenSettings;
+import org.jetbrains.idea.maven.utils.MavenUtil;
+
+import javax.swing.event.HyperlinkEvent;
+import javax.swing.event.HyperlinkListener;
+import java.io.*;
+import java.util.*;
+import java.util.zip.ZipOutputStream;
 
 /**
  * @author Ralf Quebbemann
@@ -278,7 +267,7 @@ public class MavenExternalParameters {
 
   @NotNull
   private static Sdk getJdk(@Nullable Project project, MavenRunnerSettings runnerSettings, boolean isGlobalRunnerSettings) throws ExecutionException {
-    Sdk internal = SdkTable.getInstance().findBundleSdkByType(JavaSdk.class);
+    Sdk internal = SdkTable.getInstance().findPredefinedSdkByType(JavaSdk.getInstance());
 
     String name = runnerSettings.getJreName();
     if (name.equals(MavenRunnerSettings.USE_INTERNAL_JAVA)) {
