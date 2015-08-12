@@ -19,6 +19,7 @@ import com.intellij.openapi.roots.ModuleRootLayer;
 import org.consulo.module.extension.MutableModuleExtension;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.mustbe.consulo.RequiredDispatchThread;
 
 import javax.swing.*;
 
@@ -33,7 +34,8 @@ public class MavenMutableModuleExtension extends MavenModuleExtension implements
 		super(id, moduleRootLayer);
 	}
 
-	@Nullable
+	@RequiredDispatchThread
+    @Nullable
 	@Override
 	public JComponent createConfigurablePanel(@Nullable Runnable updateOnCheck)
 	{
