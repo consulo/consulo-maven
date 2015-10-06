@@ -15,344 +15,474 @@
  */
 package org.jetbrains.idea.maven.project;
 
-import com.intellij.openapi.util.Comparing;
-import com.intellij.openapi.vfs.LocalFileSystem;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.util.containers.ContainerUtil;
-import com.intellij.util.xmlb.annotations.Property;
-import com.intellij.util.xmlb.annotations.Transient;
 import gnu.trove.THashSet;
-import org.jdom.Element;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.jetbrains.idea.maven.execution.MavenExecutionOptions;
-import org.jetbrains.idea.maven.utils.MavenJDOMUtil;
-import org.jetbrains.idea.maven.utils.MavenUtil;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-public class MavenGeneralSettings implements Cloneable {
-  private boolean workOffline = false;
-  private String mavenHome = "";
-  private String mavenSettingsFile = "";
-  private String overriddenLocalRepository = "";
-  private boolean printErrorStackTraces = false;
-  private boolean usePluginRegistry = false;
-  private boolean nonRecursive = false;
+import org.jdom.Element;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.idea.maven.execution.MavenExecutionOptions;
+import org.jetbrains.idea.maven.utils.MavenJDOMUtil;
+import org.jetbrains.idea.maven.utils.MavenUtil;
+import com.intellij.openapi.util.Comparing;
+import com.intellij.openapi.vfs.LocalFileSystem;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.util.containers.ContainerUtil;
+import com.intellij.util.xmlb.annotations.Property;
+import com.intellij.util.xmlb.annotations.Transient;
 
-  private boolean alwaysUpdateSnapshots = false;
+public class MavenGeneralSettings implements Cloneable
+{
+	private boolean workOffline = false;
+	private String mavenHome = "";
+	private String mavenSettingsFile = "";
+	private String overriddenLocalRepository = "";
+	private boolean printErrorStackTraces = false;
+	private boolean usePluginRegistry = false;
+	private boolean nonRecursive = false;
 
-  private MavenExecutionOptions.LoggingLevel outputLevel = MavenExecutionOptions.LoggingLevel.INFO;
-  private MavenExecutionOptions.ChecksumPolicy checksumPolicy = MavenExecutionOptions.ChecksumPolicy.NOT_SET;
-  private MavenExecutionOptions.FailureMode failureBehavior = MavenExecutionOptions.FailureMode.NOT_SET;
-  private MavenExecutionOptions.PluginUpdatePolicy pluginUpdatePolicy = MavenExecutionOptions.PluginUpdatePolicy.DEFAULT;
+	private boolean alwaysUpdateSnapshots = false;
 
-  private File myEffectiveLocalRepositoryCache;
-  private Set<String> myDefaultPluginsCache;
+	private MavenExecutionOptions.LoggingLevel outputLevel = MavenExecutionOptions.LoggingLevel.INFO;
+	private MavenExecutionOptions.ChecksumPolicy checksumPolicy = MavenExecutionOptions.ChecksumPolicy.NOT_SET;
+	private MavenExecutionOptions.FailureMode failureBehavior = MavenExecutionOptions.FailureMode.NOT_SET;
+	private MavenExecutionOptions.PluginUpdatePolicy pluginUpdatePolicy = MavenExecutionOptions.PluginUpdatePolicy.DEFAULT;
 
-  private int myBulkUpdateLevel = 0;
-  private List<Listener> myListeners = ContainerUtil.createLockFreeCopyOnWriteList();
+	private File myEffectiveLocalRepositoryCache;
+	private Set<String> myDefaultPluginsCache;
 
-  public void beginUpdate() {
-    myBulkUpdateLevel++;
-  }
+	private int myBulkUpdateLevel = 0;
+	private List<Listener> myListeners = ContainerUtil.createLockFreeCopyOnWriteList();
 
-  public void endUpdate() {
-    if (--myBulkUpdateLevel == 0) {
-      changed();
-    }
-  }
+	public void beginUpdate()
+	{
+		myBulkUpdateLevel++;
+	}
 
-  public void changed() {
-    if (myBulkUpdateLevel > 0) return;
+	public void endUpdate()
+	{
+		if(--myBulkUpdateLevel == 0)
+		{
+			changed();
+		}
+	}
 
-    myEffectiveLocalRepositoryCache = null;
-    myDefaultPluginsCache = null;
-    fireChanged();
-  }
+	public void changed()
+	{
+		if(myBulkUpdateLevel > 0)
+		{
+			return;
+		}
 
-  @Property
-  @NotNull
-  public MavenExecutionOptions.PluginUpdatePolicy getPluginUpdatePolicy() {
-    return pluginUpdatePolicy;
-  }
+		myEffectiveLocalRepositoryCache = null;
+		myDefaultPluginsCache = null;
+		fireChanged();
+	}
 
-  public void setPluginUpdatePolicy(MavenExecutionOptions.PluginUpdatePolicy value) {
-    if (value == null) return; // null may come from deserializator
-    this.pluginUpdatePolicy = value;
-    changed();
-  }
+	@Property
+	@NotNull
+	public MavenExecutionOptions.PluginUpdatePolicy getPluginUpdatePolicy()
+	{
+		return pluginUpdatePolicy;
+	}
 
-  @Property
-  @NotNull
-  public MavenExecutionOptions.ChecksumPolicy getChecksumPolicy() {
-    return checksumPolicy;
-  }
+	public void setPluginUpdatePolicy(MavenExecutionOptions.PluginUpdatePolicy value)
+	{
+		if(value == null)
+		{
+			return; // null may come from deserializator
+		}
+		this.pluginUpdatePolicy = value;
+		changed();
+	}
 
-  public void setChecksumPolicy(MavenExecutionOptions.ChecksumPolicy value) {
-    if (value == null) return; // null may come from deserializator
-    this.checksumPolicy = value;
-    changed();
-  }
+	@Property
+	@NotNull
+	public MavenExecutionOptions.ChecksumPolicy getChecksumPolicy()
+	{
+		return checksumPolicy;
+	}
 
-  @Property
-  @NotNull
-  public MavenExecutionOptions.FailureMode getFailureBehavior() {
-    return failureBehavior;
-  }
+	public void setChecksumPolicy(MavenExecutionOptions.ChecksumPolicy value)
+	{
+		if(value == null)
+		{
+			return; // null may come from deserializator
+		}
+		this.checksumPolicy = value;
+		changed();
+	}
 
-  public void setFailureBehavior(MavenExecutionOptions.FailureMode value) {
-    if (value == null) return; // null may come from deserializator
-    this.failureBehavior = value;
-    changed();
-  }
+	@Property
+	@NotNull
+	public MavenExecutionOptions.FailureMode getFailureBehavior()
+	{
+		return failureBehavior;
+	}
 
-  @Transient
-  @NotNull
-  @Deprecated // Use getOutputLevel()
-  public MavenExecutionOptions.LoggingLevel getLoggingLevel() {
-    return getOutputLevel();
-  }
+	public void setFailureBehavior(MavenExecutionOptions.FailureMode value)
+	{
+		if(value == null)
+		{
+			return; // null may come from deserializator
+		}
+		this.failureBehavior = value;
+		changed();
+	}
 
-  @Property
-  @NotNull
-  public MavenExecutionOptions.LoggingLevel getOutputLevel() {
-    return outputLevel;
-  }
+	@Transient
+	@NotNull
+	@Deprecated // Use getOutputLevel()
+	public MavenExecutionOptions.LoggingLevel getLoggingLevel()
+	{
+		return getOutputLevel();
+	}
 
-  public void setOutputLevel(MavenExecutionOptions.LoggingLevel value) {
-    if (value == null) return; // null may come from deserializator
-    this.outputLevel = value;
-    changed();
-  }
+	@Property
+	@NotNull
+	public MavenExecutionOptions.LoggingLevel getOutputLevel()
+	{
+		return outputLevel;
+	}
 
-  public boolean isWorkOffline() {
-    return workOffline;
-  }
+	public void setOutputLevel(MavenExecutionOptions.LoggingLevel value)
+	{
+		if(value == null)
+		{
+			return; // null may come from deserializator
+		}
+		this.outputLevel = value;
+		changed();
+	}
 
-  public void setWorkOffline(boolean workOffline) {
-    this.workOffline = workOffline;
-    changed();
-  }
+	public boolean isWorkOffline()
+	{
+		return workOffline;
+	}
 
-  @NotNull
-  public String getMavenHome() {
-    return mavenHome;
-  }
+	public void setWorkOffline(boolean workOffline)
+	{
+		this.workOffline = workOffline;
+		changed();
+	}
 
-  public void setMavenHome(@NotNull final String mavenHome) {
-    if (!Comparing.equal(this.mavenHome, mavenHome)) {
-      this.mavenHome = mavenHome;
+	@NotNull
+	public String getMavenHome()
+	{
+		return mavenHome;
+	}
 
-      myDefaultPluginsCache = null;
-      changed();
-    }
-  }
+	public void setMavenHome(@NotNull final String mavenHome)
+	{
+		if(!Comparing.equal(this.mavenHome, mavenHome))
+		{
+			this.mavenHome = mavenHome;
 
-  @Nullable
-  public File getEffectiveMavenHome() {
-    return MavenUtil.resolveMavenHomeDirectory(getMavenHome());
-  }
+			myDefaultPluginsCache = null;
+			changed();
+		}
+	}
 
-  @NotNull
-  public String getUserSettingsFile() {
-    return mavenSettingsFile;
-  }
+	@Nullable
+	public File getEffectiveMavenHome()
+	{
+		return MavenUtil.resolveMavenHomeDirectory(getMavenHome());
+	}
 
-  public void setUserSettingsFile(@Nullable String mavenSettingsFile) {
-    if (mavenSettingsFile == null) return;
+	@NotNull
+	public String getUserSettingsFile()
+	{
+		return mavenSettingsFile;
+	}
 
-    if (!Comparing.equal(this.mavenSettingsFile, mavenSettingsFile)) {
-      this.mavenSettingsFile = mavenSettingsFile;
-      changed();
-    }
-  }
+	public void setUserSettingsFile(@Nullable String mavenSettingsFile)
+	{
+		if(mavenSettingsFile == null)
+		{
+			return;
+		}
 
-  @Nullable
-  public File getEffectiveUserSettingsIoFile() {
-    return MavenUtil.resolveUserSettingsFile(getUserSettingsFile());
-  }
+		if(!Comparing.equal(this.mavenSettingsFile, mavenSettingsFile))
+		{
+			this.mavenSettingsFile = mavenSettingsFile;
+			changed();
+		}
+	}
 
-  @Nullable
-  public File getEffectiveGlobalSettingsIoFile() {
-    return MavenUtil.resolveGlobalSettingsFile(getMavenHome());
-  }
+	@Nullable
+	public File getEffectiveUserSettingsIoFile()
+	{
+		return MavenUtil.resolveUserSettingsFile(getUserSettingsFile());
+	}
 
-  @Nullable
-  public VirtualFile getEffectiveUserSettingsFile() {
-    File file = getEffectiveUserSettingsIoFile();
-    return file == null ? null : LocalFileSystem.getInstance().findFileByIoFile(file);
-  }
+	@Nullable
+	public File getEffectiveGlobalSettingsIoFile()
+	{
+		return MavenUtil.resolveGlobalSettingsFile(getMavenHome());
+	}
 
-  public List<VirtualFile> getEffectiveSettingsFiles() {
-    List<VirtualFile> result = new ArrayList<VirtualFile>(2);
-    VirtualFile file = getEffectiveUserSettingsFile();
-    if (file != null) result.add(file);
-    file = getEffectiveGlobalSettingsFile();
-    if (file != null) result.add(file);
-    return result;
-  }
+	@Nullable
+	public VirtualFile getEffectiveUserSettingsFile()
+	{
+		File file = getEffectiveUserSettingsIoFile();
+		return file == null ? null : LocalFileSystem.getInstance().findFileByIoFile(file);
+	}
 
-  @Nullable
-  public VirtualFile getEffectiveGlobalSettingsFile() {
-    File file = getEffectiveGlobalSettingsIoFile();
-    return file == null ? null : LocalFileSystem.getInstance().findFileByIoFile(file);
-  }
+	public List<VirtualFile> getEffectiveSettingsFiles()
+	{
+		List<VirtualFile> result = new ArrayList<VirtualFile>(2);
+		VirtualFile file = getEffectiveUserSettingsFile();
+		if(file != null)
+		{
+			result.add(file);
+		}
+		file = getEffectiveGlobalSettingsFile();
+		if(file != null)
+		{
+			result.add(file);
+		}
+		return result;
+	}
 
-  @NotNull
-  public String getLocalRepository() {
-    return overriddenLocalRepository;
-  }
+	@Nullable
+	public VirtualFile getEffectiveGlobalSettingsFile()
+	{
+		File file = getEffectiveGlobalSettingsIoFile();
+		return file == null ? null : LocalFileSystem.getInstance().findFileByIoFile(file);
+	}
 
-  public void setLocalRepository(final @Nullable String overridenLocalRepository) {
-    if (overridenLocalRepository == null) return;
+	@NotNull
+	public String getLocalRepository()
+	{
+		return overriddenLocalRepository;
+	}
 
-    if (!Comparing.equal(this.overriddenLocalRepository, overridenLocalRepository)) {
-      this.overriddenLocalRepository = overridenLocalRepository;
-      changed();
-    }
-  }
+	public void setLocalRepository(final @Nullable String overridenLocalRepository)
+	{
+		if(overridenLocalRepository == null)
+		{
+			return;
+		}
 
-  public File getEffectiveLocalRepository() {
-    File result = myEffectiveLocalRepositoryCache;
-    if (result != null) return result;
+		if(!Comparing.equal(this.overriddenLocalRepository, overridenLocalRepository))
+		{
+			this.overriddenLocalRepository = overridenLocalRepository;
+			changed();
+		}
+	}
 
-    result = MavenUtil.resolveLocalRepository(overriddenLocalRepository, mavenHome, mavenSettingsFile);
-    myEffectiveLocalRepositoryCache = result;
-    return result;
-  }
+	public File getEffectiveLocalRepository()
+	{
+		File result = myEffectiveLocalRepositoryCache;
+		if(result != null)
+		{
+			return result;
+		}
 
-  @NotNull
-  public VirtualFile getEffectiveSuperPom() {
-    return MavenUtil.resolveSuperPomFile(getEffectiveMavenHome());
-  }
+		result = MavenUtil.resolveLocalRepository(overriddenLocalRepository, mavenHome, mavenSettingsFile);
+		myEffectiveLocalRepositoryCache = result;
+		return result;
+	}
 
-  public boolean isDefaultPlugin(String groupId, String artifactId) {
-    return getDefaultPlugins().contains(groupId + ":" + artifactId);
-  }
+	@NotNull
+	public VirtualFile getEffectiveSuperPom()
+	{
+		return MavenUtil.resolveSuperPomFile(getEffectiveMavenHome());
+	}
 
-  private Set<String> getDefaultPlugins() {
-    Set<String> result = myDefaultPluginsCache;
-    if (result != null) return result;
+	public boolean isDefaultPlugin(String groupId, String artifactId)
+	{
+		return getDefaultPlugins().contains(groupId + ":" + artifactId);
+	}
 
-    result = new THashSet<String>();
+	private Set<String> getDefaultPlugins()
+	{
+		Set<String> result = myDefaultPluginsCache;
+		if(result != null)
+		{
+			return result;
+		}
 
-    Element superProject = MavenJDOMUtil.read(getEffectiveSuperPom(), null);
-    for (Element each : MavenJDOMUtil.findChildrenByPath(superProject, "build.pluginManagement.plugins", "plugin")) {
-      String groupId = MavenJDOMUtil.findChildValueByPath(each, "groupId", "org.apache.maven.plugins");
-      String artifactId = MavenJDOMUtil.findChildValueByPath(each, "artifactId", null);
-      result.add(groupId + ":" + artifactId);
-    }
+		result = new THashSet<String>();
 
-    myDefaultPluginsCache = result;
-    return result;
-  }
+		Element superProject = MavenJDOMUtil.read(getEffectiveSuperPom(), null);
+		for(Element each : MavenJDOMUtil.findChildrenByPath(superProject, "build.pluginManagement.plugins", "plugin"))
+		{
+			String groupId = MavenJDOMUtil.findChildValueByPath(each, "groupId", "org.apache.maven.plugins");
+			String artifactId = MavenJDOMUtil.findChildValueByPath(each, "artifactId", null);
+			result.add(groupId + ":" + artifactId);
+		}
 
-  public boolean isPrintErrorStackTraces() {
-    return printErrorStackTraces;
-  }
+		myDefaultPluginsCache = result;
+		return result;
+	}
 
-  public void setPrintErrorStackTraces(boolean value) {
-    printErrorStackTraces = value;
-    changed();
-  }
+	public boolean isPrintErrorStackTraces()
+	{
+		return printErrorStackTraces;
+	}
 
-  public boolean isUsePluginRegistry() {
-    return usePluginRegistry;
-  }
+	public void setPrintErrorStackTraces(boolean value)
+	{
+		printErrorStackTraces = value;
+		changed();
+	}
 
-  public void setUsePluginRegistry(final boolean usePluginRegistry) {
-    this.usePluginRegistry = usePluginRegistry;
-    changed();
-  }
+	public boolean isUsePluginRegistry()
+	{
+		return usePluginRegistry;
+	}
 
-  public boolean isAlwaysUpdateSnapshots() {
-    return alwaysUpdateSnapshots;
-  }
+	public void setUsePluginRegistry(final boolean usePluginRegistry)
+	{
+		this.usePluginRegistry = usePluginRegistry;
+		changed();
+	}
 
-  public void setAlwaysUpdateSnapshots(boolean alwaysUpdateSnapshots) {
-    this.alwaysUpdateSnapshots = alwaysUpdateSnapshots;
-    changed();
-  }
+	public boolean isAlwaysUpdateSnapshots()
+	{
+		return alwaysUpdateSnapshots;
+	}
 
-  public boolean isNonRecursive() {
-    return nonRecursive;
-  }
+	public void setAlwaysUpdateSnapshots(boolean alwaysUpdateSnapshots)
+	{
+		this.alwaysUpdateSnapshots = alwaysUpdateSnapshots;
+		changed();
+	}
 
-  public void setNonRecursive(final boolean nonRecursive) {
-    this.nonRecursive = nonRecursive;
-    changed();
-  }
+	public boolean isNonRecursive()
+	{
+		return nonRecursive;
+	}
 
-  public boolean equals(final Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+	public void setNonRecursive(final boolean nonRecursive)
+	{
+		this.nonRecursive = nonRecursive;
+		changed();
+	}
 
-    final MavenGeneralSettings that = (MavenGeneralSettings)o;
+	public boolean equals(final Object o)
+	{
+		if(this == o)
+		{
+			return true;
+		}
+		if(o == null || getClass() != o.getClass())
+		{
+			return false;
+		}
 
-    if (nonRecursive != that.nonRecursive) return false;
-    if (outputLevel != that.outputLevel) return false;
-    if (pluginUpdatePolicy != that.pluginUpdatePolicy) return false;
-    if (alwaysUpdateSnapshots != that.alwaysUpdateSnapshots) return false;
-    if (printErrorStackTraces != that.printErrorStackTraces) return false;
-    if (usePluginRegistry != that.usePluginRegistry) return false;
-    if (workOffline != that.workOffline) return false;
-    if (!checksumPolicy.equals(that.checksumPolicy)) return false;
-    if (!failureBehavior.equals(that.failureBehavior)) return false;
-    if (!overriddenLocalRepository.equals(that.overriddenLocalRepository)) return false;
-    if (!mavenHome.equals(that.mavenHome)) return false;
-    if (!mavenSettingsFile.equals(that.mavenSettingsFile)) return false;
+		final MavenGeneralSettings that = (MavenGeneralSettings) o;
 
-    return true;
-  }
+		if(nonRecursive != that.nonRecursive)
+		{
+			return false;
+		}
+		if(outputLevel != that.outputLevel)
+		{
+			return false;
+		}
+		if(pluginUpdatePolicy != that.pluginUpdatePolicy)
+		{
+			return false;
+		}
+		if(alwaysUpdateSnapshots != that.alwaysUpdateSnapshots)
+		{
+			return false;
+		}
+		if(printErrorStackTraces != that.printErrorStackTraces)
+		{
+			return false;
+		}
+		if(usePluginRegistry != that.usePluginRegistry)
+		{
+			return false;
+		}
+		if(workOffline != that.workOffline)
+		{
+			return false;
+		}
+		if(!checksumPolicy.equals(that.checksumPolicy))
+		{
+			return false;
+		}
+		if(!failureBehavior.equals(that.failureBehavior))
+		{
+			return false;
+		}
+		if(!overriddenLocalRepository.equals(that.overriddenLocalRepository))
+		{
+			return false;
+		}
+		if(!mavenHome.equals(that.mavenHome))
+		{
+			return false;
+		}
+		if(!mavenSettingsFile.equals(that.mavenSettingsFile))
+		{
+			return false;
+		}
 
-  public int hashCode() {
-    int result;
-    result = (workOffline ? 1 : 0);
-    result = 31 * result + mavenHome.hashCode();
-    result = 31 * result + mavenSettingsFile.hashCode();
-    result = 31 * result + overriddenLocalRepository.hashCode();
-    result = 31 * result + (printErrorStackTraces ? 1 : 0);
-    result = 31 * result + (usePluginRegistry ? 1 : 0);
-    result = 31 * result + (nonRecursive ? 1 : 0);
-    result = 31 * result + outputLevel.hashCode();
-    result = 31 * result + checksumPolicy.hashCode();
-    result = 31 * result + failureBehavior.hashCode();
-    result = 31 * result + pluginUpdatePolicy.hashCode();
-    return result;
-  }
+		return true;
+	}
 
-  @Override
-  public MavenGeneralSettings clone() {
-    try {
-      MavenGeneralSettings result = (MavenGeneralSettings)super.clone();
-      result.myListeners = ContainerUtil.createLockFreeCopyOnWriteList();
-      result.myBulkUpdateLevel = 0;
-      return result;
-    }
-    catch (CloneNotSupportedException e) {
-      throw new Error(e);
-    }
-  }
+	public int hashCode()
+	{
+		int result;
+		result = (workOffline ? 1 : 0);
+		result = 31 * result + mavenHome.hashCode();
+		result = 31 * result + mavenSettingsFile.hashCode();
+		result = 31 * result + overriddenLocalRepository.hashCode();
+		result = 31 * result + (printErrorStackTraces ? 1 : 0);
+		result = 31 * result + (usePluginRegistry ? 1 : 0);
+		result = 31 * result + (nonRecursive ? 1 : 0);
+		result = 31 * result + outputLevel.hashCode();
+		result = 31 * result + checksumPolicy.hashCode();
+		result = 31 * result + failureBehavior.hashCode();
+		result = 31 * result + pluginUpdatePolicy.hashCode();
+		return result;
+	}
 
-  public void addListener(Listener l) {
-    myListeners.add(l);
-  }
+	@Override
+	public MavenGeneralSettings clone()
+	{
+		try
+		{
+			MavenGeneralSettings result = (MavenGeneralSettings) super.clone();
+			result.myListeners = ContainerUtil.createLockFreeCopyOnWriteList();
+			result.myBulkUpdateLevel = 0;
+			return result;
+		}
+		catch(CloneNotSupportedException e)
+		{
+			throw new Error(e);
+		}
+	}
 
-  public void removeListener(Listener l) {
-    myListeners.remove(l);
-  }
+	public void addListener(Listener l)
+	{
+		myListeners.add(l);
+	}
 
-  private void fireChanged() {
-    for (Listener each : myListeners) {
-      each.changed();
-    }
-  }
+	public void removeListener(Listener l)
+	{
+		myListeners.remove(l);
+	}
 
-  public interface Listener {
-    void changed();
-  }
+	private void fireChanged()
+	{
+		for(Listener each : myListeners)
+		{
+			each.changed();
+		}
+	}
+
+	public interface Listener
+	{
+		void changed();
+	}
 }
