@@ -15,114 +15,157 @@
  */
 package org.jetbrains.idea.maven.server;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
 import java.io.File;
 import java.io.Serializable;
 import java.util.Properties;
 
-public class MavenServerSettings implements Serializable, Cloneable {
-  public enum UpdatePolicy {
-    ALWAYS_UPDATE, DO_NOT_UPDATE
-  }
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-  private int myLoggingLevel;
-  @Nullable private File myMavenHome;
-  @Nullable private File myUserSettingsFile;
-  @Nullable private File myGlobalSettingsFile;
-  @Nullable private File myLocalRepository;
-  @NotNull private Properties myUserProperties = new Properties();
-  private boolean isOffline;
-  @NotNull private UpdatePolicy myPluginUpdatePolicy = UpdatePolicy.DO_NOT_UPDATE;
-  @NotNull private UpdatePolicy mySnapshotUpdatePolicy = UpdatePolicy.ALWAYS_UPDATE;
+public class MavenServerSettings implements Serializable, Cloneable
+{
+	public enum UpdatePolicy
+	{
+		ALWAYS_UPDATE, DO_NOT_UPDATE
+	}
 
-  public int getLoggingLevel() {
-    return myLoggingLevel;
-  }
+	private int myLoggingLevel;
+	@Nullable
+	private File myMavenHome;
+	@Nullable
+	private File myUserSettingsFile;
+	@Nullable
+	private File myGlobalSettingsFile;
+	@Nullable
+	private File myLocalRepository;
+	@NotNull
+	private Properties myUserProperties = new Properties();
+	private boolean isOffline;
+	@NotNull
+	private UpdatePolicy myPluginUpdatePolicy = UpdatePolicy.DO_NOT_UPDATE;
+	@NotNull
+	private UpdatePolicy mySnapshotUpdatePolicy = UpdatePolicy.ALWAYS_UPDATE;
 
-  public void setLoggingLevel(int loggingLevel) {
-    myLoggingLevel = loggingLevel;
-  }
+	private String projectJdk;
 
-  @NotNull
-  public Properties getUserProperties() {
-    return myUserProperties;
-  }
+	@Nullable
+	public String getProjectJdk()
+	{
+		return projectJdk;
+	}
 
-  public void setUserProperties(@NotNull Properties properties) {
-    myUserProperties = properties;
-  }
+	public void setProjectJdk(@Nullable String projectJdk)
+	{
+		this.projectJdk = projectJdk;
+	}
 
-  @Nullable
-  public File getMavenHome() {
-    return myMavenHome;
-  }
+	public int getLoggingLevel()
+	{
+		return myLoggingLevel;
+	}
 
-  public void setMavenHome(@Nullable File mavenHome) {
-    myMavenHome = mavenHome;
-  }
+	public void setLoggingLevel(int loggingLevel)
+	{
+		myLoggingLevel = loggingLevel;
+	}
 
-  @Nullable
-  public File getUserSettingsFile() {
-    return myUserSettingsFile;
-  }
+	@NotNull
+	public Properties getUserProperties()
+	{
+		return myUserProperties;
+	}
 
-  public void setUserSettingsFile(@Nullable File userSettingsFile) {
-    myUserSettingsFile = userSettingsFile;
-  }
+	public void setUserProperties(@NotNull Properties properties)
+	{
+		myUserProperties = properties;
+	}
 
-  @Nullable
-  public File getGlobalSettingsFile() {
-    return myGlobalSettingsFile;
-  }
+	@Nullable
+	public File getMavenHome()
+	{
+		return myMavenHome;
+	}
 
-  public void setGlobalSettingsFile(@Nullable File globalSettingsFile) {
-    myGlobalSettingsFile = globalSettingsFile;
-  }
+	public void setMavenHome(@Nullable File mavenHome)
+	{
+		myMavenHome = mavenHome;
+	}
 
-  @Nullable
-  public File getLocalRepository() {
-    return myLocalRepository;
-  }
+	@Nullable
+	public File getUserSettingsFile()
+	{
+		return myUserSettingsFile;
+	}
 
-  public void setLocalRepository(@Nullable File localRepository) {
-    myLocalRepository = localRepository;
-  }
+	public void setUserSettingsFile(@Nullable File userSettingsFile)
+	{
+		myUserSettingsFile = userSettingsFile;
+	}
 
-  public boolean isOffline() {
-    return isOffline;
-  }
+	@Nullable
+	public File getGlobalSettingsFile()
+	{
+		return myGlobalSettingsFile;
+	}
 
-  public void setOffline(boolean offline) {
-    isOffline = offline;
-  }
+	public void setGlobalSettingsFile(@Nullable File globalSettingsFile)
+	{
+		myGlobalSettingsFile = globalSettingsFile;
+	}
 
-  @NotNull
-  public UpdatePolicy getPluginUpdatePolicy() {
-    return myPluginUpdatePolicy;
-  }
+	@Nullable
+	public File getLocalRepository()
+	{
+		return myLocalRepository;
+	}
 
-  public void setPluginUpdatePolicy(@NotNull UpdatePolicy pluginUpdatePolicy) {
-    myPluginUpdatePolicy = pluginUpdatePolicy;
-  }
+	public void setLocalRepository(@Nullable File localRepository)
+	{
+		myLocalRepository = localRepository;
+	}
 
-  @NotNull
-  public UpdatePolicy getSnapshotUpdatePolicy() {
-    return mySnapshotUpdatePolicy;
-  }
+	public boolean isOffline()
+	{
+		return isOffline;
+	}
 
-  public void setSnapshotUpdatePolicy(@NotNull UpdatePolicy snapshotUpdatePolicy) {
-    mySnapshotUpdatePolicy = snapshotUpdatePolicy;
-  }
+	public void setOffline(boolean offline)
+	{
+		isOffline = offline;
+	}
 
-  @Override
-  public MavenServerSettings clone() {
-    try {
-      return (MavenServerSettings)super.clone();
-    }
-    catch (CloneNotSupportedException e) {
-      throw new RuntimeException(e);
-    }
-  }
+	@NotNull
+	public UpdatePolicy getPluginUpdatePolicy()
+	{
+		return myPluginUpdatePolicy;
+	}
+
+	public void setPluginUpdatePolicy(@NotNull UpdatePolicy pluginUpdatePolicy)
+	{
+		myPluginUpdatePolicy = pluginUpdatePolicy;
+	}
+
+	@NotNull
+	public UpdatePolicy getSnapshotUpdatePolicy()
+	{
+		return mySnapshotUpdatePolicy;
+	}
+
+	public void setSnapshotUpdatePolicy(@NotNull UpdatePolicy snapshotUpdatePolicy)
+	{
+		mySnapshotUpdatePolicy = snapshotUpdatePolicy;
+	}
+
+	@Override
+	public MavenServerSettings clone()
+	{
+		try
+		{
+			return (MavenServerSettings) super.clone();
+		}
+		catch(CloneNotSupportedException e)
+		{
+			throw new RuntimeException(e);
+		}
+	}
 }

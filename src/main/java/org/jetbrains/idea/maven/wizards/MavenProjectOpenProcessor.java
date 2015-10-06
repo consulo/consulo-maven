@@ -20,13 +20,13 @@
  */
 package org.jetbrains.idea.maven.wizards;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.idea.maven.model.MavenConstants;
+import org.jetbrains.idea.maven.model.MavenExplicitProfiles;
 import org.jetbrains.idea.maven.project.MavenProject;
 import com.intellij.ide.util.projectWizard.WizardContext;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -51,7 +51,7 @@ public class MavenProjectOpenProcessor extends ProjectOpenProcessorBase<MavenPro
 	{
 		getBuilder().setFiles(Arrays.asList(file));
 
-		if(!getBuilder().setSelectedProfiles(new ArrayList<String>()))
+		if(!getBuilder().setSelectedProfiles(MavenExplicitProfiles.NONE))
 		{
 			return false;
 		}

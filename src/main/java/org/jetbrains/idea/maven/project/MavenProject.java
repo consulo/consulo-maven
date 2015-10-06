@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2012 JetBrains s.r.o.
+ * Copyright 2000-2013 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,11 +53,14 @@ import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.util.SmartList;
 import com.intellij.util.containers.ContainerUtil;
 
 public class MavenProject
 {
+
+	private static final Key<MavenArtifactIndex> DEPENDENCIES_CACHE_KEY = Key.create("MavenProject.DEPENDENCIES_CACHE_KEY");
+	private static final Key<List<String>> FILTERS_CACHE_KEY = Key.create("MavenProject.FILTERS_CACHE_KEY");
+
 	@NotNull
 	private final VirtualFile myFile;
 	@NotNull
@@ -150,11 +153,7 @@ public class MavenProject
 	}
 
 	@NotNull
-	private MavenProjectChanges set(@NotNull MavenProjectReaderResult readerResult,
-			@NotNull MavenGeneralSettings settings,
-			boolean updateLastReadStamp,
-			boolean resetArtifacts,
-			boolean resetProfiles)
+	private MavenProjectChanges set(@NotNull MavenProjectReaderResult readerResult, @NotNull MavenGeneralSettings settings, boolean updateLastReadStamp, boolean resetArtifacts, boolean resetProfiles)
 	{
 		State newState = myState.clone();
 
@@ -402,7 +401,7 @@ public class MavenProject
 		State state = myState;
 		if(StringUtil.isEmptyOrSpaces(state.myName))
 		{
-			return state.myMavenId.getArtifactId();
+			return StringUtil.notNullize(state.myMavenId.getArtifactId());
 		}
 		return state.myName;
 	}
@@ -458,30 +457,37 @@ public class MavenProject
 	@NotNull
 	public String getAnnotationProcessorDirectory(boolean testSources)
 	{
-		Element cfg = getPluginGoalConfiguration("org.bsc.maven", "maven-processor-plugin", testSources ? "process-test" : "process");
-		if(cfg != null)
+		if(getProcMode() == ProcMode.NONE)
 		{
-			String out = MavenJDOMUtil.findChildValueByPath(cfg, "outputDirectory");
-			if(out == null)
+			MavenPlugin bscMavenPlugin = findPlugin("org.bsc.maven", "maven-processor-plugin");
+			Element cfg = getPluginGoalConfiguration(bscMavenPlugin, testSources ? "process-test" : "process");
+			if(bscMavenPlugin != null && cfg == null)
 			{
-				out = MavenJDOMUtil.findChildValueByPath(cfg, "defaultOutputDirectory");
+				return getBuildDirectory() + "/generated-sources/apt";
+			}
+			if(cfg != null)
+			{
+				String out = MavenJDOMUtil.findChildValueByPath(cfg, "outputDirectory");
 				if(out == null)
 				{
-					return getBuildDirectory() + "/generated-sources/apt";
+					out = MavenJDOMUtil.findChildValueByPath(cfg, "defaultOutputDirectory");
+					if(out == null)
+					{
+						return getBuildDirectory() + "/generated-sources/apt";
+					}
 				}
-			}
 
-			if(!new File(out).isAbsolute())
-			{
-				out = getDirectory() + '/' + out;
-			}
+				if(!new File(out).isAbsolute())
+				{
+					out = getDirectory() + '/' + out;
+				}
 
-			return out;
+				return out;
+			}
 		}
 
 		String def = getGeneratedSourcesDirectory(testSources) + (testSources ? "/test-annotations" : "/annotations");
-		return MavenJDOMUtil.findChildValueByPath(getCompilerConfig(), testSources ? "generatedTestSourcesDirectory" : "generatedSourcesDirectory",
-				def);
+		return MavenJDOMUtil.findChildValueByPath(getCompilerConfig(), testSources ? "generatedTestSourcesDirectory" : "generatedSourcesDirectory", def);
 	}
 
 	@NotNull
@@ -515,41 +521,48 @@ public class MavenProject
 			return ProcMode.ONLY;
 		}
 
-		//Element compilerArguments = compilerConfiguration.getChild("compilerArguments");
-		//if (compilerArguments != null) {
-		//  for (Element element : (List<Element>)compilerArguments.getChildren()) {
-		//    String argName = element.getName();
-		//    if (argName.startsWith("-")) {
-		//      argName = argName.substring(1);
-		//    }
-		//
-		//    if ("proc:none".equals(argName)) {
-		//      return ProcMode.NONE;
-		//    }
-		//    if ("proc:only".equals(argName)) {
-		//      return ProcMode.ONLY;
-		//    }
-		//  }
-		//}
+		Element compilerArguments = compilerConfiguration.getChild("compilerArgs");
+		if(compilerArguments != null)
+		{
+			for(Element element : compilerArguments.getChildren())
+			{
+				String arg = element.getValue();
+				if("-proc:none".equals(arg))
+				{
+					return ProcMode.NONE;
+				}
+				if("-proc:only".equals(arg))
+				{
+					return ProcMode.ONLY;
+				}
+			}
+		}
 
 		return ProcMode.BOTH;
 	}
 
-	//@Nullable
-	//private static Element getAnnotationProcessorsConfiguration(@Nullable Element compilerConfig) {
-	//  return (compilerConfig == null) ? null : compilerConfig.getChild("annotationProcessors");
-	//}
-
 	public Map<String, String> getAnnotationProcessorOptions()
 	{
 		Element compilerConfig = getCompilerConfig();
-
 		if(compilerConfig == null)
 		{
 			return Collections.emptyMap();
 		}
+		if(getProcMode() != MavenProject.ProcMode.NONE)
+		{
+			return getAnnotationProcessorOptionsFromCompilerConfig(compilerConfig);
+		}
+		MavenPlugin bscMavenPlugin = findPlugin("org.bsc.maven", "maven-processor-plugin");
+		if(bscMavenPlugin != null)
+		{
+			return getAnnotationProcessorOptionsFromProcessorPlugin(bscMavenPlugin);
+		}
+		return Collections.emptyMap();
+	}
 
-		Map<String, String> res = null;
+	private static Map<String, String> getAnnotationProcessorOptionsFromCompilerConfig(Element compilerConfig)
+	{
+		Map<String, String> res = new LinkedHashMap<String, String>();
 
 		String compilerArgument = compilerConfig.getChildText("compilerArgument");
 		if(!StringUtil.isEmptyOrSpaces(compilerArgument))
@@ -559,26 +572,28 @@ public class MavenProject
 
 			for(String param : parametersList.getParameters())
 			{
-				if(param.startsWith("-A"))
-				{
-					int idx = param.indexOf('=', 3);
-					if(idx >= 0)
-					{
-						if(res == null)
-						{
-							res = new LinkedHashMap<String, String>();
-						}
+				addAnnotationProcessorOption(param, res);
+			}
+		}
 
-						res.put(param.substring(2, idx), param.substring(idx + 1));
-					}
+		Element compilerArgs = compilerConfig.getChild("compilerArgs");
+		if(compilerArgs != null)
+		{
+			for(Element e : compilerArgs.getChildren())
+			{
+				if(!StringUtil.equals(e.getName(), "arg"))
+				{
+					continue;
 				}
+				String arg = e.getTextTrim();
+				addAnnotationProcessorOption(arg, res);
 			}
 		}
 
 		Element compilerArguments = compilerConfig.getChild("compilerArguments");
 		if(compilerArguments != null)
 		{
-			for(Element e : (Collection<Element>) compilerArguments.getChildren())
+			for(Element e : compilerArguments.getChildren())
 			{
 				String name = e.getName();
 				if(name.startsWith("-"))
@@ -588,49 +603,55 @@ public class MavenProject
 
 				if(name.length() > 1 && name.charAt(0) == 'A')
 				{
-					if(res == null)
-					{
-						res = new LinkedHashMap<String, String>();
-					}
-
 					res.put(name.substring(1), e.getTextTrim());
 				}
 			}
 		}
-
-		if(res == null)
-		{
-			return Collections.emptyMap();
-		}
-
 		return res;
 	}
 
-	//private String getCompilerArgument() {
-	//  return MavenJDOMUtil.findChildValueByPath(getCompilerConfig(), "compilerArgument");
-	//}
-	//
-	//private String getCompilerArguments(){
-	//  StringBuilder compilerArguments = new StringBuilder();
-	//  Element compilerArgumentsElement = MavenJDOMUtil.findChildByPath(getCompilerConfig(), "compilerArguments");
-	//  if(compilerArgumentsElement != null){
-	//    List compilerArgumentsElements = compilerArgumentsElement.getChildren();
-	//    for(Object compilerArgumentsElementKey: compilerArgumentsElements){
-	//      String key = ((Element)compilerArgumentsElementKey).getName();
-	//      String value = ((Element)compilerArgumentsElementKey).getValue();
-	//      compilerArguments.append(prepareKeyValue(key)).append(" ").append(prepareValueContent(value));
-	//    }
-	//  }
-	//  return compilerArguments.toString();
-	//}
-	//
-	//private static String prepareValueContent(String value) {
-	//  return (value == null || value.length() == 0)? "" : value + " ";
-	//}
-	//
-	//private static String prepareKeyValue(final String key) {
-	//  return (key.startsWith( "-A" ))? key.substring(2) : key;
-	//}
+	private static void addAnnotationProcessorOption(String compilerArg, Map<String, String> optionsMap)
+	{
+		if(compilerArg == null || compilerArg.trim().isEmpty())
+		{
+			return;
+		}
+
+		if(compilerArg.startsWith("-A"))
+		{
+			int idx = compilerArg.indexOf('=', 3);
+			if(idx >= 0)
+			{
+				optionsMap.put(compilerArg.substring(2, idx), compilerArg.substring(idx + 1));
+			}
+			else
+			{
+				optionsMap.put(compilerArg.substring(2), "");
+			}
+		}
+	}
+
+	private static Map<String, String> getAnnotationProcessorOptionsFromProcessorPlugin(MavenPlugin bscMavenPlugin)
+	{
+		Element cfg = bscMavenPlugin.getGoalConfiguration("process");
+		if(cfg == null)
+		{
+			cfg = bscMavenPlugin.getConfigurationElement();
+		}
+		LinkedHashMap<String, String> res = new LinkedHashMap<String, String>();
+		if(cfg != null)
+		{
+			final Element optionsElement = cfg.getChild("options");
+			if(optionsElement != null)
+			{
+				for(Element option : optionsElement.getChildren())
+				{
+					res.put(option.getName(), option.getText());
+				}
+			}
+		}
+		return res;
+	}
 
 	@Nullable
 	public List<String> getDeclaredAnnotationProcessors()
@@ -641,38 +662,53 @@ public class MavenProject
 			return null;
 		}
 
-		Element processors = compilerConfig.getChild("annotationProcessors");
-		if(processors == null)
+		List<String> result = new ArrayList<String>();
+		if(getProcMode() != MavenProject.ProcMode.NONE)
 		{
-			return null;
-		}
-
-		List<String> res = new ArrayList<String>();
-
-		for(Element element : (List<Element>) processors.getChildren("annotationProcessor"))
-		{
-			String processorClassName = element.getTextTrim();
-			if(!processorClassName.isEmpty())
+			Element processors = compilerConfig.getChild("annotationProcessors");
+			if(processors != null)
 			{
-				res.add(processorClassName);
+				for(Element element : processors.getChildren("annotationProcessor"))
+				{
+					String processorClassName = element.getTextTrim();
+					if(!processorClassName.isEmpty())
+					{
+						result.add(processorClassName);
+					}
+				}
+			}
+		}
+		else
+		{
+			MavenPlugin bscMavenPlugin = findPlugin("org.bsc.maven", "maven-processor-plugin");
+			if(bscMavenPlugin != null)
+			{
+				Element bscCfg = bscMavenPlugin.getGoalConfiguration("process");
+				if(bscCfg == null)
+				{
+					bscCfg = bscMavenPlugin.getConfigurationElement();
+				}
+
+				if(bscCfg != null)
+				{
+					Element bscProcessors = bscCfg.getChild("processors");
+					if(bscProcessors != null)
+					{
+						for(Element element : bscProcessors.getChildren("processor"))
+						{
+							String processorClassName = element.getTextTrim();
+							if(!processorClassName.isEmpty())
+							{
+								result.add(processorClassName);
+							}
+						}
+					}
+				}
 			}
 		}
 
-		return res;
+		return result;
 	}
-
-	//private String getArgumentsForAnnotationProcessor(){
-	//  return getCompilerArguments() + formatCompilerArgument(getCompilerArgument()) ;
-	//}
-
-	//private static String formatCompilerArgument(String compilerArgument){
-	//  String[] splitArguments = compilerArgument.split("\\s+");
-	//  List<String> formattedArguments = new ArrayList<String>();
-	//  for(String splitArgument: splitArguments){
-	//    formattedArguments.add((splitArgument.startsWith( "-A" ))? splitArgument.substring(2) : splitArgument);
-	//  }
-	//  return StringUtil.join(formattedArguments, " ");
-	//}
 
 	@NotNull
 	public String getOutputDirectory()
@@ -716,9 +752,50 @@ public class MavenProject
 		return myState.myFilters;
 	}
 
+	public List<String> getFilterPropertiesFiles()
+	{
+		List<String> res = getCachedValue(FILTERS_CACHE_KEY);
+		if(res == null)
+		{
+			Element propCfg = getPluginGoalConfiguration("org.codehaus.mojo", "properties-maven-plugin", "read-project-properties");
+			if(propCfg != null)
+			{
+				Element files = propCfg.getChild("files");
+				if(files != null)
+				{
+					res = new ArrayList<String>();
+
+					for(Element file : files.getChildren("file"))
+					{
+						File f = new File(file.getValue());
+						if(!f.isAbsolute())
+						{
+							f = new File(getDirectory(), file.getValue());
+						}
+
+						res.add(f.getAbsolutePath());
+					}
+				}
+			}
+
+			if(res == null)
+			{
+				res = getFilters();
+			}
+			else
+			{
+				res.addAll(getFilters());
+			}
+
+			res = putCachedValue(FILTERS_CACHE_KEY, res);
+		}
+
+		return res;
+	}
+
 	@NotNull
 	public MavenProjectChanges read(@NotNull MavenGeneralSettings generalSettings,
-			@NotNull Collection<String> profiles,
+			@NotNull MavenExplicitProfiles profiles,
 			@NotNull MavenProjectReader reader,
 			@NotNull MavenProjectReaderProjectLocator locator)
 	{
@@ -730,7 +807,8 @@ public class MavenProject
 			@NotNull MavenGeneralSettings generalSettings,
 			@NotNull MavenEmbedderWrapper embedder,
 			@NotNull MavenProjectReader reader,
-			@NotNull MavenProjectReaderProjectLocator locator) throws MavenProcessCanceledException
+			@NotNull MavenProjectReaderProjectLocator locator,
+			@NotNull ResolveContext context) throws MavenProcessCanceledException
 	{
 		MavenProjectReaderResult result = reader.resolveProject(generalSettings, embedder, getFile(), getActivatedProfilesIds(), locator);
 		MavenProjectChanges changes = set(result, generalSettings, false, result.readingProblems.isEmpty(), false);
@@ -739,7 +817,7 @@ public class MavenProject
 		{
 			for(MavenImporter eachImporter : getSuitableImporters())
 			{
-				eachImporter.resolve(project, this, result.nativeMavenProject, embedder);
+				eachImporter.resolve(project, this, result.nativeMavenProject, embedder, context);
 			}
 		}
 		return Pair.create(changes, result.nativeMavenProject);
@@ -750,8 +828,7 @@ public class MavenProject
 			@NotNull MavenImportingSettings importingSettings,
 			@NotNull MavenConsole console) throws MavenProcessCanceledException
 	{
-		MavenProjectReaderResult result = MavenProjectReader.generateSources(embedder, importingSettings, getFile(), getActivatedProfilesIds(),
-				console);
+		MavenProjectReaderResult result = MavenProjectReader.generateSources(embedder, importingSettings, getFile(), getActivatedProfilesIds(), console);
 		if(result == null || !result.readingProblems.isEmpty())
 		{
 			return Pair.create(false, MavenProjectChanges.NONE);
@@ -822,8 +899,7 @@ public class MavenProject
 	{
 		for(MavenArtifact each : getUnresolvedDependencies(state))
 		{
-			result.add(createDependencyProblem(file, ProjectBundle.message("maven.project.problem.unresolvedDependency",
-					each.getDisplayStringWithType())));
+			result.add(createDependencyProblem(file, ProjectBundle.message("maven.project.problem.unresolvedDependency", each.getDisplayStringWithType())));
 		}
 	}
 
@@ -831,8 +907,7 @@ public class MavenProject
 	{
 		for(MavenArtifact each : getUnresolvedExtensions(state))
 		{
-			result.add(createDependencyProblem(file, ProjectBundle.message("maven.project.problem.unresolvedExtension",
-					each.getDisplayStringSimple())));
+			result.add(createDependencyProblem(file, ProjectBundle.message("maven.project.problem.unresolvedExtension", each.getDisplayStringSimple())));
 		}
 	}
 
@@ -959,7 +1034,7 @@ public class MavenProject
 	}
 
 	@NotNull
-	public Collection<String> getActivatedProfilesIds()
+	public MavenExplicitProfiles getActivatedProfilesIds()
 	{
 		return myState.myActivatedProfilesIds;
 	}
@@ -976,16 +1051,10 @@ public class MavenProject
 		return myState.myDependencyTree;
 	}
 
-	public boolean isSupportedDependency(@NotNull MavenArtifact artifact, @NotNull SupportedRequestType type)
-	{
-		return getSupportedDependencyTypes(type).contains(artifact.getType());
-	}
-
 	@NotNull
 	public Set<String> getSupportedPackagings()
 	{
-		Set<String> result = ContainerUtil.newHashSet(MavenConstants.TYPE_POM, MavenConstants.TYPE_JAR, "ejb", "ejb-client", "war", "ear", "bundle",
-				"maven-plugin");
+		Set<String> result = ContainerUtil.newHashSet(MavenConstants.TYPE_POM, MavenConstants.TYPE_JAR, "ejb", "ejb-client", "war", "ear", "bundle", "maven-plugin");
 		for(MavenImporter each : getSuitableImporters())
 		{
 			each.getSupportedPackagings(result);
@@ -993,28 +1062,23 @@ public class MavenProject
 		return result;
 	}
 
-	@NotNull
-	public Set<String> getSupportedDependencyTypes(@NotNull SupportedRequestType type)
+	public Set<String> getDependencyTypesFromImporters(@NotNull SupportedRequestType type)
 	{
-		Set<String> result = new THashSet<String>(Arrays.asList(MavenConstants.TYPE_JAR, MavenConstants.TYPE_TEST_JAR, "ejb", "ejb-client",
-				"jboss-har", "jboss-sar", "war", "ear", "bundle"));
-		if(type == SupportedRequestType.FOR_COMPLETION)
-		{
-			result.add(MavenConstants.TYPE_POM);
-		}
+		THashSet<String> res = new THashSet<String>();
 
 		for(MavenImporter each : getSuitableImporters())
 		{
-			each.getSupportedDependencyTypes(result, type);
+			each.getSupportedDependencyTypes(res, type);
 		}
-		return result;
+
+		return res;
 	}
 
 	@NotNull
 	public Set<String> getSupportedDependencyScopes()
 	{
-		Set<String> result = new THashSet<String>(Arrays.asList(MavenConstants.SCOPE_COMPILE, MavenConstants.SCOPE_PROVIDEED,
-				MavenConstants.SCOPE_RUNTIME, MavenConstants.SCOPE_TEST, MavenConstants.SCOPE_SYSTEM));
+		Set<String> result = new THashSet<String>(Arrays.asList(MavenConstants.SCOPE_COMPILE, MavenConstants.SCOPE_PROVIDED, MavenConstants.SCOPE_RUNTIME, MavenConstants.SCOPE_TEST,
+				MavenConstants.SCOPE_SYSTEM));
 		for(MavenImporter each : getSuitableImporters())
 		{
 			each.getSupportedDependencyScopes(result);
@@ -1028,6 +1092,8 @@ public class MavenProject
 		List<MavenArtifact> dependenciesCopy = new ArrayList<MavenArtifact>(state.myDependencies);
 		dependenciesCopy.add(dependency);
 		state.myDependencies = dependenciesCopy;
+
+		state.myCache.clear();
 	}
 
 	@NotNull
@@ -1038,29 +1104,13 @@ public class MavenProject
 
 	public List<MavenArtifact> findDependencies(@NotNull MavenId id)
 	{
-		List<MavenArtifact> result = new SmartList<MavenArtifact>();
-		for(MavenArtifact each : getDependencies())
-		{
-			if(id.equals(each.getGroupId(), each.getArtifactId(), each.getVersion()))
-			{
-				result.add(each);
-			}
-		}
-		return result;
+		return getDependencyArtifactIndex().findArtifacts(id);
 	}
 
 	@NotNull
 	public List<MavenArtifact> findDependencies(@Nullable String groupId, @Nullable String artifactId)
 	{
-		List<MavenArtifact> result = new SmartList<MavenArtifact>();
-		for(MavenArtifact each : getDependencies())
-		{
-			if(Comparing.equal(artifactId, each.getArtifactId()) && Comparing.equal(groupId, each.getGroupId()))
-			{
-				result.add(each);
-			}
-		}
-		return result;
+		return getDependencyArtifactIndex().findArtifacts(groupId, artifactId);
 	}
 
 	public boolean hasUnresolvedArtifacts()
@@ -1090,6 +1140,7 @@ public class MavenProject
 	{
 		return ContainerUtil.findAll(state.myPlugins, new Condition<MavenPlugin>()
 		{
+			@Override
 			public boolean value(MavenPlugin mavenPlugin)
 			{
 				return !mavenPlugin.isDefault();
@@ -1106,18 +1157,17 @@ public class MavenProject
 	@Nullable
 	public Element getPluginGoalConfiguration(@Nullable String groupId, @Nullable String artifactId, @Nullable String goal)
 	{
-		MavenPlugin plugin = findPlugin(groupId, artifactId);
+		return getPluginGoalConfiguration(findPlugin(groupId, artifactId), goal);
+	}
+
+	@Nullable
+	public Element getPluginGoalConfiguration(@Nullable MavenPlugin plugin, @Nullable String goal)
+	{
 		if(plugin == null)
 		{
 			return null;
 		}
-
-		if(goal == null)
-		{
-			return plugin.getConfigurationElement();
-		}
-
-		return plugin.getGoalConfiguration(goal);
+		return goal == null ? plugin.getConfigurationElement() : plugin.getGoalConfiguration(goal);
 	}
 
 	public Element getPluginExecutionConfiguration(@Nullable String groupId, @Nullable String artifactId, @NotNull String executionId)
@@ -1127,7 +1177,6 @@ public class MavenProject
 		{
 			return null;
 		}
-
 		return plugin.getExecutionConfiguration(executionId);
 	}
 
@@ -1244,6 +1293,18 @@ public class MavenProject
 		return Pair.create(type.getDefaultClassifier(), type.getDefaultExtension());
 	}
 
+	public MavenArtifactIndex getDependencyArtifactIndex()
+	{
+		MavenArtifactIndex res = getCachedValue(DEPENDENCIES_CACHE_KEY);
+		if(res == null)
+		{
+			res = MavenArtifactIndex.build(getDependencies());
+			res = putCachedValue(DEPENDENCIES_CACHE_KEY, res);
+		}
+
+		return res;
+	}
+
 	@Nullable
 	public <V> V getCachedValue(Key<V> key)
 	{
@@ -1305,7 +1366,7 @@ public class MavenProject
 		Map<String, String> myModelMap;
 
 		Collection<String> myProfilesIds;
-		Collection<String> myActivatedProfilesIds;
+		MavenExplicitProfiles myActivatedProfilesIds;
 
 		Collection<MavenProjectProblem> myReadingProblems;
 		Set<MavenId> myUnresolvedArtifactIds;
@@ -1355,13 +1416,11 @@ public class MavenProject
 
 			result.packaging = !Comparing.equal(myPackaging, other.myPackaging);
 
-			result.output = !Comparing.equal(myFinalName, other.myFinalName) || !Comparing.equal(myBuildDirectory,
-					other.myBuildDirectory) || !Comparing.equal(myOutputDirectory, other.myOutputDirectory) || !Comparing.equal
-					(myTestOutputDirectory, other.myTestOutputDirectory);
+			result.output = !Comparing.equal(myFinalName, other.myFinalName) || !Comparing.equal(myBuildDirectory, other.myBuildDirectory) || !Comparing.equal(myOutputDirectory,
+					other.myOutputDirectory) || !Comparing.equal(myTestOutputDirectory, other.myTestOutputDirectory);
 
-			result.sources = !Comparing.equal(mySources, other.mySources) || !Comparing.equal(myTestSources,
-					other.myTestSources) || !Comparing.equal(myResources, other.myResources) || !Comparing.equal(myTestResources,
-					other.myTestResources);
+			result.sources = !Comparing.equal(mySources, other.mySources) || !Comparing.equal(myTestSources, other.myTestSources) || !Comparing.equal(myResources,
+					other.myResources) || !Comparing.equal(myTestResources, other.myTestResources);
 
 			boolean repositoryChanged = !Comparing.equal(myLocalRepository, other.myLocalRepository);
 

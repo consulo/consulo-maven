@@ -15,6 +15,12 @@
  */
 package org.jetbrains.idea.maven.server;
 
+import java.io.File;
+import java.rmi.Remote;
+import java.rmi.RemoteException;
+import java.util.Collection;
+import java.util.Set;
+
 import org.apache.lucene.search.Query;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -22,37 +28,28 @@ import org.jetbrains.idea.maven.model.MavenArchetype;
 import org.jetbrains.idea.maven.model.MavenArtifactInfo;
 import org.jetbrains.idea.maven.model.MavenId;
 
-import java.io.File;
-import java.rmi.Remote;
-import java.rmi.RemoteException;
-import java.util.Collection;
-import java.util.Set;
+public interface MavenServerIndexer extends Remote
+{
+	String SEARCH_TERM_COORDINATES = "u"; // see org.sonatype.nexus.index.ArtifactInfo
+	String SEARCH_TERM_CLASS_NAMES = "c";
 
-public interface MavenServerIndexer extends Remote {
-  String SEARCH_TERM_COORDINATES = "u"; // see org.sonatype.nexus.index.ArtifactInfo
-  String SEARCH_TERM_CLASS_NAMES = "c";
+	int createIndex(@NotNull String indexId, @NotNull String repositoryId, @Nullable File file, @Nullable String url, @NotNull File indexDir) throws RemoteException, MavenServerIndexerException;
 
-  int createIndex(@NotNull String indexId,
-                  @NotNull String repositoryId,
-                  @Nullable File file,
-                  @Nullable String url,
-                  @NotNull File indexDir) throws RemoteException, MavenServerIndexerException;
+	void releaseIndex(int id) throws RemoteException, MavenServerIndexerException;
 
-  void releaseIndex(int id) throws RemoteException, MavenServerIndexerException;
+	int getIndexCount() throws RemoteException;
 
-  int getIndexCount() throws RemoteException;
+	void updateIndex(int id, MavenServerSettings settings, MavenServerProgressIndicator indicator) throws RemoteException, MavenServerIndexerException, MavenServerProcessCanceledException;
 
-  void updateIndex(int id, MavenServerSettings settings, MavenServerProgressIndicator indicator) throws RemoteException,
-                                                                                                        MavenServerIndexerException,
-                                                                                                        MavenServerProcessCanceledException;
+	void processArtifacts(int indexId, MavenServerIndicesProcessor processor) throws RemoteException, MavenServerIndexerException;
 
-  void processArtifacts(int indexId, MavenServerIndicesProcessor processor) throws RemoteException, MavenServerIndexerException;
+	MavenId addArtifact(int indexId, File artifactFile) throws RemoteException, MavenServerIndexerException;
 
-  MavenId addArtifact(int indexId, File artifactFile) throws RemoteException, MavenServerIndexerException;
+	Set<MavenArtifactInfo> search(int indexId, Query query, int maxResult) throws RemoteException, MavenServerIndexerException;
 
-  Set<MavenArtifactInfo> search(int indexId, Query query, int maxResult) throws RemoteException, MavenServerIndexerException;
+	Collection<MavenArchetype> getArchetypes() throws RemoteException;
 
-  Collection<MavenArchetype> getArchetypes() throws RemoteException;
+	void release() throws RemoteException;
 
-  void release() throws RemoteException;
+	boolean indexExists(File dir) throws RemoteException;
 }

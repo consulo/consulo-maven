@@ -17,14 +17,17 @@ package org.jetbrains.idea.maven.server;
 
 import com.intellij.execution.rmi.RemoteObject;
 
-public class MavenRemoteObject extends RemoteObject{
-  @Override
-  protected boolean isKnownException(Throwable ex) {
-    return ex.getClass().getName().startsWith(MavenRemoteObject.class.getPackage().getName());
-  }
+public class MavenRemoteObject extends RemoteObject
+{
+	@Override
+	protected boolean isKnownException(Throwable ex)
+	{
+		return ex.getClass().getName().startsWith(MavenRemoteObject.class.getPackage().getName());
+	}
 
-  public RuntimeException rethrowException(Throwable e) {
-    Throwable wrap = wrapException(e);
-    throw wrap instanceof RuntimeException ? (RuntimeException)wrap : new RuntimeException(wrap);
-  }
+	public RuntimeException rethrowException(Throwable e)
+	{
+		Throwable wrap = wrapException(e);
+		throw wrap instanceof RuntimeException ? (RuntimeException) wrap : new RuntimeException(wrap);
+	}
 }

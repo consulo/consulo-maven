@@ -19,6 +19,7 @@ import gnu.trove.THashSet;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
@@ -26,6 +27,11 @@ import java.util.concurrent.Future;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+import java.util.zip.CRC32;
+
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -36,6 +42,12 @@ import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.server.MavenServerManager;
 import org.jetbrains.idea.maven.server.MavenServerUtil;
+import org.mustbe.consulo.java.module.extension.JavaModuleExtension;
+import org.xml.sax.Attributes;
+import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
+import org.xml.sax.helpers.DefaultHandler;
+import com.intellij.codeInsight.actions.ReformatCodeProcessor;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.codeInsight.template.TemplateManager;
@@ -49,28 +61,37 @@ import com.intellij.notification.Notifications;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.application.PathManager;
+import com.intellij.openapi.application.impl.ApplicationInfoImpl;
 import com.intellij.openapi.application.impl.LaterInvocator;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
+import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.ModuleUtilCore;
 import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.startup.StartupManager;
 import com.intellij.openapi.util.Comparing;
 import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.util.SystemInfo;
 import com.intellij.openapi.util.io.FileUtil;
+import com.intellij.openapi.util.io.JarUtil;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.util.ArchiveVfsUtil;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiManager;
+import com.intellij.util.DisposeAwareRunnable;
 import com.intellij.util.Function;
 import com.intellij.util.SystemProperties;
+import com.intellij.util.concurrency.Semaphore;
 import com.intellij.util.containers.ContainerUtil;
 import icons.MavenIcons;
 
@@ -133,18 +154,7 @@ public class MavenUtil
 		}
 		else
 		{
-			ApplicationManager.getApplication().invokeLater(new Runnable()
-			{
-				@Override
-				public void run()
-				{
-					if(p.isDisposed())
-					{
-						return;
-					}
-					r.run();
-				}
-			}, state);
+			ApplicationManager.getApplication().invokeLater(DisposeAwareRunnable.create(r, p), state);
 		}
 	}
 
@@ -167,19 +177,37 @@ public class MavenUtil
 			}
 			else
 			{
-				ApplicationManager.getApplication().invokeAndWait(new Runnable()
+				ApplicationManager.getApplication().invokeAndWait(DisposeAwareRunnable.create(r, p), state);
+			}
+		}
+	}
+
+	public static void smartInvokeAndWait(final Project p, final ModalityState state, final Runnable r)
+	{
+		if(isNoBackgroundMode() || ApplicationManager.getApplication().isDispatchThread())
+		{
+			r.run();
+		}
+		else
+		{
+			final Semaphore semaphore = new Semaphore();
+			semaphore.down();
+			DumbService.getInstance(p).smartInvokeLater(new Runnable()
+			{
+				@Override
+				public void run()
 				{
-					@Override
-					public void run()
+					try
 					{
-						if(p.isDisposed())
-						{
-							return;
-						}
 						r.run();
 					}
-				}, state);
-			}
+					finally
+					{
+						semaphore.up();
+					}
+				}
+			}, state);
+			semaphore.waitFor();
 		}
 	}
 
@@ -203,18 +231,7 @@ public class MavenUtil
 		}
 		else
 		{
-			DumbService.getInstance(project).runWhenSmart(new Runnable()
-			{
-				@Override
-				public void run()
-				{
-					if(project.isDisposed())
-					{
-						return;
-					}
-					r.run();
-				}
-			});
+			DumbService.getInstance(project).runWhenSmart(DisposeAwareRunnable.create(r, project));
 		}
 	}
 
@@ -233,7 +250,7 @@ public class MavenUtil
 
 		if(!project.isInitialized())
 		{
-			StartupManager.getInstance(project).registerPostStartupActivity(r);
+			StartupManager.getInstance(project).registerPostStartupActivity(DisposeAwareRunnable.create(r, project));
 			return;
 		}
 
@@ -296,8 +313,7 @@ public class MavenUtil
 		return result;
 	}
 
-	@NotNull
-	public static List<String> collectPaths(@NotNull List<VirtualFile> files)
+	public static List<String> collectPaths(List<VirtualFile> files)
 	{
 		return ContainerUtil.map(files, new Function<VirtualFile, String>()
 		{
@@ -309,8 +325,7 @@ public class MavenUtil
 		});
 	}
 
-	@NotNull
-	public static List<VirtualFile> collectFiles(@NotNull Collection<MavenProject> projects)
+	public static List<VirtualFile> collectFiles(Collection<MavenProject> projects)
 	{
 		return ContainerUtil.map(projects, new Function<MavenProject, VirtualFile>()
 		{
@@ -349,14 +364,17 @@ public class MavenUtil
 		return "<img src=\"" + url + "\"> ";
 	}
 
-	public static void runOrApplyMavenProjectFileTemplate(Project project, VirtualFile file, @NotNull MavenId projectId,
-			boolean interactive) throws IOException
+	public static void runOrApplyMavenProjectFileTemplate(Project project, VirtualFile file, @NotNull MavenId projectId, boolean interactive) throws IOException
 	{
 		runOrApplyMavenProjectFileTemplate(project, file, projectId, null, null, interactive);
 	}
 
-	public static void runOrApplyMavenProjectFileTemplate(Project project, VirtualFile file, @NotNull MavenId projectId, MavenId parentId,
-			VirtualFile parentFile, boolean interactive) throws IOException
+	public static void runOrApplyMavenProjectFileTemplate(Project project,
+			VirtualFile file,
+			@NotNull MavenId projectId,
+			MavenId parentId,
+			VirtualFile parentFile,
+			boolean interactive) throws IOException
 	{
 		Properties properties = new Properties();
 		Properties conditions = new Properties();
@@ -399,12 +417,11 @@ public class MavenUtil
 		runOrApplyFileTemplate(project, file, templateName, new Properties(), new Properties(), true);
 	}
 
-	private static void runOrApplyFileTemplate(Project project, VirtualFile file, String templateName, Properties properties, Properties conditions,
-			boolean interactive) throws IOException
+	private static void runOrApplyFileTemplate(Project project, VirtualFile file, String templateName, Properties properties, Properties conditions, boolean interactive) throws IOException
 	{
 		FileTemplateManager manager = FileTemplateManager.getInstance();
 		FileTemplate fileTemplate = manager.getJ2eeTemplate(templateName);
-		Properties allProperties = manager.getDefaultProperties(project);
+		Properties allProperties = manager.getDefaultProperties();
 		if(!interactive)
 		{
 			allProperties.putAll(properties);
@@ -443,6 +460,12 @@ public class MavenUtil
 		else
 		{
 			VfsUtil.saveText(file, template.getTemplateText());
+
+			PsiFile psiFile = PsiManager.getInstance(project).findFile(file);
+			if(psiFile != null)
+			{
+				new ReformatCodeProcessor(project, psiFile, null, false).run();
+			}
 		}
 	}
 
@@ -627,7 +650,7 @@ public class MavenUtil
 	{
 		if(!isEmptyOrSpaces(overrideMavenHome))
 		{
-			return new File(overrideMavenHome);
+			return MavenServerManager.getInstance().getMavenHomeFile(overrideMavenHome);
 		}
 
 		String m2home = System.getenv(ENV_M2_HOME);
@@ -688,7 +711,7 @@ public class MavenUtil
 			}
 		}
 
-		return null;
+		return MavenServerManager.getInstance().getMavenHomeFile(MavenServerManager.BUNDLED_MAVEN_3);
 	}
 
 	@Nullable
@@ -713,8 +736,7 @@ public class MavenUtil
 		final int versionIndex = prefix.length();
 		for(String path : list)
 		{
-			if(path.startsWith(prefix) && (home == null || StringUtil.compareVersionNumbers(path.substring(versionIndex),
-					home.substring(versionIndex)) > 0))
+			if(path.startsWith(prefix) && (home == null || StringUtil.compareVersionNumbers(path.substring(versionIndex), home.substring(versionIndex)) > 0))
 			{
 				home = path;
 			}
@@ -774,8 +796,12 @@ public class MavenUtil
 	}
 
 	@Nullable
-	public static String getMavenVersion(String mavenHome)
+	public static String getMavenVersion(@Nullable File mavenHome)
 	{
+		if(mavenHome == null)
+		{
+			return null;
+		}
 		String[] libs = new File(mavenHome, "lib").list();
 
 		if(libs != null)
@@ -784,12 +810,30 @@ public class MavenUtil
 			{
 				if(lib.startsWith("maven-core-") && lib.endsWith(".jar"))
 				{
-					return lib.substring("maven-core-".length(), lib.length() - ".jar".length());
+					String version = lib.substring("maven-core-".length(), lib.length() - ".jar".length());
+					if(StringUtil.contains(version, ".x"))
+					{
+						Properties props = JarUtil.loadProperties(new File(mavenHome, "lib/" + lib), "META-INF/maven/org.apache.maven/maven-core/pom.properties");
+						return props != null ? props.getProperty("version") : null;
+					}
+					else
+					{
+						return version;
+					}
+				}
+				if(lib.startsWith("maven-") && lib.endsWith("-uber.jar"))
+				{
+					return lib.substring("maven-".length(), lib.length() - "-uber.jar".length());
 				}
 			}
 		}
-
 		return null;
+	}
+
+	@Nullable
+	public static String getMavenVersion(String mavenHome)
+	{
+		return getMavenVersion(new File(mavenHome));
 	}
 
 	public static boolean isMaven3(String mavenHome)
@@ -802,11 +846,6 @@ public class MavenUtil
 	public static File resolveGlobalSettingsFile(@Nullable String overriddenMavenHome)
 	{
 		File directory = resolveMavenHomeDirectory(overriddenMavenHome);
-		if(directory == null)
-		{
-			return null;
-		}
-
 		return new File(new File(directory, CONF_DIR), SETTINGS_XML);
 	}
 
@@ -827,8 +866,7 @@ public class MavenUtil
 	}
 
 	@NotNull
-	public static File resolveLocalRepository(@Nullable String overriddenLocalRepository, @Nullable String overriddenMavenHome,
-			@Nullable String overriddenUserSettingsFile)
+	public static File resolveLocalRepository(@Nullable String overriddenLocalRepository, @Nullable String overriddenMavenHome, @Nullable String overriddenUserSettingsFile)
 	{
 		File result = null;
 		if(!isEmptyOrSpaces(overriddenLocalRepository))
@@ -902,7 +940,7 @@ public class MavenUtil
 		return text;
 	}
 
-	@NotNull
+	@Nullable
 	public static VirtualFile resolveSuperPomFile(@Nullable File mavenHome)
 	{
 		VirtualFile result = null;
@@ -910,11 +948,7 @@ public class MavenUtil
 		{
 			result = doResolveSuperPomFile(new File(mavenHome, LIB_DIR));
 		}
-		if(result == null)
-		{
-			result = doResolveSuperPomFile(MavenServerManager.getMavenLibDirectory());
-		}
-		return result;
+		return result == null ? doResolveSuperPomFile(MavenServerManager.getMavenLibDirectory()) : result;
 	}
 
 	@Nullable
@@ -989,5 +1023,225 @@ public class MavenUtil
 	public interface MavenTaskHandler
 	{
 		void waitFor();
+	}
+
+	public static int crcWithoutSpaces(@NotNull InputStream in) throws IOException
+	{
+		try
+		{
+			final CRC32 crc = new CRC32();
+
+			SAXParser parser = SAXParserFactory.newInstance().newSAXParser();
+
+			parser.parse(in, new DefaultHandler()
+			{
+
+				boolean textContentOccur = false;
+				int spacesCrc;
+
+				private void putString(@Nullable String string)
+				{
+					if(string == null)
+					{
+						return;
+					}
+
+					for(int i = 0, end = string.length(); i < end; i++)
+					{
+						crc.update(string.charAt(i));
+					}
+				}
+
+				@Override
+				public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException
+				{
+					textContentOccur = false;
+
+					crc.update(1);
+					putString(qName);
+
+					for(int i = 0; i < attributes.getLength(); i++)
+					{
+						putString(attributes.getQName(i));
+						putString(attributes.getValue(i));
+					}
+				}
+
+				@Override
+				public void endElement(String uri, String localName, String qName) throws SAXException
+				{
+					textContentOccur = false;
+
+					crc.update(2);
+					putString(qName);
+				}
+
+				private void processTextOrSpaces(char[] ch, int start, int length)
+				{
+					for(int i = start, end = start + length; i < end; i++)
+					{
+						char a = ch[i];
+
+						if(Character.isWhitespace(a))
+						{
+							if(textContentOccur)
+							{
+								spacesCrc = spacesCrc * 31 + a;
+							}
+						}
+						else
+						{
+							if(textContentOccur && spacesCrc != 0)
+							{
+								crc.update(spacesCrc);
+								crc.update(spacesCrc >> 8);
+							}
+
+							crc.update(a);
+
+							textContentOccur = true;
+							spacesCrc = 0;
+						}
+					}
+				}
+
+				@Override
+				public void characters(char[] ch, int start, int length) throws SAXException
+				{
+					processTextOrSpaces(ch, start, length);
+				}
+
+				@Override
+				public void ignorableWhitespace(char[] ch, int start, int length) throws SAXException
+				{
+					processTextOrSpaces(ch, start, length);
+				}
+
+				@Override
+				public void processingInstruction(String target, String data) throws SAXException
+				{
+					putString(target);
+					putString(data);
+				}
+
+				@Override
+				public void skippedEntity(String name) throws SAXException
+				{
+					putString(name);
+				}
+
+				@Override
+				public void error(SAXParseException e) throws SAXException
+				{
+					crc.update(100);
+				}
+			});
+
+			return (int) crc.getValue();
+		}
+		catch(ParserConfigurationException e)
+		{
+			throw new RuntimeException(e);
+		}
+		catch(SAXException e)
+		{
+			return -1;
+		}
+	}
+
+	public static int crcWithoutSpaces(@NotNull VirtualFile xmlFile) throws IOException
+	{
+		InputStream inputStream = xmlFile.getInputStream();
+		try
+		{
+			return crcWithoutSpaces(inputStream);
+		}
+		finally
+		{
+			inputStream.close();
+		}
+	}
+
+	public static String getSdkPath(@Nullable Sdk sdk)
+	{
+		if(sdk == null)
+		{
+			return null;
+		}
+
+		VirtualFile homeDirectory = sdk.getHomeDirectory();
+		if(homeDirectory == null)
+		{
+			return null;
+		}
+
+		if(!"jre".equals(homeDirectory.getName()))
+		{
+			VirtualFile jreDir = homeDirectory.findChild("jre");
+			if(jreDir != null)
+			{
+				homeDirectory = jreDir;
+			}
+		}
+
+		return homeDirectory.getPath();
+	}
+
+	@Nullable
+	public static String getModuleJreHome(@NotNull MavenProjectsManager mavenProjectsManager, @NotNull MavenProject mavenProject)
+	{
+		return getSdkPath(getModuleJdk(mavenProjectsManager, mavenProject));
+	}
+
+	@Nullable
+	public static String getModuleJavaVersion(@NotNull MavenProjectsManager mavenProjectsManager, @NotNull MavenProject mavenProject)
+	{
+		Sdk sdk = getModuleJdk(mavenProjectsManager, mavenProject);
+		if(sdk == null)
+		{
+			return null;
+		}
+
+		return sdk.getVersionString();
+	}
+
+	@Nullable
+	public static Sdk getModuleJdk(@NotNull MavenProjectsManager mavenProjectsManager, @NotNull MavenProject mavenProject)
+	{
+		Module module = mavenProjectsManager.findModule(mavenProject);
+		if(module == null)
+		{
+			return null;
+		}
+
+		return ModuleUtilCore.getSdk(module, JavaModuleExtension.class);
+	}
+
+	@NotNull
+	public static <K, V extends Map> V getOrCreate(Map map, K key)
+	{
+		Map res = (Map) map.get(key);
+		if(res == null)
+		{
+			res = new HashMap();
+			map.put(key, res);
+		}
+
+		return (V) res;
+	}
+
+	public static String getArtifactName(String packaging, Module module, boolean exploded)
+	{
+		return module.getName() + ":" + packaging + (exploded ? " exploded" : "");
+	}
+
+	public static String getEjbClientArtifactName(Module module)
+	{
+		return module.getName() + ":ejb-client";
+	}
+
+	public static String getIdeaVersionToPassToMavenProcess()
+	{
+		return ApplicationInfoImpl.getShadowInstance().getMajorVersion() + "." + ApplicationInfoImpl.getShadowInstance().getMinorVersion();
 	}
 }

@@ -28,6 +28,7 @@ import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectChanges;
 import org.jetbrains.idea.maven.project.MavenProjectsProcessorTask;
 import org.jetbrains.idea.maven.project.MavenProjectsTree;
+import org.jetbrains.idea.maven.project.ResolveContext;
 import org.jetbrains.idea.maven.project.SupportedRequestType;
 import org.jetbrains.idea.maven.server.MavenEmbedderWrapper;
 import org.jetbrains.idea.maven.server.NativeMavenProjectHolder;
@@ -42,7 +43,6 @@ import com.intellij.openapi.roots.ModifiableRootModel;
 import com.intellij.openapi.util.Pair;
 import com.intellij.util.SmartList;
 import com.intellij.util.containers.MultiMap;
-import lombok.val;
 
 public abstract class MavenImporter
 {
@@ -82,13 +82,24 @@ public abstract class MavenImporter
 		return null;
 	}
 
-	public void resolve(Project project, MavenProject mavenProject, NativeMavenProjectHolder nativeMavenProject, MavenEmbedderWrapper embedder) throws MavenProcessCanceledException
+	public void resolve(Project project,
+			MavenProject mavenProject,
+			NativeMavenProjectHolder nativeMavenProject,
+			MavenEmbedderWrapper embedder,
+			ResolveContext resolveContext) throws MavenProcessCanceledException
 	{
 	}
 
 	public abstract void preProcess(Module module, MavenProject mavenProject, MavenProjectChanges changes, MavenModifiableModelsProvider modifiableModelsProvider);
 
-	public abstract void process(MavenModifiableModelsProvider modifiableModelsProvider, Module module, MavenRootModelAdapter rootModel, MavenProjectsTree mavenModel, MavenProject mavenProject, MavenProjectChanges changes, Map<MavenProject, String> mavenProjectToModuleName, List<MavenProjectsProcessorTask> postTasks);
+	public abstract void process(MavenModifiableModelsProvider modifiableModelsProvider,
+			Module module,
+			MavenRootModelAdapter rootModel,
+			MavenProjectsTree mavenModel,
+			MavenProject mavenProject,
+			MavenProjectChanges changes,
+			Map<MavenProject, String> mavenProjectToModuleName,
+			List<MavenProjectsProcessorTask> postTasks);
 
 	@SuppressWarnings("unchecked")
 	public <T extends ModuleExtension<T>> T enableModuleExtension(Module module, MavenModifiableModelsProvider modelsProvider, Class<T> clazz)
@@ -109,7 +120,7 @@ public abstract class MavenImporter
 
 	public void collectContentFolders(MavenProject mavenProject, MultiMap<ContentFolderTypeProvider, String> result)
 	{
-		val list = new SmartList<String>();
+		List<String> list = new SmartList<String>();
 
 		collectSourceFolders(mavenProject, list);
 

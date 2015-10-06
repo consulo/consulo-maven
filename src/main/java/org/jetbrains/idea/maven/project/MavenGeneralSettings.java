@@ -26,9 +26,11 @@ import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.idea.maven.execution.MavenExecutionOptions;
+import org.jetbrains.idea.maven.server.MavenServerManager;
 import org.jetbrains.idea.maven.utils.MavenJDOMUtil;
 import org.jetbrains.idea.maven.utils.MavenUtil;
 import com.intellij.openapi.util.Comparing;
+import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.containers.ContainerUtil;
@@ -46,6 +48,8 @@ public class MavenGeneralSettings implements Cloneable
 	private boolean nonRecursive = false;
 
 	private boolean alwaysUpdateSnapshots = false;
+
+	private String threads;
 
 	private MavenExecutionOptions.LoggingLevel outputLevel = MavenExecutionOptions.LoggingLevel.INFO;
 	private MavenExecutionOptions.ChecksumPolicy checksumPolicy = MavenExecutionOptions.ChecksumPolicy.NOT_SET;
@@ -155,8 +159,12 @@ public class MavenGeneralSettings implements Cloneable
 		{
 			return; // null may come from deserializator
 		}
-		this.outputLevel = value;
-		changed();
+		if(!Comparing.equal(this.outputLevel, value))
+		{
+			MavenServerManager.getInstance().setLoggingLevel(value);
+			this.outputLevel = value;
+			changed();
+		}
 	}
 
 	public boolean isWorkOffline()
@@ -181,7 +189,7 @@ public class MavenGeneralSettings implements Cloneable
 		if(!Comparing.equal(this.mavenHome, mavenHome))
 		{
 			this.mavenHome = mavenHome;
-
+			MavenServerManager.getInstance().setMavenHome(mavenHome);
 			myDefaultPluginsCache = null;
 			changed();
 		}
@@ -271,6 +279,7 @@ public class MavenGeneralSettings implements Cloneable
 		if(!Comparing.equal(this.overriddenLocalRepository, overridenLocalRepository))
 		{
 			this.overriddenLocalRepository = overridenLocalRepository;
+			MavenServerManager.getInstance().shutdown(true);
 			changed();
 		}
 	}
@@ -288,12 +297,13 @@ public class MavenGeneralSettings implements Cloneable
 		return result;
 	}
 
-	@NotNull
+	@Nullable
 	public VirtualFile getEffectiveSuperPom()
 	{
 		return MavenUtil.resolveSuperPomFile(getEffectiveMavenHome());
 	}
 
+	@SuppressWarnings("unused")
 	public boolean isDefaultPlugin(String groupId, String artifactId)
 	{
 		return getDefaultPlugins().contains(groupId + ":" + artifactId);
@@ -309,12 +319,16 @@ public class MavenGeneralSettings implements Cloneable
 
 		result = new THashSet<String>();
 
-		Element superProject = MavenJDOMUtil.read(getEffectiveSuperPom(), null);
-		for(Element each : MavenJDOMUtil.findChildrenByPath(superProject, "build.pluginManagement.plugins", "plugin"))
+		VirtualFile effectiveSuperPom = getEffectiveSuperPom();
+		if(effectiveSuperPom != null)
 		{
-			String groupId = MavenJDOMUtil.findChildValueByPath(each, "groupId", "org.apache.maven.plugins");
-			String artifactId = MavenJDOMUtil.findChildValueByPath(each, "artifactId", null);
-			result.add(groupId + ":" + artifactId);
+			Element superProject = MavenJDOMUtil.read(effectiveSuperPom, null);
+			for(Element each : MavenJDOMUtil.findChildrenByPath(superProject, "build.pluginManagement.plugins", "plugin"))
+			{
+				String groupId = MavenJDOMUtil.findChildValueByPath(each, "groupId", "org.apache.maven.plugins");
+				String artifactId = MavenJDOMUtil.findChildValueByPath(each, "artifactId", null);
+				result.add(groupId + ":" + artifactId);
+			}
 		}
 
 		myDefaultPluginsCache = result;
@@ -362,6 +376,18 @@ public class MavenGeneralSettings implements Cloneable
 	public void setNonRecursive(final boolean nonRecursive)
 	{
 		this.nonRecursive = nonRecursive;
+		changed();
+	}
+
+	@Nullable
+	public String getThreads()
+	{
+		return threads;
+	}
+
+	public void setThreads(@Nullable String threads)
+	{
+		this.threads = StringUtil.nullize(threads);
 		changed();
 	}
 
@@ -423,6 +449,10 @@ public class MavenGeneralSettings implements Cloneable
 			return false;
 		}
 		if(!mavenSettingsFile.equals(that.mavenSettingsFile))
+		{
+			return false;
+		}
+		if(!Comparing.equal(threads, that.threads))
 		{
 			return false;
 		}

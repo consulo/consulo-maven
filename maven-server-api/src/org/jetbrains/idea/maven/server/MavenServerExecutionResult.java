@@ -15,44 +15,46 @@
  */
 package org.jetbrains.idea.maven.server;
 
+import java.io.Serializable;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Set;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.idea.maven.model.MavenId;
 import org.jetbrains.idea.maven.model.MavenModel;
 import org.jetbrains.idea.maven.model.MavenProjectProblem;
 
-import java.io.Serializable;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
+public class MavenServerExecutionResult implements Serializable
+{
+	@Nullable
+	public final ProjectData projectData;
+	@NotNull
+	public final Collection<MavenProjectProblem> problems;
+	@NotNull
+	public final Set<MavenId> unresolvedArtifacts;
 
-public class MavenServerExecutionResult implements Serializable {
-  @Nullable public final ProjectData projectData;
-  @NotNull public final Collection<MavenProjectProblem> problems;
-  @NotNull public final Set<MavenId> unresolvedArtifacts;
+	public MavenServerExecutionResult(ProjectData projectData, Collection<MavenProjectProblem> problems, Set<MavenId> unresolvedArtifacts)
+	{
+		this.projectData = projectData;
+		this.problems = problems;
+		this.unresolvedArtifacts = unresolvedArtifacts;
+	}
 
-  public MavenServerExecutionResult(ProjectData projectData,
-                                    Collection<MavenProjectProblem> problems,
-                                    Set<MavenId> unresolvedArtifacts) {
-    this.projectData = projectData;
-    this.problems = problems;
-    this.unresolvedArtifacts = unresolvedArtifacts;
-  }
+	public static class ProjectData implements Serializable
+	{
+		public final MavenModel mavenModel;
+		public final Map<String, String> mavenModelMap;
+		public final NativeMavenProjectHolder nativeMavenProject;
+		public final Collection<String> activatedProfiles;
 
-  public static class ProjectData implements Serializable {
-    public final MavenModel mavenModel;
-    public final Map<String, String> mavenModelMap;
-    public final NativeMavenProjectHolder nativeMavenProject;
-    public final Collection<String> activatedProfiles;
-
-    public ProjectData(MavenModel mavenModel,
-                       Map<String, String> mavenModelMap,
-                       NativeMavenProjectHolder nativeMavenProject,
-                       Collection<String> activatedProfiles) {
-      this.mavenModel = mavenModel;
-      this.mavenModelMap = mavenModelMap;
-      this.nativeMavenProject = nativeMavenProject;
-      this.activatedProfiles = activatedProfiles;
-    }
-  }
+		public ProjectData(MavenModel mavenModel, Map<String, String> mavenModelMap, NativeMavenProjectHolder nativeMavenProject, Collection<String> activatedProfiles)
+		{
+			this.mavenModel = mavenModel;
+			this.mavenModelMap = mavenModelMap;
+			this.nativeMavenProject = nativeMavenProject;
+			this.activatedProfiles = activatedProfiles;
+		}
+	}
 }

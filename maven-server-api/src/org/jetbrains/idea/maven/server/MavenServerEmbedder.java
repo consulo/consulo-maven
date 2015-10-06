@@ -15,56 +15,72 @@
  */
 package org.jetbrains.idea.maven.server;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.jetbrains.idea.maven.model.*;
-
 import java.io.File;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.Collection;
 import java.util.List;
 
-public interface MavenServerEmbedder extends Remote {
-  void customize(@Nullable MavenWorkspaceMap workspaceMap,
-                 boolean failOnUnresolvedDependency,
-                 @NotNull MavenServerConsole console,
-                 @NotNull MavenServerProgressIndicator indicator) throws RemoteException;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.idea.maven.model.MavenArtifact;
+import org.jetbrains.idea.maven.model.MavenArtifactInfo;
+import org.jetbrains.idea.maven.model.MavenId;
+import org.jetbrains.idea.maven.model.MavenPlugin;
+import org.jetbrains.idea.maven.model.MavenRemoteRepository;
+import org.jetbrains.idea.maven.model.MavenWorkspaceMap;
 
-  @NotNull
-  MavenServerExecutionResult resolveProject(@NotNull File file,
-                                            @NotNull Collection<String> activeProfiles) throws RemoteException,
-                                                                                               MavenServerProcessCanceledException;
+public interface MavenServerEmbedder extends Remote
+{
+	String MAVEN_EMBEDDER_VERSION = "idea.maven.embedder.version";
+	String MAVEN_EMBEDDER_CLI_ADDITIONAL_ARGS = "idea.maven.embedder.ext.cli.args";
 
-  @NotNull
-  MavenArtifact resolve(@NotNull MavenArtifactInfo info,
-                        @NotNull List<MavenRemoteRepository> remoteRepositories) throws RemoteException,
-                                                                                        MavenServerProcessCanceledException;
+	void customize(@Nullable MavenWorkspaceMap workspaceMap,
+			boolean failOnUnresolvedDependency,
+			@NotNull MavenServerConsole console,
+			@NotNull MavenServerProgressIndicator indicator,
+			boolean alwaysUpdateSnapshots) throws RemoteException;
 
-  @NotNull
-  List<MavenArtifact> resolveTransitively(@NotNull List<MavenArtifactInfo> artifacts,
-                                          @NotNull List<MavenRemoteRepository> remoteRepositories) throws RemoteException,
-                                                                                                          MavenServerProcessCanceledException;
+	void customizeComponents() throws RemoteException;
 
-  Collection<MavenArtifact> resolvePlugin(@NotNull MavenPlugin plugin,
-                                          @NotNull List<MavenRemoteRepository> repositories,
-                                          int nativeMavenProjectId,
-                                          boolean transitive) throws RemoteException, MavenServerProcessCanceledException;
+	@NotNull
+	List<String> retrieveAvailableVersions(@NotNull String groupId, @NotNull String artifactId, @NotNull List<MavenRemoteRepository> remoteRepositories) throws RemoteException;
 
-  @NotNull
-  MavenServerExecutionResult execute(@NotNull File file,
-                                     @NotNull Collection<String> activeProfiles,
-                                     @NotNull Collection<String> inactiveProfiles,
-                                     @NotNull List<String> goals,
-                                     @NotNull final List<String> selectedProjects,
-                                     boolean alsoMake,
-                                     boolean alsoMakeDependents) throws RemoteException, MavenServerProcessCanceledException;
 
-  void reset() throws RemoteException;
+	@NotNull
+	MavenServerExecutionResult resolveProject(@NotNull File file,
+			@NotNull Collection<String> activeProfiles,
+			@NotNull Collection<String> inactiveProfiles) throws RemoteException, MavenServerProcessCanceledException;
 
-  void release() throws RemoteException;
+	@Nullable
+	String evaluateEffectivePom(@NotNull File file, @NotNull List<String> activeProfiles, @NotNull List<String> inactiveProfiles) throws RemoteException, MavenServerProcessCanceledException;
 
-  void clearCaches() throws RemoteException;
+	@NotNull
+	MavenArtifact resolve(@NotNull MavenArtifactInfo info, @NotNull List<MavenRemoteRepository> remoteRepositories) throws RemoteException, MavenServerProcessCanceledException;
 
-  void clearCachesFor(MavenId projectId) throws RemoteException;
+	@NotNull
+	List<MavenArtifact> resolveTransitively(@NotNull List<MavenArtifactInfo> artifacts,
+			@NotNull List<MavenRemoteRepository> remoteRepositories) throws RemoteException, MavenServerProcessCanceledException;
+
+	Collection<MavenArtifact> resolvePlugin(@NotNull MavenPlugin plugin,
+			@NotNull List<MavenRemoteRepository> repositories,
+			int nativeMavenProjectId,
+			boolean transitive) throws RemoteException, MavenServerProcessCanceledException;
+
+	@NotNull
+	MavenServerExecutionResult execute(@NotNull File file,
+			@NotNull Collection<String> activeProfiles,
+			@NotNull Collection<String> inactiveProfiles,
+			@NotNull List<String> goals,
+			@NotNull final List<String> selectedProjects,
+			boolean alsoMake,
+			boolean alsoMakeDependents) throws RemoteException, MavenServerProcessCanceledException;
+
+	void reset() throws RemoteException;
+
+	void release() throws RemoteException;
+
+	void clearCaches() throws RemoteException;
+
+	void clearCachesFor(MavenId projectId) throws RemoteException;
 }

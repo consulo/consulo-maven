@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2013 JetBrains s.r.o.
+ * Copyright 2000-2014 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,68 +15,132 @@
  */
 package org.jetbrains.idea.maven.navigator.actions;
 
-import com.intellij.execution.configurations.ParametersList;
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.CommonDataKeys;
-import com.intellij.openapi.project.DumbAwareAction;
-import com.intellij.openapi.project.Project;
-import org.jetbrains.idea.maven.execution.*;
-import org.jetbrains.idea.maven.project.MavenGeneralSettings;
-import org.jetbrains.idea.maven.project.MavenProjectsManager;
-import org.jetbrains.idea.maven.utils.MavenUtil;
-
 import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import javax.swing.event.HyperlinkEvent;
+
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.idea.maven.execution.MavenExecuteGoalDialog;
+import org.jetbrains.idea.maven.execution.MavenRunConfigurationType;
+import org.jetbrains.idea.maven.execution.MavenRunner;
+import org.jetbrains.idea.maven.execution.MavenRunnerParameters;
+import org.jetbrains.idea.maven.execution.MavenRunnerSettings;
+import org.jetbrains.idea.maven.execution.RunnerBundle;
+import org.jetbrains.idea.maven.project.MavenGeneralSettings;
+import org.jetbrains.idea.maven.project.MavenProject;
+import org.jetbrains.idea.maven.project.MavenProjectsManager;
+import org.jetbrains.idea.maven.utils.MavenSettings;
+import org.jetbrains.idea.maven.utils.MavenUtil;
+import org.mustbe.consulo.RequiredDispatchThread;
+import com.intellij.execution.configurations.ParametersList;
+import com.intellij.notification.Notification;
+import com.intellij.notification.NotificationListener;
+import com.intellij.notification.NotificationType;
+import com.intellij.notification.Notifications;
+import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.CommonDataKeys;
+import com.intellij.openapi.options.ShowSettingsUtil;
+import com.intellij.openapi.project.DumbAwareAction;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.text.StringUtil;
+
 /**
  * @author Sergey Evdokimov
  */
-public class MavenExecuteGoalAction extends DumbAwareAction {
-  @Override
-  public void actionPerformed(AnActionEvent e) {
-    Project project = e.getRequiredData(CommonDataKeys.PROJECT);
+public class MavenExecuteGoalAction extends DumbAwareAction
+{
+	@RequiredDispatchThread
+	@Override
+	public void actionPerformed(@NotNull final AnActionEvent e)
+	{
+		final Project project = e.getRequiredData(CommonDataKeys.PROJECT);
 
-    MavenExecuteGoalDialog dialog = new MavenExecuteGoalDialog(project, Collections.<String>emptyList());
-    dialog.show();
-    if (!dialog.isOK()) {
-      return;
-    }
+		ExecuteMavenGoalHistoryService historyService = ExecuteMavenGoalHistoryService.getInstance(project);
 
-    MavenProjectsManager projectsManager = MavenProjectsManager.getInstance(project);
+		MavenExecuteGoalDialog dialog = new MavenExecuteGoalDialog(project, historyService.getHistory());
 
-    File mavenHome = MavenUtil.resolveMavenHomeDirectory(projectsManager.getGeneralSettings().getMavenHome());
-    if (mavenHome == null) {
-      // todo handle
-      throw new RuntimeException();
-    }
+		String lastWorkingDirectory = historyService.getWorkDirectory();
+		if(lastWorkingDirectory.length() == 0)
+		{
+			lastWorkingDirectory = obtainAppropriateWorkingDirectory(project);
+		}
 
-    List<String> params = Arrays.asList(ParametersList.parse(dialog.getGoals()));
+		dialog.setWorkDirectory(lastWorkingDirectory);
 
-    MavenRunnerParameters parameters = new MavenRunnerParameters(true, dialog.getWorkDirectory(), params, null);
+		if(StringUtil.isEmptyOrSpaces(historyService.getCanceledCommand()))
+		{
+			if(historyService.getHistory().size() > 0)
+			{
+				dialog.setGoals(historyService.getHistory().get(0));
+			}
+		}
+		else
+		{
+			dialog.setGoals(historyService.getCanceledCommand());
+		}
 
-    MavenGeneralSettings generalSettings = new MavenGeneralSettings();
-    generalSettings.setMavenHome(mavenHome.getPath());
+		if(!dialog.showAndGet())
+		{
+			historyService.setCanceledCommand(dialog.getGoals());
+			return;
+		}
 
-    MavenRunnerSettings runnerSettings = MavenRunner.getInstance(project).getSettings().clone();
-    runnerSettings.setMavenProperties(new LinkedHashMap<String, String>());
-    runnerSettings.setSkipTests(false);
+		historyService.setCanceledCommand(null);
 
-    MavenRunConfigurationType.runConfiguration(project, parameters, generalSettings, runnerSettings, null);
-  }
+		String goals = dialog.getGoals();
+		goals = goals.trim();
+		if(goals.startsWith("mvn "))
+		{
+			goals = goals.substring("mvn ".length()).trim();
+		}
 
-  @Override
-  public void update(AnActionEvent e) {
-    Project project = e.getData(CommonDataKeys.PROJECT);
+		String workDirectory = dialog.getWorkDirectory();
 
-    boolean hasMaven = false;
+		historyService.addCommand(goals, workDirectory);
 
-    if (project != null) {
-      hasMaven = MavenProjectsManager.getInstance(project).hasProjects();
-    }
+		MavenProjectsManager projectsManager = MavenProjectsManager.getInstance(project);
 
-    e.getPresentation().setVisible(hasMaven);
-  }
+		File mavenHome = MavenUtil.resolveMavenHomeDirectory(projectsManager.getGeneralSettings().getMavenHome());
+		if(mavenHome == null)
+		{
+			Notification notification = new Notification(MavenUtil.MAVEN_NOTIFICATION_GROUP, "Failed to execute goal", RunnerBundle.message("external.maven.home.no.default.with.fix"),
+					NotificationType.ERROR, new NotificationListener.Adapter()
+			{
+				@Override
+				protected void hyperlinkActivated(@NotNull Notification notification, @NotNull HyperlinkEvent e)
+				{
+					ShowSettingsUtil.getInstance().showSettingsDialog(project, MavenSettings.DISPLAY_NAME);
+				}
+			});
+
+			Notifications.Bus.notify(notification, project);
+			return;
+		}
+
+		MavenRunnerParameters parameters = new MavenRunnerParameters(true, workDirectory, Arrays.asList(ParametersList.parse(goals)), Collections.<String>emptyList());
+
+		MavenGeneralSettings generalSettings = new MavenGeneralSettings();
+		generalSettings.setMavenHome(mavenHome.getPath());
+
+		MavenRunnerSettings runnerSettings = MavenRunner.getInstance(project).getSettings().clone();
+		runnerSettings.setMavenProperties(new LinkedHashMap<String, String>());
+		runnerSettings.setSkipTests(false);
+
+		MavenRunConfigurationType.runConfiguration(project, parameters, generalSettings, runnerSettings, null);
+	}
+
+	private static String obtainAppropriateWorkingDirectory(@NotNull Project project)
+	{
+		List<MavenProject> rootProjects = MavenProjectsManager.getInstance(project).getRootProjects();
+		if(rootProjects.isEmpty())
+		{
+			return "";
+		}
+
+		return rootProjects.get(0).getDirectory();
+	}
 }

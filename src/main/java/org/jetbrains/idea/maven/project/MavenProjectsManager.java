@@ -33,6 +33,8 @@ import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.TestOnly;
+import org.jetbrains.concurrency.AsyncPromise;
+import org.jetbrains.concurrency.Promise;
 import org.jetbrains.idea.maven.dom.references.MavenFilteredPropertyPsiReferenceProvider;
 import org.jetbrains.idea.maven.importing.MavenDefaultModifiableModelsProvider;
 import org.jetbrains.idea.maven.importing.MavenFoldersImporter;
@@ -141,6 +143,7 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 		myModificationTracker = new MavenModificationTracker(this);
 	}
 
+	@Override
 	public MavenProjectsManagerState getState()
 	{
 		if(isInitialized())
@@ -150,6 +153,7 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 		return myState;
 	}
 
+	@Override
 	public void loadState(MavenProjectsManagerState state)
 	{
 		myState = state;
@@ -202,6 +206,7 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 
 		startupManager.registerStartupActivity(new Runnable()
 		{
+			@Override
 			public void run()
 			{
 				boolean wasMavenized = !myState.originalFiles.isEmpty();
@@ -219,10 +224,11 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 		doInit(false);
 	}
 
-	private void initNew(List<VirtualFile> files, List<String> explicitProfiles)
+	private void initNew(List<VirtualFile> files, MavenExplicitProfiles explicitProfiles)
 	{
 		myState.originalFiles = MavenUtil.collectPaths(files);
-		getWorkspaceSettings().setEnabledProfiles(explicitProfiles);
+		getWorkspaceSettings().setEnabledProfiles(explicitProfiles.getEnabledProfiles());
+		getWorkspaceSettings().setDisabledProfiles(explicitProfiles.getDisabledProfiles());
 		doInit(true);
 	}
 
@@ -249,6 +255,7 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 
 			MavenUtil.runWhenInitialized(myProject, new DumbAwareRunnable()
 			{
+				@Override
 				public void run()
 				{
 					if(!isUnitTestMode())
@@ -297,11 +304,14 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 
 	private void applyStateToTree()
 	{
-		myProjectsTree.resetManagedFilesPathsAndProfiles(myState.originalFiles, getWorkspaceSettings().enabledProfiles);
+		MavenWorkspaceSettings settings = getWorkspaceSettings();
+		MavenExplicitProfiles explicitProfiles = new MavenExplicitProfiles(settings.enabledProfiles, settings.disabledProfiles);
+		myProjectsTree.resetManagedFilesPathsAndProfiles(myState.originalFiles, explicitProfiles);
 		myProjectsTree.setIgnoredFilesPaths(new ArrayList<String>(myState.ignoredFiles));
 		myProjectsTree.setIgnoredFilesPatterns(myState.ignoredPathMasks);
 	}
 
+	@Override
 	public void save()
 	{
 		if(myProjectsTree != null)
@@ -350,6 +360,7 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 	{
 		getImportingSettings().addListener(new MavenImportingSettings.Listener()
 		{
+			@Override
 			public void autoImportChanged()
 			{
 				if(myProject.isDisposed())
@@ -363,11 +374,13 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 				}
 			}
 
+			@Override
 			public void createModuleGroupsChanged()
 			{
 				scheduleImportSettings(true);
 			}
 
+			@Override
 			public void createModuleForAggregatorsChanged()
 			{
 				scheduleImportSettings();
@@ -556,12 +569,12 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 	}
 
 	@TestOnly
-	public void resetManagedFilesAndProfilesInTests(List<VirtualFile> files, List<String> profiles)
+	public void resetManagedFilesAndProfilesInTests(List<VirtualFile> files, MavenExplicitProfiles profiles)
 	{
 		myWatcher.resetManagedFilesAndProfilesInTests(files, profiles);
 	}
 
-	public void addManagedFilesWithProfiles(List<VirtualFile> files, List<String> profiles)
+	public void addManagedFilesWithProfiles(List<VirtualFile> files, MavenExplicitProfiles profiles)
 	{
 		if(!isInitialized())
 		{
@@ -575,7 +588,7 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 
 	public void addManagedFiles(@NotNull List<VirtualFile> files)
 	{
-		addManagedFilesWithProfiles(files, Collections.<String>emptyList());
+		addManagedFilesWithProfiles(files, MavenExplicitProfiles.NONE);
 	}
 
 	public void removeManagedFiles(@NotNull List<VirtualFile> files)
@@ -602,7 +615,7 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 		return myProjectsTree.getExplicitProfiles();
 	}
 
-	public void setExplicitProfiles(@NotNull Collection<String> profiles)
+	public void setExplicitProfiles(@NotNull MavenExplicitProfiles profiles)
 	{
 		myWatcher.setExplicitProfiles(profiles);
 	}
@@ -711,11 +724,13 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 	{
 		VirtualFile f = findPomFile(module, new MavenModelsProvider()
 		{
+			@Override
 			public Module[] getModules()
 			{
 				throw new UnsupportedOperationException();
 			}
 
+			@Override
 			public VirtualFile[] getContentRoots(Module module)
 			{
 				return ModuleRootManager.getInstance(module).getContentRoots();
@@ -896,6 +911,7 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 	{
 		MavenUtil.runWhenInitialized(myProject, new DumbAwareRunnable()
 		{
+			@Override
 			public void run()
 			{
 				if(projects == null)
@@ -910,17 +926,23 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 		});
 	}
 
-	public void scheduleImportAndResolve()
+	/**
+	 * Returned {@link Promise} instance isn't guarantied to be marked as rejected in all cases where importing wasn't performed (e.g.
+	 * if project is closed)
+	 */
+	public Promise<List<Module>> scheduleImportAndResolve()
 	{
-		scheduleImport();
-		scheduleResolve();
+		AsyncPromise<List<Module>> promise = scheduleResolve();// scheduleImport will be called after the scheduleResolve process has finished
 		fireImportAndResolveScheduled();
+		return promise;
 	}
 
-	private void scheduleResolve()
+	private AsyncPromise<List<Module>> scheduleResolve()
 	{
+		final AsyncPromise<List<Module>> result = new AsyncPromise<List<Module>>();
 		runWhenFullyOpen(new Runnable()
 		{
+			@Override
 			public void run()
 			{
 				LinkedHashSet<MavenProject> toResolve;
@@ -929,6 +951,7 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 					toResolve = new LinkedHashSet<MavenProject>(myProjectsToResolve);
 					myProjectsToResolve.clear();
 				}
+				final ResolveContext context = new ResolveContext();
 
 				Iterator<MavenProject> it = toResolve.iterator();
 				while(it.hasNext())
@@ -941,15 +964,20 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 						{
 							if(hasScheduledProjects())
 							{
-								scheduleImport();
+								scheduleImport().processed(result);
+							}
+							else
+							{
+								result.setResult(Collections.<Module>emptyList());
 							}
 						}
 					};
 
-					myResolvingProcessor.scheduleTask(new MavenProjectsProcessorResolvingTask(each, myProjectsTree, getGeneralSettings(), onCompletion));
+					myResolvingProcessor.scheduleTask(new MavenProjectsProcessorResolvingTask(each, myProjectsTree, getGeneralSettings(), onCompletion, context));
 				}
 			}
 		});
+		return result;
 	}
 
 	@TestOnly
@@ -969,6 +997,7 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 	{
 		runWhenFullyOpen(new Runnable()
 		{
+			@Override
 			public void run()
 			{
 				Iterator<MavenProject> it = projects.iterator();
@@ -1001,6 +1030,7 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 	{
 		runWhenFullyOpen(new Runnable()
 		{
+			@Override
 			public void run()
 			{
 				myPluginsResolvingProcessor.scheduleTask(new MavenProjectsProcessorPluginsResolvingTask(project, nativeMavenProject, myProjectsTree));
@@ -1021,6 +1051,7 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 
 		runWhenFullyOpen(new Runnable()
 		{
+			@Override
 			public void run()
 			{
 				myArtifactsDownloadingProcessor.scheduleTask(new MavenProjectsProcessorArtifactsDownloadingTask(projects, artifacts, myProjectsTree, sources, docs, result));
@@ -1042,21 +1073,25 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 		scheduleImport();
 	}
 
-	private void scheduleImport()
+	private Promise<List<Module>> scheduleImport()
 	{
+		final AsyncPromise<List<Module>> result = new AsyncPromise<List<Module>>();
 		runWhenFullyOpen(new Runnable()
 		{
+			@Override
 			public void run()
 			{
 				myImportingQueue.queue(new Update(MavenProjectsManager.this)
 				{
+					@Override
 					public void run()
 					{
-						importProjects();
+						result.setResult(importProjects());
 					}
 				});
 			}
 		});
+		return result;
 	}
 
 	@TestOnly
@@ -1131,6 +1166,7 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 		}
 		runWhenFullyOpen(new Runnable()
 		{
+			@Override
 			public void run()
 			{
 				myImportingQueue.flush(false);
@@ -1154,6 +1190,7 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 		final Ref<Runnable> wrapper = new Ref<Runnable>();
 		wrapper.set(new Runnable()
 		{
+			@Override
 			public void run()
 			{
 				if(!StartupManagerEx.getInstanceEx(myProject).postStartupActivityPassed())
@@ -1161,6 +1198,7 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 					myInitializationAlarm.addRequest(new Runnable()
 					{ // should not remove previously schedules tasks
 
+						@Override
 						public void run()
 						{
 							wrapper.get().run();
@@ -1257,6 +1295,7 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 	{
 		UIUtil.invokeLaterIfNeeded(new Runnable()
 		{
+			@Override
 			public void run()
 			{
 				if(myProject.isDisposed())
@@ -1292,6 +1331,7 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 
 		final Runnable r = new Runnable()
 		{
+			@Override
 			public void run()
 			{
 				MavenProjectImporter projectImporter = new MavenProjectImporter(myProject, myProjectsTree, getFileToModuleMapping(modelsProvider), projectsToImportWithChanges,
@@ -1310,6 +1350,7 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 		{
 			MavenUtil.runInBackground(myProject, ProjectBundle.message("maven.project.importing"), false, new MavenTask()
 			{
+				@Override
 				public void run(MavenProgressIndicator indicator) throws MavenProcessCanceledException
 				{
 					r.run();

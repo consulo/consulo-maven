@@ -134,6 +134,7 @@
 		<vetoRenameCondition implementation="org.jetbrains.idea.maven.dom.refactorings.MavenVetoModelRenameCondition"/>
 
 		<projectService serviceImplementation="org.jetbrains.idea.maven.dom.MavenDomElementDescriptorHolder"/>
+		<projectService serviceImplementation="org.jetbrains.idea.maven.navigator.actions.ExecuteMavenGoalHistoryService" />
 		<applicationService serviceImplementation="org.jetbrains.idea.maven.dom.converters.MavenDomConvertersRegistry"/>
 		<applicationService serviceImplementation="org.jetbrains.idea.maven.dom.converters.repositories.MavenRepositoriesProvider"/>
 

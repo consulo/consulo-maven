@@ -20,6 +20,11 @@
  */
 package org.jetbrains.idea.maven.execution;
 
+import java.util.List;
+
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.idea.maven.model.MavenExplicitProfiles;
+import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import com.intellij.execution.Location;
 import com.intellij.execution.RunnerAndConfigurationSettings;
 import com.intellij.execution.actions.ConfigurationContext;
@@ -28,11 +33,6 @@ import com.intellij.execution.junit.RuntimeConfigurationProducer;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.idea.maven.project.MavenProjectsManager;
-
-import java.util.Collection;
-import java.util.List;
 
 public class MavenConfigurationProducer extends RuntimeConfigurationProducer {
   private PsiElement myPsiElement;
@@ -76,7 +76,7 @@ public class MavenConfigurationProducer extends RuntimeConfigurationProducer {
 
     VirtualFile f = ((PsiFile)l.getPsiElement()).getVirtualFile();
     List<String> goals = ((MavenGoalLocation)l).getGoals();
-    Collection<String> profiles = MavenProjectsManager.getInstance(l.getProject()).getExplicitProfiles();
+	  MavenExplicitProfiles profiles = MavenProjectsManager.getInstance(l.getProject()).getExplicitProfiles();
 
     return new MavenRunnerParameters(true, f.getParent().getPath(), goals, profiles);
   }

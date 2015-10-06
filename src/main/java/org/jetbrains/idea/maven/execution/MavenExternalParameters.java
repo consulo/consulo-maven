@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -39,11 +40,13 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.idea.maven.artifactResolver.MavenArtifactResolvedM2RtMarker;
+import org.jetbrains.idea.maven.artifactResolver.MavenArtifactResolvedM31RtMarker;
 import org.jetbrains.idea.maven.artifactResolver.MavenArtifactResolvedM3RtMarker;
 import org.jetbrains.idea.maven.artifactResolver.common.MavenModuleMap;
 import org.jetbrains.idea.maven.project.MavenGeneralSettings;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
+import org.jetbrains.idea.maven.server.MavenServerUtil;
 import org.jetbrains.idea.maven.utils.MavenSettings;
 import org.jetbrains.idea.maven.utils.MavenUtil;
 import org.mustbe.consulo.RequiredReadAction;
@@ -53,6 +56,8 @@ import com.intellij.execution.configurations.JavaParameters;
 import com.intellij.execution.configurations.ParametersList;
 import com.intellij.execution.impl.EditConfigurationsDialog;
 import com.intellij.execution.impl.RunManagerImpl;
+import com.intellij.notification.Notification;
+import com.intellij.notification.NotificationListener;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.diagnostic.Logger;
@@ -80,8 +85,7 @@ public class MavenExternalParameters
 	private static final Logger LOG = Logger.getInstance(MavenExternalParameters.class);
 
 	public static final String MAVEN_LAUNCHER_CLASS = "org.codehaus.classworlds.Launcher";
-	@NonNls
-	private static final String JAVA_HOME = "JAVA_HOME";
+
 	@NonNls
 	private static final String MAVEN_OPTS = "MAVEN_OPTS";
 
@@ -135,6 +139,13 @@ public class MavenExternalParameters
 		params.setJdk(getJdk(project, runnerSettings, project != null && MavenRunner.getInstance(project).getState() == runnerSettings));
 
 		final String mavenHome = resolveMavenHome(coreSettings, project, runConfiguration);
+		final String mavenVersion = MavenUtil.getMavenVersion(mavenHome);
+
+		params.getProgramParametersList().add("-Didea.version=" + MavenUtil.getIdeaVersionToPassToMavenProcess());
+		if(StringUtil.compareVersionNumbers(mavenVersion, "3.3") >= 0)
+		{
+			params.getVMParametersList().addProperty("maven.multiModuleProjectDirectory", MavenServerUtil.findMavenBasedir(parameters.getWorkingDirFile()).getPath());
+		}
 
 		addVMParameters(params.getVMParametersList(), mavenHome, runnerSettings);
 
@@ -148,7 +159,7 @@ public class MavenExternalParameters
 		{
 			try
 			{
-				String resolverJar = getArtifactResolverJar(MavenUtil.isMaven3(mavenHome));
+				String resolverJar = getArtifactResolverJar(mavenVersion);
 				confFile = patchConfFile(confFile, resolverJar);
 
 				File modulesPathsFile = dumpModulesPaths(project);
@@ -168,8 +179,11 @@ public class MavenExternalParameters
 			params.getClassPath().add(path);
 		}
 
+		params.setEnv(new HashMap<String, String>(runnerSettings.getEnvironmentProperties()));
+		params.setPassParentEnvs(runnerSettings.isPassParentEnv());
+
 		params.setMainClass(MAVEN_LAUNCHER_CLASS);
-		EncodingManager encodingManager = project == null ? EncodingProjectManager.getInstance() : EncodingProjectManager.getInstance(project);
+		EncodingManager encodingManager = project == null ? EncodingManager.getInstance() : EncodingProjectManager.getInstance(project);
 		params.setCharset(encodingManager.getDefaultCharset());
 
 		addMavenParameters(params.getProgramParametersList(), mavenHome, coreSettings, runnerSettings, parameters);
@@ -179,7 +193,7 @@ public class MavenExternalParameters
 
 	private static File patchConfFile(File conf, String library) throws IOException
 	{
-		File tmpConf = File.createTempFile("idea-", "-mvn.conf");
+		File tmpConf = FileUtil.createTempFile("idea-", "-mvn.conf");
 		tmpConf.deleteOnExit();
 		patchConfFile(conf, tmpConf, library);
 
@@ -223,12 +237,28 @@ public class MavenExternalParameters
 		{
 			sc.close();
 		}
-
 	}
 
-	private static String getArtifactResolverJar(boolean isMaven3) throws IOException
+	private static String getArtifactResolverJar(@Nullable String mavenVersion) throws IOException
 	{
-		Class marker = isMaven3 ? MavenArtifactResolvedM3RtMarker.class : MavenArtifactResolvedM2RtMarker.class;
+		boolean isMaven3;
+		Class marker;
+
+		if(mavenVersion != null && mavenVersion.compareTo("3.1.0") >= 0)
+		{
+			isMaven3 = true;
+			marker = MavenArtifactResolvedM31RtMarker.class;
+		}
+		else if(mavenVersion != null && mavenVersion.compareTo("3.0.0") >= 0)
+		{
+			isMaven3 = true;
+			marker = MavenArtifactResolvedM3RtMarker.class;
+		}
+		else
+		{
+			isMaven3 = false;
+			marker = MavenArtifactResolvedM2RtMarker.class;
+		}
 
 		File classDirOrJar = new File(PathUtil.getJarPathForClass(marker));
 
@@ -262,7 +292,6 @@ public class MavenExternalParameters
 		return tempFile.getAbsolutePath();
 	}
 
-	@RequiredReadAction
 	private static File dumpModulesPaths(@NotNull Project project) throws IOException
 	{
 		ApplicationManager.getApplication().assertReadAccessAllowed();
@@ -281,6 +310,9 @@ public class MavenExternalParameters
 					res.setProperty(mavenProject.getMavenId().getGroupId() + ':' + mavenProject.getMavenId().getArtifactId() + ":pom" + ':' + mavenProject.getMavenId().getVersion(),
 							mavenProject.getFile().getPath());
 
+					res.setProperty(mavenProject.getMavenId().getGroupId() + ':' + mavenProject.getMavenId().getArtifactId() + ":test-jar" + ':' + mavenProject.getMavenId().getVersion(),
+							mavenProject.getTestOutputDirectory());
+
 					res.setProperty(mavenProject.getMavenId().getGroupId() + ':' + mavenProject.getMavenId().getArtifactId() + ':' + mavenProject.getPackaging() + ':' + mavenProject.getMavenId()
 							.getVersion(), mavenProject.getOutputDirectory());
 
@@ -289,7 +321,7 @@ public class MavenExternalParameters
 		}
 
 		File file = new File(PathManager.getSystemPath(), "Maven/idea-projects-state-" + project.getLocationHash() + ".properties");
-		file.getParentFile().mkdirs();
+		FileUtil.ensureExists(file.getParentFile());
 
 		OutputStream out = new BufferedOutputStream(new FileOutputStream(file));
 		try
@@ -317,7 +349,7 @@ public class MavenExternalParameters
 
 		if(name.equals(MavenRunnerSettings.USE_JAVA_HOME))
 		{
-			final String javaHome = System.getenv(JAVA_HOME);
+			final String javaHome = System.getenv("JAVA_HOME");
 			if(StringUtil.isEmptyOrSpaces(javaHome))
 			{
 				throw new ExecutionException(RunnerBundle.message("maven.java.home.undefined"));
@@ -391,6 +423,7 @@ public class MavenExternalParameters
 		}
 	}
 
+	@NotNull
 	public static String resolveMavenHome(@NotNull MavenGeneralSettings coreSettings) throws ExecutionException
 	{
 		return resolveMavenHome(coreSettings, null, null);
@@ -403,6 +436,7 @@ public class MavenExternalParameters
 	 * @return
 	 * @throws ExecutionException
 	 */
+	@NotNull
 	public static String resolveMavenHome(@NotNull MavenGeneralSettings coreSettings, @Nullable Project project, @Nullable MavenRunConfiguration runConfiguration) throws ExecutionException
 	{
 		final File file = MavenUtil.resolveMavenHomeDirectory(coreSettings.getMavenHome());
@@ -540,6 +574,11 @@ public class MavenExternalParameters
 			cmdList.add("--update-snapshots");
 		}
 
+		if(StringUtil.isNotEmpty(coreSettings.getThreads()))
+		{
+			cmdList.add("-T", coreSettings.getThreads());
+		}
+
 		addIfNotEmpty(cmdList, coreSettings.getFailureBehavior().getCommandLineOption());
 		addIfNotEmpty(cmdList, coreSettings.getChecksumPolicy().getCommandLineOption());
 
@@ -569,14 +608,14 @@ public class MavenExternalParameters
 			}
 			if(!entry.getValue())
 			{
-				stringBuilder.append("-");
+				stringBuilder.append("!");
 			}
 			stringBuilder.append(entry.getKey());
 		}
 		return stringBuilder.toString();
 	}
 
-	private static class ProjectSettingsOpenerExecutionException extends ExecutionException implements HyperlinkListener
+	private static class ProjectSettingsOpenerExecutionException extends WithHyperlinkExecutionException
 	{
 
 		private final Project myProject;
@@ -588,18 +627,13 @@ public class MavenExternalParameters
 		}
 
 		@Override
-		public void hyperlinkUpdate(HyperlinkEvent e)
+		protected void hyperlinkClicked()
 		{
-			if(e.getEventType() != HyperlinkEvent.EventType.ACTIVATED)
-			{
-				return;
-			}
-
 			ShowSettingsUtil.getInstance().showSettingsDialog(myProject, MavenSettings.DISPLAY_NAME);
 		}
 	}
 
-	private static class ProjectJdkSettingsOpenerExecutionException extends ExecutionException implements HyperlinkListener
+	private static class ProjectJdkSettingsOpenerExecutionException extends WithHyperlinkExecutionException
 	{
 
 		private final Project myProject;
@@ -611,18 +645,13 @@ public class MavenExternalParameters
 		}
 
 		@Override
-		public void hyperlinkUpdate(HyperlinkEvent e)
+		protected void hyperlinkClicked()
 		{
-			if(e.getEventType() != HyperlinkEvent.EventType.ACTIVATED)
-			{
-				return;
-			}
-
 			ProjectSettingsService.getInstance(myProject).openProjectSettings();
 		}
 	}
 
-	private static class RunConfigurationOpenerExecutionException extends ExecutionException implements HyperlinkListener
+	private static class RunConfigurationOpenerExecutionException extends WithHyperlinkExecutionException
 	{
 
 		private final MavenRunConfiguration myRunConfiguration;
@@ -634,24 +663,36 @@ public class MavenExternalParameters
 		}
 
 		@Override
-		public void hyperlinkUpdate(HyperlinkEvent e)
+		protected void hyperlinkClicked()
 		{
-			if(e.getEventType() != HyperlinkEvent.EventType.ACTIVATED)
-			{
-				return;
-			}
-
 			Project project = myRunConfiguration.getProject();
-			//RunManagerImpl runManager = (RunManagerImpl)RunManager.getInstance(project);
-			//RunnerAndConfigurationSettings settings = runManager.getSettings(myRunConfiguration);
-			//if (settings == null) {
-			//  return;
-			//}
-			//
-			//runManager.setSelectedConfiguration(settings);
-
 			EditConfigurationsDialog dialog = new EditConfigurationsDialog(project);
 			dialog.show();
+		}
+	}
+
+	private static abstract class WithHyperlinkExecutionException extends ExecutionException implements HyperlinkListener, NotificationListener
+	{
+		public WithHyperlinkExecutionException(String s)
+		{
+			super(s);
+		}
+
+		protected abstract void hyperlinkClicked();
+
+		@Override
+		public final void hyperlinkUpdate(HyperlinkEvent e)
+		{
+			if(e.getEventType() == HyperlinkEvent.EventType.ACTIVATED)
+			{
+				hyperlinkClicked();
+			}
+		}
+
+		@Override
+		public final void hyperlinkUpdate(@NotNull Notification notification, @NotNull HyperlinkEvent event)
+		{
+			hyperlinkUpdate(event);
 		}
 	}
 }

@@ -15,12 +15,35 @@
  */
 package org.jetbrains.idea.maven.importing;
 
+import gnu.trove.THashSet;
+
+import java.util.List;
+import java.util.Map;
+
+import org.jdom.Element;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.idea.maven.model.MavenArtifact;
+import org.jetbrains.idea.maven.model.MavenConstants;
+import org.jetbrains.idea.maven.project.MavenImportingSettings;
+import org.jetbrains.idea.maven.project.MavenProject;
+import org.jetbrains.idea.maven.project.MavenProjectChanges;
+import org.jetbrains.idea.maven.project.MavenProjectsProcessorTask;
+import org.jetbrains.idea.maven.project.MavenProjectsTree;
+import org.jetbrains.idea.maven.project.SupportedRequestType;
+import org.jetbrains.idea.maven.utils.MavenUtil;
+import org.mustbe.consulo.java.module.extension.JavaMutableModuleExtensionImpl;
+import org.mustbe.consulo.maven.module.extension.MavenMutableModuleExtension;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.projectRoots.JavaSdk;
 import com.intellij.openapi.projectRoots.JavaSdkVersion;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.projectRoots.SdkTable;
-import com.intellij.openapi.roots.*;
+import com.intellij.openapi.roots.DependencyScope;
+import com.intellij.openapi.roots.LibraryOrderEntry;
+import com.intellij.openapi.roots.ModifiableRootModel;
+import com.intellij.openapi.roots.ModuleExtensionWithSdkOrderEntry;
+import com.intellij.openapi.roots.OrderRootType;
 import com.intellij.openapi.roots.libraries.Library;
 import com.intellij.openapi.roots.libraries.LibraryTable;
 import com.intellij.openapi.roots.types.BinariesOrderRootType;
@@ -34,18 +57,6 @@ import com.intellij.openapi.vfs.util.ArchiveVfsUtil;
 import com.intellij.pom.java.LanguageLevel;
 import com.intellij.util.containers.ContainerUtil;
 import lombok.val;
-import org.mustbe.consulo.maven.module.extension.MavenMutableModuleExtension;
-import org.jdom.Element;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.jetbrains.idea.maven.model.MavenArtifact;
-import org.jetbrains.idea.maven.model.MavenConstants;
-import org.jetbrains.idea.maven.project.*;
-import org.jetbrains.idea.maven.utils.MavenUtil;
-import org.mustbe.consulo.java.module.extension.JavaMutableModuleExtensionImpl;
-
-import java.util.List;
-import java.util.Map;
 
 public class MavenModuleImporter
 {
@@ -212,8 +223,7 @@ public class MavenModuleImporter
 						changes = myMavenProjectChanges;
 					}
 
-					importer.process(myModifiableModelsProvider, myModule, myRootModelAdapter, myMavenTree, myMavenProject, changes,
-							myMavenProjectToModuleName, postTasks);
+					importer.process(myModifiableModelsProvider, myModule, myRootModelAdapter, myMavenTree, myMavenProject, changes, myMavenProjectToModuleName, postTasks);
 				}
 			}
 		});
@@ -231,9 +241,13 @@ public class MavenModuleImporter
 
 	private void configDependencies()
 	{
+		THashSet<String> dependencyTypesFromSettings = new THashSet<String>();
+
 		for(MavenArtifact artifact : myMavenProject.getDependencies())
 		{
-			if(!myMavenProject.isSupportedDependency(artifact, SupportedRequestType.FOR_IMPORT))
+			String dependencyType = artifact.getType();
+
+			if(!dependencyTypesFromSettings.contains(dependencyType) && !myMavenProject.getDependencyTypesFromImporters(SupportedRequestType.FOR_IMPORT).contains(dependencyType))
 			{
 				continue;
 			}
@@ -261,9 +275,8 @@ public class MavenModuleImporter
 						"" +
 						".classifier.dep")))
 				{
-					MavenArtifact a = new MavenArtifact(artifact.getGroupId(), artifact.getArtifactId(), artifact.getVersion(),
-							artifact.getBaseVersion(), artifact.getType(), artifact.getClassifier(), artifact.getScope(), artifact.isOptional(),
-							artifact.getExtension(), null, myMavenProject.getLocalRepository(), false, false);
+					MavenArtifact a = new MavenArtifact(artifact.getGroupId(), artifact.getArtifactId(), artifact.getVersion(), artifact.getBaseVersion(), artifact.getType(),
+							artifact.getClassifier(), artifact.getScope(), artifact.isOptional(), artifact.getExtension(), null, myMavenProject.getLocalRepository(), false, false);
 
 					myRootModelAdapter.addLibraryDependency(a, scope, myModifiableModelsProvider, myMavenProject);
 				}
@@ -294,10 +307,7 @@ public class MavenModuleImporter
 		}
 	}
 
-	private void addAttachArtifactDependency(@NotNull Element buildHelperCfg,
-			@NotNull DependencyScope scope,
-			@NotNull MavenProject mavenProject,
-			@NotNull MavenArtifact artifact)
+	private void addAttachArtifactDependency(@NotNull Element buildHelperCfg, @NotNull DependencyScope scope, @NotNull MavenProject mavenProject, @NotNull MavenArtifact artifact)
 	{
 		Library.ModifiableModel libraryModel = null;
 
@@ -374,7 +384,7 @@ public class MavenModuleImporter
 		{
 			return DependencyScope.TEST;
 		}
-		if(MavenConstants.SCOPE_PROVIDEED.equals(mavenScope))
+		if(MavenConstants.SCOPE_PROVIDED.equals(mavenScope))
 		{
 			return DependencyScope.PROVIDED;
 		}

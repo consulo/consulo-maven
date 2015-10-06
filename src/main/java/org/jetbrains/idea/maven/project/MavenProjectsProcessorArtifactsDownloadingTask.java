@@ -15,58 +15,68 @@
  */
 package org.jetbrains.idea.maven.project;
 
+import java.util.Collection;
+
+import org.jetbrains.idea.maven.model.MavenArtifact;
+import org.jetbrains.idea.maven.utils.MavenProcessCanceledException;
+import org.jetbrains.idea.maven.utils.MavenProgressIndicator;
+import org.jetbrains.idea.maven.utils.MavenUtil;
 import com.intellij.openapi.application.AccessToken;
 import com.intellij.openapi.application.WriteAction;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ex.ProjectRootManagerEx;
 import com.intellij.openapi.util.AsyncResult;
 import com.intellij.openapi.util.EmptyRunnable;
-import org.jetbrains.idea.maven.model.MavenArtifact;
-import org.jetbrains.idea.maven.utils.MavenProcessCanceledException;
-import org.jetbrains.idea.maven.utils.MavenProgressIndicator;
-import org.jetbrains.idea.maven.utils.MavenUtil;
 
-import java.util.Collection;
+public class MavenProjectsProcessorArtifactsDownloadingTask implements MavenProjectsProcessorTask
+{
+	private final Collection<MavenProject> myProjects;
+	private final Collection<MavenArtifact> myArtifacts;
+	private final MavenProjectsTree myTree;
+	private final boolean myDownloadSources;
+	private final boolean myDownloadDocs;
+	private final AsyncResult<MavenArtifactDownloader.DownloadResult> myCallbackResult;
 
-public class MavenProjectsProcessorArtifactsDownloadingTask implements MavenProjectsProcessorTask {
-  private final Collection<MavenProject> myProjects;
-  private final Collection<MavenArtifact> myArtifacts;
-  private final MavenProjectsTree myTree;
-  private final boolean myDownloadSources;
-  private final boolean myDownloadDocs;
-  private final AsyncResult<MavenArtifactDownloader.DownloadResult> myCallbackResult;
+	public MavenProjectsProcessorArtifactsDownloadingTask(Collection<MavenProject> projects,
+			Collection<MavenArtifact> artifacts,
+			MavenProjectsTree tree,
+			boolean downloadSources,
+			boolean downloadDocs,
+			AsyncResult<MavenArtifactDownloader.DownloadResult> callbackResult)
+	{
+		myProjects = projects;
+		myArtifacts = artifacts;
+		myTree = tree;
+		myDownloadSources = downloadSources;
+		myDownloadDocs = downloadDocs;
+		myCallbackResult = callbackResult;
+	}
 
-  public MavenProjectsProcessorArtifactsDownloadingTask(Collection<MavenProject> projects,
-                                                        Collection<MavenArtifact> artifacts,
-                                                        MavenProjectsTree tree,
-                                                        boolean downloadSources,
-                                                        boolean downloadDocs,
-                                                        AsyncResult<MavenArtifactDownloader.DownloadResult> callbackResult) {
-    myProjects = projects;
-    myArtifacts = artifacts;
-    myTree = tree;
-    myDownloadSources = downloadSources;
-    myDownloadDocs = downloadDocs;
-    myCallbackResult = callbackResult;
-  }
+	@Override
+	public void perform(final Project project, MavenEmbeddersManager embeddersManager, MavenConsole console, MavenProgressIndicator indicator) throws MavenProcessCanceledException
+	{
+		MavenArtifactDownloader.DownloadResult result = myTree.downloadSourcesAndJavadocs(project, myProjects, myArtifacts, myDownloadSources, myDownloadDocs, embeddersManager, console, indicator);
+		if(myCallbackResult != null)
+		{
+			myCallbackResult.setDone(result);
+		}
 
-  public void perform(final Project project, MavenEmbeddersManager embeddersManager, MavenConsole console, MavenProgressIndicator indicator)
-    throws MavenProcessCanceledException {
-    MavenArtifactDownloader.DownloadResult result =
-      myTree.downloadSourcesAndJavadocs(myProjects, myArtifacts, myDownloadSources, myDownloadDocs, embeddersManager, console, indicator);
-    if (myCallbackResult != null) myCallbackResult.setDone(result);
-
-    // todo: hack to update all file pointers.
-    MavenUtil.invokeLater(project, new Runnable() {
-      public void run() {
-        AccessToken accessToken = WriteAction.start();
-        try {
-          ProjectRootManagerEx.getInstanceEx(project).makeRootsChange(EmptyRunnable.getInstance(), false, true);
-        }
-        finally {
-          accessToken.finish();
-        }
-      }
-    });
-  }
+		// todo: hack to update all file pointers.
+		MavenUtil.invokeLater(project, new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				AccessToken accessToken = WriteAction.start();
+				try
+				{
+					ProjectRootManagerEx.getInstanceEx(project).makeRootsChange(EmptyRunnable.getInstance(), false, true);
+				}
+				finally
+				{
+					accessToken.finish();
+				}
+			}
+		});
+	}
 }

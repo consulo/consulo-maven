@@ -648,7 +648,7 @@ public class MavenDomProjectProcessorUtils
 	private static <T> boolean processProfiles(MavenDomProfiles profilesDom, MavenProject mavenProjectOrNull, Processor<T> processor,
 			Function<? super MavenDomProfile, T> f)
 	{
-		Collection<String> activePropfiles = mavenProjectOrNull == null ? null : mavenProjectOrNull.getActivatedProfilesIds();
+		Collection<String> activePropfiles = mavenProjectOrNull == null ? null : mavenProjectOrNull.getActivatedProfilesIds().getEnabledProfiles();
 		for(MavenDomProfile each : profilesDom.getProfiles())
 		{
 			XmlTag idTag = each.getId().getXmlTag();

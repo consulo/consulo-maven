@@ -15,12 +15,14 @@
  */
 package org.jetbrains.idea.maven.dom;
 
-import com.intellij.openapi.module.Module;
-import com.intellij.openapi.module.ModuleUtilCore;
-import com.intellij.openapi.projectRoots.Sdk;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.xml.XmlElement;
-import com.intellij.psi.xml.XmlTag;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.jdom.Element;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.idea.maven.compiler.MavenEscapeWindowsCharacterUtils;
@@ -35,247 +37,301 @@ import org.jetbrains.idea.maven.server.MavenServerUtil;
 import org.jetbrains.idea.maven.utils.MavenJDOMUtil;
 import org.jetbrains.idea.maven.utils.MavenUtil;
 import org.mustbe.consulo.java.module.extension.JavaModuleExtensionImpl;
+import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.ModuleUtilCore;
+import com.intellij.openapi.projectRoots.Sdk;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.xml.XmlElement;
+import com.intellij.psi.xml.XmlTag;
 
-import java.io.IOException;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+public class MavenPropertyResolver
+{
+	public static final Pattern PATTERN = Pattern.compile("\\$\\{(.+?)\\}|@(.+?)@");
 
-public class MavenPropertyResolver {
-  public static final Pattern PATTERN = Pattern.compile("\\$\\{(.+?)\\}|@(.+?)@");
+	public static void doFilterText(Module module, String text, Properties additionalProperties, String propertyEscapeString, Appendable out) throws IOException
+	{
+		MavenProjectsManager manager = MavenProjectsManager.getInstance(module.getProject());
+		MavenProject mavenProject = manager.findProject(module);
+		if(mavenProject == null)
+		{
+			out.append(text);
+			return;
+		}
 
-  public static void doFilterText(Module module,
-                                  String text,
-                                  Properties additionalProperties,
-                                  String propertyEscapeString,
-                                  Appendable out) throws IOException {
-    MavenProjectsManager manager = MavenProjectsManager.getInstance(module.getProject());
-    MavenProject mavenProject = manager.findProject(module);
-    if (mavenProject == null) {
-      out.append(text);
-      return;
-    }
+		Element pluginConfiguration = mavenProject.getPluginConfiguration("org.apache.maven.plugins", "maven-resources-plugin");
+		String escapeWindowsPathsStr = MavenJDOMUtil.findChildValueByPath(pluginConfiguration, "escapeWindowsPaths");
+		boolean escapeWindowsPath = escapeWindowsPathsStr == null || Boolean.parseBoolean(escapeWindowsPathsStr);
 
-    Element pluginConfiguration = mavenProject.getPluginConfiguration("org.apache.maven.plugins", "maven-resources-plugin");
-    String escapeWindowsPathsStr = MavenJDOMUtil.findChildValueByPath(pluginConfiguration, "escapeWindowsPaths");
-    boolean escapeWindowsPath = escapeWindowsPathsStr == null || Boolean.parseBoolean(escapeWindowsPathsStr);
+		doFilterText(MavenFilteredPropertyPsiReferenceProvider.getDelimitersPattern(mavenProject), manager, mavenProject, text, additionalProperties, propertyEscapeString, escapeWindowsPath, null,
+				out);
+	}
 
-    doFilterText(MavenFilteredPropertyPsiReferenceProvider.getDelimitersPattern(mavenProject),
-                 manager,
-                 mavenProject,
-                 text,
-                 additionalProperties,
-                 propertyEscapeString,
-                 escapeWindowsPath,
-                 null,
-                 out);
-  }
+	private static void doFilterText(Pattern pattern,
+			MavenProjectsManager mavenProjectsManager,
+			MavenProject mavenProject,
+			String text,
+			Properties additionalProperties,
+			@Nullable String escapeString,
+			boolean escapeWindowsPath,
+			@Nullable Map<String, String> resolvedPropertiesParam,
+			Appendable out) throws IOException
+	{
+		Map<String, String> resolvedProperties = resolvedPropertiesParam;
 
-  private static void doFilterText(Pattern pattern,
-                                   MavenProjectsManager mavenProjectsManager,
-                                   MavenProject mavenProject,
-                                   String text,
-                                   Properties additionalProperties,
-                                   @Nullable String escapeString,
-                                   boolean escapeWindowsPath,
-                                   @Nullable Map<String, String> resolvedPropertiesParam,
-                                   Appendable out) throws IOException {
-    Map<String, String> resolvedProperties = resolvedPropertiesParam;
-    
-    Matcher matcher = pattern.matcher(text);
-    int groupCount = matcher.groupCount();
-    
-    int last = 0;
-    while (matcher.find()) {
-      if (escapeString != null) {
-        int escapeStringStartIndex = matcher.start() - escapeString.length();
-        if (escapeStringStartIndex >= last) {
-          if (text.startsWith(escapeString, escapeStringStartIndex)) {
-            out.append(text, last, escapeStringStartIndex);
-            out.append(matcher.group());
-            last = matcher.end();
-            continue;
-          }
-        }
-      }
+		Matcher matcher = pattern.matcher(text);
+		int groupCount = matcher.groupCount();
 
-      out.append(text, last, matcher.start());
-      last = matcher.end();
+		int last = 0;
+		while(matcher.find())
+		{
+			if(escapeString != null)
+			{
+				int escapeStringStartIndex = matcher.start() - escapeString.length();
+				if(escapeStringStartIndex >= last)
+				{
+					if(text.startsWith(escapeString, escapeStringStartIndex))
+					{
+						out.append(text, last, escapeStringStartIndex);
+						out.append(matcher.group());
+						last = matcher.end();
+						continue;
+					}
+				}
+			}
 
-      String propertyName = null;
+			out.append(text, last, matcher.start());
+			last = matcher.end();
 
-      for (int i = 0; i < groupCount; i++) {
-        propertyName = matcher.group(i + 1);
-        if (propertyName != null) {
-          break;
-        }
-      }
+			String propertyName = null;
 
-      assert propertyName != null;
+			for(int i = 0; i < groupCount; i++)
+			{
+				propertyName = matcher.group(i + 1);
+				if(propertyName != null)
+				{
+					break;
+				}
+			}
 
-      if (resolvedProperties == null) {
-        resolvedProperties = new HashMap<String, String>();
-      }
-      
-      String propertyValue = resolvedProperties.get(propertyName);
-      if (propertyValue == null) {
-        if (resolvedProperties.containsKey(propertyName)) { // if cyclic property dependencies
-          out.append(matcher.group());
-          continue;
-        }
+			assert propertyName != null;
 
-        String resolved = doResolveProperty(propertyName, mavenProjectsManager, mavenProject, additionalProperties);
-        if (resolved == null) {
-          out.append(matcher.group());
-          continue;
-        }
+			if(resolvedProperties == null)
+			{
+				resolvedProperties = new HashMap<String, String>();
+			}
 
-        resolvedProperties.put(propertyName, null);
+			String propertyValue = resolvedProperties.get(propertyName);
+			if(propertyValue == null)
+			{
+				if(resolvedProperties.containsKey(propertyName))
+				{ // if cyclic property dependencies
+					out.append(matcher.group());
+					continue;
+				}
 
-        StringBuilder sb = new StringBuilder();
-        doFilterText(pattern, mavenProjectsManager, mavenProject, resolved, additionalProperties, null, escapeWindowsPath, resolvedProperties, sb);
-        propertyValue = sb.toString();
+				String resolved = doResolveProperty(propertyName, mavenProjectsManager, mavenProject, additionalProperties);
+				if(resolved == null)
+				{
+					out.append(matcher.group());
+					continue;
+				}
 
-        resolvedProperties.put(propertyName, propertyValue);
-      }
+				resolvedProperties.put(propertyName, null);
 
-      if (escapeWindowsPath) {
-        MavenEscapeWindowsCharacterUtils.escapeWindowsPath(out, propertyValue);
-      }
-      else {
-        out.append(propertyValue);
-      }
-    }
-    
-    out.append(text, last, text.length());
-  }
+				StringBuilder sb = new StringBuilder();
+				doFilterText(pattern, mavenProjectsManager, mavenProject, resolved, additionalProperties, null, escapeWindowsPath, resolvedProperties, sb);
+				propertyValue = sb.toString();
 
-  public static String resolve(String text, MavenDomProjectModel projectDom) {
-    XmlElement element = projectDom.getXmlElement();
-    if (element == null) return text;
+				resolvedProperties.put(propertyName, propertyValue);
+			}
 
-    VirtualFile file = MavenDomUtil.getVirtualFile(element);
-    if (file == null) return text;
-    MavenProjectsManager manager = MavenProjectsManager.getInstance(projectDom.getManager().getProject());
+			if(escapeWindowsPath)
+			{
+				MavenEscapeWindowsCharacterUtils.escapeWindowsPath(out, propertyValue);
+			}
+			else
+			{
+				out.append(propertyValue);
+			}
+		}
 
-    MavenProject mavenProject = manager.findProject(file);
-    if (mavenProject == null) return text;
+		out.append(text, last, text.length());
+	}
 
-    StringBuilder res = new StringBuilder();
-    try {
-      doFilterText(PATTERN, manager, mavenProject, text, collectPropertiesFromDOM(mavenProject, projectDom), null, false, null, res);
-    }
-    catch (IOException e) {
-      throw new RuntimeException(e); // never thrown
-    }
+	public static String resolve(String text, MavenDomProjectModel projectDom)
+	{
+		XmlElement element = projectDom.getXmlElement();
+		if(element == null)
+		{
+			return text;
+		}
 
-    return res.toString();
-  }
+		VirtualFile file = MavenDomUtil.getVirtualFile(element);
+		if(file == null)
+		{
+			return text;
+		}
+		MavenProjectsManager manager = MavenProjectsManager.getInstance(projectDom.getManager().getProject());
 
-  private static Properties collectPropertiesFromDOM(MavenProject project, MavenDomProjectModel projectDom) {
-    Properties result = new Properties();
+		MavenProject mavenProject = manager.findProject(file);
+		if(mavenProject == null)
+		{
+			return text;
+		}
 
-    collectPropertiesFromDOM(projectDom.getProperties(), result);
+		StringBuilder res = new StringBuilder();
+		try
+		{
+			doFilterText(PATTERN, manager, mavenProject, text, collectPropertiesFromDOM(mavenProject, projectDom), null, false, null, res);
+		}
+		catch(IOException e)
+		{
+			throw new RuntimeException(e); // never thrown
+		}
 
-    Collection<String> activePropfiles = project.getActivatedProfilesIds();
-    for (MavenDomProfile each : projectDom.getProfiles().getProfiles()) {
-      XmlTag idTag = each.getId().getXmlTag();
-      if (idTag == null || !activePropfiles.contains(idTag.getValue().getTrimmedText())) continue;
-      collectPropertiesFromDOM(each.getProperties(), result);
-    }
+		return res.toString();
+	}
 
-    return result;
-  }
+	private static Properties collectPropertiesFromDOM(MavenProject project, MavenDomProjectModel projectDom)
+	{
+		Properties result = new Properties();
 
-  private static void collectPropertiesFromDOM(MavenDomProperties props, Properties result) {
-    XmlTag propsTag = props.getXmlTag();
-    if (propsTag != null) {
-      for (XmlTag each : propsTag.getSubTags()) {
-        result.setProperty(each.getName(), each.getValue().getTrimmedText());
-      }
-    }
-  }
+		collectPropertiesFromDOM(projectDom.getProperties(), result);
 
-  @Nullable
-  private static String doResolveProperty(String propName,
-                                          MavenProjectsManager projectsManager,
-                                          MavenProject mavenProject,
-                                          Properties additionalProperties) {
-    boolean hasPrefix = false;
-    String unprefixed = propName;
+		Collection<String> activeProfiles = project.getActivatedProfilesIds().getEnabledProfiles();
+		for(MavenDomProfile each : projectDom.getProfiles().getProfiles())
+		{
+			XmlTag idTag = each.getId().getXmlTag();
+			if(idTag == null || !activeProfiles.contains(idTag.getValue().getTrimmedText()))
+			{
+				continue;
+			}
+			collectPropertiesFromDOM(each.getProperties(), result);
+		}
 
-    if (propName.startsWith("pom.")) {
-      unprefixed = propName.substring("pom.".length());
-      hasPrefix = true;
-    }
-    else if (propName.startsWith("project.")) {
-      unprefixed = propName.substring("project.".length());
-      hasPrefix = true;
-    }
+		return result;
+	}
 
-    MavenProject selectedProject = mavenProject;
+	private static void collectPropertiesFromDOM(MavenDomProperties props, Properties result)
+	{
+		XmlTag propsTag = props.getXmlTag();
+		if(propsTag != null)
+		{
+			for(XmlTag each : propsTag.getSubTags())
+			{
+				result.setProperty(each.getName(), each.getValue().getTrimmedText());
+			}
+		}
+	}
 
-    while (unprefixed.startsWith("parent.")) {
-      MavenId parentId = selectedProject.getParentId();
-      if (parentId == null) return null;
+	@Nullable
+	private static String doResolveProperty(String propName, MavenProjectsManager projectsManager, MavenProject mavenProject, Properties additionalProperties)
+	{
+		boolean hasPrefix = false;
+		String unprefixed = propName;
 
-      unprefixed = unprefixed.substring("parent.".length());
+		if(propName.startsWith("pom."))
+		{
+			unprefixed = propName.substring("pom.".length());
+			hasPrefix = true;
+		}
+		else if(propName.startsWith("project."))
+		{
+			unprefixed = propName.substring("project.".length());
+			hasPrefix = true;
+		}
 
-      if (unprefixed.equals("groupId")) {
-        return parentId.getGroupId();
-      }
-      if (unprefixed.equals("artifactId")) {
-        return parentId.getArtifactId();
-      }
+		MavenProject selectedProject = mavenProject;
 
-      selectedProject = projectsManager.findProject(parentId);
-      if (selectedProject == null) return null;
-    }
+		while(unprefixed.startsWith("parent."))
+		{
+			MavenId parentId = selectedProject.getParentId();
+			if(parentId == null)
+			{
+				return null;
+			}
 
-    if (unprefixed.equals("basedir") || (hasPrefix && mavenProject == selectedProject && unprefixed.equals("baseUri"))) {
-      return selectedProject.getDirectory();
-    }
+			unprefixed = unprefixed.substring("parent.".length());
 
-    if ("java.home".equals(propName)) {
-      Module module = projectsManager.findModule(mavenProject);
-      if (module != null) {
-        Sdk sdk = ModuleUtilCore.getSdk(module, JavaModuleExtensionImpl.class);
-        if (sdk != null) {
-          VirtualFile homeDirectory = sdk.getHomeDirectory();
-          if (homeDirectory != null) {
-            VirtualFile jreDir = homeDirectory.findChild("jre");
-            if (jreDir != null) {
-              return jreDir.getPath();
-            }
-          }
-        }
-      }
-    }
+			if(unprefixed.equals("groupId"))
+			{
+				return parentId.getGroupId();
+			}
+			if(unprefixed.equals("artifactId"))
+			{
+				return parentId.getArtifactId();
+			}
 
-    String result;
+			selectedProject = projectsManager.findProject(parentId);
+			if(selectedProject == null)
+			{
+				return null;
+			}
+		}
 
-    result = MavenUtil.getPropertiesFromMavenOpts().get(propName);
-    if (result != null) return result;
+		if(unprefixed.equals("basedir") || (hasPrefix && mavenProject == selectedProject && unprefixed.equals("baseUri")))
+		{
+			return selectedProject.getDirectory();
+		}
 
-    result = MavenServerUtil.collectSystemProperties().getProperty(propName);
-    if (result != null) return result;
+		if("java.home".equals(propName))
+		{
+			Module module = projectsManager.findModule(mavenProject);
+			if(module != null)
+			{
+				Sdk sdk = ModuleUtilCore.getSdk(module, JavaModuleExtensionImpl.class);
+				if(sdk != null)
+				{
+					VirtualFile homeDirectory = sdk.getHomeDirectory();
+					if(homeDirectory != null)
+					{
+						VirtualFile jreDir = homeDirectory.findChild("jre");
+						if(jreDir != null)
+						{
+							return jreDir.getPath();
+						}
+					}
+				}
+			}
+		}
 
-    result = selectedProject.getModelMap().get(unprefixed);
-    if (result != null) return result;
+		String result;
 
-    result = additionalProperties.getProperty(propName);
-    if (result != null) return result;
+		result = MavenUtil.getPropertiesFromMavenOpts().get(propName);
+		if(result != null)
+		{
+			return result;
+		}
 
-    result = mavenProject.getProperties().getProperty(propName);
-    if (result != null) return result;
+		result = MavenServerUtil.collectSystemProperties().getProperty(propName);
+		if(result != null)
+		{
+			return result;
+		}
 
-    if ("settings.localRepository".equals(propName)) {
-      return mavenProject.getLocalRepository().getAbsolutePath();
-    }
+		result = selectedProject.getModelMap().get(unprefixed);
+		if(result != null)
+		{
+			return result;
+		}
 
-    return null;
-  }
+		result = additionalProperties.getProperty(propName);
+		if(result != null)
+		{
+			return result;
+		}
+
+		result = mavenProject.getProperties().getProperty(propName);
+		if(result != null)
+		{
+			return result;
+		}
+
+		if("settings.localRepository".equals(propName))
+		{
+			return mavenProject.getLocalRepository().getAbsolutePath();
+		}
+
+		return null;
+	}
 }

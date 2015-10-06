@@ -15,264 +15,376 @@
  */
 package org.jetbrains.idea.maven.server;
 
-import com.intellij.openapi.vfs.VirtualFile;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.jetbrains.idea.maven.model.*;
-import org.jetbrains.idea.maven.project.MavenConsole;
-import org.jetbrains.idea.maven.utils.MavenLog;
-import org.jetbrains.idea.maven.utils.MavenProcessCanceledException;
-import org.jetbrains.idea.maven.utils.MavenProgressIndicator;
-
 import java.io.File;
 import java.rmi.NoSuchObjectException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-public abstract class MavenEmbedderWrapper extends RemoteObjectWrapper<MavenServerEmbedder> {
-  private Customization myCustomization;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.idea.maven.model.MavenArtifact;
+import org.jetbrains.idea.maven.model.MavenArtifactInfo;
+import org.jetbrains.idea.maven.model.MavenId;
+import org.jetbrains.idea.maven.model.MavenPlugin;
+import org.jetbrains.idea.maven.model.MavenRemoteRepository;
+import org.jetbrains.idea.maven.model.MavenWorkspaceMap;
+import org.jetbrains.idea.maven.project.MavenConsole;
+import org.jetbrains.idea.maven.utils.MavenLog;
+import org.jetbrains.idea.maven.utils.MavenProcessCanceledException;
+import org.jetbrains.idea.maven.utils.MavenProgressIndicator;
+import com.intellij.openapi.vfs.VirtualFile;
 
-  public MavenEmbedderWrapper(@Nullable RemoteObjectWrapper<?> parent) {
-    super(parent);
-  }
+public abstract class MavenEmbedderWrapper extends RemoteObjectWrapper<MavenServerEmbedder>
+{
+	private Customization myCustomization;
 
-  @Override
-  protected synchronized void onWrappeeCreated() throws RemoteException {
-    super.onWrappeeCreated();
-    if (myCustomization != null) {
-      doCustomize();
-    }
-  }
+	public MavenEmbedderWrapper(@Nullable RemoteObjectWrapper<?> parent)
+	{
+		super(parent);
+	}
 
-  public void customizeForResolve(MavenConsole console, MavenProgressIndicator indicator) {
-    setCustomization(console, indicator, null, false);
-    perform(new Retriable<Object>() {
-      @Override
-      public Object execute() throws RemoteException {
-        doCustomize();
-        return null;
-      }
-    });
-  }
+	@Override
+	protected synchronized void onWrappeeCreated() throws RemoteException
+	{
+		super.onWrappeeCreated();
+		if(myCustomization != null)
+		{
+			doCustomize();
+		}
+	}
 
-  public void customizeForResolve(MavenWorkspaceMap workspaceMap, MavenConsole console, MavenProgressIndicator indicator) {
-    setCustomization(console, indicator, workspaceMap, false);
-    perform(new Retriable<Object>() {
-      @Override
-      public Object execute() throws RemoteException {
-        doCustomize();
-        return null;
-      }
-    });
-  }
+	public void customizeForResolve(MavenConsole console, MavenProgressIndicator indicator)
+	{
+		setCustomization(console, indicator, null, false, false);
+		perform(new Retriable<Object>()
+		{
+			@Override
+			public Object execute() throws RemoteException
+			{
+				doCustomize();
+				return null;
+			}
+		});
+	}
 
-  public void customizeForStrictResolve(MavenWorkspaceMap workspaceMap,
-                                        MavenConsole console,
-                                        MavenProgressIndicator indicator) {
-    setCustomization(console, indicator, workspaceMap, true);
-    perform(new Retriable<Object>() {
-      @Override
-      public Object execute() throws RemoteException {
-        doCustomize();
-        return null;
-      }
-    });
-  }
+	public void customizeForResolve(MavenWorkspaceMap workspaceMap, MavenConsole console, MavenProgressIndicator indicator, boolean alwaysUpdateSnapshot)
+	{
+		setCustomization(console, indicator, workspaceMap, false, alwaysUpdateSnapshot);
+		perform(new Retriable<Object>()
+		{
+			@Override
+			public Object execute() throws RemoteException
+			{
+				doCustomize();
+				return null;
+			}
+		});
+	}
 
-  private synchronized void doCustomize() throws RemoteException {
-    getOrCreateWrappee().customize(myCustomization.workspaceMap,
-                                   myCustomization.failOnUnresolvedDependency,
-                                   myCustomization.console,
-                                   myCustomization.indicator);
-  }
+	public void customizeForStrictResolve(MavenWorkspaceMap workspaceMap, MavenConsole console, MavenProgressIndicator indicator)
+	{
+		setCustomization(console, indicator, workspaceMap, true, false);
+		perform(new Retriable<Object>()
+		{
+			@Override
+			public Object execute() throws RemoteException
+			{
+				doCustomize();
+				return null;
+			}
+		});
+	}
 
-  @NotNull
-  public MavenServerExecutionResult resolveProject(@NotNull final VirtualFile file,
-                                                    @NotNull final Collection<String> activeProfiles) throws MavenProcessCanceledException {
-    return perform(new RetriableCancelable<MavenServerExecutionResult>() {
-      @Override
-      public MavenServerExecutionResult execute() throws RemoteException, MavenServerProcessCanceledException {
-        return getOrCreateWrappee().resolveProject(new File(file.getPath()), activeProfiles);
-      }
-    });
-  }
+	public void customizeForGetVersions()
+	{
+		perform(new Retriable<Object>()
+		{
+			@Override
+			public Object execute() throws RemoteException
+			{
+				doCustomizeComponents();
+				return null;
+			}
+		});
+	}
 
-  @NotNull
-  public MavenArtifact resolve(@NotNull final MavenArtifactInfo info,
-                               @NotNull final List<MavenRemoteRepository> remoteRepositories) throws MavenProcessCanceledException {
-    return perform(new RetriableCancelable<MavenArtifact>() {
-      @Override
-      public MavenArtifact execute() throws RemoteException, MavenServerProcessCanceledException {
-        return getOrCreateWrappee().resolve(info, remoteRepositories);
-      }
-    });
-  }
+	private synchronized void doCustomizeComponents() throws RemoteException
+	{
+		getOrCreateWrappee().customizeComponents();
+	}
 
-  @NotNull
-  public List<MavenArtifact> resolveTransitively(
-    @NotNull final List<MavenArtifactInfo> artifacts,
-    @NotNull final List<MavenRemoteRepository> remoteRepositories) throws MavenProcessCanceledException {
+	private synchronized void doCustomize() throws RemoteException
+	{
+		getOrCreateWrappee().customize(myCustomization.workspaceMap, myCustomization.failOnUnresolvedDependency, myCustomization.console, myCustomization.indicator,
+				myCustomization.alwaysUpdateSnapshot);
+	}
 
-    return perform(new RetriableCancelable<List<MavenArtifact>>() {
-      @Override
-      public List<MavenArtifact> execute() throws RemoteException, MavenServerProcessCanceledException {
-        return getOrCreateWrappee().resolveTransitively(artifacts, remoteRepositories);
-      }
-    });
-  }
+	@NotNull
+	public MavenServerExecutionResult resolveProject(@NotNull final VirtualFile file,
+			@NotNull final Collection<String> activeProfiles,
+			@NotNull final Collection<String> inactiveProfiles) throws MavenProcessCanceledException
+	{
+		return perform(new RetriableCancelable<MavenServerExecutionResult>()
+		{
+			@Override
+			public MavenServerExecutionResult execute() throws RemoteException, MavenServerProcessCanceledException
+			{
+				return getOrCreateWrappee().resolveProject(new File(file.getPath()), activeProfiles, inactiveProfiles);
+			}
+		});
+	}
 
-  public Collection<MavenArtifact> resolvePlugin(@NotNull final MavenPlugin plugin,
-                                                 @NotNull final List<MavenRemoteRepository> repositories,
-                                                 @NotNull final NativeMavenProjectHolder nativeMavenProject,
-                                                 final boolean transitive) throws MavenProcessCanceledException {
-    int id;
-    try {
-      id = nativeMavenProject.getId();
-    }
-    catch (RemoteException e) {
-      // do not call handleRemoteError here since this error occurred because of previous remote error
-      return Collections.emptyList();
-    }
+	@Nullable
+	public String evaluateEffectivePom(@NotNull final VirtualFile file,
+			@NotNull final Collection<String> activeProfiles,
+			@NotNull final Collection<String> inactiveProfiles) throws MavenProcessCanceledException
+	{
+		return perform(new RetriableCancelable<String>()
+		{
+			@Override
+			public String execute() throws RemoteException, MavenServerProcessCanceledException
+			{
+				return getOrCreateWrappee().evaluateEffectivePom(new File(file.getPath()), new ArrayList<String>(activeProfiles), new ArrayList<String>(inactiveProfiles));
+			}
+		});
+	}
 
-    try {
-      return getOrCreateWrappee().resolvePlugin(plugin, repositories, id, transitive);
-    }
-    catch (RemoteException e) {
-      // do not try to reconnect here since we have lost NativeMavenProjectHolder anyway.
-      handleRemoteError(e);
-      return Collections.emptyList();
-    }
-    catch (MavenServerProcessCanceledException e) {
-      throw new MavenProcessCanceledException();
-    }
-  }
+	@NotNull
+	public MavenArtifact resolve(@NotNull final MavenArtifactInfo info, @NotNull final List<MavenRemoteRepository> remoteRepositories) throws MavenProcessCanceledException
+	{
+		return perform(new RetriableCancelable<MavenArtifact>()
+		{
+			@Override
+			public MavenArtifact execute() throws RemoteException, MavenServerProcessCanceledException
+			{
+				return getOrCreateWrappee().resolve(info, remoteRepositories);
+			}
+		});
+	}
 
-  @NotNull
-  public MavenServerExecutionResult execute(@NotNull final VirtualFile file,
-                                             @NotNull final Collection<String> activeProfiles,
-                                             @NotNull final List<String> goals) throws MavenProcessCanceledException {
-    return perform(new RetriableCancelable<MavenServerExecutionResult>() {
-      @Override
-      public MavenServerExecutionResult execute() throws RemoteException, MavenServerProcessCanceledException {
-        return getOrCreateWrappee()
-          .execute(new File(file.getPath()), activeProfiles, Collections.<String>emptyList(), goals, Collections.<String>emptyList(), false,
-                   false);
-      }
-    });
-  }
+	@NotNull
+	public List<MavenArtifact> resolveTransitively(@NotNull final List<MavenArtifactInfo> artifacts, @NotNull final List<MavenRemoteRepository> remoteRepositories) throws
+			MavenProcessCanceledException
+	{
 
-  @NotNull
-  public MavenServerExecutionResult execute(@NotNull final VirtualFile file,
-                                            @NotNull final Collection<String> activeProfiles,
-                                            @NotNull final Collection<String> inactiveProfiles,
-                                            @NotNull final List<String> goals,
-                                            @NotNull final List<String> selectedProjects,
-                                            final boolean alsoMake,
-                                            final boolean alsoMakeDependents) throws MavenProcessCanceledException {
-    return perform(new RetriableCancelable<MavenServerExecutionResult>() {
-      @Override
-      public MavenServerExecutionResult execute() throws RemoteException, MavenServerProcessCanceledException {
-        return getOrCreateWrappee()
-          .execute(new File(file.getPath()), activeProfiles, inactiveProfiles, goals, selectedProjects, alsoMake, alsoMakeDependents);
-      }
-    });
-  }
+		return perform(new RetriableCancelable<List<MavenArtifact>>()
+		{
+			@Override
+			public List<MavenArtifact> execute() throws RemoteException, MavenServerProcessCanceledException
+			{
+				return getOrCreateWrappee().resolveTransitively(artifacts, remoteRepositories);
+			}
+		});
+	}
 
-  public void reset() {
-    MavenServerEmbedder w = getWrappee();
-    if (w == null) return;
-    try {
-      w.reset();
-    }
-    catch (RemoteException e) {
-      handleRemoteError(e);
-    }
-    resetCustomization();
-  }
+	@NotNull
+	public List<String> retrieveVersions(@NotNull final String groupId,
+			@NotNull final String artifactId,
+			@NotNull final List<MavenRemoteRepository> remoteRepositories) throws MavenProcessCanceledException
+	{
 
-  public void release() {
-    MavenServerEmbedder w = getWrappee();
-    if (w == null) return;
-    try {
-      w.release();
-    }
-    catch (RemoteException e) {
-      handleRemoteError(e);
-    }
-    resetCustomization();
-  }
+		return perform(new RetriableCancelable<List<String>>()
+		{
+			@Override
+			public List<String> execute() throws RemoteException, MavenServerProcessCanceledException
+			{
+				return getOrCreateWrappee().retrieveAvailableVersions(groupId, artifactId, remoteRepositories);
+			}
+		});
+	}
+
+	public Collection<MavenArtifact> resolvePlugin(@NotNull final MavenPlugin plugin,
+			@NotNull final List<MavenRemoteRepository> repositories,
+			@NotNull final NativeMavenProjectHolder nativeMavenProject,
+			final boolean transitive) throws MavenProcessCanceledException
+	{
+		int id;
+		try
+		{
+			id = nativeMavenProject.getId();
+		}
+		catch(RemoteException e)
+		{
+			// do not call handleRemoteError here since this error occurred because of previous remote error
+			return Collections.emptyList();
+		}
+
+		try
+		{
+			return getOrCreateWrappee().resolvePlugin(plugin, repositories, id, transitive);
+		}
+		catch(RemoteException e)
+		{
+			// do not try to reconnect here since we have lost NativeMavenProjectHolder anyway.
+			handleRemoteError(e);
+			return Collections.emptyList();
+		}
+		catch(MavenServerProcessCanceledException e)
+		{
+			throw new MavenProcessCanceledException();
+		}
+	}
+
+	@NotNull
+	public MavenServerExecutionResult execute(@NotNull final VirtualFile file,
+			@NotNull final Collection<String> activeProfiles,
+			@NotNull final Collection<String> inactiveProfiles,
+			@NotNull final List<String> goals) throws MavenProcessCanceledException
+	{
+		return perform(new RetriableCancelable<MavenServerExecutionResult>()
+		{
+			@Override
+			public MavenServerExecutionResult execute() throws RemoteException, MavenServerProcessCanceledException
+			{
+				return getOrCreateWrappee().execute(new File(file.getPath()), activeProfiles, inactiveProfiles, goals, Collections.<String>emptyList(), false, false);
+			}
+		});
+	}
+
+	@NotNull
+	public MavenServerExecutionResult execute(@NotNull final VirtualFile file,
+			@NotNull final Collection<String> activeProfiles,
+			@NotNull final Collection<String> inactiveProfiles,
+			@NotNull final List<String> goals,
+			@NotNull final List<String> selectedProjects,
+			final boolean alsoMake,
+			final boolean alsoMakeDependents) throws MavenProcessCanceledException
+	{
+		return perform(new RetriableCancelable<MavenServerExecutionResult>()
+		{
+			@Override
+			public MavenServerExecutionResult execute() throws RemoteException, MavenServerProcessCanceledException
+			{
+				return getOrCreateWrappee().execute(new File(file.getPath()), activeProfiles, inactiveProfiles, goals, selectedProjects, alsoMake, alsoMakeDependents);
+			}
+		});
+	}
+
+	public void reset()
+	{
+		MavenServerEmbedder w = getWrappee();
+		if(w == null)
+		{
+			return;
+		}
+		try
+		{
+			w.reset();
+		}
+		catch(RemoteException e)
+		{
+			handleRemoteError(e);
+		}
+		resetCustomization();
+	}
+
+	public void release()
+	{
+		MavenServerEmbedder w = getWrappee();
+		if(w == null)
+		{
+			return;
+		}
+		try
+		{
+			w.release();
+		}
+		catch(RemoteException e)
+		{
+			handleRemoteError(e);
+		}
+		resetCustomization();
+	}
 
 
-  public void clearCaches() {
-    MavenServerEmbedder w = getWrappee();
-    if (w == null) return;
-    try {
-      w.clearCaches();
-    }
-    catch (RemoteException e) {
-      handleRemoteError(e);
-    }
-  }
+	public void clearCaches()
+	{
+		MavenServerEmbedder w = getWrappee();
+		if(w == null)
+		{
+			return;
+		}
+		try
+		{
+			w.clearCaches();
+		}
+		catch(RemoteException e)
+		{
+			handleRemoteError(e);
+		}
+	}
 
-  public void clearCachesFor(MavenId projectId) {
-    MavenServerEmbedder w = getWrappee();
-    if (w == null) return;
-    try {
-      w.clearCachesFor(projectId);
-    }
-    catch (RemoteException e) {
-      handleRemoteError(e);
-    }
-  }
+	public void clearCachesFor(MavenId projectId)
+	{
+		MavenServerEmbedder w = getWrappee();
+		if(w == null)
+		{
+			return;
+		}
+		try
+		{
+			w.clearCachesFor(projectId);
+		}
+		catch(RemoteException e)
+		{
+			handleRemoteError(e);
+		}
+	}
 
-  private synchronized void setCustomization(MavenConsole console,
-                                             MavenProgressIndicator indicator,
-                                             MavenWorkspaceMap workspaceMap,
-                                             boolean failOnUnresolvedDependency) {
-    resetCustomization();
-    myCustomization = new Customization(MavenServerManager.wrapAndExport(console),
-                                        MavenServerManager.wrapAndExport(indicator),
-                                        workspaceMap,
-                                        failOnUnresolvedDependency);
-  }
+	private synchronized void setCustomization(MavenConsole console, MavenProgressIndicator indicator, MavenWorkspaceMap workspaceMap, boolean failOnUnresolvedDependency,
+			boolean alwaysUpdateSnapshot)
+	{
+		resetCustomization();
+		myCustomization = new Customization(MavenServerManager.wrapAndExport(console), MavenServerManager.wrapAndExport(indicator), workspaceMap, failOnUnresolvedDependency, alwaysUpdateSnapshot);
+	}
 
-  private synchronized void resetCustomization() {
-    if (myCustomization == null) return;
+	private synchronized void resetCustomization()
+	{
+		if(myCustomization == null)
+		{
+			return;
+		}
 
-    try {
-      UnicastRemoteObject.unexportObject(myCustomization.console, true);
-    }
-    catch (NoSuchObjectException e) {
-      MavenLog.LOG.warn(e);
-    }
-    try {
-      UnicastRemoteObject.unexportObject(myCustomization.indicator, true);
-    }
-    catch (NoSuchObjectException e) {
-      MavenLog.LOG.warn(e);
-    }
+		try
+		{
+			UnicastRemoteObject.unexportObject(myCustomization.console, true);
+		}
+		catch(NoSuchObjectException e)
+		{
+			MavenLog.LOG.warn(e);
+		}
+		try
+		{
+			UnicastRemoteObject.unexportObject(myCustomization.indicator, true);
+		}
+		catch(NoSuchObjectException e)
+		{
+			MavenLog.LOG.warn(e);
+		}
 
-    myCustomization = null;
-  }
+		myCustomization = null;
+	}
 
-  private static class Customization {
-    private final MavenServerConsole console;
-    private final MavenServerProgressIndicator indicator;
+	private static class Customization
+	{
+		private final MavenServerConsole console;
+		private final MavenServerProgressIndicator indicator;
 
-    private final MavenWorkspaceMap workspaceMap;
-    private final boolean failOnUnresolvedDependency;
+		private final MavenWorkspaceMap workspaceMap;
+		private final boolean failOnUnresolvedDependency;
+		private final boolean alwaysUpdateSnapshot;
 
-    private Customization(MavenServerConsole console,
-                          MavenServerProgressIndicator indicator,
-                          MavenWorkspaceMap workspaceMap,
-                          boolean failOnUnresolvedDependency) {
-      this.console = console;
-      this.indicator = indicator;
-      this.workspaceMap = workspaceMap;
-      this.failOnUnresolvedDependency = failOnUnresolvedDependency;
-    }
-  }
+		private Customization(MavenServerConsole console, MavenServerProgressIndicator indicator, MavenWorkspaceMap workspaceMap, boolean failOnUnresolvedDependency, boolean alwaysUpdateSnapshot)
+		{
+			this.console = console;
+			this.indicator = indicator;
+			this.workspaceMap = workspaceMap;
+			this.failOnUnresolvedDependency = failOnUnresolvedDependency;
+			this.alwaysUpdateSnapshot = alwaysUpdateSnapshot;
+		}
+	}
 }

@@ -15,36 +15,32 @@
  */
 package org.jetbrains.idea.maven.execution;
 
-import com.intellij.openapi.project.Project;
+import java.util.Collection;
+
+import javax.swing.Action;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.util.Collection;
+import com.intellij.openapi.project.Project;
 
 /**
  * @author Sergey Evdokimov
  */
-public class MavenExecuteGoalDialog extends MavenEditGoalDialog {
+public class MavenExecuteGoalDialog extends MavenEditGoalDialog
+{
+	public MavenExecuteGoalDialog(@NotNull Project project, @Nullable Collection<String> history)
+	{
+		super(project, history);
 
-  public MavenExecuteGoalDialog(@NotNull Project project, @Nullable Collection<String> history) {
-    super(project, history);
+		setTitle("Execute Maven Goal");
+	}
 
-    setTitle("Execute Maven Goal");
-  }
-
-  @NotNull
-  @Override
-  protected Action getOKAction() {
-    return new DialogWrapperAction("&Execute") {
-      {
-        putValue(DEFAULT_ACTION, Boolean.TRUE);
-      }
-      @Override
-      protected void doAction(ActionEvent e) {
-        doOKAction();
-      }
-    };
-  }
+	@NotNull
+	@Override
+	protected Action getOKAction()
+	{
+		Action action = super.getOKAction();
+		action.putValue(Action.NAME, "&Execute");
+		return action;
+	}
 }

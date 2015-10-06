@@ -15,28 +15,40 @@
  */
 package org.jetbrains.idea.maven.project;
 
-import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.idea.maven.utils.MavenProcessCanceledException;
 import org.jetbrains.idea.maven.utils.MavenProgressIndicator;
+import com.intellij.openapi.project.Project;
 
-public class MavenProjectsProcessorResolvingTask extends MavenProjectsProcessorBasicTask {
-  @NotNull private final MavenGeneralSettings myGeneralSettings;
-  @Nullable private final Runnable myOnCompletion;
+public class MavenProjectsProcessorResolvingTask extends MavenProjectsProcessorBasicTask
+{
+	@NotNull
+	private final MavenGeneralSettings myGeneralSettings;
+	@Nullable
+	private final Runnable myOnCompletion;
+	@NotNull
+	private final ResolveContext myContext;
 
-  public MavenProjectsProcessorResolvingTask(@NotNull MavenProject project,
-                                             @NotNull MavenProjectsTree tree,
-                                             @NotNull MavenGeneralSettings generalSettings,
-                                             @Nullable Runnable onCompletion) {
-    super(project, tree);
-    myGeneralSettings = generalSettings;
-    myOnCompletion = onCompletion;
-  }
+	public MavenProjectsProcessorResolvingTask(@NotNull MavenProject project,
+			@NotNull MavenProjectsTree tree,
+			@NotNull MavenGeneralSettings generalSettings,
+			@Nullable Runnable onCompletion,
+			@NotNull ResolveContext context)
+	{
+		super(project, tree);
+		myGeneralSettings = generalSettings;
+		myOnCompletion = onCompletion;
+		myContext = context;
+	}
 
-  public void perform(Project project, MavenEmbeddersManager embeddersManager, MavenConsole console, MavenProgressIndicator indicator)
-    throws MavenProcessCanceledException {
-    myTree.resolve(project, myMavenProject, myGeneralSettings, embeddersManager, console, indicator);
-    if (myOnCompletion != null) myOnCompletion.run();
-  }
+	@Override
+	public void perform(Project project, MavenEmbeddersManager embeddersManager, MavenConsole console, MavenProgressIndicator indicator) throws MavenProcessCanceledException
+	{
+		myTree.resolve(project, myMavenProject, myGeneralSettings, embeddersManager, console, myContext, indicator);
+		if(myOnCompletion != null)
+		{
+			myOnCompletion.run();
+		}
+	}
 }

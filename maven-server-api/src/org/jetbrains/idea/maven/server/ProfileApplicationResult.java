@@ -15,25 +15,29 @@
  */
 package org.jetbrains.idea.maven.server;
 
+import java.io.Serializable;
+
+import org.jetbrains.idea.maven.model.MavenExplicitProfiles;
 import org.jetbrains.idea.maven.model.MavenModel;
 
-import java.io.Serializable;
-import java.util.Collection;
+public class ProfileApplicationResult implements Serializable
+{
+	private final MavenModel myModel;
+	private final MavenExplicitProfiles myActivatedProfiles;
 
-public class ProfileApplicationResult implements Serializable {
-  private final MavenModel myModel;
-  private final Collection<String> myActivatedProfiles;
+	public ProfileApplicationResult(MavenModel model, MavenExplicitProfiles activatedProfiles)
+	{
+		myModel = model;
+		myActivatedProfiles = activatedProfiles;
+	}
 
-  public ProfileApplicationResult(MavenModel model, Collection<String> activatedProfiles) {
-    myModel = model;
-    myActivatedProfiles = activatedProfiles;
-  }
+	public MavenModel getModel()
+	{
+		return myModel;
+	}
 
-  public MavenModel getModel() {
-    return myModel;
-  }
-
-  public Collection<String> getActivatedProfiles() {
-    return myActivatedProfiles;
-  }
+	public MavenExplicitProfiles getActivatedProfiles()
+	{
+		return myActivatedProfiles;
+	}
 }
