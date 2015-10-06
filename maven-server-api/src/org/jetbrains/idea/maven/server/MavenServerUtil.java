@@ -15,44 +15,57 @@
  */
 package org.jetbrains.idea.maven.server;
 
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Properties;
+
 import com.intellij.openapi.util.SystemInfo;
 
-import java.util.*;
+public class MavenServerUtil
+{
+	private static final Properties ourSystemPropertiesCache;
 
-public class MavenServerUtil {
-  private static final Properties mySystemPropertiesCache;
+	static
+	{
+		Properties res = new Properties();
+		res.putAll(System.getProperties());
 
-  static {
-    Properties res = new Properties();
-    res.putAll(System.getProperties());
-    
-    for (Iterator<Object> itr = res.keySet().iterator(); itr.hasNext(); ) {
-      String propertyName = itr.next().toString();
-      if (propertyName.startsWith("idea.")) {
-        itr.remove();
-      }
-    }
+		for(Iterator<Object> itr = res.keySet().iterator(); itr.hasNext(); )
+		{
+			String propertyName = itr.next().toString();
+			if(propertyName.startsWith("idea."))
+			{
+				itr.remove();
+			}
+		}
 
-    for (Map.Entry<String, String> entry : System.getenv().entrySet()) {
-      String key = entry.getKey();
+		for(Map.Entry<String, String> entry : System.getenv().entrySet())
+		{
+			String key = entry.getKey();
 
-      if (isMagicalProperty(key)) continue;
+			if(isMagicalProperty(key))
+			{
+				continue;
+			}
 
-      if (SystemInfo.isWindows) {
-        key = key.toUpperCase();
-      }
+			if(SystemInfo.isWindows)
+			{
+				key = key.toUpperCase();
+			}
 
-      res.setProperty("env." + key, entry.getValue());
-    }
+			res.setProperty("env." + key, entry.getValue());
+		}
 
-    mySystemPropertiesCache = res;
-  }
+		ourSystemPropertiesCache = res;
+	}
 
-  public static Properties collectSystemProperties() {
-    return mySystemPropertiesCache;
-  }
+	public static Properties collectSystemProperties()
+	{
+		return ourSystemPropertiesCache;
+	}
 
-  private static boolean isMagicalProperty(String key) {
-    return key.startsWith("=");
-  }
+	private static boolean isMagicalProperty(String key)
+	{
+		return key.startsWith("=");
+	}
 }
