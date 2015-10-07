@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2009 JetBrains s.r.o.
+ * Copyright 2000-2015 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,113 +15,145 @@
  */
 package org.jetbrains.idea.maven.indices;
 
-import com.intellij.openapi.util.io.FileUtil;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.jetbrains.idea.maven.project.MavenGeneralSettings;
-import org.jetbrains.idea.maven.server.MavenIndexerWrapper;
-import org.jetbrains.idea.maven.server.MavenServerManager;
-import org.jetbrains.idea.maven.utils.MavenLog;
-import org.jetbrains.idea.maven.utils.MavenProcessCanceledException;
-import org.jetbrains.idea.maven.utils.MavenProgressIndicator;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class MavenIndices {
-  private final MavenIndexerWrapper myIndexer;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.idea.maven.project.MavenGeneralSettings;
+import org.jetbrains.idea.maven.server.MavenIndexerWrapper;
+import org.jetbrains.idea.maven.utils.MavenLog;
+import org.jetbrains.idea.maven.utils.MavenProcessCanceledException;
+import org.jetbrains.idea.maven.utils.MavenProgressIndicator;
+import com.intellij.openapi.util.io.FileUtil;
 
-  private final File myIndicesDir;
-  private final MavenIndex.IndexListener myListener;
+public class MavenIndices
+{
+	private final MavenIndexerWrapper myIndexer;
 
-  private final List<MavenIndex> myIndices = new ArrayList<MavenIndex>();
-  private static final Object ourDirectoryLock = new Object();
+	private final File myIndicesDir;
+	private final MavenIndex.IndexListener myListener;
 
-  public MavenIndices(MavenIndexerWrapper indexer, File indicesDir, MavenIndex.IndexListener listener) {
-    myIndexer = indexer;
-    myIndicesDir = indicesDir;
-    myListener = listener;
+	private final List<MavenIndex> myIndices = new ArrayList<MavenIndex>();
+	private static final Object ourDirectoryLock = new Object();
 
-    load();
-  }
+	public MavenIndices(MavenIndexerWrapper indexer, File indicesDir, MavenIndex.IndexListener listener)
+	{
+		myIndexer = indexer;
+		myIndicesDir = indicesDir;
+		myListener = listener;
 
-  private void load() {
-    File[] indices = myIndicesDir.listFiles();
-    if (indices == null) return;
-    Arrays.sort(indices);
+		load();
+	}
 
-    for (File each : indices) {
-      if (!each.isDirectory()) continue;
+	private void load()
+	{
+		File[] indices = myIndicesDir.listFiles();
+		if(indices == null)
+		{
+			return;
+		}
+		Arrays.sort(indices);
 
-      try {
-        MavenIndex index = new MavenIndex(myIndexer, each, myListener);
-        if (find(index.getRepositoryId(), index.getRepositoryPathOrUrl(), index.getKind()) != null) {
-          index.close(true);
-          FileUtil.delete(each);
-          continue;
-        }
-        myIndices.add(index);
-      }
-      catch (Exception e) {
-        FileUtil.delete(each);
-        MavenLog.LOG.warn(e);
-      }
-    }
-  }
+		for(File each : indices)
+		{
+			if(!each.isDirectory())
+			{
+				continue;
+			}
 
-  public synchronized void close() {
-    for (MavenIndex each : myIndices) {
-      each.close(false);
-    }
-    myIndices.clear();
-  }
+			try
+			{
+				MavenIndex index = new MavenIndex(myIndexer, each, myListener);
+				if(find(index.getRepositoryPathOrUrl(), index.getKind()) != null)
+				{
+					index.close(true);
+					FileUtil.delete(each);
+					continue;
+				}
+				myIndices.add(index);
+			}
+			catch(Exception e)
+			{
+				FileUtil.delete(each);
+				MavenLog.LOG.warn(e);
+			}
+		}
+	}
 
-  public synchronized List<MavenIndex> getIndices() {
-    return new ArrayList<MavenIndex>(myIndices);
-  }
+	public synchronized void close()
+	{
+		for(MavenIndex each : myIndices)
+		{
+			each.close(false);
+		}
+		myIndices.clear();
+	}
 
-  public synchronized MavenIndex add(String repositoryId, String repositoryPathOrUrl, MavenIndex.Kind kind) throws MavenIndexException {
-    MavenIndex index = find(repositoryId, repositoryPathOrUrl, kind);
-    if (index != null) return index;
+	public synchronized List<MavenIndex> getIndices()
+	{
+		return new ArrayList<MavenIndex>(myIndices);
+	}
 
-    File dir = createNewIndexDir();
-    index = new MavenIndex(myIndexer, dir, repositoryId, repositoryPathOrUrl, kind, myListener);
-    myIndices.add(index);
-    return index;
-  }
+	public synchronized MavenIndex add(String repositoryId, String repositoryPathOrUrl, MavenIndex.Kind kind) throws MavenIndexException
+	{
+		MavenIndex index = find(repositoryPathOrUrl, kind);
+		if(index != null)
+		{
+			index.registerId(repositoryId);
+			return index;
+		}
 
-  @Nullable
-  public MavenIndex find(String repositoryId, String repositoryPathOrUrl, MavenIndex.Kind kind) {
-    for (MavenIndex each : myIndices) {
-      if (each.isFor(kind, repositoryId, repositoryPathOrUrl)) return each;
-    }
-    return null;
-  }
+		File dir = createNewIndexDir();
+		index = new MavenIndex(myIndexer, dir, repositoryId, repositoryPathOrUrl, kind, myListener);
+		myIndices.add(index);
+		return index;
+	}
 
-  private File createNewIndexDir() {
-    return createNewDir(myIndicesDir, "Index", 1000);
-  }
+	@Nullable
+	public MavenIndex find(String repositoryPathOrUrl, MavenIndex.Kind kind)
+	{
+		for(MavenIndex each : myIndices)
+		{
+			if(each.isFor(kind, repositoryPathOrUrl))
+			{
+				return each;
+			}
+		}
+		return null;
+	}
 
-  @NotNull
-  static File createNewDir(File parent, String prefix, int max) {
-    synchronized (ourDirectoryLock) {
-      for (int i = 0; i < max; i++) {
-        String name = prefix + i;
-        File f = new File(parent, name);
-        if (!f.exists()) {
-          boolean createSuccessFull = f.mkdirs();
-          assert createSuccessFull || f.exists();
-          return f;
-        }
-      }
-      throw new RuntimeException("No available dir found");
-    }
-  }
+	private File createNewIndexDir()
+	{
+		return createNewDir(myIndicesDir, "Index", 1000);
+	}
 
-  public static void updateOrRepair(MavenIndex index, boolean fullUpdate, MavenGeneralSettings settings, MavenProgressIndicator progress)
-    throws MavenProcessCanceledException {
-    index.updateOrRepair(fullUpdate, settings, progress);
-  }
+	@NotNull
+	static File createNewDir(File parent, String prefix, int max)
+	{
+		synchronized(ourDirectoryLock)
+		{
+			for(int i = 0; i < max; i++)
+			{
+				String name = prefix + i;
+				File f = new File(parent, name);
+				if(!f.exists())
+				{
+					boolean createSuccessFull = f.mkdirs();
+					if(createSuccessFull)
+					{
+						return f;
+					}
+				}
+			}
+			throw new RuntimeException("No available dir found");
+		}
+	}
+
+	public static void updateOrRepair(MavenIndex index, boolean fullUpdate, MavenGeneralSettings settings, MavenProgressIndicator progress) throws MavenProcessCanceledException
+	{
+		index.updateOrRepair(fullUpdate, settings, progress);
+	}
 }

@@ -42,6 +42,12 @@
           </element>
           <element id="file-copy" path="$PROJECT_DIR$/lib/plexus-archiver-2.4.4.jar" />
           <element id="file-copy" path="$PROJECT_DIR$/maven-server-api/lib/lucene-core-2.4.1.jar" />
+          <element id="directory" name="maven3-server-lib">
+            <element id="dir-copy" path="$PROJECT_DIR$/maven3-server-common/lib" />
+          </element>
+          <element id="directory" name="maven2-server-lib">
+            <element id="dir-copy" path="$PROJECT_DIR$/maven2-server-impl/lib" />
+          </element>
         </element>
         <element id="dir-copy" path="$PROJECT_DIR$/dist" />
       </element>

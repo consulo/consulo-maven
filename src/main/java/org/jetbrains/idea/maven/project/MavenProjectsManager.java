@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2012 JetBrains s.r.o.
+ * Copyright 2000-2015 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,24 +18,24 @@ package org.jetbrains.idea.maven.project;
 import gnu.trove.THashMap;
 import gnu.trove.THashSet;
 
-import java.io.BufferedOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.jdom.Document;
-import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.TestOnly;
 import org.jetbrains.concurrency.AsyncPromise;
 import org.jetbrains.concurrency.Promise;
-import org.jetbrains.idea.maven.dom.references.MavenFilteredPropertyPsiReferenceProvider;
 import org.jetbrains.idea.maven.importing.MavenDefaultModifiableModelsProvider;
 import org.jetbrains.idea.maven.importing.MavenFoldersImporter;
 import org.jetbrains.idea.maven.importing.MavenModifiableModelsProvider;
@@ -46,13 +46,8 @@ import org.jetbrains.idea.maven.model.MavenExplicitProfiles;
 import org.jetbrains.idea.maven.model.MavenId;
 import org.jetbrains.idea.maven.model.MavenProfileKind;
 import org.jetbrains.idea.maven.model.MavenRemoteRepository;
-import org.jetbrains.idea.maven.model.MavenResource;
-import org.jetbrains.idea.maven.model.impl.MavenIdBean;
-import org.jetbrains.idea.maven.model.impl.MavenModuleResourceConfiguration;
-import org.jetbrains.idea.maven.model.impl.MavenProjectConfiguration;
-import org.jetbrains.idea.maven.model.impl.ResourceRootConfiguration;
+import org.jetbrains.idea.maven.server.MavenEmbedderWrapper;
 import org.jetbrains.idea.maven.server.NativeMavenProjectHolder;
-import org.jetbrains.idea.maven.utils.MavenJDOMUtil;
 import org.jetbrains.idea.maven.utils.MavenLog;
 import org.jetbrains.idea.maven.utils.MavenMergingUpdateQueue;
 import org.jetbrains.idea.maven.utils.MavenProcessCanceledException;
@@ -61,8 +56,8 @@ import org.jetbrains.idea.maven.utils.MavenSimpleProjectComponent;
 import org.jetbrains.idea.maven.utils.MavenTask;
 import org.jetbrains.idea.maven.utils.MavenUtil;
 import org.mustbe.consulo.maven.module.extension.MavenModuleExtension;
-import com.intellij.compiler.server.BuildManager;
 import com.intellij.ide.startup.StartupManagerEx;
+import com.intellij.notification.NotificationGroup;
 import com.intellij.openapi.application.AccessToken;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ReadAction;
@@ -77,11 +72,9 @@ import com.intellij.openapi.module.ModuleUtilCore;
 import com.intellij.openapi.project.DumbAwareRunnable;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ModuleRootManager;
-import com.intellij.openapi.roots.ProjectFileIndex;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.util.AsyncResult;
 import com.intellij.openapi.util.Disposer;
-import com.intellij.openapi.util.JDOMUtil;
 import com.intellij.openapi.util.ModificationTracker;
 import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.util.Ref;
@@ -90,15 +83,17 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.util.Alarm;
 import com.intellij.util.EventDispatcher;
+import com.intellij.util.NullableConsumer;
+import com.intellij.util.ObjectUtils;
 import com.intellij.util.containers.ContainerUtil;
-import com.intellij.util.ui.UIUtil;
 import com.intellij.util.ui.update.Update;
-import com.intellij.util.xmlb.XmlSerializer;
 
 @State(name = "MavenProjectsManager", storages = {@Storage(file = StoragePathMacros.PROJECT_FILE)})
 public class MavenProjectsManager extends MavenSimpleProjectComponent implements PersistentStateComponent<MavenProjectsManagerState>, SettingsSavingComponent
 {
 	private static final int IMPORT_DELAY = 1000;
+	private static final String NON_MANAGED_POM_NOTIFICATION_GROUP_ID = "Maven: non-managed pom.xml";
+	private static final NotificationGroup NON_MANAGED_POM_NOTIFICATION_GROUP = NotificationGroup.balloonGroup(NON_MANAGED_POM_NOTIFICATION_GROUP_ID);
 
 	private final AtomicBoolean isInitialized = new AtomicBoolean();
 
@@ -437,6 +432,17 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 				{
 					scheduleForNextImport(toImport);
 				}
+
+				if(!deleted.isEmpty() && !hasScheduledProjects())
+				{
+					MavenProject project = ObjectUtils.chooseNotNull(ContainerUtil.getFirstItem(toResolve), ContainerUtil.getFirstItem(getNonIgnoredProjects()));
+					if(project != null)
+					{
+						scheduleForNextImport(Pair.create(project, MavenProjectChanges.ALL));
+						scheduleForNextResolve(ContainerUtil.list(project));
+					}
+				}
+
 				scheduleForNextResolve(toResolve);
 
 				fireProjectScheduled();
@@ -589,6 +595,12 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 	public void addManagedFiles(@NotNull List<VirtualFile> files)
 	{
 		addManagedFilesWithProfiles(files, MavenExplicitProfiles.NONE);
+	}
+
+	public void addManagedFilesOrUnignore(@NotNull List<VirtualFile> files)
+	{
+		removeIgnoredFilesPaths(MavenUtil.collectPaths(files));
+		addManagedFiles(files);
 	}
 
 	public void removeManagedFiles(@NotNull List<VirtualFile> files)
@@ -823,6 +835,15 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 		myProjectsTree.setIgnoredFilesPaths(paths);
 	}
 
+	public void removeIgnoredFilesPaths(final Collection<String> paths)
+	{
+		if(!isInitialized())
+		{
+			return;
+		}
+		myProjectsTree.removeIgnoredFilesPaths(paths);
+	}
+
 	public boolean getIgnoredState(@NotNull MavenProject project)
 	{
 		if(!isInitialized())
@@ -893,9 +914,9 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 		doScheduleUpdateProjects(null, false, forceImportAndResolve);
 	}
 
-	public void forceUpdateProjects(@NotNull Collection<MavenProject> projects)
+	public AsyncPromise<Void> forceUpdateProjects(@NotNull Collection<MavenProject> projects)
 	{
-		doScheduleUpdateProjects(projects, true, true);
+		return doScheduleUpdateProjects(projects, true, true);
 	}
 
 	public void forceUpdateAllProjectsOrFindAllAvailablePomFiles()
@@ -907,8 +928,9 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 		doScheduleUpdateProjects(null, true, true);
 	}
 
-	private void doScheduleUpdateProjects(final Collection<MavenProject> projects, final boolean forceUpdate, final boolean forceImportAndResolve)
+	private AsyncPromise<Void> doScheduleUpdateProjects(final Collection<MavenProject> projects, final boolean forceUpdate, final boolean forceImportAndResolve)
 	{
+		final AsyncPromise<Void> promise = new AsyncPromise<Void>();
 		MavenUtil.runWhenInitialized(myProject, new DumbAwareRunnable()
 		{
 			@Override
@@ -916,14 +938,15 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 			{
 				if(projects == null)
 				{
-					myWatcher.scheduleUpdateAll(forceUpdate, forceImportAndResolve);
+					myWatcher.scheduleUpdateAll(forceUpdate, forceImportAndResolve).processed(promise);
 				}
 				else
 				{
-					myWatcher.scheduleUpdate(MavenUtil.collectFiles(projects), Collections.<VirtualFile>emptyList(), forceUpdate, forceImportAndResolve);
+					myWatcher.scheduleUpdate(MavenUtil.collectFiles(projects), Collections.<VirtualFile>emptyList(), forceUpdate, forceImportAndResolve).processed(promise);
 				}
 			}
 		});
+		return promise;
 	}
 
 	/**
@@ -978,6 +1001,45 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 			}
 		});
 		return result;
+	}
+
+	public void evaluateEffectivePom(@NotNull final MavenProject mavenProject, @NotNull final NullableConsumer<String> consumer)
+	{
+		runWhenFullyOpen(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				myResolvingProcessor.scheduleTask(new MavenProjectsProcessorTask()
+				{
+					@Override
+					public void perform(Project project, MavenEmbeddersManager embeddersManager, MavenConsole console, MavenProgressIndicator indicator) throws MavenProcessCanceledException
+					{
+
+						indicator.setText("Evaluating effective POM");
+
+						myProjectsTree.executeWithEmbedder(mavenProject, getEmbeddersManager(), MavenEmbeddersManager.FOR_DEPENDENCIES_RESOLVE, console, indicator,
+								new MavenProjectsTree.EmbedderTask()
+						{
+							@Override
+							public void run(MavenEmbedderWrapper embedder) throws MavenProcessCanceledException
+							{
+								try
+								{
+									MavenExplicitProfiles profiles = mavenProject.getActivatedProfilesIds();
+									String res = embedder.evaluateEffectivePom(mavenProject.getFile(), profiles.getEnabledProfiles(), profiles.getDisabledProfiles());
+									consumer.consume(res);
+								}
+								catch(UnsupportedOperationException e)
+								{
+									consumer.consume(null); // null means UnsupportedOperationException
+								}
+							}
+						});
+					}
+				});
+			}
+		});
 	}
 
 	@TestOnly
@@ -1288,12 +1350,7 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 
 	public void updateProjectTargetFolders()
 	{
-		updateProjectFolders(true);
-	}
-
-	private void updateProjectFolders(final boolean targetFoldersOnly)
-	{
-		UIUtil.invokeLaterIfNeeded(new Runnable()
+		ApplicationManager.getApplication().invokeLater(new Runnable()
 		{
 			@Override
 			public void run()
@@ -1303,7 +1360,7 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 					return;
 				}
 
-				MavenFoldersImporter.updateProjectFolders(myProject, targetFoldersOnly);
+				MavenFoldersImporter.updateProjectFolders(myProject, true);
 				VirtualFileManager.getInstance().asyncRefresh(null);
 			}
 		});
@@ -1386,201 +1443,7 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 		return projectImporter.getCreatedModules();
 	}
 
-	public void generateBuildConfiguration(boolean force)
-	{
-		if(!isMavenizedProject())
-		{
-			return;
-		}
-		final BuildManager buildManager = BuildManager.getInstance();
-		final File projectSystemDir = buildManager.getProjectSystemDirectory(myProject);
-		if(projectSystemDir == null)
-		{
-			return;
-		}
-
-		final File mavenConfigFile = new File(projectSystemDir, MavenProjectConfiguration.CONFIGURATION_FILE_RELATIVE_PATH);
-
-		ProjectFileIndex fileIndex = ProjectRootManager.getInstance(myProject).getFileIndex();
-
-		final int crc = myProjectsTree.getFilterConfigCrc(fileIndex);
-
-		final File crcFile = new File(mavenConfigFile.getParent(), "configuration.crc");
-
-		if(!force)
-		{
-			try
-			{
-				DataInputStream crcInput = new DataInputStream(new FileInputStream(crcFile));
-				try
-				{
-					if(crcInput.readInt() == crc)
-					{
-						return; // Project had not change since last config generation.
-					}
-				}
-				finally
-				{
-					crcInput.close();
-				}
-			}
-			catch(IOException ignored)
-			{
-				// // Config file is not generated.
-			}
-		}
-
-		MavenProjectConfiguration projectConfig = new MavenProjectConfiguration();
-
-		for(MavenProject mavenProject : getProjects())
-		{
-			VirtualFile pomXml = mavenProject.getFile();
-
-			Module module = fileIndex.getModuleForFile(pomXml);
-			if(module == null)
-			{
-				continue;
-			}
-
-			if(mavenProject.getDirectoryFile() != fileIndex.getContentRootForFile(pomXml))
-			{
-				continue;
-			}
-
-			MavenModuleResourceConfiguration resourceConfig = new MavenModuleResourceConfiguration();
-
-			MavenId projectId = mavenProject.getMavenId();
-			resourceConfig.id = new MavenIdBean(projectId.getGroupId(), projectId.getArtifactId(), projectId.getVersion());
-
-			MavenId parentId = mavenProject.getParentId();
-			if(parentId != null)
-			{
-				resourceConfig.parentId = new MavenIdBean(parentId.getGroupId(), parentId.getArtifactId(), parentId.getVersion());
-			}
-			resourceConfig.directory = FileUtil.toSystemIndependentName(mavenProject.getDirectory());
-			resourceConfig.delimitersPattern = MavenFilteredPropertyPsiReferenceProvider.getDelimitersPattern(mavenProject).pattern();
-			for(Map.Entry<String, String> entry : mavenProject.getModelMap().entrySet())
-			{
-				String key = entry.getKey();
-				String value = entry.getValue();
-				if(value != null)
-				{
-					resourceConfig.modelMap.put(key, value);
-				}
-			}
-			addResources(resourceConfig.resources, mavenProject.getResources());
-			addResources(resourceConfig.testResources, mavenProject.getTestResources());
-			resourceConfig.filteringExclusions.addAll(MavenProjectsTree.getFilterExclusions(mavenProject));
-			final Properties properties = getFilteringProperties(mavenProject);
-			for(Map.Entry<Object, Object> propEntry : properties.entrySet())
-			{
-				resourceConfig.properties.put((String) propEntry.getKey(), (String) propEntry.getValue());
-			}
-
-			Element pluginConfiguration = mavenProject.getPluginConfiguration("org.apache.maven.plugins", "maven-resources-plugin");
-			resourceConfig.escapeString = MavenJDOMUtil.findChildValueByPath(pluginConfiguration, "escapeString", "\\");
-			String escapeWindowsPaths = MavenJDOMUtil.findChildValueByPath(pluginConfiguration, "escapeWindowsPaths");
-			if(escapeWindowsPaths != null)
-			{
-				resourceConfig.escapeWindowsPaths = Boolean.parseBoolean(escapeWindowsPaths);
-			}
-
-			projectConfig.moduleConfigurations.put(module.getName(), resourceConfig);
-		}
-
-		final Document document = new Document(new Element("maven-project-configuration"));
-		XmlSerializer.serializeInto(projectConfig, document.getRootElement());
-		buildManager.runCommand(new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				buildManager.clearState(myProject);
-				FileUtil.createIfDoesntExist(mavenConfigFile);
-				try
-				{
-					JDOMUtil.writeDocument(document, mavenConfigFile, "\n");
-
-					DataOutputStream crcOutput = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(crcFile)));
-					try
-					{
-						crcOutput.writeInt(crc);
-					}
-					finally
-					{
-						crcOutput.close();
-					}
-				}
-				catch(IOException e)
-				{
-					throw new RuntimeException(e);
-				}
-			}
-		});
-	}
-
-	private static void addResources(final List<ResourceRootConfiguration> container, Collection<MavenResource> resources)
-	{
-		for(MavenResource resource : resources)
-		{
-			final String dir = resource.getDirectory();
-			if(dir == null)
-			{
-				continue;
-			}
-
-			final ResourceRootConfiguration props = new ResourceRootConfiguration();
-			props.directory = FileUtil.toSystemIndependentName(dir);
-
-			final String target = resource.getTargetPath();
-			props.targetPath = target != null ? FileUtil.toSystemIndependentName(target) : null;
-
-			props.isFiltered = resource.isFiltered();
-			props.includes.clear();
-			for(String include : resource.getIncludes())
-			{
-				props.includes.add(include.trim());
-			}
-			props.excludes.clear();
-			for(String exclude : resource.getExcludes())
-			{
-				props.excludes.add(exclude.trim());
-			}
-			container.add(props);
-		}
-	}
-
-	private static Properties getFilteringProperties(MavenProject mavenProject)
-	{
-		final Properties properties = new Properties();
-
-		for(String each : mavenProject.getFilters())
-		{
-			try
-			{
-				FileInputStream in = new FileInputStream(each);
-				try
-				{
-					properties.load(in);
-				}
-				finally
-				{
-					in.close();
-				}
-			}
-			catch(IOException ignored)
-			{
-			}
-		}
-
-		properties.putAll(mavenProject.getProperties());
-
-		properties.put("settings.localRepository", mavenProject.getLocalRepository().getAbsolutePath());
-
-		return properties;
-	}
-
-	private Map<VirtualFile, Module> getFileToModuleMapping(MavenModelsProvider modelsProvider)
+	private static Map<VirtualFile, Module> getFileToModuleMapping(MavenModelsProvider modelsProvider)
 	{
 		Map<VirtualFile, Module> result = new THashMap<VirtualFile, Module>();
 		for(Module each : modelsProvider.getModules())

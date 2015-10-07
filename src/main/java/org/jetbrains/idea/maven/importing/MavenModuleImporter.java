@@ -28,12 +28,15 @@ import org.jetbrains.idea.maven.model.MavenConstants;
 import org.jetbrains.idea.maven.project.MavenImportingSettings;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectChanges;
+import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.project.MavenProjectsProcessorTask;
 import org.jetbrains.idea.maven.project.MavenProjectsTree;
 import org.jetbrains.idea.maven.project.SupportedRequestType;
 import org.jetbrains.idea.maven.utils.MavenUtil;
 import org.mustbe.consulo.java.module.extension.JavaMutableModuleExtensionImpl;
 import org.mustbe.consulo.maven.module.extension.MavenMutableModuleExtension;
+import com.intellij.openapi.application.AccessToken;
+import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.projectRoots.JavaSdk;
 import com.intellij.openapi.projectRoots.JavaSdkVersion;
@@ -56,7 +59,6 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.util.ArchiveVfsUtil;
 import com.intellij.pom.java.LanguageLevel;
 import com.intellij.util.containers.ContainerUtil;
-import lombok.val;
 
 public class MavenModuleImporter
 {
@@ -101,12 +103,12 @@ public class MavenModuleImporter
 		myRootModelAdapter = new MavenRootModelAdapter(myMavenProject, myModule, myModifiableModelsProvider);
 		myRootModelAdapter.init(isNewlyCreatedModule);
 
-		val rootModel = myModifiableModelsProvider.getRootModel(myModule);
+		final ModifiableRootModel rootModel = myModifiableModelsProvider.getRootModel(myModule);
 
 		JavaMutableModuleExtensionImpl javaModuleExtension = rootModel.getExtensionWithoutCheck(JavaMutableModuleExtensionImpl.class);
 		javaModuleExtension.setEnabled(true);
 
-		val languageLevel = LanguageLevel.parse(myMavenProject.getSourceLevel());
+		final LanguageLevel languageLevel = LanguageLevel.parse(myMavenProject.getSourceLevel());
 
 		final JavaSdk javaSdk = JavaSdk.getInstance();
 		List<Sdk> sdksOfType = SdkTable.getInstance().getSdksOfType(javaSdk);
@@ -242,6 +244,21 @@ public class MavenModuleImporter
 	private void configDependencies()
 	{
 		THashSet<String> dependencyTypesFromSettings = new THashSet<String>();
+
+		AccessToken accessToken = ReadAction.start();
+		try
+		{
+			if(myModule.getProject().isDisposed())
+			{
+				return;
+			}
+
+			dependencyTypesFromSettings.addAll(MavenProjectsManager.getInstance(myModule.getProject()).getImportingSettings().getDependencyTypesAsSet());
+		}
+		finally
+		{
+			accessToken.finish();
+		}
 
 		for(MavenArtifact artifact : myMavenProject.getDependencies())
 		{

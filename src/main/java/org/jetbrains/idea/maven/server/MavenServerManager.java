@@ -449,72 +449,35 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
 		final String currentMavenVersion = forceMaven2 ? "2.2.1" : getCurrentMavenVersion();
 		File mavenHome = forceMaven2 ? myBundledMaven2Home : currentMavenVersion == null ? myBundledMaven3Home : getCurrentMavenHomeFile();
 
-		final File pluginFileOrDir = new File(PathUtil.getJarPathForClass(MavenServerManager.class));
+		File pluginPath = PluginManager.getPluginPath(getClass());
+		File libDir = new File(pluginPath, "lib");
+
 		final List<File> classpath = new ArrayList<File>();
-		final String root = pluginFileOrDir.getParent();
 
-		if(pluginFileOrDir.isDirectory())
+		classpath.add(new File(libDir, "maven-server-api.jar"));
+
+		if(forceMaven2 || (currentMavenVersion != null && StringUtil.compareVersionNumbers(currentMavenVersion, "3") < 0))
 		{
-			classpath.add(new File(root, "maven-server-api"));
-			File parentFile = getMavenPluginParentFile();
-			if(forceMaven2 || (currentMavenVersion != null && StringUtil.compareVersionNumbers(currentMavenVersion, "3") < 0))
-			{
-				classpath.add(new File(root, "maven2-server-impl"));
-				addDir(classpath, new File(parentFile, "maven2-server-impl/lib"));
-				// use bundled maven 2.2.1 for all 2.0.x version (since we use org.apache.maven.project.interpolation.StringSearchModelInterpolator introduced in 2.1.0)
-				if(StringUtil.compareVersionNumbers(currentMavenVersion, "2.1.0") < 0)
-				{
-					mavenHome = myBundledMaven2Home;
-				}
-			}
-			else
-			{
-				classpath.add(new File(root, "maven3-server-common"));
-				addDir(classpath, new File(parentFile, "maven3-server-common/lib"));
-
-				if(currentMavenVersion == null || StringUtil.compareVersionNumbers(currentMavenVersion, "3.1") < 0)
-				{
-					classpath.add(new File(root, "maven30-server-impl"));
-				}
-				else
-				{
-					classpath.add(new File(root, "maven32-server-impl"));
-				}
-			}
+			classpath.add(new File(libDir, "maven2-server-impl.jar"));
+			addDir(classpath, new File(libDir, "maven2-server-lib"));
 		}
 		else
 		{
-			classpath.add(new File(root, "maven-server-api.jar"));
+			classpath.add(new File(libDir, "maven3-server-common.jar"));
+			addDir(classpath, new File(libDir, "maven3-server-lib"));
 
-			if(forceMaven2 || (currentMavenVersion != null && StringUtil.compareVersionNumbers(currentMavenVersion, "3") < 0))
+			if(currentMavenVersion == null || StringUtil.compareVersionNumbers(currentMavenVersion, "3.1") < 0)
 			{
-				classpath.add(new File(root, "maven2-server-impl.jar"));
-				addDir(classpath, new File(root, "maven2-server-lib"));
+				classpath.add(new File(libDir, "maven30-server-impl.jar"));
 			}
 			else
 			{
-				classpath.add(new File(root, "maven3-server-common.jar"));
-				addDir(classpath, new File(root, "maven3-server-lib"));
-
-				if(currentMavenVersion == null || StringUtil.compareVersionNumbers(currentMavenVersion, "3.1") < 0)
-				{
-					classpath.add(new File(root, "maven30-server-impl.jar"));
-				}
-				else
-				{
-					classpath.add(new File(root, "maven32-server-impl.jar"));
-				}
+				classpath.add(new File(libDir, "maven32-server-impl.jar"));
 			}
 		}
 
 		addMavenLibs(classpath, mavenHome);
 		return classpath;
-	}
-
-	private static File getMavenPluginParentFile()
-	{
-		File luceneLib = new File(PathUtil.getJarPathForClass(Query.class));
-		return luceneLib.getParentFile().getParentFile().getParentFile();
 	}
 
 	private static void addMavenLibs(List<File> classpath, File mavenHome)

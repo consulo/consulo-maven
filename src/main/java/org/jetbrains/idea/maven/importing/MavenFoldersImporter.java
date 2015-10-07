@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.idea.maven.model.MavenResource;
 import org.jetbrains.idea.maven.project.MavenImportingSettings;
@@ -43,7 +44,6 @@ import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.util.ArrayUtil;
 import com.intellij.util.containers.MultiMap;
-import lombok.val;
 
 public class MavenFoldersImporter
 {
@@ -166,13 +166,13 @@ public class MavenFoldersImporter
 
 	private void addBuilderHelperPaths(String goal, ContentFolderTypeProvider typeProvider, MultiMap<ContentFolderTypeProvider, String> folders)
 	{
-		val configurationElement = myMavenProject.getPluginGoalConfiguration("org.codehaus.mojo", "build-helper-maven-plugin", goal);
+		Element configurationElement = myMavenProject.getPluginGoalConfiguration("org.codehaus.mojo", "build-helper-maven-plugin", goal);
 		if(configurationElement != null)
 		{
-			val sourcesElement = configurationElement.getChild("sources");
+			Element sourcesElement = configurationElement.getChild("sources");
 			if(sourcesElement != null)
 			{
-				for(val element : sourcesElement.getChildren())
+				for(Element element : sourcesElement.getChildren())
 				{
 					folders.putValue(typeProvider, element.getTextTrim());
 				}
