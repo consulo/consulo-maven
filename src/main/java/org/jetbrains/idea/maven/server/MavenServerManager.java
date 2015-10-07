@@ -71,6 +71,7 @@ import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.components.StoragePathMacros;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.JavaSdk;
+import com.intellij.openapi.projectRoots.JavaSdkVersion;
 import com.intellij.openapi.projectRoots.JdkUtil;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.projectRoots.SdkTable;
@@ -155,7 +156,7 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
 			}
 
 			@Override
-			protected RunProfileState getRunProfileState(Object target, Object configuration, Executor executor)
+			protected RunProfileState getRunProfileState(Object target, Object configuration, Executor executor) throws ExecutionException
 			{
 				return createRunProfileState();
 			}
@@ -242,8 +243,8 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
 		myShutdownAlarm.cancelAllRequests();
 	}
 
-	@NotNull
-	private Sdk getJdk()
+	@Nullable
+	private Sdk getJdk(boolean forceUseJava7)
 	{
 		if(myState.embedderJdk.equals(MavenRunnerSettings.USE_JAVA_HOME))
 		{
@@ -258,27 +259,42 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
 			}
 		}
 
-		for(Sdk projectJdk : SdkTable.getInstance().getAllSdks())
+		for(Sdk sdk : SdkTable.getInstance().getAllSdks())
 		{
-			if(projectJdk.getName().equals(myState.embedderJdk))
+			if(sdk.getName().equals(myState.embedderJdk))
 			{
-				return projectJdk;
+				return sdk;
 			}
 		}
 
-		return SdkTable.getInstance().findPredefinedSdkByType(JavaSdk.getInstance());
+		List<Sdk> sdksOfType = SdkTable.getInstance().getSdksOfType(JavaSdk.getInstance());
+		for(Sdk sdk : sdksOfType)
+		{
+			if(sdk.isPredefined())
+			{
+				if(!forceUseJava7)
+				{
+					return sdk;
+				}
+
+				JavaSdkVersion version = JavaSdk.getInstance().getVersion(sdk);
+				if(version != null && version.ordinal() >= JavaSdkVersion.JDK_1_7.ordinal())
+				{
+					return sdk;
+				}
+			}
+		}
+		return null;
 	}
 
-	private RunProfileState createRunProfileState()
+	private RunProfileState createRunProfileState() throws ExecutionException
 	{
 		return new CommandLineState(null)
 		{
-			private SimpleJavaParameters createJavaParameters()
+			@Nullable
+			private SimpleJavaParameters createJavaParameters() throws ExecutionException
 			{
 				final SimpleJavaParameters params = new SimpleJavaParameters();
-
-				final Sdk jdk = getJdk();
-				params.setJdk(jdk);
 
 				params.setWorkingDirectory(PathManager.getBinPath());
 
@@ -339,9 +355,18 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
 				}
 
 				final String currentMavenVersion = forceMaven2 ? "2.2.1" : getCurrentMavenVersion();
+				boolean forceUseJava7 = StringUtil.compareVersionNumbers(currentMavenVersion, "3.3.1") >= 0;
+
+				final Sdk jdk = getJdk(forceUseJava7);
+				if(jdk == null)
+				{
+					throw new ExecutionException("JDK for run is not found");
+				}
+				params.setJdk(jdk);
+
 				params.getVMParametersList().addProperty(MavenServerEmbedder.MAVEN_EMBEDDER_VERSION, currentMavenVersion);
 				String version = JdkUtil.getJdkMainAttribute(jdk, Attributes.Name.IMPLEMENTATION_VERSION);
-				if(StringUtil.compareVersionNumbers(currentMavenVersion, "3.3.1") >= 0 && StringUtil.compareVersionNumbers(version, "1.7") < 0)
+				if(forceUseJava7 && StringUtil.compareVersionNumbers(version, "1.7") < 0)
 				{
 					new Notification(MavenUtil.MAVEN_NOTIFICATION_GROUP, "", "Maven 3.3.1+ requires JDK 1.7+. Please set appropriate JDK at <br>" + "Settings | Maven | Importing | JDK for Importer", NotificationType.WARNING).notify(null);
 				}
