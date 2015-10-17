@@ -15,6 +15,14 @@
  */
 package org.jetbrains.idea.maven.execution;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.idea.maven.project.MavenProject;
+import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import com.intellij.execution.ExecutionBundle;
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.RunCanceledByUserException;
@@ -35,14 +43,6 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.Key;
 import com.intellij.util.containers.ContainerUtil;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.jetbrains.idea.maven.project.MavenProject;
-import org.jetbrains.idea.maven.project.MavenProjectsManager;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
 
 /**
  * @author Sergey Evdokimov
@@ -297,7 +297,7 @@ public class MavenResumeAction extends AnAction {
         goals.add(myResumeModuleId);
       }
 
-      myRunner.execute(new ExecutionEnvironmentBuilder(myEnvironment).setContentToReuse(null).build());
+      myRunner.execute(new ExecutionEnvironmentBuilder(myEnvironment).contentToReuse(null).build());
     }
     catch (RunCanceledByUserException ignore) {
     }
