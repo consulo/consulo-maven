@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2009 JetBrains s.r.o.
+ * Copyright 2000-2014 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,6 +36,7 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.idea.maven.execution.MavenGoalLocation;
 import org.jetbrains.idea.maven.model.MavenArtifact;
 import org.jetbrains.idea.maven.model.MavenConstants;
+import org.jetbrains.idea.maven.model.MavenProfileKind;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.utils.MavenDataKeys;
@@ -165,11 +166,11 @@ public class MavenProjectsNavigatorPanel extends SimpleToolWindowPanel implement
 			return myProject;
 		}
 
-		if(PlatformDataKeys.VIRTUAL_FILE.is(dataId))
+		if(CommonDataKeys.VIRTUAL_FILE.is(dataId))
 		{
 			return extractVirtualFile();
 		}
-		if(PlatformDataKeys.VIRTUAL_FILE_ARRAY.is(dataId))
+		if(CommonDataKeys.VIRTUAL_FILE_ARRAY.is(dataId))
 		{
 			return extractVirtualFiles();
 		}
@@ -178,7 +179,7 @@ public class MavenProjectsNavigatorPanel extends SimpleToolWindowPanel implement
 		{
 			return extractLocation();
 		}
-		if(PlatformDataKeys.NAVIGATABLE_ARRAY.is(dataId))
+		if(CommonDataKeys.NAVIGATABLE_ARRAY.is(dataId))
 		{
 			return extractNavigatables();
 		}
@@ -308,10 +309,10 @@ public class MavenProjectsNavigatorPanel extends SimpleToolWindowPanel implement
 	private Object extractProfiles()
 	{
 		final List<MavenProjectsStructure.ProfileNode> nodes = getSelectedNodes(MavenProjectsStructure.ProfileNode.class);
-		final List<String> profiles = new ArrayList<String>();
+		final Map<String, MavenProfileKind> profiles = new THashMap<String, MavenProfileKind>();
 		for(MavenProjectsStructure.ProfileNode node : nodes)
 		{
-			profiles.add(node.getProfileName());
+			profiles.put(node.getProfileName(), node.getState());
 		}
 		return profiles;
 	}
@@ -413,7 +414,7 @@ public class MavenProjectsNavigatorPanel extends SimpleToolWindowPanel implement
 					return false;
 				}
 
-				manager.addManagedFiles(pomFiles);
+				manager.addManagedFilesOrUnignore(pomFiles);
 
 				return true;
 			}
