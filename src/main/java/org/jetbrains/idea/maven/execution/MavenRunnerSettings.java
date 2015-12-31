@@ -28,155 +28,222 @@ import org.jetbrains.annotations.Nullable;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.containers.HashMap;
 
-public class MavenRunnerSettings implements Cloneable {
+public class MavenRunnerSettings implements Cloneable
+{
 
-  @NonNls public static final String USE_INTERNAL_JAVA = "#JAVA_INTERNAL";
-  @NonNls public static final String USE_JAVA_HOME = "#JAVA_HOME";
+	@Deprecated
+	@NonNls
+	public static final String USE_INTERNAL_JAVA = "#JAVA_INTERNAL";
+	@NonNls
+	public static final String USE_JAVA_HOME = "#JAVA_HOME";
 
-  private boolean runMavenInBackground = true;
-  @NotNull private String jreName = USE_INTERNAL_JAVA;
-  @NotNull private String vmOptions = "";
-  private boolean skipTests = false;
-  private Map<String, String> mavenProperties = new LinkedHashMap<String, String>();
+	private boolean runMavenInBackground = true;
+	@NotNull
+	private String jreName = USE_INTERNAL_JAVA;
+	@NotNull
+	private String vmOptions = "";
+	private boolean skipTests = false;
+	private Map<String, String> mavenProperties = new LinkedHashMap<String, String>();
 
-  private Map<String, String> environmentProperties = new HashMap<String, String>();
-  private boolean passParentEnv = true;
+	private Map<String, String> environmentProperties = new HashMap<String, String>();
+	private boolean passParentEnv = true;
 
-  private List<Listener> myListeners = ContainerUtil.createLockFreeCopyOnWriteList();
+	private List<Listener> myListeners = ContainerUtil.createLockFreeCopyOnWriteList();
 
-  public boolean isRunMavenInBackground() {
-    return runMavenInBackground;
-  }
+	public boolean isRunMavenInBackground()
+	{
+		return runMavenInBackground;
+	}
 
-  public void setRunMavenInBackground(boolean runMavenInBackground) {
-    this.runMavenInBackground = runMavenInBackground;
-  }
+	public void setRunMavenInBackground(boolean runMavenInBackground)
+	{
+		this.runMavenInBackground = runMavenInBackground;
+	}
 
-  @NotNull
-  public String getJreName() {
-    return jreName;
-  }
+	@NotNull
+	public String getJreName()
+	{
+		return jreName;
+	}
 
-  public void setJreName(@Nullable String jreName) {
-    if (jreName != null) {
-      this.jreName = jreName;
-    }
-  }
+	public void setJreName(@Nullable String jreName)
+	{
+		if(jreName != null)
+		{
+			this.jreName = jreName;
+		}
+	}
 
-  @NotNull
-  public String getVmOptions() {
-    return vmOptions;
-  }
+	@NotNull
+	public String getVmOptions()
+	{
+		return vmOptions;
+	}
 
-  public void setVmOptions(@Nullable String vmOptions) {
-    if (vmOptions != null) {
-      this.vmOptions = vmOptions;
-    }
-  }
+	public void setVmOptions(@Nullable String vmOptions)
+	{
+		if(vmOptions != null)
+		{
+			this.vmOptions = vmOptions;
+		}
+	}
 
-  public boolean isSkipTests() {
-    return skipTests;
-  }
+	public boolean isSkipTests()
+	{
+		return skipTests;
+	}
 
-  public void setSkipTests(boolean skipTests) {
-    if (skipTests != this.skipTests) fireSkipTestsChanged();
-    this.skipTests = skipTests;
-  }
+	public void setSkipTests(boolean skipTests)
+	{
+		if(skipTests != this.skipTests)
+		{
+			fireSkipTestsChanged();
+		}
+		this.skipTests = skipTests;
+	}
 
-  public Map<String, String> getMavenProperties() {
-    return this.mavenProperties;
-  }
+	public Map<String, String> getMavenProperties()
+	{
+		return this.mavenProperties;
+	}
 
-  @SuppressWarnings({"UnusedDeclaration"})
-  public void setMavenProperties(Map<String, String> mavenProperties) {
-    this.mavenProperties = mavenProperties;
-  }
+	@SuppressWarnings({"UnusedDeclaration"})
+	public void setMavenProperties(Map<String, String> mavenProperties)
+	{
+		this.mavenProperties = mavenProperties;
+	}
 
-  @NotNull
-  public Map<String, String> getEnvironmentProperties() {
-    return environmentProperties;
-  }
+	@NotNull
+	public Map<String, String> getEnvironmentProperties()
+	{
+		return environmentProperties;
+	}
 
-  public void setEnvironmentProperties(@NotNull Map<String, String> envs) {
-    if (envs == environmentProperties) return;
+	public void setEnvironmentProperties(@NotNull Map<String, String> envs)
+	{
+		if(envs == environmentProperties)
+		{
+			return;
+		}
 
-    environmentProperties.clear();
-    environmentProperties.putAll(envs);
-  }
+		environmentProperties.clear();
+		environmentProperties.putAll(envs);
+	}
 
-  public boolean isPassParentEnv() {
-    return passParentEnv;
-  }
+	public boolean isPassParentEnv()
+	{
+		return passParentEnv;
+	}
 
-  public void setPassParentEnv(boolean passParentEnv) {
-    this.passParentEnv = passParentEnv;
-  }
+	public void setPassParentEnv(boolean passParentEnv)
+	{
+		this.passParentEnv = passParentEnv;
+	}
 
-  public void addListener(Listener l) {
-    myListeners.add(l);
-  }
+	public void addListener(Listener l)
+	{
+		myListeners.add(l);
+	}
 
-  public void removeListener(Listener l) {
-    myListeners.remove(l);
-  }
+	public void removeListener(Listener l)
+	{
+		myListeners.remove(l);
+	}
 
-  private void fireSkipTestsChanged() {
-    for (Listener each : myListeners) {
-      each.skipTestsChanged();
-    }
-  }
+	private void fireSkipTestsChanged()
+	{
+		for(Listener each : myListeners)
+		{
+			each.skipTestsChanged();
+		}
+	}
 
-  public interface Listener {
-    void skipTestsChanged();
-  }
+	public interface Listener
+	{
+		void skipTestsChanged();
+	}
 
-  public boolean equals(final Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+	public boolean equals(final Object o)
+	{
+		if(this == o)
+		{
+			return true;
+		}
+		if(o == null || getClass() != o.getClass())
+		{
+			return false;
+		}
 
-    final MavenRunnerSettings that = (MavenRunnerSettings)o;
+		final MavenRunnerSettings that = (MavenRunnerSettings) o;
 
-    if (runMavenInBackground != that.runMavenInBackground) return false;
-    if (skipTests != that.skipTests) return false;
-    if (!jreName.equals(that.jreName)) return false;
-    if (mavenProperties != null ? !mavenProperties.equals(that.mavenProperties) : that.mavenProperties != null) return false;
-    if (!vmOptions.equals(that.vmOptions)) return false;
-    if (!environmentProperties.equals(that.environmentProperties)) return false;
-    if (passParentEnv != that.passParentEnv) return false;
+		if(runMavenInBackground != that.runMavenInBackground)
+		{
+			return false;
+		}
+		if(skipTests != that.skipTests)
+		{
+			return false;
+		}
+		if(!jreName.equals(that.jreName))
+		{
+			return false;
+		}
+		if(mavenProperties != null ? !mavenProperties.equals(that.mavenProperties) : that.mavenProperties != null)
+		{
+			return false;
+		}
+		if(!vmOptions.equals(that.vmOptions))
+		{
+			return false;
+		}
+		if(!environmentProperties.equals(that.environmentProperties))
+		{
+			return false;
+		}
+		if(passParentEnv != that.passParentEnv)
+		{
+			return false;
+		}
 
-    return true;
-  }
+		return true;
+	}
 
-  public int hashCode() {
-    int result;
-    result = (runMavenInBackground ? 1 : 0);
-    result = 31 * result + jreName.hashCode();
-    result = 31 * result + vmOptions.hashCode();
-    result = 31 * result + (skipTests ? 1 : 0);
-    result = 31 * result + environmentProperties.hashCode();
-    result = 31 * result + (mavenProperties != null ? mavenProperties.hashCode() : 0);
-    return result;
-  }
+	public int hashCode()
+	{
+		int result;
+		result = (runMavenInBackground ? 1 : 0);
+		result = 31 * result + jreName.hashCode();
+		result = 31 * result + vmOptions.hashCode();
+		result = 31 * result + (skipTests ? 1 : 0);
+		result = 31 * result + environmentProperties.hashCode();
+		result = 31 * result + (mavenProperties != null ? mavenProperties.hashCode() : 0);
+		return result;
+	}
 
-  @Override
-  public MavenRunnerSettings clone() {
-    try {
-      final MavenRunnerSettings clone = (MavenRunnerSettings)super.clone();
-      clone.mavenProperties = cloneMap(mavenProperties);
-      clone.myListeners = ContainerUtil.createLockFreeCopyOnWriteList();
-      clone.environmentProperties = new HashMap<String, String>(environmentProperties);
-      return clone;
-    }
-    catch (CloneNotSupportedException e) {
-      throw new Error(e);
-    }
-  }
+	@Override
+	public MavenRunnerSettings clone()
+	{
+		try
+		{
+			final MavenRunnerSettings clone = (MavenRunnerSettings) super.clone();
+			clone.mavenProperties = cloneMap(mavenProperties);
+			clone.myListeners = ContainerUtil.createLockFreeCopyOnWriteList();
+			clone.environmentProperties = new HashMap<String, String>(environmentProperties);
+			return clone;
+		}
+		catch(CloneNotSupportedException e)
+		{
+			throw new Error(e);
+		}
+	}
 
-  private static <K, V> Map<K, V> cloneMap(final Map<K, V> source) {
-    final Map<K, V> clone = new LinkedHashMap<K, V>();
-    for (Map.Entry<K, V> entry : source.entrySet()) {
-      clone.put(entry.getKey(), entry.getValue());
-    }
-    return clone;
-  }
+	private static <K, V> Map<K, V> cloneMap(final Map<K, V> source)
+	{
+		final Map<K, V> clone = new LinkedHashMap<K, V>();
+		for(Map.Entry<K, V> entry : source.entrySet())
+		{
+			clone.put(entry.getKey(), entry.getValue());
+		}
+		return clone;
+	}
 }
