@@ -24,9 +24,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -34,12 +32,13 @@ import javax.swing.JPanel;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
-import org.jetbrains.idea.maven.utils.ComboBoxUtil;
 import com.intellij.execution.configuration.EnvironmentVariablesComponent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.JavaSdk;
-import com.intellij.openapi.projectRoots.Sdk;
-import com.intellij.openapi.projectRoots.SdkTable;
+import com.intellij.openapi.projectRoots.SdkTypeId;
+import com.intellij.openapi.roots.ui.configuration.ProjectStructureConfigurable;
+import com.intellij.openapi.roots.ui.configuration.SdkComboBox;
+import com.intellij.openapi.util.Conditions;
 import com.intellij.ui.IdeBorderFactory;
 import com.intellij.ui.RawCommandLineEditor;
 
@@ -51,8 +50,7 @@ public class MavenRunnerPanel
 	private JCheckBox myRunInBackgroundCheckbox;
 	private RawCommandLineEditor myVMParametersEditor;
 	private EnvironmentVariablesComponent myEnvVariablesComponent;
-	private JComboBox myJdkCombo;
-	private final DefaultComboBoxModel myJdkComboModel = new DefaultComboBoxModel();
+	private SdkComboBox myJdkCombo;
 	private JCheckBox mySkipTestsCheckBox;
 	private MavenPropertiesPanel myPropertiesPanel;
 
@@ -104,7 +102,13 @@ public class MavenRunnerPanel
 
 		JLabel jdkLabel = new JLabel("JRE:");
 		jdkLabel.setDisplayedMnemonic('j');
-		jdkLabel.setLabelFor(myJdkCombo = new JComboBox());
+		JavaSdk javaSdkType = JavaSdk.getInstance();
+		myJdkCombo = new SdkComboBox(ProjectStructureConfigurable.getInstance(myProject).getProjectSdksModel(),
+				Conditions.<SdkTypeId>is(javaSdkType), false);
+		myJdkCombo.insertCustomSdkItem(MavenRunnerSettings.USE_INTERNAL_JAVA, RunnerBundle.message("maven.java.internal"), javaSdkType.getIcon());
+		myJdkCombo.insertCustomSdkItem(MavenRunnerSettings.USE_JAVA_HOME, RunnerBundle.message("maven.java.home.env"), javaSdkType.getIcon());
+
+		jdkLabel.setLabelFor(myJdkCombo);
 		c.gridx = 0;
 		c.gridy++;
 		c.weightx = 0;
@@ -161,54 +165,25 @@ public class MavenRunnerPanel
 		myProperties = result;
 	}
 
-	protected void getData(MavenRunnerSettings data)
+	protected void reset(MavenRunnerSettings data)
 	{
 		myRunInBackgroundCheckbox.setSelected(data.isRunMavenInBackground());
 		myVMParametersEditor.setText(data.getVmOptions());
 		mySkipTestsCheckBox.setSelected(data.isSkipTests());
 
-		Map<String, String> jdkMap = collectJdkNamesAndDescriptions();
-		if(!jdkMap.containsKey(data.getJreName()))
-		{
-			jdkMap.put(data.getJreName(), data.getJreName());
-		}
-
-		myJdkComboModel.removeAllElements();
-		for(Map.Entry<String, String> entry : jdkMap.entrySet())
-		{
-			ComboBoxUtil.addToModel(myJdkComboModel, entry.getKey(), entry.getValue());
-		}
-		myJdkCombo.setModel(myJdkComboModel);
-		ComboBoxUtil.select(myJdkComboModel, data.getJreName());
-
+		myJdkCombo.setSelectedSdk(data.getJreName());
 		myPropertiesPanel.setDataFromMap(data.getMavenProperties());
 
 		myEnvVariablesComponent.setEnvs(data.getEnvironmentProperties());
 		myEnvVariablesComponent.setPassParentEnvs(data.isPassParentEnv());
 	}
 
-	private Map<String, String> collectJdkNamesAndDescriptions()
-	{
-		Map<String, String> result = new LinkedHashMap<String, String>();
-
-		for(Sdk projectJdk : SdkTable.getInstance().getSdksOfType(JavaSdk.getInstance()))
-		{
-			String name = projectJdk.getName();
-			result.put(name, name);
-		}
-
-		result.put(MavenRunnerSettings.USE_INTERNAL_JAVA, RunnerBundle.message("maven.java.internal"));
-		result.put(MavenRunnerSettings.USE_JAVA_HOME, RunnerBundle.message("maven.java.home.env"));
-
-		return result;
-	}
-
-	protected void setData(MavenRunnerSettings data)
+	protected void apply(MavenRunnerSettings data)
 	{
 		data.setRunMavenInBackground(myRunInBackgroundCheckbox.isSelected());
 		data.setVmOptions(myVMParametersEditor.getText().trim());
 		data.setSkipTests(mySkipTestsCheckBox.isSelected());
-		data.setJreName(ComboBoxUtil.getSelectedString(myJdkComboModel));
+		data.setJreName(myJdkCombo.getSelectedSdkName());
 
 		data.setMavenProperties(myPropertiesPanel.getDataAsMap());
 

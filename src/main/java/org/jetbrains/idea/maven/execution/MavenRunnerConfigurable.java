@@ -23,16 +23,16 @@ public abstract class MavenRunnerConfigurable extends MavenRunnerPanel implement
 
   public boolean isModified() {
     MavenRunnerSettings s = new MavenRunnerSettings();
-    setData(s);
+    apply(s);
     return !s.equals(getState());
   }
 
   public void apply() throws ConfigurationException {
-    setData(getState());
+    apply(getState());
   }
 
   public void reset() {
-    getData(getState());
+    reset(getState());
   }
 
   @Nls

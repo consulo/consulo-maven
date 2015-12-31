@@ -15,14 +15,16 @@
  */
 package org.jetbrains.idea.maven.execution;
 
+import javax.swing.JCheckBox;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.idea.maven.project.MavenDisablePanelCheckbox;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.options.SettingsEditor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Pair;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.idea.maven.project.MavenDisablePanelCheckbox;
-
-import javax.swing.*;
 
 /**
  * @author Sergey Evdokimov
@@ -43,10 +45,10 @@ public class MavenRunnerSettingsEditor extends SettingsEditor<MavenRunConfigurat
 
     if (runConfiguration.getRunnerSettings() == null) {
       MavenRunnerSettings settings = MavenRunner.getInstance(myPanel.getProject()).getSettings();
-      myPanel.getData(settings);
+      myPanel.reset(settings);
     }
     else {
-      myPanel.getData(runConfiguration.getRunnerSettings());
+      myPanel.reset(runConfiguration.getRunnerSettings());
     }
   }
 
@@ -57,11 +59,11 @@ public class MavenRunnerSettingsEditor extends SettingsEditor<MavenRunConfigurat
     }
     else {
       if (runConfiguration.getRunnerSettings() != null) {
-        myPanel.setData(runConfiguration.getRunnerSettings());
+        myPanel.apply(runConfiguration.getRunnerSettings());
       }
       else {
         MavenRunnerSettings settings = MavenRunner.getInstance(myPanel.getProject()).getSettings().clone();
-        myPanel.setData(settings);
+        myPanel.apply(settings);
         runConfiguration.setRunnerSettings(settings);
       }
     }

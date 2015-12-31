@@ -22,7 +22,6 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.idea.maven.project.MavenDisablePanelCheckbox;
 
 import javax.swing.*;
-import java.awt.*;
 
 /**
  * @author Sergey Evdokimov
@@ -55,11 +54,11 @@ public abstract class MavenRunnerConfigurableWithUseProjectSettings extends Mave
     else {
       MavenRunnerSettings state = getState();
       if (state != null) {
-        setData(state);
+        apply(state);
       }
       else {
         MavenRunnerSettings settings = MavenRunner.getInstance(myProject).getSettings().clone();
-        setData(settings);
+        apply(settings);
         setState(settings);
       }
     }
@@ -72,10 +71,10 @@ public abstract class MavenRunnerConfigurableWithUseProjectSettings extends Mave
 
     if (state == null) {
       MavenRunnerSettings settings = MavenRunner.getInstance(myProject).getSettings();
-      getData(settings);
+      reset(settings);
     }
     else {
-      getData(state);
+      reset(state);
     }
   }
 
