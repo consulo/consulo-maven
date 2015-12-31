@@ -30,8 +30,6 @@ import com.intellij.util.containers.HashMap;
 
 public class MavenRunnerSettings implements Cloneable
 {
-
-	@Deprecated
 	@NonNls
 	public static final String USE_INTERNAL_JAVA = "#JAVA_INTERNAL";
 	@NonNls

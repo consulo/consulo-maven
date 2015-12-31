@@ -74,6 +74,7 @@ import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.encoding.EncodingManager;
 import com.intellij.openapi.vfs.encoding.EncodingProjectManager;
 import com.intellij.util.PathUtil;
+import com.intellij.util.SystemProperties;
 import com.intellij.util.io.ZipUtil;
 
 /**
@@ -339,12 +340,18 @@ public class MavenExternalParameters
 	@NotNull
 	private static Sdk getJdk(@Nullable Project project, MavenRunnerSettings runnerSettings, boolean isGlobalRunnerSettings) throws ExecutionException
 	{
-		Sdk internal = SdkTable.getInstance().findPredefinedSdkByType(JavaSdk.getInstance());
-
 		String name = runnerSettings.getJreName();
 		if(name.equals(MavenRunnerSettings.USE_INTERNAL_JAVA))
 		{
-			return internal;
+			final String javaHome = SystemProperties.getJavaHome();
+			if(!StringUtil.isEmptyOrSpaces(javaHome))
+			{
+				Sdk jdk = JavaSdk.getInstance().createJdk("", javaHome);
+				if(jdk != null)
+				{
+					return jdk;
+				}
+			}
 		}
 
 		if(name.equals(MavenRunnerSettings.USE_JAVA_HOME))
