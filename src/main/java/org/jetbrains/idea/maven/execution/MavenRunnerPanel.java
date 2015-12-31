@@ -43,168 +43,181 @@ import com.intellij.openapi.projectRoots.SdkTable;
 import com.intellij.ui.IdeBorderFactory;
 import com.intellij.ui.RawCommandLineEditor;
 
-public class MavenRunnerPanel {
-  protected final Project myProject;
-  private final boolean myRunConfigurationMode;
+public class MavenRunnerPanel
+{
+	protected final Project myProject;
+	private final boolean myRunConfigurationMode;
 
-  private JCheckBox myRunInBackgroundCheckbox;
-  private RawCommandLineEditor myVMParametersEditor;
-  private EnvironmentVariablesComponent myEnvVariablesComponent;
-  private JComboBox myJdkCombo;
-  private final DefaultComboBoxModel myJdkComboModel = new DefaultComboBoxModel();
-  private JCheckBox mySkipTestsCheckBox;
-  private MavenPropertiesPanel myPropertiesPanel;
+	private JCheckBox myRunInBackgroundCheckbox;
+	private RawCommandLineEditor myVMParametersEditor;
+	private EnvironmentVariablesComponent myEnvVariablesComponent;
+	private JComboBox myJdkCombo;
+	private final DefaultComboBoxModel myJdkComboModel = new DefaultComboBoxModel();
+	private JCheckBox mySkipTestsCheckBox;
+	private MavenPropertiesPanel myPropertiesPanel;
 
-  private Map<String, String> myProperties;
+	private Map<String, String> myProperties;
 
-  public MavenRunnerPanel(@NotNull Project p, boolean isRunConfiguration) {
-    myProject = p;
-    myRunConfigurationMode = isRunConfiguration;
-  }
+	public MavenRunnerPanel(@NotNull Project p, boolean isRunConfiguration)
+	{
+		myProject = p;
+		myRunConfigurationMode = isRunConfiguration;
+	}
 
-  public JComponent createComponent() {
-    JPanel panel = new JPanel(new GridBagLayout());
+	public JComponent createComponent()
+	{
+		JPanel panel = new JPanel(new GridBagLayout());
 
-    GridBagConstraints c = new GridBagConstraints();
-    c.fill = GridBagConstraints.HORIZONTAL;
-    c.anchor = GridBagConstraints.WEST;
-    c.insets.bottom = 5;
+		GridBagConstraints c = new GridBagConstraints();
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.anchor = GridBagConstraints.WEST;
+		c.insets.bottom = 5;
 
-    myRunInBackgroundCheckbox = new JCheckBox("Run in background");
-    myRunInBackgroundCheckbox.setMnemonic('b');
-    if (!myRunConfigurationMode) {
-      c.gridx = 0;
-      c.gridy++;
-      c.weightx = 1;
-      c.gridwidth = GridBagConstraints.REMAINDER;
+		myRunInBackgroundCheckbox = new JCheckBox("Run in background");
+		myRunInBackgroundCheckbox.setMnemonic('b');
+		if(!myRunConfigurationMode)
+		{
+			c.gridx = 0;
+			c.gridy++;
+			c.weightx = 1;
+			c.gridwidth = GridBagConstraints.REMAINDER;
 
-      panel.add(myRunInBackgroundCheckbox, c);
-    }
-    c.gridwidth = 1;
+			panel.add(myRunInBackgroundCheckbox, c);
+		}
+		c.gridwidth = 1;
 
-    JLabel labelVMParameters = new JLabel("VM Options:");
-    labelVMParameters.setDisplayedMnemonic('v');
-    labelVMParameters.setLabelFor(myVMParametersEditor = new RawCommandLineEditor());
-    myVMParametersEditor.setDialogCaption(labelVMParameters.getText());
+		JLabel labelVMParameters = new JLabel("VM Options:");
+		labelVMParameters.setDisplayedMnemonic('v');
+		labelVMParameters.setLabelFor(myVMParametersEditor = new RawCommandLineEditor());
+		myVMParametersEditor.setDialogCaption(labelVMParameters.getText());
 
-    c.gridx = 0;
-    c.gridy++;
-    c.weightx = 0;
-    panel.add(labelVMParameters, c);
+		c.gridx = 0;
+		c.gridy++;
+		c.weightx = 0;
+		panel.add(labelVMParameters, c);
 
-    c.gridx = 1;
-    c.weightx = 1;
-    c.insets.left = 10;
-    panel.add(myVMParametersEditor, c);
-    c.insets.left = 0;
+		c.gridx = 1;
+		c.weightx = 1;
+		c.insets.left = 10;
+		panel.add(myVMParametersEditor, c);
+		c.insets.left = 0;
 
-    JLabel jdkLabel = new JLabel("JRE:");
-    jdkLabel.setDisplayedMnemonic('j');
-    jdkLabel.setLabelFor(myJdkCombo = new JComboBox());
-    c.gridx = 0;
-    c.gridy++;
-    c.weightx = 0;
-    panel.add(jdkLabel, c);
-    c.gridx = 1;
-    c.weightx = 1;
-    c.fill = GridBagConstraints.NONE;
-    c.insets.left = 10;
-    panel.add(myJdkCombo, c);
-    c.insets.left = 0;
-    c.fill = GridBagConstraints.HORIZONTAL;
+		JLabel jdkLabel = new JLabel("JRE:");
+		jdkLabel.setDisplayedMnemonic('j');
+		jdkLabel.setLabelFor(myJdkCombo = new JComboBox());
+		c.gridx = 0;
+		c.gridy++;
+		c.weightx = 0;
+		panel.add(jdkLabel, c);
+		c.gridx = 1;
+		c.weightx = 1;
+		c.fill = GridBagConstraints.NONE;
+		c.insets.left = 10;
+		panel.add(myJdkCombo, c);
+		c.insets.left = 0;
+		c.fill = GridBagConstraints.HORIZONTAL;
 
-    myEnvVariablesComponent = new EnvironmentVariablesComponent();
-    myEnvVariablesComponent.setPassParentEnvs(true);
-    myEnvVariablesComponent.setLabelLocation(BorderLayout.WEST);
-    c.gridx = 0;
-    c.gridy++;
-    c.weightx = 1;
-    c.gridwidth = 2;
-    panel.add(myEnvVariablesComponent, c);
-    c.gridwidth = 1;
+		myEnvVariablesComponent = new EnvironmentVariablesComponent();
+		myEnvVariablesComponent.setPassParentEnvs(true);
+		myEnvVariablesComponent.setLabelLocation(BorderLayout.WEST);
+		c.gridx = 0;
+		c.gridy++;
+		c.weightx = 1;
+		c.gridwidth = 2;
+		panel.add(myEnvVariablesComponent, c);
+		c.gridwidth = 1;
 
-    JPanel propertiesPanel = new JPanel(new BorderLayout());
-    propertiesPanel.setBorder(IdeBorderFactory.createTitledBorder("Properties", false));
+		JPanel propertiesPanel = new JPanel(new BorderLayout());
+		propertiesPanel.setBorder(IdeBorderFactory.createTitledBorder("Properties", false));
 
-    propertiesPanel.add(mySkipTestsCheckBox = new JCheckBox("Skip tests"), BorderLayout.NORTH);
-    mySkipTestsCheckBox.setMnemonic('t');
+		propertiesPanel.add(mySkipTestsCheckBox = new JCheckBox("Skip tests"), BorderLayout.NORTH);
+		mySkipTestsCheckBox.setMnemonic('t');
 
-    collectProperties();
-    propertiesPanel.add(myPropertiesPanel = new MavenPropertiesPanel(myProperties), BorderLayout.CENTER);
-    myPropertiesPanel.getEmptyText().setText("No properties defined");
+		collectProperties();
+		propertiesPanel.add(myPropertiesPanel = new MavenPropertiesPanel(myProperties), BorderLayout.CENTER);
+		myPropertiesPanel.getEmptyText().setText("No properties defined");
 
-    c.gridx = 0;
-    c.gridy++;
-    c.weightx = c.weighty = 1;
-    c.gridwidth = c.gridheight = GridBagConstraints.REMAINDER;
-    c.fill = GridBagConstraints.BOTH;
-    panel.add(propertiesPanel, c);
+		c.gridx = 0;
+		c.gridy++;
+		c.weightx = c.weighty = 1;
+		c.gridwidth = c.gridheight = GridBagConstraints.REMAINDER;
+		c.fill = GridBagConstraints.BOTH;
+		panel.add(propertiesPanel, c);
 
-    return panel;
-  }
+		return panel;
+	}
 
-  private void collectProperties() {
-    MavenProjectsManager s = MavenProjectsManager.getInstance(myProject);
-    Map<String, String> result = new LinkedHashMap<String, String>();
+	private void collectProperties()
+	{
+		MavenProjectsManager s = MavenProjectsManager.getInstance(myProject);
+		Map<String, String> result = new LinkedHashMap<String, String>();
 
-    for (MavenProject each : s.getProjects()) {
-      Properties properties = each.getProperties();
-      result.putAll((Map)properties);
-    }
+		for(MavenProject each : s.getProjects())
+		{
+			Properties properties = each.getProperties();
+			result.putAll((Map) properties);
+		}
 
-    myProperties = result;
-  }
+		myProperties = result;
+	}
 
-  protected void getData(MavenRunnerSettings data) {
-    myRunInBackgroundCheckbox.setSelected(data.isRunMavenInBackground());
-    myVMParametersEditor.setText(data.getVmOptions());
-    mySkipTestsCheckBox.setSelected(data.isSkipTests());
+	protected void getData(MavenRunnerSettings data)
+	{
+		myRunInBackgroundCheckbox.setSelected(data.isRunMavenInBackground());
+		myVMParametersEditor.setText(data.getVmOptions());
+		mySkipTestsCheckBox.setSelected(data.isSkipTests());
 
-    Map<String, String> jdkMap = collectJdkNamesAndDescriptions();
-    if (!jdkMap.containsKey(data.getJreName())) {
-      jdkMap.put(data.getJreName(), data.getJreName());
-    }
+		Map<String, String> jdkMap = collectJdkNamesAndDescriptions();
+		if(!jdkMap.containsKey(data.getJreName()))
+		{
+			jdkMap.put(data.getJreName(), data.getJreName());
+		}
 
-    myJdkComboModel.removeAllElements();
-    for (Map.Entry<String, String> entry : jdkMap.entrySet()) {
-      ComboBoxUtil.addToModel(myJdkComboModel, entry.getKey(), entry.getValue());
-    }
-    myJdkCombo.setModel(myJdkComboModel);
-    ComboBoxUtil.select(myJdkComboModel, data.getJreName());
+		myJdkComboModel.removeAllElements();
+		for(Map.Entry<String, String> entry : jdkMap.entrySet())
+		{
+			ComboBoxUtil.addToModel(myJdkComboModel, entry.getKey(), entry.getValue());
+		}
+		myJdkCombo.setModel(myJdkComboModel);
+		ComboBoxUtil.select(myJdkComboModel, data.getJreName());
 
-    myPropertiesPanel.setDataFromMap(data.getMavenProperties());
+		myPropertiesPanel.setDataFromMap(data.getMavenProperties());
 
-    myEnvVariablesComponent.setEnvs(data.getEnvironmentProperties());
-    myEnvVariablesComponent.setPassParentEnvs(data.isPassParentEnv());
-  }
+		myEnvVariablesComponent.setEnvs(data.getEnvironmentProperties());
+		myEnvVariablesComponent.setPassParentEnvs(data.isPassParentEnv());
+	}
 
-  private Map<String, String> collectJdkNamesAndDescriptions() {
-    Map<String, String> result = new LinkedHashMap<String, String>();
+	private Map<String, String> collectJdkNamesAndDescriptions()
+	{
+		Map<String, String> result = new LinkedHashMap<String, String>();
 
-    for (Sdk projectJdk : SdkTable.getInstance().getSdksOfType(JavaSdk.getInstance())) {
-      String name = projectJdk.getName();
-      result.put(name, name);
-    }
+		for(Sdk projectJdk : SdkTable.getInstance().getSdksOfType(JavaSdk.getInstance()))
+		{
+			String name = projectJdk.getName();
+			result.put(name, name);
+		}
 
-    result.put(MavenRunnerSettings.USE_INTERNAL_JAVA, RunnerBundle.message("maven.java.internal"));
-    result.put(MavenRunnerSettings.USE_JAVA_HOME, RunnerBundle.message("maven.java.home.env"));
+		result.put(MavenRunnerSettings.USE_INTERNAL_JAVA, RunnerBundle.message("maven.java.internal"));
+		result.put(MavenRunnerSettings.USE_JAVA_HOME, RunnerBundle.message("maven.java.home.env"));
 
-    return result;
-  }
+		return result;
+	}
 
-  protected void setData(MavenRunnerSettings data) {
-    data.setRunMavenInBackground(myRunInBackgroundCheckbox.isSelected());
-    data.setVmOptions(myVMParametersEditor.getText().trim());
-    data.setSkipTests(mySkipTestsCheckBox.isSelected());
-    data.setJreName(ComboBoxUtil.getSelectedString(myJdkComboModel));
+	protected void setData(MavenRunnerSettings data)
+	{
+		data.setRunMavenInBackground(myRunInBackgroundCheckbox.isSelected());
+		data.setVmOptions(myVMParametersEditor.getText().trim());
+		data.setSkipTests(mySkipTestsCheckBox.isSelected());
+		data.setJreName(ComboBoxUtil.getSelectedString(myJdkComboModel));
 
-    data.setMavenProperties(myPropertiesPanel.getDataAsMap());
+		data.setMavenProperties(myPropertiesPanel.getDataAsMap());
 
-    data.setEnvironmentProperties(myEnvVariablesComponent.getEnvs());
-    data.setPassParentEnv(myEnvVariablesComponent.isPassParentEnvs());
-  }
+		data.setEnvironmentProperties(myEnvVariablesComponent.getEnvs());
+		data.setPassParentEnv(myEnvVariablesComponent.isPassParentEnvs());
+	}
 
-  public Project getProject() {
-    return myProject;
-  }
+	public Project getProject()
+	{
+		return myProject;
+	}
 }
