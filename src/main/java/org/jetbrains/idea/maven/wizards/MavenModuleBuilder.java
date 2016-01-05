@@ -15,9 +15,19 @@
  */
 package org.jetbrains.idea.maven.wizards;
 
+import java.io.File;
+import java.util.Map;
+
+import javax.swing.Icon;
+
+import org.jetbrains.idea.maven.model.MavenArchetype;
+import org.jetbrains.idea.maven.model.MavenId;
+import org.jetbrains.idea.maven.project.MavenEnvironmentForm;
+import org.jetbrains.idea.maven.project.MavenProject;
+import org.jetbrains.idea.maven.project.MavenProjectsManager;
+import org.jetbrains.idea.maven.utils.MavenUtil;
 import com.intellij.ide.util.projectWizard.ModuleBuilder;
 import com.intellij.ide.util.projectWizard.ModuleWizardStep;
-import com.intellij.ide.util.projectWizard.SourcePathsBuilder;
 import com.intellij.ide.util.projectWizard.WizardContext;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.DumbAwareRunnable;
@@ -26,25 +36,12 @@ import com.intellij.openapi.projectRoots.JavaSdk;
 import com.intellij.openapi.projectRoots.SdkTypeId;
 import com.intellij.openapi.roots.ModifiableRootModel;
 import com.intellij.openapi.roots.ui.configuration.ModulesProvider;
-import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import icons.MavenIcons;
-import org.jetbrains.idea.maven.model.MavenArchetype;
-import org.jetbrains.idea.maven.model.MavenId;
-import org.jetbrains.idea.maven.project.MavenEnvironmentForm;
-import org.jetbrains.idea.maven.project.MavenProject;
-import org.jetbrains.idea.maven.project.MavenProjectsManager;
-import org.jetbrains.idea.maven.utils.MavenUtil;
 
-import javax.swing.*;
-import java.io.File;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
-public class MavenModuleBuilder extends ModuleBuilder implements SourcePathsBuilder {
+public class MavenModuleBuilder extends ModuleBuilder {
 
   private MavenProject myAggregatorProject;
   private MavenProject myParentProject;
@@ -124,16 +121,6 @@ public class MavenModuleBuilder extends ModuleBuilder implements SourcePathsBuil
     String path = FileUtil.toSystemIndependentName(getContentEntryPath());
     new File(path).mkdirs();
     return LocalFileSystem.getInstance().refreshAndFindFileByPath(path);
-  }
-
-  public List<Pair<String, String>> getSourcePaths() {
-    return Collections.emptyList();
-  }
-
-  public void setSourcePaths(List<Pair<String, String>> sourcePaths) {
-  }
-
-  public void addSourcePath(Pair<String, String> sourcePathInfo) {
   }
 
   public void setAggregatorProject(MavenProject project) {
