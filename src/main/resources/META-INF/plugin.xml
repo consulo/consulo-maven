@@ -52,7 +52,7 @@
 		<applicationService serviceImplementation="org.jetbrains.idea.maven.indices.MavenIndicesManager"/>
 		<applicationService serviceImplementation="org.jetbrains.idea.maven.services.MavenRepositoryServicesManager"/>
 
-		<projectConfigurable instance="org.jetbrains.idea.maven.utils.MavenSettings" id="MavenSettings" displayName="Maven" order="last">
+		<projectConfigurable instance="org.jetbrains.idea.maven.utils.MavenSettings" parentId="execution" id="MavenSettings" displayName="Maven">
 			<configurable instance="org.jetbrains.idea.maven.project.MavenImportingConfigurable" id="reference.settings.project.maven.importing"
 						  key="maven.tab.importing" bundle="ProjectBundle"/>
 			<configurable instance="org.jetbrains.idea.maven.project.MavenIgnoredFilesConfigurable"
