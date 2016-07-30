@@ -8,6 +8,7 @@
 	<depends>com.intellij.xml</depends>
 	<depends>org.consulo.java</depends>
 	<depends>com.intellij.properties</depends>
+	<category>Build</category>
 	<extensionPoints>
 		<extensionPoint name="importer" interface="org.jetbrains.idea.maven.importing.MavenImporter"/>
 		<extensionPoint name="additional.importing.settings" interface="org.jetbrains.idea.maven.project.AdditionalMavenImportingSettings"/>
