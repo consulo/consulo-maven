@@ -15,6 +15,17 @@
  */
 package org.jetbrains.idea.maven.dom.intentions;
 
+import java.util.List;
+import java.util.regex.Pattern;
+
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.idea.maven.dom.MavenDomBundle;
+import org.jetbrains.idea.maven.dom.MavenDomUtil;
+import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
+import org.jetbrains.idea.maven.indices.MavenArtifactSearchDialog;
+import org.jetbrains.idea.maven.model.MavenId;
+import org.jetbrains.idea.maven.project.MavenProject;
 import com.intellij.codeInsight.intention.IntentionAction;
 import com.intellij.codeInsight.intention.LowPriorityAction;
 import com.intellij.openapi.application.Result;
@@ -26,17 +37,6 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiJavaCodeReferenceElement;
 import com.intellij.util.IncorrectOperationException;
 import com.intellij.util.xml.DomUtil;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.jetbrains.idea.maven.dom.MavenDomBundle;
-import org.jetbrains.idea.maven.dom.MavenDomUtil;
-import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
-import org.jetbrains.idea.maven.indices.MavenArtifactSearchDialog;
-import org.jetbrains.idea.maven.model.MavenId;
-import org.jetbrains.idea.maven.project.MavenProject;
-
-import java.util.List;
-import java.util.regex.Pattern;
 
 public class AddMavenDependencyQuickFix implements IntentionAction, LowPriorityAction {
 
@@ -59,7 +59,7 @@ public class AddMavenDependencyQuickFix implements IntentionAction, LowPriorityA
   }
 
   public boolean isAvailable(@NotNull Project project, Editor editor, PsiFile file) {
-    return MavenDomUtil.findContainingProject(file) != null && looksLikeClassName(getReferenceText());
+    return myRef.isValid() && MavenDomUtil.findContainingProject(file) != null && looksLikeClassName(getReferenceText());
   }
 
   private static boolean looksLikeClassName(@Nullable String text) {
