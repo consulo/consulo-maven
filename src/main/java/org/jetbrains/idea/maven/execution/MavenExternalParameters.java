@@ -49,7 +49,7 @@ import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.server.MavenServerUtil;
 import org.jetbrains.idea.maven.utils.MavenSettings;
 import org.jetbrains.idea.maven.utils.MavenUtil;
-import org.mustbe.consulo.RequiredReadAction;
+import consulo.annotations.RequiredReadAction;
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.RunManager;
 import com.intellij.execution.configurations.JavaParameters;

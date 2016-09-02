@@ -16,7 +16,7 @@
 package org.jetbrains.idea.maven.dom;
 
 import com.intellij.codeInsight.CodeInsightSettings;
-import com.intellij.codeInsight.TargetElementUtil;
+import consulo.codeInsight.TargetElementUtil;
 import com.intellij.codeInsight.TargetElementUtilBase;
 import com.intellij.codeInsight.documentation.DocumentationManager;
 import com.intellij.codeInsight.highlighting.HighlightUsagesHandler;
@@ -53,6 +53,7 @@ import com.intellij.usages.UsageTarget;
 import com.intellij.usages.UsageTargetUtil;
 import com.intellij.util.Function;
 import com.intellij.util.containers.ContainerUtil;
+
 import gnu.trove.THashMap;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;

@@ -20,8 +20,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import org.consulo.module.extension.ModuleExtension;
-import org.consulo.module.extension.MutableModuleExtension;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.idea.maven.model.MavenArtifact;
 import org.jetbrains.idea.maven.project.MavenProject;
@@ -33,9 +31,6 @@ import org.jetbrains.idea.maven.project.SupportedRequestType;
 import org.jetbrains.idea.maven.server.MavenEmbedderWrapper;
 import org.jetbrains.idea.maven.server.NativeMavenProjectHolder;
 import org.jetbrains.idea.maven.utils.MavenProcessCanceledException;
-import org.mustbe.consulo.roots.ContentFolderTypeProvider;
-import org.mustbe.consulo.roots.impl.ProductionContentFolderTypeProvider;
-import org.mustbe.consulo.roots.impl.TestContentFolderTypeProvider;
 import com.intellij.openapi.extensions.ExtensionPointName;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
@@ -43,6 +38,12 @@ import com.intellij.openapi.roots.ModifiableRootModel;
 import com.intellij.openapi.util.Pair;
 import com.intellij.util.SmartList;
 import com.intellij.util.containers.MultiMap;
+import consulo.module.extension.ModuleExtension;
+import consulo.module.extension.MutableModuleExtension;
+import consulo.roots.ContentFolderTypeProvider;
+import consulo.roots.impl.ProductionContentFolderTypeProvider;
+import consulo.roots.impl.TestContentFolderTypeProvider;
+
 
 public abstract class MavenImporter
 {

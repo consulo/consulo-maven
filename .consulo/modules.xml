@@ -4,8 +4,8 @@
     <modules>
       <module name="consulo-maven" dirurl="file://$PROJECT_DIR$" current-layer="Default">
         <module-layer name="Default">
-          <extension id="consulo-plugin" sdk-module-name="" sdk-name="Consulo 1.SNAPSHOT" custom-plugin-dir-url="file://$MODULE_DIR$/dep" />
-          <extension id="java" sdk-module-name="" sdk-name="1.8" language-level-module-name="" language-level-name="JDK_1_8" special-dir-location="SOURCE_DIR" />
+          <extension id="consulo-plugin" sdk-module-name="" sdk-name="Consulo SNAPSHOT" />
+          <extension id="java" sdk-module-name="" sdk-name="1.8" language-level-module-name="" language-level-name="JDK_1_8" special-dir-location="SOURCE_DIR" bytecode-version="1.8" />
           <extension id="lombok" />
           <content url="file://$MODULE_DIR$">
             <content-folder type="EXCLUDED" url="file://$MODULE_DIR$/.consulo/sandbox" />
@@ -15,35 +15,6 @@
           <orderEntry type="module-extension-sdk" extension-id="java" />
           <orderEntry type="module-extension-sdk" extension-id="consulo-plugin" />
           <orderEntry type="sourceFolder" />
-          <orderEntry type="module-library">
-            <library name="consulo:XML">
-              <binaries>
-                <root url="jar://$MODULE_DIR$/dep/xml/lib/jaxen-1.1.3.jar!/" />
-                <root url="jar://$MODULE_DIR$/dep/xml/lib/jsr173_1.0_api.jar!/" />
-                <root url="jar://$MODULE_DIR$/dep/xml/lib/resolver.jar!/" />
-                <root url="jar://$MODULE_DIR$/dep/xml/lib/xbean.jar!/" />
-                <root url="jar://$MODULE_DIR$/dep/xml/lib/xerces.jar!/" />
-                <root url="jar://$MODULE_DIR$/dep/xml/lib/xml.jar!/" />
-              </binaries>
-            </library>
-          </orderEntry>
-          <orderEntry type="module-library">
-            <library name="consulo:Properties Support">
-              <binaries>
-                <root url="jar://$MODULE_DIR$/dep/properties/lib/properties.jar!/" />
-              </binaries>
-            </library>
-          </orderEntry>
-          <orderEntry type="module-library">
-            <library name="consulo:Java">
-              <binaries>
-                <root url="jar://$MODULE_DIR$/dep/java/lib/java-manifest.jar!/" />
-                <root url="jar://$MODULE_DIR$/dep/java/lib/java-rt.jar!/" />
-                <root url="jar://$MODULE_DIR$/dep/java/lib/java.jar!/" />
-                <root url="jar://$MODULE_DIR$/dep/java/lib/jdk-annotations.jar!/" />
-              </binaries>
-            </library>
-          </orderEntry>
           <orderEntry type="module-library">
             <library>
               <binaries>
@@ -70,6 +41,9 @@
           <orderEntry type="module" module-name="artifact-resolver-m2" />
           <orderEntry type="module" module-name="artifact-resolver-m3" />
           <orderEntry type="module" module-name="artifact-resolver-m31" />
+          <orderEntry type="library" name="consulo-plugin: com.intellij.properties" level="project" />
+          <orderEntry type="library" name="consulo-plugin: com.intellij.xml" level="project" />
+          <orderEntry type="library" name="consulo-plugin: org.consulo.java" level="project" />
         </module-layer>
       </module>
       <module name="maven-server-api" dirurl="file://$PROJECT_DIR$/maven-server-api" current-layer="Default">
@@ -211,7 +185,7 @@
       </module>
       <module name="maven3-server-common" dirurl="file://$PROJECT_DIR$/maven3-server-common" current-layer="Default">
         <module-layer name="Default">
-          <extension id="consulo-plugin" sdk-module-name="" sdk-name="Consulo 1.SNAPSHOT" />
+          <extension id="consulo-plugin" sdk-module-name="consulo-maven" sdk-name="Consulo 1.SNAPSHOT" />
           <extension id="java" sdk-module-name="" sdk-name="1.6" language-level-module-name="" language-level-name="JDK_1_6" special-dir-location="SOURCE_DIR" />
           <content url="file://$MODULE_DIR$">
             <content-folder type="PRODUCTION" url="file://$MODULE_DIR$/src" />

@@ -1,0 +1,8 @@
+<component name="libraryTable">
+  <library name="consulo-plugin: org.consulo.java">
+    <binaries>
+      <root url="file://$PROJECT_DIR$/dep/org.consulo.java/lib" />
+    </binaries>
+    <jarDirectory url="file://$PROJECT_DIR$/dep/org.consulo.java/lib" recursive="false" />
+  </library>
+</component>

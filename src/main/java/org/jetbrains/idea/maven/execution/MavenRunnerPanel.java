@@ -36,11 +36,11 @@ import com.intellij.execution.configuration.EnvironmentVariablesComponent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.JavaSdk;
 import com.intellij.openapi.projectRoots.SdkTypeId;
-import com.intellij.openapi.roots.ui.configuration.SdkComboBox;
 import com.intellij.openapi.roots.ui.configuration.projectRoot.ProjectSdksModel;
 import com.intellij.openapi.util.Conditions;
 import com.intellij.ui.IdeBorderFactory;
 import com.intellij.ui.RawCommandLineEditor;
+import consulo.roots.ui.configuration.SdkComboBox;
 
 public class MavenRunnerPanel
 {

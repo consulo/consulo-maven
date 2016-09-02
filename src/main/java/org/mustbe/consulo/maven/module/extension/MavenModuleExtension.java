@@ -15,9 +15,9 @@
  */
 package org.mustbe.consulo.maven.module.extension;
 
-import org.consulo.module.extension.impl.ModuleExtensionImpl;
 import org.jetbrains.annotations.NotNull;
-import com.intellij.openapi.roots.ModuleRootLayer;
+import consulo.extension.impl.ModuleExtensionImpl;
+import consulo.roots.ModuleRootLayer;
 
 /**
  * @author VISTALL

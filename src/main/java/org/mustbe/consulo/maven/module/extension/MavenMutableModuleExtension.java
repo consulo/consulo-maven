@@ -15,13 +15,9 @@
  */
 package org.mustbe.consulo.maven.module.extension;
 
-import com.intellij.openapi.roots.ModuleRootLayer;
-import org.consulo.module.extension.MutableModuleExtension;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.mustbe.consulo.RequiredDispatchThread;
-
-import javax.swing.*;
+import consulo.module.extension.MutableModuleExtension;
+import consulo.roots.ModuleRootLayer;
 
 /**
  * @author VISTALL
@@ -32,14 +28,6 @@ public class MavenMutableModuleExtension extends MavenModuleExtension implements
 	public MavenMutableModuleExtension(@NotNull String id, @NotNull ModuleRootLayer moduleRootLayer)
 	{
 		super(id, moduleRootLayer);
-	}
-
-	@RequiredDispatchThread
-    @Nullable
-	@Override
-	public JComponent createConfigurablePanel(@Nullable Runnable updateOnCheck)
-	{
-		return null;
 	}
 
 	@Override

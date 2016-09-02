@@ -15,11 +15,8 @@
  */
 package org.jetbrains.idea.maven.dom;
 
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.LocalFileSystem;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.vfs.util.ArchiveVfsUtil;
-import com.intellij.util.xml.DomElement;
+import java.io.File;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.idea.maven.dom.model.MavenDomConfiguration;
@@ -27,8 +24,11 @@ import org.jetbrains.idea.maven.dom.model.MavenDomPlugin;
 import org.jetbrains.idea.maven.dom.plugin.MavenDomPluginModel;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.utils.MavenArtifactUtil;
-
-import java.io.File;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vfs.LocalFileSystem;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.util.xml.DomElement;
+import consulo.vfs.util.ArchiveVfsUtil;
 
 public class MavenPluginDomUtil {
   @Nullable

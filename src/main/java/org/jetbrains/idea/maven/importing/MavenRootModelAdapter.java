@@ -15,6 +15,18 @@
  */
 package org.jetbrains.idea.maven.importing;
 
+import java.io.File;
+
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.idea.maven.model.MavenArtifact;
+import org.jetbrains.idea.maven.model.MavenConstants;
+import org.jetbrains.idea.maven.project.MavenProject;
+import org.jetbrains.idea.maven.project.MavenProjectsManager;
+import org.jetbrains.idea.maven.utils.Path;
+import org.jetbrains.idea.maven.utils.Url;
+import org.mustbe.consulo.java.module.extension.JavaMutableModuleExtensionImpl;
+import com.intellij.ide.highlighter.JarArchiveFileType;
 import com.intellij.openapi.application.AccessToken;
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.module.ModifiableModuleModel;
@@ -26,26 +38,19 @@ import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.util.Ref;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.openapi.vfs.JarFileSystem;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.pom.java.LanguageLevel;
 import com.intellij.util.Processor;
-import org.consulo.compiler.ModuleCompilerPathsManager;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.jetbrains.idea.maven.model.MavenArtifact;
-import org.jetbrains.idea.maven.model.MavenConstants;
-import org.jetbrains.idea.maven.project.MavenProject;
-import org.jetbrains.idea.maven.project.MavenProjectsManager;
-import org.jetbrains.idea.maven.utils.Path;
-import org.jetbrains.idea.maven.utils.Url;
-import org.mustbe.consulo.java.module.extension.JavaMutableModuleExtensionImpl;
-import org.mustbe.consulo.roots.ContentFolderScopes;
-import org.mustbe.consulo.roots.ContentFolderTypeProvider;
-import org.mustbe.consulo.roots.impl.*;
-import org.mustbe.consulo.roots.impl.property.GeneratedContentFolderPropertyProvider;
-
-import java.io.File;
+import consulo.compiler.ModuleCompilerPathsManager;
+import consulo.roots.ContentFolderScopes;
+import consulo.roots.ContentFolderTypeProvider;
+import consulo.roots.impl.ExcludedContentFolderTypeProvider;
+import consulo.roots.impl.ProductionContentFolderTypeProvider;
+import consulo.roots.impl.ProductionResourceContentFolderTypeProvider;
+import consulo.roots.impl.TestContentFolderTypeProvider;
+import consulo.roots.impl.TestResourceContentFolderTypeProvider;
+import consulo.roots.impl.property.GeneratedContentFolderPropertyProvider;
+import consulo.vfs.ArchiveFileSystem;
 
 public class MavenRootModelAdapter
 {
@@ -429,7 +434,7 @@ public class MavenRootModelAdapter
 
 
 		String newPath = artifact.getPathForExtraArtifact(classifier, extension);
-		String newUrl = VirtualFileManager.constructUrl(JarFileSystem.PROTOCOL, newPath) + JarFileSystem.JAR_SEPARATOR;
+		String newUrl = VirtualFileManager.constructUrl(JarArchiveFileType.INSTANCE.getProtocol(), newPath) + ArchiveFileSystem.ARCHIVE_SEPARATOR;
 
 		boolean urlExists = false;
 

@@ -35,7 +35,7 @@ import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.utils.MavenSettings;
 import org.jetbrains.idea.maven.utils.MavenUtil;
-import org.mustbe.consulo.RequiredDispatchThread;
+import consulo.annotations.RequiredDispatchThread;
 import com.intellij.execution.configurations.ParametersList;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationListener;

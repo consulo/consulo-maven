@@ -42,7 +42,6 @@ import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.utils.MavenJDOMUtil;
 import org.jetbrains.idea.maven.utils.MavenLog;
 import org.jetbrains.idea.maven.utils.MavenUtil;
-import org.mustbe.consulo.compiler.roots.CompilerPathsImpl;
 import com.intellij.compiler.CompilerIOUtil;
 import com.intellij.compiler.impl.CompileDriver;
 import com.intellij.compiler.impl.CompilerUtil;
@@ -72,6 +71,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileVisitor;
 import com.intellij.testFramework.LightVirtualFile;
 import com.intellij.util.containers.ContainerUtil;
+import consulo.compiler.roots.CompilerPathsImpl;
 
 public class MavenResourceCompiler implements ClassPostProcessingCompiler {
   private static final Key<List<String>> FILES_TO_DELETE_KEY = Key.create(MavenResourceCompiler.class.getSimpleName() + ".FILES_TO_DELETE");

@@ -85,7 +85,6 @@ import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.vfs.util.ArchiveVfsUtil;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.util.DisposeAwareRunnable;
@@ -93,6 +92,7 @@ import com.intellij.util.Function;
 import com.intellij.util.SystemProperties;
 import com.intellij.util.concurrency.Semaphore;
 import com.intellij.util.containers.ContainerUtil;
+import consulo.vfs.util.ArchiveVfsUtil;
 import icons.MavenIcons;
 
 public class MavenUtil

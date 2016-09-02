@@ -49,16 +49,16 @@ import com.intellij.openapi.roots.ModuleExtensionWithSdkOrderEntry;
 import com.intellij.openapi.roots.OrderRootType;
 import com.intellij.openapi.roots.libraries.Library;
 import com.intellij.openapi.roots.libraries.LibraryTable;
-import com.intellij.openapi.roots.types.BinariesOrderRootType;
-import com.intellij.openapi.roots.types.DocumentationOrderRootType;
-import com.intellij.openapi.roots.types.SourcesOrderRootType;
 import com.intellij.openapi.util.Condition;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.vfs.util.ArchiveVfsUtil;
 import com.intellij.pom.java.LanguageLevel;
 import com.intellij.util.containers.ContainerUtil;
+import consulo.roots.types.BinariesOrderRootType;
+import consulo.roots.types.DocumentationOrderRootType;
+import consulo.roots.types.SourcesOrderRootType;
+import consulo.vfs.util.ArchiveVfsUtil;
 
 public class MavenModuleImporter
 {

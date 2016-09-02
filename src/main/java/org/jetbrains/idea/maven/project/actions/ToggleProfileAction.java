@@ -27,7 +27,7 @@ import org.jetbrains.idea.maven.project.ProjectBundle;
 import org.jetbrains.idea.maven.utils.MavenDataKeys;
 import org.jetbrains.idea.maven.utils.actions.MavenAction;
 import org.jetbrains.idea.maven.utils.actions.MavenActionUtil;
-import org.mustbe.consulo.RequiredDispatchThread;
+import consulo.annotations.RequiredDispatchThread;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 
 public class ToggleProfileAction extends MavenAction

@@ -1,5 +1,17 @@
 package org.jetbrains.idea.maven.dom.refactorings.introduce;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.idea.maven.dom.MavenDomProjectProcessorUtils;
+import org.jetbrains.idea.maven.dom.MavenDomUtil;
+import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
+import org.jetbrains.idea.maven.dom.model.MavenDomProperties;
 import com.intellij.find.FindManager;
 import com.intellij.find.FindModel;
 import com.intellij.find.impl.FindInProjectUtil;
@@ -17,27 +29,31 @@ import com.intellij.openapi.util.Factory;
 import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.openapi.vfs.*;
+import com.intellij.openapi.vfs.ReadonlyStatusHandler;
+import com.intellij.openapi.vfs.VfsUtil;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.XmlElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
-import com.intellij.psi.xml.*;
+import com.intellij.psi.xml.XmlAttributeValue;
+import com.intellij.psi.xml.XmlElement;
+import com.intellij.psi.xml.XmlTag;
+import com.intellij.psi.xml.XmlText;
+import com.intellij.psi.xml.XmlToken;
 import com.intellij.refactoring.RefactoringActionHandler;
 import com.intellij.refactoring.actions.BaseRefactoringAction;
 import com.intellij.usageView.UsageInfo;
-import com.intellij.usages.*;
+import com.intellij.usages.FindUsagesProcessPresentation;
+import com.intellij.usages.Usage;
+import com.intellij.usages.UsageInfo2UsageAdapter;
+import com.intellij.usages.UsageSearcher;
+import com.intellij.usages.UsageViewManager;
+import com.intellij.usages.UsageViewPresentation;
 import com.intellij.util.Processor;
 import com.intellij.util.containers.hash.HashSet;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.jetbrains.idea.maven.dom.MavenDomProjectProcessorUtils;
-import org.jetbrains.idea.maven.dom.MavenDomUtil;
-import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
-import org.jetbrains.idea.maven.dom.model.MavenDomProperties;
-
-import java.util.*;
+import consulo.vfs.ArchiveFileSystem;
 
 public class IntroducePropertyAction extends BaseRefactoringAction {
   private static String PREFIX = "${";

@@ -15,21 +15,22 @@
  */
 package org.jetbrains.idea.maven.utils;
 
-import com.intellij.ide.IconDescriptor;
-import com.intellij.ide.IconDescriptorUpdater;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
+import consulo.ide.IconDescriptor;
+import consulo.ide.IconDescriptorUpdater;
 import icons.MavenIcons;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.idea.maven.project.MavenProjectsManager;
 
 /**
  * @author VISTALL
  * @since 15:13/20.07.13
  */
-public class MavenIconDescriptorUpdater implements IconDescriptorUpdater {
+public class MavenIconDescriptorUpdater implements IconDescriptorUpdater
+{
   @Override
   public void updateIcon(@NotNull IconDescriptor iconDescriptor, @NotNull PsiElement element, int flags) {
     if(element instanceof PsiFile && !DumbService.getInstance(element.getProject()).isDumb()) {

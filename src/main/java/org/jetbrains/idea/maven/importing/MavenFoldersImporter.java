@@ -28,11 +28,6 @@ import org.jetbrains.idea.maven.project.MavenImportingSettings;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.utils.Path;
-import org.mustbe.consulo.roots.ContentFolderTypeProvider;
-import org.mustbe.consulo.roots.impl.ProductionContentFolderTypeProvider;
-import org.mustbe.consulo.roots.impl.ProductionResourceContentFolderTypeProvider;
-import org.mustbe.consulo.roots.impl.TestContentFolderTypeProvider;
-import org.mustbe.consulo.roots.impl.TestResourceContentFolderTypeProvider;
 import com.intellij.openapi.application.AccessToken;
 import com.intellij.openapi.application.WriteAction;
 import com.intellij.openapi.module.Module;
@@ -44,6 +39,11 @@ import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.util.ArrayUtil;
 import com.intellij.util.containers.MultiMap;
+import consulo.roots.ContentFolderTypeProvider;
+import consulo.roots.impl.ProductionContentFolderTypeProvider;
+import consulo.roots.impl.ProductionResourceContentFolderTypeProvider;
+import consulo.roots.impl.TestContentFolderTypeProvider;
+import consulo.roots.impl.TestResourceContentFolderTypeProvider;
 
 public class MavenFoldersImporter
 {
