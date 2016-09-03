@@ -42,7 +42,6 @@ import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.server.MavenServerManager;
 import org.jetbrains.idea.maven.server.MavenServerUtil;
-import org.mustbe.consulo.java.module.extension.JavaModuleExtension;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
@@ -92,6 +91,7 @@ import com.intellij.util.Function;
 import com.intellij.util.SystemProperties;
 import com.intellij.util.concurrency.Semaphore;
 import com.intellij.util.containers.ContainerUtil;
+import consulo.java.module.extension.JavaModuleExtension;
 import consulo.vfs.util.ArchiveVfsUtil;
 import icons.MavenIcons;
 

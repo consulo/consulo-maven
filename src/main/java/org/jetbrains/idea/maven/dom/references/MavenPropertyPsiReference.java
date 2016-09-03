@@ -15,31 +15,15 @@
  */
 package org.jetbrains.idea.maven.dom.references;
 
-import com.intellij.codeInsight.lookup.LookupElement;
-import com.intellij.codeInsight.lookup.LookupElementBuilder;
-import com.intellij.lang.properties.IProperty;
-import com.intellij.lang.properties.PropertiesLanguage;
-import com.intellij.lang.properties.psi.PropertiesFile;
-import com.intellij.openapi.module.Module;
-import com.intellij.openapi.module.ModuleUtilCore;
-import com.intellij.openapi.projectRoots.Sdk;
-import com.intellij.openapi.util.TextRange;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.pom.Navigatable;
-import com.intellij.psi.*;
-import com.intellij.psi.util.PsiTreeUtil;
-import com.intellij.psi.xml.XmlDocument;
-import com.intellij.psi.xml.XmlFile;
-import com.intellij.psi.xml.XmlTag;
-import com.intellij.psi.xml.XmlTagChild;
-import com.intellij.util.ArrayUtil;
-import com.intellij.util.IncorrectOperationException;
-import com.intellij.util.PlatformIcons;
-import com.intellij.util.xml.DomElement;
-import com.intellij.util.xml.DomUtil;
-import com.intellij.xml.XmlElementDescriptor;
-import com.intellij.xml.XmlNSDescriptor;
 import gnu.trove.THashSet;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import javax.swing.Icon;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.idea.maven.dom.MavenDomProjectProcessorUtils;
@@ -54,13 +38,36 @@ import org.jetbrains.idea.maven.model.MavenId;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.utils.MavenUtil;
 import org.jetbrains.idea.maven.vfs.MavenPropertiesVirtualFileSystem;
-import org.mustbe.consulo.java.module.extension.JavaModuleExtensionImpl;
-
-import javax.swing.*;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import com.intellij.codeInsight.lookup.LookupElement;
+import com.intellij.codeInsight.lookup.LookupElementBuilder;
+import com.intellij.lang.properties.IProperty;
+import com.intellij.lang.properties.PropertiesLanguage;
+import com.intellij.lang.properties.psi.PropertiesFile;
+import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.ModuleUtilCore;
+import com.intellij.openapi.projectRoots.Sdk;
+import com.intellij.openapi.util.TextRange;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.pom.Navigatable;
+import com.intellij.psi.ElementManipulators;
+import com.intellij.psi.PsiDirectory;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiFileFactory;
+import com.intellij.psi.PsiManager;
+import com.intellij.psi.util.PsiTreeUtil;
+import com.intellij.psi.xml.XmlDocument;
+import com.intellij.psi.xml.XmlFile;
+import com.intellij.psi.xml.XmlTag;
+import com.intellij.psi.xml.XmlTagChild;
+import com.intellij.util.ArrayUtil;
+import com.intellij.util.IncorrectOperationException;
+import com.intellij.util.PlatformIcons;
+import com.intellij.util.xml.DomElement;
+import com.intellij.util.xml.DomUtil;
+import com.intellij.xml.XmlElementDescriptor;
+import com.intellij.xml.XmlNSDescriptor;
+import consulo.java.module.extension.JavaModuleExtensionImpl;
 
 public class MavenPropertyPsiReference extends MavenPsiReference {
   public static final String TIMESTAMP_PROP = "maven.build.timestamp";

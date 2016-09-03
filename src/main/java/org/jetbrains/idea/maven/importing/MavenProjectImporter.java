@@ -44,8 +44,6 @@ import org.jetbrains.idea.maven.project.ProjectBundle;
 import org.jetbrains.idea.maven.utils.MavenProcessCanceledException;
 import org.jetbrains.idea.maven.utils.MavenProgressIndicator;
 import org.jetbrains.idea.maven.utils.MavenUtil;
-import org.mustbe.consulo.java.module.extension.JavaMutableModuleExtensionImpl;
-import consulo.maven.module.extension.MavenMutableModuleExtension;
 import com.intellij.compiler.impl.javaCompiler.javac.JavacCompilerConfiguration;
 import com.intellij.compiler.impl.javaCompiler.javac.JpsJavaCompilerOptions;
 import com.intellij.openapi.application.ApplicationManager;
@@ -69,6 +67,8 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.ArrayUtil;
 import com.intellij.util.Function;
 import com.intellij.util.containers.Stack;
+import consulo.java.module.extension.JavaMutableModuleExtensionImpl;
+import consulo.maven.module.extension.MavenMutableModuleExtension;
 
 public class MavenProjectImporter
 {

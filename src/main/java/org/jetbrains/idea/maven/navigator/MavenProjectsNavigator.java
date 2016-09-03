@@ -15,6 +15,32 @@
  */
 package org.jetbrains.idea.maven.navigator;
 
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Rectangle;
+import java.net.URL;
+import java.util.Collections;
+import java.util.List;
+
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.tree.TreeSelectionModel;
+
+import org.jdom.Element;
+import org.jetbrains.annotations.TestOnly;
+import org.jetbrains.idea.maven.execution.MavenRunner;
+import org.jetbrains.idea.maven.execution.MavenRunnerSettings;
+import org.jetbrains.idea.maven.project.MavenProject;
+import org.jetbrains.idea.maven.project.MavenProjectChanges;
+import org.jetbrains.idea.maven.project.MavenProjectsManager;
+import org.jetbrains.idea.maven.project.MavenProjectsTree;
+import org.jetbrains.idea.maven.project.ProjectBundle;
+import org.jetbrains.idea.maven.server.NativeMavenProjectHolder;
+import org.jetbrains.idea.maven.tasks.MavenShortcutsManager;
+import org.jetbrains.idea.maven.tasks.MavenTasksManager;
+import org.jetbrains.idea.maven.utils.MavenLog;
+import org.jetbrains.idea.maven.utils.MavenSimpleProjectComponent;
+import org.jetbrains.idea.maven.utils.MavenUtil;
 import com.intellij.ProjectTopics;
 import com.intellij.execution.RunManagerAdapter;
 import com.intellij.execution.RunManagerEx;
@@ -41,26 +67,8 @@ import com.intellij.openapi.wm.ex.ToolWindowManagerEx;
 import com.intellij.ui.treeStructure.SimpleTree;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.messages.MessageBusConnection;
+import consulo.java.module.extension.JavaModuleExtensionImpl;
 import icons.MavenIcons;
-import org.jdom.Element;
-import org.jetbrains.annotations.TestOnly;
-import org.jetbrains.idea.maven.execution.MavenRunner;
-import org.jetbrains.idea.maven.execution.MavenRunnerSettings;
-import org.jetbrains.idea.maven.project.*;
-import org.jetbrains.idea.maven.server.NativeMavenProjectHolder;
-import org.jetbrains.idea.maven.tasks.MavenShortcutsManager;
-import org.jetbrains.idea.maven.tasks.MavenTasksManager;
-import org.jetbrains.idea.maven.utils.MavenLog;
-import org.jetbrains.idea.maven.utils.MavenSimpleProjectComponent;
-import org.jetbrains.idea.maven.utils.MavenUtil;
-import org.mustbe.consulo.java.module.extension.JavaModuleExtensionImpl;
-
-import javax.swing.*;
-import javax.swing.tree.TreeSelectionModel;
-import java.awt.*;
-import java.net.URL;
-import java.util.Collections;
-import java.util.List;
 
 @State(name = "MavenProjectNavigator", storages = {@Storage( file = StoragePathMacros.WORKSPACE_FILE)})
 public class MavenProjectsNavigator extends MavenSimpleProjectComponent implements PersistentStateComponent<MavenProjectsNavigatorState> {

@@ -23,7 +23,6 @@ import org.jetbrains.idea.maven.project.MavenGeneralSettings;
 import org.jetbrains.idea.maven.project.MavenGeneralSettingsEditor;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.project.ProjectBundle;
-import com.intellij.debugger.impl.GenericDebugRunnerConfiguration;
 import com.intellij.diagnostic.logging.LogConfigurationPanel;
 import com.intellij.execution.DefaultExecutionResult;
 import com.intellij.execution.ExecutionBundle;
@@ -49,6 +48,7 @@ import com.intellij.openapi.util.InvalidDataException;
 import com.intellij.openapi.util.WriteExternalException;
 import com.intellij.openapi.wm.ToolWindowId;
 import com.intellij.util.xmlb.XmlSerializer;
+import consulo.java.debugger.impl.GenericDebugRunnerConfiguration;
 
 public class MavenRunConfiguration extends LocatableConfigurationBase implements GenericDebugRunnerConfiguration
 {

@@ -15,6 +15,13 @@
  */
 package org.jetbrains.idea.maven.importing.configurers;
 
+import java.io.File;
+import java.util.List;
+import java.util.Map;
+
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.idea.maven.project.MavenProject;
 import com.intellij.compiler.impl.javaCompiler.JavaCompilerConfiguration;
 import com.intellij.compiler.impl.javaCompiler.annotationProcessing.ProcessorConfigProfile;
 import com.intellij.compiler.impl.javaCompiler.annotationProcessing.impl.ProcessorConfigProfileImpl;
@@ -23,14 +30,7 @@ import com.intellij.openapi.module.ModuleUtilCore;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.util.io.FileUtil;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.jetbrains.idea.maven.project.MavenProject;
-import org.mustbe.consulo.java.module.extension.JavaModuleExtensionImpl;
-
-import java.io.File;
-import java.util.List;
-import java.util.Map;
+import consulo.java.module.extension.JavaModuleExtensionImpl;
 
 /**
  * @author Sergey Evdokimov
