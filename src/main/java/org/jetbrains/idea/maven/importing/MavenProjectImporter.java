@@ -45,7 +45,7 @@ import org.jetbrains.idea.maven.utils.MavenProcessCanceledException;
 import org.jetbrains.idea.maven.utils.MavenProgressIndicator;
 import org.jetbrains.idea.maven.utils.MavenUtil;
 import org.mustbe.consulo.java.module.extension.JavaMutableModuleExtensionImpl;
-import org.mustbe.consulo.maven.module.extension.MavenMutableModuleExtension;
+import consulo.maven.module.extension.MavenMutableModuleExtension;
 import com.intellij.compiler.impl.javaCompiler.javac.JavacCompilerConfiguration;
 import com.intellij.compiler.impl.javaCompiler.javac.JpsJavaCompilerOptions;
 import com.intellij.openapi.application.ApplicationManager;

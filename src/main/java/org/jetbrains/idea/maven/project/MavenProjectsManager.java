@@ -55,7 +55,7 @@ import org.jetbrains.idea.maven.utils.MavenProgressIndicator;
 import org.jetbrains.idea.maven.utils.MavenSimpleProjectComponent;
 import org.jetbrains.idea.maven.utils.MavenTask;
 import org.jetbrains.idea.maven.utils.MavenUtil;
-import org.mustbe.consulo.maven.module.extension.MavenModuleExtension;
+import consulo.maven.module.extension.MavenModuleExtension;
 import com.intellij.ide.startup.StartupManagerEx;
 import com.intellij.notification.NotificationGroup;
 import com.intellij.openapi.application.AccessToken;

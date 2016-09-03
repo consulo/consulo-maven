@@ -13,17 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jetbrains.idea.maven.importing;
+package consulo.maven.importing;
 
 import org.jdom.Element;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.idea.maven.importing.MavenImporter;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.utils.MavenJDOMUtil;
+import consulo.annotations.Exported;
 
 /**
  * @author VISTALL
  * @since 17:11/12.07.13
  */
+@Exported
 public abstract class MavenImporterFromBuildPlugin extends MavenImporter {
   protected final String myPluginGroupID;
   protected final String myPluginArtifactID;

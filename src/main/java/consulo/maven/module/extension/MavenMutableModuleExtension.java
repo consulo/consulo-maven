@@ -13,20 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.mustbe.consulo.maven.module.extension;
+package consulo.maven.module.extension;
 
 import org.jetbrains.annotations.NotNull;
-import consulo.extension.impl.ModuleExtensionImpl;
+import consulo.module.extension.MutableModuleExtension;
 import consulo.roots.ModuleRootLayer;
 
 /**
  * @author VISTALL
  * @since 15:17/12.07.13
  */
-public class MavenModuleExtension extends ModuleExtensionImpl<MavenModuleExtension>
+public class MavenMutableModuleExtension extends MavenModuleExtension implements MutableModuleExtension<MavenModuleExtension>
 {
-	public MavenModuleExtension(@NotNull String id, @NotNull ModuleRootLayer moduleRootLayer)
+	public MavenMutableModuleExtension(@NotNull String id, @NotNull ModuleRootLayer moduleRootLayer)
 	{
 		super(id, moduleRootLayer);
+	}
+
+	@Override
+	public void setEnabled(boolean val)
+	{
+		myIsEnabled = val;
+	}
+
+	@Override
+	public boolean isModified(@NotNull MavenModuleExtension extension)
+	{
+		return extension.isEnabled() != myIsEnabled;
 	}
 }

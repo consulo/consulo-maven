@@ -34,7 +34,7 @@ import org.jetbrains.idea.maven.project.MavenProjectsTree;
 import org.jetbrains.idea.maven.project.SupportedRequestType;
 import org.jetbrains.idea.maven.utils.MavenUtil;
 import org.mustbe.consulo.java.module.extension.JavaMutableModuleExtensionImpl;
-import org.mustbe.consulo.maven.module.extension.MavenMutableModuleExtension;
+import consulo.maven.module.extension.MavenMutableModuleExtension;
 import com.intellij.openapi.application.AccessToken;
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.module.Module;

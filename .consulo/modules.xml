@@ -43,7 +43,7 @@
           <orderEntry type="module" module-name="artifact-resolver-m31" />
           <orderEntry type="library" name="consulo-plugin: com.intellij.properties" level="project" />
           <orderEntry type="library" name="consulo-plugin: com.intellij.xml" level="project" />
-          <orderEntry type="library" name="consulo-plugin: org.consulo.java" level="project" />
+          <orderEntry type="library" name="consulo-plugin: consulo.java" level="project" />
         </module-layer>
       </module>
       <module name="maven-server-api" dirurl="file://$PROJECT_DIR$/maven-server-api" current-layer="Default">
@@ -185,7 +185,7 @@
       </module>
       <module name="maven3-server-common" dirurl="file://$PROJECT_DIR$/maven3-server-common" current-layer="Default">
         <module-layer name="Default">
-          <extension id="consulo-plugin" sdk-module-name="consulo-maven" sdk-name="Consulo 1.SNAPSHOT" />
+          <extension id="consulo-plugin" sdk-module-name="consulo-maven" sdk-name="" />
           <extension id="java" sdk-module-name="" sdk-name="1.6" language-level-module-name="" language-level-name="JDK_1_6" special-dir-location="SOURCE_DIR" />
           <content url="file://$MODULE_DIR$">
             <content-folder type="PRODUCTION" url="file://$MODULE_DIR$/src" />

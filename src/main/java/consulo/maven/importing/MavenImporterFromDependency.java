@@ -13,17 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jetbrains.idea.maven.importing;
-
-import org.jetbrains.idea.maven.model.MavenArtifact;
-import org.jetbrains.idea.maven.project.MavenProject;
+package consulo.maven.importing;
 
 import java.util.List;
+
+import org.jetbrains.idea.maven.importing.MavenImporter;
+import org.jetbrains.idea.maven.model.MavenArtifact;
+import org.jetbrains.idea.maven.project.MavenProject;
+import consulo.annotations.Exported;
 
 /**
  * @author VISTALL
  * @since 17:14/12.07.13
  */
+@Exported
 public abstract class MavenImporterFromDependency extends MavenImporter {
   private final String myGroupId;
   private final String myArtifactId;

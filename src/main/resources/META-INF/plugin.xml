@@ -6,7 +6,7 @@
 	<vendor>JetBrains</vendor>
 	<version>SNAPSHOT</version>
 	<depends>com.intellij.xml</depends>
-	<depends>org.consulo.java</depends>
+	<depends>consulo.java</depends>
 	<depends>com.intellij.properties</depends>
 	<category>Build</category>
 	<extensionPoints>
@@ -36,7 +36,7 @@
 		<standardResourceProvider implementation="org.jetbrains.idea.maven.dom.MavenSchemaProvider"/>
 	</extensions>
 
-	<extensions defaultExtensionNs="org.consulo.java">
+	<extensions defaultExtensionNs="consulo.java">
 		<testPatcher implementation="org.jetbrains.idea.maven.execution.MavenJUnitPatcher"/>
 
 		<attachSourcesProvider implementation="org.jetbrains.idea.maven.utils.MavenAttachSourcesProvider"/>
@@ -70,8 +70,8 @@
 								 systemOnly="true"
 								 name="Maven"
 								 icon="/images/mavenLogo.png"
-								 immutableClass="org.mustbe.consulo.maven.module.extension.MavenModuleExtension"
-								 mutableClass="org.mustbe.consulo.maven.module.extension.MavenMutableModuleExtension"/>
+								 immutableClass="consulo.maven.module.extension.MavenModuleExtension"
+								 mutableClass="consulo.maven.module.extension.MavenMutableModuleExtension"/>
 
 		<stepsBeforeRunProvider implementation="org.jetbrains.idea.maven.tasks.MavenBeforeRunTasksProvider"/>
 		<keymapExtension implementation="org.jetbrains.idea.maven.tasks.MavenKeymapExtension"/>
@@ -85,7 +85,7 @@
 
 		<selectInTarget implementation="org.jetbrains.idea.maven.navigator.SelectInMavenNavigatorTarget"/>
 
-		<iconDescriptorUpdater implementation="org.jetbrains.idea.maven.utils.MavenIconDescriptorUpdater" order="after xml"/>
+		<iconDescriptorUpdater implementation="consulo.maven.MavenIconDescriptorUpdater" order="after xml"/>
 		<editorTabTitleProvider implementation="org.jetbrains.idea.maven.utils.MavenEditorTabTitleProvider"/>
 
 		<problemFileHighlightFilter implementation="org.jetbrains.idea.maven.utils.MavenProblemFileHighlighter"/>
