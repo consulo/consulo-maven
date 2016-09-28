@@ -108,16 +108,22 @@ public class MavenModuleImporter
 		JavaMutableModuleExtensionImpl javaModuleExtension = rootModel.getExtensionWithoutCheck(JavaMutableModuleExtensionImpl.class);
 		javaModuleExtension.setEnabled(true);
 
+		String bytecodeVersion = myMavenProject.getTargetLevel();
+		if(bytecodeVersion != null)
+		{
+			javaModuleExtension.setBytecodeVersion(bytecodeVersion);
+		}
+
 		final LanguageLevel languageLevel = LanguageLevel.parse(myMavenProject.getSourceLevel());
 
 		final JavaSdk javaSdk = JavaSdk.getInstance();
 		List<Sdk> sdksOfType = SdkTable.getInstance().getSdksOfType(javaSdk);
 
-		LanguageLevel targetLevel = null;
+		LanguageLevel targetLanguageLevel = null;
 		Sdk targetSdk = null;
 		if(languageLevel != null)
 		{
-			targetLevel = languageLevel;
+			targetLanguageLevel = languageLevel;
 
 			targetSdk = ContainerUtil.find(sdksOfType, new Condition<Sdk>()
 			{
@@ -141,16 +147,16 @@ public class MavenModuleImporter
 			{
 				targetSdk = bundleSdkByType;
 				JavaSdkVersion version = javaSdk.getVersion(targetSdk);
-				targetLevel = version != null ? version.getMaxLanguageLevel() : LanguageLevel.HIGHEST;
+				targetLanguageLevel = version != null ? version.getMaxLanguageLevel() : LanguageLevel.HIGHEST;
 			}
 			else
 			{
-				targetLevel = LanguageLevel.HIGHEST;
+				targetLanguageLevel = LanguageLevel.HIGHEST;
 			}
 		}
 
 		javaModuleExtension.getInheritableSdk().set(null, targetSdk);
-		javaModuleExtension.getInheritableLanguageLevel().set(null, targetLevel);
+		javaModuleExtension.getInheritableLanguageLevel().set(null, targetLanguageLevel);
 
 		ModuleExtensionWithSdkOrderEntry moduleExtensionSdkEntry = rootModel.findModuleExtensionSdkEntry(javaModuleExtension);
 		if(moduleExtensionSdkEntry == null)

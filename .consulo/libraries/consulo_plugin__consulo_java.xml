@@ -1,8 +1,18 @@
 <component name="libraryTable">
   <library name="consulo-plugin: consulo.java">
     <binaries>
-      <root url="file://$PROJECT_DIR$/dep/consulo.java/lib" />
+      <root url="jar://$PROJECT_DIR$/dep/consulo.java/lib/jdi.jar!/" />
+      <root url="jar://$PROJECT_DIR$/dep/consulo.java/lib/java.jar!/" />
+      <root url="jar://$PROJECT_DIR$/dep/consulo.java/lib/asm-all.jar!/" />
+      <root url="jar://$PROJECT_DIR$/dep/consulo.java/lib/java-rt.jar!/" />
+      <root url="jar://$PROJECT_DIR$/dep/consulo.java/lib/jacocoant.jar!/" />
+      <root url="jar://$PROJECT_DIR$/dep/consulo.java/lib/java-i18n.jar!/" />
+      <root url="jar://$PROJECT_DIR$/dep/consulo.java/lib/coverate_rt.jar!/" />
+      <root url="jar://$PROJECT_DIR$/dep/consulo.java/lib/jimage-jdk6.jar!/" />
+      <root url="jar://$PROJECT_DIR$/dep/consulo.java/lib/java-manifest.jar!/" />
+      <root url="jar://$PROJECT_DIR$/dep/consulo.java/lib/javascript-impl.jar!/" />
+      <root url="jar://$PROJECT_DIR$/dep/consulo.java/lib/jdk-annotations.jar!/" />
+      <root url="jar://$PROJECT_DIR$/dep/consulo.java/lib/instrumentation-util.jar!/" />
     </binaries>
-    <jarDirectory url="file://$PROJECT_DIR$/dep/consulo.java/lib" recursive="false" />
   </library>
 </component>

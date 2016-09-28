@@ -18,7 +18,6 @@ package org.jetbrains.idea.maven.importing.configurers;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.idea.maven.project.MavenProject;
-import com.intellij.compiler.impl.javaCompiler.JavaCompilerConfiguration;
 import com.intellij.openapi.compiler.CompilerManager;
 import com.intellij.openapi.compiler.options.ExcludeEntryDescription;
 import com.intellij.openapi.compiler.options.ExcludedEntriesConfiguration;
@@ -41,12 +40,6 @@ public class MavenCompilerConfigurer extends MavenModuleConfigurer
 		}
 
 		CompilerManager compilerManager = CompilerManager.getInstance(project);
-		JavaCompilerConfiguration javaCompilerConfiguration = JavaCompilerConfiguration.getInstance(project);
-		String targetLevel = mavenProject.getTargetLevel();
-		if(targetLevel != null)
-		{
-			javaCompilerConfiguration.setBytecodeTargetLevel(module, targetLevel);
-		}
 
 		VirtualFile directoryFile = mavenProject.getDirectoryFile();
 
