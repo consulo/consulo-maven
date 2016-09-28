@@ -15,6 +15,9 @@
  */
 package org.jetbrains.idea.maven.importing.configurers;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.idea.maven.project.MavenProject;
 import com.intellij.compiler.impl.javaCompiler.JavaCompilerConfiguration;
 import com.intellij.openapi.compiler.CompilerManager;
 import com.intellij.openapi.compiler.options.ExcludeEntryDescription;
@@ -23,37 +26,42 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.jetbrains.idea.maven.project.MavenProject;
 
 /**
  * @author Sergey Evdokimov
  */
-public class MavenCompilerConfigurer extends MavenModuleConfigurer {
-  @Override
-  public void configure(@NotNull MavenProject mavenProject, @NotNull Project project, @Nullable Module module) {
-    if (module == null) return;
+public class MavenCompilerConfigurer extends MavenModuleConfigurer
+{
+	@Override
+	public void configure(@NotNull MavenProject mavenProject, @NotNull Project project, @Nullable Module module)
+	{
+		if(module == null)
+		{
+			return;
+		}
 
-    CompilerManager compilerManager = CompilerManager.getInstance(project);
-    JavaCompilerConfiguration javaCompilerConfiguration = JavaCompilerConfiguration.getInstance(project);
-    String targetLevel = mavenProject.getTargetLevel();
-    if (targetLevel != null) {
-      javaCompilerConfiguration.setBytecodeTargetLevel(module, targetLevel);
-    }
+		CompilerManager compilerManager = CompilerManager.getInstance(project);
+		JavaCompilerConfiguration javaCompilerConfiguration = JavaCompilerConfiguration.getInstance(project);
+		String targetLevel = mavenProject.getTargetLevel();
+		if(targetLevel != null)
+		{
+			javaCompilerConfiguration.setBytecodeTargetLevel(module, targetLevel);
+		}
 
-    VirtualFile directoryFile = mavenProject.getDirectoryFile();
+		VirtualFile directoryFile = mavenProject.getDirectoryFile();
 
-    // Exclude src/main/archetype-resources
-    VirtualFile archetypeResourcesDir = VfsUtil.findRelativeFile(directoryFile, "src", "main", "resources", "archetype-resources");
+		// Exclude src/main/archetype-resources
+		VirtualFile archetypeResourcesDir = VfsUtil.findRelativeFile(directoryFile, "src", "main", "resources", "archetype-resources");
 
-    if (archetypeResourcesDir != null) {
+		if(archetypeResourcesDir != null)
+		{
 
-      if (!compilerManager.isExcludedFromCompilation(archetypeResourcesDir)) {
-        ExcludedEntriesConfiguration cfg = compilerManager.getExcludedEntriesConfiguration();
+			if(!compilerManager.isExcludedFromCompilation(archetypeResourcesDir))
+			{
+				ExcludedEntriesConfiguration cfg = compilerManager.getExcludedEntriesConfiguration();
 
-        cfg.addExcludeEntryDescription(new ExcludeEntryDescription(archetypeResourcesDir, true, false, project));
-      }
-    }
-  }
+				cfg.addExcludeEntryDescription(new ExcludeEntryDescription(archetypeResourcesDir, true, false, project));
+			}
+		}
+	}
 }
