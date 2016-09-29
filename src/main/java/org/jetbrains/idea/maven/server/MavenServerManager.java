@@ -78,7 +78,6 @@ import com.intellij.openapi.projectRoots.SdkTable;
 import com.intellij.openapi.util.ShutDownTracker;
 import com.intellij.openapi.util.SystemInfo;
 import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.util.Alarm;
 import com.intellij.util.PathUtil;
 import com.intellij.util.SystemProperties;
 import com.intellij.util.containers.ContainerUtil;
@@ -107,8 +106,6 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
 	private final RemoteMavenServerDownloadListener myDownloadListener = new RemoteMavenServerDownloadListener();
 	private boolean myLoggerExported;
 	private boolean myDownloadListenerExported;
-
-	private final Alarm myShutdownAlarm = new Alarm(Alarm.ThreadToUse.SHARED_THREAD);
 
 	private State myState = new State();
 	private final File myBundledMaven2Home;
@@ -240,8 +237,6 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
 			}
 			myDownloadListenerExported = false;
 		}
-
-		myShutdownAlarm.cancelAllRequests();
 	}
 
 	@NotNull
