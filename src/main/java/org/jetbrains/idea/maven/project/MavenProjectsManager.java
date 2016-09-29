@@ -99,7 +99,7 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 
 	private MavenProjectsManagerState myState = new MavenProjectsManagerState();
 
-	private final Alarm myInitializationAlarm = new Alarm(Alarm.ThreadToUse.SHARED_THREAD, myProject);
+	private final Alarm myInitializationAlarm;
 
 	private final MavenEmbeddersManager myEmbeddersManager;
 
@@ -136,6 +136,7 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 		super(project);
 		myEmbeddersManager = new MavenEmbeddersManager(myProject);
 		myModificationTracker = new MavenModificationTracker(this);
+		myInitializationAlarm = new Alarm(Alarm.ThreadToUse.POOLED_THREAD, myProject);
 	}
 
 	@Override
