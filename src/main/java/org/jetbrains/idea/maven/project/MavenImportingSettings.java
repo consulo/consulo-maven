@@ -23,6 +23,7 @@ import org.jetbrains.annotations.NotNull;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.xmlb.annotations.Property;
+import consulo.annotations.DeprecationInfo;
 
 public class MavenImportingSettings implements Cloneable
 {
@@ -39,8 +40,6 @@ public class MavenImportingSettings implements Cloneable
 	};
 	public static final String UPDATE_FOLDERS_DEFAULT_PHASE = PROCESS_RESOURCES_PHASE;
 
-	@NotNull
-	private String dedicatedModuleDir = "";
 	private boolean lookForNested = false;
 
 	private boolean importAutomatically = false;
@@ -77,14 +76,11 @@ public class MavenImportingSettings implements Cloneable
 	}
 
 	@NotNull
+	@Deprecated
+	@DeprecationInfo("Always return empty string")
 	public String getDedicatedModuleDir()
 	{
-		return dedicatedModuleDir;
-	}
-
-	public void setDedicatedModuleDir(@NotNull String dedicatedModuleDir)
-	{
-		this.dedicatedModuleDir = dedicatedModuleDir;
+		return "";
 	}
 
 	public boolean isLookForNested()
@@ -294,10 +290,6 @@ public class MavenImportingSettings implements Cloneable
 		{
 			return false;
 		}
-		if(!dedicatedModuleDir.equals(that.dedicatedModuleDir))
-		{
-			return false;
-		}
 		if(updateFoldersOnImportPhase != null ? !updateFoldersOnImportPhase.equals(that.updateFoldersOnImportPhase) : that.updateFoldersOnImportPhase != null)
 		{
 			return false;
@@ -353,7 +345,6 @@ public class MavenImportingSettings implements Cloneable
 		result <<= 1;
 
 		result = 31 * result + (updateFoldersOnImportPhase != null ? updateFoldersOnImportPhase.hashCode() : 0);
-		result = 31 * result + dedicatedModuleDir.hashCode();
 		result = 31 * result + generatedSourcesFolder.hashCode();
 		result = 31 * result + dependencyTypes.hashCode();
 

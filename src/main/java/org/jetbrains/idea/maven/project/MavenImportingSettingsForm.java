@@ -15,9 +15,6 @@
  */
 package org.jetbrains.idea.maven.project;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -25,11 +22,6 @@ import javax.swing.JComponent;
 import javax.swing.JList;
 import javax.swing.JPanel;
 
-import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory;
-import com.intellij.openapi.ui.TextFieldWithBrowseButton;
-import com.intellij.openapi.updateSettings.impl.LabelTextReplacingUtil;
-import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.ui.EnumComboBoxModel;
 import com.intellij.ui.ListCellRendererWrapper;
 
@@ -37,9 +29,6 @@ public class MavenImportingSettingsForm {
   private JPanel myPanel;
 
   private JCheckBox mySearchRecursivelyCheckBox;
-
-  private JCheckBox mySeparateModulesDirCheckBox;
-  private TextFieldWithBrowseButton mySeparateModulesDirChooser;
 
   private JCheckBox myImportAutomaticallyBox;
   private JCheckBox myCreateModulesForAggregators;
@@ -51,23 +40,11 @@ public class MavenImportingSettingsForm {
   private JCheckBox myDownloadDocsCheckBox;
 
   private JPanel myAdditionalSettingsPanel;
-  private JPanel mySeparateModulesDirPanel;
   private JComboBox myGeneratedSourcesComboBox;
   private JCheckBox myExcludeTargetFolderCheckBox;
 
   public MavenImportingSettingsForm(boolean isImportStep, boolean isCreatingNewProject) {
     mySearchRecursivelyCheckBox.setVisible(isImportStep);
-    mySeparateModulesDirPanel.setVisible(isImportStep);
-
-    ActionListener listener = new ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        updateControls();
-      }
-    };
-    mySeparateModulesDirCheckBox.addActionListener(listener);
-
-    mySeparateModulesDirChooser.addBrowseFolderListener(ProjectBundle.message("maven.import.title.module.dir"), "", null,
-                                                        FileChooserDescriptorFactory.createSingleFolderDescriptor());
 
     myUpdateFoldersOnImportPhaseComboBox.setModel(new DefaultComboBoxModel(MavenImportingSettings.UPDATE_FOLDERS_PHASES));
 
@@ -80,20 +57,6 @@ public class MavenImportingSettingsForm {
         }
       }
     });
-
-    LabelTextReplacingUtil.replaceText(myPanel);
-  }
-
-  private void updateControls() {
-    boolean useSeparateDir = mySeparateModulesDirCheckBox.isSelected();
-    mySeparateModulesDirChooser.setEnabled(useSeparateDir);
-    if (useSeparateDir && StringUtil.isEmptyOrSpaces(mySeparateModulesDirChooser.getText())) {
-      mySeparateModulesDirChooser.setText(FileUtil.toSystemDependentName(getDefaultModuleDir()));
-    }
-  }
-
-  public String getDefaultModuleDir() {
-    return "";
   }
 
   public JComponent createComponent() {
@@ -102,7 +65,6 @@ public class MavenImportingSettingsForm {
 
   public void getData(MavenImportingSettings data) {
     data.setLookForNested(mySearchRecursivelyCheckBox.isSelected());
-    data.setDedicatedModuleDir(mySeparateModulesDirCheckBox.isSelected() ? mySeparateModulesDirChooser.getText() : "");
 
     data.setImportAutomatically(myImportAutomaticallyBox.isSelected());
     data.setCreateModulesForAggregators(myCreateModulesForAggregators.isSelected());
@@ -122,9 +84,6 @@ public class MavenImportingSettingsForm {
   public void setData(MavenImportingSettings data) {
     mySearchRecursivelyCheckBox.setSelected(data.isLookForNested());
 
-    mySeparateModulesDirCheckBox.setSelected(!StringUtil.isEmptyOrSpaces(data.getDedicatedModuleDir()));
-    mySeparateModulesDirChooser.setText(data.getDedicatedModuleDir());
-
     myImportAutomaticallyBox.setSelected(data.isImportAutomatically());
     myCreateModulesForAggregators.setSelected(data.isCreateModulesForAggregators());
     myCreateGroupsCheckBox.setSelected(data.isCreateModuleGroups());
@@ -138,8 +97,6 @@ public class MavenImportingSettingsForm {
 
     myDownloadSourcesCheckBox.setSelected(data.isDownloadSourcesAutomatically());
     myDownloadDocsCheckBox.setSelected(data.isDownloadDocsAutomatically());
-
-    updateControls();
   }
 
   public boolean isModified(MavenImportingSettings settings) {
