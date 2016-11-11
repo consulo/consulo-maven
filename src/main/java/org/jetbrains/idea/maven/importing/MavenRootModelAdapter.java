@@ -103,7 +103,7 @@ public class MavenRootModelAdapter
 	{
 		for(OrderEntry e : myRootModel.getOrderEntries())
 		{
-			if(e instanceof ModuleSourceOrderEntry || e instanceof SdkOrderEntry)
+			if(e instanceof ModuleSourceOrderEntry || e instanceof ModuleExtensionWithSdkOrderEntry)
 			{
 				continue;
 			}
