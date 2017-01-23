@@ -23,10 +23,11 @@ import java.util.List;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import com.intellij.openapi.components.PersistentStateComponent;
+import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.components.StoragePathMacros;
-import consulo.lombok.annotations.ProjectService;
+import com.intellij.openapi.project.Project;
 
 /**
  * @author Sergey Evdokimov
@@ -34,9 +35,13 @@ import consulo.lombok.annotations.ProjectService;
 @State(
 		name = "mavenExecuteGoalHistory",
 		storages = @Storage(file = StoragePathMacros.WORKSPACE_FILE))
-@ProjectService
 public class ExecuteMavenGoalHistoryService implements PersistentStateComponent<String[]>
 {
+	@NotNull
+	public static ExecuteMavenGoalHistoryService getInstance(@NotNull Project project)
+	{
+		return ServiceManager.getService(project, ExecuteMavenGoalHistoryService.class);
+	}
 
 	private static final int MAX_HISTORY_LENGTH = 20;
 
