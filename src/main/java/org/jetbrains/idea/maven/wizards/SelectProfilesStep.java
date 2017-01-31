@@ -40,6 +40,7 @@ import com.intellij.ide.util.MultiStateElementsChooser;
 import com.intellij.ide.util.projectWizard.WizardContext;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.projectImport.ProjectImportWizardStep;
+import consulo.maven.importProvider.MavenImportModuleContext;
 
 /**
  * @author Vladislav.Kaznacheev
@@ -50,36 +51,24 @@ public class SelectProfilesStep extends ProjectImportWizardStep
 	private MultiStateElementsChooser<String, MavenProfileKind> profileChooser;
 	private MavenProfileKindMarkStateDescriptor myMarkStateDescriptor;
 
-	public SelectProfilesStep(final WizardContext context)
+	private final MavenImportModuleContext myContext;
+
+	public SelectProfilesStep(MavenImportModuleContext context, final WizardContext wizardContext)
 	{
-		super(context);
+		super(wizardContext);
+		myContext = context;
 	}
 
 	@Override
 	public boolean isStepVisible()
 	{
-		if(!super.isStepVisible())
-		{
-			return false;
-		}
-		final MavenProjectBuilder importBuilder = getBuilder();
-		if(importBuilder != null)
-		{
-			return !importBuilder.getProfiles().isEmpty();
-		}
-		return false;
-	}
-
-	@Override
-	protected MavenProjectBuilder getBuilder()
-	{
-		return (MavenProjectBuilder) super.getBuilder();
+		return super.isStepVisible() && !myContext.getProfiles().isEmpty();
 	}
 
 	public void createUIComponents()
 	{
 		myMarkStateDescriptor = new MavenProfileKindMarkStateDescriptor();
-		profileChooser = new MultiStateElementsChooser<String, MavenProfileKind>(true, myMarkStateDescriptor);
+		profileChooser = new MultiStateElementsChooser<>(true, myMarkStateDescriptor);
 	}
 
 	@Override
@@ -89,13 +78,13 @@ public class SelectProfilesStep extends ProjectImportWizardStep
 	}
 
 	@Override
-	public void updateStep()
+	public void updateStep(WizardContext context)
 	{
-		List<String> allProfiles = getBuilder().getProfiles();
-		List<String> activatedProfiles = getBuilder().getActivatedProfiles();
-		MavenExplicitProfiles selectedProfiles = getBuilder().getSelectedProfiles();
-		List<String> enabledProfiles = new ArrayList<String>(selectedProfiles.getEnabledProfiles());
-		List<String> disabledProfiles = new ArrayList<String>(selectedProfiles.getDisabledProfiles());
+		List<String> allProfiles = myContext.getProfiles();
+		List<String> activatedProfiles = myContext.getActivatedProfiles();
+		MavenExplicitProfiles selectedProfiles = myContext.getSelectedProfiles();
+		List<String> enabledProfiles = new ArrayList<>(selectedProfiles.getEnabledProfiles());
+		List<String> disabledProfiles = new ArrayList<>(selectedProfiles.getDisabledProfiles());
 		enabledProfiles.retainAll(allProfiles); // mark only existing profiles
 		disabledProfiles.retainAll(allProfiles); // mark only existing profiles
 
@@ -106,7 +95,7 @@ public class SelectProfilesStep extends ProjectImportWizardStep
 	}
 
 	@Override
-	public boolean validate() throws ConfigurationException
+	public boolean validate(@NotNull WizardContext context) throws ConfigurationException
 	{
 		Collection<String> activatedProfiles = myMarkStateDescriptor.getActivatedProfiles();
 		MavenExplicitProfiles newSelectedProfiles = MavenExplicitProfiles.NONE.clone();
@@ -129,7 +118,7 @@ public class SelectProfilesStep extends ProjectImportWizardStep
 					break;
 			}
 		}
-		return getBuilder().setSelectedProfiles(newSelectedProfiles);
+		return myContext.setSelectedProfiles(newSelectedProfiles);
 	}
 
 	@Override
@@ -155,7 +144,7 @@ public class SelectProfilesStep extends ProjectImportWizardStep
 
 		public void setActivatedProfiles(Collection<String> activatedProfiles)
 		{
-			myActivatedProfiles = new THashSet<String>(activatedProfiles);
+			myActivatedProfiles = new THashSet<>(activatedProfiles);
 		}
 
 		@NotNull

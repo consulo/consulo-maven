@@ -28,6 +28,7 @@ import javax.swing.JPanel;
 
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.idea.maven.project.MavenEnvironmentForm;
 import org.jetbrains.idea.maven.project.MavenGeneralSettings;
@@ -42,143 +43,180 @@ import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.projectImport.ProjectImportWizardStep;
+import consulo.annotations.RequiredDispatchThread;
+import consulo.maven.importProvider.MavenImportModuleContext;
 
-public class MavenProjectImportStep extends ProjectImportWizardStep {
-  private final JPanel myPanel;
-  private final NamePathComponent myRootPathComponent;
-  private final MavenImportingSettingsForm myImportingSettingsForm;
+public class MavenProjectImportStep extends ProjectImportWizardStep
+{
+	private final JPanel myPanel;
+	private final NamePathComponent myRootPathComponent;
+	private final MavenImportingSettingsForm myImportingSettingsForm;
+	private final MavenImportModuleContext myContext;
 
-  public MavenProjectImportStep(WizardContext wizardContext) {
-    super(wizardContext);
+	public MavenProjectImportStep(MavenImportModuleContext context, WizardContext wizardContext)
+	{
+		super(wizardContext);
+		myContext = context;
 
-    myImportingSettingsForm = new MavenImportingSettingsForm(true, wizardContext.isCreatingNewProject());
+		myImportingSettingsForm = new MavenImportingSettingsForm(true, wizardContext.isCreatingNewProject());
 
-    myRootPathComponent = new NamePathComponent("",
-                                                ProjectBundle.message("maven.import.label.select.root"),
-                                                ProjectBundle.message("maven.import.title.select.root"),
-                                                "",
-                                                false,
-                                                false);
+		myRootPathComponent = new NamePathComponent("", ProjectBundle.message("maven.import.label.select.root"), ProjectBundle.message("maven.import.title.select.root"), "", false, false);
 
-    JButton envSettingsButton = new JButton(ProjectBundle.message("maven.import.environment.settings"));
-    envSettingsButton.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        ShowSettingsUtil.getInstance().editConfigurable(myPanel, new MavenEnvironmentConfigurable());
-      }
-    });
+		JButton envSettingsButton = new JButton(ProjectBundle.message("maven.import.environment.settings"));
+		envSettingsButton.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				ShowSettingsUtil.getInstance().editConfigurable(myPanel, new MavenEnvironmentConfigurable());
+			}
+		});
 
-    myPanel = new JPanel(new GridBagLayout());
-    myPanel.setBorder(BorderFactory.createEtchedBorder());
+		myPanel = new JPanel(new GridBagLayout());
+		myPanel.setBorder(BorderFactory.createEtchedBorder());
 
-    GridBagConstraints c = new GridBagConstraints();
-    c.gridx = 0;
-    c.gridy = 0;
-    c.weightx = 1;
-    c.fill = GridBagConstraints.HORIZONTAL;
-    c.insets = new Insets(4, 4, 0, 4);
+		GridBagConstraints c = new GridBagConstraints();
+		c.gridx = 0;
+		c.gridy = 0;
+		c.weightx = 1;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.insets = new Insets(4, 4, 0, 4);
 
-    myPanel.add(myRootPathComponent, c);
+		myPanel.add(myRootPathComponent, c);
 
-    c.gridy = 1;
-    c.insets = new Insets(4, 4, 0, 4);
-    myPanel.add(myImportingSettingsForm.createComponent(), c);
+		c.gridy = 1;
+		c.insets = new Insets(4, 4, 0, 4);
+		myPanel.add(myImportingSettingsForm.createComponent(), c);
 
-    c.gridy = 2;
-    c.fill = GridBagConstraints.NONE;
-    c.anchor = GridBagConstraints.NORTHEAST;
-    c.weighty = 1;
-    c.insets = new Insets(4 + envSettingsButton.getPreferredSize().height, 4, 4, 4);
-    myPanel.add(envSettingsButton, c);
+		c.gridy = 2;
+		c.fill = GridBagConstraints.NONE;
+		c.anchor = GridBagConstraints.NORTHEAST;
+		c.weighty = 1;
+		c.insets = new Insets(4 + envSettingsButton.getPreferredSize().height, 4, 4, 4);
+		myPanel.add(envSettingsButton, c);
 
-    myRootPathComponent.setNameComponentVisible(false);
-  }
+		myRootPathComponent.setNameComponentVisible(false);
+	}
 
-  public JComponent getComponent() {
-    return myPanel;
-  }
+	@Override
+	public JComponent getComponent()
+	{
+		return myPanel;
+	}
 
-  public void updateDataModel() {
-    MavenImportingSettings settings = getImportingSettings();
-    myImportingSettingsForm.getData(settings);
-    suggestProjectNameAndPath(settings.getDedicatedModuleDir(), myRootPathComponent.getPath());
-  }
+	@Override
+	public void updateDataModel()
+	{
+		MavenImportingSettings settings = getImportingSettings();
+		myImportingSettingsForm.getData(settings);
+		suggestProjectNameAndPath(settings.getDedicatedModuleDir(), myRootPathComponent.getPath());
+	}
 
-  public boolean validate() throws ConfigurationException {
-    updateDataModel(); // needed to make 'exhaustive search' take an effect.
-    return getBuilder().setRootDirectory(getWizardContext().getProject(), myRootPathComponent.getPath());
-  }
+	@Override
+	public boolean validate(@NotNull WizardContext wizardContext) throws ConfigurationException
+	{
+		updateDataModel(); // needed to make 'exhaustive search' take an effect.
+		return myContext.setRootDirectory(getWizardContext().getProject(), myRootPathComponent.getPath());
+	}
 
-  public void updateStep() {
-    if (!myRootPathComponent.isPathChangedByUser()) {
-      final VirtualFile rootDirectory = getBuilder().getRootDirectory();
-      final String path;
-      if (rootDirectory != null) {
-        path = rootDirectory.getPath();
-      }
-      else {
-        path = getWizardContext().getProjectFileDirectory();
-      }
-      if (path != null) {
-        myRootPathComponent.setPath(FileUtil.toSystemDependentName(path));
-        myRootPathComponent.getPathComponent().selectAll();
-      }
-    }
-    myImportingSettingsForm.setData(getImportingSettings());
-  }
+	@Override
+	public void updateStep(WizardContext wizardContext)
+	{
+		if(!myRootPathComponent.isPathChangedByUser())
+		{
+			final VirtualFile rootDirectory = myContext.getRootDirectory();
+			final String path;
+			if(rootDirectory != null)
+			{
+				path = rootDirectory.getPath();
+			}
+			else
+			{
+				path = getWizardContext().getProjectFileDirectory();
+			}
+			if(path != null)
+			{
+				myRootPathComponent.setPath(FileUtil.toSystemDependentName(path));
+				myRootPathComponent.getPathComponent().selectAll();
+			}
+		}
+		myImportingSettingsForm.setData(getImportingSettings());
+	}
 
-  public JComponent getPreferredFocusedComponent() {
-    return myRootPathComponent.getPathComponent();
-  }
+	@Override
+	public JComponent getPreferredFocusedComponent()
+	{
+		return myRootPathComponent.getPathComponent();
+	}
 
-  @Override
-  public MavenProjectBuilder getBuilder() {
-    return (MavenProjectBuilder)super.getBuilder();
-  }
+	private MavenGeneralSettings getGeneralSettings()
+	{
+		return myContext.getGeneralSettings();
+	}
 
-  private MavenGeneralSettings getGeneralSettings() {
-    return getBuilder().getGeneralSettings();
-  }
+	private MavenImportingSettings getImportingSettings()
+	{
+		return myContext.getImportingSettings();
+	}
 
-  private MavenImportingSettings getImportingSettings() {
-    return getBuilder().getImportingSettings();
-  }
+	@Override
+	@NonNls
+	public String getHelpId()
+	{
+		return "reference.dialogs.new.project.import.maven.page1";
+	}
 
-  @NonNls
-  public String getHelpId() {
-    return "reference.dialogs.new.project.import.maven.page1";
-  }
+	class MavenEnvironmentConfigurable implements Configurable
+	{
+		MavenEnvironmentForm myForm = new MavenEnvironmentForm();
 
-  class MavenEnvironmentConfigurable implements Configurable {
-    MavenEnvironmentForm myForm = new MavenEnvironmentForm();
+		@Override
+		@Nls
+		public String getDisplayName()
+		{
+			return ProjectBundle.message("maven.import.environment.settings.title");
+		}
 
-    @Nls
-    public String getDisplayName() {
-      return ProjectBundle.message("maven.import.environment.settings.title");
-    }
+		@Override
+		@Nullable
+		@NonNls
+		public String getHelpTopic()
+		{
+			return null;
+		}
 
-    @Nullable
-    @NonNls
-    public String getHelpTopic() {
-      return null;
-    }
+		@RequiredDispatchThread
+		@Override
+		public JComponent createComponent()
+		{
+			return myForm.createComponent();
+		}
 
-    public JComponent createComponent() {
-      return myForm.createComponent();
-    }
+		@RequiredDispatchThread
+		@Override
+		public boolean isModified()
+		{
+			return myForm.isModified(getGeneralSettings());
+		}
 
-    public boolean isModified() {
-      return myForm.isModified(getGeneralSettings());
-    }
+		@RequiredDispatchThread
+		@Override
+		public void apply() throws ConfigurationException
+		{
+			myForm.setData(getGeneralSettings());
+		}
 
-    public void apply() throws ConfigurationException {
-      myForm.setData(getGeneralSettings());
-    }
+		@RequiredDispatchThread
+		@Override
+		public void reset()
+		{
+			myForm.getData(getGeneralSettings());
+		}
 
-    public void reset() {
-      myForm.getData(getGeneralSettings());
-    }
-
-    public void disposeUIResources() {
-    }
-  }
+		@RequiredDispatchThread
+		@Override
+		public void disposeUIResources()
+		{
+		}
+	}
 }

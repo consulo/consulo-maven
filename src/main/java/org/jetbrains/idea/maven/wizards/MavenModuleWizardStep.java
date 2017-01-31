@@ -15,6 +15,37 @@
  */
 package org.jetbrains.idea.maven.wizards;
 
+import java.awt.BorderLayout;
+import java.awt.CardLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+
+import javax.swing.*;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeModel;
+import javax.swing.tree.TreeNode;
+import javax.swing.tree.TreePath;
+import javax.swing.tree.TreeSelectionModel;
+
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.idea.maven.indices.MavenIndicesManager;
+import org.jetbrains.idea.maven.model.MavenArchetype;
+import org.jetbrains.idea.maven.model.MavenId;
+import org.jetbrains.idea.maven.navigator.SelectMavenProjectDialog;
+import org.jetbrains.idea.maven.project.MavenProject;
+import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.ide.util.projectWizard.ModuleWizardStep;
 import com.intellij.ide.util.projectWizard.WizardContext;
@@ -23,30 +54,18 @@ import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.IconLoader;
 import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.ui.*;
+import com.intellij.ui.ColoredTreeCellRenderer;
+import com.intellij.ui.ScrollPaneFactory;
+import com.intellij.ui.SimpleTextAttributes;
+import com.intellij.ui.SpeedSearchComparator;
+import com.intellij.ui.TreeSpeedSearch;
 import com.intellij.ui.treeStructure.Tree;
 import com.intellij.util.containers.Convertor;
 import com.intellij.util.ui.AsyncProcessIcon;
 import com.intellij.util.ui.UIUtil;
 import com.intellij.util.ui.tree.TreeUtil;
-import org.jetbrains.annotations.Nullable;
-import org.jetbrains.idea.maven.indices.MavenIndicesManager;
-import org.jetbrains.idea.maven.model.MavenArchetype;
-import org.jetbrains.idea.maven.model.MavenId;
-import org.jetbrains.idea.maven.navigator.SelectMavenProjectDialog;
-import org.jetbrains.idea.maven.project.MavenProject;
-import org.jetbrains.idea.maven.project.MavenProjectsManager;
 
-import javax.swing.*;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
-import javax.swing.tree.*;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.*;
-import java.util.List;
-
+@Deprecated
 public class MavenModuleWizardStep extends ModuleWizardStep {
   private static final Icon WIZARD_ICON = IconLoader.getIcon("/addmodulewizard.png");
 
@@ -490,7 +509,7 @@ public class MavenModuleWizardStep extends ModuleWizardStep {
 
   @Override
   public void updateDataModel() {
-    myContext.setProjectBuilder(myBuilder);
+   // myContext.setProjectBuilder(myBuilder);
     myBuilder.setAggregatorProject(myAggregator);
     myBuilder.setParentProject(myParent);
 

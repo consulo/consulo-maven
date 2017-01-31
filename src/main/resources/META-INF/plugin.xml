@@ -44,10 +44,7 @@
 
 	<extensions defaultExtensionNs="com.intellij">
 		<fileTypeFactory implementation="org.jetbrains.idea.maven.utils.MavenFileTypeFactory"/>
-		<projectImportProvider implementation="org.jetbrains.idea.maven.wizards.MavenProjectImportProvider"/>
-		<projectOpenProcessor implementation="org.jetbrains.idea.maven.wizards.MavenProjectOpenProcessor"/>
-		<projectImportBuilder implementation="org.jetbrains.idea.maven.wizards.MavenProjectBuilder"/>
-		<moduleBuilder builderClass="org.jetbrains.idea.maven.wizards.MavenModuleBuilder"/>
+		<moduleImportProvider implementation="consulo.maven.importProvider.MavenModuleImportProvider" />
 
 		<applicationService serviceImplementation="org.jetbrains.idea.maven.server.MavenServerManager"/>
 		<applicationService serviceImplementation="org.jetbrains.idea.maven.indices.MavenIndicesManager"/>

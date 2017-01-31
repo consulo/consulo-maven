@@ -17,7 +17,6 @@ package org.jetbrains.idea.maven.wizards;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.Insets;
 import java.io.File;
 import java.util.List;
 
@@ -27,6 +26,7 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import org.jetbrains.annotations.NotNull;
 import com.intellij.ide.IdeBundle;
 import com.intellij.ide.util.projectWizard.ModuleWizardStep;
 import com.intellij.ide.util.projectWizard.NamePathComponent;
@@ -40,6 +40,8 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.text.StringUtil;
+import com.intellij.util.ui.JBUI;
+import consulo.maven.importProvider.MavenImportModuleContext;
 
 /**
  * @author Eugene Zhuravlev
@@ -49,10 +51,12 @@ public class ProjectNameStep extends ModuleWizardStep
 {
 	private final NamePathComponent myNamePathComponent;
 	private final JPanel myPanel;
+	private final MavenImportModuleContext myContext;
 	private final WizardContext myWizardContext;
 
-	public ProjectNameStep(WizardContext wizardContext)
+	public ProjectNameStep(MavenImportModuleContext context, WizardContext wizardContext)
 	{
+		myContext = context;
 		myWizardContext = wizardContext;
 		myNamePathComponent = new NamePathComponent(IdeBundle.message("label.project.name"), IdeBundle.message("label.component.file.location",
 				StringUtil.capitalize(myWizardContext.getPresentationName())), 'a', 'l', IdeBundle.message("title.select.project.file.directory",
@@ -64,11 +68,10 @@ public class ProjectNameStep extends ModuleWizardStep
 		ApplicationInfo info = ApplicationInfo.getInstance();
 		String appName = info.getVersionName();
 		myPanel.add(new JLabel(IdeBundle.message("label.please.enter.project.name", appName, wizardContext.getPresentationName())),
-				new GridBagConstraints(0, GridBagConstraints.RELATIVE, 1, 1, 1.0, 0.0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL,
-						new Insets(8, 10, 8, 10), 0, 0));
+				new GridBagConstraints(0, GridBagConstraints.RELATIVE, 1, 1, 1.0, 0.0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, JBUI.insets(8, 10), 0, 0));
 
 		myPanel.add(myNamePathComponent, new GridBagConstraints(0, GridBagConstraints.RELATIVE, 1, 1, 1.0, 1.0, GridBagConstraints.NORTHWEST,
-				GridBagConstraints.HORIZONTAL, new Insets(8, 10, 8, 10), 0, 0));
+				GridBagConstraints.HORIZONTAL, JBUI.insets(8, 10), 0, 0));
 	}
 
 	@Override
@@ -90,9 +93,9 @@ public class ProjectNameStep extends ModuleWizardStep
 	}
 
 	@Override
-	public void updateStep()
+	public void updateStep(WizardContext context)
 	{
-		super.updateStep();
+		super.updateStep(context);
 		myNamePathComponent.setPath(FileUtil.toSystemDependentName(myWizardContext.getProjectFileDirectory()));
 		String name = myWizardContext.getProjectName();
 		if(name == null)
@@ -125,7 +128,7 @@ public class ProjectNameStep extends ModuleWizardStep
 	}
 
 	@Override
-	public boolean validate() throws ConfigurationException
+	public boolean validate(@NotNull WizardContext context) throws ConfigurationException
 	{
 		String name = myNamePathComponent.getNameValue();
 		if(name.length() == 0)
@@ -184,8 +187,7 @@ public class ProjectNameStep extends ModuleWizardStep
 	@Override
 	public boolean isStepVisible()
 	{
-		final ProjectBuilder builder = myWizardContext.getProjectBuilder();
-		if(builder != null && builder.isUpdate())
+		if(myContext.isUpdate())
 		{
 			return false;
 		}
