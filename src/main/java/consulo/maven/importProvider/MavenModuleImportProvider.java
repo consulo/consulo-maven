@@ -73,7 +73,14 @@ public class MavenModuleImportProvider implements ModuleImportProvider<MavenImpo
 	@Override
 	public boolean canImport(@NotNull VirtualFile fileOrDirectory)
 	{
-		return MavenConstants.POM_XML.equals(fileOrDirectory.getName());
+		if(fileOrDirectory.isDirectory())
+		{
+			return fileOrDirectory.findChild(MavenConstants.POM_XML) != null;
+		}
+		else
+		{
+			return MavenConstants.POM_XML.equals(fileOrDirectory.getName());
+		}
 	}
 
 	@Override
