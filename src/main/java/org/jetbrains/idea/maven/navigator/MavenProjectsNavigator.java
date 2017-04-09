@@ -331,14 +331,7 @@ public class MavenProjectsNavigator extends MavenSimpleProjectComponent implemen
 
         if (shouldCreate) {
           if (myState.treeState != null) {
-            TreeState treeState = new TreeState();
-            try {
-              treeState.readExternal(myState.treeState);
-              treeState.applyTo(myTree);
-            }
-            catch (InvalidDataException e) {
-              MavenLog.LOG.info(e);
-            }
+             TreeState.createFrom(myState.treeState).applyTo(myTree);
           }
         }
       }
