@@ -50,7 +50,6 @@ import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.compiler.ClassPostProcessingCompiler;
 import com.intellij.openapi.compiler.CompileContext;
 import com.intellij.openapi.compiler.CompileScope;
-import com.intellij.openapi.compiler.CompilerManager;
 import com.intellij.openapi.compiler.CompilerMessageCategory;
 import com.intellij.openapi.compiler.CompilerPaths;
 import com.intellij.openapi.compiler.ValidityState;
@@ -178,11 +177,6 @@ public class MavenResourceCompiler implements ClassPostProcessingCompiler
 	public boolean validateConfiguration(CompileScope scope)
 	{
 		return true;
-	}
-
-	@Override
-	public void init(@NotNull CompilerManager compilerManager)
-	{
 	}
 
 	@Override

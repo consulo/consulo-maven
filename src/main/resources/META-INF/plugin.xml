@@ -77,6 +77,8 @@
 		<orderEnumerationHandlerFactory implementation="org.jetbrains.idea.maven.execution.MavenOrderEnumeratorHandler$FactoryImpl"/>
 
 		<compiler implementation="org.jetbrains.idea.maven.compiler.MavenResourceCompiler" order="last"/>
+		<compiler.beforeTask implementation="org.jetbrains.idea.maven.tasks.compiler.MavenCompileTask$Before" />
+		<compiler.afterTask implementation="org.jetbrains.idea.maven.tasks.compiler.MavenCompileTask$After" />
 
 		<languageInjector implementation="org.jetbrains.idea.maven.plugins.api.MavenPluginConfigurationLanguageInjector"/>
 
