@@ -27,10 +27,12 @@
           <element id="zip-archive" name="artifact-resolver-m3.jar">
             <element id="module-production-resource-output" name="artifact-resolver-m3" />
             <element id="module-output" name="artifact-resolver-m3" />
+            <element id="module-output" name="artifact-resolver-common" />
           </element>
           <element id="zip-archive" name="artifact-resolver-m31.jar">
             <element id="module-production-resource-output" name="artifact-resolver-m31" />
             <element id="module-output" name="artifact-resolver-m31" />
+            <element id="module-output" name="artifact-resolver-common" />
           </element>
           <element id="file-copy" path="$PROJECT_DIR$/lib/wadl-core.jar" />
           <element id="zip-archive" name="maven3-server-common.jar">
