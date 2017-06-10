@@ -283,14 +283,34 @@ public class MavenUtil
 		return new File(PathManager.getSystemPath(), "Maven" + "/" + folder).getAbsoluteFile();
 	}
 
-	public static VirtualFile findProfilesXmlFile(VirtualFile pomFile)
+	@Nullable
+	public static VirtualFile findProfilesXmlFile(@Nullable VirtualFile pomFile)
 	{
-		return pomFile.getParent().findChild(MavenConstants.PROFILES_XML);
+		if(pomFile == null)
+		{
+			return null;
+		}
+		VirtualFile parent = pomFile.getParent();
+		if(parent == null)
+		{
+			return null;
+		}
+		return parent.findChild(MavenConstants.PROFILES_XML);
 	}
 
+	@Nullable
 	public static File getProfilesXmlIoFile(VirtualFile pomFile)
 	{
-		return new File(pomFile.getParent().getPath(), MavenConstants.PROFILES_XML);
+		if(pomFile == null)
+		{
+			return null;
+		}
+		VirtualFile parent = pomFile.getParent();
+		if(parent == null)
+		{
+			return null;
+		}
+		return new File(parent.getPath(), MavenConstants.PROFILES_XML);
 	}
 
 	public static <T, U> List<T> collectFirsts(List<Pair<T, U>> pairs)
