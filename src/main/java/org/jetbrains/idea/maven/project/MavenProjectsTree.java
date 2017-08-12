@@ -1940,21 +1940,36 @@ public class MavenProjectsTree
 
 	public interface Listener extends EventListener
 	{
-		void profilesChanged();
+		default void profilesChanged()
+		{
+		}
 
-		void projectsIgnoredStateChanged(List<MavenProject> ignored, List<MavenProject> unignored, boolean fromImport);
+		default void projectsIgnoredStateChanged(List<MavenProject> ignored, List<MavenProject> unignored, boolean fromImport)
+		{
+		}
 
-		void projectsUpdated(List<Pair<MavenProject, MavenProjectChanges>> updated, List<MavenProject> deleted);
+		default void projectsUpdated(List<Pair<MavenProject, MavenProjectChanges>> updated, List<MavenProject> deleted)
+		{
+		}
 
-		void projectResolved(Pair<MavenProject, MavenProjectChanges> projectWithChanges, @Nullable NativeMavenProjectHolder nativeMavenProject);
+		default void projectResolved(Pair<MavenProject, MavenProjectChanges> projectWithChanges, @Nullable NativeMavenProjectHolder nativeMavenProject)
+		{
+		}
 
-		void pluginsResolved(MavenProject project);
+		default void pluginsResolved(MavenProject project)
+		{
+		}
 
-		void foldersResolved(Pair<MavenProject, MavenProjectChanges> projectWithChanges);
+		default void foldersResolved(Pair<MavenProject, MavenProjectChanges> projectWithChanges)
+		{
+		}
 
-		void artifactsDownloaded(MavenProject project);
+		default void artifactsDownloaded(MavenProject project)
+		{
+		}
 	}
 
+	@Deprecated
 	public static class ListenerAdapter implements Listener
 	{
 		public void profilesChanged()

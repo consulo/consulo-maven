@@ -13,20 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jetbrains.idea.maven.navigator;
+package org.jetbrains.idea.maven.navigator.actions;
 
-import org.jdom.Element;
-import com.intellij.util.xmlb.annotations.Tag;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.idea.maven.navigator.MavenProjectsNavigator;
 
-public class MavenProjectsNavigatorState
+public class ShowVersionsAction extends MavenProjectsNavigatorAction
 {
-	public boolean groupStructurally = false;
-	public boolean showIgnored = true;
-	public boolean showBasicPhasesOnly = true;
+	@Override
+	public boolean isSelected(@NotNull MavenProjectsNavigator navigator)
+	{
+		return navigator.getShowVersions();
+	}
 
-	public boolean alwaysShowArtifactId = false;
-	public boolean showVersions = false;
-
-	@Tag("treeState")
-	public Element treeState;
+	@Override
+	public void setSelected(@NotNull MavenProjectsNavigator navigator, boolean value)
+	{
+		navigator.setShowVersions(value);
+	}
 }

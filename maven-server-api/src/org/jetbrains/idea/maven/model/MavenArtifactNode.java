@@ -15,109 +15,132 @@
  */
 package org.jetbrains.idea.maven.model;
 
-import com.intellij.openapi.util.text.StringUtil;
-import org.jetbrains.annotations.Nullable;
-
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
-public class MavenArtifactNode implements Serializable {
-  private final MavenArtifactNode myParent;
+import org.jetbrains.annotations.Nullable;
+import com.intellij.openapi.util.text.StringUtil;
 
-  private final MavenArtifact myArtifact;
-  private final MavenArtifactState myState;
-  private final MavenArtifact myRelatedArtifact;
+public class MavenArtifactNode implements Serializable
+{
+	private final MavenArtifactNode myParent;
 
-  private final String myOriginalScope;
+	private final MavenArtifact myArtifact;
+	private final MavenArtifactState myState;
+	private final MavenArtifact myRelatedArtifact;
 
-  private final String myPremanagedVersion;
-  private final String myPremanagedScope;
+	private final String myOriginalScope;
 
-  private List<MavenArtifactNode> myDependencies;
+	private final String myPremanagedVersion;
+	private final String myPremanagedScope;
 
-  public MavenArtifactNode(MavenArtifactNode parent,
-                           MavenArtifact artifact,
-                           MavenArtifactState state,
-                           MavenArtifact relatedArtifact,
-                           String originalScope,
-                           String premanagedVersion,
-                           String premanagedScope) {
-    myParent = parent;
-    myArtifact = artifact;
-    myState = state;
-    myRelatedArtifact = relatedArtifact;
-    myOriginalScope = originalScope;
-    myPremanagedVersion = premanagedVersion;
-    myPremanagedScope = premanagedScope;
-  }
+	private List<MavenArtifactNode> myDependencies;
 
-  @Nullable
-  public MavenArtifactNode getParent() {
-    return myParent;
-  }
+	public MavenArtifactNode(MavenArtifactNode parent,
+			MavenArtifact artifact,
+			MavenArtifactState state,
+			MavenArtifact relatedArtifact,
+			String originalScope,
+			String premanagedVersion,
+			String premanagedScope)
+	{
+		myParent = parent;
+		myArtifact = artifact;
+		myState = state;
+		myRelatedArtifact = relatedArtifact;
+		myOriginalScope = originalScope;
+		myPremanagedVersion = premanagedVersion;
+		myPremanagedScope = premanagedScope;
+	}
+
+	@Nullable
+	public MavenArtifactNode getParent()
+	{
+		return myParent;
+	}
 
 
-  public MavenArtifact getArtifact() {
-    return myArtifact;
-  }
+	public MavenArtifact getArtifact()
+	{
+		return myArtifact;
+	}
 
-  public MavenArtifactState getState() {
-    return myState;
-  }
+	public MavenArtifactState getState()
+	{
+		return myState;
+	}
 
-  @Nullable
-  public MavenArtifact getRelatedArtifact() {
-    return myRelatedArtifact;
-  }
+	@Nullable
+	public MavenArtifact getRelatedArtifact()
+	{
+		return myRelatedArtifact;
+	}
 
-  @Nullable
-  public String getOriginalScope() {
-    return myOriginalScope;
-  }
+	@Nullable
+	public String getOriginalScope()
+	{
+		return myOriginalScope;
+	}
 
-  @Nullable
-  public String getPremanagedVersion() {
-    return myPremanagedVersion;
-  }
+	@Nullable
+	public String getPremanagedVersion()
+	{
+		return myPremanagedVersion;
+	}
 
-  @Nullable
-  public String getPremanagedScope() {
-    return myPremanagedScope;
-  }
+	@Nullable
+	public String getPremanagedScope()
+	{
+		return myPremanagedScope;
+	}
 
-  public List<MavenArtifactNode> getDependencies() {
-    return myDependencies;
-  }
+	public List<MavenArtifactNode> getDependencies()
+	{
+		return myDependencies;
+	}
 
-  public void setDependencies(List<MavenArtifactNode> dependencies) {
-    myDependencies = dependencies;
-  }
+	public void setDependencies(List<MavenArtifactNode> dependencies)
+	{
+		myDependencies = new ArrayList<MavenArtifactNode>(dependencies);
+	}
 
-  @Override
-  public String toString() {
-    String result = myArtifact.getDisplayStringWithTypeAndClassifier();
-    if (myState != MavenArtifactState.ADDED) {
-      result += "[" + myState + ":" + myRelatedArtifact.getDisplayStringWithTypeAndClassifier() + "]";
-    }
-    return result += "->(" + formatNodesList(myDependencies) + ")";
-  }
+	@Override
+	public String toString()
+	{
+		String result = myArtifact.getDisplayStringWithTypeAndClassifier();
+		if(myState != MavenArtifactState.ADDED)
+		{
+			result += "[" + myState + ":" + myRelatedArtifact.getDisplayStringWithTypeAndClassifier() + "]";
+		}
+		return result += "->(" + formatNodesList(myDependencies) + ")";
+	}
 
-  public static String formatNodesList(List<MavenArtifactNode> nodes) {
-    return StringUtil.join(nodes, StringUtil.createToStringFunction(MavenArtifactNode.class), ",");
-  }
+	public static String formatNodesList(List<MavenArtifactNode> nodes)
+	{
+		return StringUtil.join(nodes, StringUtil.createToStringFunction(MavenArtifactNode.class), ",");
+	}
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+	@Override
+	public boolean equals(Object o)
+	{
+		if(this == o)
+		{
+			return true;
+		}
+		if(o == null || getClass() != o.getClass())
+		{
+			return false;
+		}
 
-    MavenArtifactNode that = (MavenArtifactNode)o;
+		MavenArtifactNode that = (MavenArtifactNode) o;
 
-    return myArtifact.equals(that.myArtifact);
-  }
+		return myArtifact.equals(that.myArtifact);
+	}
 
-  @Override
-  public int hashCode() {
-    return myArtifact.hashCode();
-  }
+	@Override
+	public int hashCode()
+	{
+		return myArtifact.hashCode();
+	}
 }

@@ -1047,7 +1047,7 @@ public class Maven32ServerEmbedderImpl extends Maven3ServerEmbedder
 
 				final List<org.eclipse.aether.graph.DependencyNode> dependencyNodes = dependencyGraph != null ? dependencyGraph.getChildren() : Collections.<org.eclipse.aether.graph
 						.DependencyNode>emptyList();
-				model = Maven32AetherModelConverter.convertModelWithAetherDependencyTree(mavenProject.getModel(), mavenProject.getCompileSourceRoots(), mavenProject.getTestCompileSourceRoots(),
+				model = Maven3AetherModelConverter.convertModelWithAetherDependencyTree(mavenProject.getModel(), mavenProject.getCompileSourceRoots(), mavenProject.getTestCompileSourceRoots(),
 						mavenProject.getArtifacts(), dependencyNodes, mavenProject.getExtensionArtifacts(), getLocalRepositoryFile());
 			}
 		}

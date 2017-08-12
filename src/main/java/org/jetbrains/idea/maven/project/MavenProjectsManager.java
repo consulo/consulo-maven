@@ -55,7 +55,6 @@ import org.jetbrains.idea.maven.utils.MavenProgressIndicator;
 import org.jetbrains.idea.maven.utils.MavenSimpleProjectComponent;
 import org.jetbrains.idea.maven.utils.MavenTask;
 import org.jetbrains.idea.maven.utils.MavenUtil;
-import consulo.maven.module.extension.MavenModuleExtension;
 import com.intellij.ide.startup.StartupManagerEx;
 import com.intellij.notification.NotificationGroup;
 import com.intellij.openapi.application.AccessToken;
@@ -87,6 +86,7 @@ import com.intellij.util.NullableConsumer;
 import com.intellij.util.ObjectUtils;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.ui.update.Update;
+import consulo.maven.module.extension.MavenModuleExtension;
 
 @State(name = "MavenProjectsManager", storages = @Storage(file = StoragePathMacros.PROJECT_CONFIG_DIR + "/misc.xml"))
 public class MavenProjectsManager extends MavenSimpleProjectComponent implements PersistentStateComponent<MavenProjectsManagerState>, SettingsSavingComponent
@@ -486,8 +486,8 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 							token.finish();
 						}
 
-						scheduleArtifactsDownloading(Collections.singleton(projectWithChanges.first), null, importingSettings.isDownloadSourcesAutomatically(),
-								importingSettings.isDownloadDocsAutomatically(), null);
+						scheduleArtifactsDownloading(Collections.singleton(projectWithChanges.first), null, importingSettings.isDownloadSourcesAutomatically(), importingSettings
+								.isDownloadDocsAutomatically(), null);
 					}
 
 					if(!projectWithChanges.first.hasReadingProblems() && projectWithChanges.first.hasUnresolvedPlugins())
@@ -1019,8 +1019,8 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 
 						indicator.setText("Evaluating effective POM");
 
-						myProjectsTree.executeWithEmbedder(mavenProject, getEmbeddersManager(), MavenEmbeddersManager.FOR_DEPENDENCIES_RESOLVE, console, indicator,
-								new MavenProjectsTree.EmbedderTask()
+						myProjectsTree.executeWithEmbedder(mavenProject, getEmbeddersManager(), MavenEmbeddersManager.FOR_DEPENDENCIES_RESOLVE, console, indicator, new MavenProjectsTree
+								.EmbedderTask()
 						{
 							@Override
 							public void run(MavenEmbedderWrapper embedder) throws MavenProcessCanceledException
@@ -1513,10 +1513,16 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 
 	public interface Listener
 	{
-		void activated();
+		default void activated()
+		{
+		}
 
-		void projectsScheduled();
+		default void projectsScheduled()
+		{
+		}
 
-		void importAndResolveScheduled();
+		default void importAndResolveScheduled()
+		{
+		}
 	}
 }

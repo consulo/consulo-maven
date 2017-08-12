@@ -44,7 +44,7 @@
 
 	<extensions defaultExtensionNs="com.intellij">
 		<fileTypeFactory implementation="org.jetbrains.idea.maven.utils.MavenFileTypeFactory"/>
-		<moduleImportProvider implementation="consulo.maven.importProvider.MavenModuleImportProvider" />
+		<moduleImportProvider implementation="consulo.maven.importProvider.MavenModuleImportProvider"/>
 
 		<applicationService serviceImplementation="org.jetbrains.idea.maven.server.MavenServerManager"/>
 		<applicationService serviceImplementation="org.jetbrains.idea.maven.indices.MavenIndicesManager"/>
@@ -77,8 +77,8 @@
 		<orderEnumerationHandlerFactory implementation="org.jetbrains.idea.maven.execution.MavenOrderEnumeratorHandler$FactoryImpl"/>
 
 		<compiler implementation="org.jetbrains.idea.maven.compiler.MavenResourceCompiler" order="last"/>
-		<compiler.beforeTask implementation="org.jetbrains.idea.maven.tasks.compiler.MavenCompileTask$Before" />
-		<compiler.afterTask implementation="org.jetbrains.idea.maven.tasks.compiler.MavenCompileTask$After" />
+		<compiler.beforeTask implementation="org.jetbrains.idea.maven.tasks.compiler.MavenCompileTask$Before"/>
+		<compiler.afterTask implementation="org.jetbrains.idea.maven.tasks.compiler.MavenCompileTask$After"/>
 
 		<languageInjector implementation="org.jetbrains.idea.maven.plugins.api.MavenPluginConfigurationLanguageInjector"/>
 
@@ -133,7 +133,7 @@
 		<vetoRenameCondition implementation="org.jetbrains.idea.maven.dom.refactorings.MavenVetoModelRenameCondition"/>
 
 		<projectService serviceImplementation="org.jetbrains.idea.maven.dom.MavenDomElementDescriptorHolder"/>
-		<projectService serviceImplementation="org.jetbrains.idea.maven.navigator.actions.ExecuteMavenGoalHistoryService" />
+		<projectService serviceImplementation="org.jetbrains.idea.maven.navigator.actions.ExecuteMavenGoalHistoryService"/>
 		<applicationService serviceImplementation="org.jetbrains.idea.maven.dom.converters.MavenDomConvertersRegistry"/>
 		<applicationService serviceImplementation="org.jetbrains.idea.maven.dom.converters.repositories.MavenRepositoriesProvider"/>
 
@@ -439,6 +439,11 @@
 				icon="MavenIcons.Console">
 		</action>
 
+		<action id="Maven.ShowVersions"
+				class="org.jetbrains.idea.maven.navigator.actions.ShowVersionsAction"
+				text="Show version"
+				description="Show version for Maven project"/>
+
 		<group id="Maven.TasksGroup">
 			<action id="Maven.BeforeCompile"
 					class="org.jetbrains.idea.maven.tasks.actions.ToggleBeforeCompileTasksAction" text="Execute Before Make"
@@ -561,6 +566,16 @@
 			<action id="refactoring.extract.dependency" text="Extract Managed Dependency"
 					class="org.jetbrains.idea.maven.dom.refactorings.extract.ExtractManagedDependenciesAction"
 					use-shortcut-of="ExtractMethod"/>
+		</group>
+
+		<group id="Maven.RunConfigurationMenu" popup="true" class="org.jetbrains.idea.maven.navigator.actions.MavenRunConfigurationMenu">
+			<separator/>
+			<action id="Maven.EditRunConfiguration"
+					text="Edit Run Configuration..." icon="AllIcons.Actions.Edit"
+					class="org.jetbrains.idea.maven.navigator.actions.EditMavenRunConfigurationAction"/>
+			<action id="Maven.RemoveRunConfiguration"
+					text="Remove Run Configuration" icon="AllIcons.General.Remove"
+					class="org.jetbrains.idea.maven.navigator.actions.RemoveMavenRunConfigurationAction"/>
 		</group>
 	</actions>
 </idea-plugin>
