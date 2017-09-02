@@ -24,11 +24,13 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.idea.maven.execution.MavenExecutionOptions;
 import org.jetbrains.idea.maven.utils.ComboBoxUtil;
 import com.intellij.openapi.util.Pair;
+import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.ui.PanelWithAnchor;
 import com.intellij.ui.components.JBLabel;
 
@@ -47,8 +49,9 @@ public class MavenGeneralPanel implements PanelWithAnchor
 	private JCheckBox checkboxUsePluginRegistry;
 	private JCheckBox checkboxRecursive;
 	private MavenEnvironmentForm mavenPathsForm;
-	private JBLabel myMultiprojectBuildFailPolicyLabel;
+	private JBLabel myMultiProjectBuildFailPolicyLabel;
 	private JCheckBox alwaysUpdateSnapshotsCheckBox;
+	private JTextField threadsEditor;
 	private final DefaultComboBoxModel outputLevelComboModel = new DefaultComboBoxModel();
 	private final DefaultComboBoxModel checksumPolicyComboModel = new DefaultComboBoxModel();
 	private final DefaultComboBoxModel failPolicyComboModel = new DefaultComboBoxModel();
@@ -62,7 +65,7 @@ public class MavenGeneralPanel implements PanelWithAnchor
 		fillFailureBehaviorCombobox();
 		fillPluginUpdatePolicyCombobox();
 
-		setAnchor(myMultiprojectBuildFailPolicyLabel);
+		setAnchor(myMultiProjectBuildFailPolicyLabel);
 	}
 
 	private void fillOutputLevelCombobox()
@@ -82,17 +85,14 @@ public class MavenGeneralPanel implements PanelWithAnchor
 
 	private void fillPluginUpdatePolicyCombobox()
 	{
-		ComboBoxUtil.setModel(pluginUpdatePolicyCombo, pluginUpdatePolicyComboModel, Arrays.asList(MavenExecutionOptions.PluginUpdatePolicy.values()), each -> Pair.create(each.getDisplayString(), each));
+		ComboBoxUtil.setModel(pluginUpdatePolicyCombo, pluginUpdatePolicyComboModel, Arrays.asList(MavenExecutionOptions.PluginUpdatePolicy.values()), each -> Pair.create(each.getDisplayString(),
+				each));
 	}
 
 	public JComponent createComponent()
 	{
 		mavenPathsForm.createComponent(); // have to initialize all listeners
 		return panel;
-	}
-
-	public void disposeUIResources()
-	{
 	}
 
 	protected void setData(MavenGeneralSettings data)
@@ -111,6 +111,7 @@ public class MavenGeneralPanel implements PanelWithAnchor
 		data.setFailureBehavior((MavenExecutionOptions.FailureMode) ComboBoxUtil.getSelectedValue(failPolicyComboModel));
 		data.setPluginUpdatePolicy((MavenExecutionOptions.PluginUpdatePolicy) ComboBoxUtil.getSelectedValue(pluginUpdatePolicyComboModel));
 		data.setAlwaysUpdateSnapshots(alwaysUpdateSnapshotsCheckBox.isSelected());
+		data.setThreads(threadsEditor.getText());
 
 		data.endUpdate();
 	}
@@ -125,6 +126,7 @@ public class MavenGeneralPanel implements PanelWithAnchor
 		checkboxUsePluginRegistry.setSelected(data.isUsePluginRegistry());
 		checkboxRecursive.setSelected(!data.isNonRecursive());
 		alwaysUpdateSnapshotsCheckBox.setSelected(data.isAlwaysUpdateSnapshots());
+		threadsEditor.setText(StringUtil.notNullize(data.getThreads()));
 
 		ComboBoxUtil.select(outputLevelComboModel, data.getOutputLevel());
 		ComboBoxUtil.select(checksumPolicyComboModel, data.getChecksumPolicy());
@@ -148,7 +150,7 @@ public class MavenGeneralPanel implements PanelWithAnchor
 	public void setAnchor(JComponent anchor)
 	{
 		this.anchor = anchor;
-		myMultiprojectBuildFailPolicyLabel.setAnchor(anchor);
+		myMultiProjectBuildFailPolicyLabel.setAnchor(anchor);
 		mavenPathsForm.setAnchor(anchor);
 	}
 }
