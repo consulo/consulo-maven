@@ -15,14 +15,16 @@
  */
 package org.jetbrains.idea.maven.project;
 
+import javax.swing.JCheckBox;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.idea.maven.execution.MavenRunConfiguration;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.options.SettingsEditor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Pair;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.idea.maven.execution.MavenRunConfiguration;
-
-import javax.swing.*;
 
 /**
  * @author Sergey Evdokimov
@@ -78,11 +80,6 @@ public class MavenGeneralSettingsEditor extends SettingsEditor<MavenRunConfigura
 
     myUseProjectSettings = pair.second;
     return pair.first;
-  }
-
-  @Override
-  protected void disposeEditor() {
-    myPanel.disposeUIResources();
   }
 
   public Project getProject() {
