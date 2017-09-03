@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project version="4">
+<project>
   <component name="ModuleManager">
     <modules>
       <module name="consulo-maven" dirurl="file://$PROJECT_DIR$" current-layer="Default">
@@ -49,7 +49,7 @@
       <module name="maven-server-api" dirurl="file://$PROJECT_DIR$/maven-server-api" current-layer="Default">
         <module-layer name="Default">
           <extension id="consulo-plugin" sdk-module-name="consulo-maven" />
-          <extension id="java" sdk-name="1.6" language-level-name="JDK_1_6" />
+          <extension id="java" sdk-name="1.8" language-level-name="JDK_1_6" bytecode-version="1.6" />
           <content url="file://$MODULE_DIR$">
             <content-folder type="PRODUCTION" url="file://$MODULE_DIR$/src" />
           </content>
@@ -83,7 +83,7 @@
       <module name="maven2-server-impl" dirurl="file://$PROJECT_DIR$/maven2-server-impl" current-layer="Default">
         <module-layer name="Default">
           <extension id="consulo-plugin" sdk-module-name="consulo-maven" />
-          <extension id="java" sdk-name="1.6" language-level-name="JDK_1_6" />
+          <extension id="java" sdk-name="1.8" language-level-name="JDK_1_6" bytecode-version="1.6" />
           <content url="file://$MODULE_DIR$">
             <content-folder type="PRODUCTION" url="file://$MODULE_DIR$/src" />
           </content>
@@ -186,7 +186,7 @@
       <module name="maven3-server-common" dirurl="file://$PROJECT_DIR$/maven3-server-common" current-layer="Default">
         <module-layer name="Default">
           <extension id="consulo-plugin" sdk-module-name="consulo-maven" />
-          <extension id="java" sdk-name="1.6" language-level-name="JDK_1_6" />
+          <extension id="java" sdk-name="1.8" language-level-name="JDK_1_6" bytecode-version="1.6" />
           <content url="file://$MODULE_DIR$">
             <content-folder type="PRODUCTION" url="file://$MODULE_DIR$/src" />
           </content>
@@ -208,7 +208,7 @@
       <module name="maven30-server-impl" dirurl="file://$PROJECT_DIR$/maven30-server-impl" current-layer="Default">
         <module-layer name="Default">
           <extension id="consulo-plugin" sdk-module-name="consulo-maven" />
-          <extension id="java" sdk-name="1.6" language-level-name="JDK_1_6" />
+          <extension id="java" sdk-name="1.8" language-level-name="JDK_1_6" bytecode-version="1.6" />
           <content url="file://$MODULE_DIR$">
             <content-folder type="PRODUCTION_RESOURCE" url="file://$MODULE_DIR$/resources" />
             <content-folder type="PRODUCTION" url="file://$MODULE_DIR$/src" />
@@ -223,7 +223,7 @@
       <module name="maven32-server-impl" dirurl="file://$PROJECT_DIR$/maven32-server-impl" current-layer="Default">
         <module-layer name="Default">
           <extension id="consulo-plugin" sdk-module-name="consulo-maven" />
-          <extension id="java" sdk-name="1.6" language-level-name="JDK_1_6" />
+          <extension id="java" sdk-name="1.8" language-level-name="JDK_1_6" bytecode-version="1.6" />
           <content url="file://$MODULE_DIR$">
             <content-folder type="PRODUCTION_RESOURCE" url="file://$MODULE_DIR$/resources" />
             <content-folder type="PRODUCTION" url="file://$MODULE_DIR$/src" />
