@@ -68,7 +68,7 @@
       <module name="artifact-resolver-m2" dirurl="file://$PROJECT_DIR$/artifact-resolver-m2" current-layer="Default">
         <module-layer name="Default">
           <extension id="consulo-plugin" sdk-module-name="consulo-maven" />
-          <extension id="java" sdk-name="1.6" language-level-name="JDK_1_6" special-dir-location="MODULE_DIR" />
+          <extension id="java" sdk-module-name="artifact-resolver-common" language-level-name="JDK_1_6" special-dir-location="MODULE_DIR" />
           <content url="file://$MODULE_DIR$">
             <content-folder type="PRODUCTION_RESOURCE" url="file://$MODULE_DIR$/resources" />
             <content-folder type="PRODUCTION" url="file://$MODULE_DIR$/src" />
@@ -140,7 +140,7 @@
       <module name="artifact-resolver-m3" dirurl="file://$PROJECT_DIR$/artifact-resolver-m3" current-layer="Default">
         <module-layer name="Default">
           <extension id="consulo-plugin" sdk-module-name="consulo-maven" />
-          <extension id="java" sdk-name="1.6" language-level-name="JDK_1_6" />
+          <extension id="java" sdk-module-name="artifact-resolver-common" language-level-name="JDK_1_6" />
           <content url="file://$MODULE_DIR$">
             <content-folder type="PRODUCTION_RESOURCE" url="file://$MODULE_DIR$/resources" />
             <content-folder type="PRODUCTION" url="file://$MODULE_DIR$/src" />
@@ -154,7 +154,7 @@
       </module>
       <module name="artifact-resolver-common" dirurl="file://$PROJECT_DIR$/artifact-resolver-common" current-layer="Default">
         <module-layer name="Default">
-          <extension id="java" sdk-name="1.6" language-level-name="JDK_1_6" />
+          <extension id="java" sdk-name="1.8" language-level-name="JDK_1_6" bytecode-version="1.6" />
           <content url="file://$MODULE_DIR$">
             <content-folder type="PRODUCTION" url="file://$MODULE_DIR$/src" />
           </content>
@@ -165,7 +165,7 @@
       </module>
       <module name="artifact-resolver-m31" dirurl="file://$PROJECT_DIR$/artifact-resolver-m31" current-layer="Default">
         <module-layer name="Default">
-          <extension id="java" sdk-name="1.6" language-level-name="JDK_1_6" />
+          <extension id="java" sdk-module-name="artifact-resolver-common" language-level-name="JDK_1_6" />
           <content url="file://$MODULE_DIR$">
             <content-folder type="PRODUCTION_RESOURCE" url="file://$MODULE_DIR$/resources" />
             <content-folder type="PRODUCTION" url="file://$MODULE_DIR$/src" />
