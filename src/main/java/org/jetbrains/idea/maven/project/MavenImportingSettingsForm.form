@@ -48,7 +48,7 @@
         <properties>
           <componentStyle value="SMALL"/>
           <fontColor value="BRIGHTER"/>
-          <text value="&lt;html&gt;IDEA needs to execute one of the listed phases in order to discover all source folders that are configured via Maven plugins.&lt;br&gt;&lt;b&gt;Note&lt;/b&gt; that all test-* phases firstly generate and compile production sources.&lt;/html&gt;"/>
+          <text value="&lt;html&gt;Consulo needs to execute one of the listed phases in order to discover all source folders that are configured via Maven plugins.&lt;br&gt;&lt;b&gt;Note&lt;/b&gt; that all test-* phases firstly generate and compile production sources.&lt;/html&gt;"/>
         </properties>
       </component>
       <component id="323ff" class="javax.swing.JCheckBox" binding="myImportAutomaticallyBox">
