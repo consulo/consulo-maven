@@ -53,7 +53,7 @@ public class MavenImportingSettings implements Cloneable
 	private boolean downloadSourcesAutomatically = false;
 	private boolean downloadDocsAutomatically = false;
 
-	private GeneratedSourcesFolder generatedSourcesFolder = GeneratedSourcesFolder.AUTODETECT;
+	private GeneratedSourcesFolder generatedSourcesFolder = GeneratedSourcesFolder.SUBFOLDER;
 
 	private String dependencyTypes = "jar, test-jar, maven-plugin, ejb, ejb-client, jboss-har, jboss-sar, war, ear, bundle";
 	private Set<String> myDependencyTypesAsSet;
@@ -63,7 +63,7 @@ public class MavenImportingSettings implements Cloneable
 	public enum GeneratedSourcesFolder
 	{
 		IGNORE("Don't detect"),
-		AUTODETECT("Detect automatically"),
+		//AUTODETECT("Detect automatically"),
 		GENERATED_SOURCE_FOLDER("target/generated-sources"),
 		SUBFOLDER("subdirectories of \"target/generated-sources\"");
 
