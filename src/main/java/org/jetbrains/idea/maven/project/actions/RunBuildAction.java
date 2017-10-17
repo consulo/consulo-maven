@@ -15,43 +15,56 @@
  */
 package org.jetbrains.idea.maven.project.actions;
 
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.DataContext;
+import java.util.List;
+
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.idea.maven.execution.MavenRunConfigurationType;
 import org.jetbrains.idea.maven.execution.MavenRunnerParameters;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.utils.MavenDataKeys;
 import org.jetbrains.idea.maven.utils.actions.MavenAction;
 import org.jetbrains.idea.maven.utils.actions.MavenActionUtil;
+import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.DataContext;
+import consulo.annotations.RequiredDispatchThread;
 
-import java.util.List;
+public class RunBuildAction extends MavenAction
+{
+	@Override
+	protected boolean isAvailable(AnActionEvent e)
+	{
+		return super.isAvailable(e) && checkOrPerform(e.getDataContext(), false);
+	}
 
-public class RunBuildAction extends MavenAction {
-  @Override
-  protected boolean isAvailable(AnActionEvent e) {
-    return super.isAvailable(e) && checkOrPerform(e.getDataContext(), false);
-  }
+	@RequiredDispatchThread
+	@Override
+	public void actionPerformed(@NotNull AnActionEvent e)
+	{
+		checkOrPerform(e.getDataContext(), true);
+	}
 
-  @Override
-  public void actionPerformed(AnActionEvent e) {
-    checkOrPerform(e.getDataContext(), true);
-  }
+	private static boolean checkOrPerform(DataContext context, boolean perform)
+	{
+		final List<String> goals = context.getData(MavenDataKeys.MAVEN_GOALS);
+		if(goals == null || goals.isEmpty())
+		{
+			return false;
+		}
 
-  private static boolean checkOrPerform(DataContext context, boolean perform) {
-    final List<String> goals = MavenDataKeys.MAVEN_GOALS.getData(context);
-    if (goals == null || goals.isEmpty()) return false;
+		final MavenProject project = MavenActionUtil.getMavenProject(context);
+		if(project == null)
+		{
+			return false;
+		}
 
-    final MavenProject project = MavenActionUtil.getMavenProject(context);
-    if (project == null) return false;
+		if(!perform)
+		{
+			return true;
+		}
 
-    if (!perform) return true;
+		final MavenRunnerParameters params = new MavenRunnerParameters(true, project.getDirectory(), goals, MavenActionUtil.getProjectsManager(context).getExplicitProfiles());
+		MavenRunConfigurationType.runConfiguration(MavenActionUtil.getProject(context), params, null);
 
-    final MavenRunnerParameters params = new MavenRunnerParameters(true,
-                                                                   project.getDirectory(),
-                                                                   goals,
-                                                                   MavenActionUtil.getProjectsManager(context).getExplicitProfiles());
-    MavenRunConfigurationType.runConfiguration(MavenActionUtil.getProject(context), params, null);
-
-    return true;
-  }
+		return true;
+	}
 }

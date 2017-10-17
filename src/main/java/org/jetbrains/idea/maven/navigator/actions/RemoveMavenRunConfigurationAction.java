@@ -36,7 +36,7 @@ public class RemoveMavenRunConfigurationAction extends AnAction
 	public void actionPerformed(@NotNull AnActionEvent e)
 	{
 		Project project = e.getProject();
-		RunnerAndConfigurationSettings settings = MavenDataKeys.RUN_CONFIGURATION.getData(e.getDataContext());
+		RunnerAndConfigurationSettings settings = e.getData(MavenDataKeys.RUN_CONFIGURATION);
 
 		assert settings != null && project != null;
 
@@ -52,7 +52,7 @@ public class RemoveMavenRunConfigurationAction extends AnAction
 	public void update(@NotNull AnActionEvent e)
 	{
 		Project project = e.getProject();
-		RunnerAndConfigurationSettings settings = MavenDataKeys.RUN_CONFIGURATION.getData(e.getDataContext());
+		RunnerAndConfigurationSettings settings = e.getData(MavenDataKeys.RUN_CONFIGURATION);
 
 		boolean enabled = settings != null && project != null;
 		e.getPresentation().setEnabledAndVisible(enabled);

@@ -186,55 +186,51 @@ public class MavenBeforeRunTasksProvider extends BeforeRunTaskProvider<MavenBefo
 		final boolean[] result = new boolean[]{true};
 		try
 		{
-			ApplicationManager.getApplication().invokeAndWait(new Runnable()
+			ApplicationManager.getApplication().invokeAndWait(() ->
 			{
-				@Override
-				public void run()
-				{
-					final Project project = CommonDataKeys.PROJECT.getData(context);
-					final MavenProject mavenProject = getMavenProject(task);
+				final Project project = context.getData(CommonDataKeys.PROJECT);
+				final MavenProject mavenProject = getMavenProject(task);
 
-					if(project == null || project.isDisposed() || mavenProject == null)
+				if(project == null || project.isDisposed() || mavenProject == null)
+				{
+					return;
+				}
+
+				FileDocumentManager.getInstance().saveAllDocuments();
+
+				final MavenExplicitProfiles explicitProfiles = MavenProjectsManager.getInstance(project).getExplicitProfiles();
+				final MavenRunner mavenRunner = MavenRunner.getInstance(project);
+
+				targetDone.down();
+				new Task.Backgroundable(project, TasksBundle.message("maven.tasks.executing"), true)
+				{
+					@Override
+					public void run(@NotNull ProgressIndicator indicator)
 					{
-						return;
+						try
+						{
+							MavenRunnerParameters params = new MavenRunnerParameters(true, mavenProject.getDirectory(), ParametersListUtil.parse(task.getGoal()), explicitProfiles);
+
+							result[0] = mavenRunner.runBatch(Collections.singletonList(params), null, null, TasksBundle.message("maven.tasks.executing"), indicator);
+						}
+						finally
+						{
+							targetDone.up();
+						}
 					}
 
-					FileDocumentManager.getInstance().saveAllDocuments();
-
-					final MavenExplicitProfiles explicitProfiles = MavenProjectsManager.getInstance(project).getExplicitProfiles();
-					final MavenRunner mavenRunner = MavenRunner.getInstance(project);
-
-					targetDone.down();
-					new Task.Backgroundable(project, TasksBundle.message("maven.tasks.executing"), true)
+					@Override
+					public boolean shouldStartInBackground()
 					{
-						@Override
-						public void run(@NotNull ProgressIndicator indicator)
-						{
-							try
-							{
-								MavenRunnerParameters params = new MavenRunnerParameters(true, mavenProject.getDirectory(), ParametersListUtil.parse(task.getGoal()), explicitProfiles);
+						return MavenRunner.getInstance(project).getSettings().isRunMavenInBackground();
+					}
 
-								result[0] = mavenRunner.runBatch(Collections.singletonList(params), null, null, TasksBundle.message("maven.tasks.executing"), indicator);
-							}
-							finally
-							{
-								targetDone.up();
-							}
-						}
-
-						@Override
-						public boolean shouldStartInBackground()
-						{
-							return MavenRunner.getInstance(project).getSettings().isRunMavenInBackground();
-						}
-
-						@Override
-						public void processSentToBackground()
-						{
-							MavenRunner.getInstance(project).getSettings().setRunMavenInBackground(true);
-						}
-					}.queue();
-				}
+					@Override
+					public void processSentToBackground()
+					{
+						MavenRunner.getInstance(project).getSettings().setRunMavenInBackground(true);
+					}
+				}.queue();
 			}, ModalityState.NON_MODAL);
 		}
 		catch(Exception e)

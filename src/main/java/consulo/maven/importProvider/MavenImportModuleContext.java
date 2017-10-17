@@ -107,7 +107,7 @@ public class MavenImportModuleContext extends ModuleImportContext
 	{
 		if(myProjectToUpdate == null)
 		{
-			myProjectToUpdate = CommonDataKeys.PROJECT.getData(DataManager.getInstance().getDataContext());
+			myProjectToUpdate = DataManager.getInstance().getDataContext().getData(CommonDataKeys.PROJECT);
 		}
 		return myProjectToUpdate;
 	}

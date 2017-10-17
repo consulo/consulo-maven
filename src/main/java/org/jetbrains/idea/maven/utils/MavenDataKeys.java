@@ -24,18 +24,14 @@ import javax.swing.JTree;
 import org.jetbrains.idea.maven.model.MavenArtifact;
 import org.jetbrains.idea.maven.model.MavenProfileKind;
 import com.intellij.execution.RunnerAndConfigurationSettings;
-import com.intellij.openapi.actionSystem.DataKey;
+import com.intellij.openapi.util.Key;
 
 
-public class MavenDataKeys
+public interface MavenDataKeys
 {
-	public static final DataKey<List<String>> MAVEN_GOALS = DataKey.create("MAVEN_GOALS");
-	public static final DataKey<RunnerAndConfigurationSettings> RUN_CONFIGURATION = DataKey.create("MAVEN_RUN_CONFIGURATION");
-	public static final DataKey<Map<String, MavenProfileKind>> MAVEN_PROFILES = DataKey.create("MAVEN_PROFILES");
-	public static final DataKey<Collection<MavenArtifact>> MAVEN_DEPENDENCIES = DataKey.create("MAVEN_DEPENDENCIES");
-	public static final DataKey<JTree> MAVEN_PROJECTS_TREE = DataKey.create("MAVEN_PROJECTS_TREE");
-
-	private MavenDataKeys()
-	{
-	}
+	Key<List<String>> MAVEN_GOALS = Key.create("MAVEN_GOALS");
+	Key<RunnerAndConfigurationSettings> RUN_CONFIGURATION = Key.create("MAVEN_RUN_CONFIGURATION");
+	Key<Map<String, MavenProfileKind>> MAVEN_PROFILES = Key.create("MAVEN_PROFILES");
+	Key<Collection<MavenArtifact>> MAVEN_DEPENDENCIES = Key.create("MAVEN_DEPENDENCIES");
+	Key<JTree> MAVEN_PROJECTS_TREE = Key.create("MAVEN_PROJECTS_TREE");
 }

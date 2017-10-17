@@ -23,17 +23,19 @@ import com.intellij.execution.impl.EditConfigurationsDialog;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
+import consulo.annotations.RequiredDispatchThread;
 
 /**
  * @author Sergey Evdokimov
  */
 public class EditMavenRunConfigurationAction extends AnAction
 {
+	@RequiredDispatchThread
 	@Override
 	public void actionPerformed(@NotNull AnActionEvent e)
 	{
 		Project project = e.getProject();
-		RunnerAndConfigurationSettings settings = MavenDataKeys.RUN_CONFIGURATION.getData(e.getDataContext());
+		RunnerAndConfigurationSettings settings = e.getData(MavenDataKeys.RUN_CONFIGURATION);
 
 		assert settings != null && project != null;
 
@@ -43,11 +45,12 @@ public class EditMavenRunConfigurationAction extends AnAction
 		dialog.show();
 	}
 
+	@RequiredDispatchThread
 	@Override
 	public void update(@NotNull AnActionEvent e)
 	{
 		Project project = e.getProject();
-		RunnerAndConfigurationSettings settings = MavenDataKeys.RUN_CONFIGURATION.getData(e.getDataContext());
+		RunnerAndConfigurationSettings settings = e.getData(MavenDataKeys.RUN_CONFIGURATION);
 
 		boolean enabled = settings != null && project != null;
 		e.getPresentation().setEnabledAndVisible(enabled);

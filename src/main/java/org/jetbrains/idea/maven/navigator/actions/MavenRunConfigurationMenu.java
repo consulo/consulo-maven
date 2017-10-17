@@ -49,7 +49,7 @@ public class MavenRunConfigurationMenu extends DefaultActionGroup implements Dum
 
 		final Project project = e.getProject();
 
-		final RunnerAndConfigurationSettings settings = MavenDataKeys.RUN_CONFIGURATION.getData(e.getDataContext());
+		final RunnerAndConfigurationSettings settings = e.getData(MavenDataKeys.RUN_CONFIGURATION);
 
 		if(settings == null || project == null)
 		{

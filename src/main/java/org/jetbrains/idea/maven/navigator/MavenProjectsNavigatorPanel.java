@@ -31,7 +31,7 @@ import java.util.StringTokenizer;
 
 import javax.swing.TransferHandler;
 
-import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.idea.maven.execution.MavenGoalLocation;
 import org.jetbrains.idea.maven.model.MavenArtifact;
@@ -52,6 +52,7 @@ import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
+import com.intellij.openapi.util.Key;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -154,50 +155,50 @@ public class MavenProjectsNavigatorPanel extends SimpleToolWindowPanel implement
 
 	@Override
 	@Nullable
-	public Object getData(@NonNls String dataId)
+	public Object getData(@NotNull Key<?> dataId)
 	{
-		if(PlatformDataKeys.HELP_ID.is(dataId))
+		if(PlatformDataKeys.HELP_ID == dataId)
 		{
 			return "reference.toolWindows.mavenProjects";
 		}
 
-		if(CommonDataKeys.PROJECT.is(dataId))
+		if(CommonDataKeys.PROJECT == dataId)
 		{
 			return myProject;
 		}
 
-		if(CommonDataKeys.VIRTUAL_FILE.is(dataId))
+		if(CommonDataKeys.VIRTUAL_FILE == dataId)
 		{
 			return extractVirtualFile();
 		}
-		if(CommonDataKeys.VIRTUAL_FILE_ARRAY.is(dataId))
+		if(CommonDataKeys.VIRTUAL_FILE_ARRAY == dataId)
 		{
 			return extractVirtualFiles();
 		}
 
-		if(Location.DATA_KEY.is(dataId))
+		if(Location.DATA_KEY == dataId)
 		{
 			return extractLocation();
 		}
-		if(CommonDataKeys.NAVIGATABLE_ARRAY.is(dataId))
+		if(CommonDataKeys.NAVIGATABLE_ARRAY == dataId)
 		{
 			return extractNavigatables();
 		}
 
-		if(MavenDataKeys.MAVEN_GOALS.is(dataId))
+		if(MavenDataKeys.MAVEN_GOALS == dataId)
 		{
 			return extractGoals(true);
 		}
-		if(MavenDataKeys.MAVEN_PROFILES.is(dataId))
+		if(MavenDataKeys.MAVEN_PROFILES == dataId)
 		{
 			return extractProfiles();
 		}
 
-		if(MavenDataKeys.MAVEN_DEPENDENCIES.is(dataId))
+		if(MavenDataKeys.MAVEN_DEPENDENCIES == dataId)
 		{
 			return extractDependencies();
 		}
-		if(MavenDataKeys.MAVEN_PROJECTS_TREE.is(dataId))
+		if(MavenDataKeys.MAVEN_PROJECTS_TREE == dataId)
 		{
 			return myTree;
 		}

@@ -15,64 +15,79 @@
  */
 package org.jetbrains.idea.maven.tasks.actions;
 
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.DataContext;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.tasks.MavenCompilerTask;
 import org.jetbrains.idea.maven.tasks.MavenTasksManager;
 import org.jetbrains.idea.maven.utils.MavenDataKeys;
 import org.jetbrains.idea.maven.utils.actions.MavenActionUtil;
 import org.jetbrains.idea.maven.utils.actions.MavenToggleAction;
+import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.DataContext;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+public abstract class ToggleCompilerTasksAction extends MavenToggleAction
+{
+	@Override
+	protected boolean isAvailable(AnActionEvent e)
+	{
+		return super.isAvailable(e) && !getTasks(e.getDataContext()).isEmpty();
+	}
 
-public abstract class ToggleCompilerTasksAction extends MavenToggleAction {
-  @Override
-  protected boolean isAvailable(AnActionEvent e) {
-    return super.isAvailable(e) && !getTasks(e.getDataContext()).isEmpty();
-  }
+	@Override
+	protected boolean doIsSelected(AnActionEvent e)
+	{
+		final DataContext context = e.getDataContext();
+		return hasTask(getTasksManager(context), getTasks(context).get(0));
+	}
 
-  @Override
-  protected boolean doIsSelected(AnActionEvent e) {
-    final DataContext context = e.getDataContext();
-    return hasTask(getTasksManager(context), getTasks(context).get(0));
-  }
+	@Override
+	public void setSelected(AnActionEvent e, boolean state)
+	{
+		final DataContext context = e.getDataContext();
+		List<MavenCompilerTask> tasks = getTasks(context);
+		if(state)
+		{
+			addTasks(getTasksManager(context), tasks);
+		}
+		else
+		{
+			removeTasks(getTasksManager(context), tasks);
+		}
+	}
 
-  @Override
-  public void setSelected(AnActionEvent e, boolean state) {
-    final DataContext context = e.getDataContext();
-    List<MavenCompilerTask> tasks = getTasks(context);
-    if (state) {
-      addTasks(getTasksManager(context), tasks);
-    }
-    else {
-      removeTasks(getTasksManager(context), tasks);
-    }
-  }
+	protected static List<MavenCompilerTask> getTasks(DataContext context)
+	{
+		final List<String> goals = context.getData(MavenDataKeys.MAVEN_GOALS);
+		if(goals == null || goals.isEmpty())
+		{
+			return Collections.emptyList();
+		}
 
-  protected static List<MavenCompilerTask> getTasks(DataContext context) {
-    final List<String> goals = MavenDataKeys.MAVEN_GOALS.getData(context);
-    if (goals == null || goals.isEmpty()) return Collections.emptyList();
+		MavenProject project = MavenActionUtil.getMavenProject(context);
+		if(project == null)
+		{
+			return Collections.emptyList();
+		}
 
-    MavenProject project = MavenActionUtil.getMavenProject(context);
-    if (project == null) return Collections.emptyList();
+		List<MavenCompilerTask> result = new ArrayList<MavenCompilerTask>();
+		for(String each : goals)
+		{
+			result.add(new MavenCompilerTask(project.getPath(), each));
+		}
+		return result;
+	}
 
-    List<MavenCompilerTask> result = new ArrayList<MavenCompilerTask>();
-    for (String each : goals) {
-      result.add(new MavenCompilerTask(project.getPath(), each));
-    }
-    return result;
-  }
+	protected abstract boolean hasTask(MavenTasksManager manager, MavenCompilerTask task);
 
-  protected abstract boolean hasTask(MavenTasksManager manager, MavenCompilerTask task);
+	protected abstract void addTasks(MavenTasksManager manager, List<MavenCompilerTask> tasks);
 
-  protected abstract void addTasks(MavenTasksManager manager, List<MavenCompilerTask> tasks);
+	protected abstract void removeTasks(MavenTasksManager manager, List<MavenCompilerTask> tasks);
 
-  protected abstract void removeTasks(MavenTasksManager manager, List<MavenCompilerTask> tasks);
-
-  private static MavenTasksManager getTasksManager(DataContext context) {
-    return MavenTasksManager.getInstance(MavenActionUtil.getProject(context));
-  }
+	private static MavenTasksManager getTasksManager(DataContext context)
+	{
+		return MavenTasksManager.getInstance(MavenActionUtil.getProject(context));
+	}
 }
