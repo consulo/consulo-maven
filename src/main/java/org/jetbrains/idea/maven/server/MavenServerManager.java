@@ -927,7 +927,7 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
 		}
 
 		@Override
-		public void processArtifacts(Collection<MavenId> artifacts)
+		public void processArtifacts(Collection<IndexedMavenId> artifacts)
 		{
 			myProcessor.processArtifacts(artifacts);
 		}

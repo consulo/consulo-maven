@@ -46,6 +46,7 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.idea.maven.model.MavenArchetype;
 import org.jetbrains.idea.maven.model.MavenArtifactInfo;
 import org.jetbrains.idea.maven.model.MavenId;
+import org.jetbrains.idea.maven.server.IndexedMavenId;
 import org.jetbrains.idea.maven.server.Maven2ServerGlobals;
 import org.jetbrains.idea.maven.server.MavenRemoteObject;
 import org.jetbrains.idea.maven.server.MavenServerIndexer;
@@ -260,7 +261,7 @@ public class Maven2ServerIndexerImpl extends MavenRemoteObject implements MavenS
 			IndexReader r = getIndex(indexId).getIndexReader();
 			int total = r.numDocs();
 
-			List<MavenId> result = new ArrayList<MavenId>(Math.min(CHUNK_SIZE, total));
+			List<IndexedMavenId> result = new ArrayList<IndexedMavenId>(Math.min(CHUNK_SIZE, total));
 			for(int i = 0; i < total; i++)
 			{
 				if(r.isDeleted(i))
@@ -274,7 +275,7 @@ public class Maven2ServerIndexerImpl extends MavenRemoteObject implements MavenS
 				{
 					continue;
 				}
-				List<String> parts = StringUtil.split(uinfo, "|");
+				List<String> parts = StringUtil.split(uinfo, ArtifactInfo.FS);
 				String groupId = parts.get(0);
 				String artifactId = parts.get(1);
 				String version = parts.get(2);
@@ -283,7 +284,10 @@ public class Maven2ServerIndexerImpl extends MavenRemoteObject implements MavenS
 					continue;
 				}
 
-				result.add(new MavenId(groupId, artifactId, version));
+				String packaging = doc.get(ArtifactInfo.PACKAGING);
+				String description = doc.get(ArtifactInfo.DESCRIPTION);
+
+				result.add(new IndexedMavenId(groupId, artifactId, version, packaging, description));
 
 				if(result.size() == CHUNK_SIZE)
 				{
