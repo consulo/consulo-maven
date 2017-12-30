@@ -30,6 +30,7 @@
       <root url="jar://$PROJECT_DIR$/dep/consulo.java/lib/consulo.java-java.indexing.impl-2-SNAPSHOT.jar!/" />
       <root url="jar://$PROJECT_DIR$/dep/consulo.java/lib/consulo.java-java.execution.impl-2-SNAPSHOT.jar!/" />
       <root url="jar://$PROJECT_DIR$/dep/consulo.java/lib/consulo.java-jvm.bytecode.viewer-2-SNAPSHOT.jar!/" />
+      <root url="jar://$PROJECT_DIR$/dep/consulo.java/lib/consulo.java-java.compiler.artifact.impl-2-SNAPSHOT.jar!/" />
     </binaries>
   </library>
 </component>
