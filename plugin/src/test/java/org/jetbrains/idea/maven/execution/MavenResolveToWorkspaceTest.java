@@ -15,15 +15,6 @@
  */
 package org.jetbrains.idea.maven.execution;
 
-import com.intellij.execution.configurations.JavaParameters;
-import com.intellij.openapi.application.AccessToken;
-import com.intellij.openapi.application.WriteAction;
-import com.intellij.openapi.roots.ProjectRootManager;
-import com.intellij.openapi.vfs.VirtualFile;
-import org.jetbrains.idea.maven.MavenImportingTestCase;
-import org.jetbrains.idea.maven.artifactResolver.common.MavenModuleMap;
-import org.jetbrains.idea.maven.project.MavenProjectsManager;
-
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -31,6 +22,14 @@ import java.io.InputStream;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Properties;
+
+import org.jetbrains.idea.maven.MavenImportingTestCase;
+import org.jetbrains.idea.maven.artifactResolver.common.MavenModuleMap;
+import org.jetbrains.idea.maven.project.MavenProjectsManager;
+import com.intellij.execution.configurations.JavaParameters;
+import com.intellij.openapi.application.AccessToken;
+import com.intellij.openapi.application.WriteAction;
+import com.intellij.openapi.vfs.VirtualFile;
 
 /**
  * @author Sergey Evdokimov
@@ -82,7 +81,7 @@ public abstract class MavenResolveToWorkspaceTest extends MavenImportingTestCase
 
     AccessToken accessToken = WriteAction.start();
     try {
-      ProjectRootManager.getInstance(myProject).setProjectSdk(createJdk("Java 1.5"));
+      //ProjectRootManager.getInstance(myProject).setProjectSdk(createJdk("Java 1.5"));
     }
     finally {
       accessToken.finish();

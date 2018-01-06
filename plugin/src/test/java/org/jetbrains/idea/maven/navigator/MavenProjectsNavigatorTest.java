@@ -15,12 +15,13 @@
  */
 package org.jetbrains.idea.maven.navigator;
 
-import com.intellij.openapi.vfs.VirtualFile;
-import org.jetbrains.idea.maven.MavenImportingTestCase;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
+import org.jetbrains.idea.maven.MavenImportingTestCase;
+import org.jetbrains.idea.maven.model.MavenExplicitProfiles;
+import com.intellij.openapi.vfs.VirtualFile;
 
 public class MavenProjectsNavigatorTest extends MavenImportingTestCase {
   private MavenProjectsNavigator myNavigator;
@@ -50,7 +51,7 @@ public class MavenProjectsNavigatorTest extends MavenImportingTestCase {
     createModulePom("m", "<groupId>test</groupId>" +
                          "<artifactId>m</artifactId>" +
                          "<version>1</version>");
-    myProjectsManager.resetManagedFilesAndProfilesInTests(Collections.singletonList(myProjectPom), Collections.<String>emptyList());
+    myProjectsManager.resetManagedFilesAndProfilesInTests(Collections.singletonList(myProjectPom), new MavenExplicitProfiles(Collections.<String>emptyList()));
     waitForReadingCompletion();
 
     myProjectsManager.fireActivatedInTests();

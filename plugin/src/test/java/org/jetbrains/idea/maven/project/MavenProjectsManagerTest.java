@@ -15,6 +15,16 @@
  */
 package org.jetbrains.idea.maven.project;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+import org.jetbrains.idea.maven.MavenImportingTestCase;
+import org.jetbrains.idea.maven.importing.MavenRootModelAdapter;
+import org.jetbrains.idea.maven.model.MavenExplicitProfiles;
+import org.jetbrains.idea.maven.server.NativeMavenProjectHolder;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.module.Module;
@@ -27,15 +37,6 @@ import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.FileContentUtil;
-import org.jetbrains.idea.maven.MavenImportingTestCase;
-import org.jetbrains.idea.maven.importing.MavenRootModelAdapter;
-import org.jetbrains.idea.maven.server.NativeMavenProjectHolder;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 public class MavenProjectsManagerTest extends MavenImportingTestCase {
   @Override
@@ -686,7 +687,7 @@ public class MavenProjectsManagerTest extends MavenImportingTestCase {
                                      "<version>1</version>");
 
     importProjects(p1, p2);
-    myProjectsManager.setExplicitProfiles(Arrays.asList("one", "two"));
+    myProjectsManager.setExplicitProfiles(new MavenExplicitProfiles(Arrays.asList("one", "two")));
     myProjectsManager.setIgnoredFilesPaths(Arrays.asList(p1.getPath()));
     myProjectsManager.setIgnoredFilesPatterns(Arrays.asList("*.xxx"));
 
@@ -707,7 +708,7 @@ public class MavenProjectsManagerTest extends MavenImportingTestCase {
 
     assertUnorderedPathsAreEqual(myProjectsManager.getProjectsTreeForTests().getManagedFilesPaths(),
                                  Arrays.asList(p1.getPath(), p3.getPath()));
-    assertUnorderedElementsAreEqual(myProjectsManager.getExplicitProfiles(), "three");
+    assertUnorderedElementsAreEqual(myProjectsManager.getExplicitProfiles().getEnabledProfiles(), "three");
     assertUnorderedPathsAreEqual(myProjectsManager.getIgnoredFilesPaths(), Arrays.asList(p1.getPath()));
     assertUnorderedElementsAreEqual(myProjectsManager.getIgnoredFilesPatterns(), "*.zzz");
 

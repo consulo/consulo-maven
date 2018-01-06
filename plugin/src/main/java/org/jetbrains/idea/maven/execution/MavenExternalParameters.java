@@ -31,7 +31,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Scanner;
-import java.util.zip.ZipOutputStream;
 
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
@@ -49,7 +48,6 @@ import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.server.MavenServerUtil;
 import org.jetbrains.idea.maven.utils.MavenSettings;
 import org.jetbrains.idea.maven.utils.MavenUtil;
-import consulo.annotations.RequiredReadAction;
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.RunManager;
 import com.intellij.execution.configurations.JavaParameters;
@@ -75,7 +73,7 @@ import com.intellij.openapi.vfs.encoding.EncodingManager;
 import com.intellij.openapi.vfs.encoding.EncodingProjectManager;
 import com.intellij.util.PathUtil;
 import com.intellij.util.SystemProperties;
-import com.intellij.util.io.ZipUtil;
+import consulo.annotations.RequiredReadAction;
 
 /**
  * @author Ralf Quebbemann
@@ -160,8 +158,7 @@ public class MavenExternalParameters
 		{
 			try
 			{
-				String resolverJar = getArtifactResolverJar(mavenVersion);
-				confFile = patchConfFile(confFile, resolverJar);
+				confFile = patchConfFile(confFile, getArtifactResolverJars(mavenVersion));
 
 				File modulesPathsFile = dumpModulesPaths(project);
 				params.getVMParametersList().addProperty(MavenModuleMap.PATHS_FILE_PROPERTY, modulesPathsFile.getAbsolutePath());
@@ -180,7 +177,7 @@ public class MavenExternalParameters
 			params.getClassPath().add(path);
 		}
 
-		params.setEnv(new HashMap<String, String>(runnerSettings.getEnvironmentProperties()));
+		params.setEnv(new HashMap<>(runnerSettings.getEnvironmentProperties()));
 		params.setPassParentEnvs(runnerSettings.isPassParentEnv());
 
 		params.setMainClass(MAVEN_LAUNCHER_CLASS);
@@ -192,24 +189,20 @@ public class MavenExternalParameters
 		return params;
 	}
 
-	private static File patchConfFile(File conf, String library) throws IOException
+	private static File patchConfFile(File conf, List<String> libraries) throws IOException
 	{
 		File tmpConf = FileUtil.createTempFile("idea-", "-mvn.conf");
 		tmpConf.deleteOnExit();
-		patchConfFile(conf, tmpConf, library);
+		patchConfFile(conf, tmpConf, libraries);
 
 		return tmpConf;
 	}
 
-	private static void patchConfFile(File originalConf, File dest, String library) throws IOException
+	private static void patchConfFile(File originalConf, File dest, List<String> libraries) throws IOException
 	{
-		Scanner sc = new Scanner(originalConf);
-
-		try
+		try (Scanner sc = new Scanner(originalConf))
 		{
-			BufferedWriter out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(dest)));
-
-			try
+			try (BufferedWriter out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(dest))))
 			{
 				boolean patched = false;
 
@@ -222,75 +215,40 @@ public class MavenExternalParameters
 
 					if(!patched && "[plexus.core]".equals(line))
 					{
-						out.append("load ").append(library);
-						out.newLine();
+						for(String library : libraries)
+						{
+							out.append("load ").append(library);
+							out.newLine();
+						}
 
 						patched = true;
 					}
 				}
 			}
-			finally
-			{
-				out.close();
-			}
-		}
-		finally
-		{
-			sc.close();
 		}
 	}
 
-	private static String getArtifactResolverJar(@Nullable String mavenVersion) throws IOException
+	private static List<String> getArtifactResolverJars(@Nullable String mavenVersion) throws IOException
 	{
-		boolean isMaven3;
 		Class marker;
 
 		if(mavenVersion != null && mavenVersion.compareTo("3.1.0") >= 0)
 		{
-			isMaven3 = true;
 			marker = MavenArtifactResolvedM31RtMarker.class;
 		}
 		else if(mavenVersion != null && mavenVersion.compareTo("3.0.0") >= 0)
 		{
-			isMaven3 = true;
 			marker = MavenArtifactResolvedM3RtMarker.class;
 		}
 		else
 		{
-			isMaven3 = false;
 			marker = MavenArtifactResolvedM2RtMarker.class;
 		}
 
-		File classDirOrJar = new File(PathUtil.getJarPathForClass(marker));
-
-		if(!classDirOrJar.isDirectory())
-		{
-			return classDirOrJar.getAbsolutePath(); // it's a jar in IDEA installation.
-		}
-
-		// it's a classes directory, we are in development mode.
-		File tempFile = FileUtil.createTempFile("idea-", "-artifactResolver.jar");
-		tempFile.deleteOnExit();
-
-		ZipOutputStream zipOutput = new ZipOutputStream(new FileOutputStream(tempFile));
-		try
-		{
-			ZipUtil.addDirToZipRecursively(zipOutput, null, classDirOrJar, "", null, null);
-
-			if(isMaven3)
-			{
-				File m2Module = new File(PathUtil.getJarPathForClass(MavenModuleMap.class));
-
-				String commonClassesPath = MavenModuleMap.class.getPackage().getName().replace('.', '/');
-				ZipUtil.addDirToZipRecursively(zipOutput, null, new File(m2Module, commonClassesPath), commonClassesPath, null, null);
-			}
-		}
-		finally
-		{
-			zipOutput.close();
-		}
-
-		return tempFile.getAbsolutePath();
+		List<String> classpath = new ArrayList<>(2);
+		classpath.add(PathUtil.getJarPathForClass(MavenModuleMap.class));
+		classpath.add(PathUtil.getJarPathForClass(marker));
+		return classpath;
 	}
 
 	private static File dumpModulesPaths(@NotNull Project project) throws IOException
@@ -527,7 +485,7 @@ public class MavenExternalParameters
 			mavenHomeBootAsFile = new File(mavenHome, "boot");
 		}
 
-		List<String> classpathEntries = new ArrayList<String>();
+		List<String> classpathEntries = new ArrayList<>();
 
 		File[] files = mavenHomeBootAsFile.listFiles();
 		if(files != null)

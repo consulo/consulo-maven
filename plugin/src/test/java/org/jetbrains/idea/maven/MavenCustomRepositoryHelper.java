@@ -15,13 +15,12 @@
  */
 package org.jetbrains.idea.maven;
 
-import com.intellij.openapi.application.PluginPathManager;
-import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.openapi.vfs.LocalFileSystem;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
+
+import com.intellij.openapi.util.io.FileUtil;
+import com.intellij.openapi.vfs.LocalFileSystem;
 
 public class MavenCustomRepositoryHelper {
   private final File myTempDir;
@@ -46,7 +45,7 @@ public class MavenCustomRepositoryHelper {
   }
 
   private String getOriginalTestDataPath() {
-    String sourcesDir = System.getProperty("maven.sources.dir", PluginPathManager.getPluginHomePath("maven"));
+    String sourcesDir = System.getProperty("maven.sources.dir", "");
     return FileUtil.toSystemIndependentName(sourcesDir + "/src/test/data");
   }
 

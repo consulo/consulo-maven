@@ -15,6 +15,13 @@
  */
 package org.jetbrains.idea.maven.execution;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+
+import javax.swing.SwingUtilities;
+
+import org.jetbrains.idea.maven.MavenImportingTestCase;
 import com.intellij.execution.process.ProcessAdapter;
 import com.intellij.execution.process.ProcessEvent;
 import com.intellij.execution.runners.ProgramRunner;
@@ -25,11 +32,6 @@ import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.util.concurrency.Semaphore;
 import com.intellij.util.ui.UIUtil;
-import org.jetbrains.idea.maven.MavenImportingTestCase;
-
-import javax.swing.*;
-import java.io.File;
-import java.util.Arrays;
 
 @SuppressWarnings({"ConstantConditions"})
 public class MavenExecutionTest extends MavenImportingTestCase {
@@ -59,7 +61,7 @@ public class MavenExecutionTest extends MavenImportingTestCase {
 
     assertFalse(new File(getProjectPath(), "target").exists());
 
-    execute(new MavenRunnerParameters(true, getProjectPath(), Arrays.asList("compile"), null));
+    execute(new MavenRunnerParameters(true, getProjectPath(), Arrays.asList("compile"), new ArrayList<>()));
 
     assertTrue(new File(getProjectPath(), "target").exists());
   }
@@ -84,7 +86,7 @@ public class MavenExecutionTest extends MavenImportingTestCase {
     assertModules("project");
     assertExcludes("project", "target");
 
-    MavenRunnerParameters params = new MavenRunnerParameters(true, getProjectPath(), Arrays.asList("compile"), null);
+    MavenRunnerParameters params = new MavenRunnerParameters(true, getProjectPath(), Arrays.asList("compile"), new ArrayList<>());
     execute(params);
 
     SwingUtilities.invokeAndWait(new Runnable() {

@@ -15,27 +15,28 @@
  */
 package org.jetbrains.idea.maven.importing;
 
+import java.io.File;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+import org.jetbrains.idea.maven.MavenCustomRepositoryHelper;
+import org.jetbrains.idea.maven.MavenImportingTestCase;
+import org.jetbrains.idea.maven.model.MavenId;
+import org.jetbrains.idea.maven.project.MavenProject;
 import com.intellij.openapi.application.AccessToken;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.WriteAction;
 import com.intellij.openapi.module.Module;
-import com.intellij.openapi.roots.*;
+import com.intellij.openapi.roots.DependencyScope;
+import com.intellij.openapi.roots.ModuleRootModificationUtil;
+import com.intellij.openapi.roots.OrderRootType;
 import com.intellij.openapi.roots.impl.libraries.ProjectLibraryTable;
 import com.intellij.openapi.roots.libraries.Library;
 import com.intellij.openapi.roots.libraries.LibraryTable;
 import com.intellij.openapi.roots.libraries.LibraryTablesRegistrar;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VirtualFile;
-import org.jetbrains.idea.maven.MavenCustomRepositoryHelper;
-import org.jetbrains.idea.maven.MavenImportingTestCase;
-import org.jetbrains.idea.maven.model.MavenId;
-import org.jetbrains.idea.maven.project.MavenProject;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 public class DependenciesImportingTest extends MavenImportingTestCase {
   public void testLibraryDependency() throws Exception {
@@ -1598,7 +1599,7 @@ public class DependenciesImportingTest extends MavenImportingTestCase {
 
     addLibraryRoot("Maven: junit:junit:4.0", OrderRootType.CLASSES, "file://foo.classes");
     addLibraryRoot("Maven: junit:junit:4.0", OrderRootType.SOURCES, "file://foo.sources");
-    addLibraryRoot("Maven: junit:junit:4.0", JavadocOrderRootType.getInstance(), "file://foo.javadoc");
+    addLibraryRoot("Maven: junit:junit:4.0", OrderRootType.DOCUMENTATION, "file://foo.javadoc");
 
     assertModuleLibDep("project", "Maven: junit:junit:4.0",
                        Arrays.asList("jar://" + getRepositoryPath() + "/junit/junit/4.0/junit-4.0.jar!/", "file://foo.classes"),
@@ -1938,9 +1939,9 @@ public class DependenciesImportingTest extends MavenImportingTestCase {
                            "Maven: group:lib2:1",
                            "Maven: group:lib3:1");
 
-    addLibraryRoot("Maven: group:lib1:1", JavadocOrderRootType.getInstance(), "file://foo.bar");
-    clearLibraryRoots("Maven: group:lib2:1", JavadocOrderRootType.getInstance());
-    addLibraryRoot("Maven: group:lib2:1", JavadocOrderRootType.getInstance(), "file://foo.baz");
+    addLibraryRoot("Maven: group:lib1:1", OrderRootType.DOCUMENTATION, "file://foo.bar");
+    clearLibraryRoots("Maven: group:lib2:1", OrderRootType.DOCUMENTATION);
+    addLibraryRoot("Maven: group:lib2:1", OrderRootType.DOCUMENTATION, "file://foo.baz");
 
     importProject("<groupId>test</groupId>" +
                   "<artifactId>project</artifactId>" +

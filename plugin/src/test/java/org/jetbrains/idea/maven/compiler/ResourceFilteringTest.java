@@ -15,20 +15,22 @@
  */
 package org.jetbrains.idea.maven.compiler;
 
-import com.intellij.openapi.application.Result;
-import com.intellij.openapi.application.WriteAction;
-import com.intellij.openapi.fileTypes.FileTypeManager;
-import com.intellij.openapi.fileTypes.FileTypes;
-import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.openapi.vfs.VfsUtil;
-import com.intellij.openapi.vfs.VirtualFile;
-import org.jetbrains.idea.maven.MavenImportingTestCase;
-import org.jetbrains.idea.maven.importing.MavenDefaultModifiableModelsProvider;
-import org.jetbrains.idea.maven.importing.MavenRootModelAdapter;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+
+import org.jetbrains.idea.maven.MavenImportingTestCase;
+import org.jetbrains.idea.maven.importing.MavenDefaultModifiableModelsProvider;
+import org.jetbrains.idea.maven.importing.MavenRootModelAdapter;
+import org.jetbrains.idea.maven.model.MavenExplicitProfiles;
+import com.intellij.openapi.application.Result;
+import com.intellij.openapi.application.WriteAction;
+import com.intellij.openapi.fileTypes.FileTypeManager;
+import com.intellij.openapi.fileTypes.UnknownFileType;
+import com.intellij.openapi.util.io.FileUtil;
+import com.intellij.openapi.vfs.VfsUtil;
+import com.intellij.openapi.vfs.VirtualFile;
+import consulo.roots.impl.ProductionContentFolderTypeProvider;
 
 public abstract class ResourceFilteringTest extends MavenImportingTestCase {
 
@@ -328,8 +330,8 @@ public abstract class ResourceFilteringTest extends MavenImportingTestCase {
         MavenRootModelAdapter adapter = new MavenRootModelAdapter(myProjectsTree.findProject(myProjectPom),
                                                                   getModule("project"),
                                                                   new MavenDefaultModifiableModelsProvider(myProject));
-        adapter.addSourceFolder(myProjectRoot.findFileByRelativePath("src/main/resources").getPath(), false, false);
-        adapter.addSourceFolder(myProjectRoot.findFileByRelativePath("src/main/ideaRes").getPath(), false, false);
+        adapter.addSourceFolder(myProjectRoot.findFileByRelativePath("src/main/resources").getPath(), ProductionContentFolderTypeProvider.getInstance(), false);
+        adapter.addSourceFolder(myProjectRoot.findFileByRelativePath("src/main/ideaRes").getPath(), ProductionContentFolderTypeProvider.getInstance(), false);
         adapter.getRootModel().commit();
       }
     }.execute();
@@ -724,7 +726,7 @@ public abstract class ResourceFilteringTest extends MavenImportingTestCase {
     compileModules("project");
     assertResult("target/classes/file.properties", "value=val1");
 
-    myProjectsManager.setExplicitProfiles(Arrays.asList("two"));
+    myProjectsManager.setExplicitProfiles(new MavenExplicitProfiles(Arrays.asList("two")));
     scheduleResolveAll();
     resolveDependenciesAndImport();
     compileModules("project");
@@ -1013,7 +1015,7 @@ public abstract class ResourceFilteringTest extends MavenImportingTestCase {
   }
 
   public void testDoNotFilterButCopyBigFiles() throws Exception {
-    assertEquals(FileTypeManager.getInstance().getFileTypeByFileName("file.xyz"), FileTypes.UNKNOWN);
+    assertEquals(FileTypeManager.getInstance().getFileTypeByFileName("file.xyz"), UnknownFileType.INSTANCE);
 
     createProjectSubFile("resources/file.xyz").setBinaryContent(new byte[1024 * 1024 * 20]);
 

@@ -15,6 +15,16 @@
  */
 package org.jetbrains.idea.maven.execution;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.idea.maven.MavenImportingTestCase;
+import org.jetbrains.idea.maven.importing.MavenModuleImporter;
 import com.intellij.execution.configurations.JavaParameters;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.module.Module;
@@ -27,20 +37,16 @@ import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.roots.impl.LibraryScopeCache;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.openapi.vfs.*;
+import com.intellij.openapi.vfs.LocalFileSystem;
+import com.intellij.openapi.vfs.VfsUtil;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.testFramework.PsiTestUtil;
 import com.intellij.util.PathsList;
-import org.jetbrains.annotations.Nullable;
-import org.jetbrains.idea.maven.MavenImportingTestCase;
-import org.jetbrains.idea.maven.importing.MavenModuleImporter;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import consulo.compiler.ModuleCompilerPathsManager;
+import consulo.roots.impl.ProductionContentFolderTypeProvider;
+import consulo.roots.impl.TestContentFolderTypeProvider;
 
 public class MavenClasspathsAndSearchScopesTest extends MavenImportingTestCase {
   private enum Type {PRODUCTION, TESTS}
@@ -926,8 +932,8 @@ public class MavenClasspathsAndSearchScopesTest extends MavenImportingTestCase {
       @Override
       protected void run() throws Throwable {
         ModuleRootModificationUtil.addDependency(user, getModule("m1"));
-        VirtualFile out = user.getModuleFile().getParent().createChildDirectory(this, "output");
-        VirtualFile testOut = user.getModuleFile().getParent().createChildDirectory(this, "test-output");
+        VirtualFile out = user.getModuleDir().createChildDirectory(this, "output");
+        VirtualFile testOut = user.getModuleDir().createChildDirectory(this, "test-output");
         PsiTestUtil.setCompilerOutputPath(user, out.getUrl(), false);
         PsiTestUtil.setCompilerOutputPath(user, testOut.getUrl(), true);
       }
@@ -1128,10 +1134,10 @@ public class MavenClasspathsAndSearchScopesTest extends MavenImportingTestCase {
 
   private void createOutputDirectories() {
     for (Module module : ModuleManager.getInstance(myProject).getModules()) {
-      CompilerModuleExtension extension = CompilerModuleExtension.getInstance(module);
+      ModuleCompilerPathsManager extension = ModuleCompilerPathsManager.getInstance(module);
       if (extension != null) {
-        createDirectoryIfDoesntExist(extension.getCompilerOutputUrl());
-        createDirectoryIfDoesntExist(extension.getCompilerOutputUrlForTests());
+        createDirectoryIfDoesntExist(extension.getCompilerOutputUrl(ProductionContentFolderTypeProvider.getInstance()));
+        createDirectoryIfDoesntExist(extension.getCompilerOutputUrl(TestContentFolderTypeProvider.getInstance()));
       }
     }
   }

@@ -15,6 +15,19 @@
  */
 package org.jetbrains.idea.maven.project;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+import org.jetbrains.idea.maven.MavenTestCase;
+import org.jetbrains.idea.maven.model.MavenExplicitProfiles;
+import org.jetbrains.idea.maven.model.MavenId;
+import org.jetbrains.idea.maven.model.MavenModel;
+import org.jetbrains.idea.maven.model.MavenProfile;
+import org.jetbrains.idea.maven.model.MavenProjectProblem;
+import org.jetbrains.idea.maven.model.MavenResource;
 import com.intellij.openapi.application.Result;
 import com.intellij.openapi.application.WriteAction;
 import com.intellij.openapi.command.WriteCommandAction;
@@ -26,15 +39,6 @@ import com.intellij.testFramework.PlatformTestUtil;
 import com.intellij.util.ArrayUtil;
 import com.intellij.util.Function;
 import com.intellij.util.containers.ContainerUtil;
-import org.jetbrains.idea.maven.MavenTestCase;
-import org.jetbrains.idea.maven.model.*;
-import org.jetbrains.idea.maven.utils.MavenUtil;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 public class MavenProjectReaderTest extends MavenTestCase {
   public void testBasics() throws Exception {
@@ -1581,7 +1585,7 @@ public class MavenProjectReaderTest extends MavenTestCase {
                                                String... profiles) {
     MavenProjectReaderResult result = new MavenProjectReader().readProject(getMavenGeneralSettings(),
                                                                            file,
-                                                                           Arrays.asList(profiles),
+                                                                           new MavenExplicitProfiles(Arrays.asList(profiles)),
                                                                            locator);
     return result;
   }
@@ -1624,7 +1628,7 @@ public class MavenProjectReaderTest extends MavenTestCase {
   private void assertActiveProfiles(List<String> explicitProfiles, String... expected) {
     MavenProjectReaderResult result =
       readProject(myProjectPom, new NullProjectLocator(), ArrayUtil.toStringArray(explicitProfiles));
-    assertUnorderedElementsAreEqual(result.activatedProfiles, expected);
+    assertUnorderedElementsAreEqual(result.activatedProfiles.getEnabledProfiles(), expected);
   }
 
   private static class NullProjectLocator implements MavenProjectReaderProjectLocator {

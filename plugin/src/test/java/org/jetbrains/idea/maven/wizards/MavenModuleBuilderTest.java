@@ -15,23 +15,22 @@
  */
 package org.jetbrains.idea.maven.wizards;
 
+import java.util.List;
+
+import org.jetbrains.idea.maven.MavenImportingTestCase;
+import org.jetbrains.idea.maven.model.MavenArchetype;
+import org.jetbrains.idea.maven.model.MavenId;
+import org.jetbrains.idea.maven.project.MavenProject;
+import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import com.intellij.openapi.application.Result;
 import com.intellij.openapi.application.WriteAction;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.module.ModifiableModuleModel;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
-import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
-import org.jetbrains.idea.maven.MavenImportingTestCase;
-import org.jetbrains.idea.maven.model.MavenArchetype;
-import org.jetbrains.idea.maven.model.MavenId;
-import org.jetbrains.idea.maven.project.MavenProject;
-import org.jetbrains.idea.maven.project.MavenProjectsManager;
-
-import java.util.List;
 
 public class MavenModuleBuilderTest extends MavenImportingTestCase {
   private MavenModuleBuilder myBuilder;
@@ -66,14 +65,6 @@ public class MavenModuleBuilderTest extends MavenImportingTestCase {
 
     assertSources("module", "src/main/java");
     assertTestSources("module", "src/test/java");
-  }
-
-  public void testInheritJdkFromProject() throws Exception {
-    if (!hasMavenInstallation()) return;
-
-    createNewModule(new MavenId("org.foo", "module", "1.0"));
-    ModuleRootManager manager = ModuleRootManager.getInstance(getModule("module"));
-    assertTrue(manager.isSdkInherited());
   }
 
   public void testCreatingFromArchetype() throws Exception {
@@ -292,7 +283,7 @@ public class MavenModuleBuilderTest extends MavenImportingTestCase {
     if (!hasMavenInstallation()) return;
 
     Module module = createModule("project");
-    final VirtualFile dir = module.getModuleFile().getParent();
+    final VirtualFile dir = module.getModuleDir();
     new WriteCommandAction.Simple(myProject) {
       @Override
       protected void run() throws Throwable {

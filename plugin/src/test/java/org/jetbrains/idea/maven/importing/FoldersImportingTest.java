@@ -15,17 +15,17 @@
  */
 package org.jetbrains.idea.maven.importing;
 
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.roots.ModuleRootManager;
-import com.intellij.openapi.vfs.VirtualFile;
+import java.io.File;
+import java.io.IOException;
+
 import org.jetbrains.idea.maven.MavenCustomRepositoryHelper;
 import org.jetbrains.idea.maven.MavenImportingTestCase;
 import org.jetbrains.idea.maven.project.MavenImportingSettings;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.utils.Path;
-
-import java.io.File;
-import java.io.IOException;
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.vfs.VirtualFile;
+import consulo.roots.impl.ProductionContentFolderTypeProvider;
 
 public class FoldersImportingTest extends MavenImportingTestCase {
   public void testSimpleProjectStructure() throws Exception {
@@ -86,7 +86,7 @@ public class FoldersImportingTest extends MavenImportingTestCase {
         MavenRootModelAdapter adapter = new MavenRootModelAdapter(myProjectsTree.findProject(myProjectPom),
                                                                   getModule("project"),
                                                                   new MavenDefaultModifiableModelsProvider(myProject));
-        adapter.addSourceFolder(dir1.getPath(), false, false);
+        adapter.addSourceFolder(dir1.getPath(), ProductionContentFolderTypeProvider.getInstance(), false);
         adapter.addExcludedFolder(dir2.getPath());
         adapter.getRootModel().commit();
       }
@@ -1073,10 +1073,6 @@ public class FoldersImportingTest extends MavenImportingTestCase {
                       "src/test/java",
                       "src/test/resources",
                       "target/generated-test-sources/foo");
-  }
-
-  private CompilerModuleExtension getCompilerExtension(String moduleName) {
-    return ModuleRootManager.getInstance(getModule(moduleName)).getModuleExtensionOld(CompilerModuleExtension.class);
   }
 
   private void createProjectSubDirsWithFile(String ... dirs) throws IOException {

@@ -15,6 +15,14 @@
  */
 package org.jetbrains.idea.maven.dom;
 
+import java.util.Arrays;
+import java.util.List;
+
+import org.jetbrains.idea.maven.dom.model.MavenDomProfiles;
+import org.jetbrains.idea.maven.dom.model.MavenDomProfilesModel;
+import org.jetbrains.idea.maven.dom.model.MavenDomSettingsModel;
+import org.jetbrains.idea.maven.model.MavenExplicitProfiles;
+import org.jetbrains.idea.maven.vfs.MavenPropertiesVirtualFileSystem;
 import com.intellij.lang.properties.IProperty;
 import com.intellij.openapi.util.SystemInfo;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -22,13 +30,6 @@ import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.PsiReference;
-import org.jetbrains.idea.maven.dom.model.MavenDomProfiles;
-import org.jetbrains.idea.maven.dom.model.MavenDomProfilesModel;
-import org.jetbrains.idea.maven.dom.model.MavenDomSettingsModel;
-import org.jetbrains.idea.maven.vfs.MavenPropertiesVirtualFileSystem;
-
-import java.util.Arrays;
-import java.util.List;
 
 public class MavenPropertyCompletionAndResolutionTest extends MavenDomTestCase {
   @Override
@@ -915,7 +916,7 @@ public class MavenPropertyCompletionAndResolutionTest extends MavenDomTestCase {
   }
 
   private void readWithProfiles(String... profiles) {
-    myProjectsManager.setExplicitProfiles(Arrays.asList(profiles));
+    myProjectsManager.setExplicitProfiles(new MavenExplicitProfiles(Arrays.asList(profiles)));
     waitForReadingCompletion();
   }
 }

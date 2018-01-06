@@ -21,7 +21,6 @@ import com.intellij.openapi.application.WriteAction;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
-import com.intellij.openapi.module.StdModuleTypes;
 import com.intellij.openapi.progress.EmptyProgressIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.SystemInfo;
@@ -65,10 +64,6 @@ public abstract class MavenTestCase extends UsefulTestCase {
 
   protected VirtualFile myProjectPom;
   protected List<VirtualFile> myAllPoms = new ArrayList<VirtualFile>();
-
-  static {
-    IdeaTestCase.initPlatformPrefix();
-  }
 
   @Override
   protected void setUp() throws Exception {
@@ -325,16 +320,12 @@ public abstract class MavenTestCase extends UsefulTestCase {
   }
 
   protected Module createModule(String name) throws IOException {
-    return createModule(name, StdModuleTypes.JAVA);
-  }
-
-  protected Module createModule(final String name, final ModuleType type) throws IOException {
     return new WriteCommandAction<Module>(myProject) {
       @Override
       protected void run(Result<Module> moduleResult) throws Throwable {
         VirtualFile f = createProjectSubFile(name + "/" + name + ".iml");
-        Module module = ModuleManager.getInstance(myProject).newModule(f.getPath());
-        PsiTestUtil.addContentRoot(module, f.getParent());
+        Module module = ModuleManager.getInstance(myProject).newModule(f.getPath(), f.getName());
+       // PsiTestUtil.addContentRoot(module, f.getParent());
         moduleResult.setResult(module);
       }
     }.execute().getResultObject();

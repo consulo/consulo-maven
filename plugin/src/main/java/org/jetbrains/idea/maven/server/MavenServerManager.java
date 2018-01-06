@@ -18,7 +18,6 @@ package org.jetbrains.idea.maven.server;
 import gnu.trove.THashMap;
 
 import java.io.File;
-import java.io.FilenameFilter;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
@@ -36,7 +35,6 @@ import org.jetbrains.annotations.TestOnly;
 import org.jetbrains.idea.maven.execution.MavenExecutionOptions;
 import org.jetbrains.idea.maven.execution.MavenRunnerSettings;
 import org.jetbrains.idea.maven.model.MavenExplicitProfiles;
-import org.jetbrains.idea.maven.model.MavenId;
 import org.jetbrains.idea.maven.model.MavenModel;
 import org.jetbrains.idea.maven.project.MavenConsole;
 import org.jetbrains.idea.maven.project.MavenGeneralSettings;
@@ -79,10 +77,16 @@ import com.intellij.openapi.util.ShutDownTracker;
 import com.intellij.openapi.util.SystemInfo;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.util.PathUtil;
+import com.intellij.util.ReflectionUtil;
 import com.intellij.util.SystemProperties;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.xmlb.Converter;
 import com.intellij.util.xmlb.annotations.Attribute;
+import consulo.maven.MavenServer2MarkerRt;
+import consulo.maven.MavenServer30MarkerRt;
+import consulo.maven.MavenServer32MarkerRt;
+import consulo.maven.MavenServer3CommonMarkerRt;
+import consulo.maven.MavenServerApiMarkerRt;
 
 @State(
 		name = "MavenVersion",
@@ -160,14 +164,7 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
 			}
 		};
 
-		ShutDownTracker.getInstance().registerShutdownTask(new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				shutdown(false);
-			}
-		});
+		ShutDownTracker.getInstance().registerShutdownTask(() -> shutdown(false));
 	}
 
 	@SuppressWarnings("ConstantConditions")
@@ -305,7 +302,7 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
 
 				params.setMainClass(MAIN_CLASS);
 
-				Map<String, String> defs = new THashMap<String, String>();
+				Map<String, String> defs = new THashMap<>();
 				defs.putAll(MavenUtil.getPropertiesFromMavenOpts());
 
 				// pass ssl-related options
@@ -373,8 +370,9 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
 							ShowSettingsUtil.getSettingsMenuName() + " | Maven | Runner | JRE", NotificationType.WARNING).notify(null);
 				}
 
-				final List<String> classPath = new ArrayList<String>();
-				classPath.add(PathUtil.getJarPathForClass(org.apache.log4j.Logger.class));
+				final List<String> classPath = new ArrayList<>();
+				//FIXME [VISTALL] implicit dependency to log4j, will broke, after migration to another logger
+				classPath.add(PathUtil.getJarPathForClass(ReflectionUtil.forName("org.apache.log4j.Logger")));
 				if(currentMavenVersion == null || StringUtil.compareVersionNumbers(currentMavenVersion, "3.1") < 0)
 				{
 					classPath.add(PathUtil.getJarPathForClass(Logger.class));
@@ -382,7 +380,7 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
 				}
 
 				classPath.addAll(PathManager.getUtilClassPath());
-				ContainerUtil.addIfNotNull(PathUtil.getJarPathForClass(Query.class), classPath);
+				ContainerUtil.addIfNotNull(classPath, PathUtil.getJarPathForClass(Query.class));
 				params.getClassPath().add(PathManager.getResourceRoot(getClass(), "/messages/CommonBundle.properties"));
 				params.getClassPath().addAll(classPath);
 				params.getClassPath().addAllFiles(collectClassPathAndLibsFolder(forceMaven2));
@@ -479,27 +477,27 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
 		File pluginPath = PluginManager.getPluginPath(getClass());
 		File libDir = new File(pluginPath, "lib");
 
-		final List<File> classpath = new ArrayList<File>();
+		List<File> classpath = new ArrayList<>();
 
-		classpath.add(new File(libDir, "maven-server-api.jar"));
+		addJarFromClass(classpath, MavenServerApiMarkerRt.class);
 
 		if(forceMaven2 || (currentMavenVersion != null && StringUtil.compareVersionNumbers(currentMavenVersion, "3") < 0))
 		{
-			classpath.add(new File(libDir, "maven2-server-impl.jar"));
+			addJarFromClass(classpath, MavenServer2MarkerRt.class);
 			addDir(classpath, new File(libDir, "maven2-server-lib"));
 		}
 		else
 		{
-			classpath.add(new File(libDir, "maven3-server-common.jar"));
+			addJarFromClass(classpath, MavenServer3CommonMarkerRt.class);
 			addDir(classpath, new File(libDir, "maven3-server-lib"));
 
 			if(currentMavenVersion == null || StringUtil.compareVersionNumbers(currentMavenVersion, "3.1") < 0)
 			{
-				classpath.add(new File(libDir, "maven30-server-impl.jar"));
+				addJarFromClass(classpath, MavenServer30MarkerRt.class);
 			}
 			else
 			{
-				classpath.add(new File(libDir, "maven32-server-impl.jar"));
+				addJarFromClass(classpath, MavenServer32MarkerRt.class);
 			}
 		}
 
@@ -507,18 +505,21 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
 		return classpath;
 	}
 
+	private static void addJarFromClass(List<File> files, Class<?> clazz)
+	{
+		String jarPathForClass = PathManager.getJarPathForClass(clazz);
+		if(jarPathForClass == null)
+		{
+			throw new RuntimeException("No path for class: " + clazz);
+		}
+		files.add(new File(jarPathForClass));
+	}
+
 	private static void addMavenLibs(List<File> classpath, File mavenHome)
 	{
 		addDir(classpath, new File(mavenHome, "lib"));
 		File bootFolder = new File(mavenHome, "boot");
-		File[] classworldsJars = bootFolder.listFiles(new FilenameFilter()
-		{
-			@Override
-			public boolean accept(File dir, String name)
-			{
-				return StringUtil.contains(name, "classworlds");
-			}
-		});
+		File[] classworldsJars = bootFolder.listFiles((dir, name) -> StringUtil.contains(name, "classworlds"));
 		if(classworldsJars != null)
 		{
 			Collections.addAll(classpath, classworldsJars);
@@ -579,38 +580,17 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
 
 	public MavenModel interpolateAndAlignModel(final MavenModel model, final File basedir)
 	{
-		return perform(new Retriable<MavenModel>()
-		{
-			@Override
-			public MavenModel execute() throws RemoteException
-			{
-				return getOrCreateWrappee().interpolateAndAlignModel(model, basedir);
-			}
-		});
+		return perform((Retriable<MavenModel>) () -> getOrCreateWrappee().interpolateAndAlignModel(model, basedir));
 	}
 
 	public MavenModel assembleInheritance(final MavenModel model, final MavenModel parentModel)
 	{
-		return perform(new Retriable<MavenModel>()
-		{
-			@Override
-			public MavenModel execute() throws RemoteException
-			{
-				return getOrCreateWrappee().assembleInheritance(model, parentModel);
-			}
-		});
+		return perform((Retriable<MavenModel>) () -> getOrCreateWrappee().assembleInheritance(model, parentModel));
 	}
 
 	public ProfileApplicationResult applyProfiles(final MavenModel model, final File basedir, final MavenExplicitProfiles explicitProfiles, final Collection<String> alwaysOnProfiles)
 	{
-		return perform(new Retriable<ProfileApplicationResult>()
-		{
-			@Override
-			public ProfileApplicationResult execute() throws RemoteException
-			{
-				return getOrCreateWrappee().applyProfiles(model, basedir, explicitProfiles, alwaysOnProfiles);
-			}
-		});
+		return perform((Retriable<ProfileApplicationResult>) () -> getOrCreateWrappee().applyProfiles(model, basedir, explicitProfiles, alwaysOnProfiles));
 	}
 
 	public void addDownloadListener(MavenServerDownloadListener listener)
