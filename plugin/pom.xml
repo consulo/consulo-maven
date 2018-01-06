@@ -38,10 +38,6 @@
 				<updatePolicy>interval:60</updatePolicy>
 			</snapshots>
 		</repository>
-		<repository>
-			<id>central-maven</id>
-			<url>http://central.maven.org/maven2/</url>
-		</repository>
 	</repositories>
 
 	<build>
