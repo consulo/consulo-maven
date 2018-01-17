@@ -15,9 +15,8 @@
  */
 package org.jetbrains.idea.maven.execution;
 
-import com.intellij.execution.JavaTestPatcher;
-import com.intellij.execution.configurations.JavaParameters;
-import com.intellij.openapi.module.Module;
+import java.util.List;
+
 import org.jdom.Element;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
@@ -26,8 +25,9 @@ import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.utils.MavenJDOMUtil;
-
-import java.util.List;
+import com.intellij.execution.JavaTestPatcher;
+import com.intellij.openapi.module.Module;
+import consulo.java.execution.configurations.OwnJavaParameters;
 
 /**
  * @author Sergey Evdokimov
@@ -35,7 +35,7 @@ import java.util.List;
 public class MavenJUnitPatcher implements JavaTestPatcher {
 
   @Override
-  public void patchJavaParameters(@Nullable Module module, JavaParameters javaParameters) {
+  public void patchJavaParameters(@Nullable Module module, OwnJavaParameters javaParameters) {
     if (module == null) return;
 
     MavenProject mavenProject = MavenProjectsManager.getInstance(module.getProject()).findProject(module);

@@ -18,20 +18,19 @@
 
 package org.jetbrains.idea.maven.execution;
 
-import com.intellij.execution.ExecutionException;
-import com.intellij.execution.configurations.JavaParameters;
-import com.intellij.execution.process.DefaultJavaProcessHandler;
-import com.intellij.execution.process.OSProcessHandler;
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Key;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.idea.maven.project.MavenConsole;
 import org.jetbrains.idea.maven.project.MavenGeneralSettings;
 import org.jetbrains.idea.maven.server.MavenServerConsole;
+import com.intellij.execution.ExecutionException;
+import com.intellij.execution.process.OSProcessHandler;
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Key;
+import consulo.java.execution.configurations.OwnJavaParameters;
 
 public class MavenExternalExecutor extends MavenExecutor {
 
@@ -40,7 +39,7 @@ public class MavenExternalExecutor extends MavenExecutor {
   @NonNls private static final String PHASE_INFO_REGEXP = "\\[INFO\\] \\[.*:.*\\]";
   @NonNls private static final int INFO_PREFIX_SIZE = "[INFO] ".length();
 
-  private JavaParameters myJavaParameters;
+  private OwnJavaParameters myJavaParameters;
   private ExecutionException myParameterCreationError;
 
   public MavenExternalExecutor(Project project,
@@ -66,8 +65,7 @@ public class MavenExternalExecutor extends MavenExecutor {
         throw myParameterCreationError;
       }
 
-      myProcessHandler =
-        new DefaultJavaProcessHandler(myJavaParameters) {
+      myProcessHandler = new OSProcessHandler(myJavaParameters.toCommandLine()) {
           public void notifyTextAvailable(String text, Key outputType) {
             // todo move this logic to ConsoleAdapter class
             if (!myConsole.isSuppressed(text)) {

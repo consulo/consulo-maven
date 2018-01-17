@@ -26,7 +26,6 @@ import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import com.intellij.execution.ExecutionBundle;
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.RunCanceledByUserException;
-import com.intellij.execution.configurations.JavaParameters;
 import com.intellij.execution.process.ProcessAdapter;
 import com.intellij.execution.process.ProcessEvent;
 import com.intellij.execution.process.ProcessHandler;
@@ -43,6 +42,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.Key;
 import com.intellij.util.containers.ContainerUtil;
+import consulo.java.execution.configurations.OwnJavaParameters;
 
 /**
  * @author Sergey Evdokimov
@@ -240,7 +240,7 @@ public class MavenResumeAction extends AnAction {
     return candidate;
   }
 
-  public static boolean isApplicable(@Nullable Project project, JavaParameters javaParameters, MavenRunConfiguration runConfiguration) {
+  public static boolean isApplicable(@Nullable Project project, OwnJavaParameters javaParameters, MavenRunConfiguration runConfiguration) {
     if (hasResumeFromParameter(runConfiguration)) { // This runConfiguration was created by other MavenResumeAction.
       MavenRunConfiguration clonedRunConf = runConfiguration.clone();
       List<String> clonedGoals = clonedRunConf.getRunnerParameters().getGoals();

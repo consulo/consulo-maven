@@ -26,116 +26,100 @@ import java.util.Properties;
 import org.jetbrains.idea.maven.MavenImportingTestCase;
 import org.jetbrains.idea.maven.artifactResolver.common.MavenModuleMap;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
-import com.intellij.execution.configurations.JavaParameters;
 import com.intellij.openapi.application.AccessToken;
 import com.intellij.openapi.application.WriteAction;
 import com.intellij.openapi.vfs.VirtualFile;
+import consulo.java.execution.configurations.OwnJavaParameters;
 
 /**
  * @author Sergey Evdokimov
  */
-public abstract class MavenResolveToWorkspaceTest extends MavenImportingTestCase {
+public abstract class MavenResolveToWorkspaceTest extends MavenImportingTestCase
+{
 
-  public void testIgnoredProject() throws Exception {
-    createProjectPom("<groupId>test</groupId>" +
-                     "<artifactId>project</artifactId>" +
-                     "<version>1</version>" +
-                     "<modules>" +
-                     "  <module>moduleA</module>" +
-                     "  <module>moduleIgnored</module>" +
-                     "  <module>moduleB</module>" +
-                     "</modules>");
+	public void testIgnoredProject() throws Exception
+	{
+		createProjectPom("<groupId>test</groupId>" + "<artifactId>project</artifactId>" + "<version>1</version>" + "<modules>" + "  <module>moduleA</module>" + "  <module>moduleIgnored</module>" + "" +
+				"  <module>moduleB</module>" + "</modules>");
 
-    VirtualFile moduleA = createModulePom("moduleA", "<groupId>test</groupId>" +
-                                                     "<artifactId>moduleA</artifactId>" +
-                                                     "<version>1</version>");
+		VirtualFile moduleA = createModulePom("moduleA", "<groupId>test</groupId>" + "<artifactId>moduleA</artifactId>" + "<version>1</version>");
 
-    VirtualFile moduleIgnored = createModulePom("moduleIgnored", "<groupId>test</groupId>" +
-                                                                 "<artifactId>moduleIgnored</artifactId>" +
-                                                                 "<version>1</version>");
+		VirtualFile moduleIgnored = createModulePom("moduleIgnored", "<groupId>test</groupId>" + "<artifactId>moduleIgnored</artifactId>" + "<version>1</version>");
 
-    VirtualFile moduleB = createModulePom("moduleB", "<groupId>test</groupId>" +
-                                                     "<artifactId>moduleB</artifactId>" +
-                                                     "<version>1</version>" +
-                                                     "<dependencies>" +
-                                                     "  <dependency>" +
-                                                     "    <groupId>test</groupId>" +
-                                                     "    <artifactId>moduleA</artifactId>" +
-                                                     "    <version>1</version>" +
-                                                     "  </dependency>" +
-                                                     "  <dependency>" +
-                                                     "    <groupId>test</groupId>" +
-                                                     "    <artifactId>moduleIgnored</artifactId>" +
-                                                     "    <version>1</version>" +
-                                                     "  </dependency>" +
-                                                     "</dependencies>"
-    );
+		VirtualFile moduleB = createModulePom("moduleB", "<groupId>test</groupId>" + "<artifactId>moduleB</artifactId>" + "<version>1</version>" + "<dependencies>" + "  <dependency>" + "    " +
+				"<groupId>test</groupId>" + "    <artifactId>moduleA</artifactId>" + "    <version>1</version>" + "  </dependency>" + "  <dependency>" + "    <groupId>test</groupId>" + "    " +
+				"<artifactId>moduleIgnored</artifactId>" + "    <version>1</version>" + "  </dependency>" + "</dependencies>");
 
-    MavenProjectsManager.getInstance(myProject).setIgnoredFilesPaths(Collections.singletonList(moduleIgnored.getPath()));
+		MavenProjectsManager.getInstance(myProject).setIgnoredFilesPaths(Collections.singletonList(moduleIgnored.getPath()));
 
-    importProject();
+		importProject();
 
-    MavenProjectsManager.getInstance(myProject).setIgnoredFilesPaths(Collections.singletonList(moduleIgnored.getPath()));
+		MavenProjectsManager.getInstance(myProject).setIgnoredFilesPaths(Collections.singletonList(moduleIgnored.getPath()));
 
-    //assertModules("project", "moduleA", "moduleB");
+		//assertModules("project", "moduleA", "moduleB");
 
-    AccessToken accessToken = WriteAction.start();
-    try {
-      //ProjectRootManager.getInstance(myProject).setProjectSdk(createJdk("Java 1.5"));
-    }
-    finally {
-      accessToken.finish();
-    }
+		AccessToken accessToken = WriteAction.start();
+		try
+		{
+			//ProjectRootManager.getInstance(myProject).setProjectSdk(createJdk("Java 1.5"));
+		}
+		finally
+		{
+			accessToken.finish();
+		}
 
-    MavenRunnerParameters runnerParameters = new MavenRunnerParameters(moduleB.getParent().getPath(), false, Collections.singletonList("jetty:run"), Collections.<String, Boolean>emptyMap());
-    runnerParameters.setResolveToWorkspace(true);
+		MavenRunnerParameters runnerParameters = new MavenRunnerParameters(moduleB.getParent().getPath(), false, Collections.singletonList("jetty:run"), Collections.<String, Boolean>emptyMap());
+		runnerParameters.setResolveToWorkspace(true);
 
-    MavenRunnerSettings runnerSettings = MavenRunner.getInstance(myProject).getSettings().clone();
-    runnerSettings.setJreName(MavenRunnerSettings.USE_INTERNAL_JAVA);
+		MavenRunnerSettings runnerSettings = MavenRunner.getInstance(myProject).getSettings().clone();
+		runnerSettings.setJreName(MavenRunnerSettings.USE_INTERNAL_JAVA);
 
-    JavaParameters parameters = MavenExternalParameters.createJavaParameters(myProject,
-                                                                             runnerParameters,
-                                                                             MavenProjectsManager.getInstance(myProject).getGeneralSettings(),
-                                                                             runnerSettings);
+		OwnJavaParameters parameters = MavenExternalParameters.createJavaParameters(myProject, runnerParameters, MavenProjectsManager.getInstance(myProject).getGeneralSettings(), runnerSettings);
 
-    String resolveMapFile = null;
+		String resolveMapFile = null;
 
-    String prefix = "-D" + MavenModuleMap.PATHS_FILE_PROPERTY + "=";
+		String prefix = "-D" + MavenModuleMap.PATHS_FILE_PROPERTY + "=";
 
-    for (String param : parameters.getVMParametersList().getParameters()) {
-      if (param.startsWith(prefix)) {
-        resolveMapFile = param.substring(prefix.length());
-        break;
-      }
-    }
+		for(String param : parameters.getVMParametersList().getParameters())
+		{
+			if(param.startsWith(prefix))
+			{
+				resolveMapFile = param.substring(prefix.length());
+				break;
+			}
+		}
 
-    assertNotNull(resolveMapFile);
+		assertNotNull(resolveMapFile);
 
-    Properties properties = readProperties(resolveMapFile);
+		Properties properties = readProperties(resolveMapFile);
 
-    assertEquals(moduleA.getPath(), properties.getProperty("test:moduleA:pom:1"));
-    assert properties.getProperty("test:moduleA:jar:1").endsWith("/moduleA/target/classes");
+		assertEquals(moduleA.getPath(), properties.getProperty("test:moduleA:pom:1"));
+		assert properties.getProperty("test:moduleA:jar:1").endsWith("/moduleA/target/classes");
 
-    assertNull(properties.getProperty("test:moduleIgnored:pom:1"));
-    assertNull(properties.getProperty("test:moduleIgnored:jar:1"));
-  }
+		assertNull(properties.getProperty("test:moduleIgnored:pom:1"));
+		assertNull(properties.getProperty("test:moduleIgnored:jar:1"));
+	}
 
-  private static Properties readProperties(String filePath) throws IOException {
-    InputStream is = new BufferedInputStream(new FileInputStream(filePath));
-    try {
-      Properties properties = new Properties();
-      properties.load(is);
+	private static Properties readProperties(String filePath) throws IOException
+	{
+		InputStream is = new BufferedInputStream(new FileInputStream(filePath));
+		try
+		{
+			Properties properties = new Properties();
+			properties.load(is);
 
-      for (Map.Entry<Object, Object> entry : properties.entrySet()) {
-        String value = (String)entry.getValue();
-        entry.setValue(value.replace('\\', '/'));
-      }
+			for(Map.Entry<Object, Object> entry : properties.entrySet())
+			{
+				String value = (String) entry.getValue();
+				entry.setValue(value.replace('\\', '/'));
+			}
 
-      return properties;
-    }
-    finally {
-      is.close();
-    }
-  }
+			return properties;
+		}
+		finally
+		{
+			is.close();
+		}
+	}
 
 }

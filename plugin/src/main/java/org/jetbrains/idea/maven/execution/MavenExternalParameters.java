@@ -50,7 +50,6 @@ import org.jetbrains.idea.maven.utils.MavenSettings;
 import org.jetbrains.idea.maven.utils.MavenUtil;
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.RunManager;
-import com.intellij.execution.configurations.JavaParameters;
 import com.intellij.execution.configurations.ParametersList;
 import com.intellij.execution.impl.EditConfigurationsDialog;
 import com.intellij.execution.impl.RunManagerImpl;
@@ -74,6 +73,7 @@ import com.intellij.openapi.vfs.encoding.EncodingProjectManager;
 import com.intellij.util.PathUtil;
 import com.intellij.util.SystemProperties;
 import consulo.annotations.RequiredReadAction;
+import consulo.java.execution.configurations.OwnJavaParameters;
 
 /**
  * @author Ralf Quebbemann
@@ -90,7 +90,7 @@ public class MavenExternalParameters
 
 	@Deprecated // Use createJavaParameters(Project,MavenRunnerParameters, MavenGeneralSettings,MavenRunnerSettings,MavenRunConfiguration)
 	@RequiredReadAction
-	public static JavaParameters createJavaParameters(@Nullable final Project project,
+	public static OwnJavaParameters createJavaParameters(@Nullable final Project project,
 			@NotNull final MavenRunnerParameters parameters,
 			@Nullable MavenGeneralSettings coreSettings,
 			@Nullable MavenRunnerSettings runnerSettings) throws ExecutionException
@@ -99,7 +99,7 @@ public class MavenExternalParameters
 	}
 
 	@RequiredReadAction
-	public static JavaParameters createJavaParameters(@Nullable final Project project, @NotNull final MavenRunnerParameters parameters) throws ExecutionException
+	public static OwnJavaParameters createJavaParameters(@Nullable final Project project, @NotNull final MavenRunnerParameters parameters) throws ExecutionException
 	{
 		return createJavaParameters(project, parameters, null, null, null);
 	}
@@ -114,13 +114,13 @@ public class MavenExternalParameters
 	 * @throws ExecutionException
 	 */
 	@RequiredReadAction
-	public static JavaParameters createJavaParameters(@Nullable final Project project,
+	public static OwnJavaParameters createJavaParameters(@Nullable final Project project,
 			@NotNull final MavenRunnerParameters parameters,
 			@Nullable MavenGeneralSettings coreSettings,
 			@Nullable MavenRunnerSettings runnerSettings,
 			@Nullable MavenRunConfiguration runConfiguration) throws ExecutionException
 	{
-		final JavaParameters params = new JavaParameters();
+		final OwnJavaParameters params = new OwnJavaParameters();
 
 		ApplicationManager.getApplication().assertReadAccessAllowed();
 
@@ -266,8 +266,8 @@ public class MavenExternalParameters
 				MavenProject mavenProject = manager.findProject(module);
 				if(mavenProject != null && !manager.isIgnored(mavenProject))
 				{
-					res.setProperty(mavenProject.getMavenId().getGroupId() + ':' + mavenProject.getMavenId().getArtifactId() + ":pom" + ':' + mavenProject.getMavenId().getVersion(),
-							mavenProject.getFile().getPath());
+					res.setProperty(mavenProject.getMavenId().getGroupId() + ':' + mavenProject.getMavenId().getArtifactId() + ":pom" + ':' + mavenProject.getMavenId().getVersion(), mavenProject
+							.getFile().getPath());
 
 					res.setProperty(mavenProject.getMavenId().getGroupId() + ':' + mavenProject.getMavenId().getArtifactId() + ":test-jar" + ':' + mavenProject.getMavenId().getVersion(),
 							mavenProject.getTestOutputDirectory());
@@ -414,8 +414,8 @@ public class MavenExternalParameters
 
 		if(!file.exists())
 		{
-			throw createExecutionException(RunnerBundle.message("external.maven.home.does.not.exist", file.getPath()), RunnerBundle.message("external.maven.home.does.not.exist.with.fix",
-					file.getPath()), coreSettings, project, runConfiguration);
+			throw createExecutionException(RunnerBundle.message("external.maven.home.does.not.exist", file.getPath()), RunnerBundle.message("external.maven.home.does.not.exist.with.fix", file
+					.getPath()), coreSettings, project, runConfiguration);
 		}
 
 		if(!MavenUtil.isValidMavenHome(file))

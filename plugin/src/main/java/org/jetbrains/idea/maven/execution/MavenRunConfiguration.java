@@ -31,7 +31,6 @@ import com.intellij.execution.ExecutionResult;
 import com.intellij.execution.Executor;
 import com.intellij.execution.configurations.ConfigurationFactory;
 import com.intellij.execution.configurations.JavaCommandLineState;
-import com.intellij.execution.configurations.JavaParameters;
 import com.intellij.execution.configurations.LocatableConfigurationBase;
 import com.intellij.execution.configurations.RunConfiguration;
 import com.intellij.execution.configurations.RunProfileState;
@@ -49,6 +48,7 @@ import com.intellij.openapi.util.WriteExternalException;
 import com.intellij.openapi.wm.ToolWindowId;
 import com.intellij.util.xmlb.XmlSerializer;
 import consulo.java.debugger.impl.GenericDebugRunnerConfiguration;
+import consulo.java.execution.configurations.OwnJavaParameters;
 
 public class MavenRunConfiguration extends LocatableConfigurationBase implements GenericDebugRunnerConfiguration
 {
@@ -81,7 +81,7 @@ public class MavenRunConfiguration extends LocatableConfigurationBase implements
 		return group;
 	}
 
-	public JavaParameters createJavaParameters(@Nullable Project project) throws ExecutionException
+	public OwnJavaParameters createJavaParameters(@Nullable Project project) throws ExecutionException
 	{
 		return MavenExternalParameters.createJavaParameters(project, mySettings.myRunnerParameters, mySettings.myGeneralSettings,
 				mySettings.myRunnerSettings, this);
@@ -93,7 +93,7 @@ public class MavenRunConfiguration extends LocatableConfigurationBase implements
 		JavaCommandLineState state = new JavaCommandLineState(env)
 		{
 			@Override
-			protected JavaParameters createJavaParameters() throws ExecutionException
+			protected OwnJavaParameters createJavaParameters() throws ExecutionException
 			{
 				return MavenRunConfiguration.this.createJavaParameters(env.getProject());
 			}
