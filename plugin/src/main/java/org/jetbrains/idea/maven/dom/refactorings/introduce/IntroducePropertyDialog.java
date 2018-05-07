@@ -31,7 +31,7 @@ import com.intellij.util.xml.DomElement;
 import com.intellij.util.xml.DomFileElement;
 import com.intellij.util.xml.DomUtil;
 import gnu.trove.THashSet;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import org.jetbrains.idea.maven.dom.MavenDomBundle;
 import org.jetbrains.idea.maven.dom.MavenDomProjectProcessorUtils;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
@@ -62,10 +62,10 @@ public class IntroducePropertyDialog extends DialogWrapper {
   private JPanel myMainPanel;
   private JPanel myFieldNamePanel;
 
-  public IntroducePropertyDialog(@NotNull Project project,
-                                 @NotNull XmlElement context,
-                                 @NotNull MavenDomProjectModel mavenDomProjectModel,
-                                 @NotNull String selectedString) {
+  public IntroducePropertyDialog(@Nonnull Project project,
+                                 @Nonnull XmlElement context,
+                                 @Nonnull MavenDomProjectModel mavenDomProjectModel,
+                                 @Nonnull String selectedString) {
     super(project, true);
     myProject = project;
     myContext = context;
@@ -83,7 +83,7 @@ public class IntroducePropertyDialog extends DialogWrapper {
     super.dispose();
   }
 
-  @NotNull
+  @Nonnull
   protected Action[] createActions() {
     return new Action[]{getOKAction(), getCancelAction()};
   }
@@ -97,7 +97,7 @@ public class IntroducePropertyDialog extends DialogWrapper {
     return myNameField.getEnteredName().trim();
   }
 
-  @NotNull
+  @Nonnull
   public MavenDomProjectModel getSelectedProject() {
     MavenDomProjectModel selectedItem =
       (MavenDomProjectModel)ComboBoxUtil.getSelectedValue((DefaultComboBoxModel)myMavenProjectsComboBox.getModel());
@@ -169,11 +169,11 @@ public class IntroducePropertyDialog extends DialogWrapper {
     return ArrayUtil.toStringArray(result);
   }
 
-  private static String joinWords(@NotNull String s, @NotNull String delimiter) {
+  private static String joinWords(@Nonnull String s, @Nonnull String delimiter) {
     return joinWords(StringUtil.split(s, delimiter));
   }
 
-  private static String joinWords(@NotNull List<String> stringList) {
+  private static String joinWords(@Nonnull List<String> stringList) {
     StringBuffer sb = new StringBuffer();
     for (int i = 0; i < stringList.size(); i++) {
       String word = stringList.get(i);
@@ -236,11 +236,11 @@ public class IntroducePropertyDialog extends DialogWrapper {
     setOKActionEnabled(!StringUtil.isEmptyOrSpaces(text) && !isContainWrongSymbols(text) && !isPropertyExist(text));
   }
 
-  private static boolean isContainWrongSymbols(@NotNull String text) {
+  private static boolean isContainWrongSymbols(@Nonnull String text) {
     return text.length() == 0 || Character.isDigit(text.charAt(0)) || StringUtil.containsAnyChar(text, "\t ;*'\"\\/,()^&<>={}[]");
   }
 
-  private boolean isPropertyExist(@NotNull String text) {
+  private boolean isPropertyExist(@Nonnull String text) {
     MavenDomProjectModel project = getSelectedProject();
 
     if (isPropertyExist(text, project)) return true;

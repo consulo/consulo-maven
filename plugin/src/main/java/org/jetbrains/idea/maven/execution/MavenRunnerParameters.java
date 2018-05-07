@@ -23,8 +23,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.jetbrains.idea.maven.model.MavenConstants;
 import org.jetbrains.idea.maven.model.MavenExplicitProfiles;
 import org.jetbrains.idea.maven.utils.Path;
@@ -51,20 +51,20 @@ public class MavenRunnerParameters implements Cloneable
 		this(true, "", null, null, null);
 	}
 
-	public MavenRunnerParameters(boolean isPomExecution, @NotNull String workingDirPath, @Nullable List<String> goals, @Nullable Collection<String> explicitEnabledProfiles)
+	public MavenRunnerParameters(boolean isPomExecution, @Nonnull String workingDirPath, @javax.annotation.Nullable List<String> goals, @Nullable Collection<String> explicitEnabledProfiles)
 	{
 		this(isPomExecution, workingDirPath, goals, explicitEnabledProfiles, null);
 	}
 
-	public MavenRunnerParameters(boolean isPomExecution, @NotNull String workingDirPath, @Nullable List<String> goals, @NotNull MavenExplicitProfiles explicitProfiles)
+	public MavenRunnerParameters(boolean isPomExecution, @Nonnull String workingDirPath, @Nullable List<String> goals, @Nonnull MavenExplicitProfiles explicitProfiles)
 	{
 		this(isPomExecution, workingDirPath, goals, explicitProfiles.getEnabledProfiles(), explicitProfiles.getDisabledProfiles());
 	}
 
 	public MavenRunnerParameters(boolean isPomExecution,
-			@NotNull String workingDirPath,
+			@Nonnull String workingDirPath,
 			@Nullable List<String> goals,
-			@Nullable Collection<String> explicitEnabledProfiles,
+			@javax.annotation.Nullable Collection<String> explicitEnabledProfiles,
 			@Nullable Collection<String> explicitDisabledProfiles)
 	{
 		this.isPomExecution = isPomExecution;
@@ -88,7 +88,7 @@ public class MavenRunnerParameters implements Cloneable
 		}
 	}
 
-	public MavenRunnerParameters(String workingDirPath, boolean isPomExecution, @Nullable List<String> goals, @NotNull Map<String, Boolean> profilesMap)
+	public MavenRunnerParameters(String workingDirPath, boolean isPomExecution, @Nullable List<String> goals, @Nonnull Map<String, Boolean> profilesMap)
 	{
 		this.isPomExecution = isPomExecution;
 		setWorkingDirPath(workingDirPath);
@@ -107,18 +107,18 @@ public class MavenRunnerParameters implements Cloneable
 		return isPomExecution;
 	}
 
-	@NotNull
+	@Nonnull
 	public String getWorkingDirPath()
 	{
 		return myWorkingDirPath.getPath();
 	}
 
-	public void setWorkingDirPath(@NotNull String workingDirPath)
+	public void setWorkingDirPath(@Nonnull String workingDirPath)
 	{
 		myWorkingDirPath = new Path(workingDirPath);
 	}
 
-	@NotNull
+	@Nonnull
 	public File getWorkingDirFile()
 	{
 		return new File(myWorkingDirPath.getPath());
@@ -186,7 +186,7 @@ public class MavenRunnerParameters implements Cloneable
 		return myProfilesMap;
 	}
 
-	public void setProfilesMap(@NotNull Map<String, Boolean> profilesMap)
+	public void setProfilesMap(@Nonnull Map<String, Boolean> profilesMap)
 	{
 		if(myProfilesMap == profilesMap)
 		{

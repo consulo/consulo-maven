@@ -18,8 +18,8 @@ package org.jetbrains.idea.maven.project.actions;
 import java.util.Map;
 import java.util.Set;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.jetbrains.idea.maven.model.MavenExplicitProfiles;
 import org.jetbrains.idea.maven.model.MavenProfileKind;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
@@ -91,7 +91,7 @@ public class ToggleProfileAction extends MavenAction
 	}
 
 	@Nullable
-	private static MavenProfileKind getTargetState(@NotNull MavenProjectsManager projectsManager, Map<String, MavenProfileKind> profiles)
+	private static MavenProfileKind getTargetState(@Nonnull MavenProjectsManager projectsManager, Map<String, MavenProfileKind> profiles)
 	{
 		MavenExplicitProfiles explicitProfiles = projectsManager.getExplicitProfiles();
 		MavenProfileKind targetState = null;
@@ -144,7 +144,7 @@ public class ToggleProfileAction extends MavenAction
 
 	@RequiredDispatchThread
 	@Override
-	public void actionPerformed(@NotNull AnActionEvent e)
+	public void actionPerformed(@Nonnull AnActionEvent e)
 	{
 		MavenProjectsManager manager = MavenActionUtil.getProjectsManager(e.getDataContext());
 		if(manager == null)

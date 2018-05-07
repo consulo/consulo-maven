@@ -19,32 +19,33 @@
 
 package org.jetbrains.idea.maven.dom.model;
 
+import javax.annotation.Nonnull;
+
 import com.intellij.util.xml.Convert;
 import com.intellij.util.xml.GenericDomValue;
 import com.intellij.util.xml.Required;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.idea.maven.dom.MavenDomElement;
 import org.jetbrains.idea.maven.dom.converters.MavenDistributionStatusConverter;
 import org.jetbrains.idea.maven.dom.converters.MavenUrlConverter;
 
 public interface MavenDomDistributionManagement extends MavenDomElement {
-  @NotNull
+  @Nonnull
   MavenDomDeploymentRepository getRepository();
 
-  @NotNull
+  @Nonnull
   MavenDomDeploymentRepository getSnapshotRepository();
 
-  @NotNull
+  @Nonnull
   MavenDomSite getSite();
 
-  @NotNull
+  @Nonnull
   @Convert(MavenUrlConverter.class)
   GenericDomValue<String> getDownloadUrl();
 
-  @NotNull
+  @Nonnull
   MavenDomRelocation getRelocation();
 
-  @NotNull
+  @Nonnull
   @Required(value = false, nonEmpty = true)
   @Convert(MavenDistributionStatusConverter.class)
   GenericDomValue<String> getStatus();

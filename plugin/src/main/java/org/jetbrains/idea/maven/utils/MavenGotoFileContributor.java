@@ -21,7 +21,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.util.ArrayUtil;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 
@@ -29,7 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MavenGotoFileContributor implements ChooseByNameContributor {
-  @NotNull
+  @Nonnull
   public String[] getNames(Project project, boolean includeNonProjectItems) {
     List<String> result = new ArrayList<String>();
 
@@ -40,7 +40,7 @@ public class MavenGotoFileContributor implements ChooseByNameContributor {
     return ArrayUtil.toStringArray(result);
   }
 
-  @NotNull
+  @Nonnull
   public NavigationItem[] getItemsByName(String name, String pattern, Project project, boolean includeNonProjectItems) {
     List<NavigationItem> result = new ArrayList<NavigationItem>();
 

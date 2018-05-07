@@ -19,10 +19,11 @@
 
 package org.jetbrains.idea.maven.dom.model;
 
+import javax.annotation.Nonnull;
+
 import com.intellij.openapi.paths.PathReference;
 import com.intellij.util.xml.Convert;
 import com.intellij.util.xml.GenericDomValue;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.idea.maven.dom.MavenDomElement;
 import org.jetbrains.idea.maven.dom.references.MavenDirectoryPathReferenceConverter;
 
@@ -44,7 +45,7 @@ public interface MavenDomReporting extends MavenDomElement {
    *
    * @return the value of the excludeDefaults child.
    */
-  @NotNull
+  @Nonnull
   GenericDomValue<Boolean> getExcludeDefaults();
 
   /**
@@ -56,7 +57,7 @@ public interface MavenDomReporting extends MavenDomElement {
    *
    * @return the value of the outputDirectory child.
    */
-  @NotNull
+  @Nonnull
   @Convert(value = MavenDirectoryPathReferenceConverter.class, soft = true)
   GenericDomValue<PathReference> getOutputDirectory();
 
@@ -69,6 +70,6 @@ public interface MavenDomReporting extends MavenDomElement {
    *
    * @return the value of the plugins child.
    */
-  @NotNull
+  @Nonnull
   MavenDomPlugins getPlugins();
 }

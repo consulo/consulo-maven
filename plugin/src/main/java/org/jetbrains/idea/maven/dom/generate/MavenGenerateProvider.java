@@ -15,14 +15,14 @@
  */
 package org.jetbrains.idea.maven.dom.generate;
 
+import javax.annotation.Nonnull;
+
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFile;
 import com.intellij.util.xml.DomElement;
 import com.intellij.util.xml.DomUtil;
 import com.intellij.util.xml.actions.generate.AbstractDomGenerateProvider;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
 
 public abstract class MavenGenerateProvider<ELEMENT_TYPE extends DomElement> extends AbstractDomGenerateProvider<ELEMENT_TYPE> {
@@ -36,16 +36,16 @@ public abstract class MavenGenerateProvider<ELEMENT_TYPE extends DomElement> ext
   }
 
   @Override
-  public ELEMENT_TYPE generate(@Nullable DomElement parent, Editor editor) {
+  public ELEMENT_TYPE generate(@javax.annotation.Nullable DomElement parent, Editor editor) {
     if (parent == null) return null;
     return doGenerate((MavenDomProjectModel)parent, editor);
   }
 
-  @Nullable
-  protected abstract ELEMENT_TYPE doGenerate(@NotNull MavenDomProjectModel mavenModel, Editor editor);
+  @javax.annotation.Nullable
+  protected abstract ELEMENT_TYPE doGenerate(@Nonnull MavenDomProjectModel mavenModel, Editor editor);
 
   @Override
-  public boolean isAvailableForElement(@NotNull DomElement el) {
+  public boolean isAvailableForElement(@Nonnull DomElement el) {
     DomElement root = DomUtil.getFileElement(el).getRootElement();
     return root.getModule() != null
            && root instanceof MavenDomProjectModel

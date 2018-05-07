@@ -23,8 +23,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.jetbrains.idea.maven.MavenImportingTestCase;
 import org.jetbrains.idea.maven.dom.inspections.MavenModelInspection;
 import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
@@ -216,13 +216,13 @@ public abstract class MavenDomTestCase extends MavenImportingTestCase
 		assertEquals(expectedText, ref.getCanonicalText());
 	}
 
-	protected void assertResolved(VirtualFile file, @NotNull PsiElement expected) throws IOException
+	protected void assertResolved(VirtualFile file, @Nonnull PsiElement expected) throws IOException
 	{
 		doAssertResolved(file, expected);
 	}
 
 	@Nullable
-	protected PsiReference getReference(VirtualFile file, @NotNull String referenceText) throws IOException
+	protected PsiReference getReference(VirtualFile file, @Nonnull String referenceText) throws IOException
 	{
 		String text = VfsUtilCore.loadText(file);
 		int index = text.indexOf(referenceText);
@@ -234,7 +234,7 @@ public abstract class MavenDomTestCase extends MavenImportingTestCase
 	}
 
 	@Nullable
-	protected PsiReference getReference(VirtualFile file, @NotNull String referenceText, int index) throws IOException
+	protected PsiReference getReference(VirtualFile file, @Nonnull String referenceText, int index) throws IOException
 	{
 		String text = VfsUtilCore.loadText(file);
 		int k = -1;
@@ -250,7 +250,7 @@ public abstract class MavenDomTestCase extends MavenImportingTestCase
 	}
 
 	@Nullable
-	protected PsiElement resolveReference(VirtualFile file, @NotNull String referenceText) throws IOException
+	protected PsiElement resolveReference(VirtualFile file, @Nonnull String referenceText) throws IOException
 	{
 		PsiReference ref = getReference(file, referenceText);
 		assertNotNull(ref);
@@ -264,7 +264,7 @@ public abstract class MavenDomTestCase extends MavenImportingTestCase
 		return resolved;
 	}
 
-	protected void assertResolved(VirtualFile file, @NotNull PsiElement expected, String expectedText) throws IOException
+	protected void assertResolved(VirtualFile file, @Nonnull PsiElement expected, String expectedText) throws IOException
 	{
 		PsiReference ref = doAssertResolved(file, expected);
 		assertEquals(expectedText, ref.getCanonicalText());

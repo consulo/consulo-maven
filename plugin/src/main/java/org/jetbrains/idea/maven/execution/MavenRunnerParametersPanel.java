@@ -30,7 +30,7 @@ import com.intellij.ui.PanelWithAnchor;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.util.TextFieldCompletionProvider;
 import com.intellij.util.execution.ParametersListUtil;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import org.jetbrains.idea.maven.execution.cmd.ParametersListLexer;
 import org.jetbrains.idea.maven.model.MavenConstants;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
@@ -53,7 +53,7 @@ public class MavenRunnerParametersPanel implements PanelWithAnchor {
   private FixedSizeButton showProjectTreeButton;
   private JComponent anchor;
 
-  public MavenRunnerParametersPanel(@NotNull final Project project) {
+  public MavenRunnerParametersPanel(@Nonnull final Project project) {
     workingDirComponent.getComponent().addBrowseFolderListener(
       RunnerBundle.message("maven.select.maven.project.file"), "", project,
       new FileChooserDescriptor(false, true, false, false, false, false) {
@@ -67,16 +67,16 @@ public class MavenRunnerParametersPanel implements PanelWithAnchor {
     if (!project.isDefault()) {
       TextFieldCompletionProvider profilesCompletionProvider = new TextFieldCompletionProvider(true) {
         @Override
-        protected final void addCompletionVariants(@NotNull String text, int offset, @NotNull String prefix, @NotNull CompletionResultSet result) {
+        protected final void addCompletionVariants(@Nonnull String text, int offset, @Nonnull String prefix, @Nonnull CompletionResultSet result) {
           MavenProjectsManager manager = MavenProjectsManager.getInstance(project);
           for (String profile : manager.getAvailableProfiles()) {
             result.addElement(LookupElementBuilder.create(ParametersListUtil.join(profile)));
           }
         }
 
-        @NotNull
+        @Nonnull
         @Override
-        protected String getPrefix(@NotNull String currentTextPrefix) {
+        protected String getPrefix(@Nonnull String currentTextPrefix) {
           ParametersListLexer lexer = new ParametersListLexer(currentTextPrefix);
           while (lexer.nextToken()) {
             if (lexer.getTokenEnd() == currentTextPrefix.length()) {

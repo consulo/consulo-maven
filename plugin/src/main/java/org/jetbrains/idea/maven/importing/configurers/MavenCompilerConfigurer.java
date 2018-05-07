@@ -15,8 +15,9 @@
  */
 package org.jetbrains.idea.maven.importing.configurers;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import org.jetbrains.idea.maven.project.MavenProject;
 import com.intellij.openapi.compiler.CompilerManager;
 import com.intellij.openapi.compiler.options.ExcludeEntryDescription;
@@ -32,7 +33,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 public class MavenCompilerConfigurer extends MavenModuleConfigurer
 {
 	@Override
-	public void configure(@NotNull MavenProject mavenProject, @NotNull Project project, @Nullable Module module)
+	public void configure(@Nonnull MavenProject mavenProject, @Nonnull Project project, @Nullable Module module)
 	{
 		if(module == null)
 		{

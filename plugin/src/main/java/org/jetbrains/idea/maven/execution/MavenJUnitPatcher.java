@@ -18,7 +18,6 @@ package org.jetbrains.idea.maven.execution;
 import java.util.List;
 
 import org.jdom.Element;
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
 import org.jetbrains.idea.maven.dom.MavenPropertyResolver;
 import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
@@ -35,7 +34,7 @@ import consulo.java.execution.configurations.OwnJavaParameters;
 public class MavenJUnitPatcher implements JavaTestPatcher {
 
   @Override
-  public void patchJavaParameters(@Nullable Module module, OwnJavaParameters javaParameters) {
+  public void patchJavaParameters(@javax.annotation.Nullable Module module, OwnJavaParameters javaParameters) {
     if (module == null) return;
 
     MavenProject mavenProject = MavenProjectsManager.getInstance(module.getProject()).findProject(module);

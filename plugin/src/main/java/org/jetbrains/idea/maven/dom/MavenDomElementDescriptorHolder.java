@@ -33,8 +33,7 @@ import com.intellij.psi.xml.XmlTag;
 import com.intellij.xml.XmlElementDescriptor;
 import com.intellij.xml.impl.schema.XmlNSDescriptorImpl;
 import gnu.trove.THashMap;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -71,12 +70,12 @@ public class MavenDomElementDescriptorHolder {
     myProject = project;
   }
 
-  public static MavenDomElementDescriptorHolder getInstance(@NotNull Project project) {
+  public static MavenDomElementDescriptorHolder getInstance(@Nonnull Project project) {
     return ServiceManager.getService(project, MavenDomElementDescriptorHolder.class);
   }
 
-  @Nullable
-  public XmlElementDescriptor getDescriptor(@NotNull XmlTag tag) {
+  @javax.annotation.Nullable
+  public XmlElementDescriptor getDescriptor(@Nonnull XmlTag tag) {
     FileKind kind = getFileKind(tag.getContainingFile());
     if (kind == null) return null;
 
@@ -90,7 +89,7 @@ public class MavenDomElementDescriptorHolder {
     return desc.getElementDescriptor(tag.getName(), desc.getDefaultNamespace());
   }
 
-  @Nullable
+  @javax.annotation.Nullable
   private XmlNSDescriptorImpl tryGetOrCreateDescriptor(final FileKind kind) {
     CachedValue<XmlNSDescriptorImpl> result = myDescriptorsMap.get(kind);
     if (result == null) {
@@ -105,7 +104,7 @@ public class MavenDomElementDescriptorHolder {
     return result.getValue();
   }
 
-  @Nullable
+  @javax.annotation.Nullable
   private XmlNSDescriptorImpl doCreateDescriptor(FileKind kind) {
     String schemaUrl = kind.getSchemaUrl();
     String location = ExternalResourceManager.getInstance().getResourceLocation(schemaUrl);
@@ -129,7 +128,7 @@ public class MavenDomElementDescriptorHolder {
     return result;
   }
 
-  @Nullable
+  @javax.annotation.Nullable
   private FileKind getFileKind(PsiFile file) {
     if (MavenDomUtil.isProjectFile(file)) return FileKind.PROJECT_FILE;
     if (MavenDomUtil.isProfilesFile(file)) return FileKind.PROFILES_FILE;

@@ -23,7 +23,6 @@ import com.intellij.psi.PsiManager;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.psi.xml.XmlAttribute;
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.idea.maven.dom.model.MavenDomProfilesModel;
 import org.jetbrains.idea.maven.dom.references.MavenPropertyPsiReference;
 
@@ -254,7 +253,7 @@ public class MavenFilteredPropertiesCompletionAndResolutionTest extends MavenDom
     assertResolved(f, findPropertyPsiElement(filter, "xxx"));
   }
 
-  @Nullable
+  @javax.annotation.Nullable
   private PsiElement findPropertyPsiElement(final VirtualFile filter, final String propName) {
     final IProperty property = MavenDomUtil.findProperty(myProject, filter, propName);
     return property != null ? property.getPsiElement() : null;

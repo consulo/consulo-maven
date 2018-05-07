@@ -32,12 +32,13 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Scanner;
 
+import javax.annotation.Nonnull;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 
 import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+
+import javax.annotation.Nullable;
 import org.jetbrains.idea.maven.artifactResolver.MavenArtifactResolvedM2RtMarker;
 import org.jetbrains.idea.maven.artifactResolver.MavenArtifactResolvedM31RtMarker;
 import org.jetbrains.idea.maven.artifactResolver.MavenArtifactResolvedM3RtMarker;
@@ -91,15 +92,15 @@ public class MavenExternalParameters
 	@Deprecated // Use createJavaParameters(Project,MavenRunnerParameters, MavenGeneralSettings,MavenRunnerSettings,MavenRunConfiguration)
 	@RequiredReadAction
 	public static OwnJavaParameters createJavaParameters(@Nullable final Project project,
-			@NotNull final MavenRunnerParameters parameters,
+			@Nonnull final MavenRunnerParameters parameters,
 			@Nullable MavenGeneralSettings coreSettings,
-			@Nullable MavenRunnerSettings runnerSettings) throws ExecutionException
+			@javax.annotation.Nullable MavenRunnerSettings runnerSettings) throws ExecutionException
 	{
 		return createJavaParameters(project, parameters, coreSettings, runnerSettings, null);
 	}
 
 	@RequiredReadAction
-	public static OwnJavaParameters createJavaParameters(@Nullable final Project project, @NotNull final MavenRunnerParameters parameters) throws ExecutionException
+	public static OwnJavaParameters createJavaParameters(@Nullable final Project project, @Nonnull final MavenRunnerParameters parameters) throws ExecutionException
 	{
 		return createJavaParameters(project, parameters, null, null, null);
 	}
@@ -114,8 +115,8 @@ public class MavenExternalParameters
 	 * @throws ExecutionException
 	 */
 	@RequiredReadAction
-	public static OwnJavaParameters createJavaParameters(@Nullable final Project project,
-			@NotNull final MavenRunnerParameters parameters,
+	public static OwnJavaParameters createJavaParameters(@javax.annotation.Nullable final Project project,
+			@Nonnull final MavenRunnerParameters parameters,
 			@Nullable MavenGeneralSettings coreSettings,
 			@Nullable MavenRunnerSettings runnerSettings,
 			@Nullable MavenRunConfiguration runConfiguration) throws ExecutionException
@@ -251,7 +252,7 @@ public class MavenExternalParameters
 		return classpath;
 	}
 
-	private static File dumpModulesPaths(@NotNull Project project) throws IOException
+	private static File dumpModulesPaths(@Nonnull Project project) throws IOException
 	{
 		ApplicationManager.getApplication().assertReadAccessAllowed();
 
@@ -295,7 +296,7 @@ public class MavenExternalParameters
 		return file;
 	}
 
-	@NotNull
+	@Nonnull
 	private static Sdk getJdk(@Nullable Project project, MavenRunnerSettings runnerSettings, boolean isGlobalRunnerSettings) throws ExecutionException
 	{
 		String name = runnerSettings.getJreName();
@@ -388,8 +389,8 @@ public class MavenExternalParameters
 		}
 	}
 
-	@NotNull
-	public static String resolveMavenHome(@NotNull MavenGeneralSettings coreSettings) throws ExecutionException
+	@Nonnull
+	public static String resolveMavenHome(@Nonnull MavenGeneralSettings coreSettings) throws ExecutionException
 	{
 		return resolveMavenHome(coreSettings, null, null);
 	}
@@ -401,8 +402,8 @@ public class MavenExternalParameters
 	 * @return
 	 * @throws ExecutionException
 	 */
-	@NotNull
-	public static String resolveMavenHome(@NotNull MavenGeneralSettings coreSettings, @Nullable Project project, @Nullable MavenRunConfiguration runConfiguration) throws ExecutionException
+	@Nonnull
+	public static String resolveMavenHome(@Nonnull MavenGeneralSettings coreSettings, @javax.annotation.Nullable Project project, @Nullable MavenRunConfiguration runConfiguration) throws ExecutionException
 	{
 		final File file = MavenUtil.resolveMavenHomeDirectory(coreSettings.getMavenHome());
 
@@ -436,7 +437,7 @@ public class MavenExternalParameters
 
 	private static ExecutionException createExecutionException(String text,
 			String textWithFix,
-			@NotNull MavenGeneralSettings coreSettings,
+			@Nonnull MavenGeneralSettings coreSettings,
 			@Nullable Project project,
 			@Nullable MavenRunConfiguration runConfiguration)
 	{
@@ -655,7 +656,7 @@ public class MavenExternalParameters
 		}
 
 		@Override
-		public final void hyperlinkUpdate(@NotNull Notification notification, @NotNull HyperlinkEvent event)
+		public final void hyperlinkUpdate(@Nonnull Notification notification, @Nonnull HyperlinkEvent event)
 		{
 			hyperlinkUpdate(event);
 		}

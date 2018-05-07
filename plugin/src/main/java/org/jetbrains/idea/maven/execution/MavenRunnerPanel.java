@@ -24,12 +24,12 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
 
+import javax.annotation.Nonnull;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import com.intellij.execution.configuration.EnvironmentVariablesComponent;
@@ -56,7 +56,7 @@ public class MavenRunnerPanel
 
 	private Map<String, String> myProperties;
 
-	public MavenRunnerPanel(@NotNull Project p, boolean isRunConfiguration)
+	public MavenRunnerPanel(@Nonnull Project p, boolean isRunConfiguration)
 	{
 		myProject = p;
 		myRunConfigurationMode = isRunConfiguration;

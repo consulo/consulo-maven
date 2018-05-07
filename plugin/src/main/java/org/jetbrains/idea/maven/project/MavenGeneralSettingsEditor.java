@@ -15,11 +15,11 @@
  */
 package org.jetbrains.idea.maven.project;
 
+import javax.annotation.Nonnull;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.idea.maven.execution.MavenRunConfiguration;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.options.SettingsEditor;
@@ -37,7 +37,7 @@ public class MavenGeneralSettingsEditor extends SettingsEditor<MavenRunConfigura
 
   private final Project myProject;
 
-  public MavenGeneralSettingsEditor(@NotNull Project project) {
+  public MavenGeneralSettingsEditor(@Nonnull Project project) {
     myProject = project;
     myPanel = new MavenGeneralPanel();
   }
@@ -73,7 +73,7 @@ public class MavenGeneralSettingsEditor extends SettingsEditor<MavenRunConfigura
     }
   }
 
-  @NotNull
+  @Nonnull
   @Override
   protected JComponent createEditor() {
     Pair<JPanel,JCheckBox> pair = MavenDisablePanelCheckbox.createPanel(myPanel.createComponent(), "Use project settings");

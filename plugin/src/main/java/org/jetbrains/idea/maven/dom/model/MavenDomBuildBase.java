@@ -19,11 +19,12 @@
 
 package org.jetbrains.idea.maven.dom.model;
 
+import javax.annotation.Nonnull;
+
 import com.intellij.openapi.paths.PathReference;
 import com.intellij.util.xml.Convert;
 import com.intellij.util.xml.GenericDomValue;
 import com.intellij.util.xml.Required;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.idea.maven.dom.MavenDomElement;
 import org.jetbrains.idea.maven.dom.references.MavenDirectoryPathReferenceConverter;
 
@@ -45,7 +46,7 @@ public interface MavenDomBuildBase extends MavenDomElement {
    *
    * @return the value of the defaultGoal child.
    */
-  @NotNull
+  @Nonnull
   @Required(value = false, nonEmpty = true)
   GenericDomValue<String> getDefaultGoal();
 
@@ -58,7 +59,7 @@ public interface MavenDomBuildBase extends MavenDomElement {
    *
    * @return the value of the resources child.
    */
-  @NotNull
+  @Nonnull
   MavenDomResources getResources();
 
   /**
@@ -70,7 +71,7 @@ public interface MavenDomBuildBase extends MavenDomElement {
    *
    * @return the value of the testResources child.
    */
-  @NotNull
+  @Nonnull
   MavenDomTestResources getTestResources();
 
   /**
@@ -82,7 +83,7 @@ public interface MavenDomBuildBase extends MavenDomElement {
    *
    * @return the value of the directory child.
    */
-  @NotNull
+  @Nonnull
   @Required(value = false, nonEmpty = true)
   @Convert(value = MavenDirectoryPathReferenceConverter.class, soft = true)
   GenericDomValue<PathReference> getDirectory();
@@ -96,7 +97,7 @@ public interface MavenDomBuildBase extends MavenDomElement {
    *
    * @return the value of the finalName child.
    */
-  @NotNull
+  @Nonnull
   @Required(value = false, nonEmpty = true)
   GenericDomValue<String> getFinalName();
 
@@ -109,7 +110,7 @@ public interface MavenDomBuildBase extends MavenDomElement {
    *
    * @return the value of the filters child.
    */
-  @NotNull
+  @Nonnull
   MavenDomFilters getFilters();
 
   /**
@@ -121,7 +122,7 @@ public interface MavenDomBuildBase extends MavenDomElement {
    *
    * @return the value of the pluginManagement child.
    */
-  @NotNull
+  @Nonnull
   MavenDomPluginManagement getPluginManagement();
 
   /**
@@ -133,6 +134,6 @@ public interface MavenDomBuildBase extends MavenDomElement {
    *
    * @return the value of the plugins child.
    */
-  @NotNull
+  @Nonnull
   MavenDomPlugins getPlugins();
 }

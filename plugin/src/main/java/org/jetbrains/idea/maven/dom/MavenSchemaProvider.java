@@ -15,13 +15,14 @@
  */
 package org.jetbrains.idea.maven.dom;
 
+import javax.annotation.Nonnull;
+
 import com.intellij.javaee.ExternalResourceManager;
 import com.intellij.javaee.ExternalResourceManagerEx;
 import com.intellij.javaee.ResourceRegistrar;
 import com.intellij.javaee.StandardResourceProvider;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
-import org.jetbrains.annotations.NotNull;
 
 public class MavenSchemaProvider implements StandardResourceProvider {
   public static final String MAVEN_PROJECT_SCHEMA_URL = "http://maven.apache.org/xsd/maven-4.0.0.xsd";
@@ -36,8 +37,8 @@ public class MavenSchemaProvider implements StandardResourceProvider {
     registrar.addStdResource(MAVEN_SETTINGS_SCHEMA_URL, "/schemas/settings-1.0.0.xsd", getClass());
   }
 
-  @NotNull
-  public static VirtualFile getSchemaFile(@NotNull String url) {
+  @Nonnull
+  public static VirtualFile getSchemaFile(@Nonnull String url) {
     String location = ((ExternalResourceManagerEx)ExternalResourceManager.getInstance()).getStdResource(url, null);
     assert location != null : "cannot find a standard resource for " + url;
 

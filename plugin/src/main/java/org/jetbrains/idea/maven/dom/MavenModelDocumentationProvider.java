@@ -23,8 +23,8 @@ import com.intellij.psi.impl.FakePsiElement;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.psi.xml.XmlTag;
 import com.intellij.usageView.UsageViewTypeLocation;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.jetbrains.idea.maven.dom.references.MavenPsiElementWrapper;
 import org.jetbrains.idea.maven.utils.MavenLog;
 
@@ -65,7 +65,7 @@ public class MavenModelDocumentationProvider implements DocumentationProvider, E
     return getMavenElementDescription(element, DescKind.TYPE_NAME_VALUE, html);
   }
 
-  public String getElementDescription(@NotNull PsiElement element, @NotNull ElementDescriptionLocation location) {
+  public String getElementDescription(@Nonnull PsiElement element, @Nonnull ElementDescriptionLocation location) {
     return getMavenElementDescription(element, location instanceof UsageViewTypeLocation ? DescKind.TYPE : DescKind.NAME, false);
   }
 

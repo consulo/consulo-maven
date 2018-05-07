@@ -30,7 +30,7 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.util.PathUtil;
 import com.intellij.util.xml.DomFileElement;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import org.jetbrains.idea.maven.dom.MavenDomBundle;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
 import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
@@ -57,7 +57,7 @@ public class MavenModulePsiReference extends MavenPsiReference implements LocalQ
     return getPsiFile(file);
   }
 
-  @NotNull
+  @Nonnull
   public Object[] getVariants() {
     List<DomFileElement<MavenDomProjectModel>> files = MavenDomUtil.collectProjectModels(getProject());
 
@@ -109,17 +109,17 @@ public class MavenModulePsiReference extends MavenPsiReference implements LocalQ
       myWithParent = withParent;
     }
 
-    @NotNull
+    @Nonnull
     public String getName() {
       return myWithParent ? MavenDomBundle.message("fix.create.module.with.parent") : MavenDomBundle.message("fix.create.module");
     }
 
-    @NotNull
+    @Nonnull
     public String getFamilyName() {
       return MavenDomBundle.message("inspection.group");
     }
 
-    public void applyFix(@NotNull Project project, @NotNull ProblemDescriptor d) {
+    public void applyFix(@Nonnull Project project, @Nonnull ProblemDescriptor d) {
       try {
         VirtualFile modulePom = createModulePom();
         MavenId id = MavenDomUtil.describe(myPsiFile);

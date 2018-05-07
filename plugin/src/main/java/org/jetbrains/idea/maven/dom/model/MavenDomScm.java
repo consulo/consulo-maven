@@ -19,9 +19,10 @@
 
 package org.jetbrains.idea.maven.dom.model;
 
+import javax.annotation.Nonnull;
+
 import com.intellij.util.xml.Convert;
 import com.intellij.util.xml.GenericDomValue;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.idea.maven.dom.MavenDomElement;
 import org.jetbrains.idea.maven.dom.converters.MavenUrlConverter;
 
@@ -43,7 +44,7 @@ public interface MavenDomScm extends MavenDomElement {
    *
    * @return the value of the connection child.
    */
-  @NotNull
+  @Nonnull
   @Convert(MavenUrlConverter.class)
   GenericDomValue<String> getConnection();
 
@@ -56,7 +57,7 @@ public interface MavenDomScm extends MavenDomElement {
    *
    * @return the value of the developerConnection child.
    */
-  @NotNull
+  @Nonnull
   @Convert(MavenUrlConverter.class)
   GenericDomValue<String> getDeveloperConnection();
 
@@ -69,7 +70,7 @@ public interface MavenDomScm extends MavenDomElement {
    *
    * @return the value of the tag child.
    */
-  @NotNull
+  @Nonnull
   GenericDomValue<String> getTag();
 
   /**
@@ -81,7 +82,7 @@ public interface MavenDomScm extends MavenDomElement {
    *
    * @return the value of the url child.
    */
-  @NotNull
+  @Nonnull
   @Convert(MavenUrlConverter.class)
   GenericDomValue<String> getUrl();
 }

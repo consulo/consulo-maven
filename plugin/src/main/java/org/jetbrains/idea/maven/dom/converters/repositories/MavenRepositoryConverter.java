@@ -27,8 +27,8 @@ import com.intellij.util.xml.ConvertContext;
 import com.intellij.util.xml.GenericDomValue;
 import com.intellij.util.xml.ResolvingConverter;
 import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.jetbrains.idea.maven.dom.converters.MavenUrlConverter;
 import org.jetbrains.idea.maven.dom.model.MavenDomRepositoryBase;
 import org.jetbrains.idea.maven.dom.references.MavenUrlPsiReference;
@@ -42,7 +42,7 @@ import java.util.Collections;
 public abstract class MavenRepositoryConverter extends ResolvingConverter<String> {
 
   public static class Id extends MavenRepositoryConverter {
-    @NotNull
+    @Nonnull
     public Collection<String> getVariants(final ConvertContext context) {
       Module module = context.getModule();
       if (module != null) {
@@ -60,7 +60,7 @@ public abstract class MavenRepositoryConverter extends ResolvingConverter<String
   }
 
   public static class Name extends MavenRepositoryConverter {
-    @NotNull
+    @Nonnull
     public Collection<String> getVariants(final ConvertContext context) {
       Module module = context.getModule();
 
@@ -74,14 +74,14 @@ public abstract class MavenRepositoryConverter extends ResolvingConverter<String
 
   public static class Url extends MavenUrlConverter {
 
-    @NotNull
+    @Nonnull
     @Override
     public PsiReference[] createReferences(GenericDomValue value, final PsiElement element, final ConvertContext context) {
       String text = value.getStringValue();
       TextRange range = ElementManipulators.getValueTextRange(element);
       return new PsiReference[]{new MavenUrlPsiReference(element, text, range) {
 
-        @NotNull
+        @Nonnull
         @Override
         public Object[] getVariants() {
           Module module = context.getModule();
@@ -109,7 +109,7 @@ public abstract class MavenRepositoryConverter extends ResolvingConverter<String
   }
 
   @Override
-  public String toString(@Nullable String s, ConvertContext convertContext) {
+  public String toString(@javax.annotation.Nullable String s, ConvertContext convertContext) {
     return s;
   }
 }

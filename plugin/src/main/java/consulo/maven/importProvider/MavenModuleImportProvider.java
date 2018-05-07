@@ -4,10 +4,10 @@ import java.io.File;
 import java.util.Collection;
 import java.util.List;
 
+import javax.annotation.Nonnull;
 import javax.swing.Icon;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nullable;
 import org.jetbrains.idea.maven.importing.MavenDefaultModifiableModelsProvider;
 import org.jetbrains.idea.maven.importing.MavenUIModifiableModelsProvider;
 import org.jetbrains.idea.maven.model.MavenConstants;
@@ -42,14 +42,14 @@ import icons.MavenIcons;
  */
 public class MavenModuleImportProvider implements ModuleImportProvider<MavenImportModuleContext>
 {
-	@NotNull
+	@Nonnull
 	@Override
 	public MavenImportModuleContext createContext()
 	{
 		return new MavenImportModuleContext();
 	}
 
-	@NotNull
+	@Nonnull
 	@Override
 	public String getName()
 	{
@@ -63,7 +63,7 @@ public class MavenModuleImportProvider implements ModuleImportProvider<MavenImpo
 		return MavenIcons.MavenLogo;
 	}
 
-	@NotNull
+	@Nonnull
 	@Override
 	public String getFileSample()
 	{
@@ -71,7 +71,7 @@ public class MavenModuleImportProvider implements ModuleImportProvider<MavenImpo
 	}
 
 	@Override
-	public boolean canImport(@NotNull File fileOrDirectory)
+	public boolean canImport(@Nonnull File fileOrDirectory)
 	{
 		if(fileOrDirectory.isDirectory())
 		{
@@ -84,7 +84,7 @@ public class MavenModuleImportProvider implements ModuleImportProvider<MavenImpo
 	}
 
 	@Override
-	public ModuleWizardStep[] createSteps(@NotNull WizardContext wizardContext, @NotNull MavenImportModuleContext context)
+	public ModuleWizardStep[] createSteps(@Nonnull WizardContext wizardContext, @Nonnull MavenImportModuleContext context)
 	{
 		return new ModuleWizardStep[]{
 				new MavenProjectImportStep(context, wizardContext),
@@ -143,12 +143,12 @@ public class MavenModuleImportProvider implements ModuleImportProvider<MavenImpo
 		};
 	}
 
-	@NotNull
+	@Nonnull
 	@Override
-	public List<Module> commit(@NotNull MavenImportModuleContext context,
-			@NotNull Project project,
-			@Nullable ModifiableModuleModel model,
-			@NotNull ModulesProvider modulesProvider,
+	public List<Module> commit(@Nonnull MavenImportModuleContext context,
+			@Nonnull Project project,
+			@javax.annotation.Nullable ModifiableModuleModel model,
+			@Nonnull ModulesProvider modulesProvider,
 			@Nullable ModifiableArtifactModel artifactModel)
 	{
 		MavenWorkspaceSettings settings = MavenWorkspaceSettingsComponent.getInstance(project).getSettings();

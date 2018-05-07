@@ -17,8 +17,8 @@ package org.jetbrains.idea.maven.importing;
 
 import java.io.File;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.jetbrains.idea.maven.model.MavenArtifact;
 import org.jetbrains.idea.maven.model.MavenConstants;
 import org.jetbrains.idea.maven.project.MavenProject;
@@ -59,7 +59,7 @@ public class MavenRootModelAdapter
 	private final ModifiableModuleModel myModuleModel;
 	private final ModifiableRootModel myRootModel;
 
-	public MavenRootModelAdapter(@NotNull MavenProject p, @NotNull Module module, final MavenModifiableModelsProvider rootModelsProvider)
+	public MavenRootModelAdapter(@Nonnull MavenProject p, @Nonnull Module module, final MavenModifiableModelsProvider rootModelsProvider)
 	{
 		myMavenProject = p;
 		myModuleModel = rootModelsProvider.getModuleModel();
@@ -343,7 +343,7 @@ public class MavenRootModelAdapter
 		return new Path(path);
 	}
 
-	public void addModuleDependency(@NotNull String moduleName, @NotNull DependencyScope scope, boolean testJar)
+	public void addModuleDependency(@Nonnull String moduleName, @Nonnull DependencyScope scope, boolean testJar)
 	{
 		Module m = findModuleByName(moduleName);
 
@@ -509,7 +509,7 @@ public class MavenRootModelAdapter
 		return false;
 	}
 
-	public Library findLibrary(@NotNull final MavenArtifact artifact)
+	public Library findLibrary(@Nonnull final MavenArtifact artifact)
 	{
 		final String name = artifact.getLibraryName();
 		final Ref<Library> result = Ref.create(null);
@@ -529,18 +529,18 @@ public class MavenRootModelAdapter
 	}
 
 	@Deprecated // Use artifact.getLibraryName();
-	public static String makeLibraryName(@NotNull MavenArtifact artifact)
+	public static String makeLibraryName(@Nonnull MavenArtifact artifact)
 	{
 		return artifact.getLibraryName();
 	}
 
-	public static boolean isMavenLibrary(@Nullable Library library)
+	public static boolean isMavenLibrary(@javax.annotation.Nullable Library library)
 	{
 		return library != null && MavenArtifact.isMavenLibrary(library.getName());
 	}
 
 	@Nullable
-	public static OrderEntry findLibraryEntry(@NotNull Module m, @NotNull MavenArtifact artifact)
+	public static OrderEntry findLibraryEntry(@Nonnull Module m, @Nonnull MavenArtifact artifact)
 	{
 		String name = artifact.getLibraryName();
 		for(OrderEntry each : ModuleRootManager.getInstance(m).getOrderEntries())
@@ -553,8 +553,8 @@ public class MavenRootModelAdapter
 		return null;
 	}
 
-	@Nullable
-	public static MavenArtifact findArtifact(@NotNull MavenProject project, @Nullable Library library)
+	@javax.annotation.Nullable
+	public static MavenArtifact findArtifact(@Nonnull MavenProject project, @javax.annotation.Nullable Library library)
 	{
 		if(library == null)
 		{

@@ -19,7 +19,7 @@
 
 package org.jetbrains.idea.maven.dom.model;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import org.jetbrains.idea.maven.dom.MavenDomElement;
 
 import java.util.List;
@@ -34,7 +34,7 @@ public interface MavenDomNotifiers extends MavenDomElement {
    *
    * @return the list of notifier children.
    */
-  @NotNull
+  @Nonnull
   List<MavenDomNotifier> getNotifiers();
 
   /**

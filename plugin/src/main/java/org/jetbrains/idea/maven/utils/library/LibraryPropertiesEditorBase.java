@@ -18,13 +18,12 @@ package org.jetbrains.idea.maven.utils.library;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.annotation.Nonnull;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import com.intellij.openapi.roots.libraries.LibraryProperties;
 import com.intellij.openapi.roots.libraries.LibraryType;
 import com.intellij.openapi.roots.libraries.ui.LibraryEditorComponent;
@@ -43,7 +42,7 @@ public abstract class LibraryPropertiesEditorBase<P extends LibraryProperties, T
 	protected final LibraryEditorComponent<P> myEditorComponent;
 	protected final T myLibraryType;
 
-	protected LibraryPropertiesEditorBase(final LibraryEditorComponent<P> editorComponent, T libraryType, @Nullable String editButtonText)
+	protected LibraryPropertiesEditorBase(final LibraryEditorComponent<P> editorComponent, T libraryType, @javax.annotation.Nullable String editButtonText)
 	{
 		myEditorComponent = editorComponent;
 		myLibraryType = libraryType;
@@ -81,7 +80,7 @@ public abstract class LibraryPropertiesEditorBase<P extends LibraryProperties, T
 		updateDescription();
 	}
 
-	@NotNull
+	@Nonnull
 	@Override
 	public JComponent createComponent()
 	{

@@ -20,8 +20,9 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import org.jetbrains.idea.maven.model.MavenId;
 import org.jetbrains.idea.maven.model.MavenModel;
 import org.jetbrains.idea.maven.model.MavenProjectProblem;
@@ -30,9 +31,9 @@ public class MavenServerExecutionResult implements Serializable
 {
 	@Nullable
 	public final ProjectData projectData;
-	@NotNull
+	@Nonnull
 	public final Collection<MavenProjectProblem> problems;
-	@NotNull
+	@Nonnull
 	public final Set<MavenId> unresolvedArtifacts;
 
 	public MavenServerExecutionResult(ProjectData projectData, Collection<MavenProjectProblem> problems, Set<MavenId> unresolvedArtifacts)

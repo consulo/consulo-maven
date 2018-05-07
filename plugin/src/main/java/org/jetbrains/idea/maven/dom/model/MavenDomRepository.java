@@ -19,14 +19,15 @@
 
 package org.jetbrains.idea.maven.dom.model;
 
+import javax.annotation.Nonnull;
+
 import com.intellij.ide.presentation.Presentation;
-import org.jetbrains.annotations.NotNull;
 
 @Presentation(typeName = "Repository", icon = "MavenIcons.MavenPlugin")
 public interface MavenDomRepository extends MavenDomRepositoryBase {
-  @NotNull
+  @Nonnull
   MavenDomRepositoryPolicy getReleases();
 
-  @NotNull
+  @Nonnull
   MavenDomRepositoryPolicy getSnapshots();
 }

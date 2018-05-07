@@ -16,8 +16,8 @@
 package org.jetbrains.idea.maven.project;
 
 import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import com.intellij.openapi.options.SearchableConfigurable;
 import consulo.annotations.RequiredDispatchThread;
 
@@ -60,7 +60,7 @@ public abstract class MavenGeneralConfigurable extends MavenGeneralPanel impleme
 	}
 
 	@Override
-	@NotNull
+	@Nonnull
 	public String getId()
 	{
 		return getHelpTopic();

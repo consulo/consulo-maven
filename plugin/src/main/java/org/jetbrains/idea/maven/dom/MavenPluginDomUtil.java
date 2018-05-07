@@ -17,8 +17,8 @@ package org.jetbrains.idea.maven.dom;
 
 import java.io.File;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.jetbrains.idea.maven.dom.model.MavenDomConfiguration;
 import org.jetbrains.idea.maven.dom.model.MavenDomPlugin;
 import org.jetbrains.idea.maven.dom.plugin.MavenDomPluginModel;
@@ -40,7 +40,7 @@ public class MavenPluginDomUtil
 {
 
 	@Nullable
-	public static MavenProject findMavenProject(@NotNull DomElement domElement)
+	public static MavenProject findMavenProject(@Nonnull DomElement domElement)
 	{
 		XmlElement xmlElement = domElement.getXmlElement();
 		if(xmlElement == null)
@@ -105,7 +105,7 @@ public class MavenPluginDomUtil
 		return MavenDomUtil.getMavenDomModel(project, pluginXmlFile, MavenDomPluginModel.class);
 	}
 
-	public static boolean isPlugin(@NotNull MavenDomConfiguration configuration, @Nullable String groupId, @NotNull String artifactId)
+	public static boolean isPlugin(@Nonnull MavenDomConfiguration configuration, @Nullable String groupId, @Nonnull String artifactId)
 	{
 		MavenDomPlugin domPlugin = configuration.getParentOfType(MavenDomPlugin.class, true);
 		if(domPlugin == null)
@@ -116,7 +116,7 @@ public class MavenPluginDomUtil
 		return isPlugin(domPlugin, groupId, artifactId);
 	}
 
-	public static boolean isPlugin(@NotNull MavenDomPlugin plugin, @Nullable String groupId, @NotNull String artifactId)
+	public static boolean isPlugin(@Nonnull MavenDomPlugin plugin, @Nullable String groupId, @Nonnull String artifactId)
 	{
 		if(!artifactId.equals(plugin.getArtifactId().getStringValue()))
 		{

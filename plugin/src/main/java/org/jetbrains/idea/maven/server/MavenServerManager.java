@@ -27,10 +27,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.jar.Attributes;
 
+import javax.annotation.Nonnull;
+
 import org.apache.lucene.search.Query;
 import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+
+import javax.annotation.Nullable;
 import org.jetbrains.annotations.TestOnly;
 import org.jetbrains.idea.maven.execution.MavenExecutionOptions;
 import org.jetbrains.idea.maven.execution.MavenRunnerSettings;
@@ -169,7 +171,7 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
 
 	@SuppressWarnings("ConstantConditions")
 	@Override
-	@NotNull
+	@Nonnull
 	protected synchronized MavenServer create() throws RemoteException
 	{
 		MavenServer result;
@@ -236,7 +238,7 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
 		}
 	}
 
-	@NotNull
+	@Nonnull
 	private Sdk getSdkForRun()
 	{
 		Sdk sdk = getSdkForRunImpl(myState.embedderJdk);
@@ -293,7 +295,7 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
 	{
 		return new CommandLineState(null)
 		{
-			@NotNull
+			@Nonnull
 			private SimpleJavaParameters createJavaParameters() throws ExecutionException
 			{
 				final SimpleJavaParameters params = new SimpleJavaParameters();
@@ -419,16 +421,16 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
 				return params;
 			}
 
-			@NotNull
+			@Nonnull
 			@Override
-			public ExecutionResult execute(@NotNull Executor executor, @NotNull ProgramRunner runner) throws ExecutionException
+			public ExecutionResult execute(@Nonnull Executor executor, @Nonnull ProgramRunner runner) throws ExecutionException
 			{
 				ProcessHandler processHandler = startProcess();
 				return new DefaultExecutionResult(null, processHandler, AnAction.EMPTY_ARRAY);
 			}
 
 			@Override
-			@NotNull
+			@Nonnull
 			protected OSProcessHandler startProcess() throws ExecutionException
 			{
 				SimpleJavaParameters params = createJavaParameters();
@@ -452,14 +454,14 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
 	}
 
 	@Nullable
-	public String getMavenVersion(@Nullable String mavenHome)
+	public String getMavenVersion(@javax.annotation.Nullable String mavenHome)
 	{
 		return MavenUtil.getMavenVersion(getMavenHomeFile(mavenHome));
 	}
 
 	@SuppressWarnings("unused")
 	@Nullable
-	public String getMavenVersion(@Nullable File mavenHome)
+	public String getMavenVersion(@javax.annotation.Nullable File mavenHome)
 	{
 		return MavenUtil.getMavenVersion(mavenHome);
 	}
@@ -547,7 +549,7 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
 	{
 		return new MavenEmbedderWrapper(this)
 		{
-			@NotNull
+			@Nonnull
 			@Override
 			protected MavenServerEmbedder create() throws RemoteException
 			{
@@ -569,7 +571,7 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
 	{
 		return new MavenIndexerWrapper(this)
 		{
-			@NotNull
+			@Nonnull
 			@Override
 			protected MavenServerIndexer create() throws RemoteException
 			{
@@ -661,16 +663,16 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
 
 	private static class UseMavenConverter extends Converter<Boolean>
 	{
-		@Nullable
+		@javax.annotation.Nullable
 		@Override
-		public Boolean fromString(@NotNull String value)
+		public Boolean fromString(@Nonnull String value)
 		{
 			return "2.x".equals(value);
 		}
 
-		@NotNull
+		@Nonnull
 		@Override
-		public String toString(@NotNull Boolean value)
+		public String toString(@Nonnull Boolean value)
 		{
 			return value ? "2.x" : "3.x";
 		}
@@ -699,8 +701,8 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
 		}
 	}
 
-	@Nullable
-	public File getMavenHomeFile(@Nullable String mavenHome)
+	@javax.annotation.Nullable
+	public File getMavenHomeFile(@javax.annotation.Nullable String mavenHome)
 	{
 		if(mavenHome == null)
 		{
@@ -718,13 +720,13 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
 		return MavenUtil.isValidMavenHome(home) ? home : null;
 	}
 
-	@Nullable
+	@javax.annotation.Nullable
 	public File getCurrentMavenHomeFile()
 	{
 		return getMavenHomeFile(myState.mavenHome);
 	}
 
-	public void setMavenHome(@NotNull String mavenHome)
+	public void setMavenHome(@Nonnull String mavenHome)
 	{
 		if(!StringUtil.equals(myState.mavenHome, mavenHome))
 		{
@@ -733,13 +735,13 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
 		}
 	}
 
-	@NotNull
+	@Nonnull
 	public String getMavenEmbedderVMOptions()
 	{
 		return myState.vmOptions;
 	}
 
-	public void setMavenEmbedderVMOptions(@NotNull String mavenEmbedderVMOptions)
+	public void setMavenEmbedderVMOptions(@Nonnull String mavenEmbedderVMOptions)
 	{
 		if(!mavenEmbedderVMOptions.trim().equals(myState.vmOptions.trim()))
 		{
@@ -748,13 +750,13 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
 		}
 	}
 
-	@NotNull
+	@Nonnull
 	public String getEmbedderJdk()
 	{
 		return myState.embedderJdk;
 	}
 
-	public void setEmbedderJdk(@NotNull String embedderJdk)
+	public void setEmbedderJdk(@Nonnull String embedderJdk)
 	{
 		if(!myState.embedderJdk.equals(embedderJdk))
 		{
@@ -763,7 +765,7 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
 		}
 	}
 
-	@NotNull
+	@Nonnull
 	public MavenExecutionOptions.LoggingLevel getLoggingLevel()
 	{
 		return myState.loggingLevel;

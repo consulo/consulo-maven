@@ -31,9 +31,11 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import javax.annotation.Nonnull;
+
 import org.jdom.Element;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+
+import javax.annotation.Nullable;
 import org.jetbrains.idea.maven.model.*;
 import org.jetbrains.idea.maven.server.MavenEmbedderWrapper;
 import org.jetbrains.idea.maven.server.MavenServerExecutionResult;
@@ -436,7 +438,7 @@ public class MavenProjectReader
 			Pair<VirtualFile, RawModelReadResult> parentModelWithProblems = new MavenParentProjectFileProcessor<Pair<VirtualFile, RawModelReadResult>>()
 			{
 				@Nullable
-				protected VirtualFile findManagedFile(@NotNull MavenId id)
+				protected VirtualFile findManagedFile(@Nonnull MavenId id)
 				{
 					return locator.findProjectFile(id);
 				}

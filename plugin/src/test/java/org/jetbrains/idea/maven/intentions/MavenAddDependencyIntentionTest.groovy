@@ -15,12 +15,6 @@
  */
 package org.jetbrains.idea.maven.intentions
 
-import com.intellij.psi.PsiJavaCodeReferenceElement
-import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.annotations.Nullable
-import org.jetbrains.idea.maven.dom.MavenDomTestCase
-import org.jetbrains.idea.maven.dom.intentions.AddMavenDependencyQuickFix
-
 /**
  * @author Sergey Evdokimov
  */

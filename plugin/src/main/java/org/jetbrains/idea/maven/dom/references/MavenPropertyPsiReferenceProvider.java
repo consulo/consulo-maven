@@ -26,8 +26,9 @@ import com.intellij.psi.xml.XmlTag;
 import com.intellij.util.ProcessingContext;
 import com.intellij.util.xml.DomElement;
 import com.intellij.util.xml.DomManager;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
 import org.jetbrains.idea.maven.dom.MavenPluginDomUtil;
 import org.jetbrains.idea.maven.dom.MavenPropertyResolver;
@@ -42,9 +43,9 @@ import java.util.regex.Matcher;
 public class MavenPropertyPsiReferenceProvider extends PsiReferenceProvider {
   public static final boolean SOFT_DEFAULT = false;
 
-  @NotNull
+  @Nonnull
   @Override
-  public PsiReference[] getReferencesByElement(@NotNull PsiElement element, @NotNull ProcessingContext context) {
+  public PsiReference[] getReferencesByElement(@Nonnull PsiElement element, @Nonnull ProcessingContext context) {
     return getReferences(element, SOFT_DEFAULT);
   }
 

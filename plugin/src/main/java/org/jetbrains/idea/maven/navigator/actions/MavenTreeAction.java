@@ -15,10 +15,9 @@
  */
 package org.jetbrains.idea.maven.navigator.actions;
 
+import javax.annotation.Nonnull;
 import javax.swing.JTree;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.idea.maven.utils.MavenDataKeys;
 import org.jetbrains.idea.maven.utils.actions.MavenAction;
 import org.jetbrains.idea.maven.utils.actions.MavenActionUtil;
@@ -33,7 +32,7 @@ public abstract class MavenTreeAction extends MavenAction
 		return super.isAvailable(e) && MavenActionUtil.isMavenizedProject(e.getDataContext()) && getTree(e) != null;
 	}
 
-	@Nullable
+	@javax.annotation.Nullable
 	protected static JTree getTree(AnActionEvent e)
 	{
 		return e.getData(MavenDataKeys.MAVEN_PROJECTS_TREE);
@@ -43,7 +42,7 @@ public abstract class MavenTreeAction extends MavenAction
 	{
 		@RequiredDispatchThread
 		@Override
-		public void actionPerformed(@NotNull AnActionEvent e)
+		public void actionPerformed(@Nonnull AnActionEvent e)
 		{
 			JTree tree = getTree(e);
 			if(tree == null)
@@ -64,7 +63,7 @@ public abstract class MavenTreeAction extends MavenAction
 	{
 		@RequiredDispatchThread
 		@Override
-		public void actionPerformed(@NotNull AnActionEvent e)
+		public void actionPerformed(@Nonnull AnActionEvent e)
 		{
 			JTree tree = getTree(e);
 			if(tree == null)

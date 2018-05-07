@@ -21,9 +21,9 @@ import java.rmi.RemoteException;
 import java.util.Collection;
 import java.util.Set;
 
+import javax.annotation.Nonnull;
+
 import org.apache.lucene.search.Query;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.idea.maven.model.MavenArchetype;
 import org.jetbrains.idea.maven.model.MavenArtifactInfo;
 import org.jetbrains.idea.maven.model.MavenId;
@@ -33,7 +33,7 @@ public interface MavenServerIndexer extends Remote
 	String SEARCH_TERM_COORDINATES = "u"; // see org.sonatype.nexus.index.ArtifactInfo
 	String SEARCH_TERM_CLASS_NAMES = "c";
 
-	int createIndex(@NotNull String indexId, @NotNull String repositoryId, @Nullable File file, @Nullable String url, @NotNull File indexDir) throws RemoteException, MavenServerIndexerException;
+	int createIndex(@Nonnull String indexId, @Nonnull String repositoryId, @javax.annotation.Nullable File file, @javax.annotation.Nullable String url, @Nonnull File indexDir) throws RemoteException, MavenServerIndexerException;
 
 	void releaseIndex(int id) throws RemoteException, MavenServerIndexerException;
 

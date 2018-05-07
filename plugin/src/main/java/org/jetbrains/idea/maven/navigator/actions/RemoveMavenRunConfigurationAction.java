@@ -15,7 +15,8 @@
  */
 package org.jetbrains.idea.maven.navigator.actions;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
+
 import org.jetbrains.idea.maven.utils.MavenDataKeys;
 import com.intellij.execution.RunManager;
 import com.intellij.execution.RunManagerEx;
@@ -33,7 +34,7 @@ public class RemoveMavenRunConfigurationAction extends AnAction
 {
 	@RequiredDispatchThread
 	@Override
-	public void actionPerformed(@NotNull AnActionEvent e)
+	public void actionPerformed(@Nonnull AnActionEvent e)
 	{
 		Project project = e.getProject();
 		RunnerAndConfigurationSettings settings = e.getData(MavenDataKeys.RUN_CONFIGURATION);
@@ -49,7 +50,7 @@ public class RemoveMavenRunConfigurationAction extends AnAction
 
 	@RequiredDispatchThread
 	@Override
-	public void update(@NotNull AnActionEvent e)
+	public void update(@Nonnull AnActionEvent e)
 	{
 		Project project = e.getProject();
 		RunnerAndConfigurationSettings settings = e.getData(MavenDataKeys.RUN_CONFIGURATION);

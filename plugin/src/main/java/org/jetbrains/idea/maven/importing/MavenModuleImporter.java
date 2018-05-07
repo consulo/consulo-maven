@@ -21,8 +21,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.jdom.Element;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.jetbrains.idea.maven.model.MavenArtifact;
 import org.jetbrains.idea.maven.model.MavenConstants;
 import org.jetbrains.idea.maven.project.MavenImportingSettings;
@@ -330,7 +330,7 @@ public class MavenModuleImporter
 		}
 	}
 
-	private void addAttachArtifactDependency(@NotNull Element buildHelperCfg, @NotNull DependencyScope scope, @NotNull MavenProject mavenProject, @NotNull MavenArtifact artifact)
+	private void addAttachArtifactDependency(@Nonnull Element buildHelperCfg, @Nonnull DependencyScope scope, @Nonnull MavenProject mavenProject, @Nonnull MavenArtifact artifact)
 	{
 		Library.ModifiableModel libraryModel = null;
 
@@ -396,7 +396,7 @@ public class MavenModuleImporter
 		}
 	}
 
-	@NotNull
+	@Nonnull
 	public static DependencyScope selectScope(String mavenScope)
 	{
 		if(MavenConstants.SCOPE_RUNTIME.equals(mavenScope))

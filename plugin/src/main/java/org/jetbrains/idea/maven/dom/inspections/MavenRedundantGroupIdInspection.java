@@ -1,5 +1,7 @@
 package org.jetbrains.idea.maven.dom.inspections;
 
+import javax.annotation.Nonnull;
+
 import com.intellij.codeHighlighting.HighlightDisplayLevel;
 import com.intellij.codeInsight.FileModificationService;
 import com.intellij.codeInspection.*;
@@ -11,8 +13,6 @@ import com.intellij.psi.xml.XmlFile;
 import com.intellij.psi.xml.XmlTag;
 import com.intellij.util.xml.DomFileElement;
 import com.intellij.util.xml.DomManager;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.idea.maven.dom.MavenDomBundle;
 import org.jetbrains.idea.maven.dom.model.MavenDomParent;
 import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
@@ -22,28 +22,28 @@ import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
  */
 public class MavenRedundantGroupIdInspection extends XmlSuppressableInspectionTool {
 
-  @NotNull
+  @Nonnull
   public String getGroupDisplayName() {
     return MavenDomBundle.message("inspection.group");
   }
 
-  @NotNull
+  @Nonnull
   public String getDisplayName() {
     return MavenDomBundle.message("inspection.redundant.groupId.name");
   }
 
-  @NotNull
+  @Nonnull
   public String getShortName() {
     return "MavenRedundantGroupId";
   }
 
-  @NotNull
+  @Nonnull
   public HighlightDisplayLevel getDefaultLevel() {
     return HighlightDisplayLevel.WARNING;
   }
 
-  @Nullable
-  public ProblemDescriptor[] checkFile(@NotNull PsiFile file, @NotNull InspectionManager manager, boolean isOnTheFly) {
+  @javax.annotation.Nullable
+  public ProblemDescriptor[] checkFile(@Nonnull PsiFile file, @Nonnull InspectionManager manager, boolean isOnTheFly) {
     if (file instanceof XmlFile && (file.isPhysical() || ApplicationManager.getApplication().isUnitTestMode())) {
       DomFileElement<MavenDomProjectModel> model =
         DomManager.getDomManager(file.getProject()).getFileElement((XmlFile)file, MavenDomProjectModel.class);
@@ -62,7 +62,7 @@ public class MavenRedundantGroupIdInspection extends XmlSuppressableInspectionTo
 
             LocalQuickFix fix = new LocalQuickFixBase("Remove unnecessary <groupId>") {
               @Override
-              public void applyFix(@NotNull Project project, @NotNull ProblemDescriptor descriptor) {
+              public void applyFix(@Nonnull Project project, @Nonnull ProblemDescriptor descriptor) {
                 PsiElement xmlTag = descriptor.getPsiElement();
 
                 if (xmlTag.isValid() && FileModificationService.getInstance().preparePsiElementForWrite(xmlTag)) {

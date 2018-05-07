@@ -28,8 +28,8 @@ import com.intellij.psi.xml.XmlText;
 import com.intellij.util.xml.DomElement;
 import com.intellij.util.xml.DomManager;
 import com.intellij.util.xml.GenericDomValue;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+
 import org.jetbrains.idea.maven.dom.MavenVersionComparable;
 import org.jetbrains.idea.maven.dom.converters.MavenArtifactCoordinatesVersionConverter;
 import org.jetbrains.idea.maven.dom.model.MavenDomArtifactCoordinates;
@@ -77,9 +77,9 @@ public class MavenVersionCompletionContributor extends CompletionContributor {
 
         CompletionResultSet newResultSet = result.withRelevanceSorter(CompletionService.getCompletionService().emptySorter().weigh(
           new LookupElementWeigher("mavenVersionWeigher") {
-            @Nullable
+            @javax.annotation.Nullable
             @Override
-            public Comparable weigh(@NotNull LookupElement element) {
+            public Comparable weigh(@Nonnull LookupElement element) {
               return new NegatingComparable(new MavenVersionComparable(element.getLookupString()));
             }
           }));

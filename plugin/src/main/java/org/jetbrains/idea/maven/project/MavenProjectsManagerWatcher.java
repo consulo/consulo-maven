@@ -26,8 +26,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+
 import org.jetbrains.annotations.TestOnly;
 import org.jetbrains.idea.maven.model.MavenConstants;
 import org.jetbrains.idea.maven.model.MavenExplicitProfiles;
@@ -128,7 +128,7 @@ public class MavenProjectsManagerWatcher
 		myBusConnection.subscribe(ProjectTopics.MODULES, new ModuleAdapter()
 		{
 			@Override
-			public void moduleRemoved(@NotNull Project project, @NotNull Module module)
+			public void moduleRemoved(@Nonnull Project project, @Nonnull Module module)
 			{
 				MavenProject mavenProject = myManager.findProject(module);
 				if(mavenProject != null && !myManager.isIgnored(mavenProject))
@@ -147,7 +147,7 @@ public class MavenProjectsManagerWatcher
 			}
 
 			@Override
-			public void moduleAdded(@NotNull final Project project, @NotNull final Module module)
+			public void moduleAdded(@Nonnull final Project project, @Nonnull final Module module)
 			{
 				// this method is needed to return non-ignored status for modules that were deleted (and thus ignored) and then created again with a different module type
 				if(myManager.isMavenizedModule(module))
@@ -205,7 +205,7 @@ public class MavenProjectsManagerWatcher
 								new WriteAction()
 								{
 									@Override
-									protected void run(@NotNull Result result) throws Throwable
+									protected void run(@Nonnull Result result) throws Throwable
 									{
 										for(Document each : copy)
 										{
@@ -279,12 +279,12 @@ public class MavenProjectsManagerWatcher
 				mySettingsFilesPointers.add(VirtualFilePointerManager.getInstance().create(url, myChangedDocumentsQueue, new VirtualFilePointerListener()
 				{
 					@Override
-					public void beforeValidityChanged(@NotNull VirtualFilePointer[] pointers)
+					public void beforeValidityChanged(@Nonnull VirtualFilePointer[] pointers)
 					{
 					}
 
 					@Override
-					public void validityChanged(@NotNull VirtualFilePointer[] pointers)
+					public void validityChanged(@Nonnull VirtualFilePointer[] pointers)
 					{
 					}
 				}));
@@ -294,8 +294,8 @@ public class MavenProjectsManagerWatcher
 		myWatchedRoots.addAll(LocalFileSystem.getInstance().addRootsToWatch(pathsToWatch, false));
 	}
 
-	@Nullable
-	private static String getNormalizedPath(@NotNull File settingsFile)
+	@javax.annotation.Nullable
+	private static String getNormalizedPath(@Nonnull File settingsFile)
 	{
 		String canonized = PathUtil.getCanonicalPath(settingsFile.getAbsolutePath());
 		return canonized == null ? null : FileUtil.toSystemIndependentName(canonized);
@@ -351,7 +351,7 @@ public class MavenProjectsManagerWatcher
 		return promise;
 	}
 
-	@NotNull
+	@Nonnull
 	private Runnable createScheduleImportAction(final boolean forceImportAndResolve, final AsyncResult<Void> promise)
 	{
 		return () ->
@@ -559,7 +559,7 @@ public class MavenProjectsManagerWatcher
 			}
 		}
 
-		@Nullable
+		@javax.annotation.Nullable
 		private VirtualFile getPomFileProfilesFile(VirtualFile f)
 		{
 			if(!f.getName().equals(MavenConstants.PROFILES_XML))
@@ -632,7 +632,7 @@ public class MavenProjectsManagerWatcher
 		protected abstract void apply();
 
 		@Override
-		public void before(@NotNull List<? extends VFileEvent> events)
+		public void before(@Nonnull List<? extends VFileEvent> events)
 		{
 			for(VFileEvent each : events)
 			{
@@ -671,7 +671,7 @@ public class MavenProjectsManagerWatcher
 			VfsUtilCore.visitChildrenRecursively(f, new VirtualFileVisitor()
 			{
 				@Override
-				public boolean visitFile(@NotNull VirtualFile f)
+				public boolean visitFile(@Nonnull VirtualFile f)
 				{
 					if(isRelevant(f.getPath()))
 					{
@@ -680,9 +680,9 @@ public class MavenProjectsManagerWatcher
 					return true;
 				}
 
-				@Nullable
+				@javax.annotation.Nullable
 				@Override
-				public Iterable<VirtualFile> getChildrenIterable(@NotNull VirtualFile f)
+				public Iterable<VirtualFile> getChildrenIterable(@Nonnull VirtualFile f)
 				{
 					return f.isDirectory() && f instanceof NewVirtualFile ? ((NewVirtualFile) f).iterInDbChildren() : null;
 				}
@@ -690,7 +690,7 @@ public class MavenProjectsManagerWatcher
 		}
 
 		@Override
-		public void after(@NotNull List<? extends VFileEvent> events)
+		public void after(@Nonnull List<? extends VFileEvent> events)
 		{
 			for(VFileEvent each : events)
 			{

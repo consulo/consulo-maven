@@ -19,29 +19,30 @@
 
 package org.jetbrains.idea.maven.dom.model;
 
+import javax.annotation.Nonnull;
+
 import com.intellij.util.xml.Convert;
 import com.intellij.util.xml.GenericDomValue;
 import com.intellij.util.xml.Required;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.idea.maven.dom.MavenDomElement;
 import org.jetbrains.idea.maven.dom.converters.MavenRepositoryLayoutConverter;
 import org.jetbrains.idea.maven.dom.converters.repositories.MavenRepositoryConverter;
 
 public interface MavenDomRepositoryBase extends MavenDomElement {
-  @NotNull
+  @Nonnull
   @Required
   @Convert(MavenRepositoryConverter.Id.class)
   GenericDomValue<String> getId();
 
-  @NotNull
+  @Nonnull
   @Convert(MavenRepositoryConverter.Name.class)
   GenericDomValue<String> getName();
 
-  @NotNull
+  @Nonnull
   @Convert(MavenRepositoryConverter.Url.class)
   GenericDomValue<String> getUrl();
 
-  @NotNull
+  @Nonnull
   @Required(value = false, nonEmpty = true)
   @Convert(MavenRepositoryLayoutConverter.class)
   GenericDomValue<String> getLayout();

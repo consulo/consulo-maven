@@ -20,7 +20,7 @@ import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.util.ArrayUtil;
 import com.intellij.util.SmartList;
 import org.jdom.Element;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import org.jetbrains.idea.maven.model.MavenArtifactInfo;
 import org.jetbrains.idea.maven.model.MavenRepositoryInfo;
 import org.jetbrains.idea.maven.services.artifactory.ArtifactoryRepositoryService;
@@ -41,12 +41,12 @@ import java.util.List;
 public class MavenRepositoryServicesManager implements PersistentStateComponent<Element> {
   private final List<String> myUrls = new ArrayList<String>();
 
-  @NotNull
+  @Nonnull
   public static MavenRepositoryServicesManager getInstance() {
     return ServiceManager.getService(MavenRepositoryServicesManager.class);
   }
 
-  @NotNull
+  @Nonnull
   public static MavenRepositoryService[] getServices() {
     return new MavenRepositoryService[]{new NexusRepositoryService(), new ArtifactoryRepositoryService()};
   }
@@ -90,7 +90,7 @@ public class MavenRepositoryServicesManager implements PersistentStateComponent<
     }
   }
 
-  @NotNull
+  @Nonnull
   public static List<MavenRepositoryInfo> getRepositories(String url) {
     List<MavenRepositoryInfo> result = new SmartList<MavenRepositoryInfo>();
     for (MavenRepositoryService service : getServices()) {
@@ -104,8 +104,8 @@ public class MavenRepositoryServicesManager implements PersistentStateComponent<
     return result;
   }
 
-  @NotNull
-  public static List<MavenArtifactInfo> findArtifacts(@NotNull MavenArtifactInfo template, @NotNull String url) {
+  @Nonnull
+  public static List<MavenArtifactInfo> findArtifacts(@Nonnull MavenArtifactInfo template, @Nonnull String url) {
     List<MavenArtifactInfo> result = new SmartList<MavenArtifactInfo>();
     for (MavenRepositoryService service : getServices()) {
       try {

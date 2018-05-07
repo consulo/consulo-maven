@@ -24,12 +24,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Nonnull;
 import javax.swing.Action;
 import javax.swing.JComponent;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.idea.maven.dom.model.MavenDomDependency;
 import org.jetbrains.idea.maven.model.MavenId;
 import com.intellij.openapi.application.ApplicationManager;
@@ -53,7 +53,7 @@ public class MavenArtifactSearchDialog extends DialogWrapper
 
 	private final Map<MavenArtifactSearchPanel, Boolean> myOkButtonStates = new THashMap<MavenArtifactSearchPanel, Boolean>();
 
-	@NotNull
+	@Nonnull
 	public static List<MavenId> searchForClass(Project project, String className)
 	{
 		if(ApplicationManager.getApplication().isUnitTestMode())
@@ -75,7 +75,7 @@ public class MavenArtifactSearchDialog extends DialogWrapper
 		return d.getResult();
 	}
 
-	@NotNull
+	@Nonnull
 	public static List<MavenId> searchForArtifact(Project project, Collection<MavenDomDependency> managedDependencies)
 	{
 		if(ApplicationManager.getApplication().isUnitTestMode())
@@ -178,7 +178,7 @@ public class MavenArtifactSearchDialog extends DialogWrapper
 		setOKActionEnabled(canSelect);
 	}
 
-	@NotNull
+	@Nonnull
 	@Override
 	protected Action getOKAction()
 	{
@@ -204,7 +204,7 @@ public class MavenArtifactSearchDialog extends DialogWrapper
 		return "Maven.ArtifactSearchDialog";
 	}
 
-	@NotNull
+	@Nonnull
 	public List<MavenId> getResult()
 	{
 		return myResult;

@@ -19,8 +19,9 @@
 
 package org.jetbrains.idea.maven.dom.model;
 
+import javax.annotation.Nonnull;
+
 import com.intellij.util.xml.GenericDomValue;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.idea.maven.dom.MavenDomElement;
 
 /**
@@ -41,7 +42,7 @@ public interface MavenDomRelocation extends MavenDomElement {
    *
    * @return the value of the groupId child.
    */
-  @NotNull
+  @Nonnull
   GenericDomValue<String> getGroupId();
 
   /**
@@ -53,7 +54,7 @@ public interface MavenDomRelocation extends MavenDomElement {
    *
    * @return the value of the artifactId child.
    */
-  @NotNull
+  @Nonnull
   GenericDomValue<String> getArtifactId();
 
   /**
@@ -65,7 +66,7 @@ public interface MavenDomRelocation extends MavenDomElement {
    *
    * @return the value of the version child.
    */
-  @NotNull
+  @Nonnull
   GenericDomValue<String> getVersion();
 
   /**
@@ -77,6 +78,6 @@ public interface MavenDomRelocation extends MavenDomElement {
    *
    * @return the value of the message child.
    */
-  @NotNull
+  @Nonnull
   GenericDomValue<String> getMessage();
 }

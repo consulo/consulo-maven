@@ -22,7 +22,7 @@ package org.jetbrains.idea.maven.execution;
 
 import java.util.List;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import org.jetbrains.idea.maven.model.MavenExplicitProfiles;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import com.intellij.execution.Location;
@@ -57,7 +57,7 @@ public class MavenConfigurationProducer extends RuntimeConfigurationProducer {
 
   @Override
   protected RunnerAndConfigurationSettings findExistingByElement(Location location,
-                                                                 @NotNull List<RunnerAndConfigurationSettings> existingConfigurations,
+                                                                 @Nonnull List<RunnerAndConfigurationSettings> existingConfigurations,
                                                                  ConfigurationContext context) {
 
     final MavenRunnerParameters runnerParameters = createBuildParameters(location);

@@ -19,7 +19,7 @@ import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VfsUtilCore;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileSystem;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -52,12 +52,12 @@ public class MavenPropertiesVirtualFile extends VirtualFile {
     return builder.toString().getBytes();
   }
 
-  @NotNull
+  @Nonnull
   public String getName() {
     return myPath;
   }
 
-  @NotNull
+  @Nonnull
   public VirtualFileSystem getFileSystem() {
     return myFS;
   }
@@ -86,7 +86,7 @@ public class MavenPropertiesVirtualFile extends VirtualFile {
     return null;
   }
 
-  @NotNull
+  @Nonnull
   public byte[] contentsToByteArray() throws IOException {
     if (myContent == null) throw new IOException();
     return myContent;
@@ -112,7 +112,7 @@ public class MavenPropertiesVirtualFile extends VirtualFile {
     return VfsUtilCore.byteStreamSkippingBOM(myContent,this);
   }
 
-  @NotNull
+  @Nonnull
   public OutputStream getOutputStream(Object requestor, long newModificationStamp, long newTimeStamp) throws IOException {
     throw new UnsupportedOperationException();
   }

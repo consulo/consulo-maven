@@ -17,10 +17,11 @@ package org.jetbrains.idea.maven.project;
 
 import com.intellij.openapi.util.ModificationTracker;
 import com.intellij.openapi.util.Pair;
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.idea.maven.server.NativeMavenProjectHolder;
 
 import java.util.List;
+
+import javax.annotation.Nullable;
 
 /**
  * @author Konstantin Bulenkov

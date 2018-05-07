@@ -15,10 +15,11 @@
  */
 package org.jetbrains.idea.maven.plugins.api;
 
+import javax.annotation.Nonnull;
+
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
 import com.intellij.util.ProcessingContext;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.idea.maven.dom.model.MavenDomConfiguration;
 
 /**
@@ -26,6 +27,6 @@ import org.jetbrains.idea.maven.dom.model.MavenDomConfiguration;
  */
 public interface MavenParamReferenceProvider {
 
-  PsiReference[] getReferencesByElement(@NotNull PsiElement element, @NotNull MavenDomConfiguration domCfg, @NotNull ProcessingContext context);
+  PsiReference[] getReferencesByElement(@Nonnull PsiElement element, @Nonnull MavenDomConfiguration domCfg, @Nonnull ProcessingContext context);
 
 }

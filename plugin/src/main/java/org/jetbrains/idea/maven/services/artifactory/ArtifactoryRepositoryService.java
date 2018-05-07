@@ -18,7 +18,7 @@ package org.jetbrains.idea.maven.services.artifactory;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.intellij.openapi.util.text.StringUtil;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import org.jetbrains.idea.maven.model.MavenArtifactInfo;
 import org.jetbrains.idea.maven.model.MavenRepositoryInfo;
 import org.jetbrains.idea.maven.services.MavenRepositoryService;
@@ -35,15 +35,15 @@ import java.util.List;
  * @author Gregory.Shrago
  */
 public class ArtifactoryRepositoryService extends MavenRepositoryService {
-  @NotNull
+  @Nonnull
   @Override
   public String getDisplayName() {
     return "Artifactory";
   }
 
-  @NotNull
+  @Nonnull
   @Override
-  public List<MavenRepositoryInfo> getRepositories(@NotNull String url) throws IOException {
+  public List<MavenRepositoryInfo> getRepositories(@Nonnull String url) throws IOException {
     try {
       final Gson gson = new Gson();
       final InputStreamReader stream =
@@ -67,9 +67,9 @@ public class ArtifactoryRepositoryService extends MavenRepositoryService {
     return new MavenRepositoryInfo(repo.key, repo.description, repo.url);
   }
 
-  @NotNull
+  @Nonnull
   @Override
-  public List<MavenArtifactInfo> findArtifacts(@NotNull String url, @NotNull MavenArtifactInfo template) throws IOException {
+  public List<MavenArtifactInfo> findArtifacts(@Nonnull String url, @Nonnull MavenArtifactInfo template) throws IOException {
     try {
       final String packaging = StringUtil.notNullize(template.getPackaging());
       final ArrayList<MavenArtifactInfo> artifacts = new ArrayList<MavenArtifactInfo>();

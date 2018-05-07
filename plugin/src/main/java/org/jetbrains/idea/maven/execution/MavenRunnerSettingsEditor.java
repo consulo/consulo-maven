@@ -19,7 +19,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import org.jetbrains.idea.maven.project.MavenDisablePanelCheckbox;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.options.SettingsEditor;
@@ -35,7 +35,7 @@ public class MavenRunnerSettingsEditor extends SettingsEditor<MavenRunConfigurat
 
   private JCheckBox myUseProjectSettings;
 
-  public MavenRunnerSettingsEditor(@NotNull Project project) {
+  public MavenRunnerSettingsEditor(@Nonnull Project project) {
     myPanel = new MavenRunnerPanel(project, true);
   }
 
@@ -69,7 +69,7 @@ public class MavenRunnerSettingsEditor extends SettingsEditor<MavenRunConfigurat
     }
   }
 
-  @NotNull
+  @Nonnull
   @Override
   protected JComponent createEditor() {
     Pair<JPanel,JCheckBox> pair = MavenDisablePanelCheckbox.createPanel(myPanel.createComponent(), "Use project settings");

@@ -17,9 +17,9 @@ package org.jetbrains.idea.maven.utils;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import javax.annotation.Nonnull;
 import javax.swing.JComponent;
 
-import org.jetbrains.annotations.NotNull;
 import com.intellij.ProjectTopics;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.AccessToken;
@@ -60,7 +60,7 @@ public class MavenMergingUpdateQueue extends MergingUpdateQueue
 	}
 
 	@Override
-	public void queue(@NotNull Update update)
+	public void queue(@Nonnull Update update)
 	{
 		boolean passThrough = false;
 		if(ApplicationManager.getApplication().isUnitTestMode())

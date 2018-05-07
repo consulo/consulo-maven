@@ -18,8 +18,8 @@ package org.jetbrains.idea.maven.dom.intentions;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.jetbrains.idea.maven.dom.MavenDomBundle;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
 import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
@@ -48,17 +48,17 @@ public class AddMavenDependencyQuickFix implements IntentionAction, LowPriorityA
     myRef = ref;
   }
 
-  @NotNull
+  @Nonnull
   public String getText() {
     return "Add Maven Dependency...";
   }
 
-  @NotNull
+  @Nonnull
   public String getFamilyName() {
     return MavenDomBundle.message("inspection.group");
   }
 
-  public boolean isAvailable(@NotNull Project project, Editor editor, PsiFile file) {
+  public boolean isAvailable(@Nonnull Project project, Editor editor, PsiFile file) {
     return myRef.isValid() && MavenDomUtil.findContainingProject(file) != null && looksLikeClassName(getReferenceText());
   }
 
@@ -68,7 +68,7 @@ public class AddMavenDependencyQuickFix implements IntentionAction, LowPriorityA
     return CLASSNAME_PATTERN.matcher(text).matches();
   }
 
-  public void invoke(@NotNull final Project project, Editor editor, final PsiFile file) throws IncorrectOperationException {
+  public void invoke(@Nonnull final Project project, Editor editor, final PsiFile file) throws IncorrectOperationException {
     if (!myRef.isValid()) return;
 
     MavenProject mavenProject = MavenDomUtil.findContainingProject(file);

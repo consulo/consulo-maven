@@ -19,11 +19,12 @@
 
 package org.jetbrains.idea.maven.dom.model;
 
+import javax.annotation.Nonnull;
+
 import com.intellij.util.xml.Convert;
 import com.intellij.util.xml.GenericDomValue;
 import com.intellij.util.xml.Required;
 import com.intellij.util.xml.SubTag;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.idea.maven.dom.MavenDomElement;
 import org.jetbrains.idea.maven.dom.converters.MavenModelVersionConverter;
 import org.jetbrains.idea.maven.dom.converters.MavenPackagingConverter;
@@ -46,7 +47,7 @@ public interface MavenDomProjectModel extends MavenDomElement, MavenDomProjectMo
    *
    * @return the value of the parent child.
    */
-  @NotNull
+  @Nonnull
   @SubTag("parent")
   MavenDomParent getMavenParent();
 
@@ -59,7 +60,7 @@ public interface MavenDomProjectModel extends MavenDomElement, MavenDomProjectMo
    *
    * @return the value of the modelVersion child.
    */
-  @NotNull
+  @Nonnull
   @Required
   @Convert(MavenModelVersionConverter.class)
   GenericDomValue<String> getModelVersion();
@@ -73,7 +74,7 @@ public interface MavenDomProjectModel extends MavenDomElement, MavenDomProjectMo
    *
    * @return the value of the groupId child.
    */
-  @NotNull
+  @Nonnull
   @Required(value = false, nonEmpty = true)
   GenericDomValue<String> getGroupId();
 
@@ -86,7 +87,7 @@ public interface MavenDomProjectModel extends MavenDomElement, MavenDomProjectMo
    *
    * @return the value of the artifactId child.
    */
-  @NotNull
+  @Nonnull
   @Required
   GenericDomValue<String> getArtifactId();
 
@@ -99,7 +100,7 @@ public interface MavenDomProjectModel extends MavenDomElement, MavenDomProjectMo
    *
    * @return the value of the version child.
    */
-  @NotNull
+  @Nonnull
   @Required(value = false, nonEmpty = true)
   GenericDomValue<String> getVersion();
 
@@ -112,7 +113,7 @@ public interface MavenDomProjectModel extends MavenDomElement, MavenDomProjectMo
    *
    * @return the value of the packaging child.
    */
-  @NotNull
+  @Nonnull
   @Convert(MavenPackagingConverter.class)
   GenericDomValue<String> getPackaging();
 
@@ -125,7 +126,7 @@ public interface MavenDomProjectModel extends MavenDomElement, MavenDomProjectMo
    *
    * @return the value of the name child.
    */
-  @NotNull
+  @Nonnull
   GenericDomValue<String> getName();
 
   /**
@@ -137,7 +138,7 @@ public interface MavenDomProjectModel extends MavenDomElement, MavenDomProjectMo
    *
    * @return the value of the description child.
    */
-  @NotNull
+  @Nonnull
   GenericDomValue<String> getDescription();
 
   /**
@@ -149,7 +150,7 @@ public interface MavenDomProjectModel extends MavenDomElement, MavenDomProjectMo
    *
    * @return the value of the url child.
    */
-  @NotNull
+  @Nonnull
   @Convert(MavenUrlConverter.class)
   GenericDomValue<String> getUrl();
 
@@ -162,7 +163,7 @@ public interface MavenDomProjectModel extends MavenDomElement, MavenDomProjectMo
    *
    * @return the value of the prerequisites child.
    */
-  @NotNull
+  @Nonnull
   MavenDomPrerequisites getPrerequisites();
 
   /**
@@ -174,7 +175,7 @@ public interface MavenDomProjectModel extends MavenDomElement, MavenDomProjectMo
    *
    * @return the value of the issueManagement child.
    */
-  @NotNull
+  @Nonnull
   MavenDomIssueManagement getIssueManagement();
 
   /**
@@ -186,7 +187,7 @@ public interface MavenDomProjectModel extends MavenDomElement, MavenDomProjectMo
    *
    * @return the value of the ciManagement child.
    */
-  @NotNull
+  @Nonnull
   MavenDomCiManagement getCiManagement();
 
   /**
@@ -198,7 +199,7 @@ public interface MavenDomProjectModel extends MavenDomElement, MavenDomProjectMo
    *
    * @return the value of the inceptionYear child.
    */
-  @NotNull
+  @Nonnull
   GenericDomValue<String> getInceptionYear();
 
   /**
@@ -210,7 +211,7 @@ public interface MavenDomProjectModel extends MavenDomElement, MavenDomProjectMo
    *
    * @return the value of the mailingLists child.
    */
-  @NotNull
+  @Nonnull
   MavenDomMailingLists getMailingLists();
 
   /**
@@ -222,7 +223,7 @@ public interface MavenDomProjectModel extends MavenDomElement, MavenDomProjectMo
    *
    * @return the value of the developers child.
    */
-  @NotNull
+  @Nonnull
   MavenDomDevelopers getDevelopers();
 
   /**
@@ -234,7 +235,7 @@ public interface MavenDomProjectModel extends MavenDomElement, MavenDomProjectMo
    *
    * @return the value of the contributors child.
    */
-  @NotNull
+  @Nonnull
   MavenDomContributors getContributors();
 
   /**
@@ -246,7 +247,7 @@ public interface MavenDomProjectModel extends MavenDomElement, MavenDomProjectMo
    *
    * @return the value of the licenses child.
    */
-  @NotNull
+  @Nonnull
   MavenDomLicenses getLicenses();
 
   /**
@@ -258,7 +259,7 @@ public interface MavenDomProjectModel extends MavenDomElement, MavenDomProjectMo
    *
    * @return the value of the scm child.
    */
-  @NotNull
+  @Nonnull
   MavenDomScm getScm();
 
   /**
@@ -270,10 +271,10 @@ public interface MavenDomProjectModel extends MavenDomElement, MavenDomProjectMo
    *
    * @return the value of the organization child.
    */
-  @NotNull
+  @Nonnull
   MavenDomOrganization getOrganization();
 
-  @NotNull
+  @Nonnull
   MavenDomBuild getBuild();
 
   /**
@@ -285,6 +286,6 @@ public interface MavenDomProjectModel extends MavenDomElement, MavenDomProjectMo
    *
    * @return the value of the profiles child.
    */
-  @NotNull
+  @Nonnull
   MavenDomProfiles getProfiles();
 }

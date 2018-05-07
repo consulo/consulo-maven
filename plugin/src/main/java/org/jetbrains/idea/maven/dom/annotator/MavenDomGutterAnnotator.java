@@ -30,7 +30,7 @@ import com.intellij.util.NotNullFunction;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.xml.DomElement;
 import com.intellij.util.xml.DomManager;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import org.jetbrains.idea.maven.dom.MavenDomBundle;
 import org.jetbrains.idea.maven.dom.MavenDomProjectProcessorUtils;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
@@ -45,7 +45,7 @@ import java.util.Set;
 
 public class MavenDomGutterAnnotator implements Annotator {
 
-  private static void annotateDependencyUsages(@NotNull MavenDomDependency dependency, AnnotationHolder holder) {
+  private static void annotateDependencyUsages(@Nonnull MavenDomDependency dependency, AnnotationHolder holder) {
     final XmlTag tag = dependency.getXmlTag();
     if (tag == null) return;
 
@@ -78,7 +78,7 @@ public class MavenDomGutterAnnotator implements Annotator {
     }
   }
 
-  private static List<MavenDomDependency> getManagingDependencies(@NotNull MavenDomDependency dependency) {
+  private static List<MavenDomDependency> getManagingDependencies(@Nonnull MavenDomDependency dependency) {
     Project project = dependency.getManager().getProject();
     MavenDomDependency parentDependency = MavenDomProjectProcessorUtils.searchManagingDependency(dependency, project);
 
@@ -88,7 +88,7 @@ public class MavenDomGutterAnnotator implements Annotator {
     return Collections.emptyList();
   }
 
-  public void annotate(@NotNull PsiElement psiElement, @NotNull AnnotationHolder holder) {
+  public void annotate(@Nonnull PsiElement psiElement, @Nonnull AnnotationHolder holder) {
     if (psiElement instanceof XmlTag) {
       final DomElement element = DomManager.getDomManager(psiElement.getProject()).getDomElement((XmlTag)psiElement);
       if (element instanceof MavenDomDependency) {
@@ -114,7 +114,7 @@ public class MavenDomGutterAnnotator implements Annotator {
     }
   }
 
-  private static void annotateMavenDomPlugin(@NotNull MavenDomPlugin plugin, @NotNull AnnotationHolder holder) {
+  private static void annotateMavenDomPlugin(@Nonnull MavenDomPlugin plugin, @Nonnull AnnotationHolder holder) {
     XmlTag xmlTag = plugin.getArtifactId().getXmlTag();
     if (xmlTag == null) return;
 
@@ -140,7 +140,7 @@ public class MavenDomGutterAnnotator implements Annotator {
     }
   }
 
-  private static void annotateMavenDomPluginInManagement(@NotNull MavenDomPlugin plugin, @NotNull AnnotationHolder holder) {
+  private static void annotateMavenDomPluginInManagement(@Nonnull MavenDomPlugin plugin, @Nonnull AnnotationHolder holder) {
     XmlTag xmlTag = plugin.getArtifactId().getXmlTag();
     if (xmlTag == null) return;
 
@@ -160,7 +160,7 @@ public class MavenDomGutterAnnotator implements Annotator {
   }
 
 
-  private static void annotateMavenDomParent(@NotNull MavenDomParent mavenDomParent, @NotNull AnnotationHolder holder) {
+  private static void annotateMavenDomParent(@Nonnull MavenDomParent mavenDomParent, @Nonnull AnnotationHolder holder) {
     MavenDomProjectModel parent = MavenDomProjectProcessorUtils.findParent(mavenDomParent, mavenDomParent.getManager().getProject());
 
     if (parent != null) {
@@ -187,7 +187,7 @@ public class MavenDomGutterAnnotator implements Annotator {
     }
   }
 
-  private static boolean isDependencyManagementSection(@NotNull MavenDomDependency dependency) {
+  private static boolean isDependencyManagementSection(@Nonnull MavenDomDependency dependency) {
     return dependency.getParentOfType(MavenDomDependencyManagement.class, false) != null;
   }
 
@@ -232,7 +232,7 @@ public class MavenDomGutterAnnotator implements Annotator {
   private static class DependencyConverter implements NotNullFunction<MavenDomDependency, Collection<? extends PsiElement>> {
     public static final DependencyConverter INSTANCE = new DependencyConverter();
 
-    @NotNull
+    @Nonnull
     public Collection<? extends PsiElement> fun(final MavenDomDependency pointer) {
       return ContainerUtil.createMaybeSingletonList(pointer.getXmlTag());
     }
@@ -241,7 +241,7 @@ public class MavenDomGutterAnnotator implements Annotator {
   private static class PluginConverter implements NotNullFunction<MavenDomPlugin, Collection<? extends PsiElement>> {
     public static final PluginConverter INSTANCE = new PluginConverter();
 
-    @NotNull
+    @Nonnull
     public Collection<? extends PsiElement> fun(final MavenDomPlugin pointer) {
       return ContainerUtil.createMaybeSingletonList(pointer.getXmlTag());
     }
@@ -250,7 +250,7 @@ public class MavenDomGutterAnnotator implements Annotator {
   private static class MavenProjectConverter implements NotNullFunction<MavenDomProjectModel, Collection<? extends PsiElement>> {
     public static final MavenProjectConverter INSTANCE = new MavenProjectConverter();
 
-    @NotNull
+    @Nonnull
     public Collection<? extends PsiElement> fun(final MavenDomProjectModel pointer) {
       return ContainerUtil.createMaybeSingletonList(pointer.getXmlTag());
     }

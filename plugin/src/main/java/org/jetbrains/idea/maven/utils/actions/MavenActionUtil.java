@@ -21,8 +21,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+
 import org.jetbrains.idea.maven.model.MavenConstants;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
@@ -48,7 +48,7 @@ public class MavenActionUtil
 		return context.getData(CommonDataKeys.PROJECT) != null;
 	}
 
-	@NotNull
+	@Nonnull
 	public static Project getProject(DataContext context)
 	{
 		return context.getData(CommonDataKeys.PROJECT);
@@ -60,7 +60,7 @@ public class MavenActionUtil
 		return project != null && MavenProjectsManager.getInstance(project).isMavenizedProject();
 	}
 
-	@Nullable
+	@javax.annotation.Nullable
 	public static MavenProject getMavenProject(DataContext context)
 	{
 		MavenProject result;
@@ -89,14 +89,14 @@ public class MavenActionUtil
 		return null;
 	}
 
-	@Nullable
+	@javax.annotation.Nullable
 	private static Module getModule(DataContext context)
 	{
 		final Module module = context.getData(LangDataKeys.MODULE);
 		return module != null ? module : context.getData(LangDataKeys.MODULE_CONTEXT);
 	}
 
-	@NotNull
+	@Nonnull
 	public static MavenProjectsManager getProjectsManager(DataContext context)
 	{
 		return MavenProjectsManager.getInstance(getProject(context));

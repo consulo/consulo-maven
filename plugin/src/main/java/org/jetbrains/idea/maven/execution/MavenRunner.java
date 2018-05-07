@@ -27,8 +27,8 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.jetbrains.idea.maven.project.MavenConsole;
 import org.jetbrains.idea.maven.project.MavenConsoleImpl;
 import org.jetbrains.idea.maven.project.MavenGeneralSettings;
@@ -73,7 +73,7 @@ public class MavenRunner implements PersistentStateComponent<MavenRunnerSettings
       final MavenExecutor[] executor = new MavenExecutor[]{createExecutor(parameters, null, settings, console)};
 
       ProgressManager.getInstance().run(new Task.Backgroundable(myProject, executor[0].getCaption(), true) {
-        public void run(@NotNull ProgressIndicator indicator) {
+        public void run(@Nonnull ProgressIndicator indicator) {
           try {
             try {
               if (executor[0].execute(indicator)) {

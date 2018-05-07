@@ -17,8 +17,8 @@ package org.jetbrains.idea.maven.model;
 
 import java.io.Serializable;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class MavenRemoteRepository implements Serializable {
   private final String myId;
@@ -28,9 +28,9 @@ public class MavenRemoteRepository implements Serializable {
   private final Policy myReleasesPolicy;
   private final Policy mySnapshotsPolicy;
 
-  public MavenRemoteRepository(@NotNull String id,
+  public MavenRemoteRepository(@Nonnull String id,
                                @Nullable String name,
-                               @NotNull String url,
+                               @Nonnull String url,
                                @Nullable String layout,
                                @Nullable Policy releasesPolicy,
                                @Nullable Policy snapshotsPolicy) {
@@ -42,7 +42,7 @@ public class MavenRemoteRepository implements Serializable {
     mySnapshotsPolicy = snapshotsPolicy;
   }
 
-  @NotNull
+  @Nonnull
   public String getId() {
     return myId;
   }
@@ -52,7 +52,7 @@ public class MavenRemoteRepository implements Serializable {
     return myName;
   }
 
-  @NotNull
+  @Nonnull
   public String getUrl() {
     return myUrl;
   }

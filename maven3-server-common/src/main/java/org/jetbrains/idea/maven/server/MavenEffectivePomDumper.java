@@ -16,6 +16,8 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.Vector;
 
+import javax.annotation.Nonnull;
+
 import org.apache.maven.execution.MavenExecutionRequest;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Writer;
@@ -37,8 +39,8 @@ import org.jdom.filter.ElementFilter;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+
+import javax.annotation.Nullable;
 
 /**
  * @author Sergey Evdokimov
@@ -58,9 +60,9 @@ public class MavenEffectivePomDumper {
   // See org.apache.maven.plugins.help.EffectivePomMojo#execute from maven-help-plugin
   @Nullable
   public static String evaluateEffectivePom(final Maven3ServerEmbedder embedder,
-                                            @NotNull final File file,
-                                            @NotNull List<String> activeProfiles,
-                                            @NotNull List<String> inactiveProfiles)
+                                            @Nonnull final File file,
+                                            @Nonnull List<String> activeProfiles,
+                                            @Nonnull List<String> inactiveProfiles)
     throws RemoteException, MavenServerProcessCanceledException {
 
     final StringWriter w = new StringWriter();

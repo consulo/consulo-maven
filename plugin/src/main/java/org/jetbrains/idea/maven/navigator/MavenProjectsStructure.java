@@ -32,8 +32,8 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 
 import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.jetbrains.annotations.TestOnly;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
 import org.jetbrains.idea.maven.dom.MavenPluginDomUtil;
@@ -904,7 +904,7 @@ public class MavenProjectsStructure extends SimpleTreeStructure
 			return getNavigatable(profiles);
 		}
 
-		private Navigatable getNavigatable(@NotNull final List<MavenDomProfile> profiles)
+		private Navigatable getNavigatable(@Nonnull final List<MavenDomProfile> profiles)
 		{
 			if(profiles.size() > 1)
 			{
@@ -961,7 +961,7 @@ public class MavenProjectsStructure extends SimpleTreeStructure
 			return xmlElement instanceof Navigatable ? (Navigatable) xmlElement : null;
 		}
 
-		private void addProfiles(@NotNull List<MavenDomProfile> result, @Nullable List<MavenDomProfile> profilesToAdd)
+		private void addProfiles(@Nonnull List<MavenDomProfile> result, @Nullable List<MavenDomProfile> profilesToAdd)
 		{
 			if(profilesToAdd == null)
 			{
@@ -988,7 +988,7 @@ public class MavenProjectsStructure extends SimpleTreeStructure
 
 		private String myTooltipCache;
 
-		public ProjectNode(@NotNull MavenProject mavenProject)
+		public ProjectNode(@Nonnull MavenProject mavenProject)
 		{
 			super(null);
 			myMavenProject = mavenProject;

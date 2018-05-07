@@ -18,8 +18,8 @@ package org.jetbrains.idea.maven.dom.converters.repositories;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.util.xmlb.XmlSerializer;
 import gnu.trove.THashMap;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.jetbrains.idea.maven.dom.converters.repositories.beans.RepositoriesBean;
 import org.jetbrains.idea.maven.dom.converters.repositories.beans.RepositoryBeanInfo;
 
@@ -49,17 +49,17 @@ public class MavenRepositoriesProvider {
     }
   }
 
-  public void registerRepository(@NotNull String id, RepositoryBeanInfo info) {
+  public void registerRepository(@Nonnull String id, RepositoryBeanInfo info) {
     myRepositoriesMap.put(id, info);
   }
 
-  @NotNull
+  @Nonnull
   public Set<String> getRepositoryIds() {
     return myRepositoriesMap.keySet();
   }
 
-  @Nullable
-  public String getRepositoryName(@Nullable String id) {
+  @javax.annotation.Nullable
+  public String getRepositoryName(@javax.annotation.Nullable String id) {
     RepositoryBeanInfo pair = myRepositoriesMap.get(id);
     return pair != null ? pair.getName() : null;
   }

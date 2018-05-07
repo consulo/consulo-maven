@@ -16,7 +16,7 @@
 package org.jetbrains.idea.maven.project;
 
 import com.intellij.openapi.util.Pair;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -33,7 +33,7 @@ public class MavenDisablePanelCheckbox extends JCheckBox {
   private final JComponent myPanel;
   private Set<JComponent> myDisabledComponents;
 
-  public MavenDisablePanelCheckbox(String text, @NotNull JComponent panel) {
+  public MavenDisablePanelCheckbox(String text, @Nonnull JComponent panel) {
     super(text);
     myPanel = panel;
 

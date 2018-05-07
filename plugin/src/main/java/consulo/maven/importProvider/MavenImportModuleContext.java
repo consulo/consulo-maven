@@ -5,7 +5,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nullable;
 import org.jetbrains.idea.maven.model.MavenExplicitProfiles;
 import org.jetbrains.idea.maven.model.MavenId;
 import org.jetbrains.idea.maven.project.MavenGeneralSettings;
@@ -112,7 +112,7 @@ public class MavenImportModuleContext extends ModuleImportContext
 		return myProjectToUpdate;
 	}
 
-	@Nullable
+	@javax.annotation.Nullable
 	public VirtualFile getRootDirectory()
 	{
 		if(myImportRoot == null && isUpdate())

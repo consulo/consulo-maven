@@ -15,7 +15,8 @@
  */
 package consulo.maven.module.extension;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
+
 import consulo.module.extension.MutableModuleExtension;
 import consulo.roots.ModuleRootLayer;
 
@@ -25,7 +26,7 @@ import consulo.roots.ModuleRootLayer;
  */
 public class MavenMutableModuleExtension extends MavenModuleExtension implements MutableModuleExtension<MavenModuleExtension>
 {
-	public MavenMutableModuleExtension(@NotNull String id, @NotNull ModuleRootLayer moduleRootLayer)
+	public MavenMutableModuleExtension(@Nonnull String id, @Nonnull ModuleRootLayer moduleRootLayer)
 	{
 		super(id, moduleRootLayer);
 	}
@@ -37,7 +38,7 @@ public class MavenMutableModuleExtension extends MavenModuleExtension implements
 	}
 
 	@Override
-	public boolean isModified(@NotNull MavenModuleExtension extension)
+	public boolean isModified(@Nonnull MavenModuleExtension extension)
 	{
 		return extension.isEnabled() != myIsEnabled;
 	}

@@ -26,8 +26,9 @@ import com.intellij.util.containers.hash.HashSet;
 import com.intellij.util.xml.DomFileElement;
 import com.intellij.util.xml.highlighting.BasicDomElementsInspection;
 import com.intellij.util.xml.highlighting.DomElementAnnotationHolder;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import org.jetbrains.idea.maven.dom.MavenDomBundle;
 import org.jetbrains.idea.maven.dom.MavenDomProjectProcessorUtils;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
@@ -50,8 +51,8 @@ public class MavenDuplicateDependenciesInspection extends BasicDomElementsInspec
     checkMavenProjectModel(projectModel, holder);
   }
 
-  private static void checkMavenProjectModel(@NotNull MavenDomProjectModel projectModel,
-                                             @NotNull DomElementAnnotationHolder holder) {
+  private static void checkMavenProjectModel(@Nonnull MavenDomProjectModel projectModel,
+                                             @Nonnull DomElementAnnotationHolder holder) {
     final Map<String, Set<MavenDomDependency>> allDuplicates = getDuplicateDependenciesMap(projectModel);
 
     for (MavenDomDependency dependency : projectModel.getDependencies().getDependencies()) {
@@ -91,9 +92,9 @@ public class MavenDuplicateDependenciesInspection extends BasicDomElementsInspec
     return res;
   }
 
-  private static void addProblem(@NotNull MavenDomDependency dependency,
-                                 @NotNull Collection<MavenDomDependency> dependencies,
-                                 @NotNull DomElementAnnotationHolder holder) {
+  private static void addProblem(@Nonnull MavenDomDependency dependency,
+                                 @Nonnull Collection<MavenDomDependency> dependencies,
+                                 @Nonnull DomElementAnnotationHolder holder) {
     StringBuilder sb = new StringBuilder();
     Set<MavenDomProjectModel> processed = new HashSet<MavenDomProjectModel>();
     for (MavenDomDependency domDependency : dependencies) {
@@ -110,7 +111,7 @@ public class MavenDuplicateDependenciesInspection extends BasicDomElementsInspec
                          MavenDomBundle.message("MavenDuplicateDependenciesInspection.has.duplicates", sb.toString()));
   }
 
-  private static String createLinkText(@NotNull MavenDomProjectModel model, @NotNull MavenDomDependency dependency) {
+  private static String createLinkText(@Nonnull MavenDomProjectModel model, @Nonnull MavenDomDependency dependency) {
     StringBuilder sb = new StringBuilder();
 
     XmlTag tag = dependency.getXmlTag();
@@ -129,7 +130,7 @@ public class MavenDuplicateDependenciesInspection extends BasicDomElementsInspec
     return sb.toString();
   }
 
-  @NotNull
+  @Nonnull
   private static String getProjectName(MavenDomProjectModel model) {
     MavenProject mavenProject = MavenDomUtil.findProject(model);
     if (mavenProject != null) {
@@ -146,7 +147,7 @@ public class MavenDuplicateDependenciesInspection extends BasicDomElementsInspec
     }
   }
 
-  @NotNull
+  @Nonnull
   private static Map<String, Set<MavenDomDependency>> getDuplicateDependenciesMap(MavenDomProjectModel projectModel) {
     final Map<String, Set<MavenDomDependency>> allDependencies = new HashMap<String, Set<MavenDomDependency>>();
 
@@ -188,22 +189,22 @@ public class MavenDuplicateDependenciesInspection extends BasicDomElementsInspec
     return groupId + ":" + artifactId + ":" + type + ":" + classifier;
   }
 
-  @NotNull
+  @Nonnull
   public String getGroupDisplayName() {
     return MavenDomBundle.message("inspection.group");
   }
 
-  @NotNull
+  @Nonnull
   public String getDisplayName() {
     return MavenDomBundle.message("inspection.duplicate.dependencies.name");
   }
 
-  @NotNull
+  @Nonnull
   public String getShortName() {
     return "MavenDuplicateDependenciesInspection";
   }
 
-  @NotNull
+  @Nonnull
   public HighlightDisplayLevel getDefaultLevel() {
     return HighlightDisplayLevel.WARNING;
   }

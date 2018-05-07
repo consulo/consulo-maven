@@ -15,24 +15,25 @@
  */
 package org.jetbrains.idea.maven.project;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
+
 import org.jetbrains.idea.maven.model.MavenId;
 
 public class MavenParentDesc {
   private final MavenId myParentId;
   private final String myParentRelativePath;
 
-  public MavenParentDesc(@NotNull MavenId parentId, @NotNull String parentRelativePath) {
+  public MavenParentDesc(@Nonnull MavenId parentId, @Nonnull String parentRelativePath) {
     myParentId = parentId;
     myParentRelativePath = parentRelativePath;
   }
 
-  @NotNull
+  @Nonnull
   public MavenId getParentId() {
     return myParentId;
   }
 
-  @NotNull
+  @Nonnull
   public String getParentRelativePath() {
     return myParentRelativePath;
   }

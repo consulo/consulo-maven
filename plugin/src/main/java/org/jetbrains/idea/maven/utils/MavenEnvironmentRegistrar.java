@@ -18,14 +18,14 @@ package org.jetbrains.idea.maven.utils;
 
 import com.intellij.openapi.application.PathMacros;
 import com.intellij.openapi.components.ApplicationComponent;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 
 import java.io.File;
 
 public class MavenEnvironmentRegistrar implements ApplicationComponent {
   private static final String MAVEN_REPOSITORY = "MAVEN_REPOSITORY";
 
-  @NotNull
+  @Nonnull
   public String getComponentName() {
     return MavenEnvironmentRegistrar.class.getName();
   }

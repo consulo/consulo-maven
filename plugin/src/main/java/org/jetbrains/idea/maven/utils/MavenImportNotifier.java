@@ -19,7 +19,7 @@ import com.intellij.notification.*;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.ui.update.MergingUpdateQueue;
 import com.intellij.util.ui.update.Update;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.project.ProjectBundle;
 
@@ -95,7 +95,7 @@ public class MavenImportNotifier extends MavenSimpleProjectComponent {
                                         "<a href='autoImport'>" + ProjectBundle.message("maven.project.enableAutoImport") + "</a>",
                                         NotificationType.INFORMATION, new NotificationListener() {
         @Override
-        public void hyperlinkUpdate(@NotNull Notification notification, @NotNull HyperlinkEvent event) {
+        public void hyperlinkUpdate(@Nonnull Notification notification, @Nonnull HyperlinkEvent event) {
           if (event.getEventType() != HyperlinkEvent.EventType.ACTIVATED) return;
 
           if (event.getDescription().equals("reimport")) {

@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import org.jetbrains.idea.maven.execution.cmd.CommandLineCompletionProvider;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.utils.MavenUtil;
@@ -97,13 +97,13 @@ public class MavenArgumentsCompletionProvider extends CommandLineCompletionProvi
   private final Project myProject;
 
 
-  public MavenArgumentsCompletionProvider(@NotNull Project project) {
+  public MavenArgumentsCompletionProvider(@Nonnull Project project) {
     super(ourOptions);
     myProject = project;
   }
 
   @Override
-  protected void addArgumentVariants(@NotNull CompletionResultSet result) {
+  protected void addArgumentVariants(@Nonnull CompletionResultSet result) {
     List<LookupElement> cachedElements = myCachedElements;
     if (cachedElements == null) {
       cachedElements = MavenUtil.getPhaseVariants(MavenProjectsManager.getInstance(myProject));

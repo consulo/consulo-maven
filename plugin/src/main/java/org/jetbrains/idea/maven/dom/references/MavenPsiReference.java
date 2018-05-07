@@ -15,6 +15,8 @@
  */
 package org.jetbrains.idea.maven.dom.references;
 
+import javax.annotation.Nonnull;
+
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -22,21 +24,27 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiReference;
 import com.intellij.util.IncorrectOperationException;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 
 public abstract class MavenPsiReference implements PsiReference {
-  protected final @NotNull Project myProject;
-  protected final @NotNull MavenProjectsManager myProjectsManager;
+  protected final @Nonnull
+  Project myProject;
+  protected final @Nonnull
+  MavenProjectsManager myProjectsManager;
 
-  protected final @NotNull PsiFile myPsiFile;
-  protected final @NotNull VirtualFile myVirtualFile;
+  protected final @Nonnull
+  PsiFile myPsiFile;
+  protected final @Nonnull
+  VirtualFile myVirtualFile;
 
-  protected final @NotNull PsiElement myElement;
-  protected final @NotNull String myText;
-  protected final @NotNull TextRange myRange;
+  protected final @Nonnull
+  PsiElement myElement;
+  protected final @Nonnull
+  String myText;
+  protected final @Nonnull
+  TextRange myRange;
 
-  public MavenPsiReference(@NotNull PsiElement element, @NotNull String text, @NotNull TextRange range) {
+  public MavenPsiReference(@Nonnull PsiElement element, @Nonnull String text, @Nonnull TextRange range) {
     myProject = element.getProject();
     myProjectsManager = MavenProjectsManager.getInstance(myProject);
 
@@ -52,7 +60,7 @@ public abstract class MavenPsiReference implements PsiReference {
     return myElement;
   }
 
-  @NotNull
+  @Nonnull
   public String getCanonicalText() {
     return myText;
   }
@@ -69,7 +77,7 @@ public abstract class MavenPsiReference implements PsiReference {
     return null;
   }
 
-  public PsiElement bindToElement(@NotNull PsiElement element) throws IncorrectOperationException {
+  public PsiElement bindToElement(@Nonnull PsiElement element) throws IncorrectOperationException {
     return null;
   }
 

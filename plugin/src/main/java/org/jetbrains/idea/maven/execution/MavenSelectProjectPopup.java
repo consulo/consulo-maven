@@ -26,12 +26,13 @@ import com.intellij.ui.treeStructure.Tree;
 import com.intellij.util.Consumer;
 import com.intellij.util.containers.Convertor;
 import icons.MavenIcons;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.utils.MavenProjectNamer;
 
+import javax.annotation.Nullable;
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
@@ -49,7 +50,7 @@ import java.util.Map;
  */
 public class MavenSelectProjectPopup {
 
-  public static void attachToWorkingDirectoryField(@NotNull final MavenProjectsManager projectsManager,
+  public static void attachToWorkingDirectoryField(@Nonnull final MavenProjectsManager projectsManager,
                                                    final JTextField workingDirectoryField,
                                                    final JButton showModulesButton,
                                                    @Nullable final JComponent focusAfterSelection) {
@@ -82,9 +83,9 @@ public class MavenSelectProjectPopup {
     });
   }
 
-  public static void attachToButton(@NotNull final MavenProjectsManager projectsManager,
-                                    @NotNull final JButton button,
-                                    @NotNull final Consumer<MavenProject> callback) {
+  public static void attachToButton(@Nonnull final MavenProjectsManager projectsManager,
+                                    @Nonnull final JButton button,
+                                    @Nonnull final Consumer<MavenProject> callback) {
     button.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {

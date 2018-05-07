@@ -20,12 +20,12 @@ import com.intellij.psi.xml.XmlAttribute;
 import com.intellij.util.xml.XmlName;
 import com.intellij.util.xml.reflect.DomExtender;
 import com.intellij.util.xml.reflect.DomExtensionsRegistrar;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import org.jetbrains.idea.maven.dom.model.MavenDomConfigurationParameter;
 
 public class MavenPluginConfigurationParameterDomExtender extends DomExtender<MavenDomConfigurationParameter> {
   @Override
-  public void registerExtensions(@NotNull MavenDomConfigurationParameter param, @NotNull DomExtensionsRegistrar r) {
+  public void registerExtensions(@Nonnull MavenDomConfigurationParameter param, @Nonnull DomExtensionsRegistrar r) {
     for (XmlAttribute each : param.getXmlTag().getAttributes()) {
       String name = each.getName();
       if (CompletionUtil.DUMMY_IDENTIFIER_TRIMMED.equals(name)) continue;

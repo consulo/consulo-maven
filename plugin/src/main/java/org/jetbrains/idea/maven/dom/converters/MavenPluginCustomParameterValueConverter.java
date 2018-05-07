@@ -15,6 +15,8 @@
  */
 package org.jetbrains.idea.maven.dom.converters;
 
+import javax.annotation.Nonnull;
+
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.JavaPsiFacade;
 import com.intellij.psi.PsiClass;
@@ -24,18 +26,17 @@ import com.intellij.util.xml.Converter;
 import com.intellij.util.xml.GenericDomValue;
 import com.intellij.util.xml.WrappingConverter;
 import com.intellij.util.xml.converters.values.GenericDomValueConvertersRegistry;
-import org.jetbrains.annotations.NotNull;
 
 public class MavenPluginCustomParameterValueConverter extends WrappingConverter {
   private final String myType;
 
-  public MavenPluginCustomParameterValueConverter(@NotNull String type) {
+  public MavenPluginCustomParameterValueConverter(@Nonnull String type) {
     myType = PsiTypesUtil.boxIfPossible(type);
   }
 
 
   @Override
-  public Converter getConverter(@NotNull GenericDomValue domElement) {
+  public Converter getConverter(@Nonnull GenericDomValue domElement) {
     Project project = domElement.getManager().getProject();
 
     JavaPsiFacade psiFacade = JavaPsiFacade.getInstance(project);

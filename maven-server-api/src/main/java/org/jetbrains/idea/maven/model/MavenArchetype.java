@@ -16,8 +16,8 @@
 package org.jetbrains.idea.maven.model;
 
 import com.intellij.openapi.util.text.StringUtil;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import java.io.Serializable;
 
@@ -28,11 +28,11 @@ public class MavenArchetype implements Serializable {
   public final String repository;
   public final String description;
 
-  public MavenArchetype(@NotNull String groupId,
-                       @NotNull String artifactId,
-                       @NotNull String version,
+  public MavenArchetype(@Nonnull String groupId,
+                       @Nonnull String artifactId,
+                       @Nonnull String version,
                        @Nullable String repository,
-                       @Nullable String description) {
+                       @javax.annotation.Nullable String description) {
     this.groupId = groupId;
     this.artifactId = artifactId;
     this.version = version;

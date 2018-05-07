@@ -1,6 +1,6 @@
 package org.jetbrains.idea.maven.dom.model;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import org.jetbrains.idea.maven.dom.MavenDomElement;
 
 import java.util.List;
@@ -9,6 +9,6 @@ import java.util.List;
  * @author Sergey Evdokimov
  */
 public interface MavenDomMirrors extends MavenDomElement {
-  @NotNull
+  @Nonnull
   List<MavenDomMirror> getMirrors();
 }

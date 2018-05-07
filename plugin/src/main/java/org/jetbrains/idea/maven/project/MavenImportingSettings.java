@@ -19,7 +19,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
+
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.xmlb.annotations.Property;
@@ -75,7 +76,7 @@ public class MavenImportingSettings implements Cloneable
 		}
 	}
 
-	@NotNull
+	@Nonnull
 	@Deprecated
 	@DeprecationInfo("Always return empty string")
 	public String getDedicatedModuleDir()
@@ -104,19 +105,19 @@ public class MavenImportingSettings implements Cloneable
 		fireAutoImportChanged();
 	}
 
-	@NotNull
+	@Nonnull
 	public String getDependencyTypes()
 	{
 		return dependencyTypes;
 	}
 
-	public void setDependencyTypes(@NotNull String dependencyTypes)
+	public void setDependencyTypes(@Nonnull String dependencyTypes)
 	{
 		this.dependencyTypes = dependencyTypes;
 		myDependencyTypesAsSet = null;
 	}
 
-	@NotNull
+	@Nonnull
 	public Set<String> getDependencyTypesAsSet()
 	{
 		if(myDependencyTypesAsSet == null)
@@ -216,7 +217,7 @@ public class MavenImportingSettings implements Cloneable
 	}
 
 	@Property
-	@NotNull
+	@Nonnull
 	public GeneratedSourcesFolder getGeneratedSourcesFolder()
 	{
 		return generatedSourcesFolder;

@@ -21,10 +21,10 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.annotation.Nonnull;
 import javax.swing.Icon;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nullable;
 import org.jetbrains.idea.maven.importing.MavenDefaultModifiableModelsProvider;
 import org.jetbrains.idea.maven.importing.MavenUIModifiableModelsProvider;
 import org.jetbrains.idea.maven.model.MavenExplicitProfiles;
@@ -77,7 +77,7 @@ public class MavenProjectBuilder extends ProjectImportBuilder<MavenProject>
 	private Parameters myParameters;
 
 	@Override
-	@NotNull
+	@Nonnull
 	public String getName()
 	{
 		return ProjectBundle.message("maven.name");
@@ -374,7 +374,7 @@ public class MavenProjectBuilder extends ProjectImportBuilder<MavenProject>
 		getParameters().myFiles = files;
 	}
 
-	@Nullable
+	@javax.annotation.Nullable
 	public Project getProjectToUpdate()
 	{
 		if(getParameters().myProjectToUpdate == null)

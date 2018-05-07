@@ -2,7 +2,7 @@ package org.jetbrains.idea.maven.dom.model;
 
 import com.intellij.util.xml.Convert;
 import com.intellij.util.xml.GenericDomValue;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import org.jetbrains.idea.maven.dom.MavenDomElement;
 import org.jetbrains.idea.maven.dom.converters.repositories.MavenRepositoryConverter;
 
@@ -10,7 +10,7 @@ import org.jetbrains.idea.maven.dom.converters.repositories.MavenRepositoryConve
  * @author Sergey Evdokimov
  */
 public interface MavenDomMirror extends MavenDomElement {
-  @NotNull
+  @Nonnull
   @Convert(MavenRepositoryConverter.Url.class)
   GenericDomValue<String> getUrl();
 }

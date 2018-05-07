@@ -17,8 +17,8 @@ package org.jetbrains.idea.maven.execution;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Pair;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+
 import org.jetbrains.idea.maven.project.MavenDisablePanelCheckbox;
 
 import javax.swing.*;
@@ -30,11 +30,11 @@ public abstract class MavenRunnerConfigurableWithUseProjectSettings extends Mave
 
   private JCheckBox myUseProjectSettings;
 
-  public MavenRunnerConfigurableWithUseProjectSettings(@NotNull Project project) {
+  public MavenRunnerConfigurableWithUseProjectSettings(@Nonnull Project project) {
     super(project, true);
   }
 
-  public abstract void setState(@Nullable MavenRunnerSettings state);
+  public abstract void setState(@javax.annotation.Nullable MavenRunnerSettings state);
 
   @Override
   public boolean isModified() {

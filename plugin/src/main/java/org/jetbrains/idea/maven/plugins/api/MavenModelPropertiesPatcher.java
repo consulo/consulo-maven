@@ -1,7 +1,7 @@
 package org.jetbrains.idea.maven.plugins.api;
 
 import com.intellij.openapi.util.Pair;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nullable;
 import org.jetbrains.idea.maven.model.MavenPlugin;
 
 import java.util.*;

@@ -21,7 +21,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
+
 import com.intellij.openapi.util.SystemInfo;
 
 public class MavenServerUtil
@@ -68,8 +69,8 @@ public class MavenServerUtil
 	}
 
 
-	@NotNull
-	public static File findMavenBasedir(@NotNull File workingDir)
+	@Nonnull
+	public static File findMavenBasedir(@Nonnull File workingDir)
 	{
 		File baseDir = workingDir;
 		File dir = workingDir;

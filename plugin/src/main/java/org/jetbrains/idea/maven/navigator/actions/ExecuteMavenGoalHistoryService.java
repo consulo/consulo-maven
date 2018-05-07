@@ -20,8 +20,9 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.components.State;
@@ -37,8 +38,8 @@ import com.intellij.openapi.project.Project;
 		storages = @Storage(file = StoragePathMacros.WORKSPACE_FILE))
 public class ExecuteMavenGoalHistoryService implements PersistentStateComponent<String[]>
 {
-	@NotNull
-	public static ExecuteMavenGoalHistoryService getInstance(@NotNull Project project)
+	@Nonnull
+	public static ExecuteMavenGoalHistoryService getInstance(@Nonnull Project project)
 	{
 		return ServiceManager.getService(project, ExecuteMavenGoalHistoryService.class);
 	}
@@ -57,12 +58,12 @@ public class ExecuteMavenGoalHistoryService implements PersistentStateComponent<
 		return myCanceledCommand;
 	}
 
-	public void setCanceledCommand(@Nullable String canceledCommand)
+	public void setCanceledCommand(@javax.annotation.Nullable String canceledCommand)
 	{
 		myCanceledCommand = canceledCommand;
 	}
 
-	public void addCommand(@NotNull String command, @NotNull String projectPath)
+	public void addCommand(@Nonnull String command, @Nonnull String projectPath)
 	{
 		myWorkDirectory = projectPath.trim();
 
@@ -87,13 +88,13 @@ public class ExecuteMavenGoalHistoryService implements PersistentStateComponent<
 		return new ArrayList<String>(myHistory);
 	}
 
-	@NotNull
+	@Nonnull
 	public String getWorkDirectory()
 	{
 		return myWorkDirectory;
 	}
 
-	@Nullable
+	@javax.annotation.Nullable
 	@Override
 	public String[] getState()
 	{

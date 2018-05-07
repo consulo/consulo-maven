@@ -27,8 +27,8 @@ import com.intellij.ui.PanelWithAnchor;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.util.Alarm;
 import com.intellij.util.ui.UIUtil;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+
 import org.jetbrains.idea.maven.utils.MavenUtil;
 
 import javax.swing.*;
@@ -83,7 +83,7 @@ public class MavenEnvironmentForm implements PanelWithAnchor {
     };
 
     mavenHomeOverrider = new PathOverrider(mavenHomeComponent, mavenHomeOverrideCheckBox, listener, new PathProvider() {
-      @Nullable
+      @javax.annotation.Nullable
       protected File getFile() {
         return MavenUtil.resolveMavenHomeDirectory("");
       }
@@ -91,7 +91,7 @@ public class MavenEnvironmentForm implements PanelWithAnchor {
 
     userSettingsFileOverrider =
       new PathOverrider(settingsFileComponent, settingsOverrideCheckBox, listener, new PathProvider() {
-        @Nullable
+        @javax.annotation.Nullable
         protected File getFile() {
           return MavenUtil.resolveUserSettingsFile("");
         }
@@ -99,7 +99,7 @@ public class MavenEnvironmentForm implements PanelWithAnchor {
 
     localRepositoryOverrider =
       new PathOverrider(localRepositoryComponent, localRepositoryOverrideCheckBox, listener, new PathProvider() {
-        @Nullable
+        @javax.annotation.Nullable
         protected File getFile() {
           return MavenUtil.resolveLocalRepository("",
                                                   mavenHomeComponent.getComponent().getText(),
@@ -128,7 +128,7 @@ public class MavenEnvironmentForm implements PanelWithAnchor {
     localRepositoryOverrider.reset(data.getLocalRepository());
   }
 
-  @NotNull
+  @Nonnull
   public String getMavenHome() {
     return mavenHomeOverrider.getResult();
   }
@@ -164,7 +164,7 @@ public class MavenEnvironmentForm implements PanelWithAnchor {
       return file == null ? "" : file.getPath();
     }
 
-    @Nullable
+    @javax.annotation.Nullable
     abstract protected File getFile();
   }
 

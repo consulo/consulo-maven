@@ -17,7 +17,7 @@ package org.jetbrains.idea.maven.model;
 
 import java.io.Serializable;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 
 public class MavenProfile extends MavenModelBase implements Serializable {
   private final String myId;
@@ -30,7 +30,7 @@ public class MavenProfile extends MavenModelBase implements Serializable {
     mySource = source;
   }
 
-  @NotNull
+  @Nonnull
   public String getId() {
     return myId;
   }

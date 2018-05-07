@@ -15,10 +15,12 @@
  */
 package org.jetbrains.idea.maven.plugins.api;
 
+import javax.annotation.Nonnull;
+
 import com.intellij.lang.Language;
 import com.intellij.psi.xml.XmlText;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+
+import javax.annotation.Nullable;
 import org.jetbrains.idea.maven.dom.model.MavenDomConfiguration;
 
 /**
@@ -27,6 +29,6 @@ import org.jetbrains.idea.maven.dom.model.MavenDomConfiguration;
 public abstract class MavenParamLanguageProvider {
 
   @Nullable
-  public abstract Language getLanguage(@NotNull XmlText xmlText, @NotNull MavenDomConfiguration configuration);
+  public abstract Language getLanguage(@Nonnull XmlText xmlText, @Nonnull MavenDomConfiguration configuration);
 
 }

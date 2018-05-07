@@ -19,11 +19,12 @@
 
 package org.jetbrains.idea.maven.dom.model;
 
+import javax.annotation.Nonnull;
+
 import com.intellij.openapi.paths.PathReference;
 import com.intellij.util.xml.Convert;
 import com.intellij.util.xml.GenericDomValue;
 import com.intellij.util.xml.Required;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.idea.maven.dom.references.MavenDirectoryPathReferenceConverter;
 
 /**
@@ -44,7 +45,7 @@ public interface MavenDomBuild extends MavenDomBuildBase {
    *
    * @return the value of the sourceDirectory child.
    */
-  @NotNull
+  @Nonnull
   @Required(value = false, nonEmpty = true)
   @Convert(value = MavenDirectoryPathReferenceConverter.class, soft = false)
   GenericDomValue<PathReference> getSourceDirectory();
@@ -58,7 +59,7 @@ public interface MavenDomBuild extends MavenDomBuildBase {
    *
    * @return the value of the scriptSourceDirectory child.
    */
-  @NotNull
+  @Nonnull
   @Required(value = false, nonEmpty = true)
   @Convert(value = MavenDirectoryPathReferenceConverter.class, soft = false)
   GenericDomValue<PathReference> getScriptSourceDirectory();
@@ -72,7 +73,7 @@ public interface MavenDomBuild extends MavenDomBuildBase {
    *
    * @return the value of the testSourceDirectory child.
    */
-  @NotNull
+  @Nonnull
   @Required(value = false, nonEmpty = true)
   @Convert(value = MavenDirectoryPathReferenceConverter.class, soft = false)
   GenericDomValue<PathReference> getTestSourceDirectory();
@@ -86,7 +87,7 @@ public interface MavenDomBuild extends MavenDomBuildBase {
    *
    * @return the value of the outputDirectory child.
    */
-  @NotNull
+  @Nonnull
   @Required(value = false, nonEmpty = true)
   @Convert(value = MavenDirectoryPathReferenceConverter.class, soft = true)
   GenericDomValue<PathReference> getOutputDirectory();
@@ -100,7 +101,7 @@ public interface MavenDomBuild extends MavenDomBuildBase {
    *
    * @return the value of the testOutputDirectory child.
    */
-  @NotNull
+  @Nonnull
   @Required(value = false, nonEmpty = true)
   @Convert(value = MavenDirectoryPathReferenceConverter.class, soft = true)
   GenericDomValue<PathReference> getTestOutputDirectory();
@@ -114,6 +115,6 @@ public interface MavenDomBuild extends MavenDomBuildBase {
    *
    * @return the value of the extensions child.
    */
-  @NotNull
+  @Nonnull
   MavenDomExtensions getExtensions();
 }

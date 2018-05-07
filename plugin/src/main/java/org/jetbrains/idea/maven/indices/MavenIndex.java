@@ -34,9 +34,9 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import javax.annotation.Nonnull;
+
 import org.apache.lucene.search.Query;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.TestOnly;
 import org.jetbrains.idea.maven.model.MavenArtifactInfo;
 import org.jetbrains.idea.maven.model.MavenId;
@@ -217,8 +217,8 @@ public class MavenIndex
 		}
 	}
 
-	@NotNull
-	public static String normalizePathOrUrl(@NotNull String pathOrUrl)
+	@Nonnull
+	public static String normalizePathOrUrl(@Nonnull String pathOrUrl)
 	{
 		pathOrUrl = pathOrUrl.trim();
 		pathOrUrl = FileUtil.toSystemIndependentName(pathOrUrl);
@@ -472,7 +472,7 @@ public class MavenIndex
 		save();
 	}
 
-	private boolean hasValidContext(@NotNull File contextDir)
+	private boolean hasValidContext(@Nonnull File contextDir)
 	{
 		return contextDir.isDirectory() && myNexusIndexer.indexExists(contextDir);
 	}
@@ -638,7 +638,7 @@ public class MavenIndex
 		return new File(dataDir, "context");
 	}
 
-	@NotNull
+	@Nonnull
 	private File createNewDataDir()
 	{
 		return MavenIndices.createNewDir(myDir, DATA_DIR_PREFIX, 100);
@@ -891,7 +891,7 @@ public class MavenIndex
 			}
 		}
 
-		private void safeClose(@Nullable Closeable enumerator, MavenIndexException[] exceptions)
+		private void safeClose(@javax.annotation.Nullable Closeable enumerator, MavenIndexException[] exceptions)
 		{
 			try
 			{
@@ -930,7 +930,7 @@ public class MavenIndex
 	private static class SetDescriptor implements DataExternalizer<Set<String>>
 	{
 		@Override
-		public void save(@NotNull DataOutput s, Set<String> set) throws IOException
+		public void save(@Nonnull DataOutput s, Set<String> set) throws IOException
 		{
 			s.writeInt(set.size());
 			for(String each : set)
@@ -940,7 +940,7 @@ public class MavenIndex
 		}
 
 		@Override
-		public Set<String> read(@NotNull DataInput s) throws IOException
+		public Set<String> read(@Nonnull DataInput s) throws IOException
 		{
 			int count = s.readInt();
 			Set<String> result = new THashSet<>(count);
@@ -959,7 +959,7 @@ public class MavenIndex
 
 	private class MyIndexRepositoryIdsProvider implements CachedValueProvider<String>
 	{
-		@Nullable
+		@javax.annotation.Nullable
 		@Override
 		public Result<String> compute()
 		{

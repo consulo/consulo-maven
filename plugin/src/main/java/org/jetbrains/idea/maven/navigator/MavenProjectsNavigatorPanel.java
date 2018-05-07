@@ -29,10 +29,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.swing.TransferHandler;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.idea.maven.execution.MavenGoalLocation;
 import org.jetbrains.idea.maven.model.MavenArtifact;
 import org.jetbrains.idea.maven.model.MavenConstants;
@@ -128,7 +128,7 @@ public class MavenProjectsNavigatorPanel extends SimpleToolWindowPanel implement
 				}
 			}
 
-			@Nullable
+			@javax.annotation.Nullable
 			private String getMenuId(Collection<? extends MavenProjectsStructure.MavenSimpleNode> nodes)
 			{
 				String id = null;
@@ -155,7 +155,7 @@ public class MavenProjectsNavigatorPanel extends SimpleToolWindowPanel implement
 
 	@Override
 	@Nullable
-	public Object getData(@NotNull Key<?> dataId)
+	public Object getData(@Nonnull Key<?> dataId)
 	{
 		if(PlatformDataKeys.HELP_ID == dataId)
 		{
@@ -357,14 +357,14 @@ public class MavenProjectsNavigatorPanel extends SimpleToolWindowPanel implement
 		return getSelectedNodes(MavenProjectsStructure.ProjectNode.class);
 	}
 
-	@Nullable
+	@javax.annotation.Nullable
 	private MavenProjectsStructure.ProjectNode getSelectedProjectNode()
 	{
 		final List<MavenProjectsStructure.ProjectNode> projectNodes = getSelectedProjectNodes();
 		return projectNodes.size() == 1 ? projectNodes.get(0) : null;
 	}
 
-	@Nullable
+	@javax.annotation.Nullable
 	private MavenProjectsStructure.ProjectNode getContextProjectNode()
 	{
 		MavenProjectsStructure.ProjectNode projectNode = getSelectedProjectNode();

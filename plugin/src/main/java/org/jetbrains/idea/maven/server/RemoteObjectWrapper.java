@@ -15,18 +15,19 @@
  */
 package org.jetbrains.idea.maven.server;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.jetbrains.idea.maven.utils.MavenLog;
 import org.jetbrains.idea.maven.utils.MavenProcessCanceledException;
 
 import java.rmi.RemoteException;
 
 public abstract class RemoteObjectWrapper<T> {
-  @Nullable private final RemoteObjectWrapper<?> myParent;
+  @javax.annotation.Nullable
+  private final RemoteObjectWrapper<?> myParent;
   @Nullable private T myWrappee;
 
-  protected RemoteObjectWrapper(@Nullable RemoteObjectWrapper<?> parent) {
+  protected RemoteObjectWrapper(@javax.annotation.Nullable RemoteObjectWrapper<?> parent) {
     myParent = parent;
   }
 
@@ -35,7 +36,7 @@ public abstract class RemoteObjectWrapper<T> {
     return myWrappee == null ? null : myWrappee;
   }
 
-  @NotNull
+  @Nonnull
   protected synchronized T getOrCreateWrappee() throws RemoteException {
     if (myWrappee == null) {
       myWrappee = create();
@@ -45,7 +46,7 @@ public abstract class RemoteObjectWrapper<T> {
     return myWrappee;
   }
 
-  @NotNull
+  @Nonnull
   protected abstract T create() throws RemoteException;
 
   protected void onWrappeeCreated() throws RemoteException {

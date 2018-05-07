@@ -24,8 +24,8 @@ import java.util.Collections;
 import java.util.List;
 
 import org.jdom.Element;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+
 import com.intellij.openapi.util.JDOMUtil;
 
 public class MavenPlugin implements Serializable
@@ -87,7 +87,7 @@ public class MavenPlugin implements Serializable
 		return myExtensions;
 	}
 
-	@Nullable
+	@javax.annotation.Nullable
 	public Element getConfigurationElement()
 	{
 		return myConfiguration;
@@ -103,8 +103,8 @@ public class MavenPlugin implements Serializable
 		return myDependencies;
 	}
 
-	@Nullable
-	public Element getGoalConfiguration(@NotNull String goal)
+	@javax.annotation.Nullable
+	public Element getGoalConfiguration(@Nonnull String goal)
 	{
 		for(MavenPlugin.Execution each : getExecutions())
 		{
@@ -117,7 +117,7 @@ public class MavenPlugin implements Serializable
 		return null;
 	}
 
-	public Element getExecutionConfiguration(@NotNull String executionId)
+	public Element getExecutionConfiguration(@Nonnull String executionId)
 	{
 		for(MavenPlugin.Execution each : getExecutions())
 		{
@@ -246,7 +246,7 @@ public class MavenPlugin implements Serializable
 			return myGoals;
 		}
 
-		@Nullable
+		@javax.annotation.Nullable
 		public Element getConfigurationElement()
 		{
 			return myConfiguration;

@@ -6,8 +6,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+
 import org.jetbrains.idea.maven.dom.MavenDomProjectProcessorUtils;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
 import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
@@ -67,7 +67,7 @@ public class IntroducePropertyAction extends BaseRefactoringAction {
     return true;
   }
 
-  protected boolean isEnabledOnElements(@NotNull PsiElement[] elements) {
+  protected boolean isEnabledOnElements(@Nonnull PsiElement[] elements) {
     return false;
   }
 
@@ -76,7 +76,7 @@ public class IntroducePropertyAction extends BaseRefactoringAction {
     return true;
   }
 
-  protected RefactoringActionHandler getHandler(@NotNull DataContext dataContext) {
+  protected RefactoringActionHandler getHandler(@Nonnull DataContext dataContext) {
     return new MyRefactoringActionHandler();
   }
 
@@ -89,12 +89,12 @@ public class IntroducePropertyAction extends BaseRefactoringAction {
   }
 
   @Override
-  protected boolean isAvailableOnElementInEditorAndFile(@NotNull PsiElement element, @NotNull Editor editor, @NotNull PsiFile file, @NotNull DataContext context) {
+  protected boolean isAvailableOnElementInEditorAndFile(@Nonnull PsiElement element, @Nonnull Editor editor, @Nonnull PsiFile file, @Nonnull DataContext context) {
     if (!super.isAvailableOnElementInEditorAndFile(element, editor, file, context)) return false;
     return getSelectedElementAndTextRange(editor, file) != null;
   }
 
-  @Nullable
+  @javax.annotation.Nullable
   public static Pair<XmlElement, TextRange> getSelectedElementAndTextRange(Editor editor, final PsiFile file) {
     final int startOffset = editor.getSelectionModel().getSelectionStart();
     final int endOffset = editor.getSelectionModel().getSelectionEnd();
@@ -124,7 +124,7 @@ public class IntroducePropertyAction extends BaseRefactoringAction {
   }
 
   private static class MyRefactoringActionHandler implements RefactoringActionHandler {
-    public void invoke(@NotNull final Project project, final Editor editor, PsiFile file, DataContext dataContext) {
+    public void invoke(@Nonnull final Project project, final Editor editor, PsiFile file, DataContext dataContext) {
       PsiDocumentManager.getInstance(project).commitAllDocuments();
 
       Pair<XmlElement, TextRange> elementAndRange = getSelectedElementAndTextRange(editor, file);
@@ -193,9 +193,9 @@ public class IntroducePropertyAction extends BaseRefactoringAction {
       return VfsUtil.toVirtualFileArray(virtualFiles);
     }
 
-    private static void createMavenProperty(@NotNull MavenDomProjectModel model,
-                                            @NotNull String enteredName,
-                                            @NotNull String selectedString) {
+    private static void createMavenProperty(@Nonnull MavenDomProjectModel model,
+                                            @Nonnull String enteredName,
+                                            @Nonnull String selectedString) {
       MavenDomProperties mavenDomProperties = model.getProperties();
       XmlTag xmlTag = mavenDomProperties.ensureTagExists();
 
@@ -204,11 +204,11 @@ public class IntroducePropertyAction extends BaseRefactoringAction {
       xmlTag.add(propertyTag);
     }
 
-    private static void showFindUsages(@NotNull Project project,
-                                       @NotNull String propertyName,
-                                       @NotNull String selectedString,
-                                       @NotNull String replaceWith,
-                                       @NotNull MavenDomProjectModel model) {
+    private static void showFindUsages(@Nonnull Project project,
+                                       @Nonnull String propertyName,
+                                       @Nonnull String selectedString,
+                                       @Nonnull String replaceWith,
+                                       @Nonnull MavenDomProjectModel model) {
       UsageViewManager manager = UsageViewManager.getInstance(project);
       if (manager == null) return;
 
@@ -230,7 +230,7 @@ public class IntroducePropertyAction extends BaseRefactoringAction {
     }
 
     //IDEA-54113
-    private static void assureFindToolWindowRegistered(@NotNull Project project) {
+    private static void assureFindToolWindowRegistered(@Nonnull Project project) {
       com.intellij.usageView.UsageViewManager uvm = com.intellij.usageView.UsageViewManager.getInstance(project);
     }
 
@@ -247,7 +247,7 @@ public class IntroducePropertyAction extends BaseRefactoringAction {
       return findModel;
     }
 
-    public void invoke(@NotNull Project project, @NotNull PsiElement[] elements, DataContext dataContext) {
+    public void invoke(@Nonnull Project project, @Nonnull PsiElement[] elements, DataContext dataContext) {
     }
 
     private static class MyUsageSearcherFactory implements Factory<UsageSearcher> {
@@ -283,7 +283,7 @@ public class IntroducePropertyAction extends BaseRefactoringAction {
             }
           }
 
-          private void collectUsages(@NotNull MavenDomProjectModel model) {
+          private void collectUsages(@Nonnull MavenDomProjectModel model) {
             if (model.isValid()) {
               final XmlElement root = model.getXmlElement();
               if (root != null) {
@@ -314,8 +314,8 @@ public class IntroducePropertyAction extends BaseRefactoringAction {
             }
           }
 
-          @NotNull
-          private Set<UsageInfo> getUsages(@NotNull XmlElement xmlElement) {
+          @Nonnull
+          private Set<UsageInfo> getUsages(@Nonnull XmlElement xmlElement) {
             String s = xmlElement.getText();
             if (StringUtil.isEmptyOrSpaces(s)) return Collections.emptySet();
 
@@ -368,7 +368,7 @@ public class IntroducePropertyAction extends BaseRefactoringAction {
     return ranges;
   }
 
-  private static boolean isInsideTextRanges(@NotNull Collection<TextRange> ranges, int start, int end) {
+  private static boolean isInsideTextRanges(@Nonnull Collection<TextRange> ranges, int start, int end) {
     for (TextRange range : ranges) {
       if ((start >= range.getStartOffset() && (end <= range.getEndOffset() || start <= range.getEndOffset())) ||
           (end <= range.getEndOffset() && (end > range.getStartOffset()))) {

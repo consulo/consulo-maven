@@ -14,8 +14,9 @@ import com.intellij.util.PairProcessor;
 import com.intellij.util.ProcessingContext;
 import com.intellij.util.xml.DomElement;
 import com.intellij.util.xml.DomManager;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import org.jetbrains.idea.maven.dom.model.*;
 
 import java.util.HashMap;
@@ -73,7 +74,7 @@ public class MavenPluginParamInfo {
     return res;
   }
 
-  @NotNull
+  @Nonnull
   private static <K, V extends Map> V getOrCreate(Map map, K key) {
     Map res = (Map)map.get(key);
     if (res == null) {
@@ -84,7 +85,7 @@ public class MavenPluginParamInfo {
     return (V)res;
   }
 
-  public static boolean isSimpleText(@NotNull XmlText paramValue) {
+  public static boolean isSimpleText(@Nonnull XmlText paramValue) {
     PsiElement prevSibling = paramValue.getPrevSibling();
     if (!(prevSibling instanceof LeafPsiElement) || ((LeafPsiElement)prevSibling).getElementType() != XmlTokenType.XML_TAG_END) {
       return false;
@@ -98,7 +99,7 @@ public class MavenPluginParamInfo {
     return true;
   }
 
-  public static void processParamInfo(@NotNull XmlText paramValue, @NotNull PairProcessor<ParamInfo, MavenDomConfiguration> processor) {
+  public static void processParamInfo(@Nonnull XmlText paramValue, @Nonnull PairProcessor<ParamInfo, MavenDomConfiguration> processor) {
     XmlTag paramTag = paramValue.getParentTag();
     if (paramTag == null) return;
 
@@ -204,7 +205,7 @@ public class MavenPluginParamInfo {
       }
     }
 
-    @Nullable
+    @javax.annotation.Nullable
     public Language getLanguage() {
       ensureLanguageInit();
       return myLanguageInstance;
@@ -283,9 +284,9 @@ public class MavenPluginParamInfo {
     }
 
     @Override
-    public PsiReference[] getReferencesByElement(@NotNull PsiElement element,
-                                                 @NotNull MavenDomConfiguration domCfg,
-                                                 @NotNull ProcessingContext context) {
+    public PsiReference[] getReferencesByElement(@Nonnull PsiElement element,
+                                                 @Nonnull MavenDomConfiguration domCfg,
+                                                 @Nonnull ProcessingContext context) {
       return myProvider.getReferencesByElement(element, context);
     }
 

@@ -15,6 +15,8 @@
  */
 package org.jetbrains.idea.maven.plugins.api;
 
+import javax.annotation.Nonnull;
+
 import com.intellij.lang.Language;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.InjectedLanguagePlaces;
@@ -22,7 +24,6 @@ import com.intellij.psi.LanguageInjector;
 import com.intellij.psi.PsiLanguageInjectionHost;
 import com.intellij.psi.xml.XmlText;
 import com.intellij.util.PairProcessor;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.idea.maven.dom.model.MavenDomConfiguration;
 
 /**
@@ -31,7 +32,7 @@ import org.jetbrains.idea.maven.dom.model.MavenDomConfiguration;
 public final class MavenPluginConfigurationLanguageInjector implements LanguageInjector {
 
   @Override
-  public void getLanguagesToInject(@NotNull final PsiLanguageInjectionHost host, @NotNull final InjectedLanguagePlaces injectionPlacesRegistrar) {
+  public void getLanguagesToInject(@Nonnull final PsiLanguageInjectionHost host, @Nonnull final InjectedLanguagePlaces injectionPlacesRegistrar) {
     if (!(host instanceof XmlText)) return;
 
     final XmlText xmlText = (XmlText)host;

@@ -15,8 +15,8 @@
  */
 package org.jetbrains.idea.maven.model;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import java.io.File;
 import java.io.Serializable;
@@ -25,28 +25,28 @@ import java.util.*;
 public class MavenWorkspaceMap implements Serializable {
   private final Map<MavenId, Data> myMapping = new HashMap<MavenId, Data>();
 
-  public void register(@NotNull MavenId id, @NotNull File file) {
+  public void register(@Nonnull MavenId id, @Nonnull File file) {
     register(id, file, null);
   }
   
-  public void register(@NotNull MavenId id, @NotNull File file, @Nullable File outputFile) {
+  public void register(@Nonnull MavenId id, @Nonnull File file, @Nullable File outputFile) {
     for (MavenId each : getAllIDs(id)) {
       myMapping.put(each, new Data(id, file, outputFile));
     }
   }
 
-  public void unregister(@NotNull MavenId id) {
+  public void unregister(@Nonnull MavenId id) {
     for (MavenId each : getAllIDs(id)) {
       myMapping.remove(each);
     }
   }
 
   @Nullable
-  public Data findFileAndOriginalId(@NotNull MavenId dependencyId) {
+  public Data findFileAndOriginalId(@Nonnull MavenId dependencyId) {
     return myMapping.get(dependencyId);
   }
 
-  @NotNull
+  @Nonnull
   public Set<MavenId> getAvailableIds() {
     return myMapping.keySet();
   }

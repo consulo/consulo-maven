@@ -15,19 +15,20 @@
  */
 package org.jetbrains.idea.maven.navigator.actions;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
+
 import org.jetbrains.idea.maven.navigator.MavenProjectsNavigator;
 
 public class ShowVersionsAction extends MavenProjectsNavigatorAction
 {
 	@Override
-	public boolean isSelected(@NotNull MavenProjectsNavigator navigator)
+	public boolean isSelected(@Nonnull MavenProjectsNavigator navigator)
 	{
 		return navigator.getShowVersions();
 	}
 
 	@Override
-	public void setSelected(@NotNull MavenProjectsNavigator navigator, boolean value)
+	public void setSelected(@Nonnull MavenProjectsNavigator navigator, boolean value)
 	{
 		navigator.setShowVersions(value);
 	}

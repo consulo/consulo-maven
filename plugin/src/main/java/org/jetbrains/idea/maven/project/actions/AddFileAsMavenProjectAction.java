@@ -17,8 +17,8 @@ package org.jetbrains.idea.maven.project.actions;
 
 import java.util.Collections;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.utils.actions.MavenAction;
 import org.jetbrains.idea.maven.utils.actions.MavenActionUtil;
@@ -32,7 +32,7 @@ public class AddFileAsMavenProjectAction extends MavenAction
 {
 	@RequiredDispatchThread
 	@Override
-	public void actionPerformed(@NotNull AnActionEvent e)
+	public void actionPerformed(@Nonnull AnActionEvent e)
 	{
 		final DataContext context = e.getDataContext();
 		MavenProjectsManager manager = MavenActionUtil.getProjectsManager(context);
@@ -59,7 +59,7 @@ public class AddFileAsMavenProjectAction extends MavenAction
 		return manager.findProject(file) != null;
 	}
 
-	@Nullable
+	@javax.annotation.Nullable
 	private static VirtualFile getSelectedFile(DataContext context)
 	{
 		return context.getData(PlatformDataKeys.VIRTUAL_FILE);

@@ -28,8 +28,8 @@ import com.intellij.psi.PsiReference;
 import com.intellij.util.ArrayUtil;
 import com.intellij.util.xml.*;
 import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.jetbrains.idea.maven.dom.MavenDomBundle;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
 import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
@@ -69,7 +69,7 @@ public class MavenParentRelativePathConverter extends ResolvingConverter<PsiFile
     return MavenDomUtil.calcRelativePath(currentFile.getParent(), f.getVirtualFile());
   }
 
-  @NotNull
+  @Nonnull
   @Override
   public Collection<PsiFile> getVariants(ConvertContext context) {
     List<PsiFile> result = new ArrayList<PsiFile>();
@@ -94,17 +94,17 @@ public class MavenParentRelativePathConverter extends ResolvingConverter<PsiFile
       myContext = context;
     }
 
-    @NotNull
+    @Nonnull
     public String getName() {
       return MavenDomBundle.message("fix.parent.path");
     }
 
-    @NotNull
+    @Nonnull
     public String getFamilyName() {
       return MavenDomBundle.message("inspection.group");
     }
 
-    public void applyFix(@NotNull Project project, @NotNull ProblemDescriptor descriptor) {
+    public void applyFix(@Nonnull Project project, @Nonnull ProblemDescriptor descriptor) {
       GenericDomValue el = (GenericDomValue)myContext.getInvocationElement();
       MavenId id = MavenArtifactCoordinatesHelper.getId(myContext);
 
@@ -117,7 +117,7 @@ public class MavenParentRelativePathConverter extends ResolvingConverter<PsiFile
     }
   }
 
-  @NotNull
+  @Nonnull
   public PsiReference[] createReferences(final GenericDomValue genericDomValue, final PsiElement element, final ConvertContext context) {
     return new MavenPathReferenceConverter(new Condition<PsiFileSystemItem>() {
       @Override

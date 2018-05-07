@@ -18,7 +18,7 @@ package org.jetbrains.idea.maven.navigator;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.treeStructure.NullNode;
 import com.intellij.ui.treeStructure.SimpleNode;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import org.jetbrains.idea.maven.project.MavenProject;
 
 import javax.swing.*;
@@ -40,7 +40,7 @@ public class SelectMavenProjectDialog extends SelectFromMavenProjectsDialog {
     init();
   }
 
-  @NotNull
+  @Nonnull
   @Override
   protected Action[] createActions() {
     Action selectNoneAction = new AbstractAction("&None") {

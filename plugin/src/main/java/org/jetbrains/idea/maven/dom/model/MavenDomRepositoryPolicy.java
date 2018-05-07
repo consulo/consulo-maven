@@ -19,10 +19,11 @@
 
 package org.jetbrains.idea.maven.dom.model;
 
+import javax.annotation.Nonnull;
+
 import com.intellij.util.xml.Convert;
 import com.intellij.util.xml.GenericDomValue;
 import com.intellij.util.xml.Required;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.idea.maven.dom.MavenDomElement;
 import org.jetbrains.idea.maven.dom.converters.MavenRepositoryChecksumPolicyConverter;
 import org.jetbrains.idea.maven.dom.converters.MavenRepositoryUpdatePolicyConverter;
@@ -45,7 +46,7 @@ public interface MavenDomRepositoryPolicy extends MavenDomElement {
    *
    * @return the value of the enabled child.
    */
-  @NotNull
+  @Nonnull
   @Required(value = false, nonEmpty = true)
   GenericDomValue<Boolean> getEnabled();
 
@@ -58,7 +59,7 @@ public interface MavenDomRepositoryPolicy extends MavenDomElement {
    *
    * @return the value of the updatePolicy child.
    */
-  @NotNull
+  @Nonnull
   @Required(value = false, nonEmpty = true)
   @Convert(MavenRepositoryUpdatePolicyConverter.class)
   GenericDomValue<String> getUpdatePolicy();
@@ -72,7 +73,7 @@ public interface MavenDomRepositoryPolicy extends MavenDomElement {
    *
    * @return the value of the checksumPolicy child.
    */
-  @NotNull
+  @Nonnull
   @Required(value = false, nonEmpty = true)
   @Convert(MavenRepositoryChecksumPolicyConverter.class)
   GenericDomValue<String> getChecksumPolicy();

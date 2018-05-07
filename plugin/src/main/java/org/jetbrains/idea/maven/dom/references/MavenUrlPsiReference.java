@@ -15,11 +15,12 @@
  */
 package org.jetbrains.idea.maven.dom.references;
 
+import javax.annotation.Nonnull;
+
 import com.intellij.ide.BrowserUtil;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.impl.FakePsiElement;
-import org.jetbrains.annotations.NotNull;
 
 public class MavenUrlPsiReference extends MavenPsiReference {
   public MavenUrlPsiReference(PsiElement element, String text, TextRange range) {
@@ -44,7 +45,7 @@ public class MavenUrlPsiReference extends MavenPsiReference {
     };
   }
 
-  @NotNull
+  @Nonnull
   public Object[] getVariants() {
     return EMPTY_ARRAY;
   }

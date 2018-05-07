@@ -28,9 +28,11 @@ import java.io.Serializable;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.annotation.Nonnull;
+
 import org.jdom.Element;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+
+import javax.annotation.Nullable;
 import org.jetbrains.idea.maven.importing.MavenExtraArtifactType;
 import org.jetbrains.idea.maven.importing.MavenImporter;
 import org.jetbrains.idea.maven.model.*;
@@ -61,9 +63,9 @@ public class MavenProject
 	private static final Key<MavenArtifactIndex> DEPENDENCIES_CACHE_KEY = Key.create("MavenProject.DEPENDENCIES_CACHE_KEY");
 	private static final Key<List<String>> FILTERS_CACHE_KEY = Key.create("MavenProject.FILTERS_CACHE_KEY");
 
-	@NotNull
+	@Nonnull
 	private final VirtualFile myFile;
-	@NotNull
+	@Nonnull
 	private volatile State myState = new State();
 
 	private static Map<String, String> COMPILER_LEVEL_TABLE = ContainerUtil.<String, String>immutableMapBuilder()
@@ -127,7 +129,7 @@ public class MavenProject
 		}
 	}
 
-	public void write(@NotNull DataOutputStream out) throws IOException
+	public void write(@Nonnull DataOutputStream out) throws IOException
 	{
 		out.writeUTF(getPath());
 
@@ -147,13 +149,13 @@ public class MavenProject
 		}
 	}
 
-	public MavenProject(@NotNull VirtualFile file)
+	public MavenProject(@Nonnull VirtualFile file)
 	{
 		myFile = file;
 	}
 
-	@NotNull
-	private MavenProjectChanges set(@NotNull MavenProjectReaderResult readerResult, @NotNull MavenGeneralSettings settings, boolean updateLastReadStamp, boolean resetArtifacts, boolean resetProfiles)
+	@Nonnull
+	private MavenProjectChanges set(@Nonnull MavenProjectReaderResult readerResult, @Nonnull MavenGeneralSettings settings, boolean updateLastReadStamp, boolean resetArtifacts, boolean resetProfiles)
 	{
 		State newState = myState.clone();
 
@@ -348,25 +350,25 @@ public class MavenProject
 		return myState.myLastReadStamp;
 	}
 
-	@NotNull
+	@Nonnull
 	public VirtualFile getFile()
 	{
 		return myFile;
 	}
 
-	@NotNull
+	@Nonnull
 	public String getPath()
 	{
 		return myFile.getPath();
 	}
 
-	@NotNull
+	@Nonnull
 	public String getDirectory()
 	{
 		return myFile.getParent().getPath();
 	}
 
-	@NotNull
+	@Nonnull
 	public VirtualFile getDirectoryFile()
 	{
 		return myFile.getParent();
@@ -378,7 +380,7 @@ public class MavenProject
 		return MavenUtil.findProfilesXmlFile(myFile);
 	}
 
-	@NotNull
+	@Nonnull
 	public File getProfilesXmlIoFile()
 	{
 		return MavenUtil.getProfilesXmlIoFile(myFile);
@@ -395,7 +397,7 @@ public class MavenProject
 		return myState.myName;
 	}
 
-	@NotNull
+	@Nonnull
 	public String getDisplayName()
 	{
 		State state = myState;
@@ -406,13 +408,13 @@ public class MavenProject
 		return state.myName;
 	}
 
-	@NotNull
+	@Nonnull
 	public Map<String, String> getModelMap()
 	{
 		return myState.myModelMap;
 	}
 
-	@NotNull
+	@Nonnull
 	public MavenId getMavenId()
 	{
 		return myState.myMavenId;
@@ -424,13 +426,13 @@ public class MavenProject
 		return myState.myParentId;
 	}
 
-	@NotNull
+	@Nonnull
 	public String getPackaging()
 	{
 		return myState.myPackaging;
 	}
 
-	@NotNull
+	@Nonnull
 	public String getFinalName()
 	{
 		return myState.myFinalName;
@@ -442,19 +444,19 @@ public class MavenProject
 		return myState.myDefaultGoal;
 	}
 
-	@NotNull
+	@Nonnull
 	public String getBuildDirectory()
 	{
 		return myState.myBuildDirectory;
 	}
 
-	@NotNull
+	@Nonnull
 	public String getGeneratedSourcesDirectory(boolean testSources)
 	{
 		return getBuildDirectory() + (testSources ? "/generated-test-sources" : "/generated-sources");
 	}
 
-	@NotNull
+	@Nonnull
 	public String getAnnotationProcessorDirectory(boolean testSources)
 	{
 		if(getProcMode() == ProcMode.NONE)
@@ -490,7 +492,7 @@ public class MavenProject
 		return MavenJDOMUtil.findChildValueByPath(getCompilerConfig(), testSources ? "generatedTestSourcesDirectory" : "generatedSourcesDirectory", def);
 	}
 
-	@NotNull
+	@Nonnull
 	public ProcMode getProcMode()
 	{
 		Element compilerConfiguration = getPluginExecutionConfiguration("org.apache.maven.plugins", "maven-compiler-plugin", "default-compile");
@@ -710,43 +712,43 @@ public class MavenProject
 		return result;
 	}
 
-	@NotNull
+	@Nonnull
 	public String getOutputDirectory()
 	{
 		return myState.myOutputDirectory;
 	}
 
-	@NotNull
+	@Nonnull
 	public String getTestOutputDirectory()
 	{
 		return myState.myTestOutputDirectory;
 	}
 
-	@NotNull
+	@Nonnull
 	public List<String> getSources()
 	{
 		return myState.mySources;
 	}
 
-	@NotNull
+	@Nonnull
 	public List<String> getTestSources()
 	{
 		return myState.myTestSources;
 	}
 
-	@NotNull
+	@Nonnull
 	public List<MavenResource> getResources()
 	{
 		return myState.myResources;
 	}
 
-	@NotNull
+	@Nonnull
 	public List<MavenResource> getTestResources()
 	{
 		return myState.myTestResources;
 	}
 
-	@NotNull
+	@Nonnull
 	public List<String> getFilters()
 	{
 		return myState.myFilters;
@@ -793,22 +795,22 @@ public class MavenProject
 		return res;
 	}
 
-	@NotNull
-	public MavenProjectChanges read(@NotNull MavenGeneralSettings generalSettings,
-			@NotNull MavenExplicitProfiles profiles,
-			@NotNull MavenProjectReader reader,
-			@NotNull MavenProjectReaderProjectLocator locator)
+	@Nonnull
+	public MavenProjectChanges read(@Nonnull MavenGeneralSettings generalSettings,
+			@Nonnull MavenExplicitProfiles profiles,
+			@Nonnull MavenProjectReader reader,
+			@Nonnull MavenProjectReaderProjectLocator locator)
 	{
 		return set(reader.readProject(generalSettings, myFile, profiles, locator), generalSettings, true, false, true);
 	}
 
-	@NotNull
-	public Pair<MavenProjectChanges, NativeMavenProjectHolder> resolve(@NotNull Project project,
-			@NotNull MavenGeneralSettings generalSettings,
-			@NotNull MavenEmbedderWrapper embedder,
-			@NotNull MavenProjectReader reader,
-			@NotNull MavenProjectReaderProjectLocator locator,
-			@NotNull ResolveContext context) throws MavenProcessCanceledException
+	@Nonnull
+	public Pair<MavenProjectChanges, NativeMavenProjectHolder> resolve(@Nonnull Project project,
+			@Nonnull MavenGeneralSettings generalSettings,
+			@Nonnull MavenEmbedderWrapper embedder,
+			@Nonnull MavenProjectReader reader,
+			@Nonnull MavenProjectReaderProjectLocator locator,
+			@Nonnull ResolveContext context) throws MavenProcessCanceledException
 	{
 		MavenProjectReaderResult result = reader.resolveProject(generalSettings, embedder, getFile(), getActivatedProfilesIds(), locator);
 		MavenProjectChanges changes = set(result, generalSettings, false, result.readingProblems.isEmpty(), false);
@@ -823,10 +825,10 @@ public class MavenProject
 		return Pair.create(changes, result.nativeMavenProject);
 	}
 
-	@NotNull
-	public Pair<Boolean, MavenProjectChanges> resolveFolders(@NotNull MavenEmbedderWrapper embedder,
-			@NotNull MavenImportingSettings importingSettings,
-			@NotNull MavenConsole console) throws MavenProcessCanceledException
+	@Nonnull
+	public Pair<Boolean, MavenProjectChanges> resolveFolders(@Nonnull MavenEmbedderWrapper embedder,
+			@Nonnull MavenImportingSettings importingSettings,
+			@Nonnull MavenConsole console) throws MavenProcessCanceledException
 	{
 		MavenProjectReaderResult result = MavenProjectReader.generateSources(embedder, importingSettings, getFile(), getActivatedProfilesIds(), console);
 		if(result == null || !result.readingProblems.isEmpty())
@@ -851,7 +853,7 @@ public class MavenProject
 		return "pom".equals(getPackaging()) || !getModulePaths().isEmpty();
 	}
 
-	@NotNull
+	@Nonnull
 	public List<MavenProjectProblem> getProblems()
 	{
 		State state = myState;
@@ -997,7 +999,7 @@ public class MavenProject
 		}
 	}
 
-	@NotNull
+	@Nonnull
 	public List<VirtualFile> getExistingModuleFiles()
 	{
 		LocalFileSystem fs = LocalFileSystem.getInstance();
@@ -1015,43 +1017,43 @@ public class MavenProject
 		return result;
 	}
 
-	@NotNull
+	@Nonnull
 	public Set<String> getModulePaths()
 	{
 		return getModulesPathsAndNames().keySet();
 	}
 
-	@NotNull
+	@Nonnull
 	public Map<String, String> getModulesPathsAndNames()
 	{
 		return myState.myModulesPathsAndNames;
 	}
 
-	@NotNull
+	@Nonnull
 	public Collection<String> getProfilesIds()
 	{
 		return myState.myProfilesIds;
 	}
 
-	@NotNull
+	@Nonnull
 	public MavenExplicitProfiles getActivatedProfilesIds()
 	{
 		return myState.myActivatedProfilesIds;
 	}
 
-	@NotNull
+	@Nonnull
 	public List<MavenArtifact> getDependencies()
 	{
 		return myState.myDependencies;
 	}
 
-	@NotNull
+	@Nonnull
 	public List<MavenArtifactNode> getDependencyTree()
 	{
 		return myState.myDependencyTree;
 	}
 
-	@NotNull
+	@Nonnull
 	public Set<String> getSupportedPackagings()
 	{
 		Set<String> result = ContainerUtil.newHashSet(MavenConstants.TYPE_POM, MavenConstants.TYPE_JAR, "ejb", "ejb-client", "war", "ear", "bundle", "maven-plugin");
@@ -1062,7 +1064,7 @@ public class MavenProject
 		return result;
 	}
 
-	public Set<String> getDependencyTypesFromImporters(@NotNull SupportedRequestType type)
+	public Set<String> getDependencyTypesFromImporters(@Nonnull SupportedRequestType type)
 	{
 		THashSet<String> res = new THashSet<String>();
 
@@ -1074,7 +1076,7 @@ public class MavenProject
 		return res;
 	}
 
-	@NotNull
+	@Nonnull
 	public Set<String> getSupportedDependencyScopes()
 	{
 		Set<String> result = new THashSet<String>(Arrays.asList(MavenConstants.SCOPE_COMPILE, MavenConstants.SCOPE_PROVIDED, MavenConstants.SCOPE_RUNTIME, MavenConstants.SCOPE_TEST,
@@ -1086,7 +1088,7 @@ public class MavenProject
 		return result;
 	}
 
-	public void addDependency(@NotNull MavenArtifact dependency)
+	public void addDependency(@Nonnull MavenArtifact dependency)
 	{
 		State state = myState;
 		List<MavenArtifact> dependenciesCopy = new ArrayList<MavenArtifact>(state.myDependencies);
@@ -1096,18 +1098,18 @@ public class MavenProject
 		state.myCache.clear();
 	}
 
-	@NotNull
-	public List<MavenArtifact> findDependencies(@NotNull MavenProject depProject)
+	@Nonnull
+	public List<MavenArtifact> findDependencies(@Nonnull MavenProject depProject)
 	{
 		return findDependencies(depProject.getMavenId());
 	}
 
-	public List<MavenArtifact> findDependencies(@NotNull MavenId id)
+	public List<MavenArtifact> findDependencies(@Nonnull MavenId id)
 	{
 		return getDependencyArtifactIndex().findArtifacts(id);
 	}
 
-	@NotNull
+	@Nonnull
 	public List<MavenArtifact> findDependencies(@Nullable String groupId, @Nullable String artifactId)
 	{
 		return getDependencyArtifactIndex().findArtifacts(groupId, artifactId);
@@ -1124,13 +1126,13 @@ public class MavenProject
 		return !getUnresolvedPlugins(myState).isEmpty();
 	}
 
-	@NotNull
+	@Nonnull
 	public List<MavenPlugin> getPlugins()
 	{
 		return myState.myPlugins;
 	}
 
-	@NotNull
+	@Nonnull
 	public List<MavenPlugin> getDeclaredPlugins()
 	{
 		return getDeclaredPlugins(myState);
@@ -1170,7 +1172,7 @@ public class MavenProject
 		return goal == null ? plugin.getConfigurationElement() : plugin.getGoalConfiguration(goal);
 	}
 
-	public Element getPluginExecutionConfiguration(@Nullable String groupId, @Nullable String artifactId, @NotNull String executionId)
+	public Element getPluginExecutionConfiguration(@Nullable String groupId, @Nullable String artifactId, @Nonnull String executionId)
 	{
 		MavenPlugin plugin = findPlugin(groupId, artifactId);
 		if(plugin == null)
@@ -1255,32 +1257,32 @@ public class MavenProject
 		return COMPILER_LEVEL_TABLE.get(level);
 	}
 
-	@NotNull
+	@Nonnull
 	public Properties getProperties()
 	{
 		return myState.myProperties;
 	}
 
-	@NotNull
+	@Nonnull
 	public File getLocalRepository()
 	{
 		return myState.myLocalRepository;
 	}
 
-	@NotNull
+	@Nonnull
 	public List<MavenRemoteRepository> getRemoteRepositories()
 	{
 		return myState.myRemoteRepositories;
 	}
 
-	@NotNull
+	@Nonnull
 	public List<MavenImporter> getSuitableImporters()
 	{
 		return MavenImporter.getSuitableImporters(this);
 	}
 
-	@NotNull
-	public Pair<String, String> getClassifierAndExtension(@NotNull MavenArtifact artifact, @NotNull MavenExtraArtifactType type)
+	@Nonnull
+	public Pair<String, String> getClassifierAndExtension(@Nonnull MavenArtifact artifact, @Nonnull MavenExtraArtifactType type)
 	{
 		for(MavenImporter each : getSuitableImporters())
 		{
@@ -1312,8 +1314,8 @@ public class MavenProject
 		return (V) myState.myCache.get(key);
 	}
 
-	@NotNull
-	public <V> V putCachedValue(Key<V> key, @NotNull V value)
+	@Nonnull
+	public <V> V putCachedValue(Key<V> key, @Nonnull V value)
 	{
 		ConcurrentHashMap<Key, Object> map = myState.myCache;
 		Object oldValue = map.putIfAbsent(key, value);

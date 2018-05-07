@@ -23,10 +23,10 @@ import com.intellij.util.xml.ConvertContext;
 import com.intellij.util.xml.Converter;
 import com.intellij.util.xml.CustomReferenceConverter;
 import com.intellij.util.xml.GenericDomValue;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 
 public abstract class MavenReferenceConverter<T> extends Converter<T> implements CustomReferenceConverter<T> {
-  @NotNull
+  @Nonnull
   public PsiReference[] createReferences(GenericDomValue value, PsiElement element, ConvertContext context) {
     String text = value.getStringValue();
     TextRange range = ElementManipulators.getValueTextRange(element);

@@ -15,12 +15,13 @@
  */
 package org.jetbrains.idea.maven.utils;
 
+import javax.annotation.Nonnull;
+
 import com.intellij.codeInsight.template.TemplateContextType;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.psi.xml.XmlText;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
 
 public class MavenLiveTemplateContextType extends TemplateContextType {
@@ -28,7 +29,7 @@ public class MavenLiveTemplateContextType extends TemplateContextType {
     super("MAVEN", "Maven");
   }
 
-  public boolean isInContext(@NotNull final PsiFile file, final int offset) {
+  public boolean isInContext(@Nonnull final PsiFile file, final int offset) {
     if (!MavenDomUtil.isMavenFile(file)) return false;
 
     PsiElement element = file.findElementAt(offset);

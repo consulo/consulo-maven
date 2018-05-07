@@ -27,8 +27,8 @@ import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.jetbrains.idea.maven.indices.IndicesBundle;
 import org.jetbrains.idea.maven.model.MavenId;
 import com.intellij.openapi.util.Comparing;
@@ -70,13 +70,13 @@ public class MavenArtifactUtil
 		return getArtifactFile(localRepository, id, type).exists();
 	}
 
-	@NotNull
+	@Nonnull
 	public static File getArtifactFile(File localRepository, MavenId id, String type)
 	{
 		return getArtifactFile(localRepository, id.getGroupId(), id.getArtifactId(), id.getVersion(), type);
 	}
 
-	@NotNull
+	@Nonnull
 	public static File getArtifactFile(File localRepository, MavenId id)
 	{
 		return getArtifactFile(localRepository, id.getGroupId(), id.getArtifactId(), id.getVersion(), "pom");
@@ -121,7 +121,7 @@ public class MavenArtifactUtil
 		return Comparing.equal(groupId1, groupId2);
 	}
 
-	@NotNull
+	@Nonnull
 	public static File getArtifactFile(File localRepository, String groupId, String artifactId, String version, String type)
 	{
 		File dir = null;

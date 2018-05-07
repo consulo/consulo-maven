@@ -26,8 +26,8 @@ import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.PsiFile;
 import com.intellij.util.Function;
 import com.intellij.util.containers.ContainerUtil;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+
 import org.jetbrains.idea.maven.dom.MavenDomBundle;
 import org.jetbrains.idea.maven.dom.model.MavenDomDependency;
 import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
@@ -43,7 +43,7 @@ public class GenerateDependencyUtil {
   private GenerateDependencyUtil() {
   }
 
-  @NotNull
+  @Nonnull
   public static List<MavenDomDependency> chooseDependencies(Collection<MavenDomDependency> candidates, final Project project) {
     List<MavenDomDependency> dependencies = new ArrayList<MavenDomDependency>();
 
@@ -115,8 +115,8 @@ public class GenerateDependencyUtil {
                                                                  getProjectName(dependency));
     }
 
-    @Nullable
-    private static String getProjectName(@Nullable MavenDomDependency dependency) {
+    @javax.annotation.Nullable
+    private static String getProjectName(@javax.annotation.Nullable MavenDomDependency dependency) {
       if (dependency != null) {
         MavenDomProjectModel model = dependency.getParentOfType(MavenDomProjectModel.class, false);
         if (model != null) {
@@ -133,7 +133,7 @@ public class GenerateDependencyUtil {
 
     private static class MavenDomProjectModelFileMemberChooserObjectBase extends PsiElementMemberChooserObject {
 
-      public MavenDomProjectModelFileMemberChooserObjectBase(@NotNull final PsiFile psiFile, @Nullable String projectName) {
+      public MavenDomProjectModelFileMemberChooserObjectBase(@Nonnull final PsiFile psiFile, @javax.annotation.Nullable String projectName) {
         super(psiFile, StringUtil.isEmptyOrSpaces(projectName) ? psiFile.getName() : projectName, icons.MavenIcons.MavenProject);
       }
     }

@@ -18,7 +18,7 @@ package org.jetbrains.maven.embedder;
 import java.util.List;
 
 import org.apache.maven.project.MavenProject;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nullable;
 
 public class MavenExecutionResult {
   private final MavenProject myMavenProject;

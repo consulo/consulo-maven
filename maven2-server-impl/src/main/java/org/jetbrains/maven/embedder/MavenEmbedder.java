@@ -28,6 +28,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import javax.annotation.Nonnull;
+
 import org.apache.maven.DefaultMaven;
 import org.apache.maven.Maven;
 import org.apache.maven.artifact.Artifact;
@@ -80,7 +82,6 @@ import org.codehaus.plexus.logging.BaseLoggerManager;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.jetbrains.annotations.NotNull;
 import org.sonatype.plexus.components.sec.dispatcher.SecDispatcher;
 import org.sonatype.plexus.components.sec.dispatcher.SecDispatcherException;
 
@@ -94,7 +95,7 @@ public class MavenEmbedder
 	private final MavenEmbedderSettings myEmbedderSettings;
 	private final ArtifactRepository myLocalRepository;
 
-	private MavenEmbedder(@NotNull DefaultPlexusContainer container, @NotNull Settings settings, @NotNull Logger logger, @NotNull MavenEmbedderSettings embedderSettings)
+	private MavenEmbedder(@Nonnull DefaultPlexusContainer container, @Nonnull Settings settings, @Nonnull Logger logger, @Nonnull MavenEmbedderSettings embedderSettings)
 	{
 		myContainer = container;
 		mySettings = settings;
@@ -190,13 +191,13 @@ public class MavenEmbedder
 		return localRepository;
 	}
 
-	@NotNull
+	@Nonnull
 	public ArtifactRepository getLocalRepository()
 	{
 		return myLocalRepository;
 	}
 
-	@NotNull
+	@Nonnull
 	public File getLocalRepositoryFile()
 	{
 		return new File(myLocalRepository.getBasedir());
@@ -207,14 +208,14 @@ public class MavenEmbedder
 		return mySettings;
 	}
 
-	@NotNull
-	public MavenExecutionResult resolveProject(@NotNull final File file, @NotNull final List<String> activeProfiles, @NotNull final List<String> inactiveProfiles)
+	@Nonnull
+	public MavenExecutionResult resolveProject(@Nonnull final File file, @Nonnull final List<String> activeProfiles, @Nonnull final List<String> inactiveProfiles)
 	{
 		return resolveProject(file, activeProfiles, inactiveProfiles, Collections.<ResolutionListener>emptyList());
 	}
 
-	@NotNull
-	public MavenExecutionResult resolveProject(@NotNull final File file, @NotNull final List<String> activeProfiles, @NotNull final List<String> inactiveProfiles, List<ResolutionListener> listeners)
+	@Nonnull
+	public MavenExecutionResult resolveProject(@Nonnull final File file, @Nonnull final List<String> activeProfiles, @Nonnull final List<String> inactiveProfiles, List<ResolutionListener> listeners)
 	{
 		MavenExecutionRequest request = createRequest(file, activeProfiles, inactiveProfiles, Collections.<String>emptyList());
 		ProjectBuilderConfiguration config = request.getProjectBuilderConfiguration();
@@ -321,12 +322,12 @@ public class MavenEmbedder
 		return result;
 	}
 
-	public void resolve(@NotNull final Artifact artifact, @NotNull final List<ArtifactRepository> repos) throws ArtifactResolutionException, ArtifactNotFoundException
+	public void resolve(@Nonnull final Artifact artifact, @Nonnull final List<ArtifactRepository> repos) throws ArtifactResolutionException, ArtifactNotFoundException
 	{
 		getComponent(ArtifactResolver.class).resolve(artifact, repos, myLocalRepository);
 	}
 
-	public Set<Artifact> resolveTransitively(@NotNull Set<Artifact> toResolve, @NotNull List<ArtifactRepository> repos) throws ArtifactResolutionException, ArtifactNotFoundException
+	public Set<Artifact> resolveTransitively(@Nonnull Set<Artifact> toResolve, @Nonnull List<ArtifactRepository> repos) throws ArtifactResolutionException, ArtifactNotFoundException
 	{
 		Artifact project = getComponent(ArtifactFactory.class).createBuildArtifact("temp", "temp", "666", "pom");
 
@@ -334,12 +335,12 @@ public class MavenEmbedder
 				getComponent(ArtifactMetadataSource.class)).getArtifacts();
 	}
 
-	@NotNull
-	public MavenExecutionResult execute(@NotNull final File file,
-			@NotNull final List<String> activeProfiles,
-			@NotNull final List<String> inactiveProfiles,
-			@NotNull final List<String> goals,
-			@NotNull final List<String> selectedProjects,
+	@Nonnull
+	public MavenExecutionResult execute(@Nonnull final File file,
+			@Nonnull final List<String> activeProfiles,
+			@Nonnull final List<String> inactiveProfiles,
+			@Nonnull final List<String> goals,
+			@Nonnull final List<String> selectedProjects,
 			boolean alsoMake,
 			boolean alsoMakeDependents)
 	{
@@ -385,8 +386,8 @@ public class MavenEmbedder
 		}
 	}
 
-	@NotNull
-	public MavenExecutionResult readProjectWithModules(@NotNull final File file, List<String> activeProfiles, List<String> inactiveProfiles)
+	@Nonnull
+	public MavenExecutionResult readProjectWithModules(@Nonnull final File file, List<String> activeProfiles, List<String> inactiveProfiles)
 	{
 		MavenExecutionRequest request = createRequest(file, activeProfiles, inactiveProfiles, Collections.<String>emptyList());
 		request.getGlobalProfileManager().loadSettingsProfiles(mySettings);
@@ -395,8 +396,8 @@ public class MavenEmbedder
 		return readProject(request);
 	}
 
-	@NotNull
-	private MavenExecutionResult readProject(@NotNull final MavenExecutionRequest request)
+	@Nonnull
+	private MavenExecutionResult readProject(@Nonnull final MavenExecutionRequest request)
 	{
 		ProfileManager globalProfileManager = request.getGlobalProfileManager();
 		globalProfileManager.loadSettingsProfiles(request.getSettings());
@@ -464,8 +465,8 @@ public class MavenEmbedder
 		return new MavenExecutionResult(rootProject, exceptions);
 	}
 
-	@NotNull
-	public MavenExecutionResult readProject(@NotNull final File file, @NotNull final List<String> activeProfiles, @NotNull final List<String> inactiveProfiles)
+	@Nonnull
+	public MavenExecutionResult readProject(@Nonnull final File file, @Nonnull final List<String> activeProfiles, @Nonnull final List<String> inactiveProfiles)
 	{
 		MavenExecutionRequest request = createRequest(file, activeProfiles, inactiveProfiles, Collections.<String>emptyList());
 		request.getGlobalProfileManager().loadSettingsProfiles(mySettings);
@@ -588,10 +589,10 @@ public class MavenEmbedder
 		}
 	}
 
-	@NotNull
-	public static MavenEmbedder create(@NotNull final MavenEmbedderSettings embedderSettings)
+	@Nonnull
+	public static MavenEmbedder create(@Nonnull final MavenEmbedderSettings embedderSettings)
 	{
-		@NotNull final Logger logger = getLogger(embedderSettings);
+		@Nonnull final Logger logger = getLogger(embedderSettings);
 
 		DefaultPlexusContainer container = new DefaultPlexusContainer();
 		container.setClassWorld(new ClassWorld("plexus.core", embedderSettings.getClass().getClassLoader()));
@@ -632,8 +633,8 @@ public class MavenEmbedder
 		return new MavenEmbedder(container, nativeSettings, logger, embedderSettings);
 	}
 
-	@NotNull
-	private static Logger getLogger(@NotNull final MavenEmbedderSettings embedderSettings)
+	@Nonnull
+	private static Logger getLogger(@Nonnull final MavenEmbedderSettings embedderSettings)
 	{
 		final Logger logger = embedderSettings.getLogger();
 		return logger != null ? logger : new NullMavenLogger();

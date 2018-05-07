@@ -16,23 +16,23 @@
 package org.jetbrains.idea.maven.dom.plugin;
 
 import com.intellij.util.xml.GenericDomValue;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import org.jetbrains.idea.maven.dom.MavenDomElement;
 
 public interface MavenDomParameter extends MavenDomElement {
-  @NotNull
+  @Nonnull
   GenericDomValue<String> getName();
 
-  @NotNull
+  @Nonnull
   GenericDomValue<String> getAlias();
 
-  @NotNull
+  @Nonnull
   GenericDomValue<String> getType();
 
-  @NotNull
+  @Nonnull
   GenericDomValue<Boolean> getEditable();
 
-  @NotNull
+  @Nonnull
   GenericDomValue<String> getDescription();
 
   GenericDomValue<Boolean> getRequired();

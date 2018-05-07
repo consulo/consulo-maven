@@ -18,10 +18,10 @@ package org.jetbrains.idea.maven.utils;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.Nonnull;
 import javax.swing.JComponent;
 
 import org.jetbrains.annotations.Nls;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.idea.maven.execution.MavenRunner;
 import org.jetbrains.idea.maven.execution.MavenRunnerConfigurable;
 import org.jetbrains.idea.maven.execution.MavenRunnerSettings;
@@ -45,7 +45,7 @@ public class MavenSettings implements SearchableConfigurable.Parent
 	private final Configurable myConfigurable;
 	private final List<Configurable> myChildren;
 
-	public MavenSettings(@NotNull Project project)
+	public MavenSettings(@Nonnull Project project)
 	{
 		myProject = project;
 
@@ -126,7 +126,7 @@ public class MavenSettings implements SearchableConfigurable.Parent
 	}
 
 	@Override
-	@NotNull
+	@Nonnull
 	public String getId()
 	{
 		return MavenSettings.class.getSimpleName();

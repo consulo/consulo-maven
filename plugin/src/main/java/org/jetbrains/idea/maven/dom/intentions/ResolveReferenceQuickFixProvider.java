@@ -18,7 +18,7 @@ package org.jetbrains.idea.maven.dom.intentions;
 import com.intellij.codeInsight.daemon.QuickFixActionRegistrar;
 import com.intellij.codeInsight.quickfix.UnresolvedReferenceQuickFixProvider;
 import com.intellij.psi.PsiJavaCodeReferenceElement;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 
 public class ResolveReferenceQuickFixProvider extends UnresolvedReferenceQuickFixProvider<PsiJavaCodeReferenceElement> {
 
@@ -26,7 +26,7 @@ public class ResolveReferenceQuickFixProvider extends UnresolvedReferenceQuickFi
     registrar.register(new AddMavenDependencyQuickFix(ref));
   }
 
-  @NotNull
+  @Nonnull
   public Class<PsiJavaCodeReferenceElement> getReferenceClass() {
     return PsiJavaCodeReferenceElement.class;
   }

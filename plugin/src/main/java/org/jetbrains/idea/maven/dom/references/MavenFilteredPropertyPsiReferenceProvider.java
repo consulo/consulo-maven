@@ -24,7 +24,7 @@ import com.intellij.psi.PsiReferenceProvider;
 import com.intellij.psi.xml.XmlAttribute;
 import com.intellij.util.ProcessingContext;
 import org.jdom.Element;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
 import org.jetbrains.idea.maven.dom.MavenPropertyResolver;
 import org.jetbrains.idea.maven.project.MavenProject;
@@ -41,7 +41,7 @@ public class MavenFilteredPropertyPsiReferenceProvider extends PsiReferenceProvi
   
   public static final Pattern DEFAULT_DELIMITERS = MavenPropertyResolver.PATTERN;
 
-  @NotNull
+  @Nonnull
   public static Pattern getDelimitersPattern(MavenProject mavenProject) {
     Pattern res = mavenProject.getCachedValue(KEY);
     if (res == null) {
@@ -100,7 +100,7 @@ public class MavenFilteredPropertyPsiReferenceProvider extends PsiReferenceProvi
     pattern.append(Pattern.quote(prefix)).append("(.+?)").append(Pattern.quote(suffix));
   }
 
-  private static boolean shouldAddReference(@NotNull PsiElement element) {
+  private static boolean shouldAddReference(@Nonnull PsiElement element) {
     if (element.getFirstChild() == element.getLastChild()) {
       return true; // Add to all leaf elements
     }
@@ -112,9 +112,9 @@ public class MavenFilteredPropertyPsiReferenceProvider extends PsiReferenceProvi
     return false; // Don't add references to all element to avoid performance problem.
   }
 
-  @NotNull
+  @Nonnull
   @Override
-  public PsiReference[] getReferencesByElement(@NotNull PsiElement element, @NotNull ProcessingContext context) {
+  public PsiReference[] getReferencesByElement(@Nonnull PsiElement element, @Nonnull ProcessingContext context) {
     if (!shouldAddReference(element)) {
       // Add reference to element with one child or leaf element only to avoid performance problem.
       return PsiReference.EMPTY_ARRAY;

@@ -22,7 +22,7 @@ import com.intellij.psi.xml.XmlText;
 import com.intellij.psi.xml.XmlTokenType;
 import com.intellij.util.PairProcessor;
 import com.intellij.util.ProcessingContext;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import org.jetbrains.idea.maven.dom.model.MavenDomConfiguration;
 
 import static org.jetbrains.idea.maven.plugins.api.MavenPluginParamInfo.ParamInfo;
@@ -43,9 +43,9 @@ public class MavenPluginParamReferenceContributor extends PsiReferenceContributo
 
   private static class MavenPluginParamRefProvider extends PsiReferenceProvider {
 
-    @NotNull
+    @Nonnull
     @Override
-    public PsiReference[] getReferencesByElement(@NotNull final PsiElement element, @NotNull final ProcessingContext context) {
+    public PsiReference[] getReferencesByElement(@Nonnull final PsiElement element, @Nonnull final ProcessingContext context) {
       final XmlText xmlText = (XmlText)element.getParent();
 
       if (!MavenPluginParamInfo.isSimpleText(xmlText)) return PsiReference.EMPTY_ARRAY;

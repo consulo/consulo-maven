@@ -31,9 +31,11 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.regex.Pattern;
 
+import javax.annotation.Nonnull;
+
 import org.jdom.Element;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+
+import javax.annotation.Nullable;
 import org.jetbrains.idea.maven.dom.MavenPropertyResolver;
 import org.jetbrains.idea.maven.dom.references.MavenPropertyPsiReference;
 import org.jetbrains.idea.maven.model.MavenResource;
@@ -180,7 +182,7 @@ public class MavenResourceCompiler implements ClassPostProcessingCompiler
 	}
 
 	@Override
-	@NotNull
+	@Nonnull
 	public ProcessingItem[] getProcessingItems(final CompileContext context)
 	{
 		final Project project = context.getProject();
@@ -340,7 +342,7 @@ public class MavenResourceCompiler implements ClassPostProcessingCompiler
 		}
 	}
 
-	public static List<Pattern> collectPatterns(@Nullable List<String> values, @Nullable String defaultValue)
+	public static List<Pattern> collectPatterns(@javax.annotation.Nullable List<String> values, @Nullable String defaultValue)
 	{
 		List<Pattern> result = new ArrayList<Pattern>();
 		if(values == null || values.isEmpty())
@@ -375,7 +377,7 @@ public class MavenResourceCompiler implements ClassPostProcessingCompiler
 		VfsUtilCore.visitChildrenRecursively(currentDir, new VirtualFileVisitor()
 		{
 			@Override
-			public boolean visitFile(@NotNull VirtualFile file)
+			public boolean visitFile(@Nonnull VirtualFile file)
 			{
 				indicator.checkCanceled();
 
@@ -536,7 +538,7 @@ public class MavenResourceCompiler implements ClassPostProcessingCompiler
 	}
 
 	@Override
-	@NotNull
+	@Nonnull
 	public String getDescription()
 	{
 		return "Maven Resource Compiler";
@@ -577,7 +579,7 @@ public class MavenResourceCompiler implements ClassPostProcessingCompiler
 		}
 
 		@Override
-		@NotNull
+		@Nonnull
 		public File getFile()
 		{
 			return VfsUtilCore.virtualToIoFile(mySourceFile);
@@ -609,7 +611,7 @@ public class MavenResourceCompiler implements ClassPostProcessingCompiler
 		}
 
 		@Override
-		@NotNull
+		@Nonnull
 		public MyValididtyState getValidityState()
 		{
 			return myState;

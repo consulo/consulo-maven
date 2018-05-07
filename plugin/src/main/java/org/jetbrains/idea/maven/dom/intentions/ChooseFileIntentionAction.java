@@ -33,8 +33,8 @@ import com.intellij.util.IncorrectOperationException;
 import com.intellij.util.Producer;
 import com.intellij.util.xml.DomElement;
 import com.intellij.util.xml.DomManager;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.jetbrains.annotations.TestOnly;
 import org.jetbrains.idea.maven.dom.MavenDomBundle;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
@@ -43,12 +43,12 @@ import org.jetbrains.idea.maven.dom.model.MavenDomDependency;
 public class ChooseFileIntentionAction implements IntentionAction {
   private Producer<VirtualFile[]> myFileChooser = null;
 
-  @NotNull
+  @Nonnull
   public String getFamilyName() {
     return MavenDomBundle.message("inspection.group");
   }
 
-  @NotNull
+  @Nonnull
   public String getText() {
     return MavenDomBundle.message("intention.choose.file");
   }
@@ -57,13 +57,13 @@ public class ChooseFileIntentionAction implements IntentionAction {
     return false;
   }
 
-  public boolean isAvailable(@NotNull Project project, Editor editor, PsiFile file) {
+  public boolean isAvailable(@Nonnull Project project, Editor editor, PsiFile file) {
     if (!MavenDomUtil.isMavenFile(file)) return false;
     MavenDomDependency dep = getDependency(file, editor);
     return dep != null && "system".equals(dep.getScope().getStringValue());
   }
 
-  public void invoke(@NotNull Project project, Editor editor, PsiFile file) throws IncorrectOperationException {
+  public void invoke(@Nonnull Project project, Editor editor, PsiFile file) throws IncorrectOperationException {
     final MavenDomDependency dep = getDependency(file, editor);
 
     final VirtualFile[] files;

@@ -19,8 +19,8 @@ import java.util.Collection;
 import java.util.Collections;
 
 import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.jetbrains.idea.maven.dom.references.MavenPathReferenceConverter;
 import com.intellij.openapi.util.Condition;
 import com.intellij.openapi.vfs.LocalFileSystem;
@@ -63,14 +63,14 @@ public class MavenDependencySystemPathConverter extends ResolvingConverter<PsiFi
 	}
 
 	@Override
-	@NotNull
+	@Nonnull
 	public Collection<PsiFile> getVariants(ConvertContext context)
 	{
 		return Collections.emptyList();
 	}
 
 	@Override
-	@NotNull
+	@Nonnull
 	public PsiReference[] createReferences(final GenericDomValue genericDomValue, final PsiElement element, final ConvertContext context)
 	{
 		return MavenPathReferenceConverter.createReferences(genericDomValue, element, new Condition<PsiFileSystemItem>()

@@ -18,7 +18,8 @@ package org.jetbrains.idea.maven.dom.references;
 import java.util.Collection;
 import java.util.Collections;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
+
 import org.jetbrains.idea.maven.dom.MavenPropertyResolver;
 import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
 import com.intellij.openapi.util.Condition;
@@ -57,19 +58,19 @@ public class MavenPathReferenceConverter extends PathReferenceConverter
 		this(Condition.TRUE);
 	}
 
-	public MavenPathReferenceConverter(@NotNull Condition<PsiFileSystemItem> condition)
+	public MavenPathReferenceConverter(@Nonnull Condition<PsiFileSystemItem> condition)
 	{
 		myCondition = condition;
 	}
 
 	public static PsiReference[] createReferences(
-			final DomElement genericDomValue, PsiElement element, @NotNull final Condition<PsiFileSystemItem> fileFilter)
+			final DomElement genericDomValue, PsiElement element, @Nonnull final Condition<PsiFileSystemItem> fileFilter)
 	{
 		return createReferences(genericDomValue, element, fileFilter, false);
 	}
 
 	public static PsiReference[] createReferences(
-			final DomElement genericDomValue, PsiElement element, @NotNull final Condition<PsiFileSystemItem> fileFilter, boolean isAbsolutePath)
+			final DomElement genericDomValue, PsiElement element, @Nonnull final Condition<PsiFileSystemItem> fileFilter, boolean isAbsolutePath)
 	{
 		ElementManipulator<PsiElement> manipulator = ElementManipulators.getManipulator(element);
 		TextRange range = manipulator.getRangeInElement(element);
@@ -99,7 +100,7 @@ public class MavenPathReferenceConverter extends PathReferenceConverter
 				{
 					@Override
 					protected void innerResolveInContext(
-							@NotNull String text, @NotNull PsiFileSystemItem context, Collection<ResolveResult> result, boolean caseSensitive)
+							@Nonnull String text, @Nonnull PsiFileSystemItem context, Collection<ResolveResult> result, boolean caseSensitive)
 					{
 						if(model == null)
 						{
@@ -207,16 +208,16 @@ public class MavenPathReferenceConverter extends PathReferenceConverter
 		return set.getAllReferences();
 	}
 
-	@NotNull
+	@Nonnull
 	@Override
 	public PsiReference[] createReferences(final GenericDomValue genericDomValue, PsiElement element, ConvertContext context)
 	{
 		return createReferences(genericDomValue, element, myCondition);
 	}
 
-	@NotNull
+	@Nonnull
 	@Override
-	public PsiReference[] createReferences(@NotNull PsiElement psiElement, boolean soft)
+	public PsiReference[] createReferences(@Nonnull PsiElement psiElement, boolean soft)
 	{
 		throw new UnsupportedOperationException();
 	}

@@ -16,8 +16,8 @@
 package org.jetbrains.maven.embedder;
 
 import org.codehaus.plexus.logging.Logger;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import java.io.File;
 import java.util.Properties;
@@ -73,7 +73,7 @@ public class MavenEmbedderSettings {
     return userSettingsFile;
   }
 
-  public void setUserSettingsFile(@Nullable File userSettingsFile) {
+  public void setUserSettingsFile(@javax.annotation.Nullable File userSettingsFile) {
     this.userSettingsFile = userSettingsFile;
   }
 
@@ -103,7 +103,7 @@ public class MavenEmbedderSettings {
     this.usePluginRegistry = usePluginRegistry;
   }
 
-  @NotNull
+  @Nonnull
   public UpdatePolicy getPluginUpdatePolicy() {
     return pluginUpdatePolicy;
   }
@@ -112,7 +112,7 @@ public class MavenEmbedderSettings {
     this.pluginUpdatePolicy = value;
   }
 
-  @NotNull
+  @Nonnull
   public UpdatePolicy getSnapshotUpdatePolicy() {
     return snapshotUpdatePolicy;
   }
@@ -144,7 +144,7 @@ public class MavenEmbedderSettings {
     myConfigurator = configurator;
   }
 
-  @Nullable
+  @javax.annotation.Nullable
   public PlexusComponentConfigurator getConfigurator() {
     return myConfigurator;
   }

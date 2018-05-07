@@ -19,12 +19,13 @@
 
 package org.jetbrains.idea.maven.dom.model;
 
+import javax.annotation.Nonnull;
+
 import com.intellij.ide.presentation.Presentation;
 import com.intellij.psi.PsiFile;
 import com.intellij.util.xml.Convert;
 import com.intellij.util.xml.GenericDomValue;
 import com.intellij.util.xml.Required;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.idea.maven.dom.MavenDomElement;
 import org.jetbrains.idea.maven.dom.converters.MavenDependencyScopeConverter;
 import org.jetbrains.idea.maven.dom.converters.MavenDependencySystemPathConverter;
@@ -51,7 +52,7 @@ public interface MavenDomDependency extends MavenDomElement, MavenDomArtifactCoo
    *
    * @return the value of the type child.
    */
-  @NotNull
+  @Nonnull
   @Required(value = false, nonEmpty = true)
   @Convert(MavenDependencyTypeConverter.class)
   GenericDomValue<String> getType();
@@ -65,7 +66,7 @@ public interface MavenDomDependency extends MavenDomElement, MavenDomArtifactCoo
    *
    * @return the value of the classifier child.
    */
-  @NotNull
+  @Nonnull
   @Required(value = false, nonEmpty = true)
   GenericDomValue<String> getClassifier();
 
@@ -78,7 +79,7 @@ public interface MavenDomDependency extends MavenDomElement, MavenDomArtifactCoo
    *
    * @return the value of the scope child.
    */
-  @NotNull
+  @Nonnull
   @Required(value = false, nonEmpty = true)
   @Convert(MavenDependencyScopeConverter.class)
   GenericDomValue<String> getScope();
@@ -92,7 +93,7 @@ public interface MavenDomDependency extends MavenDomElement, MavenDomArtifactCoo
    *
    * @return the value of the systemPath child.
    */
-  @NotNull
+  @Nonnull
   @Required(value = false, nonEmpty = true)
   @Convert(MavenDependencySystemPathConverter.class)
   GenericDomValue<PsiFile> getSystemPath();
@@ -106,7 +107,7 @@ public interface MavenDomDependency extends MavenDomElement, MavenDomArtifactCoo
    *
    * @return the value of the exclusions child.
    */
-  @NotNull
+  @Nonnull
   MavenDomExclusions getExclusions();
 
   /**
@@ -118,7 +119,7 @@ public interface MavenDomDependency extends MavenDomElement, MavenDomArtifactCoo
    *
    * @return the value of the optional child.
    */
-  @NotNull
+  @Nonnull
   @Required(value = false, nonEmpty = true)
   GenericDomValue<Boolean> getOptional();
 }

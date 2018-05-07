@@ -20,6 +20,8 @@ import java.rmi.RemoteException;
 import java.util.Collections;
 import java.util.List;
 
+import javax.annotation.Nonnull;
+
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -30,8 +32,8 @@ import org.apache.maven.artifact.metadata.ArtifactMetadataSource;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.versioning.ArtifactVersion;
 import org.apache.maven.execution.MavenExecutionRequest;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+
+import javax.annotation.Nullable;
 import org.jetbrains.idea.maven.model.MavenRemoteRepository;
 import com.intellij.util.Function;
 import com.intellij.util.containers.ContainerUtil;
@@ -92,9 +94,9 @@ public abstract class Maven3ServerEmbedder extends MavenRemoteObject implements 
 
 	protected abstract ArtifactRepository getLocalRepository();
 
-	@NotNull
+	@Nonnull
 	@Override
-	public List<String> retrieveAvailableVersions(@NotNull String groupId, @NotNull String artifactId, @NotNull List<MavenRemoteRepository> remoteRepositories) throws RemoteException
+	public List<String> retrieveAvailableVersions(@Nonnull String groupId, @Nonnull String artifactId, @Nonnull List<MavenRemoteRepository> remoteRepositories) throws RemoteException
 	{
 		try
 		{
@@ -116,7 +118,7 @@ public abstract class Maven3ServerEmbedder extends MavenRemoteObject implements 
 		return Collections.emptyList();
 	}
 
-	@NotNull
+	@Nonnull
 	protected abstract List<ArtifactRepository> convertRepositories(List<MavenRemoteRepository> repositories) throws RemoteException;
 
 	@Nullable

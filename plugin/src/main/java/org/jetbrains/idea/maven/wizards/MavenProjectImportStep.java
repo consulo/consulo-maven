@@ -28,8 +28,8 @@ import javax.swing.JPanel;
 
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+
 import org.jetbrains.idea.maven.project.MavenEnvironmentForm;
 import org.jetbrains.idea.maven.project.MavenGeneralSettings;
 import org.jetbrains.idea.maven.project.MavenImportingSettings;
@@ -113,7 +113,7 @@ public class MavenProjectImportStep extends ProjectImportWizardStep
 	}
 
 	@Override
-	public boolean validate(@NotNull WizardContext wizardContext) throws ConfigurationException
+	public boolean validate(@Nonnull WizardContext wizardContext) throws ConfigurationException
 	{
 		updateDataModel(); // needed to make 'exhaustive search' take an effect.
 		return myContext.setRootDirectory(getWizardContext().getProject(), myRootPathComponent.getPath());
@@ -178,7 +178,7 @@ public class MavenProjectImportStep extends ProjectImportWizardStep
 		}
 
 		@Override
-		@Nullable
+		@javax.annotation.Nullable
 		@NonNls
 		public String getHelpTopic()
 		{

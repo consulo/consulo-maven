@@ -24,7 +24,7 @@ import java.util.List;
 
 import javax.swing.SwingUtilities;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import org.jetbrains.idea.maven.importing.MavenRootModelAdapter;
 import org.jetbrains.idea.maven.model.MavenArtifact;
 import org.jetbrains.idea.maven.model.MavenId;
@@ -46,7 +46,7 @@ import com.intellij.psi.PsiFile;
 
 public class MavenAttachSourcesProvider implements AttachSourcesProvider
 {
-	@NotNull
+	@Nonnull
 	public Collection<AttachSourcesAction> getActions(final List<LibraryOrderEntry> orderEntries, final PsiFile psiFile)
 	{
 		Collection<MavenProject> projects = getMavenProjects(psiFile);

@@ -3,8 +3,8 @@ package org.jetbrains.idea.maven.plugins.api;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.*;
 import com.intellij.util.ProcessingContext;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+
 import org.jetbrains.idea.maven.dom.MavenPropertyResolver;
 import org.jetbrains.idea.maven.dom.model.MavenDomConfiguration;
 
@@ -25,9 +25,9 @@ public class MavenFixedValueReferenceProvider implements MavenParamReferenceProv
   }
 
   @Override
-  public PsiReference[] getReferencesByElement(@NotNull PsiElement element,
-                                               @NotNull MavenDomConfiguration domCfg,
-                                               @NotNull ProcessingContext context) {
+  public PsiReference[] getReferencesByElement(@Nonnull PsiElement element,
+                                               @Nonnull MavenDomConfiguration domCfg,
+                                               @Nonnull ProcessingContext context) {
     ElementManipulator<PsiElement> manipulator = ElementManipulators.getManipulator(element);
     TextRange range = manipulator.getRangeInElement(element);
 
@@ -39,7 +39,7 @@ public class MavenFixedValueReferenceProvider implements MavenParamReferenceProv
 
     return new PsiReference[] {
       new PsiReferenceBase<PsiElement>(element, mySoft) {
-        @Nullable
+        @javax.annotation.Nullable
         @Override
         public PsiElement resolve() {
           if (mySoft) {
@@ -53,7 +53,7 @@ public class MavenFixedValueReferenceProvider implements MavenParamReferenceProv
           return null;
         }
 
-        @NotNull
+        @Nonnull
         @Override
         public Object[] getVariants() {
           return myValues;

@@ -17,8 +17,8 @@ package org.jetbrains.idea.maven.project;
 
 import java.io.File;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.jetbrains.idea.maven.model.MavenConstants;
 import org.jetbrains.idea.maven.model.MavenId;
 import org.jetbrains.idea.maven.utils.MavenArtifactUtil;
@@ -28,7 +28,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 public abstract class MavenParentProjectFileProcessor<RESULT_TYPE>
 {
 	@Nullable
-	public RESULT_TYPE process(@NotNull MavenGeneralSettings generalSettings, @NotNull VirtualFile projectFile, @Nullable MavenParentDesc parentDesc)
+	public RESULT_TYPE process(@Nonnull MavenGeneralSettings generalSettings, @Nonnull VirtualFile projectFile, @Nullable MavenParentDesc parentDesc)
 	{
 		VirtualFile superPom = generalSettings.getEffectiveSuperPom();
 		if(projectFile.equals(superPom))
@@ -76,7 +76,7 @@ public abstract class MavenParentProjectFileProcessor<RESULT_TYPE>
 	}
 
 	@Nullable
-	protected abstract VirtualFile findManagedFile(@NotNull MavenId id);
+	protected abstract VirtualFile findManagedFile(@Nonnull MavenId id);
 
 	@Nullable
 	protected RESULT_TYPE processManagedParent(VirtualFile parentFile)

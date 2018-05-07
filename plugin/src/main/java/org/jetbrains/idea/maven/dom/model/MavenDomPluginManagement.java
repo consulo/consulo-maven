@@ -19,7 +19,8 @@
 
 package org.jetbrains.idea.maven.dom.model;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
+
 import org.jetbrains.idea.maven.dom.MavenDomElement;
 
 /**
@@ -40,6 +41,6 @@ public interface MavenDomPluginManagement extends MavenDomElement {
    *
    * @return the value of the plugins child.
    */
-  @NotNull
+  @Nonnull
   MavenDomPlugins getPlugins();
 }

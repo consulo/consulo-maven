@@ -16,7 +16,7 @@
 package org.jetbrains.idea.maven.dom.converters;
 
 import com.intellij.util.xml.ConvertContext;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nullable;
 import org.jetbrains.idea.maven.dom.model.MavenDomArtifactCoordinates;
 import org.jetbrains.idea.maven.dom.model.MavenDomShortArtifactCoordinates;
 import org.jetbrains.idea.maven.model.MavenId;

@@ -24,8 +24,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+
 import org.jetbrains.idea.maven.model.MavenArtifact;
 import org.jetbrains.idea.maven.model.MavenArtifactInfo;
 import org.jetbrains.idea.maven.model.MavenId;
@@ -42,7 +42,7 @@ public abstract class MavenEmbedderWrapper extends RemoteObjectWrapper<MavenServ
 {
 	private Customization myCustomization;
 
-	public MavenEmbedderWrapper(@Nullable RemoteObjectWrapper<?> parent)
+	public MavenEmbedderWrapper(@javax.annotation.Nullable RemoteObjectWrapper<?> parent)
 	{
 		super(parent);
 	}
@@ -123,10 +123,10 @@ public abstract class MavenEmbedderWrapper extends RemoteObjectWrapper<MavenServ
 				myCustomization.alwaysUpdateSnapshot);
 	}
 
-	@NotNull
-	public MavenServerExecutionResult resolveProject(@NotNull final VirtualFile file,
-			@NotNull final Collection<String> activeProfiles,
-			@NotNull final Collection<String> inactiveProfiles) throws MavenProcessCanceledException
+	@Nonnull
+	public MavenServerExecutionResult resolveProject(@Nonnull final VirtualFile file,
+			@Nonnull final Collection<String> activeProfiles,
+			@Nonnull final Collection<String> inactiveProfiles) throws MavenProcessCanceledException
 	{
 		return perform(new RetriableCancelable<MavenServerExecutionResult>()
 		{
@@ -138,10 +138,10 @@ public abstract class MavenEmbedderWrapper extends RemoteObjectWrapper<MavenServ
 		});
 	}
 
-	@Nullable
-	public String evaluateEffectivePom(@NotNull final VirtualFile file,
-			@NotNull final Collection<String> activeProfiles,
-			@NotNull final Collection<String> inactiveProfiles) throws MavenProcessCanceledException
+	@javax.annotation.Nullable
+	public String evaluateEffectivePom(@Nonnull final VirtualFile file,
+			@Nonnull final Collection<String> activeProfiles,
+			@Nonnull final Collection<String> inactiveProfiles) throws MavenProcessCanceledException
 	{
 		return perform(new RetriableCancelable<String>()
 		{
@@ -153,8 +153,8 @@ public abstract class MavenEmbedderWrapper extends RemoteObjectWrapper<MavenServ
 		});
 	}
 
-	@NotNull
-	public MavenArtifact resolve(@NotNull final MavenArtifactInfo info, @NotNull final List<MavenRemoteRepository> remoteRepositories) throws MavenProcessCanceledException
+	@Nonnull
+	public MavenArtifact resolve(@Nonnull final MavenArtifactInfo info, @Nonnull final List<MavenRemoteRepository> remoteRepositories) throws MavenProcessCanceledException
 	{
 		return perform(new RetriableCancelable<MavenArtifact>()
 		{
@@ -166,8 +166,8 @@ public abstract class MavenEmbedderWrapper extends RemoteObjectWrapper<MavenServ
 		});
 	}
 
-	@NotNull
-	public List<MavenArtifact> resolveTransitively(@NotNull final List<MavenArtifactInfo> artifacts, @NotNull final List<MavenRemoteRepository> remoteRepositories) throws
+	@Nonnull
+	public List<MavenArtifact> resolveTransitively(@Nonnull final List<MavenArtifactInfo> artifacts, @Nonnull final List<MavenRemoteRepository> remoteRepositories) throws
 			MavenProcessCanceledException
 	{
 
@@ -181,10 +181,10 @@ public abstract class MavenEmbedderWrapper extends RemoteObjectWrapper<MavenServ
 		});
 	}
 
-	@NotNull
-	public List<String> retrieveVersions(@NotNull final String groupId,
-			@NotNull final String artifactId,
-			@NotNull final List<MavenRemoteRepository> remoteRepositories) throws MavenProcessCanceledException
+	@Nonnull
+	public List<String> retrieveVersions(@Nonnull final String groupId,
+			@Nonnull final String artifactId,
+			@Nonnull final List<MavenRemoteRepository> remoteRepositories) throws MavenProcessCanceledException
 	{
 
 		return perform(new RetriableCancelable<List<String>>()
@@ -197,9 +197,9 @@ public abstract class MavenEmbedderWrapper extends RemoteObjectWrapper<MavenServ
 		});
 	}
 
-	public Collection<MavenArtifact> resolvePlugin(@NotNull final MavenPlugin plugin,
-			@NotNull final List<MavenRemoteRepository> repositories,
-			@NotNull final NativeMavenProjectHolder nativeMavenProject,
+	public Collection<MavenArtifact> resolvePlugin(@Nonnull final MavenPlugin plugin,
+			@Nonnull final List<MavenRemoteRepository> repositories,
+			@Nonnull final NativeMavenProjectHolder nativeMavenProject,
 			final boolean transitive) throws MavenProcessCanceledException
 	{
 		int id;
@@ -229,11 +229,11 @@ public abstract class MavenEmbedderWrapper extends RemoteObjectWrapper<MavenServ
 		}
 	}
 
-	@NotNull
-	public MavenServerExecutionResult execute(@NotNull final VirtualFile file,
-			@NotNull final Collection<String> activeProfiles,
-			@NotNull final Collection<String> inactiveProfiles,
-			@NotNull final List<String> goals) throws MavenProcessCanceledException
+	@Nonnull
+	public MavenServerExecutionResult execute(@Nonnull final VirtualFile file,
+			@Nonnull final Collection<String> activeProfiles,
+			@Nonnull final Collection<String> inactiveProfiles,
+			@Nonnull final List<String> goals) throws MavenProcessCanceledException
 	{
 		return perform(new RetriableCancelable<MavenServerExecutionResult>()
 		{
@@ -245,12 +245,12 @@ public abstract class MavenEmbedderWrapper extends RemoteObjectWrapper<MavenServ
 		});
 	}
 
-	@NotNull
-	public MavenServerExecutionResult execute(@NotNull final VirtualFile file,
-			@NotNull final Collection<String> activeProfiles,
-			@NotNull final Collection<String> inactiveProfiles,
-			@NotNull final List<String> goals,
-			@NotNull final List<String> selectedProjects,
+	@Nonnull
+	public MavenServerExecutionResult execute(@Nonnull final VirtualFile file,
+			@Nonnull final Collection<String> activeProfiles,
+			@Nonnull final Collection<String> inactiveProfiles,
+			@Nonnull final List<String> goals,
+			@Nonnull final List<String> selectedProjects,
 			final boolean alsoMake,
 			final boolean alsoMakeDependents) throws MavenProcessCanceledException
 	{

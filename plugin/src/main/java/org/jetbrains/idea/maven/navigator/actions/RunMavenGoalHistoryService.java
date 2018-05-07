@@ -19,7 +19,6 @@ import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.components.StoragePathMacros;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.LinkedList;
 
@@ -38,7 +37,7 @@ public class RunMavenGoalHistoryService implements PersistentStateComponent<Stri
 
   private final LinkedList<String> myHistory = new LinkedList<String>();
 
-  @Nullable
+  @javax.annotation.Nullable
   @Override
   public String[] getState() {
     return new String[0];  //To change body of implemented methods use File | Settings | File Templates.

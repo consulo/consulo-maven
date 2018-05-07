@@ -17,8 +17,8 @@ package org.jetbrains.idea.maven.importing.configurers;
 
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+
 import org.jetbrains.idea.maven.project.MavenProject;
 
 import java.util.ArrayList;
@@ -31,7 +31,7 @@ public abstract class MavenModuleConfigurer {
 
   private static volatile List<MavenModuleConfigurer> ourConfigurersList;
 
-  public abstract void configure(@NotNull MavenProject mavenProject, @NotNull Project project, @Nullable Module module);
+  public abstract void configure(@Nonnull MavenProject mavenProject, @Nonnull Project project, @javax.annotation.Nullable Module module);
 
   public static List<MavenModuleConfigurer> getConfigurers() {
     List<MavenModuleConfigurer> configurers = ourConfigurersList;

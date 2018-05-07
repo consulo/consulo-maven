@@ -17,7 +17,7 @@ package org.jetbrains.idea.maven.indices;
 
 import java.util.Set;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import org.jetbrains.idea.maven.model.MavenRemoteRepository;
 import com.intellij.openapi.extensions.ExtensionPointName;
 import com.intellij.openapi.project.Project;
@@ -33,6 +33,6 @@ public interface MavenRepositoryProvider
 
 	ExtensionPointName<MavenRepositoryProvider> EP_NAME = ExtensionPointName.create("org.jetbrains.idea.maven.repositoryProvider");
 
-	@NotNull
-	Set<MavenRemoteRepository> getRemoteRepositories(@NotNull Project project);
+	@Nonnull
+	Set<MavenRemoteRepository> getRemoteRepositories(@Nonnull Project project);
 }

@@ -15,8 +15,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+
 import org.jetbrains.idea.maven.server.IndexedMavenId;
 import org.jetbrains.idea.maven.server.MavenIndicesProcessor;
 import org.jetbrains.idea.maven.server.MavenServerIndexerException;
@@ -35,7 +35,7 @@ class BintrayIndexer implements NotNexusIndexer
 {
 	private final String myUrlTemplate;
 
-	public BintrayIndexer(@NotNull String subject, @Nullable String repo)
+	public BintrayIndexer(@Nonnull String subject, @javax.annotation.Nullable String repo)
 	{
 		myUrlTemplate = "https://bintray.com/api/v1/search/packages/maven?q=*&subject=" + subject + (repo != null ? "&repo=" + repo : "");
 	}

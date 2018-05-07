@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Nonnull;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
@@ -32,8 +33,8 @@ import javax.swing.SwingConstants;
 import javax.swing.table.TableCellRenderer;
 
 import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+
+import javax.annotation.Nullable;
 import org.jetbrains.idea.maven.model.MavenExplicitProfiles;
 import org.jetbrains.idea.maven.model.MavenProfileKind;
 import com.intellij.ide.util.MultiStateElementsChooser;
@@ -95,7 +96,7 @@ public class SelectProfilesStep extends ProjectImportWizardStep
 	}
 
 	@Override
-	public boolean validate(@NotNull WizardContext context) throws ConfigurationException
+	public boolean validate(@Nonnull WizardContext context) throws ConfigurationException
 	{
 		Collection<String> activatedProfiles = myMarkStateDescriptor.getActivatedProfiles();
 		MavenExplicitProfiles newSelectedProfiles = MavenExplicitProfiles.NONE.clone();
@@ -147,16 +148,16 @@ public class SelectProfilesStep extends ProjectImportWizardStep
 			myActivatedProfiles = new THashSet<>(activatedProfiles);
 		}
 
-		@NotNull
+		@Nonnull
 		@Override
-		public MavenProfileKind getDefaultState(@NotNull String element)
+		public MavenProfileKind getDefaultState(@Nonnull String element)
 		{
 			return myActivatedProfiles.contains(element) ? MavenProfileKind.IMPLICIT : MavenProfileKind.NONE;
 		}
 
-		@NotNull
+		@Nonnull
 		@Override
-		public MavenProfileKind getNextState(@NotNull String element, @NotNull MavenProfileKind state)
+		public MavenProfileKind getNextState(@Nonnull String element, @Nonnull MavenProfileKind state)
 		{
 			MavenProfileKind nextState;
 			switch(state)
@@ -177,7 +178,7 @@ public class SelectProfilesStep extends ProjectImportWizardStep
 
 		@Nullable
 		@Override
-		public MavenProfileKind getNextState(@NotNull Map<String, MavenProfileKind> elementsWithStates)
+		public MavenProfileKind getNextState(@Nonnull Map<String, MavenProfileKind> elementsWithStates)
 		{
 			MavenProfileKind nextState = null;
 			for(Map.Entry<String, MavenProfileKind> entry : elementsWithStates.entrySet())
@@ -197,7 +198,7 @@ public class SelectProfilesStep extends ProjectImportWizardStep
 		}
 
 		@Override
-		public boolean isMarked(@NotNull MavenProfileKind state)
+		public boolean isMarked(@Nonnull MavenProfileKind state)
 		{
 			return state != MavenProfileKind.NONE;
 		}

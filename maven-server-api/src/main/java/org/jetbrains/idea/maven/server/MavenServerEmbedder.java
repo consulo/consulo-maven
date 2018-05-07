@@ -21,8 +21,8 @@ import java.rmi.RemoteException;
 import java.util.Collection;
 import java.util.List;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+
 import org.jetbrains.idea.maven.model.MavenArtifact;
 import org.jetbrains.idea.maven.model.MavenArtifactInfo;
 import org.jetbrains.idea.maven.model.MavenId;
@@ -35,44 +35,44 @@ public interface MavenServerEmbedder extends Remote
 	String MAVEN_EMBEDDER_VERSION = "idea.maven.embedder.version";
 	String MAVEN_EMBEDDER_CLI_ADDITIONAL_ARGS = "idea.maven.embedder.ext.cli.args";
 
-	void customize(@Nullable MavenWorkspaceMap workspaceMap,
+	void customize(@javax.annotation.Nullable MavenWorkspaceMap workspaceMap,
 			boolean failOnUnresolvedDependency,
-			@NotNull MavenServerConsole console,
-			@NotNull MavenServerProgressIndicator indicator,
+			@Nonnull MavenServerConsole console,
+			@Nonnull MavenServerProgressIndicator indicator,
 			boolean alwaysUpdateSnapshots) throws RemoteException;
 
 	void customizeComponents() throws RemoteException;
 
-	@NotNull
-	List<String> retrieveAvailableVersions(@NotNull String groupId, @NotNull String artifactId, @NotNull List<MavenRemoteRepository> remoteRepositories) throws RemoteException;
+	@Nonnull
+	List<String> retrieveAvailableVersions(@Nonnull String groupId, @Nonnull String artifactId, @Nonnull List<MavenRemoteRepository> remoteRepositories) throws RemoteException;
 
 
-	@NotNull
-	MavenServerExecutionResult resolveProject(@NotNull File file,
-			@NotNull Collection<String> activeProfiles,
-			@NotNull Collection<String> inactiveProfiles) throws RemoteException, MavenServerProcessCanceledException;
+	@Nonnull
+	MavenServerExecutionResult resolveProject(@Nonnull File file,
+			@Nonnull Collection<String> activeProfiles,
+			@Nonnull Collection<String> inactiveProfiles) throws RemoteException, MavenServerProcessCanceledException;
 
-	@Nullable
-	String evaluateEffectivePom(@NotNull File file, @NotNull List<String> activeProfiles, @NotNull List<String> inactiveProfiles) throws RemoteException, MavenServerProcessCanceledException;
+	@javax.annotation.Nullable
+	String evaluateEffectivePom(@Nonnull File file, @Nonnull List<String> activeProfiles, @Nonnull List<String> inactiveProfiles) throws RemoteException, MavenServerProcessCanceledException;
 
-	@NotNull
-	MavenArtifact resolve(@NotNull MavenArtifactInfo info, @NotNull List<MavenRemoteRepository> remoteRepositories) throws RemoteException, MavenServerProcessCanceledException;
+	@Nonnull
+	MavenArtifact resolve(@Nonnull MavenArtifactInfo info, @Nonnull List<MavenRemoteRepository> remoteRepositories) throws RemoteException, MavenServerProcessCanceledException;
 
-	@NotNull
-	List<MavenArtifact> resolveTransitively(@NotNull List<MavenArtifactInfo> artifacts,
-			@NotNull List<MavenRemoteRepository> remoteRepositories) throws RemoteException, MavenServerProcessCanceledException;
+	@Nonnull
+	List<MavenArtifact> resolveTransitively(@Nonnull List<MavenArtifactInfo> artifacts,
+			@Nonnull List<MavenRemoteRepository> remoteRepositories) throws RemoteException, MavenServerProcessCanceledException;
 
-	Collection<MavenArtifact> resolvePlugin(@NotNull MavenPlugin plugin,
-			@NotNull List<MavenRemoteRepository> repositories,
+	Collection<MavenArtifact> resolvePlugin(@Nonnull MavenPlugin plugin,
+			@Nonnull List<MavenRemoteRepository> repositories,
 			int nativeMavenProjectId,
 			boolean transitive) throws RemoteException, MavenServerProcessCanceledException;
 
-	@NotNull
-	MavenServerExecutionResult execute(@NotNull File file,
-			@NotNull Collection<String> activeProfiles,
-			@NotNull Collection<String> inactiveProfiles,
-			@NotNull List<String> goals,
-			@NotNull final List<String> selectedProjects,
+	@Nonnull
+	MavenServerExecutionResult execute(@Nonnull File file,
+			@Nonnull Collection<String> activeProfiles,
+			@Nonnull Collection<String> inactiveProfiles,
+			@Nonnull List<String> goals,
+			@Nonnull final List<String> selectedProjects,
 			boolean alsoMake,
 			boolean alsoMakeDependents) throws RemoteException, MavenServerProcessCanceledException;
 

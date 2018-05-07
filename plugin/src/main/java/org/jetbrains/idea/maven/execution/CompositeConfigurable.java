@@ -20,7 +20,6 @@ import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.ui.components.JBTabbedPane;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.util.ArrayList;
@@ -78,7 +77,7 @@ public class CompositeConfigurable implements Configurable {
     tabbedPane = null;
   }
 
-  @Nullable
+  @javax.annotation.Nullable
   @NonNls
   public String getHelpTopic() {
     return selectedTabIndex < configurables.size() ? configurables.get(selectedTabIndex).getHelpTopic() : null;

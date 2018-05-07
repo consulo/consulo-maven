@@ -45,7 +45,7 @@ import javax.swing.tree.TreeCellRenderer;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import org.jetbrains.idea.maven.model.MavenArtifactInfo;
 import org.jetbrains.idea.maven.model.MavenId;
 import org.jetbrains.idea.maven.utils.MavenLog;
@@ -298,7 +298,7 @@ public class MavenArtifactSearchPanel extends JPanel
 		});
 	}
 
-	@NotNull
+	@Nonnull
 	public List<MavenId> getResult()
 	{
 		List<MavenId> result = new ArrayList<MavenId>();

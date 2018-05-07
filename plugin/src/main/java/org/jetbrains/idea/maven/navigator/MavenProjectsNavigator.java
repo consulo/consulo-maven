@@ -22,12 +22,12 @@ import java.net.URL;
 import java.util.Collections;
 import java.util.List;
 
+import javax.annotation.Nonnull;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.tree.TreeSelectionModel;
 
 import org.jdom.Element;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.TestOnly;
 import org.jetbrains.idea.maven.execution.MavenRunner;
 import org.jetbrains.idea.maven.execution.MavenRunnerSettings;
@@ -281,19 +281,19 @@ public class MavenProjectsNavigator extends MavenSimpleProjectComponent implemen
 			}
 
 			@Override
-			public void runConfigurationAdded(@NotNull RunnerAndConfigurationSettings settings)
+			public void runConfigurationAdded(@Nonnull RunnerAndConfigurationSettings settings)
 			{
 				changed();
 			}
 
 			@Override
-			public void runConfigurationRemoved(@NotNull RunnerAndConfigurationSettings settings)
+			public void runConfigurationRemoved(@Nonnull RunnerAndConfigurationSettings settings)
 			{
 				changed();
 			}
 
 			@Override
-			public void runConfigurationChanged(@NotNull RunnerAndConfigurationSettings settings)
+			public void runConfigurationChanged(@Nonnull RunnerAndConfigurationSettings settings)
 			{
 				changed();
 			}

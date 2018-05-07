@@ -21,9 +21,7 @@ import com.intellij.util.xmlb.annotations.MapAnnotation;
 import com.intellij.util.xmlb.annotations.OptionTag;
 import com.intellij.util.xmlb.annotations.Tag;
 import gnu.trove.THashSet;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.jetbrains.idea.maven.model.impl.MavenProjectConfiguration;
+import javax.annotation.Nonnull;
 
 import java.util.*;
 
@@ -32,19 +30,19 @@ import java.util.*;
  *         Date: 10/20/12
  */
 public class MavenModuleResourceConfiguration {
-  @NotNull
+  @Nonnull
   @Tag("id")
   public MavenIdBean id;
 
-  @Nullable
+  @javax.annotation.Nullable
   @Tag("parentId")
   public MavenIdBean parentId;
 
-  @NotNull
+  @Nonnull
   @Tag("directory")
   public String directory;
 
-  @NotNull
+  @Nonnull
   @Tag("delimiters-pattern")
   public String delimitersPattern;
 

@@ -23,7 +23,7 @@ import com.intellij.psi.PsiFile;
 import com.intellij.util.xml.Convert;
 import com.intellij.util.xml.GenericDomValue;
 import com.intellij.util.xml.Required;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import org.jetbrains.idea.maven.dom.MavenDomElement;
 import org.jetbrains.idea.maven.dom.converters.MavenParentRelativePathConverter;
 
@@ -44,7 +44,7 @@ public interface MavenDomParent extends MavenDomElement, MavenDomArtifactCoordin
    *
    * @return the value of the relativePath child.
    */
-  @NotNull
+  @Nonnull
   @Required(value = false, nonEmpty = false)
   @Convert(MavenParentRelativePathConverter.class)
   GenericDomValue<PsiFile> getRelativePath();

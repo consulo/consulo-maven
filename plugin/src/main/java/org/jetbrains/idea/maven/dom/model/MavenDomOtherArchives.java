@@ -21,7 +21,7 @@ package org.jetbrains.idea.maven.dom.model;
 
 import com.intellij.util.xml.Convert;
 import com.intellij.util.xml.GenericDomValue;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import org.jetbrains.idea.maven.dom.MavenDomElement;
 import org.jetbrains.idea.maven.dom.converters.MavenUrlConverter;
 
@@ -37,7 +37,7 @@ public interface MavenDomOtherArchives extends MavenDomElement {
    *
    * @return the list of otherArchive children.
    */
-  @NotNull
+  @Nonnull
   @Convert(MavenUrlConverter.class)
   List<GenericDomValue<String>> getOtherArchives();
 

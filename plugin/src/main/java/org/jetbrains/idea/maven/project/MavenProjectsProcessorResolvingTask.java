@@ -15,26 +15,26 @@
  */
 package org.jetbrains.idea.maven.project;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.jetbrains.idea.maven.utils.MavenProcessCanceledException;
 import org.jetbrains.idea.maven.utils.MavenProgressIndicator;
 import com.intellij.openapi.project.Project;
 
 public class MavenProjectsProcessorResolvingTask extends MavenProjectsProcessorBasicTask
 {
-	@NotNull
+	@Nonnull
 	private final MavenGeneralSettings myGeneralSettings;
 	@Nullable
 	private final Runnable myOnCompletion;
-	@NotNull
+	@Nonnull
 	private final ResolveContext myContext;
 
-	public MavenProjectsProcessorResolvingTask(@NotNull MavenProject project,
-			@NotNull MavenProjectsTree tree,
-			@NotNull MavenGeneralSettings generalSettings,
+	public MavenProjectsProcessorResolvingTask(@Nonnull MavenProject project,
+			@Nonnull MavenProjectsTree tree,
+			@Nonnull MavenGeneralSettings generalSettings,
 			@Nullable Runnable onCompletion,
-			@NotNull ResolveContext context)
+			@Nonnull ResolveContext context)
 	{
 		super(project, tree);
 		myGeneralSettings = generalSettings;

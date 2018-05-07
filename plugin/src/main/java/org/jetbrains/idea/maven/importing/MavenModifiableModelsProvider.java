@@ -15,6 +15,8 @@
  */
 package org.jetbrains.idea.maven.importing;
 
+import javax.annotation.Nonnull;
+
 import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.module.ModifiableModuleModel;
 import com.intellij.openapi.module.Module;
@@ -24,7 +26,6 @@ import com.intellij.openapi.roots.libraries.Library;
 import com.intellij.openapi.roots.libraries.LibraryTable;
 import com.intellij.packaging.artifacts.ModifiableArtifactModel;
 import com.intellij.packaging.elements.PackagingElementResolvingContext;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.idea.maven.project.MavenModelsProvider;
 
 public interface MavenModifiableModelsProvider extends MavenModelsProvider {
@@ -50,8 +51,8 @@ public interface MavenModifiableModelsProvider extends MavenModelsProvider {
 
   Library.ModifiableModel getLibraryModel(Library library);
 
-  @NotNull
-  String[] getLibraryUrls(@NotNull Library library, @NotNull OrderRootType type);
+  @Nonnull
+  String[] getLibraryUrls(@Nonnull Library library, @Nonnull OrderRootType type);
 
   void commit();
 

@@ -19,7 +19,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nullable;
 import com.intellij.openapi.util.text.StringUtil;
 
 public class MavenArtifactNode implements Serializable
@@ -54,7 +54,7 @@ public class MavenArtifactNode implements Serializable
 		myPremanagedScope = premanagedScope;
 	}
 
-	@Nullable
+	@javax.annotation.Nullable
 	public MavenArtifactNode getParent()
 	{
 		return myParent;
@@ -71,13 +71,13 @@ public class MavenArtifactNode implements Serializable
 		return myState;
 	}
 
-	@Nullable
+	@javax.annotation.Nullable
 	public MavenArtifact getRelatedArtifact()
 	{
 		return myRelatedArtifact;
 	}
 
-	@Nullable
+	@javax.annotation.Nullable
 	public String getOriginalScope()
 	{
 		return myOriginalScope;
@@ -89,7 +89,7 @@ public class MavenArtifactNode implements Serializable
 		return myPremanagedVersion;
 	}
 
-	@Nullable
+	@javax.annotation.Nullable
 	public String getPremanagedScope()
 	{
 		return myPremanagedScope;

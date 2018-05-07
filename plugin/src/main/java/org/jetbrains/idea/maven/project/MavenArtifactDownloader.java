@@ -33,8 +33,8 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+
 import org.jetbrains.idea.maven.importing.MavenExtraArtifactType;
 import org.jetbrains.idea.maven.model.MavenArtifact;
 import org.jetbrains.idea.maven.model.MavenArtifactInfo;
@@ -58,9 +58,9 @@ public class MavenArtifactDownloader
 	{
 		AtomicInteger num = new AtomicInteger();
 
-		@NotNull
+		@Nonnull
 		@Override
-		public Thread newThread(@NotNull Runnable r)
+		public Thread newThread(@Nonnull Runnable r)
 		{
 			return new Thread(r, "Maven Artifact Downloader " + num.getAndIncrement());
 		}
@@ -73,10 +73,10 @@ public class MavenArtifactDownloader
 	private final MavenProgressIndicator myProgress;
 	private final MavenEmbedderWrapper myEmbedder;
 
-	public static DownloadResult download(@NotNull Project project,
+	public static DownloadResult download(@Nonnull Project project,
 			MavenProjectsTree projectsTree,
 			Collection<MavenProject> mavenProjects,
-			@Nullable Collection<MavenArtifact> artifacts,
+			@javax.annotation.Nullable Collection<MavenArtifact> artifacts,
 			boolean downloadSources,
 			boolean downloadDocs,
 			MavenEmbedderWrapper embedder,
@@ -85,7 +85,7 @@ public class MavenArtifactDownloader
 		return new MavenArtifactDownloader(project, projectsTree, mavenProjects, artifacts, embedder, p).download(downloadSources, downloadDocs);
 	}
 
-	private MavenArtifactDownloader(@NotNull Project project,
+	private MavenArtifactDownloader(@Nonnull Project project,
 			MavenProjectsTree projectsTree,
 			Collection<MavenProject> mavenProjects,
 			Collection<MavenArtifact> artifacts,

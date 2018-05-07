@@ -19,11 +19,12 @@
 
 package org.jetbrains.idea.maven.dom.model;
 
+import javax.annotation.Nonnull;
+
 import com.intellij.openapi.paths.PathReference;
 import com.intellij.util.xml.Convert;
 import com.intellij.util.xml.GenericDomValue;
 import com.intellij.util.xml.Required;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.idea.maven.dom.MavenDomElement;
 import org.jetbrains.idea.maven.dom.references.MavenDirectoryPathReferenceConverter;
 import org.jetbrains.idea.maven.dom.references.MavenPathReferenceConverter;
@@ -46,7 +47,7 @@ public interface MavenDomResource extends MavenDomElement {
    *
    * @return the value of the targetPath child.
    */
-  @NotNull
+  @Nonnull
   @Required(value = false, nonEmpty = true)
   @Convert(value = MavenPathReferenceConverter.class, soft = true)
   GenericDomValue<PathReference> getTargetPath();
@@ -60,7 +61,7 @@ public interface MavenDomResource extends MavenDomElement {
    *
    * @return the value of the filtering child.
    */
-  @NotNull
+  @Nonnull
   @Required(value = false, nonEmpty = true)
   GenericDomValue<Boolean> getFiltering();
 
@@ -73,7 +74,7 @@ public interface MavenDomResource extends MavenDomElement {
    *
    * @return the value of the directory child.
    */
-  @NotNull
+  @Nonnull
   @Required(value = false, nonEmpty = true)
   @Convert(value = MavenDirectoryPathReferenceConverter.class, soft = true)
   GenericDomValue<PathReference> getDirectory();
@@ -87,7 +88,7 @@ public interface MavenDomResource extends MavenDomElement {
    *
    * @return the value of the includes child.
    */
-  @NotNull
+  @Nonnull
   MavenDomIncludes getIncludes();
 
   /**
@@ -99,6 +100,6 @@ public interface MavenDomResource extends MavenDomElement {
    *
    * @return the value of the excludes child.
    */
-  @NotNull
+  @Nonnull
   MavenDomExcludes getExcludes();
 }

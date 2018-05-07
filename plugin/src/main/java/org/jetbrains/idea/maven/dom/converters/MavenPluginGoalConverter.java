@@ -20,8 +20,8 @@ import com.intellij.util.xml.ConvertContext;
 import com.intellij.util.xml.DomElement;
 import com.intellij.util.xml.ResolvingConverter;
 import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.jetbrains.idea.maven.dom.MavenPluginDomUtil;
 import org.jetbrains.idea.maven.dom.plugin.MavenDomMojo;
 import org.jetbrains.idea.maven.dom.plugin.MavenDomPluginModel;
@@ -41,7 +41,7 @@ public class MavenPluginGoalConverter extends ResolvingConverter<String> impleme
     return s;
   }
 
-  @NotNull
+  @Nonnull
   public Collection<String> getVariants(ConvertContext context) {
     MavenDomPluginModel model = MavenPluginDomUtil.getMavenPluginModel(context.getInvocationElement());
     if (model == null) return Collections.emptyList();
@@ -67,7 +67,7 @@ public class MavenPluginGoalConverter extends ResolvingConverter<String> impleme
   }
 
   @Override
-  public boolean isSoft(@NotNull DomElement element) {
+  public boolean isSoft(@Nonnull DomElement element) {
     return MavenPluginDomUtil.getMavenPluginModel(element) == null;
   }
 }

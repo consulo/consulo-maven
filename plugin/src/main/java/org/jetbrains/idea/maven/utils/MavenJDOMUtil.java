@@ -27,7 +27,7 @@ import com.intellij.psi.impl.source.parsing.xml.XmlBuilder;
 import com.intellij.psi.impl.source.parsing.xml.XmlBuilderDriver;
 import org.jdom.Element;
 import org.jdom.IllegalNameException;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nullable;
 
 import java.io.IOException;
 import java.util.*;
@@ -57,18 +57,18 @@ public class MavenJDOMUtil {
   }
 
   @Nullable
-  public static Element read(byte[] bytes, @Nullable ErrorHandler handler) {
+  public static Element read(byte[] bytes, @javax.annotation.Nullable ErrorHandler handler) {
     return doRead(CharsetToolkit.bytesToString(bytes, EncodingRegistry.getInstance().getDefaultCharset()), handler);
   }
 
-  @Nullable
+  @javax.annotation.Nullable
   private static Element doRead(String text, final ErrorHandler handler) {
     final LinkedList<Element> stack = new LinkedList<Element>();
 
     final Element[] result = {null};
     XmlBuilderDriver driver = new XmlBuilderDriver(text);
     XmlBuilder builder = new XmlBuilder() {
-      public void doctype(@Nullable CharSequence publicId, @Nullable CharSequence systemId, int startOffset, int endOffset) {
+      public void doctype(@javax.annotation.Nullable CharSequence publicId, @Nullable CharSequence systemId, int startOffset, int endOffset) {
       }
 
       public ProcessingOrder startTag(CharSequence localName, String namespace, int startoffset, int endoffset, int headerEndOffset) {
@@ -129,7 +129,7 @@ public class MavenJDOMUtil {
   }
 
   @Nullable
-  public static Element findChildByPath(@Nullable Element element, String path) {
+  public static Element findChildByPath(@javax.annotation.Nullable Element element, String path) {
     int i = 0;
     while (element != null) {
       int dot = path.indexOf('.', i);
@@ -151,7 +151,7 @@ public class MavenJDOMUtil {
     return childValue.isEmpty() ? defaultValue : childValue;
   }
 
-  public static String findChildValueByPath(@Nullable Element element, String path) {
+  public static String findChildValueByPath(@javax.annotation.Nullable Element element, String path) {
     return findChildValueByPath(element, path, null);
   }
 
@@ -163,7 +163,7 @@ public class MavenJDOMUtil {
     return collectChildren(findChildByPath(element, path), subPath);
   }
 
-  public static List<String> findChildrenValuesByPath(@Nullable Element element, String path, String childrenName) {
+  public static List<String> findChildrenValuesByPath(@javax.annotation.Nullable Element element, String path, String childrenName) {
     List<String> result = new ArrayList<String>();
     for (Element each : findChildrenByPath(element, path, childrenName)) {
       String value = each.getTextTrim();
@@ -174,7 +174,7 @@ public class MavenJDOMUtil {
     return result;
   }
 
-  private static List<Element> collectChildren(@Nullable Element container, String subPath) {
+  private static List<Element> collectChildren(@javax.annotation.Nullable Element container, String subPath) {
     if (container == null) return Collections.emptyList();
 
     int firstDot = subPath.indexOf('.');

@@ -21,8 +21,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Nonnull;
+
 import org.jdom.Element;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.idea.maven.model.MavenResource;
 import org.jetbrains.idea.maven.project.MavenImportingSettings;
 import org.jetbrains.idea.maven.project.MavenProject;
@@ -180,8 +181,8 @@ public class MavenFoldersImporter
 		}
 	}
 
-	@NotNull
-	private static List<Pair<Path, ContentFolderTypeProvider>> normalize(@NotNull MultiMap<ContentFolderTypeProvider, Path> folders)
+	@Nonnull
+	private static List<Pair<Path, ContentFolderTypeProvider>> normalize(@Nonnull MultiMap<ContentFolderTypeProvider, Path> folders)
 	{
 		List<Pair<Path, ContentFolderTypeProvider>> result = new ArrayList<Pair<Path, ContentFolderTypeProvider>>(folders.size());
 		for(Map.Entry<ContentFolderTypeProvider, Collection<Path>> entry : folders.entrySet())
@@ -294,7 +295,7 @@ public class MavenFoldersImporter
 		}
 	}
 
-	private void configGeneratedSourceFolder(@NotNull File targetDir, ContentFolderTypeProvider typeProvider)
+	private void configGeneratedSourceFolder(@Nonnull File targetDir, ContentFolderTypeProvider typeProvider)
 	{
 		switch(myImportingSettings.getGeneratedSourcesFolder())
 		{
@@ -328,7 +329,7 @@ public class MavenFoldersImporter
 		}
 	}
 
-	private void addAsSourceFolder(@NotNull File dir, ContentFolderTypeProvider typeProvider, boolean generated)
+	private void addAsSourceFolder(@Nonnull File dir, ContentFolderTypeProvider typeProvider, boolean generated)
 	{
 		if(!myModel.hasRegisteredSourceSubfolder(dir))
 		{
@@ -336,7 +337,7 @@ public class MavenFoldersImporter
 		}
 	}
 
-	private void addAllSubDirsAsSources(@NotNull File dir, ContentFolderTypeProvider typeProvider, boolean generated)
+	private void addAllSubDirsAsSources(@Nonnull File dir, ContentFolderTypeProvider typeProvider, boolean generated)
 	{
 		for(File f : getChildren(dir))
 		{

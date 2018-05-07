@@ -20,7 +20,7 @@
 package org.jetbrains.idea.maven.dom.model;
 
 import com.intellij.util.xml.GenericDomValue;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import org.jetbrains.idea.maven.dom.MavenDomElement;
 
 import java.util.List;
@@ -35,7 +35,7 @@ public interface MavenDomRoles extends MavenDomElement {
    *
    * @return the list of role children.
    */
-  @NotNull
+  @Nonnull
   List<GenericDomValue<String>> getRoles();
 
   /**

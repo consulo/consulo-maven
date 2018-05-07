@@ -19,8 +19,9 @@
 
 package org.jetbrains.idea.maven.dom.model;
 
+import javax.annotation.Nonnull;
+
 import com.intellij.util.xml.GenericDomValue;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.idea.maven.dom.MavenDomElement;
 
 /**
@@ -41,7 +42,7 @@ public interface MavenDomNotifier extends MavenDomElement {
    *
    * @return the value of the type child.
    */
-  @NotNull
+  @Nonnull
   GenericDomValue<String> getType();
 
   /**
@@ -53,7 +54,7 @@ public interface MavenDomNotifier extends MavenDomElement {
    *
    * @return the value of the sendOnError child.
    */
-  @NotNull
+  @Nonnull
   GenericDomValue<Boolean> getSendOnError();
 
   /**
@@ -65,7 +66,7 @@ public interface MavenDomNotifier extends MavenDomElement {
    *
    * @return the value of the sendOnFailure child.
    */
-  @NotNull
+  @Nonnull
   GenericDomValue<Boolean> getSendOnFailure();
 
   /**
@@ -77,7 +78,7 @@ public interface MavenDomNotifier extends MavenDomElement {
    *
    * @return the value of the sendOnSuccess child.
    */
-  @NotNull
+  @Nonnull
   GenericDomValue<Boolean> getSendOnSuccess();
 
   /**
@@ -89,7 +90,7 @@ public interface MavenDomNotifier extends MavenDomElement {
    *
    * @return the value of the sendOnWarning child.
    */
-  @NotNull
+  @Nonnull
   GenericDomValue<Boolean> getSendOnWarning();
 
   /**
@@ -101,7 +102,7 @@ public interface MavenDomNotifier extends MavenDomElement {
    *
    * @return the value of the address child.
    */
-  @NotNull
+  @Nonnull
   GenericDomValue<String> getAddress();
 
   /**
@@ -113,6 +114,6 @@ public interface MavenDomNotifier extends MavenDomElement {
    *
    * @return the value of the configuration child.
    */
-  @NotNull
+  @Nonnull
   MavenDomElement getConfiguration();
 }

@@ -30,7 +30,7 @@ import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.ui.update.MergingUpdateQueue;
 import com.intellij.util.ui.update.Update;
 import gnu.trove.THashMap;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nullable;
 import org.jetbrains.annotations.TestOnly;
 import org.jetbrains.idea.maven.execution.MavenRunner;
 import org.jetbrains.idea.maven.project.MavenProject;
@@ -98,7 +98,7 @@ public class MavenShortcutsManager extends MavenSimpleProjectComponent {
     MavenKeymapExtension.clearActions(myProject);
   }
 
-  public String getActionId(@Nullable String projectPath, @Nullable String goal) {
+  public String getActionId(@Nullable String projectPath, @javax.annotation.Nullable String goal) {
     StringBuilder result = new StringBuilder(ACTION_ID_PREFIX);
     result.append(myProject.getLocationHash());
 

@@ -19,8 +19,9 @@
 
 package org.jetbrains.idea.maven.dom.model;
 
+import javax.annotation.Nonnull;
+
 import com.intellij.util.xml.GenericDomValue;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.idea.maven.dom.MavenDomElement;
 
 /**
@@ -41,7 +42,7 @@ public interface MavenDomActivationOS extends MavenDomElement {
    *
    * @return the value of the name child.
    */
-  @NotNull
+  @Nonnull
   GenericDomValue<String> getName();
 
   /**
@@ -53,7 +54,7 @@ public interface MavenDomActivationOS extends MavenDomElement {
    *
    * @return the value of the family child.
    */
-  @NotNull
+  @Nonnull
   GenericDomValue<String> getFamily();
 
   /**
@@ -65,7 +66,7 @@ public interface MavenDomActivationOS extends MavenDomElement {
    *
    * @return the value of the arch child.
    */
-  @NotNull
+  @Nonnull
   GenericDomValue<String> getArch();
 
   /**
@@ -77,6 +78,6 @@ public interface MavenDomActivationOS extends MavenDomElement {
    *
    * @return the value of the version child.
    */
-  @NotNull
+  @Nonnull
   GenericDomValue<String> getVersion();
 }

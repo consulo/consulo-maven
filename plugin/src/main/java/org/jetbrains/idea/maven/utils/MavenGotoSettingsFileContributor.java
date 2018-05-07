@@ -24,7 +24,7 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.util.ArrayUtil;
 import gnu.trove.THashSet;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 
 import java.util.ArrayList;
@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.Set;
 
 public class MavenGotoSettingsFileContributor implements ChooseByNameContributor, DumbAware {
-  @NotNull
+  @Nonnull
   public String[] getNames(Project project, boolean includeNonProjectItems) {
     if (!includeNonProjectItems) return ArrayUtil.EMPTY_STRING_ARRAY;
 
@@ -43,7 +43,7 @@ public class MavenGotoSettingsFileContributor implements ChooseByNameContributor
     return ArrayUtil.toStringArray(result);
   }
 
-  @NotNull
+  @Nonnull
   public NavigationItem[] getItemsByName(String name, String pattern, Project project, boolean includeNonProjectItems) {
     if (!includeNonProjectItems) return NavigationItem.EMPTY_NAVIGATION_ITEM_ARRAY;
 

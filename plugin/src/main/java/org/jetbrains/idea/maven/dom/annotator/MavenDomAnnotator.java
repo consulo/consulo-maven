@@ -27,7 +27,7 @@ import com.intellij.util.xml.DomElement;
 import com.intellij.util.xml.DomUtil;
 import com.intellij.util.xml.highlighting.DomElementAnnotationHolder;
 import com.intellij.util.xml.highlighting.DomElementsAnnotator;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import org.jetbrains.idea.maven.dom.MavenDomBundle;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
 import org.jetbrains.idea.maven.dom.model.MavenDomParent;
@@ -75,17 +75,17 @@ public class MavenDomAnnotator implements DomElementsAnnotator {
       myFile = file;
     }
 
-    @NotNull
+    @Nonnull
     public String getName() {
       return MavenDomBundle.message("fix.open.file", myFile.getName());
     }
 
-    @NotNull
+    @Nonnull
     public String getFamilyName() {
       return MavenDomBundle.message("inspection.group");
     }
 
-    public void applyFix(@NotNull Project project, @NotNull ProblemDescriptor descriptor) {
+    public void applyFix(@Nonnull Project project, @Nonnull ProblemDescriptor descriptor) {
       new OpenFileDescriptor(project, myFile).navigate(true);
     }
   }

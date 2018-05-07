@@ -21,7 +21,7 @@ package org.jetbrains.idea.maven.dom.model;
 
 import com.intellij.util.xml.GenericDomValue;
 import com.intellij.util.xml.Required;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import org.jetbrains.idea.maven.dom.MavenDomElement;
 
 /**
@@ -42,7 +42,7 @@ public interface MavenDomActivation extends MavenDomElement {
    *
    * @return the value of the activeByDefault child.
    */
-  @NotNull
+  @Nonnull
   @Required(value = false, nonEmpty = true)
   GenericDomValue<Boolean> getActiveByDefault();
 
@@ -55,7 +55,7 @@ public interface MavenDomActivation extends MavenDomElement {
    *
    * @return the value of the jdk child.
    */
-  @NotNull
+  @Nonnull
   GenericDomValue<String> getJdk();
 
   /**
@@ -67,7 +67,7 @@ public interface MavenDomActivation extends MavenDomElement {
    *
    * @return the value of the os child.
    */
-  @NotNull
+  @Nonnull
   MavenDomActivationOS getOs();
 
   /**
@@ -79,7 +79,7 @@ public interface MavenDomActivation extends MavenDomElement {
    *
    * @return the value of the property child.
    */
-  @NotNull
+  @Nonnull
   MavenDomActivationProperty getProperty();
 
   /**
@@ -91,6 +91,6 @@ public interface MavenDomActivation extends MavenDomElement {
    *
    * @return the value of the file child.
    */
-  @NotNull
+  @Nonnull
   MavenDomActivationFile getFile();
 }

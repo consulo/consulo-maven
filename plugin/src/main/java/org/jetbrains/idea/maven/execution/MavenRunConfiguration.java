@@ -15,9 +15,11 @@
  */
 package org.jetbrains.idea.maven.execution;
 
+import javax.annotation.Nonnull;
+
 import org.jdom.Element;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+
+import javax.annotation.Nullable;
 import org.jetbrains.idea.maven.project.MavenConsoleImpl;
 import org.jetbrains.idea.maven.project.MavenGeneralSettings;
 import org.jetbrains.idea.maven.project.MavenGeneralSettingsEditor;
@@ -68,7 +70,7 @@ public class MavenRunConfiguration extends LocatableConfigurationBase implements
 		return clone;
 	}
 
-	@NotNull
+	@Nonnull
 	@Override
 	public SettingsEditor<? extends RunConfiguration> getConfigurationEditor()
 	{
@@ -88,7 +90,7 @@ public class MavenRunConfiguration extends LocatableConfigurationBase implements
 	}
 
 	@Override
-	public RunProfileState getState(@NotNull final Executor executor, @NotNull final ExecutionEnvironment env) throws ExecutionException
+	public RunProfileState getState(@Nonnull final Executor executor, @Nonnull final ExecutionEnvironment env) throws ExecutionException
 	{
 		JavaCommandLineState state = new JavaCommandLineState(env)
 		{
@@ -98,9 +100,9 @@ public class MavenRunConfiguration extends LocatableConfigurationBase implements
 				return MavenRunConfiguration.this.createJavaParameters(env.getProject());
 			}
 
-			@NotNull
+			@Nonnull
 			@Override
-			public ExecutionResult execute(@NotNull Executor executor, @NotNull ProgramRunner runner) throws ExecutionException
+			public ExecutionResult execute(@Nonnull Executor executor, @Nonnull ProgramRunner runner) throws ExecutionException
 			{
 				DefaultExecutionResult res = (DefaultExecutionResult) super.execute(executor, runner);
 				if(executor.getId().equals(ToolWindowId.RUN) && MavenResumeAction.isApplicable(env.getProject(), getJavaParameters(),
@@ -112,7 +114,7 @@ public class MavenRunConfiguration extends LocatableConfigurationBase implements
 				return res;
 			}
 
-			@NotNull
+			@Nonnull
 			@Override
 			protected OSProcessHandler startProcess() throws ExecutionException
 			{
@@ -139,7 +141,7 @@ public class MavenRunConfiguration extends LocatableConfigurationBase implements
 	}
 
 	@Override
-	@NotNull
+	@Nonnull
 	public Module[] getModules()
 	{
 		return Module.EMPTY_ARRAY;

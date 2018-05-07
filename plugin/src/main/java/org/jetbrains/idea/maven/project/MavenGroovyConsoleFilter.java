@@ -26,7 +26,6 @@ import com.intellij.openapi.util.SystemInfo;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.JBColor;
-import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
 import java.util.regex.Matcher;
@@ -45,7 +44,7 @@ public class MavenGroovyConsoleFilter implements Filter {
     myProject = project;
   }
 
-  @Nullable
+  @javax.annotation.Nullable
   @Override
   public Result applyFilter(String line, int entireLength) {
 

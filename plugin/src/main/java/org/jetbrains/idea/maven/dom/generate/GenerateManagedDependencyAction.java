@@ -19,7 +19,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
+
 import org.jetbrains.idea.maven.dom.DependencyConflictId;
 import org.jetbrains.idea.maven.dom.MavenDomBundle;
 import org.jetbrains.idea.maven.dom.MavenDomProjectProcessorUtils;
@@ -59,7 +60,7 @@ public class GenerateManagedDependencyAction extends GenerateDomElementAction
 		}
 
 		@Override
-		protected MavenDomDependency doGenerate(@NotNull final MavenDomProjectModel mavenModel, final Editor editor)
+		protected MavenDomDependency doGenerate(@Nonnull final MavenDomProjectModel mavenModel, final Editor editor)
 		{
 			Set<DependencyConflictId> existingDependencies = collectExistingDependencies(mavenModel);
 			Map<DependencyConflictId, MavenDomDependency> managingDependencies = collectManagingDependencies(mavenModel);
@@ -105,7 +106,7 @@ public class GenerateManagedDependencyAction extends GenerateDomElementAction
 		}
 	}
 
-	private static Set<DependencyConflictId> collectExistingDependencies(@NotNull final MavenDomProjectModel model)
+	private static Set<DependencyConflictId> collectExistingDependencies(@Nonnull final MavenDomProjectModel model)
 	{
 		final Set<DependencyConflictId> existingDependencies = new HashSet<DependencyConflictId>();
 		for(MavenDomDependency dependency : model.getDependencies().getDependencies())
@@ -120,8 +121,8 @@ public class GenerateManagedDependencyAction extends GenerateDomElementAction
 		return existingDependencies;
 	}
 
-	@NotNull
-	public static Map<DependencyConflictId, MavenDomDependency> collectManagingDependencies(@NotNull final MavenDomProjectModel model)
+	@Nonnull
+	public static Map<DependencyConflictId, MavenDomDependency> collectManagingDependencies(@Nonnull final MavenDomProjectModel model)
 	{
 		final Map<DependencyConflictId, MavenDomDependency> dependencies = new HashMap<DependencyConflictId, MavenDomDependency>();
 

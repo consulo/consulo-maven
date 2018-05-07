@@ -15,19 +15,22 @@
  */
 package org.jetbrains.idea.maven.project;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import com.intellij.openapi.project.Project;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.idea.maven.utils.MavenProcessCanceledException;
 import org.jetbrains.idea.maven.utils.MavenProgressIndicator;
 
 public class MavenProjectsProcessorFoldersResolvingTask extends MavenProjectsProcessorBasicTask {
-  @NotNull private final MavenImportingSettings myImportingSettings;
-  @Nullable private final Runnable myOnCompletion;
+  @Nonnull
+  private final MavenImportingSettings myImportingSettings;
+  @javax.annotation.Nullable
+  private final Runnable myOnCompletion;
 
-  public MavenProjectsProcessorFoldersResolvingTask(@NotNull MavenProject project,
-                                                    @NotNull MavenImportingSettings importingSettings,
-                                                    @NotNull MavenProjectsTree tree,
+  public MavenProjectsProcessorFoldersResolvingTask(@Nonnull MavenProject project,
+                                                    @Nonnull MavenImportingSettings importingSettings,
+                                                    @Nonnull MavenProjectsTree tree,
                                                     @Nullable Runnable onCompletion) {
     super(project, tree);
     myImportingSettings = importingSettings;

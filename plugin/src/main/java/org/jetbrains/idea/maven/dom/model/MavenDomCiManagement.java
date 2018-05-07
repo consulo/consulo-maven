@@ -19,9 +19,10 @@
 
 package org.jetbrains.idea.maven.dom.model;
 
+import javax.annotation.Nonnull;
+
 import com.intellij.util.xml.Convert;
 import com.intellij.util.xml.GenericDomValue;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.idea.maven.dom.MavenDomElement;
 import org.jetbrains.idea.maven.dom.converters.MavenUrlConverter;
 
@@ -43,7 +44,7 @@ public interface MavenDomCiManagement extends MavenDomElement {
    *
    * @return the value of the system child.
    */
-  @NotNull
+  @Nonnull
   GenericDomValue<String> getSystem();
 
   /**
@@ -55,7 +56,7 @@ public interface MavenDomCiManagement extends MavenDomElement {
    *
    * @return the value of the url child.
    */
-  @NotNull
+  @Nonnull
   @Convert(MavenUrlConverter.class)
   GenericDomValue<String> getUrl();
 
@@ -68,6 +69,6 @@ public interface MavenDomCiManagement extends MavenDomElement {
    *
    * @return the value of the notifiers child.
    */
-  @NotNull
+  @Nonnull
   MavenDomNotifiers getNotifiers();
 }

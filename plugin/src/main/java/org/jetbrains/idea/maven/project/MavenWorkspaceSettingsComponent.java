@@ -15,7 +15,7 @@
  */
 package org.jetbrains.idea.maven.project;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import org.jetbrains.idea.maven.model.MavenExplicitProfiles;
 import org.jetbrains.idea.maven.server.MavenServerManager;
 import com.intellij.openapi.application.ApplicationManager;
@@ -46,7 +46,7 @@ public class MavenWorkspaceSettingsComponent implements PersistentStateComponent
 	}
 
 	@Override
-	@NotNull
+	@Nonnull
 	public MavenWorkspaceSettings getState()
 	{
 		MavenExplicitProfiles profiles = MavenProjectsManager.getInstance(myProject).getExplicitProfiles();

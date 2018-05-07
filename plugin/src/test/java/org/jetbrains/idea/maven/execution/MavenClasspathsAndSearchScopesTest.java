@@ -22,7 +22,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.idea.maven.MavenImportingTestCase;
 import org.jetbrains.idea.maven.importing.MavenModuleImporter;
 import com.intellij.openapi.command.WriteCommandAction;
@@ -729,7 +728,7 @@ public class MavenClasspathsAndSearchScopesTest extends MavenImportingTestCase
 		}
 	}
 
-	private static void createDirectoryIfDoesntExist(@Nullable String url)
+	private static void createDirectoryIfDoesntExist(@javax.annotation.Nullable String url)
 	{
 		if(StringUtil.isEmpty(url))
 		{

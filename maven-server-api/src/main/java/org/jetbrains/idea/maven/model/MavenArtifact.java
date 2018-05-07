@@ -19,8 +19,8 @@ package org.jetbrains.idea.maven.model;
 import java.io.File;
 import java.io.Serializable;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import com.intellij.openapi.util.Comparing;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.text.StringUtil;
@@ -60,7 +60,7 @@ public class MavenArtifact implements Serializable, MavenCoordinate {
                        String scope,
                        boolean optional,
                        String extension,
-                       @Nullable File file,
+                       @javax.annotation.Nullable File file,
                        File localRepository,
                        boolean resolved,
                        boolean stubbed) {
@@ -145,7 +145,7 @@ public class MavenArtifact implements Serializable, MavenCoordinate {
     return false;
   }
 
-  @NotNull
+  @Nonnull
   public File getFile() {
     return myFile;
   }
@@ -158,13 +158,13 @@ public class MavenArtifact implements Serializable, MavenCoordinate {
     return getRelativePathForExtraArtifact(null, null);
   }
 
-  public String getFileNameWithBaseVersion(@Nullable String extraArtifactClassifier, @Nullable String customExtension) {
+  public String getFileNameWithBaseVersion(@javax.annotation.Nullable String extraArtifactClassifier, @javax.annotation.Nullable String customExtension) {
     StringBuilder res = new StringBuilder();
     appendFileName(res, extraArtifactClassifier, customExtension);
     return res.toString();
   }
 
-  private void appendFileName(StringBuilder result, @Nullable String extraArtifactClassifier, @Nullable String customExtension) {
+  private void appendFileName(StringBuilder result, @Nullable String extraArtifactClassifier, @javax.annotation.Nullable String customExtension) {
     result.append(myArtifactId);
     result.append('-');
     result.append(myVersion);
@@ -178,7 +178,7 @@ public class MavenArtifact implements Serializable, MavenCoordinate {
     result.append(customExtension == null ? myExtension : customExtension);
   }
 
-  public String getRelativePathForExtraArtifact(@Nullable String extraArtifactClassifier, @Nullable String customExtension) {
+  public String getRelativePathForExtraArtifact(@javax.annotation.Nullable String extraArtifactClassifier, @javax.annotation.Nullable String customExtension) {
     StringBuilder result = new StringBuilder();
     result.append(myGroupId.replace('.', '/'));
     result.append('/');
@@ -207,7 +207,7 @@ public class MavenArtifact implements Serializable, MavenCoordinate {
     return StringUtil.isEmptyOrSpaces(result) ? null : result;
   }
 
-  public String getPathForExtraArtifact(@Nullable String extraArtifactClassifier, @Nullable String customExtension) {
+  public String getPathForExtraArtifact(@Nullable String extraArtifactClassifier, @javax.annotation.Nullable String customExtension) {
     String path = getPath();
 
     if (extraArtifactClassifier == null && customExtension == null && Comparing.equal(myVersion, myBaseVersion)) {
@@ -319,7 +319,7 @@ public class MavenArtifact implements Serializable, MavenCoordinate {
     return getLibraryName().substring(MAVEN_LIB_PREFIX.length());
   }
 
-  public static boolean isMavenLibrary(@Nullable String libraryName) {
+  public static boolean isMavenLibrary(@javax.annotation.Nullable String libraryName) {
     return libraryName != null && libraryName.startsWith(MAVEN_LIB_PREFIX);
   }
 

@@ -23,8 +23,7 @@ import com.intellij.util.xmlb.annotations.Tag;
 import com.intellij.util.xmlb.annotations.Transient;
 import gnu.trove.THashMap;
 import gnu.trove.THashSet;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -49,7 +48,7 @@ public class MavenProjectConfiguration {
   @MapAnnotation(surroundWithTag = false, surroundKeyWithTag = false, surroundValueWithTag = false, entryTagName = "maven-module", keyAttributeName = "name")
   public Map<String, MavenModuleResourceConfiguration> moduleConfigurations = new THashMap<String, MavenModuleResourceConfiguration>();
 
-  @Nullable
+  @javax.annotation.Nullable
   public MavenModuleResourceConfiguration findProject(MavenIdBean id) {
     return getModuleConfigurationMap().get(id);
   }
@@ -57,7 +56,7 @@ public class MavenProjectConfiguration {
   @Transient
   private volatile Map<MavenIdBean, MavenModuleResourceConfiguration> myIdToModuleMap;
 
-  @NotNull
+  @Nonnull
   private Map<MavenIdBean, MavenModuleResourceConfiguration> getModuleConfigurationMap() {
     Map<MavenIdBean, MavenModuleResourceConfiguration> map = myIdToModuleMap;
     if (map == null) {
@@ -72,7 +71,7 @@ public class MavenProjectConfiguration {
     return map;
   }
 
-  @Nullable
+  @javax.annotation.Nullable
   public String resolveProperty(final String propName, final MavenModuleResourceConfiguration moduleConfig, Map<String, String> additionalProperties) {
     boolean hasPrefix = false;
     String unprefixed = propName;
@@ -140,7 +139,7 @@ public class MavenProjectConfiguration {
 
 
   private static volatile Map<String, String> ourPropertiesFromMvnOpts;
-  @NotNull
+  @Nonnull
   private static Map<String, String> getMavenOptsProperties() {
     Map<String, String> res = ourPropertiesFromMvnOpts;
     if (res == null) {

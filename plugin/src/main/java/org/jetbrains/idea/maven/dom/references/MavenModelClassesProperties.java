@@ -18,7 +18,7 @@ package org.jetbrains.idea.maven.dom.references;
 import com.google.common.collect.ImmutableMap;
 import com.intellij.psi.CommonClassNames;
 import com.intellij.util.containers.ContainerUtil;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -193,7 +193,7 @@ public class MavenModelClassesProperties {
     PROPERTIES_MAP = res;
   }
 
-  public static boolean isPathValid(@NotNull String className, @NotNull String path) {
+  public static boolean isPathValid(@Nonnull String className, @Nonnull String path) {
     Map<String,String> cMap = PROPERTIES_MAP.get(className);
     if (cMap == null) return false;
 
@@ -212,7 +212,7 @@ public class MavenModelClassesProperties {
     } while (true);
   }
 
-  public static Map<String, String> getCompletionVariants(@NotNull String className, @NotNull String path) {
+  public static Map<String, String> getCompletionVariants(@Nonnull String className, @Nonnull String path) {
     Map<String,String> cMap = PROPERTIES_MAP.get(className);
     if (cMap == null) return Collections.emptyMap();
 

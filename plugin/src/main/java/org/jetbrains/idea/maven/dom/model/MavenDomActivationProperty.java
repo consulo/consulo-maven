@@ -20,7 +20,7 @@
 package org.jetbrains.idea.maven.dom.model;
 
 import com.intellij.util.xml.GenericDomValue;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import org.jetbrains.idea.maven.dom.MavenDomElement;
 
 /**
@@ -41,7 +41,7 @@ public interface MavenDomActivationProperty extends MavenDomElement {
    *
    * @return the value of the name child.
    */
-  @NotNull
+  @Nonnull
   GenericDomValue<String> getName();
 
   /**
@@ -53,6 +53,6 @@ public interface MavenDomActivationProperty extends MavenDomElement {
    *
    * @return the value of the value child.
    */
-  @NotNull
+  @Nonnull
   GenericDomValue<String> getValue();
 }

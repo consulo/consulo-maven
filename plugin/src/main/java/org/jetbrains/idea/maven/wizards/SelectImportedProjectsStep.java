@@ -15,13 +15,13 @@
  */
 package org.jetbrains.idea.maven.wizards;
 
+import javax.annotation.Nonnull;
 import javax.swing.Icon;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nullable;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.ProjectBundle;
 import com.intellij.ide.IdeBundle;
@@ -59,13 +59,13 @@ public abstract class SelectImportedProjectsStep extends ProjectImportWizardStep
 		fileChooser = new ElementsChooser<MavenProject>(true)
 		{
 			@Override
-			protected String getItemText(@NotNull MavenProject item)
+			protected String getItemText(@Nonnull MavenProject item)
 			{
 				return getElementText(item);
 			}
 
 			@Override
-			protected Icon getItemIcon(@NotNull final MavenProject item)
+			protected Icon getItemIcon(@Nonnull final MavenProject item)
 			{
 				return getElementIcon(item);
 			}
@@ -80,7 +80,7 @@ public abstract class SelectImportedProjectsStep extends ProjectImportWizardStep
 		{
 			@RequiredDispatchThread
 			@Override
-			public void actionPerformed(@NotNull AnActionEvent e)
+			public void actionPerformed(@Nonnull AnActionEvent e)
 			{
 				fileChooser.setAllElementsMarked(true);
 			}
@@ -89,7 +89,7 @@ public abstract class SelectImportedProjectsStep extends ProjectImportWizardStep
 		{
 			@RequiredDispatchThread
 			@Override
-			public void actionPerformed(@NotNull AnActionEvent e)
+			public void actionPerformed(@Nonnull AnActionEvent e)
 			{
 				fileChooser.setAllElementsMarked(false);
 			}
@@ -141,7 +141,7 @@ public abstract class SelectImportedProjectsStep extends ProjectImportWizardStep
 	}
 
 	@Override
-	public boolean validate(@NotNull WizardContext context) throws ConfigurationException
+	public boolean validate(@Nonnull WizardContext context) throws ConfigurationException
 	{
 		getContext().setList(fileChooser.getMarkedElements());
 		if(fileChooser.getMarkedElements().size() == 0)

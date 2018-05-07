@@ -25,6 +25,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import org.apache.maven.RepositoryUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Model;
@@ -33,8 +36,6 @@ import org.eclipse.aether.graph.Dependency;
 import org.eclipse.aether.graph.DependencyNode;
 import org.eclipse.aether.util.graph.manager.DependencyManagerUtils;
 import org.eclipse.aether.util.graph.transformer.ConflictResolver;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.idea.maven.model.MavenArtifact;
 import org.jetbrains.idea.maven.model.MavenArtifactNode;
 import org.jetbrains.idea.maven.model.MavenArtifactState;
@@ -51,7 +52,7 @@ import com.intellij.openapi.util.text.StringUtil;
  */
 public class Maven3AetherModelConverter extends MavenModelConverter
 {
-	@NotNull
+	@Nonnull
 	public static MavenModel convertModelWithAetherDependencyTree(Model model,
 			List<String> sources,
 			List<String> testSources,

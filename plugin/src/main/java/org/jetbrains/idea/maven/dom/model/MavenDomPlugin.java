@@ -19,10 +19,11 @@
 
 package org.jetbrains.idea.maven.dom.model;
 
+import javax.annotation.Nonnull;
+
 import com.intellij.ide.presentation.Presentation;
 import com.intellij.util.xml.GenericDomValue;
 import com.intellij.util.xml.Required;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.idea.maven.dom.MavenDomElement;
 
 /**
@@ -49,7 +50,7 @@ public interface MavenDomPlugin extends MavenDomElement, MavenDomArtifactCoordin
    *
    * @return the value of the extensions child.
    */
-  @NotNull
+  @Nonnull
   @Required(value = false, nonEmpty = true)
   GenericDomValue<Boolean> getExtensions();
 
@@ -62,7 +63,7 @@ public interface MavenDomPlugin extends MavenDomElement, MavenDomArtifactCoordin
    *
    * @return the value of the executions child.
    */
-  @NotNull
+  @Nonnull
   MavenDomExecutions getExecutions();
 
   /**
@@ -74,7 +75,7 @@ public interface MavenDomPlugin extends MavenDomElement, MavenDomArtifactCoordin
    *
    * @return the value of the dependencies child.
    */
-  @NotNull
+  @Nonnull
   MavenDomDependencies getDependencies();
 
   /**
@@ -86,7 +87,7 @@ public interface MavenDomPlugin extends MavenDomElement, MavenDomArtifactCoordin
    *
    * @return the value of the goals child.
    */
-  @NotNull
+  @Nonnull
   MavenDomGoals getGoals();
 
   /**
@@ -98,7 +99,7 @@ public interface MavenDomPlugin extends MavenDomElement, MavenDomArtifactCoordin
    *
    * @return the value of the inherited child.
    */
-  @NotNull
+  @Nonnull
   @Required(value = false, nonEmpty = true)
   GenericDomValue<Boolean> getInherited();
 
@@ -111,6 +112,6 @@ public interface MavenDomPlugin extends MavenDomElement, MavenDomArtifactCoordin
    *
    * @return the value of the configuration child.
    */
-  @NotNull
+  @Nonnull
   MavenDomConfiguration getConfiguration();
 }

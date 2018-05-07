@@ -4,7 +4,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.PsiReferenceBase;
 import com.intellij.util.ProcessingContext;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import org.jetbrains.idea.maven.dom.model.MavenDomConfiguration;
 
 /**
@@ -12,12 +12,12 @@ import org.jetbrains.idea.maven.dom.model.MavenDomConfiguration;
  */
 public abstract class MavenCompletionReferenceProvider implements MavenParamReferenceProvider {
 
-  protected abstract Object[] getVariants(@NotNull PsiReferenceBase reference);
+  protected abstract Object[] getVariants(@Nonnull PsiReferenceBase reference);
 
   @Override
-  public PsiReference[] getReferencesByElement(@NotNull PsiElement element,
-                                               @NotNull MavenDomConfiguration domCfg,
-                                               @NotNull ProcessingContext context) {
+  public PsiReference[] getReferencesByElement(@Nonnull PsiElement element,
+                                               @Nonnull MavenDomConfiguration domCfg,
+                                               @Nonnull ProcessingContext context) {
     return new PsiReference[] {
       new PsiReferenceBase<PsiElement>(element, true) {
         @Override
@@ -25,7 +25,7 @@ public abstract class MavenCompletionReferenceProvider implements MavenParamRefe
           return null;
         }
 
-        @NotNull
+        @Nonnull
         @Override
         public Object[] getVariants() {
           return MavenCompletionReferenceProvider.this.getVariants(this);

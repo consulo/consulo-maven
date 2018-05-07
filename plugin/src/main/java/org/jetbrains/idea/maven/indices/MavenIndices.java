@@ -20,8 +20,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.jetbrains.idea.maven.project.MavenGeneralSettings;
 import org.jetbrains.idea.maven.server.MavenIndexerWrapper;
 import org.jetbrains.idea.maven.utils.MavenLog;
@@ -130,7 +130,7 @@ public class MavenIndices
 		return createNewDir(myIndicesDir, "Index", 1000);
 	}
 
-	@NotNull
+	@Nonnull
 	static File createNewDir(File parent, String prefix, int max)
 	{
 		synchronized(ourDirectoryLock)

@@ -20,7 +20,7 @@ import com.intellij.util.xml.Converter;
 import com.intellij.util.xml.DomUtil;
 import com.intellij.util.xml.GenericDomValue;
 import com.intellij.util.xml.highlighting.BasicDomElementsInspection;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import org.jetbrains.idea.maven.dom.MavenDomBundle;
 import org.jetbrains.idea.maven.dom.converters.MavenDomSoftAwareConverter;
 import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
@@ -31,17 +31,17 @@ public class MavenModelInspection extends BasicDomElementsInspection<MavenDomPro
     super(MavenDomProjectModel.class);
   }
 
-  @NotNull
+  @Nonnull
   public String getGroupDisplayName() {
     return MavenDomBundle.message("inspection.group");
   }
 
-  @NotNull
+  @Nonnull
   public String getDisplayName() {
     return MavenDomBundle.message("inspection.name");
   }
 
-  @NotNull
+  @Nonnull
   public String getShortName() {
     return "MavenModelInspection";
   }

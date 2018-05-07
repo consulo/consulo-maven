@@ -22,8 +22,8 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.openapi.vfs.ex.dummy.DummyFileSystem;
 import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
 
 import java.util.Map;
@@ -44,7 +44,7 @@ public class MavenPropertiesVirtualFileSystem extends DummyFileSystem {
     return (MavenPropertiesVirtualFileSystem)VirtualFileManager.getInstance().getFileSystem(PROTOCOL);
   }
 
-  @NotNull
+  @Nonnull
   public String getProtocol() {
     return PROTOCOL;
   }
@@ -89,7 +89,7 @@ public class MavenPropertiesVirtualFileSystem extends DummyFileSystem {
   //  return false;
   //}
 
-  public synchronized VirtualFile findFileByPath(@NotNull @NonNls String path) {
+  public synchronized VirtualFile findFileByPath(@Nonnull @NonNls String path) {
     if (path.equals(SYSTEM_PROPERTIES_FILE)) {
       return getSystemPropertiesFile();
     }
@@ -102,12 +102,12 @@ public class MavenPropertiesVirtualFileSystem extends DummyFileSystem {
   }
 
   @Nullable
-  public IProperty findSystemProperty(Project project, @NotNull String propertyName) {
+  public IProperty findSystemProperty(Project project, @Nonnull String propertyName) {
     return MavenDomUtil.findProperty(project, getSystemPropertiesFile(), propertyName);
   }
 
-  @Nullable
-  public IProperty findEnvProperty(Project project, @NotNull String propertyName) {
+  @javax.annotation.Nullable
+  public IProperty findEnvProperty(Project project, @Nonnull String propertyName) {
     return MavenDomUtil.findProperty(project, getEnvPropertiesFile(), propertyName);
   }
 

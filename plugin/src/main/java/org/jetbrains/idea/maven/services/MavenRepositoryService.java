@@ -15,7 +15,7 @@
  */
 package org.jetbrains.idea.maven.services;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import org.jetbrains.idea.maven.model.MavenArtifactInfo;
 import org.jetbrains.idea.maven.model.MavenRepositoryInfo;
 
@@ -26,14 +26,14 @@ import java.util.List;
  * @author Gregory.Shrago
  */
 public abstract class MavenRepositoryService {
-  @NotNull
+  @Nonnull
   public abstract String getDisplayName();
 
-  @NotNull
-  public abstract List<MavenRepositoryInfo> getRepositories(@NotNull String url) throws IOException;
+  @Nonnull
+  public abstract List<MavenRepositoryInfo> getRepositories(@Nonnull String url) throws IOException;
 
-  @NotNull
-  public abstract List<MavenArtifactInfo> findArtifacts(@NotNull String url, @NotNull MavenArtifactInfo template) throws IOException;
+  @Nonnull
+  public abstract List<MavenArtifactInfo> findArtifacts(@Nonnull String url, @Nonnull MavenArtifactInfo template) throws IOException;
 
 
   public final String toString() {

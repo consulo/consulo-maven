@@ -1,12 +1,13 @@
 package org.jetbrains.idea.maven.dom.references;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.*;
 import com.intellij.util.ArrayUtil;
 import com.intellij.util.ProcessingContext;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.idea.maven.indices.MavenProjectIndicesManager;
 import org.jetbrains.idea.maven.plugins.api.MavenSoftAwareReferenceProvider;
 
@@ -20,9 +21,9 @@ public class MavenDependencyReferenceProvider extends PsiReferenceProvider imple
 
   private boolean myCanHasVersion = true;
 
-  @NotNull
+  @Nonnull
   @Override
-  public PsiReference[] getReferencesByElement(@NotNull PsiElement element, @NotNull ProcessingContext context) {
+  public PsiReference[] getReferencesByElement(@Nonnull PsiElement element, @Nonnull ProcessingContext context) {
     ElementManipulator<PsiElement> manipulator = ElementManipulators.getManipulator(element);
     TextRange range = manipulator.getRangeInElement(element);
 
@@ -89,7 +90,7 @@ public class MavenDependencyReferenceProvider extends PsiReferenceProvider imple
       return null;
     }
 
-    @NotNull
+    @Nonnull
     @Override
     public Object[] getVariants() {
       return MavenProjectIndicesManager.getInstance(getElement().getProject()).getGroupIds().toArray();
@@ -100,7 +101,7 @@ public class MavenDependencyReferenceProvider extends PsiReferenceProvider imple
 
     private final String myGroupId;
 
-    public ArtifactReference(@NotNull String groupId, @NotNull PsiElement element, @NotNull TextRange range, @NotNull boolean soft) {
+    public ArtifactReference(@Nonnull String groupId, @Nonnull PsiElement element, @Nonnull TextRange range, @Nonnull boolean soft) {
       super(element, range, soft);
       myGroupId = groupId;
     }
@@ -111,7 +112,7 @@ public class MavenDependencyReferenceProvider extends PsiReferenceProvider imple
       return null;
     }
 
-    @NotNull
+    @Nonnull
     @Override
     public Object[] getVariants() {
       if (StringUtil.isEmptyOrSpaces(myGroupId)) return ArrayUtil.EMPTY_OBJECT_ARRAY;
@@ -126,7 +127,7 @@ public class MavenDependencyReferenceProvider extends PsiReferenceProvider imple
     private final String myGroupId;
     private final String myArtifactId;
 
-    public VersionReference(@NotNull String groupId, @NotNull String artifactId, @NotNull PsiElement element, @NotNull TextRange range, @NotNull boolean soft) {
+    public VersionReference(@Nonnull String groupId, @Nonnull String artifactId, @Nonnull PsiElement element, @Nonnull TextRange range, @Nonnull boolean soft) {
       super(element, range, soft);
       myGroupId = groupId;
       myArtifactId = artifactId;
@@ -138,7 +139,7 @@ public class MavenDependencyReferenceProvider extends PsiReferenceProvider imple
       return null;
     }
 
-    @NotNull
+    @Nonnull
     @Override
     public Object[] getVariants() {
       if (StringUtil.isEmptyOrSpaces(myGroupId) || StringUtil.isEmptyOrSpaces(myArtifactId)) {

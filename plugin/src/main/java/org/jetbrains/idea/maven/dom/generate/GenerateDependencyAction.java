@@ -18,8 +18,8 @@ package org.jetbrains.idea.maven.dom.generate;
 import java.util.List;
 import java.util.Map;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.jetbrains.idea.maven.dom.DependencyConflictId;
 import org.jetbrains.idea.maven.dom.MavenDomBundle;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
@@ -48,7 +48,7 @@ public class GenerateDependencyAction extends GenerateDomElementAction
 		{
 			@Nullable
 			@Override
-			protected MavenDomDependency doGenerate(@NotNull final MavenDomProjectModel mavenModel, final Editor editor)
+			protected MavenDomDependency doGenerate(@Nonnull final MavenDomProjectModel mavenModel, final Editor editor)
 			{
 				Project project = mavenModel.getManager().getProject();
 

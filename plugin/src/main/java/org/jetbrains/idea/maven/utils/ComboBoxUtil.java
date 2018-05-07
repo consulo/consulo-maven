@@ -17,7 +17,7 @@ package org.jetbrains.idea.maven.utils;
 
 import com.intellij.openapi.util.Pair;
 import com.intellij.util.Function;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nullable;
 
 import javax.swing.*;
 import java.util.Collection;
@@ -73,7 +73,7 @@ public class ComboBoxUtil {
     return String.valueOf(getSelectedValue(model));
   }
 
-  @Nullable
+  @javax.annotation.Nullable
   public static Object getSelectedValue(DefaultComboBoxModel model) {
     final Object item = model.getSelectedItem();
     return item != null ? ((Item)item).getValue() : null;

@@ -19,8 +19,8 @@ import java.io.File;
 import java.io.Serializable;
 import java.util.Properties;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class MavenServerSettings implements Serializable, Cloneable
 {
@@ -30,7 +30,7 @@ public class MavenServerSettings implements Serializable, Cloneable
 	}
 
 	private int myLoggingLevel;
-	@Nullable
+	@javax.annotation.Nullable
 	private File myMavenHome;
 	@Nullable
 	private File myUserSettingsFile;
@@ -38,12 +38,12 @@ public class MavenServerSettings implements Serializable, Cloneable
 	private File myGlobalSettingsFile;
 	@Nullable
 	private File myLocalRepository;
-	@NotNull
+	@Nonnull
 	private Properties myUserProperties = new Properties();
 	private boolean isOffline;
-	@NotNull
+	@Nonnull
 	private UpdatePolicy myPluginUpdatePolicy = UpdatePolicy.DO_NOT_UPDATE;
-	@NotNull
+	@Nonnull
 	private UpdatePolicy mySnapshotUpdatePolicy = UpdatePolicy.ALWAYS_UPDATE;
 
 	private String projectJdk;
@@ -54,7 +54,7 @@ public class MavenServerSettings implements Serializable, Cloneable
 		return projectJdk;
 	}
 
-	public void setProjectJdk(@Nullable String projectJdk)
+	public void setProjectJdk(@javax.annotation.Nullable String projectJdk)
 	{
 		this.projectJdk = projectJdk;
 	}
@@ -69,13 +69,13 @@ public class MavenServerSettings implements Serializable, Cloneable
 		myLoggingLevel = loggingLevel;
 	}
 
-	@NotNull
+	@Nonnull
 	public Properties getUserProperties()
 	{
 		return myUserProperties;
 	}
 
-	public void setUserProperties(@NotNull Properties properties)
+	public void setUserProperties(@Nonnull Properties properties)
 	{
 		myUserProperties = properties;
 	}
@@ -97,12 +97,12 @@ public class MavenServerSettings implements Serializable, Cloneable
 		return myUserSettingsFile;
 	}
 
-	public void setUserSettingsFile(@Nullable File userSettingsFile)
+	public void setUserSettingsFile(@javax.annotation.Nullable File userSettingsFile)
 	{
 		myUserSettingsFile = userSettingsFile;
 	}
 
-	@Nullable
+	@javax.annotation.Nullable
 	public File getGlobalSettingsFile()
 	{
 		return myGlobalSettingsFile;
@@ -134,24 +134,24 @@ public class MavenServerSettings implements Serializable, Cloneable
 		isOffline = offline;
 	}
 
-	@NotNull
+	@Nonnull
 	public UpdatePolicy getPluginUpdatePolicy()
 	{
 		return myPluginUpdatePolicy;
 	}
 
-	public void setPluginUpdatePolicy(@NotNull UpdatePolicy pluginUpdatePolicy)
+	public void setPluginUpdatePolicy(@Nonnull UpdatePolicy pluginUpdatePolicy)
 	{
 		myPluginUpdatePolicy = pluginUpdatePolicy;
 	}
 
-	@NotNull
+	@Nonnull
 	public UpdatePolicy getSnapshotUpdatePolicy()
 	{
 		return mySnapshotUpdatePolicy;
 	}
 
-	public void setSnapshotUpdatePolicy(@NotNull UpdatePolicy snapshotUpdatePolicy)
+	public void setSnapshotUpdatePolicy(@Nonnull UpdatePolicy snapshotUpdatePolicy)
 	{
 		mySnapshotUpdatePolicy = snapshotUpdatePolicy;
 	}

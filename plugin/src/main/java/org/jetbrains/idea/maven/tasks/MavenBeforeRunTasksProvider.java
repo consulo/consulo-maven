@@ -21,8 +21,8 @@ import java.util.List;
 
 import javax.swing.Icon;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.jetbrains.idea.maven.execution.MavenEditGoalDialog;
 import org.jetbrains.idea.maven.execution.MavenRunner;
 import org.jetbrains.idea.maven.execution.MavenRunnerParameters;
@@ -205,7 +205,7 @@ public class MavenBeforeRunTasksProvider extends BeforeRunTaskProvider<MavenBefo
 				new Task.Backgroundable(project, TasksBundle.message("maven.tasks.executing"), true)
 				{
 					@Override
-					public void run(@NotNull ProgressIndicator indicator)
+					public void run(@Nonnull ProgressIndicator indicator)
 					{
 						try
 						{

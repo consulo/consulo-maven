@@ -20,7 +20,8 @@ import gnu.trove.THashMap;
 import java.util.IdentityHashMap;
 import java.util.Map;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
+
 import com.intellij.openapi.module.ModifiableModuleModel;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
@@ -59,7 +60,7 @@ public abstract class MavenBaseModifiableModelsProvider implements MavenModifiab
   }
 
   @Override
-  public ModifiableRootModel getRootModel(@NotNull Module module) {
+  public ModifiableRootModel getRootModel(@Nonnull Module module) {
     ModifiableRootModel result = myRootModels.get(module);
     if (result == null) {
       result = doGetRootModel(module);
@@ -99,9 +100,9 @@ public abstract class MavenBaseModifiableModelsProvider implements MavenModifiab
     return result;
   }
 
-  @NotNull
+  @Nonnull
   @Override
-  public String[] getLibraryUrls(@NotNull Library library, @NotNull OrderRootType type) {
+  public String[] getLibraryUrls(@Nonnull Library library, @Nonnull OrderRootType type) {
     final Library.ModifiableModel model = myLibraryModels.get(library);
     if (model != null) {
       return model.getUrls(type);
@@ -135,25 +136,25 @@ public abstract class MavenBaseModifiableModelsProvider implements MavenModifiab
     private final ModulesProvider myModulesProvider = new MavenModulesProvider();
 
     @Override
-	@NotNull
+	@Nonnull
     public Project getProject() {
       return myProject;
     }
 
     @Override
-	@NotNull
+	@Nonnull
     public ArtifactModel getArtifactModel() {
       return MavenBaseModifiableModelsProvider.this.getArtifactModel();
     }
 
     @Override
-	@NotNull
+	@Nonnull
     public ModulesProvider getModulesProvider() {
       return myModulesProvider;
     }
 
     @Override
-	public Library findLibrary(@NotNull String level, @NotNull String libraryName) {
+	public Library findLibrary(@Nonnull String level, @Nonnull String libraryName) {
       if (level.equals(LibraryTablesRegistrar.PROJECT_LEVEL)) {
         return getLibraryByName(libraryName);
       }
@@ -164,7 +165,7 @@ public abstract class MavenBaseModifiableModelsProvider implements MavenModifiab
 
   private class MavenModulesProvider implements ModulesProvider {
     @Override
-	@NotNull
+	@Nonnull
     public Module[] getModules() {
       return getModuleModel().getModules();
     }
@@ -175,7 +176,7 @@ public abstract class MavenBaseModifiableModelsProvider implements MavenModifiab
     }
 
     @Override
-	public ModuleRootModel getRootModel(@NotNull Module module) {
+	public ModuleRootModel getRootModel(@Nonnull Module module) {
       return MavenBaseModifiableModelsProvider.this.getRootModel(module);
     }
   }

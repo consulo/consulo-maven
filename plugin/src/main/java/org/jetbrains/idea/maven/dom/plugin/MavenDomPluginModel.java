@@ -15,10 +15,11 @@
  */
 package org.jetbrains.idea.maven.dom.plugin;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
+
 import org.jetbrains.idea.maven.dom.MavenDomElement;
 
 public interface MavenDomPluginModel extends MavenDomElement {
-  @NotNull
+  @Nonnull
   MavenDomMojos getMojos();
 }

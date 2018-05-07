@@ -18,7 +18,7 @@ package org.jetbrains.idea.maven.execution;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.util.Pair;
 import com.intellij.util.ArrayUtil;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nullable;
 
 import javax.swing.*;
 import java.awt.event.FocusAdapter;
@@ -85,7 +85,7 @@ public class EditMavenPropertyDialog extends DialogWrapper {
     myNameBox.setModel(new DefaultComboBoxModel(keys));
   }
 
-  @Nullable
+  @javax.annotation.Nullable
   protected JComponent createCenterPanel() {
     return contentPane;
   }

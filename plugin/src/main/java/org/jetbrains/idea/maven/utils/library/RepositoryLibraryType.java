@@ -22,8 +22,8 @@ import com.intellij.openapi.roots.libraries.PersistentLibraryKind;
 import com.intellij.openapi.roots.libraries.ui.LibraryEditorComponent;
 import com.intellij.openapi.roots.libraries.ui.LibraryPropertiesEditor;
 import com.intellij.openapi.vfs.VirtualFile;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import javax.swing.*;
 
@@ -32,7 +32,7 @@ import javax.swing.*;
  */
 public class RepositoryLibraryType extends LibraryType<RepositoryLibraryProperties> {
   private static final PersistentLibraryKind<RepositoryLibraryProperties> LIBRARY_KIND = new PersistentLibraryKind<RepositoryLibraryProperties>("repository") {
-    @NotNull
+    @Nonnull
     @Override
     public RepositoryLibraryProperties createDefaultProperties() {
       return new RepositoryLibraryProperties();
@@ -53,19 +53,19 @@ public class RepositoryLibraryType extends LibraryType<RepositoryLibraryProperti
   }
 
   @Override
-  public NewLibraryConfiguration createNewLibrary(@NotNull JComponent parentComponent,
+  public NewLibraryConfiguration createNewLibrary(@Nonnull JComponent parentComponent,
                                                   @Nullable VirtualFile contextDirectory,
-                                                  @NotNull Project project) {
+                                                  @Nonnull Project project) {
     return RepositoryAttachHandler.chooseLibraryAndDownload(project, null, parentComponent);
   }
 
   @Override
-  public LibraryPropertiesEditor createPropertiesEditor(@NotNull LibraryEditorComponent<RepositoryLibraryProperties> component) {
+  public LibraryPropertiesEditor createPropertiesEditor(@Nonnull LibraryEditorComponent<RepositoryLibraryProperties> component) {
     return new RepositoryLibraryEditor(component, this);
   }
 
   @Override
-  public String getDescription(@NotNull RepositoryLibraryProperties properties) {
+  public String getDescription(@Nonnull RepositoryLibraryProperties properties) {
     final String mavenIdKey = properties.getMavenId();
     return "Library " + (mavenIdKey != null ? mavenIdKey + " " : "") + "from Maven repository";
   }

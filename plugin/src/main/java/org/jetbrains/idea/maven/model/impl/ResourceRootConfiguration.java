@@ -18,8 +18,7 @@ package org.jetbrains.idea.maven.model.impl;
 import com.intellij.util.xmlb.annotations.AbstractCollection;
 import com.intellij.util.xmlb.annotations.Attribute;
 import com.intellij.util.xmlb.annotations.Tag;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -31,11 +30,11 @@ import java.util.Set;
 @Tag("resource")
 public class ResourceRootConfiguration {
   @Tag("directory")
-  @NotNull
+  @Nonnull
   public String directory;
 
   @Tag("targetPath")
-  @Nullable
+  @javax.annotation.Nullable
   public String targetPath;
 
   @Attribute("filtered")

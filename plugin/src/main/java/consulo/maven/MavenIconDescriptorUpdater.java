@@ -15,7 +15,8 @@
  */
 package consulo.maven;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
+
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -32,7 +33,7 @@ import icons.MavenIcons;
 public class MavenIconDescriptorUpdater implements IconDescriptorUpdater
 {
   @Override
-  public void updateIcon(@NotNull IconDescriptor iconDescriptor, @NotNull PsiElement element, int flags) {
+  public void updateIcon(@Nonnull IconDescriptor iconDescriptor, @Nonnull PsiElement element, int flags) {
     if(element instanceof PsiFile && !DumbService.getInstance(element.getProject()).isDumb()) {
       final VirtualFile virtualFile = ((PsiFile)element).getVirtualFile();
       if(virtualFile == null) {

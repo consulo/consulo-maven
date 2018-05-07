@@ -19,8 +19,8 @@ import java.io.File;
 import java.util.List;
 import java.util.Map;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.jetbrains.idea.maven.project.MavenProject;
 import com.intellij.compiler.impl.javaCompiler.JavaCompilerConfiguration;
 import com.intellij.compiler.impl.javaCompiler.annotationProcessing.ProcessorConfigProfile;
@@ -43,7 +43,7 @@ public class MavenAnnotationProcessorConfigurer extends MavenModuleConfigurer {
   public static final String DEFAULT_TEST_ANNOTATION_OUTPUT = "target/generated-test-sources/test-annotations";
 
   @Override
-  public void configure(@NotNull MavenProject mavenProject, @NotNull Project project, @Nullable Module module) {
+  public void configure(@Nonnull MavenProject mavenProject, @Nonnull Project project, @Nullable Module module) {
     if (module == null) return;
 
     Sdk sdk = ModuleUtilCore.getSdk(module, JavaModuleExtensionImpl.class);

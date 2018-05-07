@@ -2,7 +2,7 @@ package org.jetbrains.idea.maven.server;
 
 import com.intellij.util.containers.WeakValueHashMap;
 import org.apache.maven.project.MavenProject;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 
 public class RemoteNativeMavenProjectHolder implements NativeMavenProjectHolder {
   private static final WeakValueHashMap<Integer, RemoteNativeMavenProjectHolder> myMap =
@@ -10,7 +10,7 @@ public class RemoteNativeMavenProjectHolder implements NativeMavenProjectHolder 
 
   private final MavenProject myMavenProject;
 
-  public RemoteNativeMavenProjectHolder(@NotNull MavenProject mavenProject) {
+  public RemoteNativeMavenProjectHolder(@Nonnull MavenProject mavenProject) {
     myMavenProject = mavenProject;
     myMap.put(getId(), this);
   }
@@ -19,7 +19,7 @@ public class RemoteNativeMavenProjectHolder implements NativeMavenProjectHolder 
     return System.identityHashCode(this);
   }
 
-  @NotNull
+  @Nonnull
   public static MavenProject findProjectById(int id) {
     RemoteNativeMavenProjectHolder result = myMap.get(id);
     if (result == null) {

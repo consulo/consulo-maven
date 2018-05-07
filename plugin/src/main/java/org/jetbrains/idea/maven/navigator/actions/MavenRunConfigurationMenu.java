@@ -15,7 +15,8 @@
  */
 package org.jetbrains.idea.maven.navigator.actions;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
+
 import org.jetbrains.idea.maven.utils.MavenDataKeys;
 import com.intellij.execution.Executor;
 import com.intellij.execution.ExecutorRegistry;
@@ -84,7 +85,7 @@ public class MavenRunConfigurationMenu extends DefaultActionGroup implements Dum
 		}
 
 		@Override
-		public void actionPerformed(@NotNull AnActionEvent event)
+		public void actionPerformed(@Nonnull AnActionEvent event)
 		{
 			if(myEnabled)
 			{
@@ -93,7 +94,7 @@ public class MavenRunConfigurationMenu extends DefaultActionGroup implements Dum
 		}
 
 		@Override
-		public void update(@NotNull AnActionEvent e)
+		public void update(@Nonnull AnActionEvent e)
 		{
 			super.update(e);
 			e.getPresentation().setEnabled(myEnabled);

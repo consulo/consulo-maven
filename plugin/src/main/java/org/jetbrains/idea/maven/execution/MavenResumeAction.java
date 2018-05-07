@@ -19,8 +19,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import com.intellij.execution.ExecutionBundle;
@@ -190,7 +190,7 @@ public class MavenResumeAction extends AnAction {
   }
 
   @Nullable
-  private MavenProject findProjectByName(@NotNull String projectName) {
+  private MavenProject findProjectByName(@Nonnull String projectName) {
     List<MavenProject> projects = MavenProjectsManager.getInstance(myEnvironment.getProject()).getProjects();
 
     MavenProject candidate = null;
@@ -240,7 +240,7 @@ public class MavenResumeAction extends AnAction {
     return candidate;
   }
 
-  public static boolean isApplicable(@Nullable Project project, OwnJavaParameters javaParameters, MavenRunConfiguration runConfiguration) {
+  public static boolean isApplicable(@javax.annotation.Nullable Project project, OwnJavaParameters javaParameters, MavenRunConfiguration runConfiguration) {
     if (hasResumeFromParameter(runConfiguration)) { // This runConfiguration was created by other MavenResumeAction.
       MavenRunConfiguration clonedRunConf = runConfiguration.clone();
       List<String> clonedGoals = clonedRunConf.getRunnerParameters().getGoals();

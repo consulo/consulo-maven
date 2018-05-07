@@ -29,12 +29,12 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import java.util.zip.CRC32;
 
+import javax.annotation.Nonnull;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nullable;
 import org.jetbrains.idea.maven.model.MavenConstants;
 import org.jetbrains.idea.maven.model.MavenId;
 import org.jetbrains.idea.maven.model.MavenPlugin;
@@ -284,7 +284,7 @@ public class MavenUtil
 	}
 
 	@Nullable
-	public static VirtualFile findProfilesXmlFile(@Nullable VirtualFile pomFile)
+	public static VirtualFile findProfilesXmlFile(@javax.annotation.Nullable VirtualFile pomFile)
 	{
 		if(pomFile == null)
 		{
@@ -298,7 +298,7 @@ public class MavenUtil
 		return parent.findChild(MavenConstants.PROFILES_XML);
 	}
 
-	@Nullable
+	@javax.annotation.Nullable
 	public static File getProfilesXmlIoFile(VirtualFile pomFile)
 	{
 		if(pomFile == null)
@@ -384,14 +384,14 @@ public class MavenUtil
 		return "<img src=\"" + url + "\"> ";
 	}
 
-	public static void runOrApplyMavenProjectFileTemplate(Project project, VirtualFile file, @NotNull MavenId projectId, boolean interactive) throws IOException
+	public static void runOrApplyMavenProjectFileTemplate(Project project, VirtualFile file, @Nonnull MavenId projectId, boolean interactive) throws IOException
 	{
 		runOrApplyMavenProjectFileTemplate(project, file, projectId, null, null, interactive);
 	}
 
 	public static void runOrApplyMavenProjectFileTemplate(Project project,
 			VirtualFile file,
-			@NotNull MavenId projectId,
+			@Nonnull MavenId projectId,
 			MavenId parentId,
 			VirtualFile parentFile,
 			boolean interactive) throws IOException
@@ -536,7 +536,7 @@ public class MavenUtil
 		ProgressManager.getInstance().run(new Task.Modal(project, title, true)
 		{
 			@Override
-			public void run(@NotNull ProgressIndicator i)
+			public void run(@Nonnull ProgressIndicator i)
 			{
 				try
 				{
@@ -653,7 +653,7 @@ public class MavenUtil
 					new Task.Backgroundable(project, title, cancellable)
 					{
 						@Override
-						public void run(@NotNull ProgressIndicator i)
+						public void run(@Nonnull ProgressIndicator i)
 						{
 							indicator.setIndicator(i);
 							handler.waitFor();
@@ -665,8 +665,8 @@ public class MavenUtil
 		}
 	}
 
-	@Nullable
-	public static File resolveMavenHomeDirectory(@Nullable String overrideMavenHome)
+	@javax.annotation.Nullable
+	public static File resolveMavenHomeDirectory(@javax.annotation.Nullable String overrideMavenHome)
 	{
 		if(!isEmptyOrSpaces(overrideMavenHome))
 		{
@@ -774,7 +774,7 @@ public class MavenUtil
 		return null;
 	}
 
-	@Nullable
+	@javax.annotation.Nullable
 	private static File fromBrew()
 	{
 		final File brewDir = new File("/usr/local/Cellar/maven");
@@ -800,7 +800,7 @@ public class MavenUtil
 		return isValidMavenHome(file) ? file : null;
 	}
 
-	public static boolean isEmptyOrSpaces(@Nullable String str)
+	public static boolean isEmptyOrSpaces(@javax.annotation.Nullable String str)
 	{
 		return str == null || str.length() == 0 || str.trim().length() == 0;
 	}
@@ -816,7 +816,7 @@ public class MavenUtil
 	}
 
 	@Nullable
-	public static String getMavenVersion(@Nullable File mavenHome)
+	public static String getMavenVersion(@javax.annotation.Nullable File mavenHome)
 	{
 		if(mavenHome == null)
 		{
@@ -850,7 +850,7 @@ public class MavenUtil
 		return null;
 	}
 
-	@Nullable
+	@javax.annotation.Nullable
 	public static String getMavenVersion(String mavenHome)
 	{
 		return getMavenVersion(new File(mavenHome));
@@ -863,13 +863,13 @@ public class MavenUtil
 	}
 
 	@Nullable
-	public static File resolveGlobalSettingsFile(@Nullable String overriddenMavenHome)
+	public static File resolveGlobalSettingsFile(@javax.annotation.Nullable String overriddenMavenHome)
 	{
 		File directory = resolveMavenHomeDirectory(overriddenMavenHome);
 		return new File(new File(directory, CONF_DIR), SETTINGS_XML);
 	}
 
-	@NotNull
+	@Nonnull
 	public static File resolveUserSettingsFile(@Nullable String overriddenUserSettingsFile)
 	{
 		if(!isEmptyOrSpaces(overriddenUserSettingsFile))
@@ -879,14 +879,14 @@ public class MavenUtil
 		return new File(resolveM2Dir(), SETTINGS_XML);
 	}
 
-	@NotNull
+	@Nonnull
 	public static File resolveM2Dir()
 	{
 		return new File(SystemProperties.getUserHome(), DOT_M2_DIR);
 	}
 
-	@NotNull
-	public static File resolveLocalRepository(@Nullable String overriddenLocalRepository, @Nullable String overriddenMavenHome, @Nullable String overriddenUserSettingsFile)
+	@Nonnull
+	public static File resolveLocalRepository(@javax.annotation.Nullable String overriddenLocalRepository, @javax.annotation.Nullable String overriddenMavenHome, @javax.annotation.Nullable String overriddenUserSettingsFile)
 	{
 		File result = null;
 		if(!isEmptyOrSpaces(overriddenLocalRepository))
@@ -907,8 +907,8 @@ public class MavenUtil
 		}
 	}
 
-	@NotNull
-	public static File doResolveLocalRepository(@Nullable File userSettingsFile, @Nullable File globalSettingsFile)
+	@Nonnull
+	public static File doResolveLocalRepository(@javax.annotation.Nullable File userSettingsFile, @javax.annotation.Nullable File globalSettingsFile)
 	{
 		if(userSettingsFile != null)
 		{
@@ -960,8 +960,8 @@ public class MavenUtil
 		return text;
 	}
 
-	@Nullable
-	public static VirtualFile resolveSuperPomFile(@Nullable File mavenHome)
+	@javax.annotation.Nullable
+	public static VirtualFile resolveSuperPomFile(@javax.annotation.Nullable File mavenHome)
 	{
 		VirtualFile result = null;
 		if(mavenHome != null)
@@ -972,7 +972,7 @@ public class MavenUtil
 	}
 
 	@Nullable
-	public static VirtualFile doResolveSuperPomFile(@NotNull File mavenHome)
+	public static VirtualFile doResolveSuperPomFile(@Nonnull File mavenHome)
 	{
 		File[] files = mavenHome.listFiles();
 		if(files == null)
@@ -1045,7 +1045,7 @@ public class MavenUtil
 		void waitFor();
 	}
 
-	public static int crcWithoutSpaces(@NotNull InputStream in) throws IOException
+	public static int crcWithoutSpaces(@Nonnull InputStream in) throws IOException
 	{
 		try
 		{
@@ -1059,7 +1059,7 @@ public class MavenUtil
 				boolean textContentOccur = false;
 				int spacesCrc;
 
-				private void putString(@Nullable String string)
+				private void putString(@javax.annotation.Nullable String string)
 				{
 					if(string == null)
 					{
@@ -1169,7 +1169,7 @@ public class MavenUtil
 		}
 	}
 
-	public static int crcWithoutSpaces(@NotNull VirtualFile xmlFile) throws IOException
+	public static int crcWithoutSpaces(@Nonnull VirtualFile xmlFile) throws IOException
 	{
 		InputStream inputStream = xmlFile.getInputStream();
 		try
@@ -1182,7 +1182,7 @@ public class MavenUtil
 		}
 	}
 
-	public static String getSdkPath(@Nullable Sdk sdk)
+	public static String getSdkPath(@javax.annotation.Nullable Sdk sdk)
 	{
 		if(sdk == null)
 		{
@@ -1207,14 +1207,14 @@ public class MavenUtil
 		return homeDirectory.getPath();
 	}
 
-	@Nullable
-	public static String getModuleJreHome(@NotNull MavenProjectsManager mavenProjectsManager, @NotNull MavenProject mavenProject)
+	@javax.annotation.Nullable
+	public static String getModuleJreHome(@Nonnull MavenProjectsManager mavenProjectsManager, @Nonnull MavenProject mavenProject)
 	{
 		return getSdkPath(getModuleJdk(mavenProjectsManager, mavenProject));
 	}
 
-	@Nullable
-	public static String getModuleJavaVersion(@NotNull MavenProjectsManager mavenProjectsManager, @NotNull MavenProject mavenProject)
+	@javax.annotation.Nullable
+	public static String getModuleJavaVersion(@Nonnull MavenProjectsManager mavenProjectsManager, @Nonnull MavenProject mavenProject)
 	{
 		Sdk sdk = getModuleJdk(mavenProjectsManager, mavenProject);
 		if(sdk == null)
@@ -1225,8 +1225,8 @@ public class MavenUtil
 		return sdk.getVersionString();
 	}
 
-	@Nullable
-	public static Sdk getModuleJdk(@NotNull MavenProjectsManager mavenProjectsManager, @NotNull MavenProject mavenProject)
+	@javax.annotation.Nullable
+	public static Sdk getModuleJdk(@Nonnull MavenProjectsManager mavenProjectsManager, @Nonnull MavenProject mavenProject)
 	{
 		Module module = mavenProjectsManager.findModule(mavenProject);
 		if(module == null)
@@ -1237,7 +1237,7 @@ public class MavenUtil
 		return ModuleUtilCore.getSdk(module, JavaModuleExtension.class);
 	}
 
-	@NotNull
+	@Nonnull
 	public static <K, V extends Map> V getOrCreate(Map map, K key)
 	{
 		Map res = (Map) map.get(key);

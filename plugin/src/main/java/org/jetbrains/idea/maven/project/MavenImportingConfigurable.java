@@ -21,8 +21,8 @@ import com.intellij.openapi.options.UnnamedConfigurable;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.jetbrains.idea.maven.server.MavenServerManager;
 
 import javax.swing.*;
@@ -132,7 +132,7 @@ public class MavenImportingConfigurable implements SearchableConfigurable {
     return "reference.settings.project.maven.importing";
   }
 
-  @NotNull
+  @Nonnull
   public String getId() {
     return getHelpTopic();
   }

@@ -31,8 +31,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.jetbrains.annotations.TestOnly;
 import org.jetbrains.idea.maven.importing.MavenDefaultModifiableModelsProvider;
 import org.jetbrains.idea.maven.importing.MavenFoldersImporter;
@@ -447,7 +447,7 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 			}
 
 			@Override
-			public void projectResolved(Pair<MavenProject, MavenProjectChanges> projectWithChanges, @Nullable NativeMavenProjectHolder nativeMavenProject)
+			public void projectResolved(Pair<MavenProject, MavenProjectChanges> projectWithChanges, @javax.annotation.Nullable NativeMavenProjectHolder nativeMavenProject)
 			{
 				if(nativeMavenProject != null)
 				{
@@ -546,7 +546,7 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 		return isInitialized();
 	}
 
-	public boolean isMavenizedModule(@NotNull final Module m)
+	public boolean isMavenizedModule(@Nonnull final Module m)
 	{
 		AccessToken accessToken = ApplicationManager.getApplication().acquireReadActionLock();
 		try
@@ -578,23 +578,23 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 		}
 	}
 
-	public void addManagedFiles(@NotNull List<VirtualFile> files)
+	public void addManagedFiles(@Nonnull List<VirtualFile> files)
 	{
 		addManagedFilesWithProfiles(files, MavenExplicitProfiles.NONE);
 	}
 
-	public void addManagedFilesOrUnignore(@NotNull List<VirtualFile> files)
+	public void addManagedFilesOrUnignore(@Nonnull List<VirtualFile> files)
 	{
 		removeIgnoredFilesPaths(MavenUtil.collectPaths(files));
 		addManagedFiles(files);
 	}
 
-	public void removeManagedFiles(@NotNull List<VirtualFile> files)
+	public void removeManagedFiles(@Nonnull List<VirtualFile> files)
 	{
 		myWatcher.removeManagedFiles(files);
 	}
 
-	public boolean isManagedFile(@NotNull VirtualFile f)
+	public boolean isManagedFile(@Nonnull VirtualFile f)
 	{
 		if(!isInitialized())
 		{
@@ -603,7 +603,7 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 		return myProjectsTree.isManagedFile(f);
 	}
 
-	@NotNull
+	@Nonnull
 	public MavenExplicitProfiles getExplicitProfiles()
 	{
 		if(!isInitialized())
@@ -613,12 +613,12 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 		return myProjectsTree.getExplicitProfiles();
 	}
 
-	public void setExplicitProfiles(@NotNull MavenExplicitProfiles profiles)
+	public void setExplicitProfiles(@Nonnull MavenExplicitProfiles profiles)
 	{
 		myWatcher.setExplicitProfiles(profiles);
 	}
 
-	@NotNull
+	@Nonnull
 	public Collection<String> getAvailableProfiles()
 	{
 		if(!isInitialized())
@@ -628,7 +628,7 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 		return myProjectsTree.getAvailableProfiles();
 	}
 
-	@NotNull
+	@Nonnull
 	public Collection<Pair<String, MavenProfileKind>> getProfilesWithStates()
 	{
 		if(!isInitialized())
@@ -647,7 +647,7 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 		return myProjectsTree.hasProjects();
 	}
 
-	@NotNull
+	@Nonnull
 	public List<MavenProject> getProjects()
 	{
 		if(!isInitialized())
@@ -657,7 +657,7 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 		return myProjectsTree.getProjects();
 	}
 
-	@NotNull
+	@Nonnull
 	public List<MavenProject> getRootProjects()
 	{
 		if(!isInitialized())
@@ -667,7 +667,7 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 		return myProjectsTree.getRootProjects();
 	}
 
-	@NotNull
+	@Nonnull
 	public List<MavenProject> getNonIgnoredProjects()
 	{
 		if(!isInitialized())
@@ -677,7 +677,7 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 		return myProjectsTree.getNonIgnoredProjects();
 	}
 
-	@NotNull
+	@Nonnull
 	public List<VirtualFile> getProjectsFiles()
 	{
 		if(!isInitialized())
@@ -688,7 +688,7 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 	}
 
 	@Nullable
-	public MavenProject findProject(@NotNull VirtualFile f)
+	public MavenProject findProject(@Nonnull VirtualFile f)
 	{
 		if(!isInitialized())
 		{
@@ -698,7 +698,7 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 	}
 
 	@Nullable
-	public MavenProject findProject(@NotNull MavenId id)
+	public MavenProject findProject(@Nonnull MavenId id)
 	{
 		if(!isInitialized())
 		{
@@ -707,8 +707,8 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 		return myProjectsTree.findProject(id);
 	}
 
-	@Nullable
-	public MavenProject findProject(@NotNull MavenArtifact artifact)
+	@javax.annotation.Nullable
+	public MavenProject findProject(@Nonnull MavenArtifact artifact)
 	{
 		if(!isInitialized())
 		{
@@ -718,7 +718,7 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 	}
 
 	@Nullable
-	public MavenProject findProject(@NotNull Module module)
+	public MavenProject findProject(@Nonnull Module module)
 	{
 		VirtualFile f = findPomFile(module, new MavenModelsProvider()
 		{
@@ -737,8 +737,8 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 		return f == null ? null : findProject(f);
 	}
 
-	@Nullable
-	public Module findModule(@NotNull MavenProject project)
+	@javax.annotation.Nullable
+	public Module findModule(@Nonnull MavenProject project)
 	{
 		if(!isInitialized())
 		{
@@ -747,7 +747,7 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 		return ProjectRootManager.getInstance(myProject).getFileIndex().getModuleForFile(project.getFile());
 	}
 
-	@NotNull
+	@Nonnull
 	public Collection<MavenProject> findInheritors(@Nullable MavenProject parent)
 	{
 		if(parent == null || !isInitialized())
@@ -758,7 +758,7 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 	}
 
 	@Nullable
-	public MavenProject findContainingProject(@NotNull VirtualFile file)
+	public MavenProject findContainingProject(@Nonnull VirtualFile file)
 	{
 		if(!isInitialized())
 		{
@@ -768,8 +768,8 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 		return module == null ? null : findProject(module);
 	}
 
-	@Nullable
-	private static VirtualFile findPomFile(@NotNull Module module, @NotNull MavenModelsProvider modelsProvider)
+	@javax.annotation.Nullable
+	private static VirtualFile findPomFile(@Nonnull Module module, @Nonnull MavenModelsProvider modelsProvider)
 	{
 		for(VirtualFile root : modelsProvider.getContentRoots(module))
 		{
@@ -782,8 +782,8 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 		return null;
 	}
 
-	@Nullable
-	public MavenProject findAggregator(@NotNull MavenProject module)
+	@javax.annotation.Nullable
+	public MavenProject findAggregator(@Nonnull MavenProject module)
 	{
 		if(!isInitialized())
 		{
@@ -792,8 +792,8 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 		return myProjectsTree.findAggregator(module);
 	}
 
-	@NotNull
-	public List<MavenProject> getModules(@NotNull MavenProject aggregator)
+	@Nonnull
+	public List<MavenProject> getModules(@Nonnull MavenProject aggregator)
 	{
 		if(!isInitialized())
 		{
@@ -802,7 +802,7 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 		return myProjectsTree.getModules(aggregator);
 	}
 
-	@NotNull
+	@Nonnull
 	public List<String> getIgnoredFilesPaths()
 	{
 		if(!isInitialized())
@@ -812,7 +812,7 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 		return myProjectsTree.getIgnoredFilesPaths();
 	}
 
-	public void setIgnoredFilesPaths(@NotNull List<String> paths)
+	public void setIgnoredFilesPaths(@Nonnull List<String> paths)
 	{
 		if(!isInitialized())
 		{
@@ -830,7 +830,7 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 		myProjectsTree.removeIgnoredFilesPaths(paths);
 	}
 
-	public boolean getIgnoredState(@NotNull MavenProject project)
+	public boolean getIgnoredState(@Nonnull MavenProject project)
 	{
 		if(!isInitialized())
 		{
@@ -839,7 +839,7 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 		return myProjectsTree.getIgnoredState(project);
 	}
 
-	public void setIgnoredState(@NotNull List<MavenProject> projects, boolean ignored)
+	public void setIgnoredState(@Nonnull List<MavenProject> projects, boolean ignored)
 	{
 		if(!isInitialized())
 		{
@@ -848,7 +848,7 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 		myProjectsTree.setIgnoredState(projects, ignored);
 	}
 
-	@NotNull
+	@Nonnull
 	public List<String> getIgnoredFilesPatterns()
 	{
 		if(!isInitialized())
@@ -858,7 +858,7 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 		return myProjectsTree.getIgnoredFilesPatterns();
 	}
 
-	public void setIgnoredFilesPatterns(@NotNull List<String> patterns)
+	public void setIgnoredFilesPatterns(@Nonnull List<String> patterns)
 	{
 		if(!isInitialized())
 		{
@@ -867,7 +867,7 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 		myProjectsTree.setIgnoredFilesPatterns(patterns);
 	}
 
-	public boolean isIgnored(@NotNull MavenProject project)
+	public boolean isIgnored(@Nonnull MavenProject project)
 	{
 		if(!isInitialized())
 		{
@@ -900,7 +900,7 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 		doScheduleUpdateProjects(null, false, forceImportAndResolve);
 	}
 
-	public AsyncResult<Void> forceUpdateProjects(@NotNull Collection<MavenProject> projects)
+	public AsyncResult<Void> forceUpdateProjects(@Nonnull Collection<MavenProject> projects)
 	{
 		return doScheduleUpdateProjects(projects, true, true);
 	}
@@ -977,7 +977,7 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 		return result;
 	}
 
-	public void evaluateEffectivePom(@NotNull final MavenProject mavenProject, @NotNull final NullableConsumer<String> consumer)
+	public void evaluateEffectivePom(@Nonnull final MavenProject mavenProject, @Nonnull final NullableConsumer<String> consumer)
 	{
 		runWhenFullyOpen(() -> myResolvingProcessor.scheduleTask((project, embeddersManager, console, indicator) ->
 		{
@@ -1047,7 +1047,7 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 			@Nullable final Collection<MavenArtifact> artifacts,
 			final boolean sources,
 			final boolean docs,
-			@Nullable final AsyncResult<MavenArtifactDownloader.DownloadResult> result)
+			@javax.annotation.Nullable final AsyncResult<MavenArtifactDownloader.DownloadResult> result)
 	{
 		if(!sources && !docs)
 		{

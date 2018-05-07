@@ -19,7 +19,7 @@ import com.intellij.openapi.vfs.InvalidVirtualFileAccessException;
 import com.intellij.openapi.vfs.VfsUtilCore;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileVisitor;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import org.jetbrains.idea.maven.model.MavenConstants;
 
 import java.util.List;
@@ -32,7 +32,7 @@ public class FileFinder {
     for (VirtualFile f : roots) {
       VfsUtilCore.visitChildrenRecursively(f, new VirtualFileVisitor() {
         @Override
-        public boolean visitFile(@NotNull VirtualFile f) {
+        public boolean visitFile(@Nonnull VirtualFile f) {
           try {
             indicator.checkCanceled();
             indicator.setText2(f.getPath());

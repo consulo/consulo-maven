@@ -1,7 +1,7 @@
 package org.jetbrains.idea.maven.dom;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.jetbrains.idea.maven.dom.model.MavenDomDependency;
 import org.jetbrains.idea.maven.model.MavenArtifact;
 import com.intellij.openapi.util.text.StringUtil;
@@ -18,7 +18,7 @@ public class DependencyConflictId
 	private final String type;
 	private final String classifier;
 
-	public DependencyConflictId(@NotNull String groupId, @NotNull String artifactId, @Nullable String type, @Nullable String classifier)
+	public DependencyConflictId(@Nonnull String groupId, @Nonnull String artifactId, @Nullable String type, @Nullable String classifier)
 	{
 		this.groupId = groupId;
 		this.artifactId = artifactId;
@@ -27,7 +27,7 @@ public class DependencyConflictId
 	}
 
 	@Nullable
-	public static DependencyConflictId create(@NotNull MavenDomDependency dep)
+	public static DependencyConflictId create(@Nonnull MavenDomDependency dep)
 	{
 		String groupId = dep.getGroupId().getStringValue();
 		if(StringUtil.isEmpty(groupId))
@@ -46,7 +46,7 @@ public class DependencyConflictId
 	}
 
 	@Nullable
-	public static DependencyConflictId create(@NotNull MavenArtifact dep)
+	public static DependencyConflictId create(@Nonnull MavenArtifact dep)
 	{
 		return create(dep.getGroupId(), dep.getArtifactId(), dep.getType(), dep.getClassifier());
 	}
@@ -66,19 +66,19 @@ public class DependencyConflictId
 		return new DependencyConflictId(groupId, artifactId, type, classifier);
 	}
 
-	@NotNull
+	@Nonnull
 	public String getGroupId()
 	{
 		return groupId;
 	}
 
-	@NotNull
+	@Nonnull
 	public String getArtifactId()
 	{
 		return artifactId;
 	}
 
-	@NotNull
+	@Nonnull
 	public String getType()
 	{
 		return type;

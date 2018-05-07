@@ -22,9 +22,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import org.jdom.Element;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.idea.maven.execution.MavenExecutionOptions;
 import org.jetbrains.idea.maven.server.MavenServerManager;
 import org.jetbrains.idea.maven.utils.MavenJDOMUtil;
@@ -88,7 +89,7 @@ public class MavenGeneralSettings implements Cloneable
 	}
 
 	@Property
-	@NotNull
+	@Nonnull
 	public MavenExecutionOptions.PluginUpdatePolicy getPluginUpdatePolicy()
 	{
 		return pluginUpdatePolicy;
@@ -105,7 +106,7 @@ public class MavenGeneralSettings implements Cloneable
 	}
 
 	@Property
-	@NotNull
+	@Nonnull
 	public MavenExecutionOptions.ChecksumPolicy getChecksumPolicy()
 	{
 		return checksumPolicy;
@@ -122,7 +123,7 @@ public class MavenGeneralSettings implements Cloneable
 	}
 
 	@Property
-	@NotNull
+	@Nonnull
 	public MavenExecutionOptions.FailureMode getFailureBehavior()
 	{
 		return failureBehavior;
@@ -139,7 +140,7 @@ public class MavenGeneralSettings implements Cloneable
 	}
 
 	@Transient
-	@NotNull
+	@Nonnull
 	@Deprecated // Use getOutputLevel()
 	public MavenExecutionOptions.LoggingLevel getLoggingLevel()
 	{
@@ -147,7 +148,7 @@ public class MavenGeneralSettings implements Cloneable
 	}
 
 	@Property
-	@NotNull
+	@Nonnull
 	public MavenExecutionOptions.LoggingLevel getOutputLevel()
 	{
 		return outputLevel;
@@ -178,13 +179,13 @@ public class MavenGeneralSettings implements Cloneable
 		changed();
 	}
 
-	@NotNull
+	@Nonnull
 	public String getMavenHome()
 	{
 		return mavenHome;
 	}
 
-	public void setMavenHome(@NotNull final String mavenHome)
+	public void setMavenHome(@Nonnull final String mavenHome)
 	{
 		if(!Comparing.equal(this.mavenHome, mavenHome))
 		{
@@ -195,19 +196,19 @@ public class MavenGeneralSettings implements Cloneable
 		}
 	}
 
-	@Nullable
+	@javax.annotation.Nullable
 	public File getEffectiveMavenHome()
 	{
 		return MavenUtil.resolveMavenHomeDirectory(getMavenHome());
 	}
 
-	@NotNull
+	@Nonnull
 	public String getUserSettingsFile()
 	{
 		return mavenSettingsFile;
 	}
 
-	public void setUserSettingsFile(@Nullable String mavenSettingsFile)
+	public void setUserSettingsFile(@javax.annotation.Nullable String mavenSettingsFile)
 	{
 		if(mavenSettingsFile == null)
 		{
@@ -221,19 +222,19 @@ public class MavenGeneralSettings implements Cloneable
 		}
 	}
 
-	@Nullable
+	@javax.annotation.Nullable
 	public File getEffectiveUserSettingsIoFile()
 	{
 		return MavenUtil.resolveUserSettingsFile(getUserSettingsFile());
 	}
 
-	@Nullable
+	@javax.annotation.Nullable
 	public File getEffectiveGlobalSettingsIoFile()
 	{
 		return MavenUtil.resolveGlobalSettingsFile(getMavenHome());
 	}
 
-	@Nullable
+	@javax.annotation.Nullable
 	public VirtualFile getEffectiveUserSettingsFile()
 	{
 		File file = getEffectiveUserSettingsIoFile();
@@ -256,14 +257,14 @@ public class MavenGeneralSettings implements Cloneable
 		return result;
 	}
 
-	@Nullable
+	@javax.annotation.Nullable
 	public VirtualFile getEffectiveGlobalSettingsFile()
 	{
 		File file = getEffectiveGlobalSettingsIoFile();
 		return file == null ? null : LocalFileSystem.getInstance().findFileByIoFile(file);
 	}
 
-	@NotNull
+	@Nonnull
 	public String getLocalRepository()
 	{
 		return overriddenLocalRepository;
@@ -297,7 +298,7 @@ public class MavenGeneralSettings implements Cloneable
 		return result;
 	}
 
-	@Nullable
+	@javax.annotation.Nullable
 	public VirtualFile getEffectiveSuperPom()
 	{
 		return MavenUtil.resolveSuperPomFile(getEffectiveMavenHome());
@@ -379,7 +380,7 @@ public class MavenGeneralSettings implements Cloneable
 		changed();
 	}
 
-	@Nullable
+	@javax.annotation.Nullable
 	public String getThreads()
 	{
 		return threads;

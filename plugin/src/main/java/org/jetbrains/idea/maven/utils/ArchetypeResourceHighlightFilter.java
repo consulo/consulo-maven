@@ -1,9 +1,10 @@
 package org.jetbrains.idea.maven.utils;
 
+import javax.annotation.Nonnull;
+
 import com.intellij.codeInsight.daemon.ProblemHighlightFilter;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * @author Sergey Evdokimov
@@ -11,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 public class ArchetypeResourceHighlightFilter extends ProblemHighlightFilter {
 
   @Override
-  public boolean shouldHighlight(@NotNull PsiFile psiFile) {
+  public boolean shouldHighlight(@Nonnull PsiFile psiFile) {
     VirtualFile virtualFile = psiFile.getOriginalFile().getVirtualFile();
 
     do {

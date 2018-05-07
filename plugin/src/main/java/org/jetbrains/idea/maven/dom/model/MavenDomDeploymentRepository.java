@@ -21,10 +21,10 @@ package org.jetbrains.idea.maven.dom.model;
 
 import com.intellij.util.xml.GenericDomValue;
 import com.intellij.util.xml.Required;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 
 public interface MavenDomDeploymentRepository extends MavenDomRepositoryBase {
-  @NotNull
+  @Nonnull
   @Required(value = false, nonEmpty = true)
   GenericDomValue<Boolean> getUniqueVersion();
 }

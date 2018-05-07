@@ -19,8 +19,9 @@
 
 package org.jetbrains.idea.maven.dom.model;
 
+import javax.annotation.Nonnull;
+
 import com.intellij.util.xml.GenericDomValue;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.idea.maven.dom.MavenDomElement;
 
 /**
@@ -41,7 +42,7 @@ public interface MavenDomReportPlugin extends MavenDomElement {
    *
    * @return the value of the groupId child.
    */
-  @NotNull
+  @Nonnull
   GenericDomValue<String> getGroupId();
 
   /**
@@ -53,7 +54,7 @@ public interface MavenDomReportPlugin extends MavenDomElement {
    *
    * @return the value of the artifactId child.
    */
-  @NotNull
+  @Nonnull
   GenericDomValue<String> getArtifactId();
 
   /**
@@ -65,7 +66,7 @@ public interface MavenDomReportPlugin extends MavenDomElement {
    *
    * @return the value of the version child.
    */
-  @NotNull
+  @Nonnull
   GenericDomValue<String> getVersion();
 
   /**
@@ -77,7 +78,7 @@ public interface MavenDomReportPlugin extends MavenDomElement {
    *
    * @return the value of the inherited child.
    */
-  @NotNull
+  @Nonnull
   GenericDomValue<String> getInherited();
 
   /**
@@ -89,7 +90,7 @@ public interface MavenDomReportPlugin extends MavenDomElement {
    *
    * @return the value of the configuration child.
    */
-  @NotNull
+  @Nonnull
   MavenDomElement getConfiguration();
 
   /**
@@ -101,6 +102,6 @@ public interface MavenDomReportPlugin extends MavenDomElement {
    *
    * @return the value of the reportSets child.
    */
-  @NotNull
+  @Nonnull
   MavenDomReportSets getReportSets();
 }

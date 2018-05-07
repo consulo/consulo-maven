@@ -19,9 +19,10 @@
 
 package org.jetbrains.idea.maven.dom.model;
 
+import javax.annotation.Nonnull;
+
 import com.intellij.util.xml.Convert;
 import com.intellij.util.xml.GenericDomValue;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.idea.maven.dom.MavenDomElement;
 import org.jetbrains.idea.maven.dom.converters.MavenUrlConverter;
 
@@ -43,7 +44,7 @@ public interface MavenDomMailingList extends MavenDomElement {
    *
    * @return the value of the name child.
    */
-  @NotNull
+  @Nonnull
   GenericDomValue<String> getName();
 
   /**
@@ -55,7 +56,7 @@ public interface MavenDomMailingList extends MavenDomElement {
    *
    * @return the value of the subscribe child.
    */
-  @NotNull
+  @Nonnull
   @Convert(MavenUrlConverter.class)
   GenericDomValue<String> getSubscribe();
 
@@ -68,7 +69,7 @@ public interface MavenDomMailingList extends MavenDomElement {
    *
    * @return the value of the unsubscribe child.
    */
-  @NotNull
+  @Nonnull
   @Convert(MavenUrlConverter.class)
   GenericDomValue<String> getUnsubscribe();
 
@@ -81,7 +82,7 @@ public interface MavenDomMailingList extends MavenDomElement {
    *
    * @return the value of the post child.
    */
-  @NotNull
+  @Nonnull
   @Convert(MavenUrlConverter.class)
   GenericDomValue<String> getPost();
 
@@ -94,7 +95,7 @@ public interface MavenDomMailingList extends MavenDomElement {
    *
    * @return the value of the archive child.
    */
-  @NotNull
+  @Nonnull
   @Convert(MavenUrlConverter.class)
   GenericDomValue<String> getArchive();
 
@@ -107,6 +108,6 @@ public interface MavenDomMailingList extends MavenDomElement {
    *
    * @return the value of the otherArchives child.
    */
-  @NotNull
+  @Nonnull
   MavenDomOtherArchives getOtherArchives();
 }

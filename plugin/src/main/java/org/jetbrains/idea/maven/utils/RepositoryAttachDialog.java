@@ -43,8 +43,8 @@ import com.intellij.util.ui.AsyncProcessIcon;
 import com.intellij.xml.util.XmlStringUtil;
 import gnu.trove.THashMap;
 import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+
 import org.jetbrains.idea.maven.model.MavenArtifactInfo;
 import org.jetbrains.idea.maven.model.MavenRepositoryInfo;
 import org.jetbrains.idea.maven.utils.library.RepositoryAttachHandler;
@@ -83,7 +83,7 @@ public class RepositoryAttachDialog extends DialogWrapper {
   private String myFilterString;
   private boolean myInUpdate;
 
-  public RepositoryAttachDialog(Project project, boolean managed, final @Nullable String initialFilter) {
+  public RepositoryAttachDialog(Project project, boolean managed, final @javax.annotation.Nullable String initialFilter) {
     super(project, true);
     myProject = project;
     myManaged = managed;
@@ -307,7 +307,7 @@ public class RepositoryAttachDialog extends DialogWrapper {
     return RepositoryAttachDialog.class.getName();
   }
 
-  @NotNull
+  @Nonnull
   public List<MavenRepositoryInfo> getRepositories() {
     final Pair<MavenArtifactInfo, MavenRepositoryInfo> artifactAndRepo = myCoordinates.get(getCoordinateText());
     final MavenRepositoryInfo repository = artifactAndRepo == null ? null : artifactAndRepo.second;

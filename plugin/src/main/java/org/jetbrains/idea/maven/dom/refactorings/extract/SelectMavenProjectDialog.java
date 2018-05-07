@@ -21,8 +21,8 @@ import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.refactoring.RefactoringBundle;
 import com.intellij.util.Function;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.jetbrains.idea.maven.dom.MavenDomBundle;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
 import org.jetbrains.idea.maven.dom.model.MavenDomDependency;
@@ -48,10 +48,10 @@ public class SelectMavenProjectDialog extends DialogWrapper {
   private ItemListener myReplaceAllListener;
   private final Function<MavenDomProjectModel, Set<MavenDomDependency>> myOccurrencesCountFunction;
 
-  public SelectMavenProjectDialog(@NotNull Project project,
-                                  @NotNull Set<MavenDomProjectModel> mavenDomProjectModels,
-                                  @NotNull Function<MavenDomProjectModel, Set<MavenDomDependency>> funOccurrences,
-                                  @NotNull boolean hasExclusions) {
+  public SelectMavenProjectDialog(@Nonnull Project project,
+                                  @Nonnull Set<MavenDomProjectModel> mavenDomProjectModels,
+                                  @Nonnull Function<MavenDomProjectModel, Set<MavenDomDependency>> funOccurrences,
+                                  @Nonnull boolean hasExclusions) {
     super(project, true);
     myMavenDomProjectModels = mavenDomProjectModels;
     myHasExclusions = hasExclusions;
@@ -69,7 +69,7 @@ public class SelectMavenProjectDialog extends DialogWrapper {
     init();
   }
 
-  @NotNull
+  @Nonnull
   protected Action[] createActions() {
     return new Action[]{getOKAction(), getCancelAction()};
   }

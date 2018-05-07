@@ -21,9 +21,9 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import javax.annotation.Nonnull;
 import javax.swing.event.HyperlinkEvent;
 
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.idea.maven.execution.MavenExecuteGoalDialog;
 import org.jetbrains.idea.maven.execution.MavenRunConfigurationType;
 import org.jetbrains.idea.maven.execution.MavenRunner;
@@ -55,7 +55,7 @@ public class MavenExecuteGoalAction extends DumbAwareAction
 {
 	@RequiredDispatchThread
 	@Override
-	public void actionPerformed(@NotNull final AnActionEvent e)
+	public void actionPerformed(@Nonnull final AnActionEvent e)
 	{
 		final Project project = e.getRequiredData(CommonDataKeys.PROJECT);
 
@@ -111,7 +111,7 @@ public class MavenExecuteGoalAction extends DumbAwareAction
 					NotificationType.ERROR, new NotificationListener.Adapter()
 			{
 				@Override
-				protected void hyperlinkActivated(@NotNull Notification notification, @NotNull HyperlinkEvent e)
+				protected void hyperlinkActivated(@Nonnull Notification notification, @Nonnull HyperlinkEvent e)
 				{
 					ShowSettingsUtil.getInstance().showSettingsDialog(project, MavenSettings.DISPLAY_NAME);
 				}
@@ -133,7 +133,7 @@ public class MavenExecuteGoalAction extends DumbAwareAction
 		MavenRunConfigurationType.runConfiguration(project, parameters, generalSettings, runnerSettings, null);
 	}
 
-	private static String obtainAppropriateWorkingDirectory(@NotNull Project project)
+	private static String obtainAppropriateWorkingDirectory(@Nonnull Project project)
 	{
 		List<MavenProject> rootProjects = MavenProjectsManager.getInstance(project).getRootProjects();
 		if(rootProjects.isEmpty())

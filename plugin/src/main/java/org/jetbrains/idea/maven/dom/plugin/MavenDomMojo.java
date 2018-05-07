@@ -15,20 +15,21 @@
  */
 package org.jetbrains.idea.maven.dom.plugin;
 
+import javax.annotation.Nonnull;
+
 import com.intellij.util.xml.GenericDomValue;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.idea.maven.dom.MavenDomElement;
 
 public interface MavenDomMojo extends MavenDomElement {
-  @NotNull
+  @Nonnull
   GenericDomValue<String> getGoal();
 
-  @NotNull
+  @Nonnull
   GenericDomValue<String> getPhase();
 
-  @NotNull
+  @Nonnull
   MavenDomParameters getParameters();
 
-  @NotNull
+  @Nonnull
   MavenDomElement getConfiguration();
 }

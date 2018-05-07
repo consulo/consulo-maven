@@ -37,6 +37,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import javax.annotation.Nonnull;
+
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.DefaultArtifact;
 import org.apache.maven.artifact.InvalidRepositoryException;
@@ -88,8 +90,6 @@ import org.codehaus.plexus.component.repository.ComponentDependency;
 import org.codehaus.plexus.context.ContextException;
 import org.codehaus.plexus.context.DefaultContext;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.idea.maven.model.*;
 import org.jetbrains.idea.maven.server.*;
 import org.jetbrains.maven.embedder.MavenEmbedder;
@@ -126,7 +126,7 @@ public class Maven2ServerEmbedderImpl extends MavenRemoteObject implements Maven
 
 		settings.setConfigurator(new PlexusComponentConfigurator()
 		{
-			public void configureComponents(@NotNull PlexusContainer c)
+			public void configureComponents(@Nonnull PlexusContainer c)
 			{
 				setupContainer(c);
 			}
@@ -341,10 +341,10 @@ public class Maven2ServerEmbedderImpl extends MavenRemoteObject implements Maven
 		MavenEmbedder.setImplementation(c, ModelInterpolator.class, CustomModelInterpolator.class);
 	}
 
-	@NotNull
-	public MavenServerExecutionResult resolveProject(@NotNull final File file,
-			@NotNull final Collection<String> activeProfiles,
-			@NotNull final Collection<String> inactiveProfiles) throws MavenServerProcessCanceledException, RemoteException
+	@Nonnull
+	public MavenServerExecutionResult resolveProject(@Nonnull final File file,
+			@Nonnull final Collection<String> activeProfiles,
+			@Nonnull final Collection<String> inactiveProfiles) throws MavenServerProcessCanceledException, RemoteException
 	{
 		return doExecute(new Executor<MavenServerExecutionResult>()
 		{
@@ -357,7 +357,7 @@ public class Maven2ServerEmbedderImpl extends MavenRemoteObject implements Maven
 		});
 	}
 
-	@NotNull
+	@Nonnull
 	private MavenServerExecutionResult createExecutionResult(File file, MavenExecutionResult result, DependencyNode rootNode) throws RemoteException
 	{
 		Collection<MavenProjectProblem> problems = MavenProjectProblem.createProblemsList();
@@ -407,14 +407,14 @@ public class Maven2ServerEmbedderImpl extends MavenRemoteObject implements Maven
 		return collectProfilesIds(profiles);
 	}
 
-	@Nullable
-	public String evaluateEffectivePom(@NotNull File file, @NotNull List<String> activeProfiles, @NotNull List<String> inactiveProfiles)
+	@javax.annotation.Nullable
+	public String evaluateEffectivePom(@Nonnull File file, @Nonnull List<String> activeProfiles, @Nonnull List<String> inactiveProfiles)
 	{
 		throw new UnsupportedOperationException();
 	}
 
-	@NotNull
-	public MavenArtifact resolve(@NotNull final MavenArtifactInfo info, @NotNull final List<MavenRemoteRepository> remoteRepositories) throws MavenServerProcessCanceledException, RemoteException
+	@Nonnull
+	public MavenArtifact resolve(@Nonnull final MavenArtifactInfo info, @Nonnull final List<MavenRemoteRepository> remoteRepositories) throws MavenServerProcessCanceledException, RemoteException
 	{
 		return doExecute(new Executor<MavenArtifact>()
 		{
@@ -425,8 +425,8 @@ public class Maven2ServerEmbedderImpl extends MavenRemoteObject implements Maven
 		});
 	}
 
-	@NotNull
-	public List<MavenArtifact> resolveTransitively(@NotNull final List<MavenArtifactInfo> artifacts, @NotNull final List<MavenRemoteRepository> remoteRepositories) throws RemoteException
+	@Nonnull
+	public List<MavenArtifact> resolveTransitively(@Nonnull final List<MavenArtifactInfo> artifacts, @Nonnull final List<MavenRemoteRepository> remoteRepositories) throws RemoteException
 	{
 		try
 		{
@@ -497,8 +497,8 @@ public class Maven2ServerEmbedderImpl extends MavenRemoteObject implements Maven
 		return result;
 	}
 
-	public Collection<MavenArtifact> resolvePlugin(@NotNull final MavenPlugin plugin,
-			@NotNull final List<MavenRemoteRepository> repositories,
+	public Collection<MavenArtifact> resolvePlugin(@Nonnull final MavenPlugin plugin,
+			@Nonnull final List<MavenRemoteRepository> repositories,
 			final int nativeMavenProjectId,
 			final boolean transitive) throws MavenServerProcessCanceledException, RemoteException
 	{
@@ -556,13 +556,13 @@ public class Maven2ServerEmbedderImpl extends MavenRemoteObject implements Maven
 		resolvedArtifacts.put(info, doResolve(info, repos));
 	}
 
-	@NotNull
+	@Nonnull
 	@Override
-	public MavenServerExecutionResult execute(@NotNull final File file,
-			@NotNull final Collection<String> activeProfiles,
-			@NotNull final Collection<String> inactiveProfiles,
-			@NotNull final List<String> goals,
-			@NotNull final List<String> selectedProjects,
+	public MavenServerExecutionResult execute(@Nonnull final File file,
+			@Nonnull final Collection<String> activeProfiles,
+			@Nonnull final Collection<String> inactiveProfiles,
+			@Nonnull final List<String> goals,
+			@Nonnull final List<String> selectedProjects,
 			final boolean alsoMake,
 			final boolean alsoMakeDependents) throws RemoteException, MavenServerProcessCanceledException
 	{
@@ -619,7 +619,7 @@ public class Maven2ServerEmbedderImpl extends MavenRemoteObject implements Maven
 		return result;
 	}
 
-	@NotNull
+	@Nonnull
 	public File getLocalRepositoryFile()
 	{
 		return myImpl.getLocalRepositoryFile();
@@ -721,10 +721,10 @@ public class Maven2ServerEmbedderImpl extends MavenRemoteObject implements Maven
 		return rethrowException(throwable);
 	}
 
-	public void customize(@Nullable MavenWorkspaceMap workspaceMap,
+	public void customize(@javax.annotation.Nullable MavenWorkspaceMap workspaceMap,
 			boolean failOnUnresolvedDependency,
-			@NotNull MavenServerConsole console,
-			@NotNull MavenServerProgressIndicator indicator,
+			@Nonnull MavenServerConsole console,
+			@Nonnull MavenServerProgressIndicator indicator,
 			boolean alwaysUpdateSnapshots)
 	{
 		try
@@ -743,9 +743,9 @@ public class Maven2ServerEmbedderImpl extends MavenRemoteObject implements Maven
 		}
 	}
 
-	@NotNull
+	@Nonnull
 	@Override
-	public List<String> retrieveAvailableVersions(@NotNull String groupId, @NotNull String artifactId, @NotNull List<MavenRemoteRepository> remoteRepositories) throws RemoteException
+	public List<String> retrieveAvailableVersions(@Nonnull String groupId, @Nonnull String artifactId, @Nonnull List<MavenRemoteRepository> remoteRepositories) throws RemoteException
 	{
 		try
 		{

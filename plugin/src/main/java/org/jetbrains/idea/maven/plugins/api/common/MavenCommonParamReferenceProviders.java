@@ -24,7 +24,7 @@ import com.intellij.psi.PsiReference;
 import com.intellij.psi.PsiReferenceBase;
 import com.intellij.psi.impl.source.resolve.reference.impl.providers.FileReferenceSet;
 import com.intellij.util.ProcessingContext;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import org.jetbrains.idea.maven.dom.model.MavenDomConfiguration;
 import org.jetbrains.idea.maven.dom.references.MavenDependencyReferenceProvider;
 import org.jetbrains.idea.maven.dom.references.MavenPathReferenceConverter;
@@ -45,18 +45,18 @@ public class MavenCommonParamReferenceProviders {
 
   public static class FilePath implements MavenParamReferenceProvider {
     @Override
-    public PsiReference[] getReferencesByElement(@NotNull PsiElement element,
-                                                 @NotNull MavenDomConfiguration domCfg,
-                                                 @NotNull ProcessingContext context) {
+    public PsiReference[] getReferencesByElement(@Nonnull PsiElement element,
+                                                 @Nonnull MavenDomConfiguration domCfg,
+                                                 @Nonnull ProcessingContext context) {
       return MavenPathReferenceConverter.createReferences(domCfg, element, Condition.TRUE);
     }
   }
 
   public static class DirPath implements MavenParamReferenceProvider {
     @Override
-    public PsiReference[] getReferencesByElement(@NotNull PsiElement element,
-                                                 @NotNull MavenDomConfiguration domCfg,
-                                                 @NotNull ProcessingContext context) {
+    public PsiReference[] getReferencesByElement(@Nonnull PsiElement element,
+                                                 @Nonnull MavenDomConfiguration domCfg,
+                                                 @Nonnull ProcessingContext context) {
       return MavenPathReferenceConverter.createReferences(domCfg, element, FileReferenceSet.DIRECTORY_FILTER);
     }
   }
@@ -70,7 +70,7 @@ public class MavenCommonParamReferenceProviders {
   public static class Encoding extends MavenCompletionReferenceProvider {
 
     @Override
-    protected Object[] getVariants(@NotNull PsiReferenceBase reference) {
+    protected Object[] getVariants(@Nonnull PsiReferenceBase reference) {
       Charset[] charsets = CharsetToolkit.getAvailableCharsets();
 
       LookupElement[] res = new LookupElement[charsets.length];
@@ -84,14 +84,14 @@ public class MavenCommonParamReferenceProviders {
 
   public static class Goal extends MavenCompletionReferenceProvider {
     @Override
-    protected Object[] getVariants(@NotNull PsiReferenceBase reference) {
+    protected Object[] getVariants(@Nonnull PsiReferenceBase reference) {
       return MavenUtil.getPhaseVariants(MavenProjectsManager.getInstance(reference.getElement().getProject())).toArray();
     }
   }
 
   public static class Profile extends MavenCompletionReferenceProvider {
     @Override
-    protected Object[] getVariants(@NotNull PsiReferenceBase reference) {
+    protected Object[] getVariants(@Nonnull PsiReferenceBase reference) {
       return MavenProjectsManager.getInstance(reference.getElement().getProject()).getAvailableProfiles().toArray();
     }
   }

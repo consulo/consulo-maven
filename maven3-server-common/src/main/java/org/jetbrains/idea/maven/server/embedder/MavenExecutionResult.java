@@ -17,8 +17,8 @@ package org.jetbrains.idea.maven.server.embedder;
 
 import org.apache.maven.project.DependencyResolutionResult;
 import org.apache.maven.project.MavenProject;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,12 +48,12 @@ public class MavenExecutionResult {
     return myMavenProject;
   }
 
-  @Nullable
+  @javax.annotation.Nullable
   public DependencyResolutionResult getDependencyResolutionResult() {
     return myDependencyResolutionResult;
   }
 
-  @NotNull
+  @Nonnull
   public List<Exception> getExceptions() {
     return myExceptions;
   }

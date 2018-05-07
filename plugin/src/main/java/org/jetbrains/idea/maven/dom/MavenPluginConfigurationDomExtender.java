@@ -31,8 +31,8 @@ import com.intellij.util.xml.reflect.DomExtender;
 import com.intellij.util.xml.reflect.DomExtension;
 import com.intellij.util.xml.reflect.DomExtensionsRegistrar;
 import gnu.trove.THashMap;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.jetbrains.idea.maven.dom.converters.MavenDomConvertersRegistry;
 import org.jetbrains.idea.maven.dom.converters.MavenPluginCustomParameterValueConverter;
 import org.jetbrains.idea.maven.dom.model.MavenDomConfiguration;
@@ -54,7 +54,7 @@ public class MavenPluginConfigurationDomExtender extends DomExtender<MavenDomCon
                                                                           "java.util.LinkedList");
 
   @Override
-  public void registerExtensions(@NotNull MavenDomConfiguration config, @NotNull DomExtensionsRegistrar r) {
+  public void registerExtensions(@Nonnull MavenDomConfiguration config, @Nonnull DomExtensionsRegistrar r) {
     MavenDomPluginModel pluginModel = MavenPluginDomUtil.getMavenPluginModel(config);
     if (pluginModel == null) {
       r.registerCustomChildrenExtension(MavenDomConfigurationParameter.class);
@@ -163,7 +163,7 @@ public class MavenPluginConfigurationDomExtender extends DomExtender<MavenDomCon
 
     if (isCollection(data.parameter)) {
       e.addExtender(new DomExtender() {
-        public void registerExtensions(@NotNull DomElement domElement, @NotNull DomExtensionsRegistrar registrar) {
+        public void registerExtensions(@Nonnull DomElement domElement, @Nonnull DomExtensionsRegistrar registrar) {
           for (String each : collectPossibleNameForCollectionParameter(parameterName)) {
             DomExtension inner = registrar.registerCollectionChildrenExtension(new XmlName(each), MavenDomConfigurationParameter.class);
             inner.setDeclaringElement(data.parameter);
@@ -244,7 +244,7 @@ public class MavenPluginConfigurationDomExtender extends DomExtender<MavenDomCon
       this.parameter = parameter;
     }
     
-    @NotNull
+    @Nonnull
     public MavenDomMojo getMojo() {
       return (MavenDomMojo)parameter.getParent().getParent();
     }

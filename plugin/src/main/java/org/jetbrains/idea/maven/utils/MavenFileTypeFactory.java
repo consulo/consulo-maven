@@ -19,7 +19,7 @@ import com.intellij.ide.highlighter.XmlFileType;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.fileTypes.FileTypeConsumer;
 import com.intellij.openapi.fileTypes.FileTypeFactory;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import org.jetbrains.idea.maven.model.MavenConstants;
 
 /**
@@ -27,7 +27,7 @@ import org.jetbrains.idea.maven.model.MavenConstants;
  */
 public class MavenFileTypeFactory extends FileTypeFactory {
   @Override
-  public void createFileTypes(@NotNull FileTypeConsumer consumer) {
+  public void createFileTypes(@Nonnull FileTypeConsumer consumer) {
     if (ApplicationManager.getApplication().isUnitTestMode()) return;
     consumer.consume(XmlFileType.INSTANCE, MavenConstants.POM_EXTENSION);
   }

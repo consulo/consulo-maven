@@ -28,7 +28,7 @@ import com.intellij.util.SmartList;
 import com.intellij.util.xml.Converter;
 import com.intellij.util.xml.ResolvingConverter;
 import com.intellij.util.xml.impl.GenericDomValueReference;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
 import org.jetbrains.idea.maven.dom.converters.MavenSmartConverter;
 import org.jetbrains.idea.maven.dom.references.MavenPropertyCompletionContributor;
@@ -46,7 +46,7 @@ public class MavenSmartCompletionContributor extends CompletionContributor {
     MavenPropertyCompletionContributor.addVariants(variants, result);
   }
 
-  @NotNull
+  @Nonnull
   private static Collection<?> getVariants(CompletionParameters parameters) {
     if (!MavenDomUtil.isMavenFile(parameters.getOriginalFile())) return Collections.emptyList();
 
@@ -76,7 +76,7 @@ public class MavenSmartCompletionContributor extends CompletionContributor {
     return result;
   }
 
-  @NotNull
+  @Nonnull
   private static PsiReference[] getReferences(CompletionParameters parameters) {
     PsiElement psiElement = parameters.getPosition().getParent();
     return psiElement instanceof XmlText ? psiElement.getParent().getReferences() : psiElement.getReferences();

@@ -17,7 +17,7 @@ package org.jetbrains.idea.maven.dom.converters;
 
 import com.intellij.util.xml.ConvertContext;
 import com.intellij.util.xml.DomElement;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
 import org.jetbrains.idea.maven.project.MavenProject;
 
@@ -32,7 +32,7 @@ public abstract class MavenProjectConstantListConverter extends MavenConstantLis
     super(strict);
   }
 
-  protected Collection<String> getValues(@NotNull ConvertContext context) {
+  protected Collection<String> getValues(@Nonnull ConvertContext context) {
     DomElement element = context.getInvocationElement();
 
     MavenProject project = MavenDomUtil.findContainingProject(element);
@@ -41,5 +41,5 @@ public abstract class MavenProjectConstantListConverter extends MavenConstantLis
     return getValues(context, project);
   }
 
-  protected abstract Collection<String> getValues(@NotNull ConvertContext context, @NotNull MavenProject project);
+  protected abstract Collection<String> getValues(@Nonnull ConvertContext context, @Nonnull MavenProject project);
 }

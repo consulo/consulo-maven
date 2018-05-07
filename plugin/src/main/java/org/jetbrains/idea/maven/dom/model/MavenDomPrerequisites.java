@@ -19,8 +19,9 @@
 
 package org.jetbrains.idea.maven.dom.model;
 
+import javax.annotation.Nonnull;
+
 import com.intellij.util.xml.GenericDomValue;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.idea.maven.dom.MavenDomElement;
 
 /**
@@ -41,6 +42,6 @@ public interface MavenDomPrerequisites extends MavenDomElement {
    *
    * @return the value of the maven child.
    */
-  @NotNull
+  @Nonnull
   GenericDomValue<String> getMaven();
 }

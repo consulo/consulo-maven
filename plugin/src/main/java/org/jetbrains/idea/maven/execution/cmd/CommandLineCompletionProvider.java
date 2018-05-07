@@ -2,9 +2,10 @@ package org.jetbrains.idea.maven.execution.cmd;
 
 import java.util.Collection;
 
+import javax.annotation.Nonnull;
+
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
-import org.jetbrains.annotations.NotNull;
 import com.intellij.codeInsight.TailType;
 import com.intellij.codeInsight.completion.CompletionResultSet;
 import com.intellij.codeInsight.lookup.LookupElement;
@@ -25,9 +26,9 @@ public abstract class CommandLineCompletionProvider extends TextFieldCompletionP
     myOptions = options;
   }
 
-  @NotNull
+  @Nonnull
   @Override
-  protected String getPrefix(@NotNull String currentTextPrefix) {
+  protected String getPrefix(@Nonnull String currentTextPrefix) {
     ParametersListLexer lexer = new ParametersListLexer(currentTextPrefix);
     while (lexer.nextToken()) {
       if (lexer.getTokenEnd() == currentTextPrefix.length()) {
@@ -38,7 +39,7 @@ public abstract class CommandLineCompletionProvider extends TextFieldCompletionP
     return "";
   }
 
-  protected LookupElement createLookupElement(@NotNull Option option, @NotNull String text) {
+  protected LookupElement createLookupElement(@Nonnull Option option, @Nonnull String text) {
     LookupElementBuilder res = LookupElementBuilder.create(text);
 
     if (option.getDescription() != null) {
@@ -48,10 +49,10 @@ public abstract class CommandLineCompletionProvider extends TextFieldCompletionP
     return res;
   }
 
-  protected abstract void addArgumentVariants(@NotNull CompletionResultSet result);
+  protected abstract void addArgumentVariants(@Nonnull CompletionResultSet result);
 
   @Override
-  protected void addCompletionVariants(@NotNull String text, int offset, @NotNull String prefix, @NotNull CompletionResultSet result) {
+  protected void addCompletionVariants(@Nonnull String text, int offset, @Nonnull String prefix, @Nonnull CompletionResultSet result) {
     ParametersListLexer lexer = new ParametersListLexer(text);
 
     int argCount = 0;

@@ -15,40 +15,42 @@
  */
 package org.jetbrains.idea.maven.model;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import java.io.Serializable;
 
 public class MavenId implements Serializable, MavenCoordinate {
   public static final String UNKNOWN_VALUE = "Unknown";
 
-  @Nullable private final String myGroupId;
+  @javax.annotation.Nullable
+  private final String myGroupId;
   @Nullable private final String myArtifactId;
-  @Nullable private final String myVersion;
+  @javax.annotation.Nullable
+  private final String myVersion;
 
-  public MavenId(@Nullable String groupId, @Nullable String artifactId, @Nullable String version) {
+  public MavenId(@javax.annotation.Nullable String groupId, @Nullable String artifactId, @Nullable String version) {
     myGroupId = groupId;
     myArtifactId = artifactId;
     myVersion = version;
   }
 
-  @Nullable
+  @javax.annotation.Nullable
   public String getGroupId() {
     return myGroupId;
   }
 
-  @Nullable
+  @javax.annotation.Nullable
   public String getArtifactId() {
     return myArtifactId;
   }
 
-  @Nullable
+  @javax.annotation.Nullable
   public String getVersion() {
     return myVersion;
   }
 
-  @NotNull
+  @Nonnull
   public String getKey() {
     StringBuilder builder = new StringBuilder();
 
@@ -59,7 +61,7 @@ public class MavenId implements Serializable, MavenCoordinate {
     return builder.toString();
   }
 
-  @NotNull
+  @Nonnull
   public String getDisplayString() {
     return getKey();
   }
@@ -74,13 +76,13 @@ public class MavenId implements Serializable, MavenCoordinate {
     return getDisplayString();
   }
 
-  public boolean equals(@Nullable String groupId, @Nullable String artifactId) {
+  public boolean equals(@javax.annotation.Nullable String groupId, @javax.annotation.Nullable String artifactId) {
     if (myArtifactId != null ? !myArtifactId.equals(artifactId) : artifactId != null) return false;
     if (myGroupId != null ? !myGroupId.equals(groupId) : groupId != null) return false;
     return true;
   }
 
-  public boolean equals(@Nullable String groupId, @Nullable String artifactId, @Nullable String version) {
+  public boolean equals(@Nullable String groupId, @javax.annotation.Nullable String artifactId, @Nullable String version) {
     if (!equals(groupId, artifactId)) return false;
     if (myVersion != null ? !myVersion.equals(version) : version != null) return false;
     return true;

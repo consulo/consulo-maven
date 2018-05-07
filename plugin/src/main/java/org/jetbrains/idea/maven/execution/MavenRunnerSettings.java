@@ -22,9 +22,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Nonnull;
+
 import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+
+import javax.annotation.Nullable;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.containers.HashMap;
 
@@ -36,9 +38,9 @@ public class MavenRunnerSettings implements Cloneable
 	public static final String USE_JAVA_HOME = "#JAVA_HOME";
 
 	private boolean runMavenInBackground = true;
-	@NotNull
+	@Nonnull
 	private String jreName = USE_INTERNAL_JAVA;
-	@NotNull
+	@Nonnull
 	private String vmOptions = "";
 	private boolean skipTests = false;
 	private Map<String, String> mavenProperties = new LinkedHashMap<String, String>();
@@ -58,7 +60,7 @@ public class MavenRunnerSettings implements Cloneable
 		this.runMavenInBackground = runMavenInBackground;
 	}
 
-	@NotNull
+	@Nonnull
 	public String getJreName()
 	{
 		return jreName;
@@ -72,7 +74,7 @@ public class MavenRunnerSettings implements Cloneable
 		}
 	}
 
-	@NotNull
+	@Nonnull
 	public String getVmOptions()
 	{
 		return vmOptions;
@@ -111,13 +113,13 @@ public class MavenRunnerSettings implements Cloneable
 		this.mavenProperties = mavenProperties;
 	}
 
-	@NotNull
+	@Nonnull
 	public Map<String, String> getEnvironmentProperties()
 	{
 		return environmentProperties;
 	}
 
-	public void setEnvironmentProperties(@NotNull Map<String, String> envs)
+	public void setEnvironmentProperties(@Nonnull Map<String, String> envs)
 	{
 		if(envs == environmentProperties)
 		{

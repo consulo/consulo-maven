@@ -30,6 +30,8 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
+import javax.annotation.Nonnull;
+
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.search.BooleanQuery;
@@ -41,8 +43,6 @@ import org.apache.maven.archetype.source.ArchetypeDataSource;
 import org.apache.maven.archetype.source.ArchetypeDataSourceException;
 import org.apache.maven.artifact.manager.WagonManager;
 import org.apache.maven.wagon.events.TransferEvent;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.idea.maven.model.MavenArchetype;
 import org.jetbrains.idea.maven.model.MavenArtifactInfo;
 import org.jetbrains.idea.maven.model.MavenId;
@@ -97,7 +97,7 @@ public class Maven2ServerIndexerImpl extends MavenRemoteObject implements MavenS
 	}
 
 	@Override
-	public int createIndex(@NotNull String indexId, @NotNull String repositoryId, @Nullable File file, @Nullable String url, @NotNull File indexDir) throws MavenServerIndexerException
+	public int createIndex(@Nonnull String indexId, @Nonnull String repositoryId, @javax.annotation.Nullable File file, @javax.annotation.Nullable String url, @Nonnull File indexDir) throws MavenServerIndexerException
 	{
 		try
 		{
@@ -126,7 +126,7 @@ public class Maven2ServerIndexerImpl extends MavenRemoteObject implements MavenS
 		}
 	}
 
-	@NotNull
+	@Nonnull
 	private IndexingContext getIndex(int id)
 	{
 		IndexingContext index = myIndices.get(id);

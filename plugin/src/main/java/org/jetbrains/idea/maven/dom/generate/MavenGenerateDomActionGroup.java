@@ -15,12 +15,14 @@
  */
 package org.jetbrains.idea.maven.dom.generate;
 
+import javax.annotation.Nonnull;
+
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.util.Function;
 import com.intellij.util.xml.DomElement;
 import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+
+import javax.annotation.Nullable;
 import org.jetbrains.idea.maven.dom.MavenDomBundle;
 import org.jetbrains.idea.maven.dom.model.MavenDomDependency;
 import org.jetbrains.idea.maven.dom.model.MavenDomPlugin;
@@ -60,7 +62,7 @@ public class MavenGenerateDomActionGroup extends DefaultActionGroup {
   private static MavenGenerateTemplateAction createAction(String actionDescription,
                                                           final Class<? extends DomElement> aClass,
                                                           @NonNls @Nullable String mappingId,
-                                                          @NotNull Function<MavenDomProjectModel, DomElement> parentFunction) {
+                                                          @Nonnull Function<MavenDomProjectModel, DomElement> parentFunction) {
     return new MavenGenerateTemplateAction(actionDescription, aClass, mappingId, parentFunction);
   }
 }

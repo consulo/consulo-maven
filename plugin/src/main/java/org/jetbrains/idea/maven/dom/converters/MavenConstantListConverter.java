@@ -19,8 +19,8 @@ import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.util.xml.ConvertContext;
 import com.intellij.util.xml.ResolvingConverter;
 import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import java.util.Collection;
 
@@ -36,7 +36,7 @@ public abstract class MavenConstantListConverter extends ResolvingConverter<Stri
   }
 
   @Override
-  public String fromString(@Nullable @NonNls String s, ConvertContext context) {
+  public String fromString(@javax.annotation.Nullable @NonNls String s, ConvertContext context) {
     if (!myStrict) return s;
     return getValues(context).contains(s) ? s : null;
   }
@@ -45,12 +45,12 @@ public abstract class MavenConstantListConverter extends ResolvingConverter<Stri
     return s;
   }
 
-  @NotNull
+  @Nonnull
   public Collection<String> getVariants(ConvertContext context) {
     return getValues(context);
   }
 
-  protected abstract Collection<String> getValues(@NotNull ConvertContext context);
+  protected abstract Collection<String> getValues(@Nonnull ConvertContext context);
 
   @Override
   public String getErrorMessage(@Nullable String s, ConvertContext context) {

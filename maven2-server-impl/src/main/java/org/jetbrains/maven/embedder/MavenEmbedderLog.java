@@ -15,7 +15,7 @@
  */
 package org.jetbrains.maven.embedder;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 
 public class MavenEmbedderLog {
   public static final MavenEmbedderLogger LOG = new MavenEmbedderLogger() {
@@ -70,7 +70,7 @@ public class MavenEmbedderLog {
 
   private static MavenEmbedderLogger ourDelegate = null;
 
-  public void setLogger(@NotNull final MavenEmbedderLogger logger) {
+  public void setLogger(@Nonnull final MavenEmbedderLogger logger) {
     ourDelegate = logger;
   }
 }

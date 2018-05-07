@@ -33,8 +33,8 @@ import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import icons.MavenIcons;
 import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.jetbrains.idea.maven.project.MavenGeneralSettings;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
@@ -116,7 +116,7 @@ public class MavenRunConfigurationType implements ConfigurationType {
   }
 
   @NonNls
-  @NotNull
+  @Nonnull
   public String getId() {
     return "MavenRunConfiguration";
   }
@@ -154,7 +154,7 @@ public class MavenRunConfigurationType implements ConfigurationType {
     }
   }
 
-  @Nullable
+  @javax.annotation.Nullable
   private static String getMavenProjectName(final Project project, final MavenRunnerParameters runnerParameters) {
     final VirtualFile virtualFile = LocalFileSystem.getInstance().refreshAndFindFileByPath(runnerParameters.getWorkingDirPath() + "/pom.xml");
     if (virtualFile != null) {
@@ -176,9 +176,9 @@ public class MavenRunConfigurationType implements ConfigurationType {
   }
 
   public static void runConfiguration(Project project,
-                                      @NotNull MavenRunnerParameters params,
+                                      @Nonnull MavenRunnerParameters params,
                                       @Nullable MavenGeneralSettings settings,
-                                      @Nullable  MavenRunnerSettings runnerSettings,
+                                      @javax.annotation.Nullable MavenRunnerSettings runnerSettings,
                                       @Nullable ProgramRunner.Callback callback) {
     RunnerAndConfigurationSettings configSettings = createRunnerAndConfigurationSettings(settings,
                                                                                          runnerSettings,
@@ -197,7 +197,7 @@ public class MavenRunConfigurationType implements ConfigurationType {
     }
   }
 
-  public static RunnerAndConfigurationSettings createRunnerAndConfigurationSettings(@Nullable MavenGeneralSettings generalSettings,
+  public static RunnerAndConfigurationSettings createRunnerAndConfigurationSettings(@javax.annotation.Nullable MavenGeneralSettings generalSettings,
                                                                                     @Nullable MavenRunnerSettings runnerSettings,
                                                                                     MavenRunnerParameters params,
                                                                                     Project project) {

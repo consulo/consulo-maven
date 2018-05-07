@@ -19,10 +19,11 @@
 
 package org.jetbrains.idea.maven.dom.model;
 
+import javax.annotation.Nonnull;
+
 import com.intellij.util.xml.Convert;
 import com.intellij.util.xml.GenericDomValue;
 import com.intellij.util.xml.Required;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.idea.maven.dom.MavenDomElement;
 import org.jetbrains.idea.maven.dom.converters.MavenPhaseConverter;
 
@@ -44,7 +45,7 @@ public interface MavenDomPluginExecution extends MavenDomElement {
    *
    * @return the value of the id child.
    */
-  @NotNull
+  @Nonnull
   @Required(value = false, nonEmpty = true)
   GenericDomValue<String> getId();
 
@@ -57,7 +58,7 @@ public interface MavenDomPluginExecution extends MavenDomElement {
    *
    * @return the value of the phase child.
    */
-  @NotNull
+  @Nonnull
   @Required(value = false, nonEmpty = true)
   @Convert(MavenPhaseConverter.class)
   GenericDomValue<String> getPhase();
@@ -71,7 +72,7 @@ public interface MavenDomPluginExecution extends MavenDomElement {
    *
    * @return the value of the goals child.
    */
-  @NotNull
+  @Nonnull
   MavenDomGoals getGoals();
 
   /**
@@ -83,7 +84,7 @@ public interface MavenDomPluginExecution extends MavenDomElement {
    *
    * @return the value of the inherited child.
    */
-  @NotNull
+  @Nonnull
   @Required(value = false, nonEmpty = true)
   GenericDomValue<String> getInherited();
 
@@ -96,6 +97,6 @@ public interface MavenDomPluginExecution extends MavenDomElement {
    *
    * @return the value of the configuration child.
    */
-  @NotNull
+  @Nonnull
   MavenDomConfiguration getConfiguration();
 }

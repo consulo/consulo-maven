@@ -31,8 +31,8 @@ import com.intellij.util.xml.*;
 import com.intellij.util.xml.impl.GenericDomValueReference;
 import gnu.trove.THashSet;
 import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.jetbrains.idea.maven.dom.MavenDomBundle;
 import org.jetbrains.idea.maven.dom.MavenDomProjectProcessorUtils;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
@@ -48,7 +48,7 @@ import java.util.Collection;
 import java.util.Set;
 
 public abstract class MavenArtifactCoordinatesConverter extends ResolvingConverter<String> implements MavenDomSoftAwareConverter {
-  public String fromString(@Nullable @NonNls String s, ConvertContext context) {
+  public String fromString(@javax.annotation.Nullable @NonNls String s, ConvertContext context) {
     if (s == null) return null;
 
     MavenId id = MavenArtifactCoordinatesHelper.getId(context);
@@ -63,7 +63,7 @@ public abstract class MavenArtifactCoordinatesConverter extends ResolvingConvert
     return s;
   }
 
-  @NotNull
+  @Nonnull
   public Collection<String> getVariants(ConvertContext context) {
     MavenProjectIndicesManager manager = MavenProjectIndicesManager.getInstance(getProject(context));
     MavenId id = MavenArtifactCoordinatesHelper.getId(context);
@@ -98,7 +98,7 @@ public abstract class MavenArtifactCoordinatesConverter extends ResolvingConvert
     return ArrayUtil.append(super.getQuickFixes(context), new MyUpdateIndicesFix());
   }
 
-  public boolean isSoft(@NotNull DomElement element) {
+  public boolean isSoft(@Nonnull DomElement element) {
     DomElement dependencyOrPluginElement = element.getParent();
     if (dependencyOrPluginElement instanceof MavenDomDependency) {
       DomElement dependencies = dependencyOrPluginElement.getParent();
@@ -151,17 +151,17 @@ public abstract class MavenArtifactCoordinatesConverter extends ResolvingConvert
   }
 
   private static class MyUpdateIndicesFix implements LocalQuickFix {
-    @NotNull
+    @Nonnull
     public String getFamilyName() {
       return MavenDomBundle.message("inspection.group");
     }
 
-    @NotNull
+    @Nonnull
     public String getName() {
       return MavenDomBundle.message("fix.update.indices");
     }
 
-    public void applyFix(@NotNull Project project, @NotNull ProblemDescriptor descriptor) {
+    public void applyFix(@Nonnull Project project, @Nonnull ProblemDescriptor descriptor) {
       MavenProjectIndicesManager.getInstance(project).scheduleUpdateAll();
     }
   }

@@ -20,17 +20,16 @@ import java.awt.GridBagLayout;
 import java.io.File;
 import java.util.List;
 
+import javax.annotation.Nonnull;
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import org.jetbrains.annotations.NotNull;
 import com.intellij.ide.IdeBundle;
 import com.intellij.ide.util.projectWizard.ModuleWizardStep;
 import com.intellij.ide.util.projectWizard.NamePathComponent;
-import com.intellij.ide.util.projectWizard.ProjectBuilder;
 import com.intellij.ide.util.projectWizard.ProjectWizardUtil;
 import com.intellij.ide.util.projectWizard.WizardContext;
 import com.intellij.openapi.application.ApplicationInfo;
@@ -128,7 +127,7 @@ public class ProjectNameStep extends ModuleWizardStep
 	}
 
 	@Override
-	public boolean validate(@NotNull WizardContext context) throws ConfigurationException
+	public boolean validate(@Nonnull WizardContext context) throws ConfigurationException
 	{
 		String name = myNamePathComponent.getNameValue();
 		if(name.length() == 0)

@@ -17,12 +17,12 @@ package org.jetbrains.idea.maven.execution;
 
 import java.util.Collection;
 
+import javax.annotation.Nonnull;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nullable;
 import org.jetbrains.idea.maven.model.MavenConstants;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
@@ -46,7 +46,7 @@ public class MavenEditGoalDialog extends DialogWrapper
 {
 
 	private final Project myProject;
-	@Nullable
+	@javax.annotation.Nullable
 	private final Collection<String> myHistory;
 
 	private JPanel contentPane;
@@ -59,12 +59,12 @@ public class MavenEditGoalDialog extends DialogWrapper
 	private ComboBox goalsComboBox;
 	private EditorTextField goalsEditor;
 
-	public MavenEditGoalDialog(@NotNull Project project)
+	public MavenEditGoalDialog(@Nonnull Project project)
 	{
 		this(project, null);
 	}
 
-	public MavenEditGoalDialog(@NotNull Project project, @Nullable Collection<String> history)
+	public MavenEditGoalDialog(@Nonnull Project project, @Nullable Collection<String> history)
 	{
 		super(project, true);
 		myProject = project;
@@ -141,7 +141,7 @@ public class MavenEditGoalDialog extends DialogWrapper
 		return null;
 	}
 
-	@NotNull
+	@Nonnull
 	public String getGoals()
 	{
 		if(goalsComboBox != null)
@@ -154,7 +154,7 @@ public class MavenEditGoalDialog extends DialogWrapper
 		}
 	}
 
-	public void setGoals(@NotNull String goals)
+	public void setGoals(@Nonnull String goals)
 	{
 		if(goalsComboBox != null)
 		{
@@ -164,18 +164,18 @@ public class MavenEditGoalDialog extends DialogWrapper
 		goalsEditor.setText(goals);
 	}
 
-	@NotNull
+	@Nonnull
 	public String getWorkDirectory()
 	{
 		return workDirectoryField.getText();
 	}
 
-	public void setWorkDirectory(@NotNull String path)
+	public void setWorkDirectory(@Nonnull String path)
 	{
 		workDirectoryField.setText(path);
 	}
 
-	public void setSelectedMavenProject(@Nullable MavenProject mavenProject)
+	public void setSelectedMavenProject(@javax.annotation.Nullable MavenProject mavenProject)
 	{
 		workDirectoryField.setText(mavenProject == null ? "" : mavenProject.getDirectory());
 	}

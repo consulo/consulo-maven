@@ -26,10 +26,11 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.annotation.Nonnull;
+
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.TestOnly;
 import org.jetbrains.idea.maven.model.MavenArchetype;
 import org.jetbrains.idea.maven.project.MavenGeneralSettings;
@@ -279,7 +280,7 @@ public class MavenIndicesManager implements Disposable
 		}
 		myUpdatingQueue.run(new Task.Backgroundable(projectOrNull, IndicesBundle.message("maven.indices.updating"), true)
 		{
-			public void run(@NotNull ProgressIndicator indicator)
+			public void run(@Nonnull ProgressIndicator indicator)
 			{
 				try
 				{
@@ -342,7 +343,7 @@ public class MavenIndicesManager implements Disposable
 		}
 	}
 
-	private static MavenGeneralSettings getMavenSettings(@NotNull final Project project, @NotNull MavenProgressIndicator indicator) throws MavenProcessCanceledException
+	private static MavenGeneralSettings getMavenSettings(@Nonnull final Project project, @Nonnull MavenProgressIndicator indicator) throws MavenProcessCanceledException
 	{
 		MavenGeneralSettings settings;
 

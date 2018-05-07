@@ -18,8 +18,8 @@ package org.jetbrains.idea.maven.dom.refactorings.extract;
 import java.util.Collections;
 import java.util.Set;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.jetbrains.idea.maven.dom.DependencyConflictId;
 import org.jetbrains.idea.maven.dom.MavenDomProjectProcessorUtils;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
@@ -58,7 +58,7 @@ public class ExtractManagedDependenciesAction extends BaseRefactoringAction
 		return true;
 	}
 
-	protected boolean isEnabledOnElements(@NotNull PsiElement[] elements)
+	protected boolean isEnabledOnElements(@Nonnull PsiElement[] elements)
 	{
 		return false;
 	}
@@ -69,7 +69,7 @@ public class ExtractManagedDependenciesAction extends BaseRefactoringAction
 		return true;
 	}
 
-	protected RefactoringActionHandler getHandler(@NotNull DataContext dataContext)
+	protected RefactoringActionHandler getHandler(@Nonnull DataContext dataContext)
 	{
 		return new MyRefactoringActionHandler();
 	}
@@ -81,8 +81,8 @@ public class ExtractManagedDependenciesAction extends BaseRefactoringAction
 	}
 
 	@Override
-	protected boolean isAvailableOnElementInEditorAndFile(@NotNull PsiElement element, @NotNull Editor editor, @NotNull PsiFile file,
-			@NotNull DataContext context)
+	protected boolean isAvailableOnElementInEditorAndFile(@Nonnull PsiElement element, @Nonnull Editor editor, @Nonnull PsiFile file,
+			@Nonnull DataContext context)
 	{
 		if(!super.isAvailableOnElementInEditorAndFile(element, editor, file, context))
 		{
@@ -109,8 +109,8 @@ public class ExtractManagedDependenciesAction extends BaseRefactoringAction
 		return Pair.create(dependency, parents);
 	}
 
-	@NotNull
-	private static Set<MavenDomProjectModel> getParentProjects(@NotNull PsiFile file)
+	@Nonnull
+	private static Set<MavenDomProjectModel> getParentProjects(@Nonnull PsiFile file)
 	{
 		final MavenDomProjectModel model = MavenDomUtil.getMavenDomModel(file, MavenDomProjectModel.class);
 
@@ -121,14 +121,14 @@ public class ExtractManagedDependenciesAction extends BaseRefactoringAction
 		return MavenDomProjectProcessorUtils.collectParentProjects(model);
 	}
 
-	private static boolean isManagedDependency(@NotNull MavenDomDependency dependency)
+	private static boolean isManagedDependency(@Nonnull MavenDomDependency dependency)
 	{
 		return MavenDomProjectProcessorUtils.searchManagingDependency(dependency) != null;
 	}
 
 	private static class MyRefactoringActionHandler implements RefactoringActionHandler
 	{
-		public void invoke(@NotNull final Project project, final Editor editor, PsiFile file, DataContext dataContext)
+		public void invoke(@Nonnull final Project project, final Editor editor, PsiFile file, DataContext dataContext)
 		{
 			Pair<MavenDomDependency, Set<MavenDomProjectModel>> depAndParents = findDependencyAndParent(file, editor);
 			if(depAndParents == null)
@@ -208,7 +208,7 @@ public class ExtractManagedDependenciesAction extends BaseRefactoringAction
 			}.execute();
 		}
 
-		private static PsiFile[] getFiles(@NotNull PsiFile file, @NotNull MavenDomProjectModel model, @NotNull Set<MavenDomDependency> usages)
+		private static PsiFile[] getFiles(@Nonnull PsiFile file, @Nonnull MavenDomProjectModel model, @Nonnull Set<MavenDomDependency> usages)
 		{
 			Set<PsiFile> files = new HashSet<PsiFile>();
 
@@ -232,9 +232,9 @@ public class ExtractManagedDependenciesAction extends BaseRefactoringAction
 
 
 		@Nullable
-		private static ProcessData getProcessData(@NotNull Project project,
+		private static ProcessData getProcessData(@Nonnull Project project,
 
-				@NotNull Set<MavenDomProjectModel> models, @NotNull Function<MavenDomProjectModel, Set<MavenDomDependency>> funOccurrences,
+				@Nonnull Set<MavenDomProjectModel> models, @Nonnull Function<MavenDomProjectModel, Set<MavenDomDependency>> funOccurrences,
 				boolean hasExclusions)
 		{
 			if(models.size() == 0)
@@ -283,7 +283,7 @@ public class ExtractManagedDependenciesAction extends BaseRefactoringAction
 			};
 		}
 
-		public void invoke(@NotNull Project project, @NotNull PsiElement[] elements, DataContext dataContext)
+		public void invoke(@Nonnull Project project, @Nonnull PsiElement[] elements, DataContext dataContext)
 		{
 		}
 	}

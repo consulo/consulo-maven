@@ -21,7 +21,6 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.xml.util.documentation.XmlDocumentationProvider;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -49,7 +48,7 @@ public class MavenPomXmlDocumentationProvider implements DocumentationProvider {
     return containingFile != null && containingFile.getName().equals("maven-4.0.0.xsd");
   }
 
-  @Nullable
+  @javax.annotation.Nullable
   @Override
   public String getQuickNavigateInfo(PsiElement element, PsiElement originalElement) {
     if (!isFromPomXml(element)) return null;
@@ -57,7 +56,7 @@ public class MavenPomXmlDocumentationProvider implements DocumentationProvider {
     return myDelegate.getQuickNavigateInfo(element, originalElement);
   }
 
-  @Nullable
+  @javax.annotation.Nullable
   @Override
   public List<String> getUrlFor(PsiElement element, PsiElement originalElement) {
     if (!isFromPomXml(element)) return null;
@@ -65,15 +64,15 @@ public class MavenPomXmlDocumentationProvider implements DocumentationProvider {
     return myDelegate.getUrlFor(element, originalElement);
   }
 
-  @Nullable
+  @javax.annotation.Nullable
   @Override
-  public String generateDoc(PsiElement element, @Nullable PsiElement originalElement) {
+  public String generateDoc(PsiElement element, @javax.annotation.Nullable PsiElement originalElement) {
     if (!isFromPomXml(element)) return null;
 
     return myDelegate.generateDoc(element, originalElement);
   }
 
-  @Nullable
+  @javax.annotation.Nullable
   @Override
   public PsiElement getDocumentationElementForLookupItem(PsiManager psiManager, Object object, PsiElement element) {
     if (!isFromPomXml(element)) return null;
@@ -81,7 +80,7 @@ public class MavenPomXmlDocumentationProvider implements DocumentationProvider {
     return myDelegate.getDocumentationElementForLookupItem(psiManager, object, element);
   }
 
-  @Nullable
+  @javax.annotation.Nullable
   @Override
   public PsiElement getDocumentationElementForLink(PsiManager psiManager, String link, PsiElement context) {
     return null;

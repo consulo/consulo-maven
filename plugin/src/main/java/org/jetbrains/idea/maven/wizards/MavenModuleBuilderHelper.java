@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
 import org.jetbrains.idea.maven.dom.model.MavenDomModule;
 import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
@@ -67,7 +67,7 @@ public class MavenModuleBuilderHelper
 
 	private final String myCommandName;
 
-	public MavenModuleBuilderHelper(@NotNull MavenId projectId,
+	public MavenModuleBuilderHelper(@Nonnull MavenId projectId,
 			MavenProject aggregatorProject,
 			MavenProject parentProject,
 			boolean inheritGroupId,

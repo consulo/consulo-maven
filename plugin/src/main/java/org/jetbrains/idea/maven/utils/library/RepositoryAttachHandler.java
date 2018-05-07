@@ -42,8 +42,8 @@ import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.util.PairProcessor;
 import com.intellij.util.Processor;
 import com.intellij.util.SmartList;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.jetbrains.idea.maven.execution.SoutMavenConsole;
 import org.jetbrains.idea.maven.importing.MavenExtraArtifactType;
 import org.jetbrains.idea.maven.model.*;
@@ -69,7 +69,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class RepositoryAttachHandler {
 
   @Nullable
-  public static NewLibraryConfiguration chooseLibraryAndDownload(final @NotNull Project project,
+  public static NewLibraryConfiguration chooseLibraryAndDownload(final @Nonnull Project project,
                                                                  final @Nullable String initialFilter,
                                                                  JComponent parentComponent) {
     final RepositoryAttachDialog dialog = new RepositoryAttachDialog(project, false, initialFilter);
@@ -95,7 +95,7 @@ public class RepositoryAttachHandler {
             final List<OrderRoot> roots = createRoots(artifacts, copyTo);
             result.set(new NewLibraryConfiguration(coord, RepositoryLibraryType.getInstance(), new RepositoryLibraryProperties(coord)) {
               @Override
-              public void addRoots(@NotNull LibraryEditor editor) {
+              public void addRoots(@Nonnull LibraryEditor editor) {
                 editor.addRoots(roots);
               }
             });
@@ -185,7 +185,7 @@ public class RepositoryAttachHandler {
     }
     ProgressManager.getInstance().run(new Task.Backgroundable(project, "Maven", false) {
 
-      public void run(@NotNull ProgressIndicator indicator) {
+      public void run(@Nonnull ProgressIndicator indicator) {
         String[] urls = MavenRepositoryServicesManager.getServiceUrls();
         boolean tooManyResults = false;
         final AtomicBoolean proceedFlag = new AtomicBoolean(true);
@@ -242,7 +242,7 @@ public class RepositoryAttachHandler {
                                         final Processor<Collection<MavenRepositoryInfo>> resultProcessor) {
     ProgressManager.getInstance().run(new Task.Backgroundable(project, "Maven", false) {
 
-      public void run(@NotNull ProgressIndicator indicator) {
+      public void run(@Nonnull ProgressIndicator indicator) {
         final Ref<List<MavenRepositoryInfo>> result = Ref.create(Collections.<MavenRepositoryInfo>emptyList());
         try {
           final ArrayList<MavenRepositoryInfo> repoList = new ArrayList<MavenRepositoryInfo>();
@@ -280,7 +280,7 @@ public class RepositoryAttachHandler {
                                      final Processor<List<MavenArtifact>> resultProcessor) {
     final MavenId mavenId = getMavenId(coord);
     final Task task = new Task.Modal(project, "Maven", false) {
-      public void run(@NotNull ProgressIndicator indicator) {
+      public void run(@Nonnull ProgressIndicator indicator) {
         doResolveInner(project, mavenId, extraTypes, repositories, resultProcessor, indicator);
       }
     };

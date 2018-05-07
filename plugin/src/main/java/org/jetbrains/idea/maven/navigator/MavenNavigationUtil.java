@@ -26,8 +26,8 @@ import com.intellij.psi.PsiManager;
 import com.intellij.psi.xml.XmlDocument;
 import com.intellij.psi.xml.XmlFile;
 import com.intellij.psi.xml.XmlTag;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.jetbrains.idea.maven.dom.MavenDomProjectProcessorUtils;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
 import org.jetbrains.idea.maven.dom.model.MavenDomDependencies;
@@ -128,14 +128,14 @@ public class MavenNavigationUtil {
 
   }
 
-  @Nullable
+  @javax.annotation.Nullable
   public static VirtualFile getArtifactFile(Project project, MavenId id) {
     final File file = MavenArtifactUtil.getArtifactFile(MavenProjectsManager.getInstance(project).getLocalRepository(), id);
     return file.exists() ? LocalFileSystem.getInstance().findFileByIoFile(file) : null;
   }
 
   @Nullable
-  public static MavenDomDependency findDependency(@NotNull MavenDomProjectModel projectDom, @NotNull final MavenArtifact artifact) {
+  public static MavenDomDependency findDependency(@Nonnull MavenDomProjectModel projectDom, @Nonnull final MavenArtifact artifact) {
     MavenDomProjectProcessorUtils.SearchProcessor<MavenDomDependency, MavenDomDependencies> processor = new MavenDomProjectProcessorUtils.SearchProcessor<MavenDomDependency, MavenDomDependencies>() {
       @Nullable
       @Override

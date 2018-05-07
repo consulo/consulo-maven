@@ -20,8 +20,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+
 import com.intellij.openapi.roots.ui.configuration.artifacts.ManifestFilesInfo;
 import com.intellij.openapi.util.Pair;
 import com.intellij.packaging.artifacts.Artifact;
@@ -43,13 +43,13 @@ public class ArtifactExternalDependenciesImporter {
   private final ManifestFilesInfo myManifestFiles = new ManifestFilesInfo();
   private final Map<Artifact, List<PackagingElement<?>>> myExternalDependencies = new HashMap<Artifact, List<PackagingElement<?>>>();
 
-  @Nullable
-  public ManifestFileConfiguration getManifestFile(@NotNull Artifact artifact,
-                                                   @NotNull PackagingElementResolvingContext context) {
+  @javax.annotation.Nullable
+  public ManifestFileConfiguration getManifestFile(@Nonnull Artifact artifact,
+                                                   @Nonnull PackagingElementResolvingContext context) {
     return myManifestFiles.getManifestFile(artifact.getRootElement(), artifact.getArtifactType(), context);
   }
 
-  public List<PackagingElement<?>> getExternalDependenciesList(@NotNull Artifact artifact) {
+  public List<PackagingElement<?>> getExternalDependenciesList(@Nonnull Artifact artifact) {
     List<PackagingElement<?>> elements = myExternalDependencies.get(artifact);
     if (elements == null) {
       elements = new ArrayList<PackagingElement<?>>();
@@ -66,8 +66,8 @@ public class ArtifactExternalDependenciesImporter {
       ArtifactUtil.processPackagingElements(artifact, ArtifactElementType.getInstance(),
                                             new PackagingElementProcessor<ArtifactPackagingElement>() {
                                               @Override
-                                              public boolean process(@NotNull ArtifactPackagingElement artifactPackagingElement,
-                                                                     @NotNull PackagingElementPath path) {
+                                              public boolean process(@Nonnull ArtifactPackagingElement artifactPackagingElement,
+                                                                     @Nonnull PackagingElementPath path) {
                                                 final Artifact included = artifactPackagingElement.findArtifact(context);
                                                 final CompositePackagingElement<?> parent = path.getLastParent();
                                                 if (parent != null && included != null) {

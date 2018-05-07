@@ -5,8 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.jetbrains.idea.maven.dom.DependencyConflictId;
 import org.jetbrains.idea.maven.model.MavenArtifact;
 import org.jetbrains.idea.maven.model.MavenId;
@@ -33,7 +33,7 @@ public class MavenArtifactIndex
 		return myData;
 	}
 
-	@NotNull
+	@Nonnull
 	public List<MavenArtifact> findArtifacts(@Nullable String groupId, @Nullable String artifactId)
 	{
 		Map<String, List<MavenArtifact>> groupMap = myData.get(groupId);
@@ -46,7 +46,7 @@ public class MavenArtifactIndex
 		return res == null ? Collections.<MavenArtifact>emptyList() : res;
 	}
 
-	@NotNull
+	@Nonnull
 	public List<MavenArtifact> findArtifacts(@Nullable MavenId mavenId)
 	{
 		if(mavenId == null)
@@ -58,7 +58,7 @@ public class MavenArtifactIndex
 	}
 
 	@Nullable
-	public MavenArtifact findArtifacts(@NotNull DependencyConflictId id)
+	public MavenArtifact findArtifacts(@Nonnull DependencyConflictId id)
 	{
 		for(MavenArtifact artifact : findArtifacts(id.getGroupId(), id.getArtifactId()))
 		{
@@ -71,7 +71,7 @@ public class MavenArtifactIndex
 		return null;
 	}
 
-	@NotNull
+	@Nonnull
 	public List<MavenArtifact> findArtifacts(@Nullable String groupId, @Nullable String artifactId, @Nullable String version)
 	{
 		Map<String, List<MavenArtifact>> groupMap = myData.get(groupId);
@@ -99,7 +99,7 @@ public class MavenArtifactIndex
 	}
 
 
-	public static MavenArtifactIndex build(@NotNull List<MavenArtifact> dependencies)
+	public static MavenArtifactIndex build(@Nonnull List<MavenArtifact> dependencies)
 	{
 		if(dependencies.isEmpty())
 		{

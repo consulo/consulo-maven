@@ -15,6 +15,8 @@
  */
 package org.jetbrains.idea.maven.vfs;
 
+import javax.annotation.Nonnull;
+
 import com.intellij.navigation.ChooseByNameContributor;
 import com.intellij.navigation.NavigationItem;
 import com.intellij.openapi.project.Project;
@@ -22,16 +24,15 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.util.ArrayUtil;
-import org.jetbrains.annotations.NotNull;
 
 public class MavenGotoPropertyFileContributor implements ChooseByNameContributor {
-  @NotNull
+  @Nonnull
   public String[] getNames(Project project, boolean includeNonProjectItems) {
     if (!includeNonProjectItems) return ArrayUtil.EMPTY_STRING_ARRAY;
     return MavenPropertiesVirtualFileSystem.PROPERTIES_FILES;
   }
 
-  @NotNull
+  @Nonnull
   public NavigationItem[] getItemsByName(String name, String pattern, Project project, boolean includeNonProjectItems) {
     VirtualFile file = MavenPropertiesVirtualFileSystem.getInstance().findFileByPath(name);
     if (file != null) {

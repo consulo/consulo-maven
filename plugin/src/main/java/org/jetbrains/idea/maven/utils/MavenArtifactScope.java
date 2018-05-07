@@ -15,15 +15,13 @@
  */
 package org.jetbrains.idea.maven.utils;
 
-import org.jetbrains.annotations.Nullable;
-
 /**
  * @author Konstantin Bulenkov
  */
 public enum MavenArtifactScope {
   COMPILE, PROVIDED, RUNTIME, TEST, SYSTEM, IMPORT;
 
-  @Nullable
+  @javax.annotation.Nullable
   public static MavenArtifactScope fromString(String name) {
     for (MavenArtifactScope scope : MavenArtifactScope.values()) {
       if (scope.name().equalsIgnoreCase(name)) return scope;

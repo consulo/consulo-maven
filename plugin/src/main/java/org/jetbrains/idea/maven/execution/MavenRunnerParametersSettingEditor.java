@@ -3,7 +3,7 @@ package org.jetbrains.idea.maven.execution;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.options.SettingsEditor;
 import com.intellij.openapi.project.Project;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 
 import javax.swing.*;
 
@@ -14,7 +14,7 @@ public class MavenRunnerParametersSettingEditor extends SettingsEditor<MavenRunC
 
   private final MavenRunnerParametersPanel myPanel;
 
-  public MavenRunnerParametersSettingEditor(@NotNull Project project) {
+  public MavenRunnerParametersSettingEditor(@Nonnull Project project) {
     myPanel = new MavenRunnerParametersPanel(project);
   }
 
@@ -28,7 +28,7 @@ public class MavenRunnerParametersSettingEditor extends SettingsEditor<MavenRunC
     myPanel.setData(runConfiguration.getRunnerParameters());
   }
 
-  @NotNull
+  @Nonnull
   @Override
   protected JComponent createEditor() {
     return myPanel.createComponent();

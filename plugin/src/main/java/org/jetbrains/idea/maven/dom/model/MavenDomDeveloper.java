@@ -19,9 +19,10 @@
 
 package org.jetbrains.idea.maven.dom.model;
 
+import javax.annotation.Nonnull;
+
 import com.intellij.util.xml.Convert;
 import com.intellij.util.xml.GenericDomValue;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.idea.maven.dom.MavenDomElement;
 import org.jetbrains.idea.maven.dom.converters.MavenUrlConverter;
 
@@ -43,7 +44,7 @@ public interface MavenDomDeveloper extends MavenDomElement {
    *
    * @return the value of the id child.
    */
-  @NotNull
+  @Nonnull
   GenericDomValue<String> getId();
 
   /**
@@ -55,7 +56,7 @@ public interface MavenDomDeveloper extends MavenDomElement {
    *
    * @return the value of the name child.
    */
-  @NotNull
+  @Nonnull
   GenericDomValue<String> getName();
 
   /**
@@ -67,7 +68,7 @@ public interface MavenDomDeveloper extends MavenDomElement {
    *
    * @return the value of the email child.
    */
-  @NotNull
+  @Nonnull
   @Convert(MavenUrlConverter.class)
   GenericDomValue<String> getEmail();
 
@@ -80,7 +81,7 @@ public interface MavenDomDeveloper extends MavenDomElement {
    *
    * @return the value of the url child.
    */
-  @NotNull
+  @Nonnull
   @Convert(MavenUrlConverter.class)
   GenericDomValue<String> getUrl();
 
@@ -93,7 +94,7 @@ public interface MavenDomDeveloper extends MavenDomElement {
    *
    * @return the value of the organization child.
    */
-  @NotNull
+  @Nonnull
   GenericDomValue<String> getOrganization();
 
   /**
@@ -105,7 +106,7 @@ public interface MavenDomDeveloper extends MavenDomElement {
    *
    * @return the value of the organizationUrl child.
    */
-  @NotNull
+  @Nonnull
   @Convert(MavenUrlConverter.class)
   GenericDomValue<String> getOrganizationUrl();
 
@@ -118,7 +119,7 @@ public interface MavenDomDeveloper extends MavenDomElement {
    *
    * @return the value of the roles child.
    */
-  @NotNull
+  @Nonnull
   MavenDomRoles getRoles();
 
   /**
@@ -130,7 +131,7 @@ public interface MavenDomDeveloper extends MavenDomElement {
    *
    * @return the value of the timezone child.
    */
-  @NotNull
+  @Nonnull
   GenericDomValue<String> getTimezone();
 
   /**
@@ -142,6 +143,6 @@ public interface MavenDomDeveloper extends MavenDomElement {
    *
    * @return the value of the properties child.
    */
-  @NotNull
+  @Nonnull
   MavenDomProperties getProperties();
 }

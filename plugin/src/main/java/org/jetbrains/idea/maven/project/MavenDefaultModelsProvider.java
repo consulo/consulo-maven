@@ -20,7 +20,7 @@ import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 
 public class MavenDefaultModelsProvider implements MavenModelsProvider {
   private final Project myProject;
@@ -30,7 +30,7 @@ public class MavenDefaultModelsProvider implements MavenModelsProvider {
   }
 
   @Override
-  @NotNull
+  @Nonnull
   public Module[] getModules() {
     return ModuleManager.getInstance(myProject).getModules();
   }

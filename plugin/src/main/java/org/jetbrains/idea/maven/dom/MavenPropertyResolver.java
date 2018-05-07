@@ -24,7 +24,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.jdom.Element;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nullable;
 import org.jetbrains.idea.maven.compiler.MavenEscapeWindowsCharacterUtils;
 import org.jetbrains.idea.maven.dom.model.MavenDomProfile;
 import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
@@ -71,9 +71,9 @@ public class MavenPropertyResolver
 			MavenProject mavenProject,
 			String text,
 			Properties additionalProperties,
-			@Nullable String escapeString,
+			@javax.annotation.Nullable String escapeString,
 			boolean escapeWindowsPath,
-			@Nullable Map<String, String> resolvedPropertiesParam,
+			@javax.annotation.Nullable Map<String, String> resolvedPropertiesParam,
 			Appendable out) throws IOException
 	{
 		Map<String, String> resolvedProperties = resolvedPropertiesParam;
