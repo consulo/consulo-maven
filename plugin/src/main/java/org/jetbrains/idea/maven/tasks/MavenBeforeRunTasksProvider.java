@@ -47,6 +47,7 @@ import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.concurrency.Semaphore;
 import com.intellij.util.execution.ParametersListUtil;
+import consulo.awt.TargetAWT;
 import icons.MavenIcons;
 
 public class MavenBeforeRunTasksProvider extends BeforeRunTaskProvider<MavenBeforeRunTask>
@@ -74,14 +75,14 @@ public class MavenBeforeRunTasksProvider extends BeforeRunTaskProvider<MavenBefo
 	@Override
 	public Icon getIcon()
 	{
-		return MavenIcons.MavenLogo;
+		return TargetAWT.to(MavenIcons.MavenLogo);
 	}
 
 	@Nullable
 	@Override
 	public Icon getTaskIcon(MavenBeforeRunTask task)
 	{
-		return MavenIcons.MavenLogo;
+		return TargetAWT.to(MavenIcons.MavenLogo);
 	}
 
 	@Override

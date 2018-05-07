@@ -15,6 +15,11 @@
  */
 package org.jetbrains.idea.maven.utils.library;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.swing.Icon;
+import javax.swing.JComponent;
+
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.libraries.LibraryType;
 import com.intellij.openapi.roots.libraries.NewLibraryConfiguration;
@@ -22,10 +27,7 @@ import com.intellij.openapi.roots.libraries.PersistentLibraryKind;
 import com.intellij.openapi.roots.libraries.ui.LibraryEditorComponent;
 import com.intellij.openapi.roots.libraries.ui.LibraryPropertiesEditor;
 import com.intellij.openapi.vfs.VirtualFile;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
-import javax.swing.*;
+import consulo.awt.TargetAWT;
 
 /**
  * @author nik
@@ -72,6 +74,6 @@ public class RepositoryLibraryType extends LibraryType<RepositoryLibraryProperti
 
   @Override
   public Icon getIcon() {
-    return icons.MavenIcons.MavenLogo;
+    return TargetAWT.to(icons.MavenIcons.MavenLogo);
   }
 }

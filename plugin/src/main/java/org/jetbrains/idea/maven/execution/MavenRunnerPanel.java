@@ -40,6 +40,7 @@ import com.intellij.openapi.roots.ui.configuration.projectRoot.ProjectSdksModel;
 import com.intellij.openapi.util.Conditions;
 import com.intellij.ui.IdeBorderFactory;
 import com.intellij.ui.RawCommandLineEditor;
+import consulo.awt.TargetAWT;
 import consulo.roots.ui.configuration.SdkComboBox;
 
 public class MavenRunnerPanel
@@ -106,8 +107,8 @@ public class MavenRunnerPanel
 		ProjectSdksModel sdksModel = new ProjectSdksModel();
 		sdksModel.reset();
 		myJdkCombo = new SdkComboBox(sdksModel, Conditions.<SdkTypeId>is(javaSdkType), false);
-		myJdkCombo.insertCustomSdkItem(MavenRunnerSettings.USE_INTERNAL_JAVA, RunnerBundle.message("maven.java.internal"), javaSdkType.getIcon());
-		myJdkCombo.insertCustomSdkItem(MavenRunnerSettings.USE_JAVA_HOME, RunnerBundle.message("maven.java.home.env"), javaSdkType.getIcon());
+		myJdkCombo.insertCustomSdkItem(MavenRunnerSettings.USE_INTERNAL_JAVA, RunnerBundle.message("maven.java.internal"), TargetAWT.to(javaSdkType.getIcon()));
+		myJdkCombo.insertCustomSdkItem(MavenRunnerSettings.USE_JAVA_HOME, RunnerBundle.message("maven.java.home.env"), TargetAWT.to(javaSdkType.getIcon()));
 
 		jdkLabel.setLabelFor(myJdkCombo);
 		c.gridx = 0;

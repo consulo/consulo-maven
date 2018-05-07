@@ -5,9 +5,8 @@ import java.util.Collection;
 import java.util.List;
 
 import javax.annotation.Nonnull;
-import javax.swing.Icon;
-
 import javax.annotation.Nullable;
+
 import org.jetbrains.idea.maven.importing.MavenDefaultModifiableModelsProvider;
 import org.jetbrains.idea.maven.importing.MavenUIModifiableModelsProvider;
 import org.jetbrains.idea.maven.model.MavenConstants;
@@ -34,6 +33,7 @@ import com.intellij.openapi.vfs.VfsUtilCore;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.packaging.artifacts.ModifiableArtifactModel;
 import consulo.moduleImport.ModuleImportProvider;
+import consulo.ui.image.Image;
 import icons.MavenIcons;
 
 /**
@@ -58,7 +58,7 @@ public class MavenModuleImportProvider implements ModuleImportProvider<MavenImpo
 
 	@Nullable
 	@Override
-	public Icon getIcon()
+	public Image getIcon()
 	{
 		return MavenIcons.MavenLogo;
 	}

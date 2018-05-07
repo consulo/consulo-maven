@@ -91,6 +91,7 @@ import com.intellij.util.Function;
 import com.intellij.util.SystemProperties;
 import com.intellij.util.concurrency.Semaphore;
 import com.intellij.util.containers.ContainerUtil;
+import consulo.awt.TargetAWT;
 import consulo.java.module.extension.JavaModuleExtension;
 import consulo.vfs.util.ArchiveVfsUtil;
 import icons.MavenIcons;
@@ -1034,7 +1035,7 @@ public class MavenUtil
 		List<LookupElement> res = new ArrayList<LookupElement>(goals.size());
 		for(String goal : goals)
 		{
-			res.add(LookupElementBuilder.create(goal).withIcon(MavenIcons.Phase));
+			res.add(LookupElementBuilder.create(goal).withIcon(TargetAWT.to(MavenIcons.Phase)));
 		}
 
 		return res;

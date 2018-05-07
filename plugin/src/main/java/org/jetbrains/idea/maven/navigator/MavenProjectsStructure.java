@@ -26,14 +26,14 @@ import java.awt.event.InputEvent;
 import java.net.URL;
 import java.util.*;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JList;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 
 import org.jetbrains.annotations.NonNls;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import org.jetbrains.annotations.TestOnly;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
 import org.jetbrains.idea.maven.dom.MavenPluginDomUtil;
@@ -91,6 +91,7 @@ import com.intellij.ui.treeStructure.SimpleTreeStructure;
 import com.intellij.util.ObjectUtils;
 import com.intellij.util.PathUtil;
 import com.intellij.util.containers.ContainerUtil;
+import consulo.awt.TargetAWT;
 import icons.MavenIcons;
 
 public class MavenProjectsStructure extends SimpleTreeStructure
@@ -1251,7 +1252,7 @@ public class MavenProjectsStructure extends SimpleTreeStructure
 			myMavenProject = findParent(ProjectNode.class).getMavenProject();
 			myGoal = goal;
 			myDisplayName = displayName;
-			setUniformIcon(MavenIcons.Phase);
+			setIcon(TargetAWT.to(MavenIcons.Phase));
 		}
 
 		public MavenProject getMavenProject()
@@ -1794,7 +1795,7 @@ public class MavenProjectsStructure extends SimpleTreeStructure
 		public RunConfigurationsNode(ProjectNode parent)
 		{
 			super(parent);
-			setUniformIcon(MavenIcons.Phase);
+			setIcon(TargetAWT.to(MavenIcons.Phase));
 		}
 
 		@Override
@@ -1865,7 +1866,7 @@ public class MavenProjectsStructure extends SimpleTreeStructure
 		{
 			super(parent);
 			mySettings = settings;
-			setUniformIcon(ProgramRunnerUtil.getConfigurationIcon(settings, false));
+			setIcon(TargetAWT.to(ProgramRunnerUtil.getConfigurationIcon(settings, false)));
 		}
 
 		public RunnerAndConfigurationSettings getSettings()

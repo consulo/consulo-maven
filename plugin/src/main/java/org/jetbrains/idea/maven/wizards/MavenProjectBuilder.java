@@ -22,9 +22,8 @@ import java.util.List;
 import java.util.Set;
 
 import javax.annotation.Nonnull;
-import javax.swing.Icon;
-
 import javax.annotation.Nullable;
+
 import org.jetbrains.idea.maven.importing.MavenDefaultModifiableModelsProvider;
 import org.jetbrains.idea.maven.importing.MavenUIModifiableModelsProvider;
 import org.jetbrains.idea.maven.model.MavenExplicitProfiles;
@@ -51,6 +50,7 @@ import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.packaging.artifacts.ModifiableArtifactModel;
 import com.intellij.projectImport.ProjectImportBuilder;
+import consulo.ui.image.Image;
 import icons.MavenIcons;
 
 public class MavenProjectBuilder extends ProjectImportBuilder<MavenProject>
@@ -84,7 +84,7 @@ public class MavenProjectBuilder extends ProjectImportBuilder<MavenProject>
 	}
 
 	@Override
-	public Icon getIcon()
+	public Image getIcon()
 	{
 		return MavenIcons.MavenLogo;
 	}

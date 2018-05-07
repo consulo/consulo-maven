@@ -39,6 +39,7 @@ import com.intellij.openapi.roots.ui.configuration.ModulesProvider;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
+import consulo.awt.TargetAWT;
 import icons.MavenIcons;
 
 public class MavenModuleBuilder extends ModuleBuilder {
@@ -90,7 +91,7 @@ public class MavenModuleBuilder extends ModuleBuilder {
 
   @Override
   public Icon getNodeIcon() {
-    return MavenIcons.MavenLogo;
+    return TargetAWT.to(MavenIcons.MavenLogo);
   }
 
   @Override

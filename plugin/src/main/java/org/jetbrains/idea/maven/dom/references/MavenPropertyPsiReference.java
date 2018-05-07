@@ -67,6 +67,7 @@ import com.intellij.util.xml.DomElement;
 import com.intellij.util.xml.DomUtil;
 import com.intellij.xml.XmlElementDescriptor;
 import com.intellij.xml.XmlNSDescriptor;
+import consulo.awt.TargetAWT;
 import consulo.java.module.extension.JavaModuleExtensionImpl;
 
 public class MavenPropertyPsiReference extends MavenPsiReference {
@@ -357,18 +358,18 @@ public class MavenPropertyPsiReference extends MavenPsiReference {
     final String prefix = prefixLength == 0 ? null : myText.substring(0, prefixLength);
 
     PsiDirectory baseDir = getBaseDir(mavenProject);
-    addVariant(result, "basedir", baseDir, prefix, icons.MavenIcons.MavenLogo);
+    addVariant(result, "basedir", baseDir, prefix, TargetAWT.to(icons.MavenIcons.MavenLogo));
     if (prefix == null) {
-      result.add(createLookupElement(baseDir, "project.baseUri", icons.MavenIcons.MavenLogo));
-      result.add(createLookupElement(baseDir, "pom.baseUri", icons.MavenIcons.MavenLogo));
-      result.add(LookupElementBuilder.create(TIMESTAMP_PROP).withIcon(icons.MavenIcons.MavenLogo));
+      result.add(createLookupElement(baseDir, "project.baseUri", TargetAWT.to(icons.MavenIcons.MavenLogo)));
+      result.add(createLookupElement(baseDir, "pom.baseUri", TargetAWT.to(icons.MavenIcons.MavenLogo)));
+      result.add(LookupElementBuilder.create(TIMESTAMP_PROP).withIcon(TargetAWT.to(icons.MavenIcons.MavenLogo)));
     }
 
     processSchema(MavenSchemaProvider.MAVEN_PROJECT_SCHEMA_URL, new SchemaProcessor<Object>() {
       @Override
       public Object process(@Nonnull String property, XmlElementDescriptor descriptor) {
         if (property.startsWith("project.")) {
-          addVariant(result, property.substring("project.".length()), descriptor, prefix, icons.MavenIcons.MavenLogo);
+          addVariant(result, property.substring("project.".length()), descriptor, prefix, TargetAWT.to(icons.MavenIcons.MavenLogo));
         }
         return null;
       }
@@ -377,7 +378,7 @@ public class MavenPropertyPsiReference extends MavenPsiReference {
     processSchema(MavenSchemaProvider.MAVEN_SETTINGS_SCHEMA_URL, new SchemaProcessor<Object>(){
       @Override
       public Object process(@Nonnull String property, XmlElementDescriptor descriptor) {
-        result.add(createLookupElement(descriptor, property, icons.MavenIcons.MavenLogo));
+        result.add(createLookupElement(descriptor, property, TargetAWT.to(icons.MavenIcons.MavenLogo)));
         return null;
       }
     });

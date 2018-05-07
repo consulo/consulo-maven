@@ -22,6 +22,8 @@ import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
+import consulo.annotations.RequiredReadAction;
+import consulo.awt.TargetAWT;
 import consulo.ide.IconDescriptor;
 import consulo.ide.IconDescriptorUpdater;
 import icons.MavenIcons;
@@ -32,6 +34,7 @@ import icons.MavenIcons;
  */
 public class MavenIconDescriptorUpdater implements IconDescriptorUpdater
 {
+  @RequiredReadAction
   @Override
   public void updateIcon(@Nonnull IconDescriptor iconDescriptor, @Nonnull PsiElement element, int flags) {
     if(element instanceof PsiFile && !DumbService.getInstance(element.getProject()).isDumb()) {
@@ -40,7 +43,7 @@ public class MavenIconDescriptorUpdater implements IconDescriptorUpdater
         return;
       }
       if (MavenProjectsManager.getInstance(element.getProject()).findProject(virtualFile) != null) {
-        iconDescriptor.setMainIcon(MavenIcons.MavenLogo);
+        iconDescriptor.setMainIcon(TargetAWT.to(MavenIcons.MavenLogo));
       }
     }
   }
