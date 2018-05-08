@@ -23,7 +23,6 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import consulo.annotations.RequiredReadAction;
-import consulo.awt.TargetAWT;
 import consulo.ide.IconDescriptor;
 import consulo.ide.IconDescriptorUpdater;
 import icons.MavenIcons;
@@ -43,7 +42,7 @@ public class MavenIconDescriptorUpdater implements IconDescriptorUpdater
         return;
       }
       if (MavenProjectsManager.getInstance(element.getProject()).findProject(virtualFile) != null) {
-        iconDescriptor.setMainIcon(TargetAWT.to(MavenIcons.MavenLogo));
+        iconDescriptor.setMainIcon((MavenIcons.MavenLogo));
       }
     }
   }
