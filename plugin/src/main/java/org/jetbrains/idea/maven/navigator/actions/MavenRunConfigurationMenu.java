@@ -30,6 +30,7 @@ import com.intellij.openapi.actionSystem.Constraints;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
+import consulo.awt.TargetAWT;
 
 /**
  * @author Sergey Evdokimov
@@ -77,7 +78,7 @@ public class MavenRunConfigurationMenu extends DefaultActionGroup implements Dum
 
 		public ExecuteMavenRunConfigurationAction(Executor executor, boolean enabled, Project project, RunnerAndConfigurationSettings settings)
 		{
-			super(executor.getActionName(), null, executor.getIcon());
+			super(executor.getActionName(), null, TargetAWT.to(executor.getIcon()));
 			myExecutor = executor;
 			myEnabled = enabled;
 			myProject = project;
