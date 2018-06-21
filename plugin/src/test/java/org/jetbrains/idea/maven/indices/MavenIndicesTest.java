@@ -15,8 +15,12 @@
  */
 package org.jetbrains.idea.maven.indices;
 
-import com.intellij.openapi.util.SystemInfo;
-import com.intellij.openapi.util.io.FileUtil;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.WildcardQuery;
@@ -25,14 +29,10 @@ import org.jetbrains.idea.maven.model.MavenArtifactInfo;
 import org.jetbrains.idea.maven.server.MavenIndexerWrapper;
 import org.jetbrains.idea.maven.server.MavenServerIndexer;
 import org.jetbrains.idea.maven.server.MavenServerManager;
+import com.intellij.openapi.util.SystemInfo;
+import com.intellij.openapi.util.io.FileUtil;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-public class MavenIndicesTest extends MavenIndicesTestCase {
+public abstract class MavenIndicesTest extends MavenIndicesTestCase {
   private MavenCustomRepositoryHelper myRepositoryHelper;
   private MavenIndices myIndices;
   private MavenIndexerWrapper myIndexer;
