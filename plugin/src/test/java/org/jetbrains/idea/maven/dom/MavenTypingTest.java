@@ -15,11 +15,11 @@
  */
 package org.jetbrains.idea.maven.dom;
 
-import com.intellij.openapi.vfs.VirtualFile;
-
 import java.io.IOException;
 
-public class MavenTypingTest extends MavenDomTestCase {
+import com.intellij.openapi.vfs.VirtualFile;
+
+public abstract class MavenTypingTest extends MavenDomTestCase {
   public void testTypingOpenBrace() throws Exception {
     createProjectPom("<groupId>test</groupId>" +
                      "<artifactId>project</artifactId>" +

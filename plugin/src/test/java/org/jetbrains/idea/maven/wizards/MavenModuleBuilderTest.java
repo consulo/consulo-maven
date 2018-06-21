@@ -32,7 +32,7 @@ import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 
-public class MavenModuleBuilderTest extends MavenImportingTestCase {
+public abstract class MavenModuleBuilderTest extends MavenImportingTestCase {
   private MavenModuleBuilder myBuilder;
 
   @Override

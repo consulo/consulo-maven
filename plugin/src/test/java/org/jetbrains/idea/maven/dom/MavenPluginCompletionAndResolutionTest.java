@@ -15,6 +15,11 @@
  */
 package org.jetbrains.idea.maven.dom;
 
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.List;
+
+import org.jetbrains.idea.maven.indices.MavenIndicesTestFixture;
 import com.intellij.idea.Bombed;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -22,13 +27,8 @@ import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.xml.XmlTag;
-import org.jetbrains.idea.maven.indices.MavenIndicesTestFixture;
 
-import java.io.IOException;
-import java.util.Calendar;
-import java.util.List;
-
-public class MavenPluginCompletionAndResolutionTest extends MavenDomWithIndicesTestCase {
+public abstract class MavenPluginCompletionAndResolutionTest extends MavenDomWithIndicesTestCase {
   @Override
   protected MavenIndicesTestFixture createIndicesFixture() {
     return new MavenIndicesTestFixture(myDir, myProject, "plugins");

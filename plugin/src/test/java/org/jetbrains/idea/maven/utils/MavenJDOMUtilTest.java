@@ -15,13 +15,13 @@
  */
 package org.jetbrains.idea.maven.utils;
 
-import com.intellij.openapi.vfs.VirtualFile;
-import org.jdom.Element;
-import org.jetbrains.idea.maven.MavenTestCase;
-
 import java.io.IOException;
 
-public class MavenJDOMUtilTest extends MavenTestCase {
+import org.jdom.Element;
+import org.jetbrains.idea.maven.MavenTestCase;
+import com.intellij.openapi.vfs.VirtualFile;
+
+public abstract class MavenJDOMUtilTest extends MavenTestCase {
   public void testReadingValuesWithComments() throws Exception {
     assertEquals("aaa", readValue("<root><foo>aaa<!--a--></foo></root>", "foo"));
     assertEquals("aaa", readValue("<root><foo>\n" +

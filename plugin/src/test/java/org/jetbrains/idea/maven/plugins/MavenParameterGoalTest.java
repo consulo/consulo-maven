@@ -5,7 +5,7 @@ import com.intellij.testFramework.fixtures.LightCodeInsightFixtureTestCase;
 /**
  * @author Sergey Evdokimov
  */
-public class MavenParameterGoalTest extends LightCodeInsightFixtureTestCase {
+public abstract class MavenParameterGoalTest extends LightCodeInsightFixtureTestCase {
 
   public void testCompletion() {
     myFixture.configureByText("pom.xml", "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +

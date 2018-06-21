@@ -15,13 +15,13 @@
  */
 package org.jetbrains.idea.maven.importing;
 
-import com.intellij.openapi.vfs.VirtualFile;
-import org.jetbrains.idea.maven.MavenImportingTestCase;
-
 import java.util.Collections;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class IgnoresImportingTest extends MavenImportingTestCase {
+import org.jetbrains.idea.maven.MavenImportingTestCase;
+import com.intellij.openapi.vfs.VirtualFile;
+
+public abstract class IgnoresImportingTest extends MavenImportingTestCase {
   @Override
   protected void setUp() throws Exception {
     super.setUp();

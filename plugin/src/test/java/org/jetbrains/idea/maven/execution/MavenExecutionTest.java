@@ -34,7 +34,7 @@ import com.intellij.util.concurrency.Semaphore;
 import com.intellij.util.ui.UIUtil;
 
 @SuppressWarnings({"ConstantConditions"})
-public class MavenExecutionTest extends MavenImportingTestCase {
+public abstract class MavenExecutionTest extends MavenImportingTestCase {
   @Override
   protected boolean runInWriteAction() {
     return false;

@@ -15,13 +15,13 @@
  */
 package org.jetbrains.idea.maven.importing;
 
-import com.intellij.openapi.vfs.VirtualFile;
-import org.jetbrains.idea.maven.MavenImportingTestCase;
-
 import java.io.File;
 import java.util.Arrays;
 
-public class DependenciesManagementTest extends MavenImportingTestCase {
+import org.jetbrains.idea.maven.MavenImportingTestCase;
+import com.intellij.openapi.vfs.VirtualFile;
+
+public abstract class DependenciesManagementTest extends MavenImportingTestCase {
   public void testImportingDependencies() throws Exception {
     if (!hasMavenInstallation()) return;
 

@@ -15,7 +15,7 @@
  */
 package org.jetbrains.idea.maven.dom;
 
-public class MavenPropertyRenameTest extends MavenDomTestCase {
+public abstract class MavenPropertyRenameTest extends MavenDomTestCase {
   @Override
   protected void setUpInWriteAction() throws Exception {
     super.setUpInWriteAction();

@@ -31,7 +31,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.PsiReference;
 
-public class MavenPropertyCompletionAndResolutionTest extends MavenDomTestCase {
+public abstract class MavenPropertyCompletionAndResolutionTest extends MavenDomTestCase {
   @Override
   protected void setUpInWriteAction() throws Exception {
     super.setUpInWriteAction();

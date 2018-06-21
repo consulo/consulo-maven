@@ -15,14 +15,14 @@
  */
 package org.jetbrains.idea.maven.importing;
 
-import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.openapi.vfs.VirtualFile;
-import org.jetbrains.idea.maven.MavenImportingTestCase;
-
 import java.io.File;
 import java.io.IOException;
 
-public class SnapshotDependenciesImportingTest extends MavenImportingTestCase {
+import org.jetbrains.idea.maven.MavenImportingTestCase;
+import com.intellij.openapi.util.io.FileUtil;
+import com.intellij.openapi.vfs.VirtualFile;
+
+public abstract class SnapshotDependenciesImportingTest extends MavenImportingTestCase {
   private File remoteRepoDir;
 
   @Override

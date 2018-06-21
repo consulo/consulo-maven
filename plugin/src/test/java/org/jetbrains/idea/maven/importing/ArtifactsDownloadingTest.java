@@ -15,18 +15,18 @@
  */
 package org.jetbrains.idea.maven.importing;
 
-import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.openapi.vfs.VfsUtil;
-import org.jetbrains.idea.maven.model.MavenArtifact;
-import org.jetbrains.idea.maven.model.MavenId;
-import org.jetbrains.idea.maven.project.MavenArtifactDownloader;
-import org.jetbrains.idea.maven.project.MavenProject;
-
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
-public class ArtifactsDownloadingTest extends ArtifactsDownloadingTestCase {
+import org.jetbrains.idea.maven.model.MavenArtifact;
+import org.jetbrains.idea.maven.model.MavenId;
+import org.jetbrains.idea.maven.project.MavenArtifactDownloader;
+import org.jetbrains.idea.maven.project.MavenProject;
+import com.intellij.openapi.util.io.FileUtil;
+import com.intellij.openapi.vfs.VfsUtil;
+
+public abstract class ArtifactsDownloadingTest extends ArtifactsDownloadingTestCase {
   public void testJavadocsAndSources() throws Exception {
     importProject("<groupId>test</groupId>" +
                   "<artifactId>project</artifactId>" +

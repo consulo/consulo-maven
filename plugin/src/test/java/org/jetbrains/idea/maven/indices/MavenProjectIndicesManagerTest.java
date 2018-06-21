@@ -17,7 +17,7 @@ package org.jetbrains.idea.maven.indices;
 
 import java.util.List;
 
-public class MavenProjectIndicesManagerTest extends MavenIndicesTestCase {
+public abstract class MavenProjectIndicesManagerTest extends MavenIndicesTestCase {
   private MavenIndicesTestFixture myIndicesFixture;
 
   @Override

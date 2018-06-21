@@ -15,12 +15,12 @@
  */
 package org.jetbrains.idea.maven.dom;
 
+import java.util.List;
+
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 
-import java.util.List;
-
-public class MavenPropertyFindUsagesTest extends MavenDomTestCase {
+public abstract class MavenPropertyFindUsagesTest extends MavenDomTestCase {
   @Override
   protected void setUpInWriteAction() throws Exception {
     super.setUpInWriteAction();

@@ -15,11 +15,11 @@
  */
 package org.jetbrains.idea.maven.project;
 
-import com.intellij.openapi.options.Configurable;
 import org.jetbrains.idea.maven.MavenTestCase;
 import org.jetbrains.idea.maven.utils.MavenSettings;
+import com.intellij.openapi.options.Configurable;
 
-public class MavenSettingsTest extends MavenTestCase {
+public abstract class MavenSettingsTest extends MavenTestCase {
   public void testCloningGeneralSettingsWithoutListeners() throws Exception {
     final String[] log = new String[]{""};
 

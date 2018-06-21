@@ -15,17 +15,17 @@
  */
 package org.jetbrains.idea.maven.importing;
 
+import java.io.File;
+
+import org.jetbrains.idea.maven.MavenImportingTestCase;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.testFramework.PsiTestUtil;
-import org.jetbrains.idea.maven.MavenImportingTestCase;
 
-import java.io.File;
-
-public class WorkingWithOpenProjectTest extends MavenImportingTestCase {
+public abstract class WorkingWithOpenProjectTest extends MavenImportingTestCase {
   @Override
   protected void setUpInWriteAction() throws Exception {
     super.setUpInWriteAction();

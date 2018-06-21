@@ -15,6 +15,9 @@
  */
 package org.jetbrains.idea.maven.importing;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
+import org.jetbrains.idea.maven.MavenImportingTestCase;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.module.ModifiableModuleModel;
 import com.intellij.openapi.module.Module;
@@ -24,11 +27,8 @@ import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.roots.impl.ModuleOrderEntryImpl;
 import com.intellij.openapi.roots.impl.OrderEntryUtil;
 import com.intellij.openapi.vfs.VirtualFile;
-import org.jetbrains.idea.maven.MavenImportingTestCase;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
-public class ReimportingTest extends MavenImportingTestCase {
+public abstract class ReimportingTest extends MavenImportingTestCase {
   @Override
   protected void setUpInWriteAction() throws Exception {
     super.setUpInWriteAction();

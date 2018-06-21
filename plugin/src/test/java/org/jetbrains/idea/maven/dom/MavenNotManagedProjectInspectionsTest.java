@@ -15,13 +15,13 @@
  */
 package org.jetbrains.idea.maven.dom;
 
+import java.io.File;
+
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.ex.ProjectManagerEx;
 import com.intellij.testFramework.PsiTestUtil;
 
-import java.io.File;
-
-public class MavenNotManagedProjectInspectionsTest extends MavenDomTestCase {
+public abstract class MavenNotManagedProjectInspectionsTest extends MavenDomTestCase {
   @Override
   protected void setUpInWriteAction() throws Exception {
     super.setUpInWriteAction();

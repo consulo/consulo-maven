@@ -30,7 +30,7 @@ import consulo.compiler.ModuleCompilerPathsManager;
 import consulo.roots.impl.ProductionContentFolderTypeProvider;
 import consulo.roots.impl.TestContentFolderTypeProvider;
 
-public class MavenFoldersImporterTest extends MavenImportingTestCase
+public abstract class MavenFoldersImporterTest extends MavenImportingTestCase
 {
 	public void testUpdatingExternallyCreatedFolders() throws Exception
 	{

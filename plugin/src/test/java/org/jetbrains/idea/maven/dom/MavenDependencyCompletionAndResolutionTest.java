@@ -15,6 +15,12 @@
  */
 package org.jetbrains.idea.maven.dom;
 
+import java.util.Arrays;
+import java.util.List;
+
+import org.jetbrains.idea.maven.dom.intentions.ChooseFileIntentionAction;
+import org.jetbrains.idea.maven.dom.model.MavenDomDependency;
+import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
 import com.intellij.codeInsight.intention.IntentionAction;
 import com.intellij.codeInsight.intention.impl.config.IntentionActionWrapper;
 import com.intellij.openapi.application.Result;
@@ -25,15 +31,8 @@ import com.intellij.psi.codeStyle.CodeStyleSettingsManager;
 import com.intellij.psi.codeStyle.CommonCodeStyleSettings;
 import com.intellij.psi.formatter.xml.XmlCodeStyleSettings;
 import com.intellij.util.Producer;
-import org.jetbrains.idea.maven.dom.intentions.ChooseFileIntentionAction;
-import org.jetbrains.idea.maven.dom.model.MavenDomDependency;
-import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
 
-import java.io.File;
-import java.util.Arrays;
-import java.util.List;
-
-public class MavenDependencyCompletionAndResolutionTest extends MavenDomWithIndicesTestCase {
+public abstract class MavenDependencyCompletionAndResolutionTest extends MavenDomWithIndicesTestCase {
   @Override
   protected void setUpInWriteAction() throws Exception {
     super.setUpInWriteAction();

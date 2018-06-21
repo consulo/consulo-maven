@@ -18,7 +18,7 @@ package org.jetbrains.idea.maven.project;
 import org.jetbrains.idea.maven.MavenTestCase;
 import org.jetbrains.idea.maven.server.MavenEmbedderWrapper;
 
-public class MavenEmbeddersManagerTest extends MavenTestCase {
+public abstract class MavenEmbeddersManagerTest extends MavenTestCase {
   private MavenEmbeddersManager myManager;
 
   @Override

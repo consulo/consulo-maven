@@ -15,7 +15,7 @@
  */
 package org.jetbrains.idea.maven.dom;
 
-public class MavenDependencySpecialVersionsCompletionAndResolutionTest extends MavenDomWithIndicesTestCase {
+public abstract class MavenDependencySpecialVersionsCompletionAndResolutionTest extends MavenDomWithIndicesTestCase {
   @Override
   protected void setUpInWriteAction() throws Exception {
     super.setUpInWriteAction();

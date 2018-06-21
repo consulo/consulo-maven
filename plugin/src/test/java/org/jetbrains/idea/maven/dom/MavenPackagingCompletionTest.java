@@ -15,7 +15,7 @@
  */
 package org.jetbrains.idea.maven.dom;
 
-public class MavenPackagingCompletionTest extends MavenDomTestCase {
+public abstract class MavenPackagingCompletionTest extends MavenDomTestCase {
   public void testVariants() throws Exception {
     importProject("<groupId>test</groupId>" +
                   "<artifactId>project</artifactId>" +

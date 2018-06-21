@@ -15,15 +15,15 @@
  */
 package org.jetbrains.idea.maven.execution;
 
+import java.util.Arrays;
+
+import org.jdom.Element;
+import org.jetbrains.idea.maven.project.MavenGeneralSettings;
 import com.google.common.collect.ImmutableMap;
 import com.intellij.testFramework.IdeaTestCase;
 import com.intellij.util.xmlb.XmlSerializer;
-import org.jdom.Element;
-import org.jetbrains.idea.maven.project.MavenGeneralSettings;
 
-import java.util.Arrays;
-
-public class MavenRunConfigurationTest extends IdeaTestCase {
+public abstract class MavenRunConfigurationTest extends IdeaTestCase {
   public void testSaveLoadRunnerParameters() {
     MavenRunConfiguration.MavenSettings s = new MavenRunConfiguration.MavenSettings(myProject);
     s.myRunnerParameters.setWorkingDirPath("some path");

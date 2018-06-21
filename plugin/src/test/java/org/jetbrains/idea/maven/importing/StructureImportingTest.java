@@ -29,7 +29,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.pom.java.LanguageLevel;
 import consulo.java.module.extension.JavaModuleExtension;
 
-public class StructureImportingTest extends MavenImportingTestCase
+public abstract class StructureImportingTest extends MavenImportingTestCase
 {
 	public void testModulesWithSlashesRegularAndBack() throws Exception
 	{

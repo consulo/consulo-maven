@@ -15,21 +15,21 @@
  */
 package org.jetbrains.idea.maven.importing;
 
+import java.io.File;
+import java.util.List;
+
+import org.jetbrains.idea.maven.MavenCustomRepositoryHelper;
+import org.jetbrains.idea.maven.MavenImportingTestCase;
+import org.jetbrains.idea.maven.model.MavenProjectProblem;
+import org.jetbrains.idea.maven.server.MavenServerManager;
 import com.intellij.ProjectTopics;
 import com.intellij.openapi.module.ModifiableModuleModel;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.roots.ModuleRootEvent;
 import com.intellij.openapi.roots.ModuleRootListener;
-import org.jetbrains.idea.maven.MavenCustomRepositoryHelper;
-import org.jetbrains.idea.maven.MavenImportingTestCase;
-import org.jetbrains.idea.maven.model.MavenProjectProblem;
-import org.jetbrains.idea.maven.server.MavenServerManager;
 
-import java.io.File;
-import java.util.List;
-
-public class MiscImportingTest extends MavenImportingTestCase {
+public abstract class MiscImportingTest extends MavenImportingTestCase {
   private int beforeRootsChangedCount;
   private int rootsChangedCount;
 

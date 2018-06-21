@@ -23,7 +23,7 @@ import org.jetbrains.idea.maven.MavenImportingTestCase;
 import org.jetbrains.idea.maven.model.MavenExplicitProfiles;
 import com.intellij.openapi.vfs.VirtualFile;
 
-public class MavenProjectsNavigatorTest extends MavenImportingTestCase {
+public abstract class MavenProjectsNavigatorTest extends MavenImportingTestCase {
   private MavenProjectsNavigator myNavigator;
   private MavenProjectsStructure myStructure;
 

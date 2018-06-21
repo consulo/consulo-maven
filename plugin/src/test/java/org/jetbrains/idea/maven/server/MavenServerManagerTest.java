@@ -15,15 +15,15 @@
  */
 package org.jetbrains.idea.maven.server;
 
-import com.intellij.openapi.application.ApplicationManager;
-import org.jetbrains.idea.maven.MavenTestCase;
-
 import java.rmi.RemoteException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-public class MavenServerManagerTest extends MavenTestCase {
+import org.jetbrains.idea.maven.MavenTestCase;
+import com.intellij.openapi.application.ApplicationManager;
+
+public abstract class MavenServerManagerTest extends MavenTestCase {
   public void testInitializingDoesntTakeReadAction() throws Exception {
     //make sure all components are initialized to prevent deadlocks
     MavenServerManager.getInstance().getOrCreateWrappee();

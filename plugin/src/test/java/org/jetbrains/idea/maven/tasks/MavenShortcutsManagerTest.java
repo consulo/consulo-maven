@@ -15,15 +15,15 @@
  */
 package org.jetbrains.idea.maven.tasks;
 
-import com.intellij.openapi.actionSystem.ActionManager;
-import com.intellij.openapi.command.WriteCommandAction;
-import com.intellij.openapi.vfs.VirtualFile;
-import org.jetbrains.idea.maven.MavenImportingTestCase;
-
 import java.util.Arrays;
 import java.util.List;
 
-public class MavenShortcutsManagerTest extends MavenImportingTestCase {
+import org.jetbrains.idea.maven.MavenImportingTestCase;
+import com.intellij.openapi.actionSystem.ActionManager;
+import com.intellij.openapi.command.WriteCommandAction;
+import com.intellij.openapi.vfs.VirtualFile;
+
+public abstract class MavenShortcutsManagerTest extends MavenImportingTestCase {
   private MavenShortcutsManager myShortcutsManager;
 
   @Override

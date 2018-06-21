@@ -27,7 +27,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
 
-public class MavenPropertyResolverTest extends MavenImportingTestCase {
+public abstract class MavenPropertyResolverTest extends MavenImportingTestCase {
   
   private static String resolve(Module module,
                                 String text,

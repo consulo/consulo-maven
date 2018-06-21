@@ -1,15 +1,14 @@
 package org.jetbrains.idea.maven.plugins.jgitBuildnumber;
 
-import com.intellij.openapi.vfs.VirtualFile;
-import org.jetbrains.idea.maven.dom.MavenDomTestCase;
-
-import java.io.IOException;
 import java.util.List;
+
+import org.jetbrains.idea.maven.dom.MavenDomTestCase;
+import com.intellij.openapi.vfs.VirtualFile;
 
 /**
  * @author Sergey Evdokimov
  */
-public class MavenJGitBuildNumberTest extends MavenDomTestCase {
+public abstract class MavenJGitBuildNumberTest extends MavenDomTestCase {
 
   public void testCompletion() throws Exception {
     importProject("<groupId>test</groupId>\n" +

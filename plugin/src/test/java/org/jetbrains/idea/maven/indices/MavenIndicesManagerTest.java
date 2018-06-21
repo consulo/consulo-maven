@@ -15,8 +15,7 @@
  */
 package org.jetbrains.idea.maven.indices;
 
-import com.intellij.openapi.util.Pair;
-import org.jetbrains.idea.maven.model.MavenArchetype;
+import static java.util.Arrays.asList;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -24,9 +23,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import static java.util.Arrays.asList;
+import org.jetbrains.idea.maven.model.MavenArchetype;
+import com.intellij.openapi.util.Pair;
 
-public class MavenIndicesManagerTest extends MavenIndicesTestCase {
+public abstract class MavenIndicesManagerTest extends MavenIndicesTestCase {
   private MavenIndicesTestFixture myIndicesFixture;
 
   @Override

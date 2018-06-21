@@ -15,14 +15,14 @@
  */
 package org.jetbrains.idea.maven.project;
 
+import java.util.Collections;
+import java.util.List;
+
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.Function;
 
-import java.util.Collections;
-import java.util.List;
-
-public class MavenProjectsTreeIgnoresTest extends MavenProjectsTreeTestCase {
+public abstract class MavenProjectsTreeIgnoresTest extends MavenProjectsTreeTestCase {
   private String myLog = "";
   private List<MavenProject> myRoots;
 

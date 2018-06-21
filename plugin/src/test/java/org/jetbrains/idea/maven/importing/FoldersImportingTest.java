@@ -27,7 +27,7 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import consulo.roots.impl.ProductionContentFolderTypeProvider;
 
-public class FoldersImportingTest extends MavenImportingTestCase {
+public abstract class FoldersImportingTest extends MavenImportingTestCase {
   public void testSimpleProjectStructure() throws Exception {
     createStdProjectFolders();
 

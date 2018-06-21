@@ -23,7 +23,7 @@ import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 
-public class MavenModuleCompletionAndResolutionTest extends MavenDomWithIndicesTestCase {
+public abstract class MavenModuleCompletionAndResolutionTest extends MavenDomWithIndicesTestCase {
   private static final String CREATE_MODULE_INTENTION = MavenDomBundle.message("fix.create.module");
   private static final String CREATE_MODULE_WITH_PARENT_INTENTION = MavenDomBundle.message("fix.create.module.with.parent");
 

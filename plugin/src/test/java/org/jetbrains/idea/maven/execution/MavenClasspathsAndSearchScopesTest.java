@@ -47,7 +47,7 @@ import consulo.java.execution.configurations.OwnJavaParameters;
 import consulo.roots.impl.ProductionContentFolderTypeProvider;
 import consulo.roots.impl.TestContentFolderTypeProvider;
 
-public class MavenClasspathsAndSearchScopesTest extends MavenImportingTestCase
+public abstract class MavenClasspathsAndSearchScopesTest extends MavenImportingTestCase
 {
 	private enum Type
 	{

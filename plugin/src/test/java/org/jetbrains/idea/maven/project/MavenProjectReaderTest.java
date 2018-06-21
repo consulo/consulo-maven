@@ -40,7 +40,7 @@ import com.intellij.util.ArrayUtil;
 import com.intellij.util.Function;
 import com.intellij.util.containers.ContainerUtil;
 
-public class MavenProjectReaderTest extends MavenTestCase {
+public abstract class MavenProjectReaderTest extends MavenTestCase {
   public void testBasics() throws Exception {
     createProjectPom("<groupId>test</groupId>" +
                      "<artifactId>project</artifactId>" +

@@ -20,7 +20,7 @@ import com.intellij.spellchecker.inspections.SpellCheckingInspection;
 /**
  * @author Sergey Evdokimov
  */
-public class MavenSpellcheckerTest extends MavenDomTestCase {
+public abstract class MavenSpellcheckerTest extends MavenDomTestCase {
 
   public void testSpell() throws Exception {
     myFixture.enableInspections(SpellCheckingInspection.class);

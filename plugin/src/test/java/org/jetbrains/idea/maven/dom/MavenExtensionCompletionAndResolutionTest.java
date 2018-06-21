@@ -15,18 +15,17 @@
  */
 package org.jetbrains.idea.maven.dom;
 
-import com.intellij.openapi.vfs.LocalFileSystem;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiReference;
-import org.jetbrains.idea.maven.indices.MavenIndex;
-import org.jetbrains.idea.maven.indices.MavenIndicesTestFixture;
-import org.jetbrains.idea.maven.indices.MavenProjectIndicesManager;
-
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 
-public class MavenExtensionCompletionAndResolutionTest extends MavenDomWithIndicesTestCase {
+import org.jetbrains.idea.maven.indices.MavenIndex;
+import org.jetbrains.idea.maven.indices.MavenIndicesTestFixture;
+import org.jetbrains.idea.maven.indices.MavenProjectIndicesManager;
+import com.intellij.openapi.vfs.LocalFileSystem;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiReference;
+
+public abstract class MavenExtensionCompletionAndResolutionTest extends MavenDomWithIndicesTestCase {
   @Override
   protected MavenIndicesTestFixture createIndicesFixture() {
     return new MavenIndicesTestFixture(myDir, myProject, "plugins");

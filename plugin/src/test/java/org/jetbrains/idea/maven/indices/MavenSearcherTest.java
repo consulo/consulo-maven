@@ -15,12 +15,12 @@
  */
 package org.jetbrains.idea.maven.indices;
 
-import org.jetbrains.idea.maven.model.MavenArtifactInfo;
-
 import java.util.ArrayList;
 import java.util.List;
 
-public class MavenSearcherTest extends MavenIndicesTestCase {
+import org.jetbrains.idea.maven.model.MavenArtifactInfo;
+
+public abstract class MavenSearcherTest extends MavenIndicesTestCase {
   MavenIndicesTestFixture myIndicesFixture;
 
   @Override

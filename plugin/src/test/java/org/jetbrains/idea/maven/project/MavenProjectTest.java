@@ -30,7 +30,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-public class MavenProjectTest extends MavenImportingTestCase {
+public abstract class MavenProjectTest extends MavenImportingTestCase {
   public void testCollectingPlugins() throws Exception {
     importProject("<groupId>test</groupId>" +
                   "<artifactId>project</artifactId>" +

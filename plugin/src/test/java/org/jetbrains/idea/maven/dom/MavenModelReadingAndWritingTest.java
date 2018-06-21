@@ -15,6 +15,9 @@
  */
 package org.jetbrains.idea.maven.dom;
 
+import org.jetbrains.idea.maven.MavenImportingTestCase;
+import org.jetbrains.idea.maven.dom.model.MavenDomDependency;
+import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.command.CommandProcessor;
 import com.intellij.openapi.editor.Document;
@@ -24,11 +27,8 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.codeStyle.CodeStyleManager;
 import com.intellij.util.IncorrectOperationException;
-import org.jetbrains.idea.maven.MavenImportingTestCase;
-import org.jetbrains.idea.maven.dom.model.MavenDomDependency;
-import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
 
-public class MavenModelReadingAndWritingTest extends MavenImportingTestCase {
+public abstract class MavenModelReadingAndWritingTest extends MavenImportingTestCase {
   @Override
   protected void setUpInWriteAction() throws Exception {
     super.setUpInWriteAction();

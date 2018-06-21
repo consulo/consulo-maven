@@ -38,7 +38,7 @@ import com.intellij.openapi.roots.libraries.LibraryTablesRegistrar;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 
-public class DependenciesImportingTest extends MavenImportingTestCase {
+public abstract class DependenciesImportingTest extends MavenImportingTestCase {
   public void testLibraryDependency() throws Exception {
     importProject("<groupId>test</groupId>" +
                   "<artifactId>project</artifactId>" +

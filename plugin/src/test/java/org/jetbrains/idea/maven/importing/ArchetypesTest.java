@@ -15,20 +15,21 @@
  */
 package org.jetbrains.idea.maven.importing;
 
-import com.intellij.openapi.progress.EmptyProgressIndicator;
 import gnu.trove.THashMap;
-import org.jetbrains.idea.maven.MavenTestCase;
-import org.jetbrains.idea.maven.execution.MavenExecutor;
-import org.jetbrains.idea.maven.execution.MavenExternalExecutor;
-import org.jetbrains.idea.maven.execution.MavenRunnerParameters;
-import org.jetbrains.idea.maven.execution.MavenRunnerSettings;
 
 import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
 
-public class ArchetypesTest extends MavenTestCase {
+import org.jetbrains.idea.maven.MavenTestCase;
+import org.jetbrains.idea.maven.execution.MavenExecutor;
+import org.jetbrains.idea.maven.execution.MavenExternalExecutor;
+import org.jetbrains.idea.maven.execution.MavenRunnerParameters;
+import org.jetbrains.idea.maven.execution.MavenRunnerSettings;
+import com.intellij.openapi.progress.EmptyProgressIndicator;
+
+public abstract class ArchetypesTest extends MavenTestCase {
   public void testGenerating() throws Exception {
     if (!hasMavenInstallation()) return;
 

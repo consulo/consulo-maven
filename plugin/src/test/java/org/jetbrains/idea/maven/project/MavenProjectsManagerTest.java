@@ -38,7 +38,7 @@ import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.FileContentUtil;
 
-public class MavenProjectsManagerTest extends MavenImportingTestCase {
+public abstract class MavenProjectsManagerTest extends MavenImportingTestCase {
   @Override
   protected void setUp() throws Exception {
     super.setUp();

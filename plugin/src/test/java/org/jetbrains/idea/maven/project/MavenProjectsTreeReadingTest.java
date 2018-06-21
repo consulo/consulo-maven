@@ -32,7 +32,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.testFramework.PlatformTestUtil;
 import com.intellij.util.Function;
 
-public class MavenProjectsTreeReadingTest extends MavenProjectsTreeTestCase {
+public abstract class MavenProjectsTreeReadingTest extends MavenProjectsTreeTestCase {
   public void testTwoRootProjects() throws Exception {
     VirtualFile m1 = createModulePom("m1",
                                      "<groupId>test</groupId>" +

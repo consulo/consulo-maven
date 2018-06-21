@@ -23,7 +23,7 @@ import org.jetbrains.idea.maven.project.MavenProject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class InvalidProjectImportingTest extends MavenImportingTestCase {
+public abstract class InvalidProjectImportingTest extends MavenImportingTestCase {
   public void testUnknownProblem() throws Exception {
     importProject("");
     assertModules("project");
