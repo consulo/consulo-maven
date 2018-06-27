@@ -76,7 +76,7 @@ import icons.MavenIcons;
 @State(name = "MavenProjectNavigator", storages = {@Storage(StoragePathMacros.WORKSPACE_FILE)})
 public class MavenProjectsNavigator extends MavenSimpleProjectComponent implements PersistentStateComponent<MavenProjectsNavigatorState>, Disposable, ProjectComponent
 {
-	public static final String TOOL_WINDOW_ID = "Maven Projects";
+	public static final String TOOL_WINDOW_ID = "Maven";
 
 	private static final URL ADD_ICON_URL = MavenProjectsNavigator.class.getResource("/general/add.png");
 	private static final URL SYNC_ICON_URL = MavenProjectsNavigator.class.getResource("/actions/refresh.png");
