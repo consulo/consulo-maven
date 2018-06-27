@@ -54,7 +54,6 @@ import com.intellij.openapi.actionSystem.EmptyAction;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.ProjectComponent;
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.components.StoragePathMacros;
@@ -319,7 +318,7 @@ public class MavenProjectsNavigator extends MavenSimpleProjectComponent implemen
 		final ToolWindowManagerEx manager = ToolWindowManagerEx.getInstanceEx(myProject);
 		myToolWindow = (ToolWindowEx) manager.registerToolWindow(TOOL_WINDOW_ID, false, ToolWindowAnchor.RIGHT, myProject, true);
 		myToolWindow.setIcon(MavenIcons.ToolWindowMaven);
-		final ContentFactory contentFactory = ServiceManager.getService(ContentFactory.class);
+		final ContentFactory contentFactory = ContentFactory.getInstance();
 		final Content content = contentFactory.createContent(panel, "", false);
 		ContentManager contentManager = myToolWindow.getContentManager();
 		contentManager.addContent(content);
