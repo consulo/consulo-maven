@@ -19,10 +19,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import javax.swing.Icon;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+
 import org.jetbrains.idea.maven.execution.MavenEditGoalDialog;
 import org.jetbrains.idea.maven.execution.MavenRunner;
 import org.jetbrains.idea.maven.execution.MavenRunnerParameters;
@@ -47,7 +46,7 @@ import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.concurrency.Semaphore;
 import com.intellij.util.execution.ParametersListUtil;
-import consulo.awt.TargetAWT;
+import consulo.ui.image.Image;
 import icons.MavenIcons;
 
 public class MavenBeforeRunTasksProvider extends BeforeRunTaskProvider<MavenBeforeRunTask>
@@ -73,16 +72,16 @@ public class MavenBeforeRunTasksProvider extends BeforeRunTaskProvider<MavenBefo
 	}
 
 	@Override
-	public Icon getIcon()
+	public Image getIcon()
 	{
-		return TargetAWT.to(MavenIcons.MavenLogo);
+		return MavenIcons.MavenLogo;
 	}
 
 	@Nullable
 	@Override
-	public Icon getTaskIcon(MavenBeforeRunTask task)
+	public Image getTaskIcon(MavenBeforeRunTask task)
 	{
-		return TargetAWT.to(MavenIcons.MavenLogo);
+		return MavenIcons.MavenLogo;
 	}
 
 	@Override

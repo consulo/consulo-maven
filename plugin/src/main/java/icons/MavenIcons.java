@@ -15,13 +15,13 @@ public class MavenIcons {
     return IconLoader.getIcon(path, MavenIcons.class);
   }
 
-  public static final Icon ChildrenProjects = load("/images/childrenProjects.png"); // 12x12
+  public static final Image ChildrenProjects = load("/images/childrenProjects.png"); // 12x12
   public static final Image MavenLogo = load("/images/mavenLogo.png"); // 16x16
   public static final Icon MavenPlugin = load("/images/mavenPlugin.png"); // 16x16
   public static final Icon MavenProject = load("/images/mavenProject.png"); // 16x16
   public static final Icon ModulesClosed = load("/images/modulesClosed.png"); // 16x16
   public static final Icon OfflineMode = load("/images/offlineMode.png"); // 16x16
-  public static final Icon ParentProject = load("/images/parentProject.png"); // 12x12
+  public static final Image ParentProject = load("/images/parentProject.png"); // 12x12
   public static final Image Phase = load("/images/phase.png"); // 16x16
   public static final Icon PhasesClosed = load("/images/phasesClosed.png"); // 16x16
   public static final Icon PluginGoal = load("/images/pluginGoal.png"); // 16x16
