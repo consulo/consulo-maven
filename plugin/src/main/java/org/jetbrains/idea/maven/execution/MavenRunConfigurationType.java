@@ -114,7 +114,7 @@ public class MavenRunConfigurationType implements ConfigurationType {
   }
 
   public Image getIcon() {
-    return MavenIcons.Phase;
+    return MavenIcons.MavenLogo;
   }
 
   public ConfigurationFactory[] getConfigurationFactories() {
