@@ -33,12 +33,11 @@ import java.util.Properties;
 import java.util.Scanner;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 
 import org.jetbrains.annotations.NonNls;
-
-import javax.annotation.Nullable;
 import org.jetbrains.idea.maven.artifactResolver.MavenArtifactResolvedM2RtMarker;
 import org.jetbrains.idea.maven.artifactResolver.MavenArtifactResolvedM31RtMarker;
 import org.jetbrains.idea.maven.artifactResolver.MavenArtifactResolvedM3RtMarker;
@@ -65,16 +64,16 @@ import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.JavaSdk;
 import com.intellij.openapi.projectRoots.Sdk;
-import com.intellij.openapi.projectRoots.SdkTable;
 import com.intellij.openapi.roots.ui.configuration.ProjectSettingsService;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.encoding.EncodingManager;
 import com.intellij.openapi.vfs.encoding.EncodingProjectManager;
+import com.intellij.pom.java.LanguageLevel;
 import com.intellij.util.PathUtil;
-import com.intellij.util.SystemProperties;
 import consulo.annotations.RequiredReadAction;
 import consulo.java.execution.configurations.OwnJavaParameters;
+import consulo.maven.util.MavenJdkUtil;
 
 /**
  * @author Ralf Quebbemann
@@ -300,20 +299,7 @@ public class MavenExternalParameters
 	private static Sdk getJdk(@Nullable Project project, MavenRunnerSettings runnerSettings, boolean isGlobalRunnerSettings) throws ExecutionException
 	{
 		String name = runnerSettings.getJreName();
-		if(name.equals(MavenRunnerSettings.USE_INTERNAL_JAVA))
-		{
-			final String javaHome = SystemProperties.getJavaHome();
-			if(!StringUtil.isEmptyOrSpaces(javaHome))
-			{
-				Sdk jdk = JavaSdk.getInstance().createJdk("", javaHome);
-				if(jdk != null)
-				{
-					return jdk;
-				}
-			}
-		}
-
-		if(name.equals(MavenRunnerSettings.USE_JAVA_HOME))
+		if(MavenRunnerSettings.USE_JAVA_HOME.equals(name))
 		{
 			final String javaHome = System.getenv("JAVA_HOME");
 			if(StringUtil.isEmptyOrSpaces(javaHome))
@@ -328,12 +314,10 @@ public class MavenExternalParameters
 			return jdk;
 		}
 
-		for(Sdk projectJdk : SdkTable.getInstance().getAllSdks())
+		Sdk sdk = MavenJdkUtil.findSdkOfLevel(LanguageLevel.HIGHEST);
+		if(sdk != null)
 		{
-			if(projectJdk.getName().equals(name))
-			{
-				return projectJdk;
-			}
+			return sdk;
 		}
 
 		if(isGlobalRunnerSettings)

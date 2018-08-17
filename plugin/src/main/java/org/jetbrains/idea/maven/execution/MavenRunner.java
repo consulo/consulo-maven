@@ -15,10 +15,24 @@
  */
 package org.jetbrains.idea.maven.execution;
 
+import java.util.List;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.inject.Singleton;
+
+import org.jetbrains.idea.maven.project.MavenConsole;
+import org.jetbrains.idea.maven.project.MavenConsoleImpl;
+import org.jetbrains.idea.maven.project.MavenGeneralSettings;
+import org.jetbrains.idea.maven.project.MavenProjectsManager;
+import org.jetbrains.idea.maven.utils.MavenLog;
 import com.intellij.openapi.application.AccessToken;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ReadAction;
-import com.intellij.openapi.components.*;
+import com.intellij.openapi.components.PersistentStateComponent;
+import com.intellij.openapi.components.ServiceManager;
+import com.intellij.openapi.components.State;
+import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.components.StoragePathMacros;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
@@ -27,17 +41,9 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import org.jetbrains.idea.maven.project.MavenConsole;
-import org.jetbrains.idea.maven.project.MavenConsoleImpl;
-import org.jetbrains.idea.maven.project.MavenGeneralSettings;
-import org.jetbrains.idea.maven.project.MavenProjectsManager;
-import org.jetbrains.idea.maven.utils.MavenLog;
-
-import java.util.List;
 
 @State(name = "MavenRunner", storages = {@Storage( file = StoragePathMacros.WORKSPACE_FILE)})
+@Singleton
 public class MavenRunner implements PersistentStateComponent<MavenRunnerSettings> {
 
   private static final Logger LOG = Logger.getInstance(MavenRunner.class);

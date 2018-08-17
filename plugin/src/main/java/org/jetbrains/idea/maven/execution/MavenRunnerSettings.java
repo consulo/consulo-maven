@@ -21,31 +21,29 @@ package org.jetbrains.idea.maven.execution;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import org.jetbrains.annotations.NonNls;
-
-import javax.annotation.Nullable;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.containers.HashMap;
 
 public class MavenRunnerSettings implements Cloneable
 {
 	@NonNls
-	public static final String USE_INTERNAL_JAVA = "#JAVA_INTERNAL";
-	@NonNls
 	public static final String USE_JAVA_HOME = "#JAVA_HOME";
 
 	private boolean runMavenInBackground = true;
-	@Nonnull
-	private String jreName = USE_INTERNAL_JAVA;
+	@Nullable
+	private String jreName;
 	@Nonnull
 	private String vmOptions = "";
 	private boolean skipTests = false;
-	private Map<String, String> mavenProperties = new LinkedHashMap<String, String>();
+	private Map<String, String> mavenProperties = new LinkedHashMap<>();
 
-	private Map<String, String> environmentProperties = new HashMap<String, String>();
+	private Map<String, String> environmentProperties = new HashMap<>();
 	private boolean passParentEnv = true;
 
 	private List<Listener> myListeners = ContainerUtil.createLockFreeCopyOnWriteList();
@@ -60,7 +58,7 @@ public class MavenRunnerSettings implements Cloneable
 		this.runMavenInBackground = runMavenInBackground;
 	}
 
-	@Nonnull
+	@Nullable
 	public String getJreName()
 	{
 		return jreName;
@@ -68,10 +66,7 @@ public class MavenRunnerSettings implements Cloneable
 
 	public void setJreName(@Nullable String jreName)
 	{
-		if(jreName != null)
-		{
-			this.jreName = jreName;
-		}
+		this.jreName = jreName;
 	}
 
 	@Nonnull
@@ -184,7 +179,7 @@ public class MavenRunnerSettings implements Cloneable
 		{
 			return false;
 		}
-		if(!jreName.equals(that.jreName))
+		if(!Objects.equals(jreName, that.jreName))
 		{
 			return false;
 		}
@@ -228,7 +223,7 @@ public class MavenRunnerSettings implements Cloneable
 			final MavenRunnerSettings clone = (MavenRunnerSettings) super.clone();
 			clone.mavenProperties = cloneMap(mavenProperties);
 			clone.myListeners = ContainerUtil.createLockFreeCopyOnWriteList();
-			clone.environmentProperties = new HashMap<String, String>(environmentProperties);
+			clone.environmentProperties = new HashMap<>(environmentProperties);
 			return clone;
 		}
 		catch(CloneNotSupportedException e)
@@ -239,7 +234,7 @@ public class MavenRunnerSettings implements Cloneable
 
 	private static <K, V> Map<K, V> cloneMap(final Map<K, V> source)
 	{
-		final Map<K, V> clone = new LinkedHashMap<K, V>();
+		final Map<K, V> clone = new LinkedHashMap<>();
 		for(Map.Entry<K, V> entry : source.entrySet())
 		{
 			clone.put(entry.getKey(), entry.getValue());

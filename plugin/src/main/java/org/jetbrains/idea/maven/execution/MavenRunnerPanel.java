@@ -33,6 +33,7 @@ import javax.swing.JPanel;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import com.intellij.execution.configuration.EnvironmentVariablesComponent;
+import com.intellij.icons.AllIcons;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.JavaSdk;
 import com.intellij.openapi.projectRoots.SdkTypeId;
@@ -106,8 +107,7 @@ public class MavenRunnerPanel
 		JavaSdk javaSdkType = JavaSdk.getInstance();
 		ProjectSdksModel sdksModel = new ProjectSdksModel();
 		sdksModel.reset();
-		myJdkCombo = new SdkComboBox(sdksModel, Conditions.<SdkTypeId>is(javaSdkType), false);
-		myJdkCombo.insertCustomSdkItem(MavenRunnerSettings.USE_INTERNAL_JAVA, RunnerBundle.message("maven.java.internal"), TargetAWT.to(javaSdkType.getIcon()));
+		myJdkCombo = new SdkComboBox(sdksModel, Conditions.<SdkTypeId>is(javaSdkType), null, "Auto Select", AllIcons.Actions.FindPlain);
 		myJdkCombo.insertCustomSdkItem(MavenRunnerSettings.USE_JAVA_HOME, RunnerBundle.message("maven.java.home.env"), TargetAWT.to(javaSdkType.getIcon()));
 
 		jdkLabel.setLabelFor(myJdkCombo);

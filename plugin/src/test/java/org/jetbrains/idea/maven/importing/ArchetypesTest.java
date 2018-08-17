@@ -52,7 +52,6 @@ public abstract class ArchetypesTest extends MavenTestCase {
 
     settings.setMavenProperties(props);
     MavenExecutor exec;
-    settings.setJreName(MavenRunnerSettings.USE_INTERNAL_JAVA);
     exec = new MavenExternalExecutor(myProject, params, getMavenGeneralSettings(), settings, NULL_MAVEN_CONSOLE);
     exec.execute(new EmptyProgressIndicator());
 

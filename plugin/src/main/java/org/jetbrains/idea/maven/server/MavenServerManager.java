@@ -28,14 +28,14 @@ import java.util.Map;
 import java.util.jar.Attributes;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import org.apache.lucene.search.Query;
 import org.jetbrains.annotations.NonNls;
-
-import javax.annotation.Nullable;
 import org.jetbrains.annotations.TestOnly;
 import org.jetbrains.idea.maven.execution.MavenExecutionOptions;
 import org.jetbrains.idea.maven.execution.MavenRunnerSettings;
+import org.jetbrains.idea.maven.execution.RunnerBundle;
 import org.jetbrains.idea.maven.model.MavenExplicitProfiles;
 import org.jetbrains.idea.maven.model.MavenModel;
 import org.jetbrains.idea.maven.project.MavenConsole;
@@ -74,13 +74,13 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.JavaSdk;
 import com.intellij.openapi.projectRoots.JdkUtil;
 import com.intellij.openapi.projectRoots.Sdk;
-import com.intellij.openapi.projectRoots.SdkTable;
+import com.intellij.openapi.util.Comparing;
 import com.intellij.openapi.util.ShutDownTracker;
 import com.intellij.openapi.util.SystemInfo;
 import com.intellij.openapi.util.text.StringUtil;
+import com.intellij.pom.java.LanguageLevel;
 import com.intellij.util.PathUtil;
 import com.intellij.util.ReflectionUtil;
-import com.intellij.util.SystemProperties;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.xmlb.Converter;
 import com.intellij.util.xmlb.annotations.Attribute;
@@ -89,6 +89,7 @@ import consulo.maven.MavenServer30MarkerRt;
 import consulo.maven.MavenServer32MarkerRt;
 import consulo.maven.MavenServer3CommonMarkerRt;
 import consulo.maven.MavenServerApiMarkerRt;
+import consulo.maven.util.MavenJdkUtil;
 
 @State(
 		name = "MavenVersion",
@@ -125,7 +126,7 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
 		@Attribute
 		public String vmOptions = DEFAULT_VM_OPTIONS;
 		@Attribute
-		public String embedderJdk = MavenRunnerSettings.USE_INTERNAL_JAVA;
+		public String jdkName;
 		@Attribute
 		public String mavenHome;
 		@Attribute
@@ -238,57 +239,27 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
 		}
 	}
 
-	@Nonnull
-	private Sdk getSdkForRun()
-	{
-		Sdk sdk = getSdkForRunImpl(myState.embedderJdk);
-		if(sdk != null)
-		{
-			return sdk;
-		}
-		sdk = getSdkForRunImpl(MavenRunnerSettings.USE_INTERNAL_JAVA);
-		assert sdk != null : "SDK is not found for javaHome: " + SystemProperties.getJavaHome();
-		return sdk;
-	}
-
 	@Nullable
-	private static Sdk getSdkForRunImpl(String jreName)
+	private Sdk getSdkForRun(@Nonnull LanguageLevel languageLevel) throws ExecutionException
 	{
-		if(jreName.equals(MavenRunnerSettings.USE_INTERNAL_JAVA))
-		{
-			final String javaHome = SystemProperties.getJavaHome();
-			if(!StringUtil.isEmptyOrSpaces(javaHome))
-			{
-				Sdk jdk = JavaSdk.getInstance().createJdk("", javaHome);
-				if(jdk != null)
-				{
-					return jdk;
-				}
-			}
-		}
+		String name = myState.jdkName;
 
-		if(jreName.equals(MavenRunnerSettings.USE_JAVA_HOME))
+		if(MavenRunnerSettings.USE_JAVA_HOME.equals(name))
 		{
 			final String javaHome = System.getenv("JAVA_HOME");
-			if(!StringUtil.isEmptyOrSpaces(javaHome))
+			if(StringUtil.isEmptyOrSpaces(javaHome))
 			{
-				Sdk jdk = JavaSdk.getInstance().createJdk("", javaHome);
-				if(jdk != null)
-				{
-					return jdk;
-				}
+				throw new ExecutionException(RunnerBundle.message("maven.java.home.undefined"));
 			}
+			final Sdk jdk = JavaSdk.getInstance().createJdk("", javaHome);
+			if(jdk == null)
+			{
+				throw new ExecutionException(RunnerBundle.message("maven.java.home.invalid", javaHome));
+			}
+			return jdk;
 		}
 
-		for(Sdk sdk : SdkTable.getInstance().getAllSdks())
-		{
-			if(sdk.getName().equals(jreName))
-			{
-				return sdk;
-			}
-		}
-
-		return null;
+		return MavenJdkUtil.findSdkOfLevel(languageLevel);
 	}
 
 	private RunProfileState createRunProfileState() throws ExecutionException
@@ -361,7 +332,11 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
 				final String currentMavenVersion = forceMaven2 ? "2.2.1" : getCurrentMavenVersion();
 				boolean forceUseJava7 = StringUtil.compareVersionNumbers(currentMavenVersion, "3.3.1") >= 0;
 
-				final Sdk jdk = getSdkForRun();
+				final Sdk jdk = getSdkForRun(forceUseJava7 ? LanguageLevel.JDK_1_7 : LanguageLevel.JDK_1_5);
+				if(jdk == null)
+				{
+					throw new IllegalArgumentException("JDK is not found");
+				}
 				params.setJdk(jdk);
 
 				params.getVMParametersList().addProperty(MavenServerEmbedder.MAVEN_EMBEDDER_VERSION, currentMavenVersion);
@@ -751,16 +726,16 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
 	}
 
 	@Nonnull
-	public String getEmbedderJdk()
+	public String getJdkName()
 	{
-		return myState.embedderJdk;
+		return myState.jdkName;
 	}
 
-	public void setEmbedderJdk(@Nonnull String embedderJdk)
+	public void setJdkName(@Nonnull String jdk)
 	{
-		if(!myState.embedderJdk.equals(embedderJdk))
+		if(!Comparing.equal(myState.jdkName, jdk))
 		{
-			myState.embedderJdk = embedderJdk;
+			myState.jdkName = jdk;
 			shutdown(false);
 		}
 	}
@@ -793,10 +768,6 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
 		if(state.vmOptions == null)
 		{
 			state.vmOptions = DEFAULT_VM_OPTIONS;
-		}
-		if(state.embedderJdk == null)
-		{
-			state.embedderJdk = MavenRunnerSettings.USE_INTERNAL_JAVA;
 		}
 		myState = state;
 	}

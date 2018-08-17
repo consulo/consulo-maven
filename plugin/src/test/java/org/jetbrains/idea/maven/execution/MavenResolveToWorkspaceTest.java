@@ -72,7 +72,6 @@ public abstract class MavenResolveToWorkspaceTest extends MavenImportingTestCase
 		runnerParameters.setResolveToWorkspace(true);
 
 		MavenRunnerSettings runnerSettings = MavenRunner.getInstance(myProject).getSettings().clone();
-		runnerSettings.setJreName(MavenRunnerSettings.USE_INTERNAL_JAVA);
 
 		OwnJavaParameters parameters = MavenExternalParameters.createJavaParameters(myProject, runnerParameters, MavenProjectsManager.getInstance(myProject).getGeneralSettings(), runnerSettings);
 

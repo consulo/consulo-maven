@@ -38,10 +38,7 @@ import com.google.common.collect.ImmutableMap;
 import com.intellij.openapi.application.AccessToken;
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.module.Module;
-import com.intellij.openapi.projectRoots.JavaSdk;
-import com.intellij.openapi.projectRoots.JavaSdkVersion;
 import com.intellij.openapi.projectRoots.Sdk;
-import com.intellij.openapi.projectRoots.SdkTable;
 import com.intellij.openapi.roots.DependencyScope;
 import com.intellij.openapi.roots.LibraryOrderEntry;
 import com.intellij.openapi.roots.ModifiableRootModel;
@@ -53,10 +50,10 @@ import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.pom.java.LanguageLevel;
-import com.intellij.util.containers.ContainerUtil;
 import consulo.java.module.extension.JavaMutableModuleExtensionImpl;
 import consulo.maven.importing.MavenImportSession;
 import consulo.maven.module.extension.MavenMutableModuleExtension;
+import consulo.maven.util.MavenJdkUtil;
 import consulo.roots.types.BinariesOrderRootType;
 import consulo.roots.types.DocumentationOrderRootType;
 import consulo.roots.types.SourcesOrderRootType;
@@ -180,33 +177,7 @@ public class MavenModuleImporter
 
 	private void configurateJavaSdk(LanguageLevel level, JavaMutableModuleExtensionImpl javaMutableModuleExtension, MavenImportSession session)
 	{
-		Sdk targetSdk = session.getOrCalculate(level, languageLevel ->
-		{
-			List<Sdk> list = SdkTable.getInstance().getSdksOfType(JavaSdk.getInstance());
-			ContainerUtil.weightSort(list, sdk ->
-			{
-				JavaSdkVersion version = JavaSdk.getInstance().getVersion(sdk);
-				int ordinal = version == null ? 0 : version.ordinal();
-				return sdk.isPredefined() ? ordinal * 100 : ordinal;
-			});
-
-			Sdk temp = null;
-			for(Sdk sdk : list)
-			{
-				JavaSdkVersion version = JavaSdk.getInstance().getVersion(sdk);
-				if(version == null)
-				{
-					continue;
-				}
-
-				if(version.getMaxLanguageLevel().isAtLeast(level))
-				{
-					temp = sdk;
-				}
-			}
-
-			return temp;
-		});
+		Sdk targetSdk = session.getOrCalculate(level, MavenJdkUtil::findSdkOfLevel);
 
 		javaMutableModuleExtension.getInheritableSdk().set(null, targetSdk);
 	}
