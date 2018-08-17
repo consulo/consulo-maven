@@ -20,9 +20,10 @@ import gnu.trove.THashSet;
 import java.util.List;
 import java.util.Map;
 
-import org.jdom.Element;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+
+import org.jdom.Element;
 import org.jetbrains.idea.maven.model.MavenArtifact;
 import org.jetbrains.idea.maven.model.MavenConstants;
 import org.jetbrains.idea.maven.project.MavenImportingSettings;
@@ -33,6 +34,7 @@ import org.jetbrains.idea.maven.project.MavenProjectsProcessorTask;
 import org.jetbrains.idea.maven.project.MavenProjectsTree;
 import org.jetbrains.idea.maven.project.SupportedRequestType;
 import org.jetbrains.idea.maven.utils.MavenUtil;
+import com.google.common.collect.ImmutableMap;
 import com.intellij.openapi.application.AccessToken;
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.module.Module;
@@ -47,13 +49,13 @@ import com.intellij.openapi.roots.ModuleExtensionWithSdkOrderEntry;
 import com.intellij.openapi.roots.OrderRootType;
 import com.intellij.openapi.roots.libraries.Library;
 import com.intellij.openapi.roots.libraries.LibraryTable;
-import com.intellij.openapi.util.Condition;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.pom.java.LanguageLevel;
 import com.intellij.util.containers.ContainerUtil;
 import consulo.java.module.extension.JavaMutableModuleExtensionImpl;
+import consulo.maven.importing.MavenImportSession;
 import consulo.maven.module.extension.MavenMutableModuleExtension;
 import consulo.roots.types.BinariesOrderRootType;
 import consulo.roots.types.DocumentationOrderRootType;
@@ -64,6 +66,13 @@ public class MavenModuleImporter
 {
 
 	public static final String SUREFIRE_PLUGIN_LIBRARY_NAME = "maven-surefire-plugin urls";
+
+	private static final Map<String, LanguageLevel> MAVEN_IDEA_PLUGIN_LEVELS = ImmutableMap.of(
+			"JDK_1_3", LanguageLevel.JDK_1_3,
+			"JDK_1_4", LanguageLevel.JDK_1_4,
+			"JDK_1_5", LanguageLevel.JDK_1_5,
+			"JDK_1_6", LanguageLevel.JDK_1_6,
+			"JDK_1_7", LanguageLevel.JDK_1_7);
 
 	private final Module myModule;
 	private final MavenProjectsTree myMavenTree;
@@ -77,12 +86,12 @@ public class MavenModuleImporter
 	private MavenRootModelAdapter myRootModelAdapter;
 
 	public MavenModuleImporter(Module module,
-			MavenProjectsTree mavenTree,
-			MavenProject mavenProject,
-			@Nullable MavenProjectChanges changes,
-			Map<MavenProject, String> mavenProjectToModuleName,
-			MavenImportingSettings settings,
-			MavenModifiableModelsProvider modifiableModelsProvider)
+							   MavenProjectsTree mavenTree,
+							   MavenProject mavenProject,
+							   @Nullable MavenProjectChanges changes,
+							   Map<MavenProject, String> mavenProjectToModuleName,
+							   MavenImportingSettings settings,
+							   MavenModifiableModelsProvider modifiableModelsProvider)
 	{
 		myModule = module;
 		myMavenTree = mavenTree;
@@ -98,7 +107,7 @@ public class MavenModuleImporter
 		return myRootModelAdapter.getRootModel();
 	}
 
-	public void config(boolean isNewlyCreatedModule)
+	public void config(boolean isNewlyCreatedModule, MavenImportSession session)
 	{
 		myRootModelAdapter = new MavenRootModelAdapter(myMavenProject, myModule, myModifiableModelsProvider);
 		myRootModelAdapter.init(isNewlyCreatedModule);
@@ -114,49 +123,9 @@ public class MavenModuleImporter
 			javaModuleExtension.setBytecodeVersion(bytecodeVersion);
 		}
 
-		final LanguageLevel languageLevel = LanguageLevel.parse(myMavenProject.getSourceLevel());
+		LanguageLevel languageLevel = configureLanguageLevel();
 
-		final JavaSdk javaSdk = JavaSdk.getInstance();
-		List<Sdk> sdksOfType = SdkTable.getInstance().getSdksOfType(javaSdk);
-
-		LanguageLevel targetLanguageLevel = null;
-		Sdk targetSdk = null;
-		if(languageLevel != null)
-		{
-			targetLanguageLevel = languageLevel;
-
-			targetSdk = ContainerUtil.find(sdksOfType, new Condition<Sdk>()
-			{
-				@Override
-				public boolean value(Sdk sdk)
-				{
-					JavaSdkVersion version = javaSdk.getVersion(sdk);
-					return version != null && version.getMaxLanguageLevel().isAtLeast(languageLevel);
-				}
-			});
-		}
-		else
-		{
-			Sdk bundleSdkByType = SdkTable.getInstance().findPredefinedSdkByType(javaSdk);
-			if(bundleSdkByType == null)
-			{
-				bundleSdkByType = ContainerUtil.getFirstItem(sdksOfType);
-			}
-
-			if(bundleSdkByType != null)
-			{
-				targetSdk = bundleSdkByType;
-				JavaSdkVersion version = javaSdk.getVersion(targetSdk);
-				targetLanguageLevel = version != null ? version.getMaxLanguageLevel() : LanguageLevel.HIGHEST;
-			}
-			else
-			{
-				targetLanguageLevel = LanguageLevel.HIGHEST;
-			}
-		}
-
-		javaModuleExtension.getInheritableSdk().set(null, targetSdk);
-		javaModuleExtension.getInheritableLanguageLevel().set(null, targetLanguageLevel);
+		configurateJavaSdk(languageLevel, javaModuleExtension, session);
 
 		ModuleExtensionWithSdkOrderEntry moduleExtensionSdkEntry = rootModel.findModuleExtensionSdkEntry(javaModuleExtension);
 		if(moduleExtensionSdkEntry == null)
@@ -167,6 +136,79 @@ public class MavenModuleImporter
 
 		configFolders();
 		configDependencies();
+	}
+
+	private LanguageLevel configureLanguageLevel()
+	{
+		if("false".equalsIgnoreCase(System.getProperty("idea.maven.configure.language.level")))
+		{
+			return LanguageLevel.HIGHEST;
+		}
+
+		LanguageLevel level = null;
+
+		Element cfg = myMavenProject.getPluginConfiguration("com.googlecode", "maven-idea-plugin");
+		if(cfg != null)
+		{
+			level = MAVEN_IDEA_PLUGIN_LEVELS.get(cfg.getChildTextTrim("jdkLevel"));
+		}
+
+		if(level == null)
+		{
+			String mavenProjectSourceLevel = myMavenProject.getSourceLevel();
+			level = LanguageLevel.parse(mavenProjectSourceLevel);
+			if(level == null)
+			{
+				String mavenProjectReleaseLevel = myMavenProject.getReleaseLevel();
+				level = LanguageLevel.parse(mavenProjectReleaseLevel);
+				if(level == null && (StringUtil.isNotEmpty(mavenProjectSourceLevel) || StringUtil.isNotEmpty(mavenProjectReleaseLevel)))
+				{
+					level = LanguageLevel.HIGHEST;
+				}
+			}
+		}
+
+		// default source and target settings of maven-compiler-plugin is 1.5, see details at http://maven.apache.org/plugins/maven-compiler-plugin
+		if(level == null)
+		{
+			level = LanguageLevel.JDK_1_5;
+		}
+
+		myRootModelAdapter.setLanguageLevel(level);
+		return level;
+	}
+
+	private void configurateJavaSdk(LanguageLevel level, JavaMutableModuleExtensionImpl javaMutableModuleExtension, MavenImportSession session)
+	{
+		Sdk targetSdk = session.getOrCalculate(level, languageLevel ->
+		{
+			List<Sdk> list = SdkTable.getInstance().getSdksOfType(JavaSdk.getInstance());
+			ContainerUtil.weightSort(list, sdk ->
+			{
+				JavaSdkVersion version = JavaSdk.getInstance().getVersion(sdk);
+				int ordinal = version == null ? 0 : version.ordinal();
+				return sdk.isPredefined() ? ordinal * 100 : ordinal;
+			});
+
+			Sdk temp = null;
+			for(Sdk sdk : list)
+			{
+				JavaSdkVersion version = JavaSdk.getInstance().getVersion(sdk);
+				if(version == null)
+				{
+					continue;
+				}
+
+				if(version.getMaxLanguageLevel().isAtLeast(level))
+				{
+					temp = sdk;
+				}
+			}
+
+			return temp;
+		});
+
+		javaMutableModuleExtension.getInheritableSdk().set(null, targetSdk);
 	}
 
 	public void preConfigFacets()

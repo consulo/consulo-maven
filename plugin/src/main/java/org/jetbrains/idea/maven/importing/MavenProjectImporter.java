@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.Nullable;
+
 import org.jetbrains.idea.maven.importing.configurers.MavenModuleConfigurer;
 import org.jetbrains.idea.maven.model.MavenArtifact;
 import org.jetbrains.idea.maven.project.MavenConsole;
@@ -68,6 +69,7 @@ import com.intellij.util.ArrayUtil;
 import com.intellij.util.Function;
 import com.intellij.util.containers.Stack;
 import consulo.java.module.extension.JavaMutableModuleExtensionImpl;
+import consulo.maven.importing.MavenImportSession;
 import consulo.maven.module.extension.MavenMutableModuleExtension;
 
 public class MavenProjectImporter
@@ -91,12 +93,12 @@ public class MavenProjectImporter
 	private final Map<MavenProject, String> myMavenProjectToModulePath = new THashMap<MavenProject, String>();
 
 	public MavenProjectImporter(Project p,
-			MavenProjectsTree projectsTree,
-			Map<VirtualFile, Module> fileToModuleMapping,
-			Map<MavenProject, MavenProjectChanges> projectsToImportWithChanges,
-			boolean importModuleGroupsRequired,
-			MavenModifiableModelsProvider modelsProvider,
-			MavenImportingSettings importingSettings)
+								MavenProjectsTree projectsTree,
+								Map<VirtualFile, Module> fileToModuleMapping,
+								Map<MavenProject, MavenProjectChanges> projectsToImportWithChanges,
+								boolean importModuleGroupsRequired,
+								MavenModifiableModelsProvider modelsProvider,
+								MavenImportingSettings importingSettings)
 	{
 		myProject = p;
 		myProjectsTree = projectsTree;
@@ -476,6 +478,8 @@ public class MavenProjectImporter
 		List<Module> modulesToMavenize = new ArrayList<Module>();
 		List<MavenModuleImporter> importers = new ArrayList<MavenModuleImporter>();
 
+		MavenImportSession session = new MavenImportSession();
+
 		for(Map.Entry<MavenProject, MavenProjectChanges> each : projectsWithChanges.entrySet())
 		{
 			MavenProject project = each.getKey();
@@ -486,7 +490,7 @@ public class MavenProjectImporter
 			modulesToMavenize.add(module);
 			importers.add(moduleImporter);
 
-			moduleImporter.config(isNewModule);
+			moduleImporter.config(isNewModule, session);
 		}
 
 		for(MavenProject project : myAllProjects)
