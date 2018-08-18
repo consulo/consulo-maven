@@ -25,10 +25,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.jar.Attributes;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.inject.Singleton;
 
 import org.apache.lucene.search.Query;
 import org.jetbrains.annotations.NonNls;
@@ -60,20 +60,17 @@ import com.intellij.execution.process.ProcessHandler;
 import com.intellij.execution.rmi.RemoteProcessSupport;
 import com.intellij.execution.runners.ProgramRunner;
 import com.intellij.ide.plugins.PluginManager;
-import com.intellij.notification.Notification;
-import com.intellij.notification.NotificationType;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
-import com.intellij.openapi.components.StoragePathMacros;
-import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.JavaSdk;
 import com.intellij.openapi.projectRoots.JdkUtil;
 import com.intellij.openapi.projectRoots.Sdk;
+import com.intellij.openapi.projectRoots.SdkTable;
 import com.intellij.openapi.util.Comparing;
 import com.intellij.openapi.util.ShutDownTracker;
 import com.intellij.openapi.util.SystemInfo;
@@ -91,12 +88,10 @@ import consulo.maven.MavenServer3CommonMarkerRt;
 import consulo.maven.MavenServerApiMarkerRt;
 import consulo.maven.util.MavenJdkUtil;
 
-@State(
-		name = "MavenVersion",
-		storages = @Storage(file = StoragePathMacros.APP_CONFIG + "/mavenVersion.xml"))
+@State(name = "MavenVersion", storages = @Storage("mavenVersion.xml"))
+@Singleton
 public class MavenServerManager extends RemoteObjectWrapper<MavenServer> implements PersistentStateComponent<MavenServerManager.State>
 {
-
 	public static final String BUNDLED_MAVEN_2 = "Bundled (Maven 2)";
 	public static final String BUNDLED_MAVEN_3 = "Bundled (Maven 3)";
 
@@ -257,6 +252,11 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
 				throw new ExecutionException(RunnerBundle.message("maven.java.home.invalid", javaHome));
 			}
 			return jdk;
+		}
+
+		if(name != null)
+		{
+			return SdkTable.getInstance().findSdk(name);
 		}
 
 		return MavenJdkUtil.findSdkOfLevel(languageLevel);

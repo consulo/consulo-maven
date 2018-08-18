@@ -64,6 +64,7 @@ import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.JavaSdk;
 import com.intellij.openapi.projectRoots.Sdk;
+import com.intellij.openapi.projectRoots.SdkTable;
 import com.intellij.openapi.roots.ui.configuration.ProjectSettingsService;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.text.StringUtil;
@@ -299,7 +300,7 @@ public class MavenExternalParameters
 		return file;
 	}
 
-	@Nonnull
+	@Nullable
 	private static Sdk getJdk(MavenRunnerSettings runnerSettings, LanguageLevel languageLevel, boolean isGlobalRunnerSettings) throws ExecutionException
 	{
 		String name = runnerSettings.getJreName();
@@ -318,25 +319,18 @@ public class MavenExternalParameters
 			return jdk;
 		}
 
+		if(name != null)
+		{
+			return SdkTable.getInstance().findSdk(name);
+		}
+
 		Sdk sdk = MavenJdkUtil.findSdkOfLevel(languageLevel);
 		if(sdk != null)
 		{
 			return sdk;
 		}
 
-		if(name == null)
-		{
-			throw new ExecutionException(RunnerBundle.message("maven.java.not.resolved"));
-		}
-
-		if(isGlobalRunnerSettings)
-		{
-			throw new ExecutionException(RunnerBundle.message("maven.java.not.found.default.config", name));
-		}
-		else
-		{
-			throw new ExecutionException(RunnerBundle.message("maven.java.not.found", name));
-		}
+		throw new ExecutionException(RunnerBundle.message("maven.java.not.resolved"));
 	}
 
 	public static void addVMParameters(ParametersList parametersList, String mavenHome, MavenRunnerSettings runnerSettings)
