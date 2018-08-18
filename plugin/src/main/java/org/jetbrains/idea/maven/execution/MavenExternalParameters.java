@@ -135,10 +135,14 @@ public class MavenExternalParameters
 
 		params.setWorkingDirectory(parameters.getWorkingDirFile());
 
-		params.setJdk(getJdk(project, runnerSettings, project != null && MavenRunner.getInstance(project).getState() == runnerSettings));
-
 		final String mavenHome = resolveMavenHome(coreSettings, project, runConfiguration);
 		final String mavenVersion = MavenUtil.getMavenVersion(mavenHome);
+
+		LanguageLevel defaultRunLevel = MavenJdkUtil.getDefaultRunLevel(mavenVersion);
+
+		Sdk jdk = getJdk(runnerSettings, defaultRunLevel, project != null && MavenRunner.getInstance(project).getState() == runnerSettings);
+
+		params.setJdk(jdk);
 
 		params.getProgramParametersList().add("-Didea.version=" + MavenUtil.getIdeaVersionToPassToMavenProcess());
 		if(StringUtil.compareVersionNumbers(mavenVersion, "3.3") >= 0)
@@ -296,7 +300,7 @@ public class MavenExternalParameters
 	}
 
 	@Nonnull
-	private static Sdk getJdk(@Nullable Project project, MavenRunnerSettings runnerSettings, boolean isGlobalRunnerSettings) throws ExecutionException
+	private static Sdk getJdk(MavenRunnerSettings runnerSettings, LanguageLevel languageLevel, boolean isGlobalRunnerSettings) throws ExecutionException
 	{
 		String name = runnerSettings.getJreName();
 		if(MavenRunnerSettings.USE_JAVA_HOME.equals(name))
@@ -314,10 +318,15 @@ public class MavenExternalParameters
 			return jdk;
 		}
 
-		Sdk sdk = MavenJdkUtil.findSdkOfLevel(LanguageLevel.HIGHEST);
+		Sdk sdk = MavenJdkUtil.findSdkOfLevel(languageLevel);
 		if(sdk != null)
 		{
 			return sdk;
+		}
+
+		if(name == null)
+		{
+			throw new ExecutionException(RunnerBundle.message("maven.java.not.resolved"));
 		}
 
 		if(isGlobalRunnerSettings)

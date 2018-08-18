@@ -330,9 +330,8 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
 				}
 
 				final String currentMavenVersion = forceMaven2 ? "2.2.1" : getCurrentMavenVersion();
-				boolean forceUseJava7 = StringUtil.compareVersionNumbers(currentMavenVersion, "3.3.1") >= 0;
 
-				final Sdk jdk = getSdkForRun(forceUseJava7 ? LanguageLevel.JDK_1_7 : LanguageLevel.JDK_1_5);
+				final Sdk jdk = getSdkForRun(MavenJdkUtil.getDefaultRunLevel(currentMavenVersion));
 				if(jdk == null)
 				{
 					throw new IllegalArgumentException("JDK is not found");
@@ -340,12 +339,6 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
 				params.setJdk(jdk);
 
 				params.getVMParametersList().addProperty(MavenServerEmbedder.MAVEN_EMBEDDER_VERSION, currentMavenVersion);
-				String version = JdkUtil.getJdkMainAttribute(jdk, Attributes.Name.IMPLEMENTATION_VERSION);
-				if(forceUseJava7 && StringUtil.compareVersionNumbers(version, "1.7") < 0)
-				{
-					new Notification(MavenUtil.MAVEN_NOTIFICATION_GROUP, "", "Maven 3.3.1+ requires JDK 1.7+. Please set appropriate JDK at <br> " +
-							ShowSettingsUtil.getSettingsMenuName() + " | Maven | Runner | JRE", NotificationType.WARNING).notify(null);
-				}
 
 				final List<String> classPath = new ArrayList<>();
 				//FIXME [VISTALL] implicit dependency to log4j, will broke, after migration to another logger
@@ -429,7 +422,7 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
 	}
 
 	@Nullable
-	public String getMavenVersion(@javax.annotation.Nullable String mavenHome)
+	public String getMavenVersion(@Nullable String mavenHome)
 	{
 		return MavenUtil.getMavenVersion(getMavenHomeFile(mavenHome));
 	}
