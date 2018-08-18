@@ -41,6 +41,10 @@
 	<version>2-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
+	<properties>
+		<java.level>1.6</java.level>
+	</properties>
+
 	<dependencies>
 		<dependency>
 			<groupId>org.apache.lucene</groupId>
