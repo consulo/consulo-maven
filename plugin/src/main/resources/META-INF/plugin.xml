@@ -156,7 +156,7 @@
 		<fileTemplateGroup implementation="org.jetbrains.idea.maven.utils.MavenFileTemplateGroupFactory"/>
 
 		<annotator language="XML" implementationClass="org.jetbrains.idea.maven.dom.annotator.MavenDomGutterAnnotator"/>
-		<virtualFileSystem key="maven-properties" implementationClass="org.jetbrains.idea.maven.vfs.MavenPropertiesVirtualFileSystem"/>
+		<virtualFileSystem implementation="org.jetbrains.idea.maven.vfs.MavenPropertiesVirtualFileSystem"/>
 
 		<projectService serviceImplementation="org.jetbrains.idea.maven.project.MavenWorkspaceSettingsComponent"/>
 		<projectService serviceImplementation="org.jetbrains.idea.maven.execution.MavenRunner"/>
