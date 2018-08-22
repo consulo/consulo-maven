@@ -38,7 +38,6 @@ public class MavenJdkUtil
 			return sdk.isPredefined() ? ordinal * 100 : ordinal;
 		});
 
-		Sdk temp = null;
 		for(Sdk sdk : list)
 		{
 			JavaSdkVersion version = JavaSdk.getInstance().getVersion(sdk);
@@ -49,10 +48,10 @@ public class MavenJdkUtil
 
 			if(version.getMaxLanguageLevel().isAtLeast(languageLevel))
 			{
-				temp = sdk;
+				return sdk;
 			}
 		}
 
-		return temp;
+		return null;
 	}
 }
