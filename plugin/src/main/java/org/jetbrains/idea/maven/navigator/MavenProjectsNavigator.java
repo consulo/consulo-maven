@@ -53,7 +53,6 @@ import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.actionSystem.EmptyAction;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.PersistentStateComponent;
-import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.components.StoragePathMacros;
@@ -73,7 +72,7 @@ import com.intellij.util.containers.ContainerUtil;
 import icons.MavenIcons;
 
 @State(name = "MavenProjectNavigator", storages = {@Storage(StoragePathMacros.WORKSPACE_FILE)})
-public class MavenProjectsNavigator extends MavenSimpleProjectComponent implements PersistentStateComponent<MavenProjectsNavigatorState>, Disposable, ProjectComponent
+public class MavenProjectsNavigator extends MavenSimpleProjectComponent implements PersistentStateComponent<MavenProjectsNavigatorState>, Disposable
 {
 	public static final String TOOL_WINDOW_ID = "Maven";
 
@@ -200,7 +199,7 @@ public class MavenProjectsNavigator extends MavenSimpleProjectComponent implemen
 	}
 
 	@Override
-	public void initComponent()
+	public void afterLoadState()
 	{
 		if(!isNormalProject())
 		{

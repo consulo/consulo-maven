@@ -161,6 +161,16 @@
 		<projectService serviceImplementation="org.jetbrains.idea.maven.project.MavenWorkspaceSettingsComponent"/>
 		<projectService serviceImplementation="org.jetbrains.idea.maven.execution.MavenRunner"/>
 
+		<applicationService serviceImplementation="org.jetbrains.idea.maven.utils.MavenEnvironmentRegistrar" lazy="false"/>
+
+		<projectService serviceImplementation="org.jetbrains.idea.maven.utils.MavenRehighlighter" lazy="false" />
+		<projectService serviceImplementation="org.jetbrains.idea.maven.utils.MavenImportNotifier" lazy="false" />
+		<projectService serviceImplementation="org.jetbrains.idea.maven.utils.MavenEditorTabTitleUpdater" lazy="false" />
+		<projectService serviceImplementation="org.jetbrains.idea.maven.tasks.MavenShortcutsManager" lazy="false" />
+		<projectService serviceImplementation="org.jetbrains.idea.maven.tasks.MavenTasksManager" lazy="false" />
+		<projectService serviceImplementation="org.jetbrains.idea.maven.navigator.MavenProjectsNavigator" lazy="false" />
+		<projectService serviceImplementation="org.jetbrains.idea.maven.indices.MavenProjectIndicesManager" lazy="false" />
+		<projectService serviceImplementation="org.jetbrains.idea.maven.project.MavenProjectsManager" lazy="false" />
 	</extensions>
 
 	<extensions defaultExtensionNs="org.jetbrains.idea.maven">
@@ -269,40 +279,6 @@
 			<param name="encoding" refProvider="org.jetbrains.idea.maven.plugins.api.common.MavenCommonParamReferenceProviders$Encoding"/>
 		</pluginDescriptor>
 	</extensions>
-
-	<application-components>
-		<component>
-			<implementation-class>org.jetbrains.idea.maven.utils.MavenEnvironmentRegistrar</implementation-class>
-		</component>
-	</application-components>
-
-	<project-components>
-		<component>
-			<implementation-class>org.jetbrains.idea.maven.project.MavenProjectsManager</implementation-class>
-			<loadForDefaultProject/>
-		</component>
-		<component>
-			<implementation-class>org.jetbrains.idea.maven.indices.MavenProjectIndicesManager</implementation-class>
-		</component>
-		<component>
-			<implementation-class>org.jetbrains.idea.maven.navigator.MavenProjectsNavigator</implementation-class>
-		</component>
-		<component>
-			<implementation-class>org.jetbrains.idea.maven.tasks.MavenTasksManager</implementation-class>
-		</component>
-		<component>
-			<implementation-class>org.jetbrains.idea.maven.tasks.MavenShortcutsManager</implementation-class>
-		</component>
-		<component>
-			<implementation-class>org.jetbrains.idea.maven.utils.MavenEditorTabTitleUpdater</implementation-class>
-		</component>
-		<component>
-			<implementation-class>org.jetbrains.idea.maven.utils.MavenImportNotifier</implementation-class>
-		</component>
-		<component>
-			<implementation-class>org.jetbrains.idea.maven.utils.MavenRehighlighter</implementation-class>
-		</component>
-	</project-components>
 
 	<actions>
 		<action id="Maven.Reimport" class="org.jetbrains.idea.maven.project.actions.ReimportAction"

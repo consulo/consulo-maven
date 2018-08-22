@@ -33,6 +33,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.inject.Singleton;
+
 import org.jetbrains.annotations.TestOnly;
 import org.jetbrains.idea.maven.importing.MavenDefaultModifiableModelsProvider;
 import org.jetbrains.idea.maven.importing.MavenFoldersImporter;
@@ -51,6 +53,7 @@ import org.jetbrains.idea.maven.utils.MavenSimpleProjectComponent;
 import org.jetbrains.idea.maven.utils.MavenUtil;
 import com.intellij.ide.startup.StartupManagerEx;
 import com.intellij.notification.NotificationGroup;
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.AccessToken;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ReadAction;
@@ -81,8 +84,9 @@ import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.ui.update.Update;
 import consulo.maven.module.extension.MavenModuleExtension;
 
+@Singleton
 @State(name = "MavenProjectsManager", storages = @Storage(file = StoragePathMacros.PROJECT_CONFIG_DIR + "/misc.xml"))
-public class MavenProjectsManager extends MavenSimpleProjectComponent implements PersistentStateComponent<MavenProjectsManagerState>, SettingsSavingComponent
+public class MavenProjectsManager extends MavenSimpleProjectComponent implements PersistentStateComponent<MavenProjectsManagerState>, SettingsSavingComponent, Disposable
 {
 	private static final int IMPORT_DELAY = 1000;
 	private static final String NON_MANAGED_POM_NOTIFICATION_GROUP_ID = "Maven: non-managed pom.xml";
@@ -184,7 +188,7 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 	}
 
 	@Override
-	public void initComponent()
+	public void afterLoadState()
 	{
 		if(!isNormalProject())
 		{
@@ -329,7 +333,7 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 
 		myWatcher = new MavenProjectsManagerWatcher(myProject, this, myProjectsTree, getGeneralSettings(), myReadingProcessor, myEmbeddersManager);
 
-		myImportingQueue = new MavenMergingUpdateQueue(getComponentName() + ": Importing queue", IMPORT_DELAY, !isUnitTestMode(), myProject);
+		myImportingQueue = new MavenMergingUpdateQueue("MavenProjectsManager: Importing queue", IMPORT_DELAY, !isUnitTestMode(), myProject);
 		myImportingQueue.setPassThrough(false);
 
 		myImportingQueue.makeUserAware(myProject);
@@ -504,7 +508,7 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 	}
 
 	@Override
-	public void projectClosed()
+	public void dispose()
 	{
 		synchronized(isInitialized)
 		{

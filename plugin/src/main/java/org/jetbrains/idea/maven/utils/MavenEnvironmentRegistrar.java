@@ -18,24 +18,38 @@ package org.jetbrains.idea.maven.utils;
 
 import java.io.File;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import com.intellij.openapi.application.PathMacros;
 
-public class MavenEnvironmentRegistrar {
-  private static final String MAVEN_REPOSITORY = "MAVEN_REPOSITORY";
+@Singleton
+public class MavenEnvironmentRegistrar
+{
+	private static final String MAVEN_REPOSITORY = "MAVEN_REPOSITORY";
 
-  public MavenEnvironmentRegistrar() {
-    registerPathVariable();
-  }
+	@Inject
+	public MavenEnvironmentRegistrar(PathMacros macros)
+	{
+		registerPathVariable(macros);
+	}
 
-  private void registerPathVariable() {
-    File repository = MavenUtil.resolveLocalRepository(null, null, null);
-    PathMacros macros = PathMacros.getInstance();
+	private void registerPathVariable(PathMacros macros)
+	{
+		File repository = MavenUtil.resolveLocalRepository(null, null, null);
 
-    for (String each : macros.getAllMacroNames()) {
-      String path = macros.getValue(each);
-      if (path == null) continue;
-      if (new File(path).equals(repository)) return;
-    }
-    macros.setMacro(MAVEN_REPOSITORY, repository.getPath());
-  }
+		for(String each : macros.getAllMacroNames())
+		{
+			String path = macros.getValue(each);
+			if(path == null)
+			{
+				continue;
+			}
+			if(new File(path).equals(repository))
+			{
+				return;
+			}
+		}
+		macros.setMacro(MAVEN_REPOSITORY, repository.getPath());
+	}
 }

@@ -15,101 +15,137 @@
  */
 package org.jetbrains.idea.maven.utils;
 
-import com.intellij.notification.*;
+import javax.swing.event.HyperlinkEvent;
+
+import org.jetbrains.idea.maven.project.MavenProjectsManager;
+import org.jetbrains.idea.maven.project.ProjectBundle;
+import com.intellij.notification.Notification;
+import com.intellij.notification.NotificationDisplayType;
+import com.intellij.notification.NotificationType;
+import com.intellij.notification.Notifications;
+import com.intellij.notification.NotificationsConfiguration;
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.ui.update.MergingUpdateQueue;
 import com.intellij.util.ui.update.Update;
-import javax.annotation.Nonnull;
-import org.jetbrains.idea.maven.project.MavenProjectsManager;
-import org.jetbrains.idea.maven.project.ProjectBundle;
 
-import javax.swing.event.HyperlinkEvent;
+public class MavenImportNotifier extends MavenSimpleProjectComponent implements Disposable
+{
+	private static final String MAVEN_IMPORT_NOTIFICATION_GROUP = "Maven Import";
 
-public class MavenImportNotifier extends MavenSimpleProjectComponent {
-  private static final String MAVEN_IMPORT_NOTIFICATION_GROUP = "Maven Import";
+	private MavenProjectsManager myMavenProjectsManager;
+	private MergingUpdateQueue myUpdatesQueue;
 
-  private MavenProjectsManager myMavenProjectsManager;
-  private MergingUpdateQueue myUpdatesQueue;
+	private Notification myNotification;
 
-  private Notification myNotification;
+	public MavenImportNotifier(Project p, MavenProjectsManager mavenProjectsManager)
+	{
+		super(p);
 
-  public MavenImportNotifier(Project p, MavenProjectsManager mavenProjectsManager) {
-    super(p);
-    
-    if (!isNormalProject()) return;
+		if(!isNormalProject())
+		{
+			return;
+		}
 
-    NotificationsConfiguration.getNotificationsConfiguration().register(MAVEN_IMPORT_NOTIFICATION_GROUP,
-                                                                        NotificationDisplayType.STICKY_BALLOON,
-                                                                        true);
+		NotificationsConfiguration.getNotificationsConfiguration().register(MAVEN_IMPORT_NOTIFICATION_GROUP,
+				NotificationDisplayType.STICKY_BALLOON,
+				true);
 
-    myMavenProjectsManager = mavenProjectsManager;
+		myMavenProjectsManager = mavenProjectsManager;
 
-    myUpdatesQueue = new MergingUpdateQueue(getComponentName(), 500, false, MergingUpdateQueue.ANY_COMPONENT, myProject);
+		myUpdatesQueue = new MergingUpdateQueue("MavenImportNotifier", 500, false, MergingUpdateQueue.ANY_COMPONENT, myProject);
 
-    myMavenProjectsManager.addManagerListener(new MavenProjectsManager.Listener() {
-      public void activated() {
-        init();
-      }
+		myMavenProjectsManager.addManagerListener(new MavenProjectsManager.Listener()
+		{
+			@Override
+			public void activated()
+			{
+				init();
+			}
 
-      public void projectsScheduled() {
-        scheduleUpdate(false);
-      }
+			@Override
+			public void projectsScheduled()
+			{
+				scheduleUpdate(false);
+			}
 
-      @Override
-      public void importAndResolveScheduled() {
-        scheduleUpdate(true);
-      }
-    });
-  }
+			@Override
+			public void importAndResolveScheduled()
+			{
+				scheduleUpdate(true);
+			}
+		});
+	}
 
-  private void init() {
-    myUpdatesQueue.activate();
-  }
+	private void init()
+	{
+		myUpdatesQueue.activate();
+	}
 
-  @Override
-  public void disposeComponent() {
-    if (myNotification != null) myNotification.expire();
-  }
+	@Override
+	public void dispose()
+	{
+		if(myNotification != null)
+		{
+			myNotification.expire();
+		}
+	}
 
-  private void scheduleUpdate(final boolean close) {
-    myUpdatesQueue.queue(new Update(myUpdatesQueue) {
-      public void run() {
-        doUpdateNotifications(close);
-      }
-    });
-  }
+	private void scheduleUpdate(final boolean close)
+	{
+		myUpdatesQueue.queue(new Update(myUpdatesQueue)
+		{
+			@Override
+			public void run()
+			{
+				doUpdateNotifications(close);
+			}
+		});
+	}
 
-  private void doUpdateNotifications(boolean close) {
-    if (close) {
-      if (myNotification == null) return;
+	private void doUpdateNotifications(boolean close)
+	{
+		if(close)
+		{
+			if(myNotification == null)
+			{
+				return;
+			}
 
-      myNotification.expire();
-      myNotification = null;
-    }
-    else {
-      if (myNotification != null && !myNotification.isExpired()) return;
+			myNotification.expire();
+			myNotification = null;
+		}
+		else
+		{
+			if(myNotification != null && !myNotification.isExpired())
+			{
+				return;
+			}
 
-      myNotification = new Notification(MAVEN_IMPORT_NOTIFICATION_GROUP,
-                                        ProjectBundle.message("maven.project.changed"),
-                                        "<a href='reimport'>" + ProjectBundle.message("maven.project.importChanged") + "</a> " +
-                                        "<a href='autoImport'>" + ProjectBundle.message("maven.project.enableAutoImport") + "</a>",
-                                        NotificationType.INFORMATION, new NotificationListener() {
-        @Override
-        public void hyperlinkUpdate(@Nonnull Notification notification, @Nonnull HyperlinkEvent event) {
-          if (event.getEventType() != HyperlinkEvent.EventType.ACTIVATED) return;
+			myNotification = new Notification(MAVEN_IMPORT_NOTIFICATION_GROUP,
+					ProjectBundle.message("maven.project.changed"),
+					"<a href='reimport'>" + ProjectBundle.message("maven.project.importChanged") + "</a> " +
+							"<a href='autoImport'>" + ProjectBundle.message("maven.project.enableAutoImport") + "</a>",
+					NotificationType.INFORMATION, (notification, event) ->
+			{
+				if(event.getEventType() != HyperlinkEvent.EventType.ACTIVATED)
+				{
+					return;
+				}
 
-          if (event.getDescription().equals("reimport")) {
-            myMavenProjectsManager.scheduleImportAndResolve();
-          }
-          if (event.getDescription().equals("autoImport")) {
-            myMavenProjectsManager.getImportingSettings().setImportAutomatically(true);
-          }
-          notification.expire();
-          myNotification = null;
-        }
-      });
+				if(event.getDescription().equals("reimport"))
+				{
+					myMavenProjectsManager.scheduleImportAndResolve();
+				}
+				if(event.getDescription().equals("autoImport"))
+				{
+					myMavenProjectsManager.getImportingSettings().setImportAutomatically(true);
+				}
+				notification.expire();
+				myNotification = null;
+			});
 
-      Notifications.Bus.notify(myNotification, myProject);
-    }
-  }
+			Notifications.Bus.notify(myNotification, myProject);
+		}
+	}
 }

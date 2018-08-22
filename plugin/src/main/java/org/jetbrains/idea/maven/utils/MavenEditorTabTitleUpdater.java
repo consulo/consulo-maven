@@ -18,6 +18,8 @@ package org.jetbrains.idea.maven.utils;
 
 import java.util.List;
 
+import javax.inject.Singleton;
+
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectChanges;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
@@ -26,27 +28,36 @@ import com.intellij.openapi.fileEditor.ex.FileEditorManagerEx;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Pair;
 
-public class MavenEditorTabTitleUpdater extends MavenSimpleProjectComponent {
-  public MavenEditorTabTitleUpdater(Project project) {
-    super(project);
+@Singleton
+public class MavenEditorTabTitleUpdater extends MavenSimpleProjectComponent
+{
+	public MavenEditorTabTitleUpdater(Project project)
+	{
+		super(project);
 
-    if (!isNormalProject()) return;
+		if(!isNormalProject())
+		{
+			return;
+		}
 
-    MavenProjectsManager.getInstance(myProject).addProjectsTreeListener(new MavenProjectsTree.Listener() {
-      @Override
-      public void projectsUpdated(List<Pair<MavenProject, MavenProjectChanges>> updated, List<MavenProject> deleted) {
-        updateTabName(MavenUtil.collectFirsts(updated));
-      }
-    });
-  }
+		MavenProjectsManager.getInstance(myProject).addProjectsTreeListener(new MavenProjectsTree.Listener()
+		{
+			@Override
+			public void projectsUpdated(List<Pair<MavenProject, MavenProjectChanges>> updated, List<MavenProject> deleted)
+			{
+				updateTabName(MavenUtil.collectFirsts(updated));
+			}
+		});
+	}
 
-  private void updateTabName(final List<MavenProject> projects) {
-    MavenUtil.invokeLater(myProject, new Runnable() {
-      public void run() {
-        for (MavenProject each : projects) {
-          FileEditorManagerEx.getInstanceEx(myProject).updateFilePresentation(each.getFile());
-        }
-      }
-    });
-  }
+	private void updateTabName(final List<MavenProject> projects)
+	{
+		MavenUtil.invokeLater(myProject, () ->
+		{
+			for(MavenProject each : projects)
+			{
+				FileEditorManagerEx.getInstanceEx(myProject).updateFilePresentation(each.getFile());
+			}
+		});
+	}
 }

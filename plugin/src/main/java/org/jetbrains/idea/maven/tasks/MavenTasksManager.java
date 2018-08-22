@@ -23,6 +23,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import javax.inject.Singleton;
+
 import org.jetbrains.idea.maven.execution.MavenRunner;
 import org.jetbrains.idea.maven.execution.MavenRunnerParameters;
 import org.jetbrains.idea.maven.project.MavenProject;
@@ -33,14 +35,14 @@ import com.intellij.openapi.compiler.CompileContext;
 import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
-import com.intellij.openapi.components.StoragePathMacros;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.containers.ContainerUtil;
 
-@State(name = "MavenCompilerTasksManager", storages = @Storage(file = StoragePathMacros.PROJECT_CONFIG_DIR + "/misc.xml"))
+@Singleton
+@State(name = "MavenCompilerTasksManager", storages = @Storage("misc.xml"))
 public class MavenTasksManager extends MavenSimpleProjectComponent implements PersistentStateComponent<MavenTasksManagerState>
 {
 	private final AtomicBoolean isInitialized = new AtomicBoolean();
@@ -87,7 +89,7 @@ public class MavenTasksManager extends MavenSimpleProjectComponent implements Pe
 	}
 
 	@Override
-	public void initComponent()
+	public void afterLoadState()
 	{
 		if(!isNormalProject())
 		{

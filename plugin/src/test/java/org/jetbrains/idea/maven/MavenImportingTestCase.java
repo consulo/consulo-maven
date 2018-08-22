@@ -97,7 +97,7 @@ public abstract class MavenImportingTestCase extends MavenTestCase
 	protected void tearDown() throws Exception
 	{
 		Messages.setTestDialog(TestDialog.DEFAULT);
-		myProjectsManager.projectClosed();
+		myProjectsManager.dispose();
 		removeFromLocalRepository("test");
 
 		super.tearDown();
