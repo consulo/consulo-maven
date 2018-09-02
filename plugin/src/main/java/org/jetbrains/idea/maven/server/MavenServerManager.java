@@ -341,8 +341,7 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
 				params.getVMParametersList().addProperty(MavenServerEmbedder.MAVEN_EMBEDDER_VERSION, currentMavenVersion);
 
 				final List<String> classPath = new ArrayList<>();
-				//FIXME [VISTALL] implicit dependency to log4j, will broke, after migration to another logger
-				classPath.add(PathUtil.getJarPathForClass(ReflectionUtil.forName("org.apache.log4j.Logger")));
+
 				if(currentMavenVersion == null || StringUtil.compareVersionNumbers(currentMavenVersion, "3.1") < 0)
 				{
 					classPath.add(PathUtil.getJarPathForClass(Logger.class));

@@ -22,9 +22,6 @@ import java.util.List;
 
 import javax.annotation.Nonnull;
 
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.DefaultArtifact;
 import org.apache.maven.artifact.handler.DefaultArtifactHandler;
@@ -51,45 +48,6 @@ public abstract class Maven3ServerEmbedder extends MavenRemoteObject implements 
 
 	protected Maven3ServerEmbedder(MavenServerSettings settings)
 	{
-		initLog4J(settings);
-	}
-
-	private static void initLog4J(MavenServerSettings settings)
-	{
-		try
-		{
-			BasicConfigurator.configure();
-			final Level rootLoggerLevel = toLog4JLevel(settings.getLoggingLevel());
-			Logger.getRootLogger().setLevel(rootLoggerLevel);
-			if(!rootLoggerLevel.isGreaterOrEqual(Level.ERROR))
-			{
-				Logger.getLogger("org.apache.maven.wagon.providers.http.httpclient.wire").setLevel(Level.ERROR);
-				Logger.getLogger("org.apache.http.wire").setLevel(Level.ERROR);
-			}
-		}
-		catch(Throwable ignore)
-		{
-		}
-	}
-
-	private static Level toLog4JLevel(int level)
-	{
-		switch(level)
-		{
-			case MavenServerConsole.LEVEL_DEBUG:
-				return Level.ALL;
-			case MavenServerConsole.LEVEL_ERROR:
-				return Level.ERROR;
-			case MavenServerConsole.LEVEL_FATAL:
-				return Level.FATAL;
-			case MavenServerConsole.LEVEL_DISABLED:
-				return Level.OFF;
-			case MavenServerConsole.LEVEL_INFO:
-				return Level.INFO;
-			case MavenServerConsole.LEVEL_WARN:
-				return Level.WARN;
-		}
-		return Level.INFO;
 	}
 
 	protected abstract ArtifactRepository getLocalRepository();
