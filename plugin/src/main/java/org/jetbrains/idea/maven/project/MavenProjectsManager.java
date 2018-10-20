@@ -1159,7 +1159,7 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 		{
 			return;
 		}
-		runWhenFullyOpen(() -> myImportingQueue.flush(false));
+		runWhenFullyOpen(() -> myImportingQueue.flush());
 	}
 
 	private void runWhenFullyOpen(final Runnable runnable)
