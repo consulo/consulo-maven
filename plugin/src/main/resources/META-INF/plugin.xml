@@ -401,9 +401,6 @@
 				icon="AllIcons.Nodes.ExceptionClass">
 		</action>
 
-		<action id="Maven.Help"
-				class="com.intellij.ide.actions.ContextHelpAction" text="Help"/>
-
 		<action id="Maven.ExpandAll" class="org.jetbrains.idea.maven.navigator.actions.MavenTreeAction$ExpandAll" text="Expand All"
 				icon="AllIcons.Actions.Expandall"
 				use-shortcut-of="ExpandAll"/>
@@ -459,7 +456,6 @@
 			<reference id="Maven.CollapseAll"/>
 			<separator/>
 			<reference id="Maven.ShowSettings"/>
-			<reference id="Maven.Help"/>
 			<action id="Maven.GroupProjects"
 					class="org.jetbrains.idea.maven.navigator.actions.GroupProjectsAction"
 					text="Group Modules"
