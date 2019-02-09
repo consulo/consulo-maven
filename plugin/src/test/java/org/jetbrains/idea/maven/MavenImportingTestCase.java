@@ -63,7 +63,6 @@ import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.testFramework.IdeaTestUtil;
-import com.intellij.util.Consumer;
 import com.intellij.util.PathUtil;
 import com.intellij.util.concurrency.Semaphore;
 import com.intellij.util.ui.UIUtil;
@@ -571,15 +570,8 @@ public abstract class MavenImportingTestCase extends MavenTestCase
 	{
 		final MavenArtifactDownloader.DownloadResult[] unresolved = new MavenArtifactDownloader.DownloadResult[1];
 
-		AsyncResult<MavenArtifactDownloader.DownloadResult> result = new AsyncResult<MavenArtifactDownloader.DownloadResult>();
-		result.doWhenDone(new Consumer<MavenArtifactDownloader.DownloadResult>()
-		{
-			@Override
-			public void consume(MavenArtifactDownloader.DownloadResult unresolvedArtifacts)
-			{
-				unresolved[0] = unresolvedArtifacts;
-			}
-		});
+		AsyncResult<MavenArtifactDownloader.DownloadResult> result = AsyncResult.undefined();
+		result.doWhenDone(unresolvedArtifacts -> unresolved[0] = unresolvedArtifacts);
 
 		myProjectsManager.scheduleArtifactsDownloading(projects, artifacts, true, true, result);
 		myProjectsManager.waitForArtifactsDownloadingCompletion();
