@@ -19,7 +19,7 @@ import org.jetbrains.annotations.NonNls;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import com.intellij.openapi.options.SearchableConfigurable;
-import consulo.annotations.RequiredDispatchThread;
+import consulo.ui.RequiredUIAccess;
 
 /**
  * @author Sergey Evdokimov
@@ -28,7 +28,7 @@ public abstract class MavenGeneralConfigurable extends MavenGeneralPanel impleme
 {
 	protected abstract MavenGeneralSettings getState();
 
-	@RequiredDispatchThread
+	@RequiredUIAccess
 	@Override
 	public boolean isModified()
 	{
@@ -37,14 +37,14 @@ public abstract class MavenGeneralConfigurable extends MavenGeneralPanel impleme
 		return !formData.equals(getState());
 	}
 
-	@RequiredDispatchThread
+	@RequiredUIAccess
 	@Override
 	public void apply()
 	{
 		setData(getState());
 	}
 
-	@RequiredDispatchThread
+	@RequiredUIAccess
 	@Override
 	public void reset()
 	{

@@ -27,7 +27,7 @@ import org.jetbrains.idea.maven.project.ProjectBundle;
 import org.jetbrains.idea.maven.utils.MavenDataKeys;
 import org.jetbrains.idea.maven.utils.actions.MavenAction;
 import org.jetbrains.idea.maven.utils.actions.MavenActionUtil;
-import consulo.annotations.RequiredDispatchThread;
+import consulo.ui.RequiredUIAccess;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 
 public class ToggleProfileAction extends MavenAction
@@ -142,7 +142,7 @@ public class ToggleProfileAction extends MavenAction
 		return targetState;
 	}
 
-	@RequiredDispatchThread
+	@RequiredUIAccess
 	@Override
 	public void actionPerformed(@Nonnull AnActionEvent e)
 	{

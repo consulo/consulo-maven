@@ -39,7 +39,7 @@ import com.intellij.ui.IdeBorderFactory;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.util.ui.JBUI;
-import consulo.annotations.RequiredDispatchThread;
+import consulo.ui.RequiredUIAccess;
 import consulo.maven.importProvider.MavenImportModuleContext;
 
 /**
@@ -78,7 +78,7 @@ public abstract class SelectImportedProjectsStep extends ProjectImportWizardStep
 
 		final AnAction selectAllAction = new AnAction(RefactoringBundle.message("select.all.button"))
 		{
-			@RequiredDispatchThread
+			@RequiredUIAccess
 			@Override
 			public void actionPerformed(@Nonnull AnActionEvent e)
 			{
@@ -87,7 +87,7 @@ public abstract class SelectImportedProjectsStep extends ProjectImportWizardStep
 		};
 		final AnAction unselectAllAction = new AnAction(RefactoringBundle.message("unselect.all.button"))
 		{
-			@RequiredDispatchThread
+			@RequiredUIAccess
 			@Override
 			public void actionPerformed(@Nonnull AnActionEvent e)
 			{

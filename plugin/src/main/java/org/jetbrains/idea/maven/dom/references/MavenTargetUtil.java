@@ -23,20 +23,20 @@ import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.psi.xml.XmlTag;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.xml.util.XmlUtil;
-import consulo.annotations.RequiredDispatchThread;
+import consulo.ui.RequiredUIAccess;
 import consulo.codeInsight.TargetElementUtil;
 import consulo.codeInsight.TargetElementUtilEx;
 
 public class MavenTargetUtil
 {
-	@RequiredDispatchThread
+	@RequiredUIAccess
 	public static PsiElement getRefactorTarget(Editor editor, PsiFile file)
 	{
 		PsiElement target = getFindTarget(editor, file);
 		return target == null || !MavenDomUtil.isMavenProperty(target) ? null : target;
 	}
 
-	@RequiredDispatchThread
+	@RequiredUIAccess
 	public static PsiElement getFindTarget(Editor editor, PsiFile file)
 	{
 		if(editor == null || file == null)

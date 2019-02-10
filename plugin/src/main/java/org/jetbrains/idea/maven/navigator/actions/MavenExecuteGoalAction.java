@@ -35,7 +35,7 @@ import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.utils.MavenSettings;
 import org.jetbrains.idea.maven.utils.MavenUtil;
-import consulo.annotations.RequiredDispatchThread;
+import consulo.ui.RequiredUIAccess;
 import com.intellij.execution.configurations.ParametersList;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationListener;
@@ -53,7 +53,7 @@ import com.intellij.openapi.util.text.StringUtil;
  */
 public class MavenExecuteGoalAction extends DumbAwareAction
 {
-	@RequiredDispatchThread
+	@RequiredUIAccess
 	@Override
 	public void actionPerformed(@Nonnull final AnActionEvent e)
 	{

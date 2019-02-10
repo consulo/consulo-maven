@@ -43,7 +43,7 @@ import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.projectImport.ProjectImportWizardStep;
-import consulo.annotations.RequiredDispatchThread;
+import consulo.ui.RequiredUIAccess;
 import consulo.maven.importProvider.MavenImportModuleContext;
 
 public class MavenProjectImportStep extends ProjectImportWizardStep
@@ -185,35 +185,35 @@ public class MavenProjectImportStep extends ProjectImportWizardStep
 			return null;
 		}
 
-		@RequiredDispatchThread
+		@RequiredUIAccess
 		@Override
 		public JComponent createComponent()
 		{
 			return myForm.createComponent();
 		}
 
-		@RequiredDispatchThread
+		@RequiredUIAccess
 		@Override
 		public boolean isModified()
 		{
 			return myForm.isModified(getGeneralSettings());
 		}
 
-		@RequiredDispatchThread
+		@RequiredUIAccess
 		@Override
 		public void apply() throws ConfigurationException
 		{
 			myForm.setData(getGeneralSettings());
 		}
 
-		@RequiredDispatchThread
+		@RequiredUIAccess
 		@Override
 		public void reset()
 		{
 			myForm.getData(getGeneralSettings());
 		}
 
-		@RequiredDispatchThread
+		@RequiredUIAccess
 		@Override
 		public void disposeUIResources()
 		{

@@ -22,7 +22,7 @@ import org.jetbrains.idea.maven.utils.MavenDataKeys;
 import org.jetbrains.idea.maven.utils.actions.MavenAction;
 import org.jetbrains.idea.maven.utils.actions.MavenActionUtil;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import consulo.annotations.RequiredDispatchThread;
+import consulo.ui.RequiredUIAccess;
 
 public abstract class MavenTreeAction extends MavenAction
 {
@@ -40,7 +40,7 @@ public abstract class MavenTreeAction extends MavenAction
 
 	public static class CollapseAll extends MavenTreeAction
 	{
-		@RequiredDispatchThread
+		@RequiredUIAccess
 		@Override
 		public void actionPerformed(@Nonnull AnActionEvent e)
 		{
@@ -61,7 +61,7 @@ public abstract class MavenTreeAction extends MavenAction
 
 	public static class ExpandAll extends MavenTreeAction
 	{
-		@RequiredDispatchThread
+		@RequiredUIAccess
 		@Override
 		public void actionPerformed(@Nonnull AnActionEvent e)
 		{
