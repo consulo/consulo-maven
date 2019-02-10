@@ -17,17 +17,18 @@ package org.jetbrains.idea.maven.dom.generate;
 
 import javax.annotation.Nonnull;
 
-import com.intellij.openapi.application.Result;
-import com.intellij.openapi.command.WriteCommandAction;
-import com.intellij.openapi.editor.Editor;
-import com.intellij.util.xml.DomUtil;
-import com.intellij.util.xml.ui.actions.generate.GenerateDomElementAction;
 import org.jetbrains.idea.maven.dom.MavenDomBundle;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
 import org.jetbrains.idea.maven.dom.model.MavenDomParent;
 import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
 import org.jetbrains.idea.maven.navigator.SelectMavenProjectDialog;
 import org.jetbrains.idea.maven.project.MavenProject;
+import com.intellij.openapi.application.Result;
+import com.intellij.openapi.command.WriteCommandAction;
+import com.intellij.openapi.editor.Editor;
+import com.intellij.util.xml.DomUtil;
+import com.intellij.util.xml.ui.actions.generate.GenerateDomElementAction;
+import consulo.awt.TargetAWT;
 
 public class GenerateParentAction extends GenerateDomElementAction {
   public GenerateParentAction() {
@@ -50,7 +51,7 @@ public class GenerateParentAction extends GenerateDomElementAction {
         protected boolean isAvailableForModel(MavenDomProjectModel mavenModel) {
           return !DomUtil.hasXml(mavenModel.getMavenParent());
         }
-      }, icons.MavenIcons.MavenProject);
+      }, TargetAWT.to(icons.MavenIcons.MavenProject));
   }
 
   @Override

@@ -15,14 +15,12 @@
  */
 package org.jetbrains.idea.maven.dom.references;
 
-import javax.swing.Icon;
-
 import com.intellij.openapi.util.TextRange;
 import com.intellij.pom.Navigatable;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiNamedElement;
 import com.intellij.psi.impl.RenameableFakePsiElement;
-import consulo.awt.TargetAWT;
+import consulo.ui.image.Image;
 
 public class MavenPsiElementWrapper extends RenameableFakePsiElement {
   private final PsiElement myWrappee;
@@ -56,8 +54,8 @@ public class MavenPsiElementWrapper extends RenameableFakePsiElement {
     return "Property";
   }
 
-  public Icon getIcon() {
-    return TargetAWT.to(icons.MavenIcons.MavenLogo);
+  public Image getIcon() {
+    return icons.MavenIcons.MavenLogo;
   }
 
   @Override

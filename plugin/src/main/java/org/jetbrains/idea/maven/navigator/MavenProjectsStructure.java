@@ -699,7 +699,7 @@ public class MavenProjectsStructure extends SimpleTreeStructure
 		public ProjectsGroupNode(MavenSimpleNode parent)
 		{
 			super(parent);
-			setUniformIcon(MavenIcons.ModulesClosed);
+			setIcon(MavenIcons.ModulesClosed);
 		}
 
 		@Override
@@ -772,7 +772,7 @@ public class MavenProjectsStructure extends SimpleTreeStructure
 		public ProfilesNode(MavenSimpleNode parent)
 		{
 			super(parent);
-			setUniformIcon(MavenIcons.ProfilesClosed);
+			setIcon(MavenIcons.ProfilesClosed);
 		}
 
 		@Override
@@ -1000,7 +1000,7 @@ public class MavenProjectsStructure extends SimpleTreeStructure
 			myModulesNode = new ModulesNode(this);
 			myRunConfigurationsNode = new RunConfigurationsNode(this);
 
-			setUniformIcon(MavenIcons.MavenProject);
+			setIcon(MavenIcons.MavenProject);
 			updateProject();
 		}
 
@@ -1214,7 +1214,7 @@ public class MavenProjectsStructure extends SimpleTreeStructure
 		public ModulesNode(ProjectNode parent)
 		{
 			super(parent);
-			setUniformIcon(MavenIcons.ModulesClosed);
+			setIcon(MavenIcons.ModulesClosed);
 		}
 
 		@Override
@@ -1353,7 +1353,7 @@ public class MavenProjectsStructure extends SimpleTreeStructure
 			{
 				myGoalNodes.add(new StandardGoalNode(this, goal));
 			}
-			setUniformIcon(MavenIcons.PhasesClosed);
+			setIcon(MavenIcons.PhasesClosed);
 		}
 
 		@Override
@@ -1393,7 +1393,7 @@ public class MavenProjectsStructure extends SimpleTreeStructure
 		public PluginsNode(ProjectNode parent)
 		{
 			super(parent);
-			setUniformIcon(MavenIcons.PhasesClosed);
+			setIcon(MavenIcons.PhasesClosed);
 		}
 
 		@Override
@@ -1460,7 +1460,7 @@ public class MavenProjectsStructure extends SimpleTreeStructure
 			super(parent);
 			myPlugin = plugin;
 
-			setUniformIcon(MavenIcons.MavenPlugin);
+			setIcon(MavenIcons.MavenPlugin);
 			updatePlugin();
 		}
 
@@ -1526,7 +1526,7 @@ public class MavenProjectsStructure extends SimpleTreeStructure
 		public PluginGoalNode(PluginNode parent, String goal, String unqualifiedGoal, String displayName)
 		{
 			super(parent, goal, displayName);
-			setUniformIcon(MavenIcons.PluginGoal);
+			setIcon(MavenIcons.PluginGoal);
 			myUnqualifiedGoal = unqualifiedGoal;
 		}
 

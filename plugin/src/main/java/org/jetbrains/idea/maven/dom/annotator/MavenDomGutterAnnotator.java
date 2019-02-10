@@ -16,6 +16,24 @@
 
 package org.jetbrains.idea.maven.dom.annotator;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+
+import javax.annotation.Nonnull;
+import javax.swing.Icon;
+
+import org.jetbrains.idea.maven.dom.MavenDomBundle;
+import org.jetbrains.idea.maven.dom.MavenDomProjectProcessorUtils;
+import org.jetbrains.idea.maven.dom.MavenDomUtil;
+import org.jetbrains.idea.maven.dom.model.MavenDomDependency;
+import org.jetbrains.idea.maven.dom.model.MavenDomDependencyManagement;
+import org.jetbrains.idea.maven.dom.model.MavenDomParent;
+import org.jetbrains.idea.maven.dom.model.MavenDomPlugin;
+import org.jetbrains.idea.maven.dom.model.MavenDomPluginManagement;
+import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
+import org.jetbrains.idea.maven.project.MavenProject;
 import com.intellij.codeInsight.navigation.DomNavigationGutterIconBuilder;
 import com.intellij.codeInsight.navigation.NavigationGutterIconBuilder;
 import com.intellij.icons.AllIcons;
@@ -30,18 +48,7 @@ import com.intellij.util.NotNullFunction;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.xml.DomElement;
 import com.intellij.util.xml.DomManager;
-import javax.annotation.Nonnull;
-import org.jetbrains.idea.maven.dom.MavenDomBundle;
-import org.jetbrains.idea.maven.dom.MavenDomProjectProcessorUtils;
-import org.jetbrains.idea.maven.dom.MavenDomUtil;
-import org.jetbrains.idea.maven.dom.model.*;
-import org.jetbrains.idea.maven.project.MavenProject;
-
-import javax.swing.*;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import consulo.awt.TargetAWT;
 
 public class MavenDomGutterAnnotator implements Annotator {
 
@@ -220,7 +227,7 @@ public class MavenDomGutterAnnotator implements Annotator {
 
     @Override
     protected Icon getIcon(PsiElement element) {
-      return icons.MavenIcons.MavenProject;
+      return TargetAWT.to(icons.MavenIcons.MavenProject);
     }
 
     @Override

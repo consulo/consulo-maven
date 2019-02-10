@@ -15,6 +15,15 @@
  */
 package org.jetbrains.idea.maven.dom.generate;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+import javax.annotation.Nonnull;
+
+import org.jetbrains.idea.maven.dom.MavenDomBundle;
+import org.jetbrains.idea.maven.dom.model.MavenDomDependency;
+import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
 import com.intellij.codeInsight.generation.ClassMember;
 import com.intellij.codeInsight.generation.MemberChooserObject;
 import com.intellij.codeInsight.generation.MemberChooserObjectBase;
@@ -26,15 +35,7 @@ import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.PsiFile;
 import com.intellij.util.Function;
 import com.intellij.util.containers.ContainerUtil;
-import javax.annotation.Nonnull;
-
-import org.jetbrains.idea.maven.dom.MavenDomBundle;
-import org.jetbrains.idea.maven.dom.model.MavenDomDependency;
-import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import consulo.awt.TargetAWT;
 
 /**
  * @author Serega.Vasiliev
@@ -56,7 +57,7 @@ public class GenerateDependencyUtil {
     MemberChooser<MavenDomProjectModelMember> chooser =
       new MemberChooser<MavenDomProjectModelMember>(memberCandidates, true, true, project) {
         protected ShowContainersAction getShowContainersAction() {
-          return new ShowContainersAction(MavenDomBundle.message("chooser.show.project.files"), icons.MavenIcons.MavenProject);
+          return new ShowContainersAction(MavenDomBundle.message("chooser.show.project.files"), TargetAWT.to(icons.MavenIcons.MavenProject));
         }
 
         protected String getAllContainersNodeName() {
@@ -134,7 +135,7 @@ public class GenerateDependencyUtil {
     private static class MavenDomProjectModelFileMemberChooserObjectBase extends PsiElementMemberChooserObject {
 
       public MavenDomProjectModelFileMemberChooserObjectBase(@Nonnull final PsiFile psiFile, @javax.annotation.Nullable String projectName) {
-        super(psiFile, StringUtil.isEmptyOrSpaces(projectName) ? psiFile.getName() : projectName, icons.MavenIcons.MavenProject);
+        super(psiFile, StringUtil.isEmptyOrSpaces(projectName) ? psiFile.getName() : projectName, TargetAWT.to(icons.MavenIcons.MavenProject));
       }
     }
   }
