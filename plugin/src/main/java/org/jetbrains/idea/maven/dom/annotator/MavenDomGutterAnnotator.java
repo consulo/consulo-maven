@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Set;
 
 import javax.annotation.Nonnull;
-import javax.swing.Icon;
 
 import org.jetbrains.idea.maven.dom.MavenDomBundle;
 import org.jetbrains.idea.maven.dom.MavenDomProjectProcessorUtils;
@@ -48,7 +47,7 @@ import com.intellij.util.NotNullFunction;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.xml.DomElement;
 import com.intellij.util.xml.DomManager;
-import consulo.awt.TargetAWT;
+import consulo.ui.image.Image;
 
 public class MavenDomGutterAnnotator implements Annotator {
 
@@ -226,8 +225,8 @@ public class MavenDomGutterAnnotator implements Annotator {
     }
 
     @Override
-    protected Icon getIcon(PsiElement element) {
-      return TargetAWT.to(icons.MavenIcons.MavenProject);
+    protected Image getIcon(PsiElement element) {
+      return icons.MavenIcons.MavenProject;
     }
 
     @Override
