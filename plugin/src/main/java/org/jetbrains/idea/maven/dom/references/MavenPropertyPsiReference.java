@@ -23,9 +23,8 @@ import java.util.List;
 import java.util.Set;
 
 import javax.annotation.Nonnull;
-import javax.swing.Icon;
-
 import javax.annotation.Nullable;
+
 import org.jetbrains.idea.maven.dom.MavenDomProjectProcessorUtils;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
 import org.jetbrains.idea.maven.dom.MavenSchemaProvider;
@@ -40,6 +39,7 @@ import org.jetbrains.idea.maven.utils.MavenUtil;
 import org.jetbrains.idea.maven.vfs.MavenPropertiesVirtualFileSystem;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
+import com.intellij.icons.AllIcons;
 import com.intellij.lang.properties.IProperty;
 import com.intellij.lang.properties.PropertiesLanguage;
 import com.intellij.lang.properties.psi.PropertiesFile;
@@ -62,13 +62,13 @@ import com.intellij.psi.xml.XmlTag;
 import com.intellij.psi.xml.XmlTagChild;
 import com.intellij.util.ArrayUtil;
 import com.intellij.util.IncorrectOperationException;
-import com.intellij.util.PlatformIcons;
 import com.intellij.util.xml.DomElement;
 import com.intellij.util.xml.DomUtil;
 import com.intellij.xml.XmlElementDescriptor;
 import com.intellij.xml.XmlNSDescriptor;
 import consulo.awt.TargetAWT;
 import consulo.java.module.extension.JavaModuleExtensionImpl;
+import consulo.ui.image.Image;
 
 public class MavenPropertyPsiReference extends MavenPsiReference {
   public static final String TIMESTAMP_PROP = "maven.build.timestamp";
@@ -358,10 +358,10 @@ public class MavenPropertyPsiReference extends MavenPsiReference {
     final String prefix = prefixLength == 0 ? null : myText.substring(0, prefixLength);
 
     PsiDirectory baseDir = getBaseDir(mavenProject);
-    addVariant(result, "basedir", baseDir, prefix, TargetAWT.to(icons.MavenIcons.MavenLogo));
+    addVariant(result, "basedir", baseDir, prefix, icons.MavenIcons.MavenLogo);
     if (prefix == null) {
-      result.add(createLookupElement(baseDir, "project.baseUri", TargetAWT.to(icons.MavenIcons.MavenLogo)));
-      result.add(createLookupElement(baseDir, "pom.baseUri", TargetAWT.to(icons.MavenIcons.MavenLogo)));
+      result.add(createLookupElement(baseDir, "project.baseUri", icons.MavenIcons.MavenLogo));
+      result.add(createLookupElement(baseDir, "pom.baseUri", icons.MavenIcons.MavenLogo));
       result.add(LookupElementBuilder.create(TIMESTAMP_PROP).withIcon(TargetAWT.to(icons.MavenIcons.MavenLogo)));
     }
 
@@ -369,7 +369,7 @@ public class MavenPropertyPsiReference extends MavenPsiReference {
       @Override
       public Object process(@Nonnull String property, XmlElementDescriptor descriptor) {
         if (property.startsWith("project.")) {
-          addVariant(result, property.substring("project.".length()), descriptor, prefix, TargetAWT.to(icons.MavenIcons.MavenLogo));
+          addVariant(result, property.substring("project.".length()), descriptor, prefix, icons.MavenIcons.MavenLogo);
         }
         return null;
       }
@@ -378,7 +378,7 @@ public class MavenPropertyPsiReference extends MavenPsiReference {
     processSchema(MavenSchemaProvider.MAVEN_SETTINGS_SCHEMA_URL, new SchemaProcessor<Object>(){
       @Override
       public Object process(@Nonnull String property, XmlElementDescriptor descriptor) {
-        result.add(createLookupElement(descriptor, property, TargetAWT.to(icons.MavenIcons.MavenLogo)));
+        result.add(createLookupElement(descriptor, property, icons.MavenIcons.MavenLogo));
         return null;
       }
     });
@@ -390,12 +390,12 @@ public class MavenPropertyPsiReference extends MavenPsiReference {
     MavenRunnerSettings runnerSettings = MavenRunner.getInstance(myProject).getSettings();
     for (String prop : runnerSettings.getMavenProperties().keySet()) {
       if (variants.add(prefix)) {
-        result.add(LookupElementBuilder.create(prop).withIcon(PlatformIcons.PROPERTY_ICON));
+        result.add(LookupElementBuilder.create(prop).withIcon(AllIcons.Nodes.Property));
       }
     }
     for (String prop : MavenUtil.getPropertiesFromMavenOpts().keySet()) {
       if (variants.add(prop)) {
-        result.add(LookupElementBuilder.create(prop).withIcon(PlatformIcons.PROPERTY_ICON));
+        result.add(LookupElementBuilder.create(prop).withIcon(AllIcons.Nodes.Property));
       }
     }
 
@@ -403,13 +403,13 @@ public class MavenPropertyPsiReference extends MavenPsiReference {
       if (key instanceof String) {
         String property = (String)key;
         if (variants.add(property)) {
-          result.add(LookupElementBuilder.create(property).withIcon(PlatformIcons.PROPERTY_ICON));
+          result.add(LookupElementBuilder.create(property).withIcon(AllIcons.Nodes.Property));
         }
       }
     }
   }
 
-  private static void addVariant(List<Object> result, String name, @Nonnull Object element, @javax.annotation.Nullable String prefix, @Nonnull Icon icon) {
+  private static void addVariant(List<Object> result, String name, @Nonnull Object element, @javax.annotation.Nullable String prefix, @Nonnull Image icon) {
     String nameWithPrefix;
     if (prefix == null) {
       nameWithPrefix = name;
@@ -428,7 +428,7 @@ public class MavenPropertyPsiReference extends MavenPsiReference {
       for (XmlTag xmlTag : MavenDomProjectProcessorUtils.collectProperties(myProjectDom, myProject)) {
         String propertyName = xmlTag.getName();
         if (variants.add(propertyName)) {
-          result.add(createLookupElement(xmlTag, propertyName, PlatformIcons.PROPERTY_ICON));
+          result.add(createLookupElement(xmlTag, propertyName, AllIcons.Nodes.Property));
         }
       }
     }
@@ -449,13 +449,13 @@ public class MavenPropertyPsiReference extends MavenPsiReference {
         if (prefix != null) name = prefix + name;
 
         if (variants.add(name)) {
-          result.add(createLookupElement(each, name, PlatformIcons.PROPERTY_ICON));
+          result.add(createLookupElement(each, name, AllIcons.Nodes.Property));
         }
       }
     }
   }
 
-  private static LookupElement createLookupElement(@Nonnull Object element, @Nonnull String name, @javax.annotation.Nullable Icon icon) {
+  private static LookupElement createLookupElement(@Nonnull Object element, @Nonnull String name, @Nullable Image icon) {
     return LookupElementBuilder.create(element, name)
       .withIcon(icon)
       .withPresentableText(name);
