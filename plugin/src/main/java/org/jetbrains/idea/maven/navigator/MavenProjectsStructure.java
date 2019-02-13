@@ -91,7 +91,6 @@ import com.intellij.ui.treeStructure.SimpleTreeStructure;
 import com.intellij.util.ObjectUtils;
 import com.intellij.util.PathUtil;
 import com.intellij.util.containers.ContainerUtil;
-import consulo.awt.TargetAWT;
 import icons.MavenIcons;
 
 public class MavenProjectsStructure extends SimpleTreeStructure
@@ -1252,7 +1251,7 @@ public class MavenProjectsStructure extends SimpleTreeStructure
 			myMavenProject = findParent(ProjectNode.class).getMavenProject();
 			myGoal = goal;
 			myDisplayName = displayName;
-			setIcon(TargetAWT.to(MavenIcons.Phase));
+			setIcon(MavenIcons.Phase);
 		}
 
 		public MavenProject getMavenProject()
@@ -1672,7 +1671,7 @@ public class MavenProjectsStructure extends SimpleTreeStructure
 		public DependenciesNode(ProjectNode parent, MavenProject mavenProject)
 		{
 			super(parent, mavenProject);
-			setUniformIcon(AllIcons.Nodes.PpLibFolder);
+			setIcon(AllIcons.Nodes.PpLibFolder);
 		}
 
 		@Override
@@ -1697,7 +1696,7 @@ public class MavenProjectsStructure extends SimpleTreeStructure
 			super(parent, mavenProject);
 			myArtifactNode = artifactNode;
 			myArtifact = artifactNode.getArtifact();
-			setUniformIcon(AllIcons.Nodes.PpLib);
+			setIcon(AllIcons.Nodes.PpLib);
 		}
 
 		public MavenArtifact getArtifact()
@@ -1795,7 +1794,7 @@ public class MavenProjectsStructure extends SimpleTreeStructure
 		public RunConfigurationsNode(ProjectNode parent)
 		{
 			super(parent);
-			setIcon(TargetAWT.to(MavenIcons.Phase));
+			setIcon(MavenIcons.Phase);
 		}
 
 		@Override
@@ -1866,7 +1865,7 @@ public class MavenProjectsStructure extends SimpleTreeStructure
 		{
 			super(parent);
 			mySettings = settings;
-			setIcon(TargetAWT.to(ProgramRunnerUtil.getConfigurationIcon(settings, false)));
+			setIcon(ProgramRunnerUtil.getConfigurationIcon(settings, false));
 		}
 
 		public RunnerAndConfigurationSettings getSettings()
