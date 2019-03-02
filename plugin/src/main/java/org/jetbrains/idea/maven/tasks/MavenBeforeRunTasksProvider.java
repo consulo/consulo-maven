@@ -40,12 +40,14 @@ import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.AsyncResult;
 import com.intellij.openapi.util.Key;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.concurrency.Semaphore;
 import com.intellij.util.execution.ParametersListUtil;
+import consulo.ui.RequiredUIAccess;
 import consulo.ui.image.Image;
 import icons.MavenIcons;
 
@@ -127,8 +129,10 @@ public class MavenBeforeRunTasksProvider extends BeforeRunTaskProvider<MavenBefo
 		return new MavenBeforeRunTask();
 	}
 
+	@Nonnull
+	@RequiredUIAccess
 	@Override
-	public boolean configureTask(RunConfiguration runConfiguration, MavenBeforeRunTask task)
+	public AsyncResult<Void> configureTask(RunConfiguration runConfiguration, MavenBeforeRunTask task)
 	{
 		MavenEditGoalDialog dialog = new MavenEditGoalDialog(myProject, Arrays.asList("aaa", "adasdas"));
 
@@ -162,15 +166,13 @@ public class MavenBeforeRunTasksProvider extends BeforeRunTaskProvider<MavenBefo
 			}
 		}
 
-		dialog.show();
-		if(!dialog.isOK())
-		{
-			return false;
-		}
+		AsyncResult<Void> result = dialog.showAsync();
+		result.doWhenDone(() -> {
+			task.setProjectPath(dialog.getWorkDirectory() + "/pom.xml");
+			task.setGoal(dialog.getGoals());
+		});
 
-		task.setProjectPath(dialog.getWorkDirectory() + "/pom.xml");
-		task.setGoal(dialog.getGoals());
-		return true;
+		return result;
 	}
 
 	@Override
