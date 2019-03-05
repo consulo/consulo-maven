@@ -28,14 +28,11 @@ import org.jetbrains.idea.maven.execution.MavenRunnerParameters;
 import org.jetbrains.idea.maven.model.MavenExplicitProfiles;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
-import org.jetbrains.idea.maven.utils.MavenLog;
 import com.intellij.execution.BeforeRunTaskProvider;
 import com.intellij.execution.configurations.RunConfiguration;
 import com.intellij.execution.runners.ExecutionEnvironment;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.DataContext;
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
@@ -45,9 +42,9 @@ import com.intellij.openapi.util.Key;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.util.concurrency.Semaphore;
 import com.intellij.util.execution.ParametersListUtil;
 import consulo.ui.RequiredUIAccess;
+import consulo.ui.UIAccess;
 import consulo.ui.image.Image;
 import icons.MavenIcons;
 
@@ -61,12 +58,14 @@ public class MavenBeforeRunTasksProvider extends BeforeRunTaskProvider<MavenBefo
 		myProject = project;
 	}
 
+	@Nonnull
 	@Override
 	public Key<MavenBeforeRunTask> getId()
 	{
 		return ID;
 	}
 
+	@Nonnull
 	@Override
 	public String getName()
 	{
@@ -79,13 +78,7 @@ public class MavenBeforeRunTasksProvider extends BeforeRunTaskProvider<MavenBefo
 		return MavenIcons.MavenLogo;
 	}
 
-	@Nullable
-	@Override
-	public Image getTaskIcon(MavenBeforeRunTask task)
-	{
-		return MavenIcons.MavenLogo;
-	}
-
+	@Nonnull
 	@Override
 	public String getDescription(MavenBeforeRunTask task)
 	{
@@ -181,66 +174,66 @@ public class MavenBeforeRunTasksProvider extends BeforeRunTaskProvider<MavenBefo
 		return task.getGoal() != null && task.getProjectPath() != null;
 	}
 
+	@Nonnull
 	@Override
-	public boolean executeTask(final DataContext context, RunConfiguration configuration, ExecutionEnvironment env, final MavenBeforeRunTask task)
+	public AsyncResult<Void> executeTaskAsync(UIAccess uiAccess, DataContext context, RunConfiguration configuration, ExecutionEnvironment env, MavenBeforeRunTask task)
 	{
-		final Semaphore targetDone = new Semaphore();
-		final boolean[] result = new boolean[]{true};
-		try
+		AsyncResult<Void> result = AsyncResult.undefined();
+		uiAccess.give(() ->
 		{
-			ApplicationManager.getApplication().invokeAndWait(() ->
-			{
-				final Project project = context.getData(CommonDataKeys.PROJECT);
-				final MavenProject mavenProject = getMavenProject(task);
+			final Project project = context.getData(CommonDataKeys.PROJECT);
+			final MavenProject mavenProject = getMavenProject(task);
 
-				if(project == null || project.isDisposed() || mavenProject == null)
+			if(project == null || project.isDisposed() || mavenProject == null)
+			{
+				result.setRejected();
+				return;
+			}
+
+			FileDocumentManager.getInstance().saveAllDocuments();
+
+			final MavenExplicitProfiles explicitProfiles = MavenProjectsManager.getInstance(project).getExplicitProfiles();
+			final MavenRunner mavenRunner = MavenRunner.getInstance(project);
+
+			new Task.Backgroundable(project, TasksBundle.message("maven.tasks.executing"), true)
+			{
+				@Override
+				public void run(@Nonnull ProgressIndicator indicator)
 				{
-					return;
+					boolean value = false;
+					try
+					{
+						MavenRunnerParameters params = new MavenRunnerParameters(true, mavenProject.getDirectory(), ParametersListUtil.parse(task.getGoal()), explicitProfiles);
+
+						value = mavenRunner.runBatch(Collections.singletonList(params), null, null, TasksBundle.message("maven.tasks.executing"), indicator);
+					}
+					finally
+					{
+						if(value)
+						{
+							result.setDone();
+						}
+						else
+						{
+							result.setRejected();
+						}
+					}
 				}
 
-				FileDocumentManager.getInstance().saveAllDocuments();
-
-				final MavenExplicitProfiles explicitProfiles = MavenProjectsManager.getInstance(project).getExplicitProfiles();
-				final MavenRunner mavenRunner = MavenRunner.getInstance(project);
-
-				targetDone.down();
-				new Task.Backgroundable(project, TasksBundle.message("maven.tasks.executing"), true)
+				@Override
+				public boolean shouldStartInBackground()
 				{
-					@Override
-					public void run(@Nonnull ProgressIndicator indicator)
-					{
-						try
-						{
-							MavenRunnerParameters params = new MavenRunnerParameters(true, mavenProject.getDirectory(), ParametersListUtil.parse(task.getGoal()), explicitProfiles);
+					return MavenRunner.getInstance(project).getSettings().isRunMavenInBackground();
+				}
 
-							result[0] = mavenRunner.runBatch(Collections.singletonList(params), null, null, TasksBundle.message("maven.tasks.executing"), indicator);
-						}
-						finally
-						{
-							targetDone.up();
-						}
-					}
+				@Override
+				public void processSentToBackground()
+				{
+					MavenRunner.getInstance(project).getSettings().setRunMavenInBackground(true);
+				}
+			}.queue();
+		}).doWhenRejectedWithThrowable(result::rejectWithThrowable);
 
-					@Override
-					public boolean shouldStartInBackground()
-					{
-						return MavenRunner.getInstance(project).getSettings().isRunMavenInBackground();
-					}
-
-					@Override
-					public void processSentToBackground()
-					{
-						MavenRunner.getInstance(project).getSettings().setRunMavenInBackground(true);
-					}
-				}.queue();
-			}, ModalityState.NON_MODAL);
-		}
-		catch(Exception e)
-		{
-			MavenLog.LOG.error(e);
-			return false;
-		}
-		targetDone.waitFor();
-		return result[0];
+		return result;
 	}
 }
