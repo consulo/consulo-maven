@@ -17,7 +17,7 @@ package org.jetbrains.idea.maven.model;
 
 import java.io.Serializable;
 
-import com.intellij.openapi.util.text.StringUtil;
+import org.jetbrains.idea.maven.util.MavenStringUtil;
 
 public class MavenArtifactInfo implements Serializable {
   private final String myGroupId;
@@ -93,7 +93,7 @@ public class MavenArtifactInfo implements Serializable {
     MavenId.append(builder, myGroupId);
     MavenId.append(builder, myArtifactId);
     MavenId.append(builder, myPackaging);
-    if (!StringUtil.isEmptyOrSpaces(myClassifier)) MavenId.append(builder, myClassifier);
+    if (!MavenStringUtil.isEmptyOrSpaces(myClassifier)) MavenId.append(builder, myClassifier);
     MavenId.append(builder, myVersion);
 
     return builder.toString();

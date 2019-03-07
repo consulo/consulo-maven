@@ -15,126 +15,153 @@
  */
 package org.jetbrains.idea.maven.server;
 
-import com.intellij.openapi.progress.ProcessCanceledException;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.util.containers.ContainerUtil;
-import org.apache.maven.wagon.events.TransferEvent;
-import org.apache.maven.wagon.events.TransferListener;
-
 import java.rmi.RemoteException;
 import java.text.MessageFormat;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
-public class WagonTransferListenerAdapter implements TransferListener {
-  protected final MavenServerProgressIndicator myIndicator;
-  private final Map<String, DownloadData> myDownloads = ContainerUtil.newConcurrentMap();
+import org.apache.maven.wagon.events.TransferEvent;
+import org.apache.maven.wagon.events.TransferListener;
+import org.jetbrains.idea.maven.util.MavenStringUtil;
 
-  public WagonTransferListenerAdapter(MavenServerProgressIndicator indicator) {
-    myIndicator = indicator;
-  }
+public class WagonTransferListenerAdapter implements TransferListener
+{
+	protected final MavenServerProgressIndicator myIndicator;
+	private final Map<String, DownloadData> myDownloads = new ConcurrentHashMap<String, DownloadData>();
 
-  public void transferInitiated(TransferEvent event) {
-    checkCanceled();
-  }
+	public WagonTransferListenerAdapter(MavenServerProgressIndicator indicator)
+	{
+		myIndicator = indicator;
+	}
 
-  private void checkCanceled() {
-    try {
-      if (myIndicator.isCanceled()) throw new ProcessCanceledException();
-    }
-    catch (RemoteException e) {
-      throw new RuntimeRemoteException(e);
-    }
-  }
+	public void transferInitiated(TransferEvent event)
+	{
+		checkCanceled();
+	}
 
-  public void transferStarted(TransferEvent event) {
-    checkCanceled();
+	private void checkCanceled()
+	{
+		try
+		{
+			if(myIndicator.isCanceled())
+			{
+				throw new MavenProcessCanceledRuntimeException();
+			}
+		}
+		catch(RemoteException e)
+		{
+			throw new RuntimeRemoteException(e);
+		}
+	}
 
-    String resourceName = event.getResource().getName();
-    DownloadData data = new DownloadData(event.getWagon().getRepository().getName(),
-                                         event.getResource().getContentLength());
-    myDownloads.put(resourceName, data);
-    updateProgress(resourceName, data);
-  }
+	public void transferStarted(TransferEvent event)
+	{
+		checkCanceled();
 
-  public void transferProgress(TransferEvent event, byte[] bytes, int i) {
-    checkCanceled();
+		String resourceName = event.getResource().getName();
+		DownloadData data = new DownloadData(event.getWagon().getRepository().getName(),
+				event.getResource().getContentLength());
+		myDownloads.put(resourceName, data);
+		updateProgress(resourceName, data);
+	}
 
-    String resourceName = event.getResource().getName();
-    DownloadData data = myDownloads.get(resourceName);
-    data.downloaded += i;
-    updateProgress(resourceName, data);
-  }
+	public void transferProgress(TransferEvent event, byte[] bytes, int i)
+	{
+		checkCanceled();
 
-  public void transferCompleted(TransferEvent event) {
-    try {
-      Maven3ServerGlobals.getDownloadListener().artifactDownloaded(event.getLocalFile(), event.getResource().getName());
-    }
-    catch (RemoteException e) {
-      throw new RuntimeRemoteException(e);
-    }
+		String resourceName = event.getResource().getName();
+		DownloadData data = myDownloads.get(resourceName);
+		data.downloaded += i;
+		updateProgress(resourceName, data);
+	}
 
-    checkCanceled();
+	public void transferCompleted(TransferEvent event)
+	{
+		try
+		{
+			Maven3ServerGlobals.getDownloadListener().artifactDownloaded(event.getLocalFile(), event.getResource().getName());
+		}
+		catch(RemoteException e)
+		{
+			throw new RuntimeRemoteException(e);
+		}
 
-    String resourceName = event.getResource().getName();
-    DownloadData data = myDownloads.remove(resourceName);
-    data.finished = true;
-    updateProgress(resourceName, data);
-  }
+		checkCanceled();
 
-  public void transferError(TransferEvent event) {
-    checkCanceled();
+		String resourceName = event.getResource().getName();
+		DownloadData data = myDownloads.remove(resourceName);
+		data.finished = true;
+		updateProgress(resourceName, data);
+	}
 
-    String resourceName = event.getResource().getName();
-    DownloadData data = myDownloads.remove(resourceName);
-    if (data != null) {
-      data.failed = true;
-      updateProgress(resourceName, data);
-    }
-  }
+	public void transferError(TransferEvent event)
+	{
+		checkCanceled();
 
-  public void debug(String s) {
-    checkCanceled();
-  }
+		String resourceName = event.getResource().getName();
+		DownloadData data = myDownloads.remove(resourceName);
+		if(data != null)
+		{
+			data.failed = true;
+			updateProgress(resourceName, data);
+		}
+	}
 
-  private void updateProgress(String resourceName, DownloadData data) {
-    String prefix = "";
-    if (data.finished) {
-      prefix = "Finished ";
-    }
-    if (data.failed) {
-      prefix = "Failed ";
-    }
+	public void debug(String s)
+	{
+		checkCanceled();
+	}
 
-    String sizeInfo;
-    if (data.finished || data.failed || data.total <= 0) {
-      sizeInfo = StringUtil.formatFileSize(data.downloaded);
-    } else {
-      sizeInfo = ((int)100f * data.downloaded / data.total) + "% of " + StringUtil.formatFileSize(data.total);
-    }
+	private void updateProgress(String resourceName, DownloadData data)
+	{
+		String prefix = "";
+		if(data.finished)
+		{
+			prefix = "Finished ";
+		}
+		if(data.failed)
+		{
+			prefix = "Failed ";
+		}
 
-    try {
-      myIndicator.setText2(MessageFormat.format(prefix + sizeInfo + " [{0}] {1}", data.repository, resourceName));
-    }
-    catch (RemoteException e) {
-      throw new RuntimeRemoteException(e);
-    }
+		String sizeInfo;
+		if(data.finished || data.failed || data.total <= 0)
+		{
+			sizeInfo = MavenStringUtil.formatFileSize(data.downloaded);
+		}
+		else
+		{
+			sizeInfo = ((int) 100f * data.downloaded / data.total) + "% of " + MavenStringUtil.formatFileSize(data.total);
+		}
 
-    downloadProgress(data.downloaded, data.total);
-  }
+		try
+		{
+			myIndicator.setText2(MessageFormat.format(prefix + sizeInfo + " [{0}] {1}", data.repository, resourceName));
+		}
+		catch(RemoteException e)
+		{
+			throw new RuntimeRemoteException(e);
+		}
 
-  protected void downloadProgress(long downloaded, long total) {
-  }
+		downloadProgress(data.downloaded, data.total);
+	}
 
-  private static class DownloadData {
-    public final String repository;
-    public final long total;
-    public long downloaded;
-    public boolean finished;
-    public boolean failed;
+	protected void downloadProgress(long downloaded, long total)
+	{
+	}
 
-    private DownloadData(String repository, long total) {
-      this.repository = repository;
-      this.total = total;
-    }
-  }
+	private static class DownloadData
+	{
+		public final String repository;
+		public final long total;
+		public long downloaded;
+		public boolean finished;
+		public boolean failed;
+
+		private DownloadData(String repository, long total)
+		{
+			this.repository = repository;
+			this.total = total;
+		}
+	}
 }

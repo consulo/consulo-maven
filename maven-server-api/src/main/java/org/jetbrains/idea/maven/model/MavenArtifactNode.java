@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Nullable;
-import com.intellij.openapi.util.text.StringUtil;
 
 public class MavenArtifactNode implements Serializable
 {
@@ -38,12 +37,12 @@ public class MavenArtifactNode implements Serializable
 	private List<MavenArtifactNode> myDependencies;
 
 	public MavenArtifactNode(MavenArtifactNode parent,
-			MavenArtifact artifact,
-			MavenArtifactState state,
-			MavenArtifact relatedArtifact,
-			String originalScope,
-			String premanagedVersion,
-			String premanagedScope)
+							 MavenArtifact artifact,
+							 MavenArtifactState state,
+							 MavenArtifact relatedArtifact,
+							 String originalScope,
+							 String premanagedVersion,
+							 String premanagedScope)
 	{
 		myParent = parent;
 		myArtifact = artifact;
@@ -108,17 +107,23 @@ public class MavenArtifactNode implements Serializable
 	@Override
 	public String toString()
 	{
-		String result = myArtifact.getDisplayStringWithTypeAndClassifier();
+		StringBuilder result = new StringBuilder();
+		result.append(myArtifact.getDisplayStringWithTypeAndClassifier());
 		if(myState != MavenArtifactState.ADDED)
 		{
-			result += "[" + myState + ":" + myRelatedArtifact.getDisplayStringWithTypeAndClassifier() + "]";
+			result.append('[').append(myState).append(':').append(myRelatedArtifact.getDisplayStringWithTypeAndClassifier()).append(']');
 		}
-		return result += "->(" + formatNodesList(myDependencies) + ")";
-	}
-
-	public static String formatNodesList(List<MavenArtifactNode> nodes)
-	{
-		return StringUtil.join(nodes, StringUtil.createToStringFunction(MavenArtifactNode.class), ",");
+		result.append("->(");
+		for(int i = 0; i < myDependencies.size(); i++)
+		{
+			if(i > 0)
+			{
+				result.append(',');
+			}
+			result.append(myDependencies.get(i));
+		}
+		result.append(')');
+		return result.toString();
 	}
 
 	@Override

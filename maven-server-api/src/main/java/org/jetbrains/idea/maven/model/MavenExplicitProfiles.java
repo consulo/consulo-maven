@@ -15,11 +15,10 @@
  */
 package org.jetbrains.idea.maven.model;
 
-import gnu.trove.THashSet;
-
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 
 /**
  * Created with IntelliJ IDEA.
@@ -58,7 +57,7 @@ public class MavenExplicitProfiles implements Serializable
 	@Override
 	public MavenExplicitProfiles clone()
 	{
-		return new MavenExplicitProfiles(new THashSet<String>(myEnabledProfiles), new THashSet<String>(myDisabledProfiles));
+		return new MavenExplicitProfiles(new HashSet<String>(myEnabledProfiles), new HashSet<String>(myDisabledProfiles));
 	}
 
 	@Override

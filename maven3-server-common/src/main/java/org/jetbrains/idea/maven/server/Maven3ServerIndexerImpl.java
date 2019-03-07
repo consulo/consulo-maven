@@ -15,21 +15,12 @@
  */
 package org.jetbrains.idea.maven.server;
 
-import gnu.trove.THashSet;
-import gnu.trove.TIntObjectHashMap;
-
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.rmi.RemoteException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -53,7 +44,6 @@ import org.jetbrains.idea.maven.model.MavenId;
 import org.sonatype.nexus.index.ArtifactContext;
 import org.sonatype.nexus.index.ArtifactContextProducer;
 import org.sonatype.nexus.index.ArtifactInfo;
-import org.sonatype.nexus.index.ArtifactInfoRecord;
 import org.sonatype.nexus.index.ArtifactScanningListener;
 import org.sonatype.nexus.index.NexusIndexer;
 import org.sonatype.nexus.index.ScanningResult;
@@ -63,9 +53,6 @@ import org.sonatype.nexus.index.creator.JarFileContentsIndexCreator;
 import org.sonatype.nexus.index.creator.MinimalArtifactInfoIndexCreator;
 import org.sonatype.nexus.index.updater.IndexUpdateRequest;
 import org.sonatype.nexus.index.updater.IndexUpdater;
-import com.intellij.openapi.progress.ProcessCanceledException;
-import com.intellij.openapi.util.ShutDownTracker;
-import com.intellij.openapi.util.text.StringUtil;
 
 public abstract class Maven3ServerIndexerImpl extends MavenRemoteObject implements MavenServerIndexer
 {
@@ -75,7 +62,7 @@ public abstract class Maven3ServerIndexerImpl extends MavenRemoteObject implemen
 	private final IndexUpdater myUpdater;
 	private final ArtifactContextProducer myArtifactContextProducer;
 
-	private final TIntObjectHashMap<IndexingContext> myIndices = new TIntObjectHashMap<IndexingContext>();
+	private final Map<Integer, IndexingContext> myIndices = new HashMap<Integer, IndexingContext>();
 
 	public Maven3ServerIndexerImpl(Maven3ServerEmbedder embedder) throws RemoteException
 	{
@@ -85,7 +72,7 @@ public abstract class Maven3ServerIndexerImpl extends MavenRemoteObject implemen
 		myUpdater = myEmbedder.getComponent(IndexUpdater.class);
 		myArtifactContextProducer = myEmbedder.getComponent(ArtifactContextProducer.class);
 
-		ShutDownTracker.getInstance().registerShutdownTask(new Runnable()
+		MavenServerUtil.registerShutdownTask(new Runnable()
 		{
 			@Override
 			public void run()
@@ -255,7 +242,7 @@ public abstract class Maven3ServerIndexerImpl extends MavenRemoteObject implemen
 		{
 			throw e.getCause();
 		}
-		catch(ProcessCanceledException e)
+		catch(MavenProcessCanceledRuntimeException e)
 		{
 			throw new MavenServerProcessCanceledException();
 		}
@@ -292,11 +279,17 @@ public abstract class Maven3ServerIndexerImpl extends MavenRemoteObject implemen
 				{
 					continue;
 				}
-				List<String> parts = StringUtil.split(uinfo, ArtifactInfoRecord.FS);
 
-				String groupId = parts.get(0);
-				String artifactId = parts.get(1);
-				String version = parts.get(2);
+				String[] uInfoParts = uinfo.split("\\|");
+				if(uInfoParts.length < 3)
+				{
+					continue;
+				}
+
+				String groupId = uInfoParts[0];
+				String artifactId = uInfoParts[1];
+				String version = uInfoParts[2];
+
 				if(groupId == null || artifactId == null || version == null)
 				{
 					continue;
@@ -349,8 +342,8 @@ public abstract class Maven3ServerIndexerImpl extends MavenRemoteObject implemen
 	}
 
 	public static void addArtifact(NexusIndexer indexer,
-			IndexingContext index,
-			ArtifactContext artifactContext) throws IOException, NoSuchMethodException, IllegalAccessException, InvocationTargetException
+								   IndexingContext index,
+								   ArtifactContext artifactContext) throws IOException, NoSuchMethodException, IllegalAccessException, InvocationTargetException
 	{
 		indexer.addArtifactToIndex(artifactContext, index);
 		// this hack is necessary to invalidate searcher's and reader's cache (may not be required then lucene or nexus library change
@@ -383,7 +376,7 @@ public abstract class Maven3ServerIndexerImpl extends MavenRemoteObject implemen
 				return Collections.emptySet();
 			}
 
-			Set<MavenArtifactInfo> result = new THashSet<MavenArtifactInfo>();
+			Set<MavenArtifactInfo> result = new HashSet<MavenArtifactInfo>();
 
 			for(int i = 0; i < docs.scoreDocs.length; i++)
 			{
@@ -409,7 +402,7 @@ public abstract class Maven3ServerIndexerImpl extends MavenRemoteObject implemen
 	@Override
 	public Collection<MavenArchetype> getArchetypes() throws RemoteException
 	{
-		Set<MavenArchetype> result = new THashSet<MavenArchetype>();
+		Set<MavenArchetype> result = new HashSet<MavenArchetype>();
 		doCollectArchetypes("internal-catalog", result);
 		doCollectArchetypes("nexus", result);
 		return result;
@@ -461,7 +454,7 @@ public abstract class Maven3ServerIndexerImpl extends MavenRemoteObject implemen
 			{
 				if(p.isCanceled())
 				{
-					throw new ProcessCanceledException();
+					throw new MavenProcessCanceledRuntimeException();
 				}
 			}
 			catch(RemoteException e)
@@ -476,7 +469,7 @@ public abstract class Maven3ServerIndexerImpl extends MavenRemoteObject implemen
 			{
 				if(p.isCanceled())
 				{
-					throw new ProcessCanceledException();
+					throw new MavenProcessCanceledRuntimeException();
 				}
 			}
 			catch(RemoteException e)
@@ -495,7 +488,7 @@ public abstract class Maven3ServerIndexerImpl extends MavenRemoteObject implemen
 			{
 				if(p.isCanceled())
 				{
-					throw new ProcessCanceledException();
+					throw new MavenProcessCanceledRuntimeException();
 				}
 				ArtifactInfo info = ac.getArtifactInfo();
 				p.setText2(info.groupId + ":" + info.artifactId + ":" + info.version);

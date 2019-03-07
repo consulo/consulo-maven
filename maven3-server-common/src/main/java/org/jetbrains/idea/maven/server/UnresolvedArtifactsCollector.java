@@ -15,15 +15,15 @@
  */
 package org.jetbrains.idea.maven.server;
 
-import gnu.trove.THashSet;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.apache.maven.artifact.Artifact;
 import org.jetbrains.idea.maven.model.MavenId;
 
-import java.util.Set;
-
 public class UnresolvedArtifactsCollector {
   private final boolean myFailOnUnresolved;
-  private final Set<MavenId> myUnresolvedIds = new THashSet<MavenId>();
+  private final Set<MavenId> myUnresolvedIds = new HashSet<MavenId>();
 
   public UnresolvedArtifactsCollector(boolean failOnUnresolved) {
     myFailOnUnresolved = failOnUnresolved;

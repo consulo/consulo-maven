@@ -15,9 +15,6 @@
  */
 package org.jetbrains.idea.maven.server;
 
-import gnu.trove.THashMap;
-import gnu.trove.THashSet;
-
 import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -28,6 +25,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import org.apache.maven.AbstractMavenLifecycleParticipant;
 import org.apache.maven.DefaultMaven;
@@ -93,8 +91,6 @@ import org.codehaus.plexus.context.DefaultContext;
 import org.codehaus.plexus.logging.BaseLoggerManager;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
-
-import javax.annotation.Nullable;
 import org.jetbrains.idea.maven.model.*;
 import org.jetbrains.idea.maven.server.embedder.CustomMaven3ArtifactFactory;
 import org.jetbrains.idea.maven.server.embedder.CustomMaven3ArtifactResolver;
@@ -103,14 +99,13 @@ import org.jetbrains.idea.maven.server.embedder.CustomMaven3ModelInterpolator2;
 import org.jetbrains.idea.maven.server.embedder.CustomMaven3RepositoryMetadataManager;
 import org.jetbrains.idea.maven.server.embedder.FieldAccessor;
 import org.jetbrains.idea.maven.server.embedder.MavenExecutionResult;
+import org.jetbrains.idea.maven.util.MavenStringUtil;
 import org.sonatype.aether.RepositorySystemSession;
 import org.sonatype.aether.graph.Dependency;
 import org.sonatype.aether.repository.LocalRepositoryManager;
 import org.sonatype.aether.util.DefaultRepositorySystemSession;
 import org.sonatype.aether.util.graph.PreorderNodeListGenerator;
-import com.intellij.openapi.util.Comparing;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.util.SystemProperties;
+import com.sun.javafx.runtime.SystemProperties;
 
 /**
  * Overridden maven components:
@@ -196,7 +191,7 @@ public class Maven30ServerEmbedderImpl extends Maven3ServerEmbedder {
 
       String mavenEmbedderCliOptions = System.getProperty(MavenServerEmbedder.MAVEN_EMBEDDER_CLI_ADDITIONAL_ARGS);
       if (mavenEmbedderCliOptions != null) {
-        commandLineOptions.addAll(StringUtil.splitHonorQuotes(mavenEmbedderCliOptions, ' '));
+        commandLineOptions.addAll(MavenStringUtil.splitHonorQuotes(mavenEmbedderCliOptions, ' '));
       }
       if (commandLineOptions.contains("-U") || commandLineOptions.contains("--update-snapshots")) {
         myAlwaysUpdateSnapshots = true;
@@ -269,7 +264,7 @@ public class Maven30ServerEmbedderImpl extends Maven3ServerEmbedder {
     }
 
     if (result.getLocalRepository() == null) {
-      result.setLocalRepository(new File(SystemProperties.getUserHome(), ".m2/repository").getPath());
+      result.setLocalRepository(new File(System.getProperty("user.home"), ".m2/repository").getPath());
     }
 
     return result;
@@ -428,7 +423,7 @@ public class Maven30ServerEmbedderImpl extends Maven3ServerEmbedder {
   }
 
   private static Collection<String> collectProfilesIds(List<Profile> profiles) {
-    Collection<String> result = new THashSet<String>();
+    Collection<String> result = new HashSet<String>();
     for (Profile each : profiles) {
       if (each.getId() != null) {
         result.add(each.getId());
@@ -856,7 +851,7 @@ public class Maven30ServerEmbedderImpl extends Maven3ServerEmbedder {
   private MavenServerExecutionResult createExecutionResult(File file, MavenExecutionResult result, DependencyNode rootNode)
     throws RemoteException {
     Collection<MavenProjectProblem> problems = MavenProjectProblem.createProblemsList();
-    THashSet<MavenId> unresolvedArtifacts = new THashSet<MavenId>();
+    Set<MavenId> unresolvedArtifacts = new HashSet<MavenId>();
 
     validate(file, result.getExceptions(), problems, unresolvedArtifacts);
 
@@ -940,7 +935,7 @@ public class Maven30ServerEmbedderImpl extends Maven3ServerEmbedder {
   }
 
   private Set<MavenId> retrieveUnresolvedArtifactIds() {
-    Set<MavenId> result = new THashSet<MavenId>();
+    Set<MavenId> result = new HashSet<MavenId>();
     // TODO collect unresolved artifacts
     //((CustomMaven3WagonManager)getComponent(WagonManager.class)).getUnresolvedCollector().retrieveUnresolvedIds(result);
     //((CustomMaven3ArtifactResolver)getComponent(ArtifactResolver.class)).getUnresolvedCollector().retrieveUnresolvedIds(result);
@@ -972,7 +967,7 @@ public class Maven30ServerEmbedderImpl extends Maven3ServerEmbedder {
         .resolveTransitively(toResolve, project, Collections.EMPTY_MAP, myLocalRepository, convertRepositories(remoteRepositories),
                              getComponent(ArtifactMetadataSource.class)).getArtifacts();
 
-      return MavenModelConverter.convertArtifacts(res, new THashMap<Artifact, MavenArtifact>(), getLocalRepositoryFile());
+      return MavenModelConverter.convertArtifacts(res, new HashMap<Artifact, MavenArtifact>(), getLocalRepositoryFile());
     }
     catch (ArtifactResolutionException e) {
       Maven3ServerGlobals.getLogger().info(e);
@@ -1024,8 +1019,8 @@ public class Maven30ServerEmbedderImpl extends Maven3ServerEmbedder {
       List<MavenArtifact> res = new ArrayList<MavenArtifact>();
 
       for (org.sonatype.aether.artifact.Artifact artifact : nlg.getArtifacts(true)) {
-        if (!Comparing.equal(artifact.getArtifactId(), plugin.getArtifactId()) ||
-            !Comparing.equal(artifact.getGroupId(), plugin.getGroupId())) {
+        if (!MavenStringUtil.equal(artifact.getArtifactId(), plugin.getArtifactId()) ||
+            !MavenStringUtil.equal(artifact.getGroupId(), plugin.getGroupId())) {
           res.add(MavenModelConverter.convertArtifact(RepositoryUtils.toArtifact(artifact), getLocalRepositoryFile()));
         }
       }

@@ -15,9 +15,6 @@
  */
 package org.jetbrains.idea.maven.server.embedder;
 
-import gnu.trove.THashSet;
-import gnu.trove.TIntObjectHashMap;
-
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -26,7 +23,10 @@ import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
@@ -46,15 +46,7 @@ import org.apache.maven.wagon.events.TransferEvent;
 import org.jetbrains.idea.maven.model.MavenArchetype;
 import org.jetbrains.idea.maven.model.MavenArtifactInfo;
 import org.jetbrains.idea.maven.model.MavenId;
-import org.jetbrains.idea.maven.server.IndexedMavenId;
-import org.jetbrains.idea.maven.server.Maven2ServerGlobals;
-import org.jetbrains.idea.maven.server.MavenRemoteObject;
-import org.jetbrains.idea.maven.server.MavenServerIndexer;
-import org.jetbrains.idea.maven.server.MavenServerIndexerException;
-import org.jetbrains.idea.maven.server.MavenServerIndicesProcessor;
-import org.jetbrains.idea.maven.server.MavenServerProcessCanceledException;
-import org.jetbrains.idea.maven.server.MavenServerProgressIndicator;
-import org.jetbrains.idea.maven.server.MavenServerSettings;
+import org.jetbrains.idea.maven.server.*;
 import org.sonatype.nexus.index.ArtifactContext;
 import org.sonatype.nexus.index.ArtifactContextProducer;
 import org.sonatype.nexus.index.ArtifactInfo;
@@ -65,9 +57,6 @@ import org.sonatype.nexus.index.context.IndexUtils;
 import org.sonatype.nexus.index.context.IndexingContext;
 import org.sonatype.nexus.index.updater.IndexUpdateRequest;
 import org.sonatype.nexus.index.updater.IndexUpdater;
-import com.intellij.openapi.progress.ProcessCanceledException;
-import com.intellij.openapi.util.ShutDownTracker;
-import com.intellij.openapi.util.text.StringUtil;
 
 public class Maven2ServerIndexerImpl extends MavenRemoteObject implements MavenServerIndexer
 {
@@ -76,7 +65,7 @@ public class Maven2ServerIndexerImpl extends MavenRemoteObject implements MavenS
 	private final IndexUpdater myUpdater;
 	private final ArtifactContextProducer myArtifactContextProducer;
 
-	private final TIntObjectHashMap<IndexingContext> myIndices = new TIntObjectHashMap<IndexingContext>();
+	private final Map<Integer, IndexingContext> myIndices = new HashMap<Integer, IndexingContext>();
 
 	public Maven2ServerIndexerImpl() throws RemoteException
 	{
@@ -86,7 +75,7 @@ public class Maven2ServerIndexerImpl extends MavenRemoteObject implements MavenS
 		myUpdater = myEmbedder.getComponent(IndexUpdater.class);
 		myArtifactContextProducer = myEmbedder.getComponent(ArtifactContextProducer.class);
 
-		ShutDownTracker.getInstance().registerShutdownTask(new Runnable()
+		MavenServerUtil.registerShutdownTask(new Runnable()
 		{
 			@Override
 			public void run()
@@ -97,7 +86,11 @@ public class Maven2ServerIndexerImpl extends MavenRemoteObject implements MavenS
 	}
 
 	@Override
-	public int createIndex(@Nonnull String indexId, @Nonnull String repositoryId, @javax.annotation.Nullable File file, @javax.annotation.Nullable String url, @Nonnull File indexDir) throws MavenServerIndexerException
+	public int createIndex(@Nonnull String indexId,
+						   @Nonnull String repositoryId,
+						   @javax.annotation.Nullable File file,
+						   @javax.annotation.Nullable String url,
+						   @Nonnull File indexDir) throws MavenServerIndexerException
 	{
 		try
 		{
@@ -200,35 +193,35 @@ public class Maven2ServerIndexerImpl extends MavenRemoteObject implements MavenS
 				{
 					request.setResourceFetcher(new Maven2ServerIndexFetcher(index.getRepositoryId(), index.getRepositoryUrl(), embedder.getComponent(WagonManager.class),
 							new TransferListenerAdapter(indicator)
-					{
-						@Override
-						protected void downloadProgress(long downloaded, long total)
-						{
-							super.downloadProgress(downloaded, total);
-							try
 							{
-								myIndicator.setFraction(((double) downloaded) / total);
-							}
-							catch(RemoteException e)
-							{
-								throw new RuntimeRemoteException(e);
-							}
-						}
+								@Override
+								protected void downloadProgress(long downloaded, long total)
+								{
+									super.downloadProgress(downloaded, total);
+									try
+									{
+										myIndicator.setFraction(((double) downloaded) / total);
+									}
+									catch(RemoteException e)
+									{
+										throw new RuntimeRemoteException(e);
+									}
+								}
 
-						@Override
-						public void transferCompleted(TransferEvent event)
-						{
-							super.transferCompleted(event);
-							try
-							{
-								myIndicator.setText2("Processing indices...");
-							}
-							catch(RemoteException e)
-							{
-								throw new RuntimeRemoteException(e);
-							}
-						}
-					}));
+								@Override
+								public void transferCompleted(TransferEvent event)
+								{
+									super.transferCompleted(event);
+									try
+									{
+										myIndicator.setText2("Processing indices...");
+									}
+									catch(RemoteException e)
+									{
+										throw new RuntimeRemoteException(e);
+									}
+								}
+							}));
 					myUpdater.fetchAndUpdateIndex(request);
 				}
 				finally
@@ -241,7 +234,7 @@ public class Maven2ServerIndexerImpl extends MavenRemoteObject implements MavenS
 		{
 			throw e.getCause();
 		}
-		catch(ProcessCanceledException e)
+		catch(MavenProcessCanceledRuntimeException e)
 		{
 			throw new MavenServerProcessCanceledException();
 		}
@@ -270,19 +263,19 @@ public class Maven2ServerIndexerImpl extends MavenRemoteObject implements MavenS
 				}
 
 				Document doc = r.document(i);
-				String uinfo = doc.get(SEARCH_TERM_COORDINATES);
+				String uinfo = doc.get(ArtifactInfo.UINFO);
 				if(uinfo == null)
 				{
 					continue;
 				}
-				List<String> parts = StringUtil.split(uinfo, ArtifactInfo.FS);
-				String groupId = parts.get(0);
-				String artifactId = parts.get(1);
-				String version = parts.get(2);
-				if(groupId == null || artifactId == null || version == null)
+				String[] uInfoParts = uinfo.split("\\|");
+				if(uInfoParts.length < 3)
 				{
 					continue;
 				}
+				String groupId = uInfoParts[0];
+				String artifactId = uInfoParts[1];
+				String version = uInfoParts[2];
 
 				String packaging = doc.get(ArtifactInfo.PACKAGING);
 				String description = doc.get(ArtifactInfo.DESCRIPTION);
@@ -331,8 +324,8 @@ public class Maven2ServerIndexerImpl extends MavenRemoteObject implements MavenS
 	}
 
 	public static void addArtifact(NexusIndexer indexer,
-			IndexingContext index,
-			ArtifactContext artifactContext) throws IOException, NoSuchMethodException, IllegalAccessException, InvocationTargetException
+								   IndexingContext index,
+								   ArtifactContext artifactContext) throws IOException, NoSuchMethodException, IllegalAccessException, InvocationTargetException
 	{
 		indexer.addArtifactToIndex(artifactContext, index);
 		// this hack is necessary to invalidate searcher's and reader's cache (may not be required then lucene or nexus library change
@@ -364,7 +357,7 @@ public class Maven2ServerIndexerImpl extends MavenRemoteObject implements MavenS
 				return Collections.emptySet();
 			}
 
-			Set<MavenArtifactInfo> result = new THashSet<MavenArtifactInfo>();
+			Set<MavenArtifactInfo> result = new HashSet<MavenArtifactInfo>();
 
 			for(int i = 0; i < docs.scoreDocs.length; i++)
 			{
@@ -390,7 +383,7 @@ public class Maven2ServerIndexerImpl extends MavenRemoteObject implements MavenS
 	@Override
 	public Collection<MavenArchetype> getArchetypes() throws RemoteException
 	{
-		Set<MavenArchetype> result = new THashSet<MavenArchetype>();
+		Set<MavenArchetype> result = new HashSet<MavenArchetype>();
 		doCollectArchetypes("internal-catalog", result);
 		doCollectArchetypes("nexus", result);
 		return result;
@@ -443,7 +436,7 @@ public class Maven2ServerIndexerImpl extends MavenRemoteObject implements MavenS
 			{
 				if(p.isCanceled())
 				{
-					throw new ProcessCanceledException();
+					throw new MavenProcessCanceledRuntimeException();
 				}
 			}
 			catch(RemoteException e)
@@ -459,7 +452,7 @@ public class Maven2ServerIndexerImpl extends MavenRemoteObject implements MavenS
 			{
 				if(p.isCanceled())
 				{
-					throw new ProcessCanceledException();
+					throw new MavenProcessCanceledRuntimeException();
 				}
 			}
 			catch(RemoteException e)
@@ -480,7 +473,7 @@ public class Maven2ServerIndexerImpl extends MavenRemoteObject implements MavenS
 			{
 				if(p.isCanceled())
 				{
-					throw new ProcessCanceledException();
+					throw new MavenProcessCanceledRuntimeException();
 				}
 				ArtifactInfo info = ac.getArtifactInfo();
 				p.setText2(info.groupId + ":" + info.artifactId + ":" + info.version);

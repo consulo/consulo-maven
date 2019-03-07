@@ -15,9 +15,6 @@
  */
 package org.jetbrains.idea.maven.server;
 
-import gnu.trove.THashMap;
-import gnu.trove.THashSet;
-
 import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
@@ -112,11 +109,8 @@ import org.jetbrains.idea.maven.server.embedder.CustomMaven3ModelInterpolator2;
 import org.jetbrains.idea.maven.server.embedder.CustomMaven3RepositoryMetadataManager;
 import org.jetbrains.idea.maven.server.embedder.FieldAccessor;
 import org.jetbrains.idea.maven.server.embedder.MavenExecutionResult;
-import com.intellij.openapi.util.Comparing;
-import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.util.ReflectionUtil;
-import com.intellij.util.SystemProperties;
+import org.jetbrains.idea.maven.util.MavenFileUtil;
+import org.jetbrains.idea.maven.util.MavenStringUtil;
 
 /**
  * Overridden maven components:
@@ -227,7 +221,7 @@ public class Maven32ServerEmbedderImpl extends Maven3ServerEmbedder
 			String mavenEmbedderCliOptions = System.getProperty(MavenServerEmbedder.MAVEN_EMBEDDER_CLI_ADDITIONAL_ARGS);
 			if(mavenEmbedderCliOptions != null)
 			{
-				commandLineOptions.addAll(StringUtil.splitHonorQuotes(mavenEmbedderCliOptions, ' '));
+				commandLineOptions.addAll(MavenStringUtil.splitHonorQuotes(mavenEmbedderCliOptions, ' '));
 			}
 			if(commandLineOptions.contains("-U") || commandLineOptions.contains("--update-snapshots"))
 			{
@@ -316,7 +310,7 @@ public class Maven32ServerEmbedderImpl extends Maven3ServerEmbedder
 
 		if(result.getLocalRepository() == null)
 		{
-			result.setLocalRepository(new File(SystemProperties.getUserHome(), ".m2/repository").getPath());
+			result.setLocalRepository(new File(System.getProperty("user.home"), ".m2/repository").getPath());
 		}
 
 		return result;
@@ -506,7 +500,7 @@ public class Maven32ServerEmbedderImpl extends Maven3ServerEmbedder
 
 	private static Collection<String> collectProfilesIds(List<Profile> profiles)
 	{
-		Collection<String> result = new THashSet<String>();
+		Collection<String> result = new HashSet<String>();
 		for(Profile each : profiles)
 		{
 			if(each.getId() != null)
@@ -603,10 +597,10 @@ public class Maven32ServerEmbedderImpl extends Maven3ServerEmbedder
 
 	@Override
 	public void customize(@javax.annotation.Nullable MavenWorkspaceMap workspaceMap,
-			boolean failOnUnresolvedDependency,
-			@Nonnull MavenServerConsole console,
-			@Nonnull MavenServerProgressIndicator indicator,
-			boolean alwaysUpdateSnapshots) throws RemoteException
+						  boolean failOnUnresolvedDependency,
+						  @Nonnull MavenServerConsole console,
+						  @Nonnull MavenServerProgressIndicator indicator,
+						  boolean alwaysUpdateSnapshots) throws RemoteException
 	{
 
 		try
@@ -652,8 +646,8 @@ public class Maven32ServerEmbedderImpl extends Maven3ServerEmbedder
 	@Nonnull
 	@Override
 	public MavenServerExecutionResult resolveProject(@Nonnull File file,
-			@Nonnull Collection<String> activeProfiles,
-			@Nonnull Collection<String> inactiveProfiles) throws RemoteException, MavenServerProcessCanceledException
+													 @Nonnull Collection<String> activeProfiles,
+													 @Nonnull Collection<String> inactiveProfiles) throws RemoteException, MavenServerProcessCanceledException
 	{
 		DependencyTreeResolutionListener listener = new DependencyTreeResolutionListener(myConsoleWrapper);
 
@@ -707,9 +701,9 @@ public class Maven32ServerEmbedderImpl extends Maven3ServerEmbedder
 
 	@Nonnull
 	public MavenExecutionResult doResolveProject(@Nonnull final File file,
-			@Nonnull final List<String> activeProfiles,
-			@Nonnull final List<String> inactiveProfiles,
-			final List<ResolutionListener> listeners) throws RemoteException
+												 @Nonnull final List<String> activeProfiles,
+												 @Nonnull final List<String> inactiveProfiles,
+												 final List<ResolutionListener> listeners) throws RemoteException
 	{
 		final MavenExecutionRequest request = createRequest(file, activeProfiles, inactiveProfiles, Collections.<String>emptyList());
 
@@ -985,14 +979,14 @@ public class Maven32ServerEmbedderImpl extends Maven3ServerEmbedder
 
 			result.setStartTime(myBuildStartTime);
 
-			final Method setMultiModuleProjectDirectoryMethod = ReflectionUtil.findMethod(ReflectionUtil.getClassDeclaredMethods(result.getClass()), "setMultiModuleProjectDirectory", File.class);
+			final Method setMultiModuleProjectDirectoryMethod = getSetMultiModuleProjectDirectoryMethod(result);
 			if(setMultiModuleProjectDirectoryMethod != null)
 			{
 				try
 				{
 					if(file == null)
 					{
-						file = new File(FileUtil.getTempDirectory());
+						file = new File(MavenFileUtil.getTempDirectory());
 					}
 					setMultiModuleProjectDirectoryMethod.invoke(result, MavenServerUtil.findMavenBasedir(file));
 				}
@@ -1010,6 +1004,24 @@ public class Maven32ServerEmbedderImpl extends Maven3ServerEmbedder
 		}
 	}
 
+	private static Method getSetMultiModuleProjectDirectoryMethod(MavenExecutionRequest result)
+	{
+		try
+		{
+			Method method = result.getClass().getDeclaredMethod("setMultiModuleProjectDirectory", File.class);
+			method.setAccessible(true);
+			return method;
+		}
+		catch(NoSuchMethodException e)
+		{
+			return null;
+		}
+		catch(SecurityException e)
+		{
+			return null;
+		}
+	}
+
 	@Nonnull
 	public File getLocalRepositoryFile()
 	{
@@ -1020,7 +1032,7 @@ public class Maven32ServerEmbedderImpl extends Maven3ServerEmbedder
 	private MavenServerExecutionResult createExecutionResult(File file, MavenExecutionResult result, DependencyNode rootNode) throws RemoteException
 	{
 		Collection<MavenProjectProblem> problems = MavenProjectProblem.createProblemsList();
-		THashSet<MavenId> unresolvedArtifacts = new THashSet<MavenId>();
+		Set<MavenId> unresolvedArtifacts = new HashSet<MavenId>();
 
 		validate(file, result.getExceptions(), problems, unresolvedArtifacts);
 
@@ -1073,9 +1085,9 @@ public class Maven32ServerEmbedderImpl extends Maven3ServerEmbedder
 	}
 
 	private void validate(@Nonnull File file,
-			@Nonnull Collection<Exception> exceptions,
-			@Nonnull Collection<MavenProjectProblem> problems,
-			@javax.annotation.Nullable Collection<MavenId> unresolvedArtifacts) throws RemoteException
+						  @Nonnull Collection<Exception> exceptions,
+						  @Nonnull Collection<MavenProjectProblem> problems,
+						  @javax.annotation.Nullable Collection<MavenId> unresolvedArtifacts) throws RemoteException
 	{
 		for(Throwable each : exceptions)
 		{
@@ -1119,7 +1131,7 @@ public class Maven32ServerEmbedderImpl extends Maven3ServerEmbedder
 
 	private Set<MavenId> retrieveUnresolvedArtifactIds()
 	{
-		Set<MavenId> result = new THashSet<MavenId>();
+		Set<MavenId> result = new HashSet<MavenId>();
 		// TODO collect unresolved artifacts
 		//((CustomMaven3WagonManager)getComponent(WagonManager.class)).getUnresolvedCollector().retrieveUnresolvedIds(result);
 		//((CustomMaven3ArtifactResolver)getComponent(ArtifactResolver.class)).getUnresolvedCollector().retrieveUnresolvedIds(result);
@@ -1136,7 +1148,7 @@ public class Maven32ServerEmbedderImpl extends Maven3ServerEmbedder
 	@Nonnull
 	@Override
 	public List<MavenArtifact> resolveTransitively(@Nonnull List<MavenArtifactInfo> artifacts,
-			@Nonnull List<MavenRemoteRepository> remoteRepositories) throws RemoteException, MavenServerProcessCanceledException
+												   @Nonnull List<MavenRemoteRepository> remoteRepositories) throws RemoteException, MavenServerProcessCanceledException
 	{
 
 		try
@@ -1152,7 +1164,7 @@ public class Maven32ServerEmbedderImpl extends Maven3ServerEmbedder
 			Set<Artifact> res = getComponent(ArtifactResolver.class).resolveTransitively(toResolve, project, Collections.EMPTY_MAP, myLocalRepository, convertRepositories(remoteRepositories),
 					getComponent(ArtifactMetadataSource.class)).getArtifacts();
 
-			return MavenModelConverter.convertArtifacts(res, new THashMap<Artifact, MavenArtifact>(), getLocalRepositoryFile());
+			return MavenModelConverter.convertArtifacts(res, new HashMap<Artifact, MavenArtifact>(), getLocalRepositoryFile());
 		}
 		catch(ArtifactResolutionException e)
 		{
@@ -1172,9 +1184,9 @@ public class Maven32ServerEmbedderImpl extends Maven3ServerEmbedder
 
 	@Override
 	public Collection<MavenArtifact> resolvePlugin(@Nonnull final MavenPlugin plugin,
-			@Nonnull final List<MavenRemoteRepository> repositories,
-			int nativeMavenProjectId,
-			final boolean transitive) throws RemoteException, MavenServerProcessCanceledException
+												   @Nonnull final List<MavenRemoteRepository> repositories,
+												   int nativeMavenProjectId,
+												   final boolean transitive) throws RemoteException, MavenServerProcessCanceledException
 	{
 		try
 		{
@@ -1208,7 +1220,7 @@ public class Maven32ServerEmbedderImpl extends Maven3ServerEmbedder
 
 			for(org.eclipse.aether.artifact.Artifact artifact : nlg.getArtifacts(true))
 			{
-				if(!Comparing.equal(artifact.getArtifactId(), plugin.getArtifactId()) || !Comparing.equal(artifact.getGroupId(), plugin.getGroupId()))
+				if(!MavenStringUtil.equal(artifact.getArtifactId(), plugin.getArtifactId()) || !MavenStringUtil.equal(artifact.getGroupId(), plugin.getGroupId()))
 				{
 					res.add(MavenModelConverter.convertArtifact(RepositoryUtils.toArtifact(artifact), getLocalRepositoryFile()));
 				}
@@ -1243,13 +1255,14 @@ public class Maven32ServerEmbedderImpl extends Maven3ServerEmbedder
 	}
 
 	private Artifact resolve(@Nonnull final Artifact artifact,
-			@Nonnull final List<ArtifactRepository> repos) throws ArtifactResolutionException, ArtifactNotFoundException, RemoteException, org.eclipse.aether.resolution.ArtifactResolutionException
+							 @Nonnull final List<ArtifactRepository> repos) throws ArtifactResolutionException, ArtifactNotFoundException, RemoteException, org.eclipse.aether.resolution
+			.ArtifactResolutionException
 	{
 
 		final String mavenVersion = getMavenVersion();
 		// org.eclipse.aether.RepositorySystem.newResolutionRepositories() method doesn't exist in aether-api-0.9.0.M2.jar used before maven 3.2.5
 		// see https://youtrack.jetbrains.com/issue/IDEA-140208 for details
-		if(USE_MVN2_COMPATIBLE_DEPENDENCY_RESOLVING || StringUtil.compareVersionNumbers(mavenVersion, "3.2.5") < 0)
+		if(USE_MVN2_COMPATIBLE_DEPENDENCY_RESOLVING || MavenStringUtil.compareVersionNumbers(mavenVersion, "3.2.5") < 0)
 		{
 			MavenExecutionRequest request = new DefaultMavenExecutionRequest();
 			request.setRemoteRepositories(repos);
@@ -1326,12 +1339,12 @@ public class Maven32ServerEmbedderImpl extends Maven3ServerEmbedder
 	@Nonnull
 	@Override
 	public MavenServerExecutionResult execute(@Nonnull File file,
-			@Nonnull Collection<String> activeProfiles,
-			@Nonnull Collection<String> inactiveProfiles,
-			@Nonnull List<String> goals,
-			@Nonnull List<String> selectedProjects,
-			boolean alsoMake,
-			boolean alsoMakeDependents) throws RemoteException, MavenServerProcessCanceledException
+											  @Nonnull Collection<String> activeProfiles,
+											  @Nonnull Collection<String> inactiveProfiles,
+											  @Nonnull List<String> goals,
+											  @Nonnull List<String> selectedProjects,
+											  boolean alsoMake,
+											  boolean alsoMakeDependents) throws RemoteException, MavenServerProcessCanceledException
 	{
 		MavenExecutionResult result = doExecute(file, new ArrayList<String>(activeProfiles), new ArrayList<String>(inactiveProfiles), goals, selectedProjects, alsoMake, alsoMakeDependents);
 
@@ -1339,12 +1352,12 @@ public class Maven32ServerEmbedderImpl extends Maven3ServerEmbedder
 	}
 
 	private MavenExecutionResult doExecute(@Nonnull final File file,
-			@Nonnull final List<String> activeProfiles,
-			@Nonnull final List<String> inactiveProfiles,
-			@Nonnull final List<String> goals,
-			@Nonnull final List<String> selectedProjects,
-			boolean alsoMake,
-			boolean alsoMakeDependents) throws RemoteException
+										   @Nonnull final List<String> activeProfiles,
+										   @Nonnull final List<String> inactiveProfiles,
+										   @Nonnull final List<String> goals,
+										   @Nonnull final List<String> selectedProjects,
+										   boolean alsoMake,
+										   boolean alsoMakeDependents) throws RemoteException
 	{
 		MavenExecutionRequest request = createRequest(file, activeProfiles, inactiveProfiles, goals);
 

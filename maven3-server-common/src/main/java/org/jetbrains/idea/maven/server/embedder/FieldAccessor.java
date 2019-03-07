@@ -15,33 +15,39 @@
  */
 package org.jetbrains.idea.maven.server.embedder;
 
-import com.intellij.util.ReflectionUtil;
+import org.jetbrains.idea.maven.util.MavenReflectionUtil;
 
-public class FieldAccessor<FIELD_TYPE> {
-  private volatile FIELD_TYPE myValueCache;
-  private final Class myHostClass;
-  private final Object myHost;
-  private final String myFieldName;
+public class FieldAccessor<FIELD_TYPE>
+{
+	private volatile FIELD_TYPE myValueCache;
+	private final Class myHostClass;
+	private final Object myHost;
+	private final String myFieldName;
 
-  public <T> FieldAccessor(Class<? super T> hostClass, T host, String fieldName) {
-    myHostClass = hostClass;
-    myHost = host;
-    myFieldName = fieldName;
-  }
+	public <T> FieldAccessor(Class<? super T> hostClass, T host, String fieldName)
+	{
+		myHostClass = hostClass;
+		myHost = host;
+		myFieldName = fieldName;
+	}
 
-  public FIELD_TYPE get() {
-    if (myValueCache == null) {
-      Object wagon = getFieldValue(myHostClass, myFieldName, myHost);
-      myValueCache = (FIELD_TYPE)wagon;
-    }
-    return myValueCache;
-  }
+	public FIELD_TYPE get()
+	{
+		if(myValueCache == null)
+		{
+			Object wagon = getFieldValue(myHostClass, myFieldName, myHost);
+			myValueCache = (FIELD_TYPE) wagon;
+		}
+		return myValueCache;
+	}
 
-  private static Object getFieldValue(Class c, String fieldName, Object o) {
-    return ReflectionUtil.getField(c, o, null, fieldName);
-  }
+	private static Object getFieldValue(Class c, String fieldName, Object o)
+	{
+		return MavenReflectionUtil.getField(c, o, null, fieldName);
+	}
 
-  public static <FIELD_TYPE> FIELD_TYPE get(Class hostClass, Object host, String fieldName) {
-    return (FIELD_TYPE)getFieldValue(hostClass, fieldName, host);
-  }
+	public static <FIELD_TYPE> FIELD_TYPE get(Class hostClass, Object host, String fieldName)
+	{
+		return (FIELD_TYPE) getFieldValue(hostClass, fieldName, host);
+	}
 }

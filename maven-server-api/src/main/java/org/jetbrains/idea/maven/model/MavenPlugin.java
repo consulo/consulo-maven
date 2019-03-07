@@ -23,10 +23,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.jdom.Element;
 import javax.annotation.Nonnull;
 
-import com.intellij.openapi.util.JDOMUtil;
+import org.jdom.Element;
+import org.jetbrains.idea.maven.util.MavenJDOMUtil;
 
 public class MavenPlugin implements Serializable
 {
@@ -181,7 +181,7 @@ public class MavenPlugin implements Serializable
 		{
 			return false;
 		}
-		if(!JDOMUtil.areElementsEqual(myConfiguration, that.myConfiguration))
+		if(!MavenJDOMUtil.areElementsEqual(myConfiguration, that.myConfiguration))
 		{
 			return false;
 		}
@@ -205,7 +205,7 @@ public class MavenPlugin implements Serializable
 		result = 31 * result + (myGroupId != null ? myGroupId.hashCode() : 0);
 		result = 31 * result + (myArtifactId != null ? myArtifactId.hashCode() : 0);
 		result = 31 * result + (myVersion != null ? myVersion.hashCode() : 0);
-		result = 31 * result + (myConfiguration != null ? JDOMUtil.getTreeHash(myConfiguration) : 0);
+		result = 31 * result + (myConfiguration != null ? MavenJDOMUtil.getTreeHash(myConfiguration) : 0);
 		result = 31 * result + (myExecutions != null ? myExecutions.hashCode() : 0);
 		result = 31 * result + (myDependencies != null ? myDependencies.hashCode() : 0);
 		return result;
@@ -278,7 +278,7 @@ public class MavenPlugin implements Serializable
 			{
 				return false;
 			}
-			if(!JDOMUtil.areElementsEqual(myConfiguration, that.myConfiguration))
+			if(!MavenJDOMUtil.areElementsEqual(myConfiguration, that.myConfiguration))
 			{
 				return false;
 			}

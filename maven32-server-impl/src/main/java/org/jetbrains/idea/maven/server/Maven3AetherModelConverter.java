@@ -15,12 +15,11 @@
  */
 package org.jetbrains.idea.maven.server;
 
-import gnu.trove.THashMap;
-
 import java.io.File;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -42,7 +41,7 @@ import org.jetbrains.idea.maven.model.MavenArtifactState;
 import org.jetbrains.idea.maven.model.MavenId;
 import org.jetbrains.idea.maven.model.MavenModel;
 import org.jetbrains.idea.maven.model.MavenParent;
-import com.intellij.openapi.util.text.StringUtil;
+import org.jetbrains.idea.maven.util.MavenStringUtil;
 
 /**
  * {@link Maven3AetherModelConverter} provides adapted methods of {@link MavenModelConverter} for aether models conversion
@@ -74,7 +73,7 @@ public class Maven3AetherModelConverter extends MavenModelConverter
 		result.setProperties(model.getProperties() == null ? new Properties() : model.getProperties());
 		result.setPlugins(convertPlugins(model));
 
-		Map<Artifact, MavenArtifact> convertedArtifacts = new THashMap<Artifact, MavenArtifact>();
+		Map<Artifact, MavenArtifact> convertedArtifacts = new HashMap<Artifact, MavenArtifact>();
 		result.setExtensions(convertArtifacts(extensions, convertedArtifacts, localRepository));
 		result.setDependencyTree(convertAetherDependencyNodes(null, dependencyTree, convertedArtifacts, localRepository));
 		result.setDependencies(convertArtifacts(dependencies, convertedArtifacts, localRepository));
@@ -115,7 +114,7 @@ public class Maven3AetherModelConverter extends MavenModelConverter
 				Artifact winnerArtifact = toArtifact(winnerNode.getDependency());
 				relatedArtifact = convertArtifact(winnerArtifact, nativeToConvertedMap, localRepository);
 				nativeToConvertedMap.put(a, relatedArtifact);
-				if(!StringUtil.equals(each.getVersion().toString(), winnerNode.getVersion().toString()))
+				if(!MavenStringUtil.equal(each.getVersion().toString(), winnerNode.getVersion().toString()))
 				{
 					state = MavenArtifactState.CONFLICT;
 				}

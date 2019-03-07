@@ -16,19 +16,20 @@
 
 package org.jetbrains.idea.maven.project;
 
-import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.openapi.vfs.VirtualFile;
-import org.jetbrains.idea.maven.MavenImportingTestCase;
-import org.jetbrains.idea.maven.model.MavenArtifactNode;
-import org.jetbrains.idea.maven.model.MavenPlugin;
-import org.jetbrains.idea.maven.model.MavenRemoteRepository;
-import org.jetbrains.idea.maven.utils.MavenJDOMUtil;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+
+import org.jetbrains.idea.maven.MavenImportingTestCase;
+import org.jetbrains.idea.maven.model.MavenArtifactNode;
+import org.jetbrains.idea.maven.model.MavenPlugin;
+import org.jetbrains.idea.maven.model.MavenRemoteRepository;
+import org.jetbrains.idea.maven.utils.MavenJDOMUtil;
+import com.intellij.openapi.util.io.FileUtil;
+import com.intellij.openapi.util.text.StringUtil;
+import com.intellij.openapi.vfs.VirtualFile;
 
 public abstract class MavenProjectTest extends MavenImportingTestCase {
   public void testCollectingPlugins() throws Exception {
@@ -873,7 +874,7 @@ public abstract class MavenProjectTest extends MavenImportingTestCase {
   }
 
   protected void assertDependenciesNodes(List<MavenArtifactNode> nodes, String expected) {
-    assertEquals(expected, MavenArtifactNode.formatNodesList(nodes));
+    assertEquals(expected, StringUtil.join(nodes, ","));
   }
 
   private String findPluginConfig(String groupId, String artifactId, String path) {

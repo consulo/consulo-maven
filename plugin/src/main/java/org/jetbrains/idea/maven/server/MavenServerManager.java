@@ -31,6 +31,7 @@ import javax.annotation.Nullable;
 import javax.inject.Singleton;
 
 import org.apache.lucene.search.Query;
+import org.jdom.Document;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.TestOnly;
 import org.jetbrains.idea.maven.execution.MavenExecutionOptions;
@@ -44,8 +45,6 @@ import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.utils.MavenLog;
 import org.jetbrains.idea.maven.utils.MavenProgressIndicator;
 import org.jetbrains.idea.maven.utils.MavenUtil;
-import org.slf4j.Logger;
-import org.slf4j.impl.ConsuloBuildInLoggerFactory;
 import com.intellij.execution.DefaultExecutionResult;
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.ExecutionResult;
@@ -342,16 +341,9 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
 
 				final List<String> classPath = new ArrayList<>();
 
-				if(currentMavenVersion == null || StringUtil.compareVersionNumbers(currentMavenVersion, "3.1") < 0)
-				{
-					classPath.add(PathUtil.getJarPathForClass(Logger.class));
-					classPath.add(PathUtil.getJarPathForClass(ConsuloBuildInLoggerFactory.class));
-				}
-
-				classPath.addAll(PathManager.getUtilClassPath());
 				classPath.add(PathManager.getJarPathForClass(RemoteServer.class)); // consulo-util-rmi
+				classPath.add(PathManager.getJarPathForClass(Document.class)); // jdom
 				ContainerUtil.addIfNotNull(classPath, PathUtil.getJarPathForClass(Query.class));
-				params.getClassPath().add(PathManager.getResourceRoot(getClass(), "/messages/CommonBundle.properties"));
 				params.getClassPath().addAll(classPath);
 				params.getClassPath().addAllFiles(collectClassPathAndLibsFolder(forceMaven2));
 

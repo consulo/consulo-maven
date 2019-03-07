@@ -23,7 +23,7 @@ import java.util.Properties;
 
 import javax.annotation.Nonnull;
 
-import com.intellij.openapi.util.SystemInfo;
+import org.jetbrains.idea.maven.util.MavenSystemInfo;
 
 public class MavenServerUtil
 {
@@ -52,7 +52,7 @@ public class MavenServerUtil
 				continue;
 			}
 
-			if(SystemInfo.isWindows)
+			if(MavenSystemInfo.isWindows)
 			{
 				key = key.toUpperCase();
 			}
@@ -67,7 +67,6 @@ public class MavenServerUtil
 	{
 		return ourSystemPropertiesCache;
 	}
-
 
 	@Nonnull
 	public static File findMavenBasedir(@Nonnull File workingDir)
@@ -95,5 +94,10 @@ public class MavenServerUtil
 	private static boolean isMagicalProperty(String key)
 	{
 		return key.startsWith("=");
+	}
+
+	public static void registerShutdownTask(Runnable task)
+	{
+		Runtime.getRuntime().addShutdownHook(new Thread(task, "Maven-server-shutdown-hook"));
 	}
 }

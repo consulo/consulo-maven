@@ -15,7 +15,13 @@
  */
 package org.jetbrains.idea.maven.server.embedder;
 
-import gnu.trove.THashMap;
+import java.io.File;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.manager.DefaultWagonManager;
 import org.apache.maven.artifact.metadata.ArtifactMetadata;
@@ -25,17 +31,11 @@ import org.apache.maven.wagon.TransferFailedException;
 import org.apache.maven.wagon.WagonException;
 import org.jetbrains.idea.maven.server.UnresolvedArtifactsCollector;
 
-import java.io.File;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-
 public class CustomMaven3WagonManager extends DefaultWagonManager {
   private UnresolvedArtifactsCollector myUnresolvedCollector;
 
   private final ThreadLocal<Boolean> myInBatchResolve = new ThreadLocal<Boolean>();
-  private final Map<String, Boolean> myResolutionCache = new THashMap<String, Boolean>();
+  private final Map<String, Boolean> myResolutionCache = new HashMap<String, Boolean>();
 
   private final ReentrantReadWriteLock myCacheLock = new ReentrantReadWriteLock();
   private final Lock myCacheReadLock = myCacheLock.readLock();

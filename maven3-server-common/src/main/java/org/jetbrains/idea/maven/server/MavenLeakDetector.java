@@ -15,54 +15,65 @@
  */
 package org.jetbrains.idea.maven.server;
 
-import com.intellij.util.ReflectionUtil;
-
 import java.rmi.RemoteException;
 import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.Map;
 
-public class MavenLeakDetector {
+import org.jetbrains.idea.maven.util.MavenReflectionUtil;
 
-  private IdentityHashMap<Thread, Thread> markedHooks = new IdentityHashMap<Thread, Thread>();
+public class MavenLeakDetector
+{
 
-  public MavenLeakDetector mark() {
-    markShutdownHooks();
-    return this;
-  }
+	private IdentityHashMap<Thread, Thread> markedHooks = new IdentityHashMap<Thread, Thread>();
 
-  private void markShutdownHooks() {
-    markedHooks.putAll(getShutdownHooks());
-  }
+	public MavenLeakDetector mark()
+	{
+		markShutdownHooks();
+		return this;
+	}
 
-  public void check() throws RemoteException {
-    checkShutdownHooks();
-  }
+	private void markShutdownHooks()
+	{
+		markedHooks.putAll(getShutdownHooks());
+	}
 
-  private void checkShutdownHooks() throws RemoteException {
-    IdentityHashMap<Thread, Thread> checkedHooks = new IdentityHashMap<Thread, Thread>(getShutdownHooks());
-    for (Thread t : markedHooks.values()) {
-      checkedHooks.remove(t);
-    }
-    for (Thread t : checkedHooks.values()) {
-      removeHook(t);
-    }
-  }
+	public void check() throws RemoteException
+	{
+		checkShutdownHooks();
+	}
 
-  private void removeHook(Thread thread) throws RemoteException {
-    Runtime.getRuntime().removeShutdownHook(thread);
-    Maven3ServerGlobals.getLogger().print(String.format("ShutdownHook[%s] was removed to avoid memory leak", thread));
-  }
+	private void checkShutdownHooks() throws RemoteException
+	{
+		IdentityHashMap<Thread, Thread> checkedHooks = new IdentityHashMap<Thread, Thread>(getShutdownHooks());
+		for(Thread t : markedHooks.values())
+		{
+			checkedHooks.remove(t);
+		}
+		for(Thread t : checkedHooks.values())
+		{
+			removeHook(t);
+		}
+	}
 
-  private Map<Thread, Thread> getShutdownHooks() {
-    Class clazz;
-    try {
-      clazz = Class.forName("java.lang.ApplicationShutdownHooks");
-    }
-    catch (ClassNotFoundException e) {
-      // we can ignore this one
-      return Collections.emptyMap();
-    }
-    return ReflectionUtil.getStaticFieldValue(clazz, Map.class, "hooks");
-  }
+	private void removeHook(Thread thread) throws RemoteException
+	{
+		Runtime.getRuntime().removeShutdownHook(thread);
+		Maven3ServerGlobals.getLogger().print(String.format("ShutdownHook[%s] was removed to avoid memory leak", thread));
+	}
+
+	private Map<Thread, Thread> getShutdownHooks()
+	{
+		Class clazz;
+		try
+		{
+			clazz = Class.forName("java.lang.ApplicationShutdownHooks");
+		}
+		catch(ClassNotFoundException e)
+		{
+			// we can ignore this one
+			return Collections.emptyMap();
+		}
+		return MavenReflectionUtil.getField(clazz, null, Map.class, "hooks");
+	}
 }

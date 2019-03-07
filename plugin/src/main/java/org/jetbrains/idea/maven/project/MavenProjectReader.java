@@ -26,16 +26,16 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import org.jdom.Element;
-
-import javax.annotation.Nullable;
 import org.jetbrains.idea.maven.model.*;
 import org.jetbrains.idea.maven.server.MavenEmbedderWrapper;
 import org.jetbrains.idea.maven.server.MavenServerExecutionResult;
@@ -95,7 +95,7 @@ public class MavenProjectReader
 
 		// todo modifying cached model and problems here??????
 		MavenModel model = cachedModel.model;
-		Set<String> alwaysOnProfiles = cachedModel.alwaysOnProfiles;
+		HashSet<String> alwaysOnProfiles = cachedModel.alwaysOnProfiles;
 		Collection<MavenProjectProblem> problems = cachedModel.problems;
 
 		model = resolveInheritance(generalSettings, model, file, explicitProfiles, recursionGuard, locator, problems);
@@ -113,7 +113,7 @@ public class MavenProjectReader
 	{
 		MavenModel result = new MavenModel();
 		Collection<MavenProjectProblem> problems = MavenProjectProblem.createProblemsList();
-		Set<String> alwaysOnProfiles = new THashSet<String>();
+		HashSet<String> alwaysOnProfiles = new HashSet<String>();
 
 		Element xmlProject = readXml(file, problems, MavenProjectProblem.ProblemType.SYNTAX);
 		if(xmlProject == null || !"project".equals(xmlProject.getName()))
@@ -401,7 +401,7 @@ public class MavenProjectReader
 		}
 	}
 
-	private static ProfileApplicationResult applyProfiles(MavenModel model, File basedir, MavenExplicitProfiles explicitProfiles, Collection<String> alwaysOnProfiles)
+	private static ProfileApplicationResult applyProfiles(MavenModel model, File basedir, MavenExplicitProfiles explicitProfiles, HashSet<String> alwaysOnProfiles)
 	{
 		return MavenServerManager.getInstance().applyProfiles(model, basedir, explicitProfiles, alwaysOnProfiles);
 	}
@@ -612,9 +612,10 @@ public class MavenProjectReader
 	{
 		public MavenModel model;
 		public Collection<MavenProjectProblem> problems;
-		public Set<String> alwaysOnProfiles;
+		// do not set another type - due it will be not found at rmi client side
+		public HashSet<String> alwaysOnProfiles;
 
-		private RawModelReadResult(MavenModel model, Collection<MavenProjectProblem> problems, Set<String> alwaysOnProfiles)
+		private RawModelReadResult(MavenModel model, Collection<MavenProjectProblem> problems, HashSet<String> alwaysOnProfiles)
 		{
 			this.model = model;
 			this.problems = problems;

@@ -15,15 +15,14 @@
  */
 package org.jetbrains.idea.maven.server.embedder;
 
-import gnu.trove.THashMap;
-import gnu.trove.THashSet;
-
 import java.io.File;
 import java.lang.reflect.Field;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -41,8 +40,8 @@ import org.jdom.Element;
 import org.jdom.IllegalNameException;
 import org.jetbrains.idea.maven.model.*;
 import org.jetbrains.idea.maven.server.Maven2ServerGlobals;
+import org.jetbrains.idea.maven.util.MavenReflectionUtil;
 import org.sonatype.nexus.index.ArtifactInfo;
-import com.intellij.util.ReflectionUtil;
 
 public class Maven2ModelConverter
 {
@@ -81,7 +80,7 @@ public class Maven2ModelConverter
 		result.setProperties(model.getProperties() == null ? new Properties() : model.getProperties());
 		result.setPlugins(convertPlugins(model));
 
-		Map<Artifact, MavenArtifact> convertedArtifacts = new THashMap<Artifact, MavenArtifact>();
+		Map<Artifact, MavenArtifact> convertedArtifacts = new HashMap<Artifact, MavenArtifact>();
 		result.setExtensions(convertArtifacts(extensions, convertedArtifacts, localRepository));
 		result.setDependencies(convertArtifacts(dependencies, convertedArtifacts, localRepository));
 		result.setDependencyTree(convertDependencyNodes(null, dependencyTree, convertedArtifacts, localRepository));
@@ -248,7 +247,7 @@ public class Maven2ModelConverter
 	private static List<MavenPlugin> convertPlugins(Model mavenModel) throws RemoteException
 	{
 		List<MavenPlugin> result = new ArrayList<MavenPlugin>();
-		Set<String> pluginKeys = new THashSet<String>();
+		Set<String> pluginKeys = new HashSet<String>();
 		Build build = mavenModel.getBuild();
 		doConvertPlugins(build, false, result, pluginKeys);
 		if(build != null)
@@ -401,7 +400,7 @@ public class Maven2ModelConverter
 	{
 		try
 		{
-			Map<String, String> result = new THashMap<String, String>();
+			Map<String, String> result = new HashMap<String, String>();
 			doConvert(object, "", result);
 			return result;
 		}
@@ -419,7 +418,7 @@ public class Maven2ModelConverter
 
 	private static void doConvert(Object object, String prefix, Map<String, String> result) throws IllegalAccessException
 	{
-		for(Field each : ReflectionUtil.collectFields(object.getClass()))
+		for(Field each : MavenReflectionUtil.collectFields(object.getClass()))
 		{
 			Class<?> type = each.getType();
 			if(shouldSkip(type))

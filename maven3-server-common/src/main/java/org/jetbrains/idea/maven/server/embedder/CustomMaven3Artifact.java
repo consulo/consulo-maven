@@ -15,8 +15,17 @@
  */
 package org.jetbrains.idea.maven.server.embedder;
 
-import com.intellij.openapi.util.io.FileUtil;
-import gnu.trove.THashMap;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.handler.ArtifactHandler;
 import org.apache.maven.artifact.metadata.ArtifactMetadata;
@@ -25,19 +34,10 @@ import org.apache.maven.artifact.resolver.filter.ArtifactFilter;
 import org.apache.maven.artifact.versioning.ArtifactVersion;
 import org.apache.maven.artifact.versioning.OverConstrainedVersionException;
 import org.apache.maven.artifact.versioning.VersionRange;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+import org.jetbrains.idea.maven.util.MavenFileUtil;
 
 public class CustomMaven3Artifact implements Artifact {
-  private static final Map<String, File> ourStubCache = new THashMap<String, File>();
+  private static final Map<String, File> ourStubCache = new HashMap<String, File>();
   private static final ReentrantReadWriteLock ourCacheLock = new ReentrantReadWriteLock();
   private static final Lock ourCacheReadLock = ourCacheLock.readLock();
   private static final Lock ourCacheWriteLock = ourCacheLock.writeLock();
@@ -119,7 +119,7 @@ public class CustomMaven3Artifact implements Artifact {
         return;
       }
 
-      f = FileUtil.createTempFile("idea.maven.stub", ".pom");
+      f = MavenFileUtil.createTempFile("idea.maven.stub", ".pom");
       f.deleteOnExit();
 
       FileOutputStream s = new FileOutputStream(f);

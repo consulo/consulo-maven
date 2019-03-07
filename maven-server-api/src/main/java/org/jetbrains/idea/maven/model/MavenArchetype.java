@@ -15,11 +15,12 @@
  */
 package org.jetbrains.idea.maven.model;
 
-import com.intellij.openapi.util.text.StringUtil;
+import java.io.Serializable;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import java.io.Serializable;
+import org.jetbrains.idea.maven.util.MavenStringUtil;
 
 public class MavenArchetype implements Serializable {
   public final String groupId;
@@ -36,8 +37,8 @@ public class MavenArchetype implements Serializable {
     this.groupId = groupId;
     this.artifactId = artifactId;
     this.version = version;
-    this.repository = StringUtil.isEmptyOrSpaces(repository) ? null : repository;
-    this.description = StringUtil.isEmptyOrSpaces(description) ? null : description;
+    this.repository = MavenStringUtil.isEmptyOrSpaces(repository) ? null : repository;
+    this.description = MavenStringUtil.isEmptyOrSpaces(description) ? null : description;
   }
 
   @Override

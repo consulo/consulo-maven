@@ -17,10 +17,12 @@ package org.jetbrains.idea.maven.server;
 
 import java.io.File;
 import java.rmi.RemoteException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.DefaultArtifact;
@@ -29,11 +31,7 @@ import org.apache.maven.artifact.metadata.ArtifactMetadataSource;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.versioning.ArtifactVersion;
 import org.apache.maven.execution.MavenExecutionRequest;
-
-import javax.annotation.Nullable;
 import org.jetbrains.idea.maven.model.MavenRemoteRepository;
-import com.intellij.util.Function;
-import com.intellij.util.containers.ContainerUtil;
 
 
 /**
@@ -42,7 +40,6 @@ import com.intellij.util.containers.ContainerUtil;
  */
 public abstract class Maven3ServerEmbedder extends MavenRemoteObject implements MavenServerEmbedder
 {
-
 	public final static boolean USE_MVN2_COMPATIBLE_DEPENDENCY_RESOLVING = System.getProperty("idea.maven3.use.compat.resolver") != null;
 	private final static String MAVEN_VERSION = System.getProperty(MAVEN_EMBEDDER_VERSION);
 
@@ -60,14 +57,13 @@ public abstract class Maven3ServerEmbedder extends MavenRemoteObject implements 
 		{
 			Artifact artifact = new DefaultArtifact(groupId, artifactId, "", Artifact.SCOPE_COMPILE, "pom", null, new DefaultArtifactHandler("pom"));
 			List<ArtifactVersion> versions = getComponent(ArtifactMetadataSource.class).retrieveAvailableVersions(artifact, getLocalRepository(), convertRepositories(remoteRepositories));
-			return ContainerUtil.map(versions, new Function<ArtifactVersion, String>()
+
+			List<String> mapToStringVersions = new ArrayList<String>(versions.size());
+			for(ArtifactVersion version : versions)
 			{
-				@Override
-				public String fun(ArtifactVersion artifactVersion)
-				{
-					return artifactVersion.toString();
-				}
-			});
+				mapToStringVersions.add(version.toString());
+			}
+			return mapToStringVersions;
 		}
 		catch(Exception e)
 		{
