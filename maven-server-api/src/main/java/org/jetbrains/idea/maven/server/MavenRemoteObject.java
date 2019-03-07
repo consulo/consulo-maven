@@ -15,7 +15,7 @@
  */
 package org.jetbrains.idea.maven.server;
 
-import com.intellij.execution.rmi.RemoteObject;
+import consulo.util.rmi.RemoteObject;
 
 public class MavenRemoteObject extends RemoteObject
 {

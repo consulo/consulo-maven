@@ -77,7 +77,6 @@ import com.intellij.openapi.util.SystemInfo;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.pom.java.LanguageLevel;
 import com.intellij.util.PathUtil;
-import com.intellij.util.ReflectionUtil;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.xmlb.Converter;
 import com.intellij.util.xmlb.annotations.Attribute;
@@ -87,6 +86,7 @@ import consulo.maven.MavenServer32MarkerRt;
 import consulo.maven.MavenServer3CommonMarkerRt;
 import consulo.maven.MavenServerApiMarkerRt;
 import consulo.maven.util.MavenJdkUtil;
+import consulo.util.rmi.RemoteServer;
 
 @State(name = "MavenVersion", storages = @Storage("mavenVersion.xml"))
 @Singleton
@@ -349,6 +349,7 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
 				}
 
 				classPath.addAll(PathManager.getUtilClassPath());
+				classPath.add(PathManager.getJarPathForClass(RemoteServer.class)); // consulo-util-rmi
 				ContainerUtil.addIfNotNull(classPath, PathUtil.getJarPathForClass(Query.class));
 				params.getClassPath().add(PathManager.getResourceRoot(getClass(), "/messages/CommonBundle.properties"));
 				params.getClassPath().addAll(classPath);
