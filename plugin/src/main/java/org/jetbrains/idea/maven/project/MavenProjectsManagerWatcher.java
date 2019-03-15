@@ -118,14 +118,14 @@ public class MavenProjectsManagerWatcher
 
 	public synchronized void start()
 	{
-		final MessageBusConnection myBusConnection = myProject.getMessageBus().connect(myChangedDocumentsQueue);
-		myBusConnection.subscribe(VirtualFileManager.VFS_CHANGES, new MyFileChangeListener());
-		myBusConnection.subscribe(ProjectTopics.PROJECT_ROOTS, new MyRootChangesListener());
+		final MessageBusConnection connection = myProject.getMessageBus().connect(myChangedDocumentsQueue);
+		connection.subscribe(VirtualFileManager.VFS_CHANGES, new MyFileChangeListener());
+		connection.subscribe(ProjectTopics.PROJECT_ROOTS, new MyRootChangesListener());
 
 		myChangedDocumentsQueue.makeUserAware(myProject);
 		myChangedDocumentsQueue.activate();
 
-		myBusConnection.subscribe(ProjectTopics.MODULES, new ModuleAdapter()
+		connection.subscribe(ProjectTopics.MODULES, new ModuleAdapter()
 		{
 			@Override
 			public void moduleRemoved(@Nonnull Project project, @Nonnull Module module)
@@ -220,7 +220,7 @@ public class MavenProjectsManagerWatcher
 				});
 			}
 		};
-		EditorFactory.getInstance().getEventMulticaster().addDocumentListener(myDocumentListener, myBusConnection);
+		EditorFactory.getInstance().getEventMulticaster().addDocumentListener(myDocumentListener, myChangedDocumentsQueue);
 
 		final MavenGeneralSettings.Listener mySettingsPathsChangesListener = new MavenGeneralSettings.Listener()
 		{
