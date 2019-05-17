@@ -15,27 +15,8 @@
  */
 package org.jetbrains.idea.maven.project;
 
-import gnu.trove.THashSet;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.ConcurrentMap;
-
-import javax.annotation.Nonnull;
-
-import org.jetbrains.annotations.TestOnly;
-import org.jetbrains.idea.maven.model.MavenConstants;
-import org.jetbrains.idea.maven.model.MavenExplicitProfiles;
-import org.jetbrains.idea.maven.utils.MavenMergingUpdateQueue;
-import org.jetbrains.idea.maven.utils.MavenUtil;
 import com.intellij.ProjectTopics;
 import com.intellij.openapi.Disposable;
-import com.intellij.openapi.application.Result;
 import com.intellij.openapi.application.WriteAction;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.EditorFactory;
@@ -53,20 +34,10 @@ import com.intellij.openapi.util.Comparing;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.util.Key;
 import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.openapi.vfs.LocalFileSystem;
-import com.intellij.openapi.vfs.VfsUtilCore;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.vfs.VirtualFileManager;
-import com.intellij.openapi.vfs.VirtualFileVisitor;
+import com.intellij.openapi.vfs.*;
 import com.intellij.openapi.vfs.newvfs.BulkFileListener;
 import com.intellij.openapi.vfs.newvfs.NewVirtualFile;
-import com.intellij.openapi.vfs.newvfs.events.VFileContentChangeEvent;
-import com.intellij.openapi.vfs.newvfs.events.VFileCopyEvent;
-import com.intellij.openapi.vfs.newvfs.events.VFileCreateEvent;
-import com.intellij.openapi.vfs.newvfs.events.VFileDeleteEvent;
-import com.intellij.openapi.vfs.newvfs.events.VFileEvent;
-import com.intellij.openapi.vfs.newvfs.events.VFileMoveEvent;
-import com.intellij.openapi.vfs.newvfs.events.VFilePropertyChangeEvent;
+import com.intellij.openapi.vfs.newvfs.events.*;
 import com.intellij.openapi.vfs.pointers.VirtualFilePointer;
 import com.intellij.openapi.vfs.pointers.VirtualFilePointerListener;
 import com.intellij.openapi.vfs.pointers.VirtualFilePointerManager;
@@ -75,6 +46,18 @@ import com.intellij.util.PathUtil;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.messages.MessageBusConnection;
 import com.intellij.util.ui.update.Update;
+import gnu.trove.THashSet;
+import org.jetbrains.annotations.TestOnly;
+import org.jetbrains.idea.maven.model.MavenConstants;
+import org.jetbrains.idea.maven.model.MavenExplicitProfiles;
+import org.jetbrains.idea.maven.utils.MavenMergingUpdateQueue;
+import org.jetbrains.idea.maven.utils.MavenUtil;
+
+import javax.annotation.Nonnull;
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
+import java.util.concurrent.ConcurrentMap;
 
 public class MavenProjectsManagerWatcher
 {
@@ -202,18 +185,14 @@ public class MavenProjectsManagerWatcher
 							@Override
 							public void run()
 							{
-								new WriteAction()
+								WriteAction.run(() ->
 								{
-									@Override
-									protected void run(@Nonnull Result result) throws Throwable
+									for(Document each : copy)
 									{
-										for(Document each : copy)
-										{
-											PsiDocumentManager.getInstance(myProject).commitDocument(each);
-											((FileDocumentManagerImpl) FileDocumentManager.getInstance()).saveDocument(each, false);
-										}
+										PsiDocumentManager.getInstance(myProject).commitDocument(each);
+										((FileDocumentManagerImpl) FileDocumentManager.getInstance()).saveDocument(each, false);
 									}
-								}.execute();
+								});
 							}
 						});
 					}

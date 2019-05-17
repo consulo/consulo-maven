@@ -44,11 +44,7 @@ public class MavenDefaultModifiableModelsProvider extends MavenBaseModifiableMod
 
   @Override
   protected ModifiableArtifactModel doGetArtifactModel() {
-    return new ReadAction<ModifiableArtifactModel>() {
-      protected void run(final Result<ModifiableArtifactModel> result) {
-        result.setResult(ArtifactManager.getInstance(myProject).createModifiableModel());
-      }
-    }.execute().getResultObject();
+    return ReadAction.compute(() -> ArtifactManager.getInstance(myProject).createModifiableModel());
   }
 
   @Override
@@ -64,11 +60,7 @@ public class MavenDefaultModifiableModelsProvider extends MavenBaseModifiableMod
 
   @Override
   protected ModifiableRootModel doGetRootModel(@Nonnull final Module module) {
-    return new ReadAction<ModifiableRootModel>() {
-      protected void run(Result<ModifiableRootModel> result) throws Throwable {
-        result.setResult(ModuleRootManager.getInstance(module).getModifiableModel());
-      }
-    }.execute().getResultObject();
+    return ReadAction.compute(() -> ModuleRootManager.getInstance(module).getModifiableModel());
   }
 
   @Override
