@@ -15,19 +15,18 @@
  */
 package org.jetbrains.idea.maven.importing;
 
-import java.io.File;
-import java.util.List;
-
-import org.jetbrains.idea.maven.MavenImportingTestCase;
-import org.jetbrains.idea.maven.project.MavenProject;
 import com.intellij.compiler.impl.javaCompiler.javac.JavacCompilerConfiguration;
-import com.intellij.openapi.application.Result;
 import com.intellij.openapi.application.WriteAction;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleUtilCore;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.pom.java.LanguageLevel;
 import consulo.java.module.extension.JavaModuleExtension;
+import org.jetbrains.idea.maven.MavenImportingTestCase;
+import org.jetbrains.idea.maven.project.MavenProject;
+
+import java.io.File;
+import java.util.List;
 
 public abstract class StructureImportingTest extends MavenImportingTestCase
 {
@@ -227,14 +226,7 @@ public abstract class StructureImportingTest extends MavenImportingTestCase
 				"<dependencies>" + "  <dependency>" + "    <groupId>junit</groupId>" + "    <artifactId>junit</artifactId>" + "    <version>4.0</version>" + "  </dependency>" + "</dependencies>");
 		executeGoal("parent", "install");
 
-		new WriteAction()
-		{
-			protected void run(Result result) throws Throwable
-			{
-				parent.delete(null);
-			}
-		}.execute();
-
+		WriteAction.run(() -> parent.delete(null));
 
 		createProjectPom("<groupId>test</groupId>" + "<artifactId>m</artifactId>" + "<version>1</version>" +
 
