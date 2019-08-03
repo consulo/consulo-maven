@@ -15,54 +15,6 @@
  */
 package org.jetbrains.idea.maven.navigator;
 
-import static org.jetbrains.idea.maven.project.ProjectBundle.message;
-
-import gnu.trove.THashMap;
-import gnu.trove.THashSet;
-
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.event.InputEvent;
-import java.net.URL;
-import java.util.*;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.swing.DefaultListCellRenderer;
-import javax.swing.JList;
-import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreePath;
-
-import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.TestOnly;
-import org.jetbrains.idea.maven.dom.MavenDomUtil;
-import org.jetbrains.idea.maven.dom.MavenPluginDomUtil;
-import org.jetbrains.idea.maven.dom.model.MavenDomProfile;
-import org.jetbrains.idea.maven.dom.model.MavenDomProfiles;
-import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
-import org.jetbrains.idea.maven.dom.model.MavenDomSettingsModel;
-import org.jetbrains.idea.maven.dom.plugin.MavenDomMojo;
-import org.jetbrains.idea.maven.dom.plugin.MavenDomPluginModel;
-import org.jetbrains.idea.maven.execution.MavenRunConfiguration;
-import org.jetbrains.idea.maven.execution.MavenRunConfigurationType;
-import org.jetbrains.idea.maven.execution.MavenRunner;
-import org.jetbrains.idea.maven.model.MavenArtifact;
-import org.jetbrains.idea.maven.model.MavenArtifactNode;
-import org.jetbrains.idea.maven.model.MavenArtifactState;
-import org.jetbrains.idea.maven.model.MavenConstants;
-import org.jetbrains.idea.maven.model.MavenId;
-import org.jetbrains.idea.maven.model.MavenPlugin;
-import org.jetbrains.idea.maven.model.MavenProfileKind;
-import org.jetbrains.idea.maven.model.MavenProjectProblem;
-import org.jetbrains.idea.maven.project.MavenProject;
-import org.jetbrains.idea.maven.project.MavenProjectsManager;
-import org.jetbrains.idea.maven.tasks.MavenShortcutsManager;
-import org.jetbrains.idea.maven.tasks.MavenTasksManager;
-import org.jetbrains.idea.maven.utils.MavenArtifactUtil;
-import org.jetbrains.idea.maven.utils.MavenLog;
-import org.jetbrains.idea.maven.utils.MavenPluginInfo;
-import org.jetbrains.idea.maven.utils.MavenUIUtil;
-import org.jetbrains.idea.maven.utils.MavenUtil;
 import com.intellij.execution.ProgramRunnerUtil;
 import com.intellij.execution.RunManager;
 import com.intellij.execution.RunnerAndConfigurationSettings;
@@ -82,16 +34,45 @@ import com.intellij.psi.xml.XmlElement;
 import com.intellij.ui.JBColor;
 import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.ui.components.JBList;
-import com.intellij.ui.treeStructure.CachingSimpleNode;
-import com.intellij.ui.treeStructure.SimpleNode;
-import com.intellij.ui.treeStructure.SimpleNodeVisitor;
-import com.intellij.ui.treeStructure.SimpleTree;
-import com.intellij.ui.treeStructure.SimpleTreeBuilder;
-import com.intellij.ui.treeStructure.SimpleTreeStructure;
+import com.intellij.ui.treeStructure.*;
 import com.intellij.util.ObjectUtils;
 import com.intellij.util.PathUtil;
 import com.intellij.util.containers.ContainerUtil;
+import gnu.trove.THashMap;
+import gnu.trove.THashSet;
 import icons.MavenIcons;
+import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.TestOnly;
+import org.jetbrains.idea.maven.dom.MavenDomUtil;
+import org.jetbrains.idea.maven.dom.MavenPluginDomUtil;
+import org.jetbrains.idea.maven.dom.model.MavenDomProfile;
+import org.jetbrains.idea.maven.dom.model.MavenDomProfiles;
+import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
+import org.jetbrains.idea.maven.dom.model.MavenDomSettingsModel;
+import org.jetbrains.idea.maven.dom.plugin.MavenDomMojo;
+import org.jetbrains.idea.maven.dom.plugin.MavenDomPluginModel;
+import org.jetbrains.idea.maven.execution.MavenRunConfiguration;
+import org.jetbrains.idea.maven.execution.MavenRunConfigurationType;
+import org.jetbrains.idea.maven.execution.MavenRunner;
+import org.jetbrains.idea.maven.model.*;
+import org.jetbrains.idea.maven.project.MavenProject;
+import org.jetbrains.idea.maven.project.MavenProjectsManager;
+import org.jetbrains.idea.maven.tasks.MavenShortcutsManager;
+import org.jetbrains.idea.maven.tasks.MavenTasksManager;
+import org.jetbrains.idea.maven.utils.*;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.swing.*;
+import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreePath;
+import java.awt.*;
+import java.awt.event.InputEvent;
+import java.net.URL;
+import java.util.List;
+import java.util.*;
+
+import static org.jetbrains.idea.maven.project.ProjectBundle.message;
 
 public class MavenProjectsStructure extends SimpleTreeStructure
 {
@@ -190,9 +171,12 @@ public class MavenProjectsStructure extends SimpleTreeStructure
 		updateProjects(projects, deleted);
 	}
 
-	private void updateFrom(SimpleNode node)
+	private void updateFrom(@Nullable SimpleNode node)
 	{
-		myTreeBuilder.addSubtreeToUpdateByElement(node);
+		if(node != null)
+		{
+			myTreeBuilder.addSubtreeToUpdateByElement(node);
+		}
 	}
 
 	private void updateUpTo(SimpleNode node)
