@@ -29,7 +29,7 @@ import com.intellij.util.xmlb.annotations.Tag;
  */
 public class MavenPluginDescriptor extends AbstractExtensionPointBean {
 
-  public static final ExtensionPointName<MavenPluginDescriptor> EP_NAME = new ExtensionPointName<MavenPluginDescriptor>("org.jetbrains.idea.maven.pluginDescriptor");
+  public static final ExtensionPointName<MavenPluginDescriptor> EP_NAME = ExtensionPointName.create("org.jetbrains.idea.maven.pluginDescriptor");
 
   @Attribute("mavenId")
   @Required

@@ -15,10 +15,10 @@
  */
 package consulo.maven.module.extension;
 
-import javax.annotation.Nonnull;
-
-import consulo.extension.impl.ModuleExtensionImpl;
+import consulo.module.extension.impl.ModuleExtensionImpl;
 import consulo.roots.ModuleRootLayer;
+
+import javax.annotation.Nonnull;
 
 /**
  * @author VISTALL

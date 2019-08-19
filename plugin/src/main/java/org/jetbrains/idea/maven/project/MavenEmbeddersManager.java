@@ -18,14 +18,14 @@ package org.jetbrains.idea.maven.project;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Key;
 import com.intellij.util.Function;
-import com.intellij.util.containers.SoftValueHashMap;
+import com.intellij.util.containers.ContainerUtil;
 import gnu.trove.THashSet;
-import javax.annotation.Nonnull;
 import org.jetbrains.annotations.TestOnly;
 import org.jetbrains.idea.maven.server.MavenEmbedderWrapper;
 import org.jetbrains.idea.maven.server.MavenServerManager;
 import org.jetbrains.idea.maven.utils.MavenLog;
 
+import javax.annotation.Nonnull;
 import java.util.Map;
 import java.util.Set;
 
@@ -40,7 +40,7 @@ public class MavenEmbeddersManager {
 
   private final Project myProject;
 
-  private final Map<Key, MavenEmbedderWrapper> myPool = new SoftValueHashMap<Key, MavenEmbedderWrapper>();
+  private final Map<Key, MavenEmbedderWrapper> myPool = ContainerUtil.createSoftValueMap();
   private final Set<MavenEmbedderWrapper> myEmbeddersInUse = new THashSet<MavenEmbedderWrapper>();
   private final Set<MavenEmbedderWrapper> myEmbeddersToClear = new THashSet<MavenEmbedderWrapper>();
 
