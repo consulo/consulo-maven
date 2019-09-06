@@ -1,38 +1,25 @@
 package consulo.maven.importProvider;
 
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-
-import javax.annotation.Nullable;
-import org.jetbrains.idea.maven.model.MavenExplicitProfiles;
-import org.jetbrains.idea.maven.model.MavenId;
-import org.jetbrains.idea.maven.project.MavenGeneralSettings;
-import org.jetbrains.idea.maven.project.MavenImportingSettings;
-import org.jetbrains.idea.maven.project.MavenProject;
-import org.jetbrains.idea.maven.project.MavenProjectReader;
-import org.jetbrains.idea.maven.project.MavenProjectReaderProjectLocator;
-import org.jetbrains.idea.maven.project.MavenProjectsTree;
-import org.jetbrains.idea.maven.project.MavenWorkspaceSettings;
-import org.jetbrains.idea.maven.project.MavenWorkspaceSettingsComponent;
-import org.jetbrains.idea.maven.project.ProjectBundle;
-import org.jetbrains.idea.maven.utils.FileFinder;
-import org.jetbrains.idea.maven.utils.MavenProcessCanceledException;
-import org.jetbrains.idea.maven.utils.MavenProgressIndicator;
-import org.jetbrains.idea.maven.utils.MavenTask;
-import org.jetbrains.idea.maven.utils.MavenUtil;
 import com.intellij.ide.DataManager;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.application.AccessToken;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import consulo.annotations.RequiredReadAction;
 import consulo.moduleImport.ModuleImportContext;
+import org.jetbrains.idea.maven.model.MavenExplicitProfiles;
+import org.jetbrains.idea.maven.model.MavenId;
+import org.jetbrains.idea.maven.project.*;
+import org.jetbrains.idea.maven.utils.*;
+
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * @author VISTALL
@@ -54,23 +41,19 @@ public class MavenImportModuleContext extends ModuleImportContext
 	protected MavenProjectsTree myMavenProjectTree;
 	protected List<MavenProject> mySelectedProjects;
 
-	protected boolean myOpenModulesConfigurator;
-
-
-	@Override
-	public boolean isOpenProjectSettingsAfter()
+	public MavenImportModuleContext(@Nullable Project project)
 	{
-		return myOpenModulesConfigurator;
+		super(project);
 	}
 
 	@Override
-	public MavenImportModuleContext setFileToImport(String path)
+	public void setFileToImport(String path)
 	{
 		VirtualFile file = LocalFileSystem.getInstance().refreshAndFindFileByPath(path);
 		myImportRoot = file == null || file.isDirectory() ? file : file.getParent();
-		return this;
 	}
 
+	@Nullable
 	public List<MavenProject> getList()
 	{
 		return mySelectedProjects;
@@ -95,11 +78,6 @@ public class MavenImportModuleContext extends ModuleImportContext
 			return list.get(0).getMavenId().getArtifactId();
 		}
 		return null;
-	}
-
-	public void setOpenProjectSettingsAfter(boolean openProjectSettingsAfter)
-	{
-		myOpenModulesConfigurator = openProjectSettingsAfter;
 	}
 
 	@Nullable
@@ -138,7 +116,7 @@ public class MavenImportModuleContext extends ModuleImportContext
 		return myProfiles;
 	}
 
-	public boolean setRootDirectory(@Nullable Project projectToUpdate, final String root) throws ConfigurationException
+	public boolean setRootDirectory(@Nullable Project projectToUpdate, final String root)
 	{
 		myFiles = null;
 		myProfiles.clear();
@@ -178,6 +156,11 @@ public class MavenImportModuleContext extends ModuleImportContext
 				indicator.setText2("");
 			}
 		});
+	}
+
+	private boolean isUpdate()
+	{
+		return !isNewProject();
 	}
 
 	public boolean setSelectedProfiles(MavenExplicitProfiles profiles)

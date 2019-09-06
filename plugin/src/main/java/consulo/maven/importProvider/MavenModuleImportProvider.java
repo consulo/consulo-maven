@@ -1,40 +1,32 @@
 package consulo.maven.importProvider;
 
-import java.io.File;
-import java.util.Collection;
-import java.util.List;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
-import org.jetbrains.idea.maven.importing.MavenDefaultModifiableModelsProvider;
-import org.jetbrains.idea.maven.importing.MavenUIModifiableModelsProvider;
-import org.jetbrains.idea.maven.model.MavenConstants;
-import org.jetbrains.idea.maven.model.MavenExplicitProfiles;
-import org.jetbrains.idea.maven.project.MavenProject;
-import org.jetbrains.idea.maven.project.MavenProjectsManager;
-import org.jetbrains.idea.maven.project.MavenWorkspaceSettings;
-import org.jetbrains.idea.maven.project.MavenWorkspaceSettingsComponent;
-import org.jetbrains.idea.maven.project.ProjectBundle;
-import org.jetbrains.idea.maven.utils.MavenUtil;
-import org.jetbrains.idea.maven.wizards.MavenProjectImportStep;
-import org.jetbrains.idea.maven.wizards.ProjectNameStep;
-import org.jetbrains.idea.maven.wizards.SelectImportedProjectsStep;
-import org.jetbrains.idea.maven.wizards.SelectProfilesStep;
-import com.intellij.ide.util.projectWizard.ModuleWizardStep;
-import com.intellij.ide.util.projectWizard.WizardContext;
 import com.intellij.openapi.module.ModifiableModuleModel;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.roots.ui.configuration.ModulesConfigurator;
-import com.intellij.openapi.roots.ui.configuration.ModulesProvider;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VfsUtilCore;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.packaging.artifacts.ModifiableArtifactModel;
+import consulo.annotations.RequiredReadAction;
+import consulo.ide.newProject.ui.ProjectOrModuleNameStep;
 import consulo.moduleImport.ModuleImportProvider;
 import consulo.ui.image.Image;
+import consulo.ui.wizard.WizardStep;
 import icons.MavenIcons;
+import org.jetbrains.idea.maven.importing.MavenDefaultModifiableModelsProvider;
+import org.jetbrains.idea.maven.model.MavenConstants;
+import org.jetbrains.idea.maven.model.MavenExplicitProfiles;
+import org.jetbrains.idea.maven.project.*;
+import org.jetbrains.idea.maven.utils.MavenUtil;
+import org.jetbrains.idea.maven.wizards.MavenProjectImportStep;
+import org.jetbrains.idea.maven.wizards.SelectImportedProjectsStep;
+import org.jetbrains.idea.maven.wizards.SelectProfilesStep;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.io.File;
+import java.util.Collection;
+import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * @author VISTALL
@@ -44,9 +36,9 @@ public class MavenModuleImportProvider implements ModuleImportProvider<MavenImpo
 {
 	@Nonnull
 	@Override
-	public MavenImportModuleContext createContext()
+	public MavenImportModuleContext createContext(@Nullable Project project)
 	{
-		return new MavenImportModuleContext();
+		return new MavenImportModuleContext(project);
 	}
 
 	@Nonnull
@@ -56,7 +48,7 @@ public class MavenModuleImportProvider implements ModuleImportProvider<MavenImpo
 		return ProjectBundle.message("maven.name");
 	}
 
-	@Nullable
+	@Nonnull
 	@Override
 	public Image getIcon()
 	{
@@ -84,72 +76,60 @@ public class MavenModuleImportProvider implements ModuleImportProvider<MavenImpo
 	}
 
 	@Override
-	public ModuleWizardStep[] createSteps(@Nonnull WizardContext wizardContext, @Nonnull MavenImportModuleContext context)
+	public void buildSteps(@Nonnull Consumer<WizardStep<MavenImportModuleContext>> consumer, @Nonnull MavenImportModuleContext context)
 	{
-		return new ModuleWizardStep[]{
-				new MavenProjectImportStep(context, wizardContext),
-				new SelectProfilesStep(context, wizardContext),
-				new SelectImportedProjectsStep(context, wizardContext)
+		consumer.accept(new MavenProjectImportStep(context));
+		consumer.accept(new SelectProfilesStep(context));
+		consumer.accept(new SelectImportedProjectsStep(context)
+		{
+			@Override
+			protected String getElementText(final MavenProject project)
+			{
+				final StringBuilder stringBuilder = new StringBuilder();
+				stringBuilder.append(project.getMavenId());
+				VirtualFile root = context.getRootDirectory();
+				if(root != null)
 				{
-					@Override
-					protected String getElementText(final MavenProject project)
+					final String relPath = VfsUtilCore.getRelativePath(project.getDirectoryFile(), root, File.separatorChar);
+					if(StringUtil.isNotEmpty(relPath))
 					{
-						final StringBuilder stringBuilder = new StringBuilder();
-						stringBuilder.append(project.getMavenId());
-						VirtualFile root = context.getRootDirectory();
-						if(root != null)
-						{
-							final String relPath = VfsUtilCore.getRelativePath(project.getDirectoryFile(), root, File.separatorChar);
-							if(StringUtil.isNotEmpty(relPath))
-							{
-								stringBuilder.append(" [").append(relPath).append("]");
-							}
-						}
-
-						if(!isElementEnabled(project))
-						{
-							stringBuilder.append(" (project is ignored. See Settings -> Maven -> Ignored Files)");
-						}
-
-						return stringBuilder.toString();
+						stringBuilder.append(" [").append(relPath).append("]");
 					}
+				}
 
-					@Override
-					protected boolean isElementEnabled(MavenProject mavenProject)
-					{
-						Project project = wizardContext.getProject();
-						if(project == null)
-						{
-							return true;
-						}
+				if(!isElementEnabled(project))
+				{
+					stringBuilder.append(" (project is ignored. See Settings -> Maven -> Ignored Files)");
+				}
 
-						return !MavenProjectsManager.getInstance(project).isIgnored(mavenProject);
-					}
+				return stringBuilder.toString();
+			}
 
-					@Override
-					public void updateDataModel()
-					{
-						super.updateDataModel();
-						getWizardContext().setProjectName(context.getSuggestedProjectName());
-					}
+			@Override
+			protected boolean isElementEnabled(MavenProject mavenProject)
+			{
+				Project project = myContext.getProject();
+				if(project == null)
+				{
+					return true;
+				}
 
-					@Override
-					public String getHelpId()
-					{
-						return "reference.dialogs.new.project.import.maven.page3";
-					}
-				},
-				new ProjectNameStep(context, wizardContext)
-		};
+				return !MavenProjectsManager.getInstance(project).isIgnored(mavenProject);
+			}
+
+			@Override
+			public void updateDataModel()
+			{
+				super.updateDataModel();
+				myContext.setName(context.getSuggestedProjectName());
+			}
+		});
+		consumer.accept(new ProjectOrModuleNameStep<>(context));
 	}
 
-	@Nonnull
+	@RequiredReadAction
 	@Override
-	public List<Module> commit(@Nonnull MavenImportModuleContext context,
-			@Nonnull Project project,
-			@javax.annotation.Nullable ModifiableModuleModel model,
-			@Nonnull ModulesProvider modulesProvider,
-			@Nullable ModifiableArtifactModel artifactModel)
+	public void process(@Nonnull MavenImportModuleContext context, @Nonnull Project project, @Nonnull ModifiableModuleModel modifiableModuleModel, @Nonnull Consumer<Module> consumer)
 	{
 		MavenWorkspaceSettings settings = MavenWorkspaceSettingsComponent.getInstance(project).getSettings();
 
@@ -177,11 +157,13 @@ public class MavenModuleImportProvider implements ModuleImportProvider<MavenImpo
 		manager.addManagedFilesWithProfiles(MavenUtil.collectFiles(context.mySelectedProjects), selectedProfiles);
 		manager.waitForReadingCompletion();
 
-		boolean isFromUI = model != null;
-		return manager.importProjects(isFromUI ? new MavenUIModifiableModelsProvider(project, model, (ModulesConfigurator) modulesProvider, artifactModel) : new MavenDefaultModifiableModelsProvider
-				(project));
+		boolean isFromUI = false;
+		List<Module> modules = manager.importProjects(new MavenDefaultModifiableModelsProvider(project));
+		for(Module module : modules)
+		{
+			consumer.accept(module);
+		}
 	}
-
 
 	private void appendProfilesFromString(Collection<String> selectedProfiles, String profilesList)
 	{

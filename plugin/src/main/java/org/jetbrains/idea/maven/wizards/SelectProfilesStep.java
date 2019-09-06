@@ -15,38 +15,26 @@
  */
 package org.jetbrains.idea.maven.wizards;
 
+import com.intellij.ide.util.MultiStateElementsChooser;
+import consulo.maven.importProvider.MavenImportModuleContext;
+import consulo.ui.RequiredUIAccess;
+import consulo.ui.wizard.WizardStep;
 import gnu.trove.THashSet;
-
-import java.awt.Component;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
-import javax.annotation.Nonnull;
-import javax.swing.JCheckBox;
-import javax.swing.JComponent;
-import javax.swing.JPanel;
-import javax.swing.JTable;
-import javax.swing.SwingConstants;
-import javax.swing.table.TableCellRenderer;
-
-import org.jetbrains.annotations.NonNls;
-
-import javax.annotation.Nullable;
 import org.jetbrains.idea.maven.model.MavenExplicitProfiles;
 import org.jetbrains.idea.maven.model.MavenProfileKind;
-import com.intellij.ide.util.MultiStateElementsChooser;
-import com.intellij.ide.util.projectWizard.WizardContext;
-import com.intellij.openapi.options.ConfigurationException;
-import com.intellij.projectImport.ProjectImportWizardStep;
-import consulo.maven.importProvider.MavenImportModuleContext;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.swing.*;
+import javax.swing.table.TableCellRenderer;
+import java.awt.*;
+import java.util.List;
+import java.util.*;
 
 /**
  * @author Vladislav.Kaznacheev
  */
-public class SelectProfilesStep extends ProjectImportWizardStep
+public class SelectProfilesStep implements WizardStep<MavenImportModuleContext>
 {
 	private JPanel panel;
 	private MultiStateElementsChooser<String, MavenProfileKind> profileChooser;
@@ -54,16 +42,15 @@ public class SelectProfilesStep extends ProjectImportWizardStep
 
 	private final MavenImportModuleContext myContext;
 
-	public SelectProfilesStep(MavenImportModuleContext context, final WizardContext wizardContext)
+	public SelectProfilesStep(MavenImportModuleContext context)
 	{
-		super(wizardContext);
 		myContext = context;
 	}
 
 	@Override
-	public boolean isStepVisible()
+	public boolean isVisible()
 	{
-		return super.isStepVisible() && !myContext.getProfiles().isEmpty();
+		return !myContext.getProfiles().isEmpty();
 	}
 
 	public void createUIComponents()
@@ -72,14 +59,22 @@ public class SelectProfilesStep extends ProjectImportWizardStep
 		profileChooser = new MultiStateElementsChooser<>(true, myMarkStateDescriptor);
 	}
 
+	@RequiredUIAccess
+	@Nonnull
 	@Override
-	public JComponent getComponent()
+	public consulo.ui.Component getComponent()
+	{
+		throw new UnsupportedOperationException("desktop only");
+	}
+
+	@Override
+	public JComponent getSwingComponent()
 	{
 		return panel;
 	}
 
 	@Override
-	public void updateStep(WizardContext context)
+	public void onStepEnter(@Nonnull MavenImportModuleContext mavenImportModuleContext)
 	{
 		List<String> allProfiles = myContext.getProfiles();
 		List<String> activatedProfiles = myContext.getActivatedProfiles();
@@ -96,7 +91,7 @@ public class SelectProfilesStep extends ProjectImportWizardStep
 	}
 
 	@Override
-	public boolean validate(@Nonnull WizardContext context) throws ConfigurationException
+	public void onStepLeave(@Nonnull MavenImportModuleContext context)
 	{
 		Collection<String> activatedProfiles = myMarkStateDescriptor.getActivatedProfiles();
 		MavenExplicitProfiles newSelectedProfiles = MavenExplicitProfiles.NONE.clone();
@@ -119,19 +114,7 @@ public class SelectProfilesStep extends ProjectImportWizardStep
 					break;
 			}
 		}
-		return myContext.setSelectedProfiles(newSelectedProfiles);
-	}
-
-	@Override
-	public void updateDataModel()
-	{
-	}
-
-	@Override
-	@NonNls
-	public String getHelpId()
-	{
-		return "reference.dialogs.new.project.import.maven.page2";
+		myContext.setSelectedProfiles(newSelectedProfiles);
 	}
 
 	private static class MavenProfileKindMarkStateDescriptor implements MultiStateElementsChooser.MarkStateDescriptor<String, MavenProfileKind>

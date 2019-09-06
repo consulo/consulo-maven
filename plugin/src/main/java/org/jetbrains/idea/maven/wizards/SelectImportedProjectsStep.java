@@ -15,46 +15,38 @@
  */
 package org.jetbrains.idea.maven.wizards;
 
-import javax.annotation.Nonnull;
-import javax.swing.Icon;
-import javax.swing.JCheckBox;
-import javax.swing.JComponent;
-import javax.swing.JPanel;
-
-import javax.annotation.Nullable;
-import org.jetbrains.idea.maven.project.MavenProject;
-import org.jetbrains.idea.maven.project.ProjectBundle;
 import com.intellij.ide.IdeBundle;
 import com.intellij.ide.util.ElementsChooser;
-import com.intellij.ide.util.projectWizard.WizardContext;
-import com.intellij.openapi.actionSystem.ActionManager;
-import com.intellij.openapi.actionSystem.ActionPlaces;
-import com.intellij.openapi.actionSystem.AnAction;
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.DefaultActionGroup;
-import com.intellij.openapi.options.ConfigurationException;
-import com.intellij.projectImport.ProjectImportWizardStep;
+import com.intellij.openapi.actionSystem.*;
 import com.intellij.refactoring.RefactoringBundle;
 import com.intellij.ui.IdeBorderFactory;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.util.ui.JBUI;
-import consulo.ui.RequiredUIAccess;
 import consulo.maven.importProvider.MavenImportModuleContext;
+import consulo.ui.Component;
+import consulo.ui.RequiredUIAccess;
+import consulo.ui.wizard.WizardStep;
+import consulo.ui.wizard.WizardStepValidationException;
+import org.jetbrains.idea.maven.project.MavenProject;
+import org.jetbrains.idea.maven.project.ProjectBundle;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.swing.*;
+import java.util.List;
 
 /**
  * @author Vladislav.Kaznacheev
  */
-public abstract class SelectImportedProjectsStep extends ProjectImportWizardStep
+public abstract class SelectImportedProjectsStep implements WizardStep<MavenImportModuleContext>
 {
 	private final JPanel panel;
 	protected final ElementsChooser<MavenProject> fileChooser;
-	private final JCheckBox openModuleSettingsCheckBox;
-	private final MavenImportModuleContext myContext;
+	protected final MavenImportModuleContext myContext;
 
-	public SelectImportedProjectsStep(MavenImportModuleContext context, WizardContext wizardContext)
+	public SelectImportedProjectsStep(MavenImportModuleContext context)
 	{
-		super(wizardContext);
 		myContext = context;
 		fileChooser = new ElementsChooser<MavenProject>(true)
 		{
@@ -97,10 +89,6 @@ public abstract class SelectImportedProjectsStep extends ProjectImportWizardStep
 		final JComponent actionToolbar = ActionManager.getInstance().createButtonToolbar(ActionPlaces.UNKNOWN, new DefaultActionGroup(selectAllAction, unselectAllAction));
 		panel.add(actionToolbar, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_NORTH, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints
 				.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK, null, null, null));
-
-		openModuleSettingsCheckBox = new JCheckBox(IdeBundle.message("project.import.show.settings.after"));
-		panel.add(openModuleSettingsCheckBox, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_SOUTH, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints
-				.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null));
 	}
 
 	@Nullable
@@ -111,8 +99,18 @@ public abstract class SelectImportedProjectsStep extends ProjectImportWizardStep
 
 	protected abstract String getElementText(final MavenProject item);
 
+	@RequiredUIAccess
+	@Nonnull
 	@Override
-	public JComponent getComponent()
+	public Component getComponent()
+	{
+		throw new UnsupportedOperationException("desktop only");
+	}
+
+	@RequiredUIAccess
+	@Nonnull
+	@Override
+	public JComponent getSwingComponent()
 	{
 		return panel;
 	}
@@ -123,44 +121,46 @@ public abstract class SelectImportedProjectsStep extends ProjectImportWizardStep
 	}
 
 	@Override
-	public void updateStep(WizardContext context)
+	public void onStepEnter(@Nonnull MavenImportModuleContext context)
 	{
 		fileChooser.clear();
-		for(MavenProject element : getContext().getList())
+		List<MavenProject> list = context.getList();
+		if(list != null)
 		{
-			boolean isEnabled = isElementEnabled(element);
-			fileChooser.addElement(element, isEnabled && getContext().isMarked(element));
-			if(!isEnabled)
+			for(MavenProject element : list)
 			{
-				fileChooser.disableElement(element);
+				boolean isEnabled = isElementEnabled(element);
+				fileChooser.addElement(element, isEnabled && getContext().isMarked(element));
+				if(!isEnabled)
+				{
+					fileChooser.disableElement(element);
+				}
 			}
 		}
 
 		fileChooser.setBorder(IdeBorderFactory.createTitledBorder(IdeBundle.message("project.import.select.title", ProjectBundle.message("maven.name")), false));
-		openModuleSettingsCheckBox.setSelected(getContext().isOpenProjectSettingsAfter());
 	}
 
 	@Override
-	public boolean validate(@Nonnull WizardContext context) throws ConfigurationException
+	public void onStepLeave(@Nonnull MavenImportModuleContext context)
 	{
-		getContext().setList(fileChooser.getMarkedElements());
+		context.setList(fileChooser.getMarkedElements());
+
+		updateDataModel();
+	}
+
+	@Override
+	public void validateStep(@Nonnull MavenImportModuleContext context) throws WizardStepValidationException
+	{
+		onStepLeave(context);
 		if(fileChooser.getMarkedElements().size() == 0)
 		{
-			throw new ConfigurationException("Nothing found to import", "Unable to proceed");
+			throw new WizardStepValidationException("Nothing found to import");
 		}
-		return true;
 	}
 
-	@Override
 	public void updateDataModel()
 	{
-	}
-
-	@Override
-	public void onStepLeaving(WizardContext context)
-	{
-		super.onStepLeaving(context);
-		getContext().setOpenProjectSettingsAfter(openModuleSettingsCheckBox.isSelected());
 	}
 
 	public MavenImportModuleContext getContext()

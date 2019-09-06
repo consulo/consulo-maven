@@ -15,50 +15,38 @@
  */
 package org.jetbrains.idea.maven.wizards;
 
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JPanel;
-
-import org.jetbrains.annotations.Nls;
-import org.jetbrains.annotations.NonNls;
-import javax.annotation.Nonnull;
-
-import org.jetbrains.idea.maven.project.MavenEnvironmentForm;
-import org.jetbrains.idea.maven.project.MavenGeneralSettings;
-import org.jetbrains.idea.maven.project.MavenImportingSettings;
-import org.jetbrains.idea.maven.project.MavenImportingSettingsForm;
-import org.jetbrains.idea.maven.project.ProjectBundle;
 import com.intellij.ide.util.projectWizard.NamePathComponent;
-import com.intellij.ide.util.projectWizard.WizardContext;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.projectImport.ProjectImportWizardStep;
-import consulo.ui.RequiredUIAccess;
 import consulo.maven.importProvider.MavenImportModuleContext;
+import consulo.ui.Component;
+import consulo.ui.RequiredUIAccess;
+import consulo.ui.wizard.WizardStep;
+import org.jetbrains.annotations.Nls;
+import org.jetbrains.annotations.NonNls;
+import org.jetbrains.idea.maven.project.*;
 
-public class MavenProjectImportStep extends ProjectImportWizardStep
+import javax.annotation.Nonnull;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+public class MavenProjectImportStep implements WizardStep<MavenImportModuleContext>
 {
 	private final JPanel myPanel;
 	private final NamePathComponent myRootPathComponent;
 	private final MavenImportingSettingsForm myImportingSettingsForm;
 	private final MavenImportModuleContext myContext;
 
-	public MavenProjectImportStep(MavenImportModuleContext context, WizardContext wizardContext)
+	public MavenProjectImportStep(MavenImportModuleContext context)
 	{
-		super(wizardContext);
 		myContext = context;
 
-		myImportingSettingsForm = new MavenImportingSettingsForm(true, wizardContext.isCreatingNewProject());
+		myImportingSettingsForm = new MavenImportingSettingsForm(true, context.isNewProject());
 
 		myRootPathComponent = new NamePathComponent("", ProjectBundle.message("maven.import.label.select.root"), ProjectBundle.message("maven.import.title.select.root"), "", false, false);
 
@@ -73,7 +61,6 @@ public class MavenProjectImportStep extends ProjectImportWizardStep
 		});
 
 		myPanel = new JPanel(new GridBagLayout());
-		myPanel.setBorder(BorderFactory.createEtchedBorder());
 
 		GridBagConstraints c = new GridBagConstraints();
 		c.gridx = 0;
@@ -98,29 +85,24 @@ public class MavenProjectImportStep extends ProjectImportWizardStep
 		myRootPathComponent.setNameComponentVisible(false);
 	}
 
+	@RequiredUIAccess
+	@Nonnull
 	@Override
-	public JComponent getComponent()
+	public Component getComponent()
+	{
+		throw new UnsupportedOperationException("destop only");
+	}
+
+	@RequiredUIAccess
+	@Nonnull
+	@Override
+	public JComponent getSwingComponent()
 	{
 		return myPanel;
 	}
 
 	@Override
-	public void updateDataModel()
-	{
-		MavenImportingSettings settings = getImportingSettings();
-		myImportingSettingsForm.getData(settings);
-		suggestProjectNameAndPath(settings.getDedicatedModuleDir(), myRootPathComponent.getPath());
-	}
-
-	@Override
-	public boolean validate(@Nonnull WizardContext wizardContext) throws ConfigurationException
-	{
-		updateDataModel(); // needed to make 'exhaustive search' take an effect.
-		return myContext.setRootDirectory(getWizardContext().getProject(), myRootPathComponent.getPath());
-	}
-
-	@Override
-	public void updateStep(WizardContext wizardContext)
+	public void onStepEnter(@Nonnull MavenImportModuleContext mavenImportModuleContext)
 	{
 		if(!myRootPathComponent.isPathChangedByUser())
 		{
@@ -132,7 +114,7 @@ public class MavenProjectImportStep extends ProjectImportWizardStep
 			}
 			else
 			{
-				path = getWizardContext().getProjectFileDirectory();
+				path = myContext.getPath();
 			}
 			if(path != null)
 			{
@@ -144,7 +126,23 @@ public class MavenProjectImportStep extends ProjectImportWizardStep
 	}
 
 	@Override
-	public JComponent getPreferredFocusedComponent()
+	public void onStepLeave(@Nonnull MavenImportModuleContext mavenImportModuleContext)
+	{
+		MavenImportingSettings settings = getImportingSettings();
+		myImportingSettingsForm.getData(settings);
+		suggestProjectNameAndPath(settings.getDedicatedModuleDir(), myRootPathComponent.getPath());
+		myContext.setRootDirectory(myContext.getProject(), myRootPathComponent.getPath());
+	}
+
+	protected void suggestProjectNameAndPath(final String alternativePath, final String path)
+	{
+		myContext.setPath(alternativePath != null && alternativePath.length() > 0 ? alternativePath : path);
+		final String global = FileUtil.toSystemIndependentName(path);
+		myContext.setName(global.substring(global.lastIndexOf("/") + 1));
+	}
+
+	@Override
+	public JComponent getSwingPreferredFocusedComponent()
 	{
 		return myRootPathComponent.getPathComponent();
 	}
@@ -157,13 +155,6 @@ public class MavenProjectImportStep extends ProjectImportWizardStep
 	private MavenImportingSettings getImportingSettings()
 	{
 		return myContext.getImportingSettings();
-	}
-
-	@Override
-	@NonNls
-	public String getHelpId()
-	{
-		return "reference.dialogs.new.project.import.maven.page1";
 	}
 
 	class MavenEnvironmentConfigurable implements Configurable
@@ -211,12 +202,6 @@ public class MavenProjectImportStep extends ProjectImportWizardStep
 		public void reset()
 		{
 			myForm.getData(getGeneralSettings());
-		}
-
-		@RequiredUIAccess
-		@Override
-		public void disposeUIResources()
-		{
 		}
 	}
 }
