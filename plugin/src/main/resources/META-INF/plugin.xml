@@ -456,32 +456,6 @@
 			<reference id="Maven.CollapseAll"/>
 			<separator/>
 			<reference id="Maven.ShowSettings"/>
-			<action id="Maven.GroupProjects"
-					class="org.jetbrains.idea.maven.navigator.actions.GroupProjectsAction"
-					text="Group Modules"
-					description="Group projects according to Maven structure"
-					secondary="true"
-					icon="AllIcons.Nodes.Folder"/>
-			<action id="Maven.ShowIgnored"
-					class="org.jetbrains.idea.maven.navigator.actions.ShowIgnoredProjectsAction"
-					text="Show Ignored Projects"
-					description="Show ignored projects"
-					secondary="true"
-					icon="AllIcons.Actions.ShowHiddens"/>
-			<action id="Maven.ShowBasicPhasesOnly"
-					class="org.jetbrains.idea.maven.navigator.actions.ShowBasicPhasesOnlyAction"
-					text="Show Basic Phases Only"
-					description="Show basic phases only"
-					secondary="true"
-					icon="AllIcons.General.Filter"/>
-			<action id="Maven.AlwaysShowArtifactId"
-					class="org.jetbrains.idea.maven.navigator.actions.AlwaysShowArtifactIdAction"
-					text="Always Show ArtifactId"
-					description="Always Show ArtifactId instead of project name"/>
-			<action id="Maven.ShowVersions"
-					class="org.jetbrains.idea.maven.navigator.actions.ShowVersionsAction"
-					text="Show version"
-					description="Show version for Maven project"/>
 		</group>
 
 		<group id="Maven.DependencyMenu">
