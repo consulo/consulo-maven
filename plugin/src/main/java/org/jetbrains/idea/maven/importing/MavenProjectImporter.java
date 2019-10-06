@@ -15,36 +15,6 @@
  */
 package org.jetbrains.idea.maven.importing;
 
-import gnu.trove.THashMap;
-import gnu.trove.THashSet;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.annotation.Nullable;
-
-import org.jetbrains.idea.maven.importing.configurers.MavenModuleConfigurer;
-import org.jetbrains.idea.maven.model.MavenArtifact;
-import org.jetbrains.idea.maven.project.MavenConsole;
-import org.jetbrains.idea.maven.project.MavenEmbeddersManager;
-import org.jetbrains.idea.maven.project.MavenImportingSettings;
-import org.jetbrains.idea.maven.project.MavenProject;
-import org.jetbrains.idea.maven.project.MavenProjectChanges;
-import org.jetbrains.idea.maven.project.MavenProjectsManager;
-import org.jetbrains.idea.maven.project.MavenProjectsProcessorTask;
-import org.jetbrains.idea.maven.project.MavenProjectsTree;
-import org.jetbrains.idea.maven.project.ProjectBundle;
-import org.jetbrains.idea.maven.utils.MavenProcessCanceledException;
-import org.jetbrains.idea.maven.utils.MavenProgressIndicator;
-import org.jetbrains.idea.maven.utils.MavenUtil;
 import com.intellij.compiler.impl.javaCompiler.javac.JavacCompilerConfiguration;
 import com.intellij.compiler.impl.javaCompiler.javac.JpsJavaCompilerOptions;
 import com.intellij.openapi.application.ApplicationManager;
@@ -53,11 +23,7 @@ import com.intellij.openapi.module.ModifiableModuleModel;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.roots.LibraryOrderEntry;
-import com.intellij.openapi.roots.ModifiableRootModel;
-import com.intellij.openapi.roots.ModuleRootManager;
-import com.intellij.openapi.roots.ModuleRootModel;
-import com.intellij.openapi.roots.OrderEntry;
+import com.intellij.openapi.roots.*;
 import com.intellij.openapi.roots.impl.libraries.LibraryImpl;
 import com.intellij.openapi.roots.libraries.Library;
 import com.intellij.openapi.ui.Messages;
@@ -71,6 +37,18 @@ import com.intellij.util.containers.Stack;
 import consulo.java.module.extension.JavaMutableModuleExtensionImpl;
 import consulo.maven.importing.MavenImportSession;
 import consulo.maven.module.extension.MavenMutableModuleExtension;
+import gnu.trove.THashMap;
+import gnu.trove.THashSet;
+import org.jetbrains.idea.maven.importing.configurers.MavenModuleConfigurer;
+import org.jetbrains.idea.maven.model.MavenArtifact;
+import org.jetbrains.idea.maven.project.*;
+import org.jetbrains.idea.maven.utils.MavenProcessCanceledException;
+import org.jetbrains.idea.maven.utils.MavenProgressIndicator;
+import org.jetbrains.idea.maven.utils.MavenUtil;
+
+import javax.annotation.Nullable;
+import java.io.File;
+import java.util.*;
 
 public class MavenProjectImporter
 {
@@ -453,8 +431,6 @@ public class MavenProjectImporter
 
 	private void removeOutdatedCompilerConfigSettings()
 	{
-		ApplicationManager.getApplication().assertWriteAccessAllowed();
-
 		final JpsJavaCompilerOptions javacOptions = JavacCompilerConfiguration.getInstance(myProject);
 		String options = javacOptions.ADDITIONAL_OPTIONS_STRING;
 		options = options.replaceFirst("(-target (\\S+))", ""); // Old IDEAs saved

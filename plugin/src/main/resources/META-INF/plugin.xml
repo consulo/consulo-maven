@@ -1,4 +1,4 @@
-<idea-plugin>
+<consulo-plugin>
 	<id>org.jetbrains.idea.maven</id>
 
 	<name>Maven Integration</name>
@@ -45,6 +45,7 @@
 	<extensions defaultExtensionNs="com.intellij">
 		<fileTypeFactory implementation="org.jetbrains.idea.maven.utils.MavenFileTypeFactory"/>
 		<moduleImportProvider implementation="consulo.maven.importProvider.MavenModuleImportProvider"/>
+		<newModuleBuilder implementation="consulo.maven.newProject.MavenNewModuleBuilder" />
 
 		<applicationService serviceImplementation="org.jetbrains.idea.maven.server.MavenServerManager"/>
 		<applicationService serviceImplementation="org.jetbrains.idea.maven.indices.MavenIndicesManager"/>
@@ -339,6 +340,33 @@
 				icon="AllIcons.General.Add">
 		</action>
 
+		<action id="Maven.GroupProjects"
+				class="org.jetbrains.idea.maven.navigator.actions.GroupProjectsAction"
+				text="Group Modules"
+				description="Group projects according to Maven structure"
+				secondary="true"
+				icon="AllIcons.Nodes.Folder"/>
+		<action id="Maven.ShowIgnored"
+				class="org.jetbrains.idea.maven.navigator.actions.ShowIgnoredProjectsAction"
+				text="Show Ignored Projects"
+				description="Show ignored projects"
+				secondary="true"
+				icon="AllIcons.Actions.ShowHiddens"/>
+		<action id="Maven.ShowBasicPhasesOnly"
+				class="org.jetbrains.idea.maven.navigator.actions.ShowBasicPhasesOnlyAction"
+				text="Show Basic Phases Only"
+				description="Show basic phases only"
+				secondary="true"
+				icon="AllIcons.General.Filter"/>
+		<action id="Maven.AlwaysShowArtifactId"
+				class="org.jetbrains.idea.maven.navigator.actions.AlwaysShowArtifactIdAction"
+				text="Always Show ArtifactId"
+				description="Always Show ArtifactId instead of project name"/>
+		<action id="Maven.ShowVersions"
+				class="org.jetbrains.idea.maven.navigator.actions.ShowVersionsAction"
+				text="Show version"
+				description="Show version for Maven project"/>
+
 		<action id="Maven.AddFileAsMavenProject"
 				class="org.jetbrains.idea.maven.project.actions.AddFileAsMavenProjectAction"
 				text="Add as Maven Project"
@@ -527,4 +555,4 @@
 					class="org.jetbrains.idea.maven.navigator.actions.RemoveMavenRunConfigurationAction"/>
 		</group>
 	</actions>
-</idea-plugin>
+</consulo-plugin>
