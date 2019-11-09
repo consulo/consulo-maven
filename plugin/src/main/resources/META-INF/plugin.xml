@@ -169,9 +169,11 @@
 		<projectService serviceImplementation="org.jetbrains.idea.maven.utils.MavenEditorTabTitleUpdater" lazy="false" />
 		<projectService serviceImplementation="org.jetbrains.idea.maven.tasks.MavenShortcutsManager" lazy="false" />
 		<projectService serviceImplementation="org.jetbrains.idea.maven.tasks.MavenTasksManager" lazy="false" />
-		<projectService serviceImplementation="org.jetbrains.idea.maven.navigator.MavenProjectsNavigator" lazy="false" />
+		<projectService serviceImplementation="org.jetbrains.idea.maven.navigator.MavenProjectsNavigator" />
 		<projectService serviceImplementation="org.jetbrains.idea.maven.indices.MavenProjectIndicesManager" lazy="false" />
 		<projectService serviceImplementation="org.jetbrains.idea.maven.project.MavenProjectsManager" lazy="false" />
+
+		<toolWindow id="Maven" requireModuleExtensions="maven" icon="/images/toolWindowMaven.png" anchor="right" factoryClass="consulo.maven.toolWindow.MavenToolWindowFactory" />
 	</extensions>
 
 	<extensions defaultExtensionNs="org.jetbrains.idea.maven">
