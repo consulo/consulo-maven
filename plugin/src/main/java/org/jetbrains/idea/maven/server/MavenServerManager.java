@@ -709,13 +709,13 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
 		}
 	}
 
-	@Nonnull
+	@Nullable
 	public String getJdkName()
 	{
 		return myState.jdkName;
 	}
 
-	public void setJdkName(@Nonnull String jdk)
+	public void setJdkName(@Nullable String jdk)
 	{
 		if(!Comparing.equal(myState.jdkName, jdk))
 		{
