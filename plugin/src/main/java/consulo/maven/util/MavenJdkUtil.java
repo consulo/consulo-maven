@@ -37,7 +37,7 @@ public class MavenJdkUtil
 			if(sdk != null)
 			{
 				JavaSdkVersion version = javaSdk.getVersion(sdk);
-				if(version version != null && version.getMaxLanguageLevel().isAtLeast(languageLevel))
+				if(version != null && version.getMaxLanguageLevel().isAtLeast(languageLevel))
 				{
 					return sdk;
 				}
