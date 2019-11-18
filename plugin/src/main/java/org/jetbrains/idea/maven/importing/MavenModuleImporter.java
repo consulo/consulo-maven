@@ -33,6 +33,7 @@ import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.project.MavenProjectsProcessorTask;
 import org.jetbrains.idea.maven.project.MavenProjectsTree;
 import org.jetbrains.idea.maven.project.SupportedRequestType;
+import org.jetbrains.idea.maven.server.MavenServerManager;
 import org.jetbrains.idea.maven.utils.MavenUtil;
 import com.google.common.collect.ImmutableMap;
 import com.intellij.openapi.application.AccessToken;
@@ -177,7 +178,7 @@ public class MavenModuleImporter
 
 	private void configurateJavaSdk(LanguageLevel level, JavaMutableModuleExtensionImpl javaMutableModuleExtension, MavenImportSession session)
 	{
-		Sdk targetSdk = session.getOrCalculate(level, MavenJdkUtil::findSdkOfLevel);
+		Sdk targetSdk = session.getOrCalculate(level, languageLevel -> MavenJdkUtil.findSdkOfLevel(languageLevel, MavenServerManager.getInstance().getJdkName()));
 
 		javaMutableModuleExtension.getInheritableSdk().set(null, targetSdk);
 	}

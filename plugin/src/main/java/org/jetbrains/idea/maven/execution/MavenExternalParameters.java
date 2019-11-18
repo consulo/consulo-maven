@@ -324,7 +324,7 @@ public class MavenExternalParameters
 			return SdkTable.getInstance().findSdk(name);
 		}
 
-		Sdk sdk = MavenJdkUtil.findSdkOfLevel(languageLevel);
+		Sdk sdk = MavenJdkUtil.findSdkOfLevel(languageLevel, null);
 		if(sdk != null)
 		{
 			return sdk;

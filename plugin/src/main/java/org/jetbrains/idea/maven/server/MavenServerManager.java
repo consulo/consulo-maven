@@ -249,7 +249,7 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
 			return SdkTable.getInstance().findSdk(name);
 		}
 
-		return MavenJdkUtil.findSdkOfLevel(languageLevel);
+		return MavenJdkUtil.findSdkOfLevel(languageLevel, null);
 	}
 
 	private RunProfileState createRunProfileState() throws ExecutionException
