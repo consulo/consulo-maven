@@ -15,36 +15,12 @@
  */
 package org.jetbrains.idea.maven.importing;
 
-import gnu.trove.THashSet;
-
-import java.util.List;
-import java.util.Map;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
-import org.jdom.Element;
-import org.jetbrains.idea.maven.model.MavenArtifact;
-import org.jetbrains.idea.maven.model.MavenConstants;
-import org.jetbrains.idea.maven.project.MavenImportingSettings;
-import org.jetbrains.idea.maven.project.MavenProject;
-import org.jetbrains.idea.maven.project.MavenProjectChanges;
-import org.jetbrains.idea.maven.project.MavenProjectsManager;
-import org.jetbrains.idea.maven.project.MavenProjectsProcessorTask;
-import org.jetbrains.idea.maven.project.MavenProjectsTree;
-import org.jetbrains.idea.maven.project.SupportedRequestType;
-import org.jetbrains.idea.maven.server.MavenServerManager;
-import org.jetbrains.idea.maven.utils.MavenUtil;
 import com.google.common.collect.ImmutableMap;
 import com.intellij.openapi.application.AccessToken;
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.projectRoots.Sdk;
-import com.intellij.openapi.roots.DependencyScope;
-import com.intellij.openapi.roots.LibraryOrderEntry;
-import com.intellij.openapi.roots.ModifiableRootModel;
-import com.intellij.openapi.roots.ModuleExtensionWithSdkOrderEntry;
-import com.intellij.openapi.roots.OrderRootType;
+import com.intellij.openapi.roots.*;
 import com.intellij.openapi.roots.libraries.Library;
 import com.intellij.openapi.roots.libraries.LibraryTable;
 import com.intellij.openapi.util.text.StringUtil;
@@ -59,6 +35,18 @@ import consulo.roots.types.BinariesOrderRootType;
 import consulo.roots.types.DocumentationOrderRootType;
 import consulo.roots.types.SourcesOrderRootType;
 import consulo.vfs.util.ArchiveVfsUtil;
+import gnu.trove.THashSet;
+import org.jdom.Element;
+import org.jetbrains.idea.maven.execution.MavenRunner;
+import org.jetbrains.idea.maven.model.MavenArtifact;
+import org.jetbrains.idea.maven.model.MavenConstants;
+import org.jetbrains.idea.maven.project.*;
+import org.jetbrains.idea.maven.utils.MavenUtil;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.List;
+import java.util.Map;
 
 public class MavenModuleImporter
 {
@@ -178,7 +166,10 @@ public class MavenModuleImporter
 
 	private void configurateJavaSdk(LanguageLevel level, JavaMutableModuleExtensionImpl javaMutableModuleExtension, MavenImportSession session)
 	{
-		Sdk targetSdk = session.getOrCalculate(level, languageLevel -> MavenJdkUtil.findSdkOfLevel(languageLevel, MavenServerManager.getInstance().getJdkName()));
+		Sdk targetSdk = session.getOrCalculate(level, languageLevel -> {
+			MavenRunner mavenRunner = MavenRunner.getInstance(javaMutableModuleExtension.getProject());
+			return MavenJdkUtil.findSdkOfLevel(languageLevel, mavenRunner.getState().getJreName());
+		});
 
 		javaMutableModuleExtension.getInheritableSdk().set(null, targetSdk);
 	}
