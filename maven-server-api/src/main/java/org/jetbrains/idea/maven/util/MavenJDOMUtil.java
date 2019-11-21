@@ -11,6 +11,7 @@ import org.jdom.Attribute;
 import org.jdom.Content;
 import org.jdom.Element;
 import org.jdom.Text;
+import org.jdom.filter.AbstractFilter;
 import org.jdom.filter.Filter;
 import org.jetbrains.idea.maven.util.MavenStringUtil;
 
@@ -135,12 +136,16 @@ public class MavenJDOMUtil
 		return i * 31 + s.hashCode();
 	}
 
-	private static class EmptyTextFilter implements Filter
+	private static class EmptyTextFilter extends AbstractFilter
 	{
 		@Override
-		public boolean matches(Object obj)
+		public Object filter(Object obj)
 		{
-			return !(obj instanceof Text) || !MavenStringUtil.isEmptyOrSpaces(((Text) obj).getText());
+			if(obj instanceof Text && MavenStringUtil.isEmptyOrSpaces(((Text) obj).getText()))
+			{
+				return null;
+			}
+			return obj;
 		}
 	}
 }

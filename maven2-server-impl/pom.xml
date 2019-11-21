@@ -56,6 +56,12 @@
 			<groupId>org.sonatype.nexus</groupId>
 			<artifactId>nexus-indexer</artifactId>
 			<version>1.2.3</version>
+			<exclusions>
+				<exclusion>
+					<groupId>jdom</groupId>
+					<artifactId>jdom</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<dependency>
@@ -96,6 +102,12 @@
 			<groupId>consulo</groupId>
 			<artifactId>consulo-util-rmi</artifactId>
 			<version>2-SNAPSHOT</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.jdom</groupId>
+			<artifactId>jdom-core</artifactId>
 			<scope>provided</scope>
 		</dependency>
 
