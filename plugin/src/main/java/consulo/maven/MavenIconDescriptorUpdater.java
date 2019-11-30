@@ -15,17 +15,17 @@
  */
 package consulo.maven;
 
-import javax.annotation.Nonnull;
-
-import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
-import consulo.annotations.RequiredReadAction;
+import consulo.annotation.access.RequiredReadAction;
 import consulo.ide.IconDescriptor;
 import consulo.ide.IconDescriptorUpdater;
 import icons.MavenIcons;
+import org.jetbrains.idea.maven.project.MavenProjectsManager;
+
+import javax.annotation.Nonnull;
 
 /**
  * @author VISTALL

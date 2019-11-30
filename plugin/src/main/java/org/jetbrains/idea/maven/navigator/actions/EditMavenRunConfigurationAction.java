@@ -15,16 +15,16 @@
  */
 package org.jetbrains.idea.maven.navigator.actions;
 
-import javax.annotation.Nonnull;
-
-import org.jetbrains.idea.maven.utils.MavenDataKeys;
 import com.intellij.execution.RunManager;
 import com.intellij.execution.RunnerAndConfigurationSettings;
 import com.intellij.execution.impl.EditConfigurationsDialog;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
-import consulo.ui.RequiredUIAccess;
+import consulo.ui.annotation.RequiredUIAccess;
+import org.jetbrains.idea.maven.utils.MavenDataKeys;
+
+import javax.annotation.Nonnull;
 
 /**
  * @author Sergey Evdokimov

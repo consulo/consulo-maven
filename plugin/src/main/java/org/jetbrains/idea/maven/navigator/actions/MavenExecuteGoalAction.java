@@ -15,27 +15,6 @@
  */
 package org.jetbrains.idea.maven.navigator.actions;
 
-import java.io.File;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-
-import javax.annotation.Nonnull;
-import javax.swing.event.HyperlinkEvent;
-
-import org.jetbrains.idea.maven.execution.MavenExecuteGoalDialog;
-import org.jetbrains.idea.maven.execution.MavenRunConfigurationType;
-import org.jetbrains.idea.maven.execution.MavenRunner;
-import org.jetbrains.idea.maven.execution.MavenRunnerParameters;
-import org.jetbrains.idea.maven.execution.MavenRunnerSettings;
-import org.jetbrains.idea.maven.execution.RunnerBundle;
-import org.jetbrains.idea.maven.project.MavenGeneralSettings;
-import org.jetbrains.idea.maven.project.MavenProject;
-import org.jetbrains.idea.maven.project.MavenProjectsManager;
-import org.jetbrains.idea.maven.utils.MavenSettings;
-import org.jetbrains.idea.maven.utils.MavenUtil;
-import consulo.ui.RequiredUIAccess;
 import com.intellij.execution.configurations.ParametersList;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationListener;
@@ -47,6 +26,21 @@ import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.text.StringUtil;
+import consulo.ui.annotation.RequiredUIAccess;
+import org.jetbrains.idea.maven.execution.*;
+import org.jetbrains.idea.maven.project.MavenGeneralSettings;
+import org.jetbrains.idea.maven.project.MavenProject;
+import org.jetbrains.idea.maven.project.MavenProjectsManager;
+import org.jetbrains.idea.maven.utils.MavenSettings;
+import org.jetbrains.idea.maven.utils.MavenUtil;
+
+import javax.annotation.Nonnull;
+import javax.swing.event.HyperlinkEvent;
+import java.io.File;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
 
 /**
  * @author Sergey Evdokimov

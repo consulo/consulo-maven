@@ -25,7 +25,7 @@ import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.util.ui.JBUI;
 import consulo.maven.importProvider.MavenImportModuleContext;
 import consulo.ui.Component;
-import consulo.ui.RequiredUIAccess;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.wizard.WizardStep;
 import consulo.ui.wizard.WizardStepValidationException;
 import org.jetbrains.idea.maven.project.MavenProject;

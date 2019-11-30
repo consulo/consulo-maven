@@ -15,11 +15,12 @@
  */
 package org.jetbrains.idea.maven.project;
 
+import com.intellij.openapi.options.SearchableConfigurable;
+import consulo.ui.annotation.RequiredUIAccess;
 import org.jetbrains.annotations.NonNls;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import com.intellij.openapi.options.SearchableConfigurable;
-import consulo.ui.RequiredUIAccess;
 
 /**
  * @author Sergey Evdokimov

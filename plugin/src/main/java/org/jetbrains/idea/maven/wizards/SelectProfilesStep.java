@@ -17,7 +17,7 @@ package org.jetbrains.idea.maven.wizards;
 
 import com.intellij.ide.util.MultiStateElementsChooser;
 import consulo.maven.importProvider.MavenImportModuleContext;
-import consulo.ui.RequiredUIAccess;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.wizard.WizardStep;
 import gnu.trove.THashSet;
 import org.jetbrains.idea.maven.model.MavenExplicitProfiles;

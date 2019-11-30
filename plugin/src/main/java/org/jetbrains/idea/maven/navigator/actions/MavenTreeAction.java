@@ -15,14 +15,14 @@
  */
 package org.jetbrains.idea.maven.navigator.actions;
 
-import javax.annotation.Nonnull;
-import javax.swing.JTree;
-
+import com.intellij.openapi.actionSystem.AnActionEvent;
+import consulo.ui.annotation.RequiredUIAccess;
 import org.jetbrains.idea.maven.utils.MavenDataKeys;
 import org.jetbrains.idea.maven.utils.actions.MavenAction;
 import org.jetbrains.idea.maven.utils.actions.MavenActionUtil;
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import consulo.ui.RequiredUIAccess;
+
+import javax.annotation.Nonnull;
+import javax.swing.*;
 
 public abstract class MavenTreeAction extends MavenAction
 {

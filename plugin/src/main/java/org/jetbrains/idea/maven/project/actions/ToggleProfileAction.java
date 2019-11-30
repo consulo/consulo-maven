@@ -15,11 +15,8 @@
  */
 package org.jetbrains.idea.maven.project.actions;
 
-import java.util.Map;
-import java.util.Set;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import com.intellij.openapi.actionSystem.AnActionEvent;
+import consulo.ui.annotation.RequiredUIAccess;
 import org.jetbrains.idea.maven.model.MavenExplicitProfiles;
 import org.jetbrains.idea.maven.model.MavenProfileKind;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
@@ -27,8 +24,11 @@ import org.jetbrains.idea.maven.project.ProjectBundle;
 import org.jetbrains.idea.maven.utils.MavenDataKeys;
 import org.jetbrains.idea.maven.utils.actions.MavenAction;
 import org.jetbrains.idea.maven.utils.actions.MavenActionUtil;
-import consulo.ui.RequiredUIAccess;
-import com.intellij.openapi.actionSystem.AnActionEvent;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.Map;
+import java.util.Set;
 
 public class ToggleProfileAction extends MavenAction
 {

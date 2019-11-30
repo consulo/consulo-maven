@@ -25,7 +25,7 @@ import com.intellij.util.ui.AsyncProcessIcon;
 import com.intellij.util.ui.UIUtil;
 import com.intellij.util.ui.tree.TreeUtil;
 import consulo.maven.newProject.MavenNewModuleContext;
-import consulo.ui.RequiredUIAccess;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.wizard.WizardStep;
 import consulo.ui.wizard.WizardStepValidationException;
 import org.jetbrains.idea.maven.indices.MavenIndicesManager;

@@ -15,7 +15,6 @@
  */
 package org.jetbrains.idea.maven.dom.references;
 
-import org.jetbrains.idea.maven.dom.MavenDomUtil;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
@@ -23,9 +22,10 @@ import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.psi.xml.XmlTag;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.xml.util.XmlUtil;
-import consulo.ui.RequiredUIAccess;
 import consulo.codeInsight.TargetElementUtil;
 import consulo.codeInsight.TargetElementUtilEx;
+import consulo.ui.annotation.RequiredUIAccess;
+import org.jetbrains.idea.maven.dom.MavenDomUtil;
 
 public class MavenTargetUtil
 {

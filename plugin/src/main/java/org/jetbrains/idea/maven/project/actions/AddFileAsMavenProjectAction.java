@@ -15,18 +15,17 @@
  */
 package org.jetbrains.idea.maven.project.actions;
 
-import java.util.Collections;
-
-import javax.annotation.Nonnull;
-
-import org.jetbrains.idea.maven.project.MavenProjectsManager;
-import org.jetbrains.idea.maven.utils.actions.MavenAction;
-import org.jetbrains.idea.maven.utils.actions.MavenActionUtil;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.vfs.VirtualFile;
-import consulo.ui.RequiredUIAccess;
+import consulo.ui.annotation.RequiredUIAccess;
+import org.jetbrains.idea.maven.project.MavenProjectsManager;
+import org.jetbrains.idea.maven.utils.actions.MavenAction;
+import org.jetbrains.idea.maven.utils.actions.MavenActionUtil;
+
+import javax.annotation.Nonnull;
+import java.util.Collections;
 
 public class AddFileAsMavenProjectAction extends MavenAction
 {

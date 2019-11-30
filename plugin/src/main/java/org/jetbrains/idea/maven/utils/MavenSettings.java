@@ -15,27 +15,22 @@
  */
 package org.jetbrains.idea.maven.utils;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.annotation.Nonnull;
-import javax.swing.JComponent;
-
+import com.intellij.openapi.options.Configurable;
+import com.intellij.openapi.options.ConfigurationException;
+import com.intellij.openapi.options.SearchableConfigurable;
+import com.intellij.openapi.project.Project;
+import consulo.ui.annotation.RequiredUIAccess;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.idea.maven.execution.MavenRunner;
 import org.jetbrains.idea.maven.execution.MavenRunnerConfigurable;
 import org.jetbrains.idea.maven.execution.MavenRunnerSettings;
 import org.jetbrains.idea.maven.indices.MavenRepositoriesConfigurable;
-import org.jetbrains.idea.maven.project.MavenGeneralConfigurable;
-import org.jetbrains.idea.maven.project.MavenGeneralSettings;
-import org.jetbrains.idea.maven.project.MavenIgnoredFilesConfigurable;
-import org.jetbrains.idea.maven.project.MavenImportingConfigurable;
-import org.jetbrains.idea.maven.project.MavenProjectsManager;
-import com.intellij.openapi.options.Configurable;
-import com.intellij.openapi.options.ConfigurationException;
-import com.intellij.openapi.options.SearchableConfigurable;
-import com.intellij.openapi.project.Project;
-import consulo.ui.RequiredUIAccess;
+import org.jetbrains.idea.maven.project.*;
+
+import javax.annotation.Nonnull;
+import javax.swing.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MavenSettings implements SearchableConfigurable.Parent
 {

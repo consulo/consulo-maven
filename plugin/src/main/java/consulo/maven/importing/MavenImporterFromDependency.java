@@ -15,18 +15,18 @@
  */
 package consulo.maven.importing;
 
-import java.util.List;
-
+import consulo.annotation.UsedInPlugin;
 import org.jetbrains.idea.maven.importing.MavenImporter;
 import org.jetbrains.idea.maven.model.MavenArtifact;
 import org.jetbrains.idea.maven.project.MavenProject;
-import consulo.annotations.Exported;
+
+import java.util.List;
 
 /**
  * @author VISTALL
  * @since 17:14/12.07.13
  */
-@Exported
+@UsedInPlugin
 public abstract class MavenImporterFromDependency extends MavenImporter {
   private final String myGroupId;
   private final String myArtifactId;

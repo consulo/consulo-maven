@@ -15,16 +15,15 @@
  */
 package org.jetbrains.idea.maven.project;
 
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-
-import javax.annotation.Nonnull;
-
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.xmlb.annotations.Property;
-import consulo.annotations.DeprecationInfo;
+import consulo.annotation.DeprecationInfo;
+
+import javax.annotation.Nonnull;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
 public class MavenImportingSettings implements Cloneable
 {

@@ -15,18 +15,18 @@
  */
 package org.jetbrains.idea.maven.project.actions;
 
-import java.util.List;
-
-import javax.annotation.Nonnull;
+import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.DataContext;
+import consulo.ui.annotation.RequiredUIAccess;
 import org.jetbrains.idea.maven.execution.MavenRunConfigurationType;
 import org.jetbrains.idea.maven.execution.MavenRunnerParameters;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.utils.MavenDataKeys;
 import org.jetbrains.idea.maven.utils.actions.MavenAction;
 import org.jetbrains.idea.maven.utils.actions.MavenActionUtil;
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.DataContext;
-import consulo.ui.RequiredUIAccess;
+
+import javax.annotation.Nonnull;
+import java.util.List;
 
 public class RunBuildAction extends MavenAction
 {
