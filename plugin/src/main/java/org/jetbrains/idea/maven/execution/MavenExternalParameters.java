@@ -133,7 +133,6 @@ public class MavenExternalParameters
 
 		params.setJdk(jdk);
 
-		params.getProgramParametersList().add("-Didea.version=" + MavenUtil.getIdeaVersionToPassToMavenProcess());
 		if(StringUtil.compareVersionNumbers(mavenVersion, "3.3") >= 0)
 		{
 			params.getVMParametersList().addProperty("maven.multiModuleProjectDirectory", MavenServerUtil.findMavenBasedir(parameters.getWorkingDirFile()).getPath());

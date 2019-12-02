@@ -294,8 +294,6 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
 					params.getVMParametersList().defineProperty(each.getKey(), each.getValue());
 				}
 
-				params.getVMParametersList().addProperty("idea.version=", MavenUtil.getIdeaVersionToPassToMavenProcess());
-
 				boolean xmxSet = false;
 
 				boolean forceMaven2 = false;
