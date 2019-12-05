@@ -1,6 +1,6 @@
 package org.jetbrains.idea.maven.project;
 
-import com.intellij.openapi.util.UserDataHolderBase;
+import consulo.util.dataholder.UserDataHolderBase;
 
 /**
  * @author Eugene.Kudelevsky

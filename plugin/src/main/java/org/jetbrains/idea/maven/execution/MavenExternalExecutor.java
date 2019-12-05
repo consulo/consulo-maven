@@ -18,21 +18,20 @@
 
 package org.jetbrains.idea.maven.execution;
 
-import javax.annotation.Nonnull;
-
-import org.jetbrains.annotations.NonNls;
-
-import javax.annotation.Nullable;
-import org.jetbrains.idea.maven.project.MavenConsole;
-import org.jetbrains.idea.maven.project.MavenGeneralSettings;
-import org.jetbrains.idea.maven.server.MavenServerConsole;
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.process.OSProcessHandler;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Key;
 import consulo.java.execution.configurations.OwnJavaParameters;
+import consulo.util.dataholder.Key;
+import org.jetbrains.annotations.NonNls;
+import org.jetbrains.idea.maven.project.MavenConsole;
+import org.jetbrains.idea.maven.project.MavenGeneralSettings;
+import org.jetbrains.idea.maven.server.MavenServerConsole;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class MavenExternalExecutor extends MavenExecutor {
 

@@ -15,7 +15,6 @@
  */
 package org.jetbrains.idea.maven.dom;
 
-import com.intellij.openapi.util.Key;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.CommonClassNames;
 import com.intellij.psi.PsiElement;
@@ -30,9 +29,8 @@ import com.intellij.util.xml.XmlName;
 import com.intellij.util.xml.reflect.DomExtender;
 import com.intellij.util.xml.reflect.DomExtension;
 import com.intellij.util.xml.reflect.DomExtensionsRegistrar;
+import consulo.util.dataholder.Key;
 import gnu.trove.THashMap;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import org.jetbrains.idea.maven.dom.converters.MavenDomConvertersRegistry;
 import org.jetbrains.idea.maven.dom.converters.MavenPluginCustomParameterValueConverter;
 import org.jetbrains.idea.maven.dom.model.MavenDomConfiguration;
@@ -42,6 +40,8 @@ import org.jetbrains.idea.maven.dom.plugin.MavenDomMojo;
 import org.jetbrains.idea.maven.dom.plugin.MavenDomParameter;
 import org.jetbrains.idea.maven.dom.plugin.MavenDomPluginModel;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.lang.annotation.Annotation;
 import java.util.*;
 

@@ -15,16 +15,15 @@
  */
 package org.jetbrains.idea.maven.utils;
 
+import com.intellij.execution.RunnerAndConfigurationSettings;
+import consulo.util.dataholder.Key;
+import org.jetbrains.idea.maven.model.MavenArtifact;
+import org.jetbrains.idea.maven.model.MavenProfileKind;
+
+import javax.swing.*;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-
-import javax.swing.JTree;
-
-import org.jetbrains.idea.maven.model.MavenArtifact;
-import org.jetbrains.idea.maven.model.MavenProfileKind;
-import com.intellij.execution.RunnerAndConfigurationSettings;
-import com.intellij.openapi.util.Key;
 
 
 public interface MavenDataKeys

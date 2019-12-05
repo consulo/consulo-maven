@@ -15,27 +15,28 @@
  */
 package org.jetbrains.idea.maven.compiler;
 
+import com.intellij.compiler.CompilerIOUtil;
+import com.intellij.compiler.impl.CompileDriver;
+import com.intellij.compiler.impl.CompilerUtil;
+import com.intellij.openapi.application.AccessToken;
+import com.intellij.openapi.application.ReadAction;
+import com.intellij.openapi.compiler.*;
+import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.ModuleManager;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.roots.ProjectFileIndex;
+import com.intellij.openapi.roots.ProjectRootManager;
+import com.intellij.openapi.util.Comparing;
+import com.intellij.openapi.util.io.FileUtil;
+import com.intellij.openapi.util.text.StringUtil;
+import com.intellij.openapi.vfs.*;
+import com.intellij.util.containers.ContainerUtil;
+import consulo.compiler.roots.CompilerPathsImpl;
+import consulo.util.dataholder.Key;
 import gnu.trove.THashMap;
 import gnu.trove.THashSet;
-
-import java.io.*;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.regex.Pattern;
-
-import javax.annotation.Nonnull;
-
 import org.jdom.Element;
-
-import javax.annotation.Nullable;
 import org.jetbrains.idea.maven.dom.MavenPropertyResolver;
 import org.jetbrains.idea.maven.dom.references.MavenPropertyPsiReference;
 import org.jetbrains.idea.maven.model.MavenResource;
@@ -44,34 +45,13 @@ import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.utils.MavenJDOMUtil;
 import org.jetbrains.idea.maven.utils.MavenLog;
 import org.jetbrains.idea.maven.utils.MavenUtil;
-import com.intellij.compiler.CompilerIOUtil;
-import com.intellij.compiler.impl.CompileDriver;
-import com.intellij.compiler.impl.CompilerUtil;
-import com.intellij.openapi.application.AccessToken;
-import com.intellij.openapi.application.ReadAction;
-import com.intellij.openapi.compiler.ClassPostProcessingCompiler;
-import com.intellij.openapi.compiler.CompileContext;
-import com.intellij.openapi.compiler.CompileScope;
-import com.intellij.openapi.compiler.CompilerMessageCategory;
-import com.intellij.openapi.compiler.CompilerPaths;
-import com.intellij.openapi.compiler.ValidityState;
-import com.intellij.openapi.module.Module;
-import com.intellij.openapi.module.ModuleManager;
-import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.roots.ProjectFileIndex;
-import com.intellij.openapi.roots.ProjectRootManager;
-import com.intellij.openapi.util.Comparing;
-import com.intellij.openapi.util.Key;
-import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.openapi.vfs.LocalFileSystem;
-import com.intellij.openapi.vfs.VfsUtil;
-import com.intellij.openapi.vfs.VfsUtilCore;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.vfs.VirtualFileVisitor;
-import com.intellij.util.containers.ContainerUtil;
-import consulo.compiler.roots.CompilerPathsImpl;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.io.*;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.regex.Pattern;
 
 public class MavenResourceCompiler implements ClassPostProcessingCompiler
 {

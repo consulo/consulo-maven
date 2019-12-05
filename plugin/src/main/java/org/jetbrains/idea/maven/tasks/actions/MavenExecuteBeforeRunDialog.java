@@ -17,7 +17,7 @@ package org.jetbrains.idea.maven.tasks.actions;
 
 import com.intellij.execution.impl.BaseExecuteBeforeRunDialog;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Key;
+import consulo.util.dataholder.Key;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.tasks.MavenBeforeRunTask;
 import org.jetbrains.idea.maven.tasks.MavenBeforeRunTasksProvider;

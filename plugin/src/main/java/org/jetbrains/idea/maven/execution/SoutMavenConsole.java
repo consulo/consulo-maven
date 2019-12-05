@@ -18,7 +18,7 @@ package org.jetbrains.idea.maven.execution;
 import com.intellij.execution.process.ProcessAdapter;
 import com.intellij.execution.process.ProcessEvent;
 import com.intellij.execution.process.ProcessHandler;
-import com.intellij.openapi.util.Key;
+import consulo.util.dataholder.Key;
 import org.jetbrains.idea.maven.project.MavenConsole;
 
 public class SoutMavenConsole extends MavenConsole {

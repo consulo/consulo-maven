@@ -15,20 +15,6 @@
  */
 package org.jetbrains.idea.maven.dom;
 
-import gnu.trove.THashMap;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import org.jetbrains.annotations.NonNls;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import org.jetbrains.idea.maven.MavenImportingTestCase;
-import org.jetbrains.idea.maven.dom.inspections.MavenModelInspection;
-import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
-import org.jetbrains.idea.maven.dom.references.MavenPsiElementWrapper;
 import com.intellij.codeInsight.CodeInsightSettings;
 import com.intellij.codeInsight.documentation.DocumentationManager;
 import com.intellij.codeInsight.highlighting.HighlightUsagesHandler;
@@ -42,7 +28,6 @@ import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.markup.RangeHighlighter;
 import com.intellij.openapi.util.Comparing;
-import com.intellij.openapi.util.Key;
 import com.intellij.openapi.vfs.VfsUtilCore;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
@@ -68,6 +53,20 @@ import com.intellij.util.Function;
 import com.intellij.util.containers.ContainerUtil;
 import consulo.codeInsight.TargetElementUtil;
 import consulo.codeInsight.TargetElementUtilEx;
+import consulo.util.dataholder.Key;
+import gnu.trove.THashMap;
+import org.jetbrains.annotations.NonNls;
+import org.jetbrains.idea.maven.MavenImportingTestCase;
+import org.jetbrains.idea.maven.dom.inspections.MavenModelInspection;
+import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
+import org.jetbrains.idea.maven.dom.references.MavenPsiElementWrapper;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public abstract class MavenDomTestCase extends MavenImportingTestCase
 {

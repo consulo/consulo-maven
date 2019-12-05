@@ -16,9 +16,9 @@
 package org.jetbrains.idea.maven.project;
 
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Key;
 import com.intellij.util.Function;
 import com.intellij.util.containers.ContainerUtil;
+import consulo.util.dataholder.Key;
 import gnu.trove.THashSet;
 import org.jetbrains.annotations.TestOnly;
 import org.jetbrains.idea.maven.server.MavenEmbedderWrapper;

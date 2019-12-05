@@ -15,39 +15,10 @@
  */
 package org.jetbrains.idea.maven.project;
 
-import gnu.trove.THashSet;
-
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
-import org.jdom.Element;
-import org.jetbrains.idea.maven.importing.MavenExtraArtifactType;
-import org.jetbrains.idea.maven.importing.MavenImporter;
-import org.jetbrains.idea.maven.model.*;
-import org.jetbrains.idea.maven.plugins.api.MavenModelPropertiesPatcher;
-import org.jetbrains.idea.maven.server.MavenEmbedderWrapper;
-import org.jetbrains.idea.maven.server.NativeMavenProjectHolder;
-import org.jetbrains.idea.maven.utils.MavenArtifactUtil;
-import org.jetbrains.idea.maven.utils.MavenJDOMUtil;
-import org.jetbrains.idea.maven.utils.MavenProcessCanceledException;
-import org.jetbrains.idea.maven.utils.MavenUtil;
-import org.jetbrains.idea.maven.utils.Path;
 import com.intellij.execution.configurations.ParametersList;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Comparing;
 import com.intellij.openapi.util.Condition;
-import com.intellij.openapi.util.Key;
 import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.util.io.BufferExposingByteArrayOutputStream;
 import com.intellij.openapi.util.io.FileUtil;
@@ -55,6 +26,22 @@ import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.containers.ContainerUtil;
+import consulo.util.dataholder.Key;
+import gnu.trove.THashSet;
+import org.jdom.Element;
+import org.jetbrains.idea.maven.importing.MavenExtraArtifactType;
+import org.jetbrains.idea.maven.importing.MavenImporter;
+import org.jetbrains.idea.maven.model.*;
+import org.jetbrains.idea.maven.plugins.api.MavenModelPropertiesPatcher;
+import org.jetbrains.idea.maven.server.MavenEmbedderWrapper;
+import org.jetbrains.idea.maven.server.NativeMavenProjectHolder;
+import org.jetbrains.idea.maven.utils.*;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.io.*;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class MavenProject
 {
