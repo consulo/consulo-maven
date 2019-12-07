@@ -48,6 +48,7 @@ import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.io.BaseOutputReader;
 import com.intellij.util.xmlb.Converter;
 import com.intellij.util.xmlb.annotations.Attribute;
+import consulo.container.boot.ContainerPathManager;
 import consulo.java.execution.OwnSimpleJavaParameters;
 import consulo.java.projectRoots.OwnJdkUtil;
 import consulo.maven.*;
@@ -261,7 +262,7 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
 			{
 				final OwnSimpleJavaParameters params = new OwnSimpleJavaParameters();
 
-				params.setWorkingDirectory(PathManager.getBinPath());
+				params.setWorkingDirectory(ContainerPathManager.get().getBinPath());
 
 				params.setMainClass(MAIN_CLASS);
 

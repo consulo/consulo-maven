@@ -26,7 +26,6 @@ import com.intellij.execution.impl.RunManagerImpl;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationListener;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
@@ -43,6 +42,7 @@ import com.intellij.openapi.vfs.encoding.EncodingProjectManager;
 import com.intellij.pom.java.LanguageLevel;
 import com.intellij.util.PathUtil;
 import consulo.annotation.access.RequiredReadAction;
+import consulo.container.boot.ContainerPathManager;
 import consulo.java.execution.configurations.OwnJavaParameters;
 import consulo.maven.util.MavenJdkUtil;
 import org.jetbrains.annotations.NonNls;
@@ -271,17 +271,12 @@ public class MavenExternalParameters
 			}
 		}
 
-		File file = new File(PathManager.getSystemPath(), "Maven/idea-projects-state-" + project.getLocationHash() + ".properties");
+		File file = new File(ContainerPathManager.get().getSystemPath(), "Maven/idea-projects-state-" + project.getLocationHash() + ".properties");
 		FileUtil.ensureExists(file.getParentFile());
 
-		OutputStream out = new BufferedOutputStream(new FileOutputStream(file));
-		try
+		try (OutputStream out = new BufferedOutputStream(new FileOutputStream(file)))
 		{
 			res.store(out, null);
-		}
-		finally
-		{
-			out.close();
 		}
 
 		return file;

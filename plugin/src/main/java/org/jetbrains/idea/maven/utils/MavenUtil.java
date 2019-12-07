@@ -27,7 +27,6 @@ import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ModalityState;
-import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.application.impl.LaterInvocator;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
@@ -59,6 +58,7 @@ import com.intellij.util.SystemProperties;
 import com.intellij.util.concurrency.Semaphore;
 import com.intellij.util.containers.ContainerUtil;
 import consulo.awt.TargetAWT;
+import consulo.container.boot.ContainerPathManager;
 import consulo.java.module.extension.JavaModuleExtension;
 import consulo.vfs.util.ArchiveVfsUtil;
 import gnu.trove.THashSet;
@@ -277,7 +277,7 @@ public class MavenUtil
 	public static File getPluginSystemDir(String folder)
 	{
 		// PathManager.getSystemPath() may return relative path
-		return new File(PathManager.getSystemPath(), "Maven" + "/" + folder).getAbsoluteFile();
+		return new File(ContainerPathManager.get().getSystemPath(), "Maven" + "/" + folder).getAbsoluteFile();
 	}
 
 	@Nullable
