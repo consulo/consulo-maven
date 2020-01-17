@@ -374,7 +374,7 @@ public class MavenExternalParameters
 	@Nonnull
 	public static String resolveMavenHome(@Nonnull MavenGeneralSettings coreSettings, @javax.annotation.Nullable Project project, @Nullable MavenRunConfiguration runConfiguration) throws ExecutionException
 	{
-		final File file = MavenUtil.resolveMavenHomeDirectory(coreSettings.getMavenHome());
+		final File file = MavenUtil.resolveMavenHomeDirectory(coreSettings.getMavenBundleName());
 
 		if(file == null)
 		{

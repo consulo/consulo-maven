@@ -43,6 +43,9 @@
 	</extensions>
 
 	<extensions defaultExtensionNs="com.intellij">
+		<predefinedBundlesProvider implementation="consulo.maven.bundle.MavenPredefinedBundlesProvider" />
+		<sdkType implementation="consulo.maven.bundle.MavenBundleType" />
+
 		<fileTypeFactory implementation="org.jetbrains.idea.maven.utils.MavenFileTypeFactory"/>
 		<moduleImportProvider implementation="consulo.maven.importProvider.MavenModuleImportProvider"/>
 		<newModuleBuilder implementation="consulo.maven.newProject.MavenNewModuleBuilder" />

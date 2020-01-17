@@ -31,10 +31,10 @@ public abstract class MavenSettingsTest extends MavenTestCase {
       }
     });
 
-    s.setMavenHome("home");
+    s.setMavenBundleName("home");
     assertEquals("changed ", log[0]);
 
-    s.clone().setMavenHome("new home");
+    s.clone().setMavenBundleName("new home");
     assertEquals("changed ", log[0]);
   }
 

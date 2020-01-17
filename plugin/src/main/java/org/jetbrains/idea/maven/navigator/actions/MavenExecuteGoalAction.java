@@ -98,7 +98,7 @@ public class MavenExecuteGoalAction extends DumbAwareAction
 
 		MavenProjectsManager projectsManager = MavenProjectsManager.getInstance(project);
 
-		File mavenHome = MavenUtil.resolveMavenHomeDirectory(projectsManager.getGeneralSettings().getMavenHome());
+		File mavenHome = MavenUtil.resolveMavenHomeDirectory(projectsManager.getGeneralSettings().getMavenBundleName());
 		if(mavenHome == null)
 		{
 			Notification notification = new Notification(MavenUtil.MAVEN_NOTIFICATION_GROUP, "Failed to execute goal", RunnerBundle.message("external.maven.home.no.default.with.fix"),
@@ -118,7 +118,7 @@ public class MavenExecuteGoalAction extends DumbAwareAction
 		MavenRunnerParameters parameters = new MavenRunnerParameters(true, workDirectory, Arrays.asList(ParametersList.parse(goals)), Collections.<String>emptyList());
 
 		MavenGeneralSettings generalSettings = new MavenGeneralSettings();
-		generalSettings.setMavenHome(mavenHome.getPath());
+		generalSettings.setMavenBundleName(mavenHome.getPath());
 
 		MavenRunnerSettings runnerSettings = MavenRunner.getInstance(project).getSettings().clone();
 		runnerSettings.setMavenProperties(new LinkedHashMap<String, String>());

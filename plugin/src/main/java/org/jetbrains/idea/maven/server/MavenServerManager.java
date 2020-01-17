@@ -41,6 +41,7 @@ import com.intellij.openapi.projectRoots.SdkTable;
 import com.intellij.openapi.util.Comparing;
 import com.intellij.openapi.util.ShutDownTracker;
 import com.intellij.openapi.util.SystemInfo;
+import com.intellij.openapi.util.Version;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.pom.java.LanguageLevel;
 import com.intellij.util.PathUtil;
@@ -52,6 +53,7 @@ import consulo.container.boot.ContainerPathManager;
 import consulo.java.execution.OwnSimpleJavaParameters;
 import consulo.java.projectRoots.OwnJdkUtil;
 import consulo.maven.*;
+import consulo.maven.bundle.MavenBundleType;
 import consulo.maven.util.MavenJdkUtil;
 import consulo.util.rmi.RemoteServer;
 import gnu.trove.THashMap;
@@ -83,9 +85,6 @@ import java.util.*;
 @Singleton
 public class MavenServerManager extends RemoteObjectWrapper<MavenServer> implements PersistentStateComponent<MavenServerManager.State>
 {
-	public static final String BUNDLED_MAVEN_2 = "Bundled (Maven 2)";
-	public static final String BUNDLED_MAVEN_3 = "Bundled (Maven 3)";
-
 	@NonNls
 	private static final String MAIN_CLASS = "org.jetbrains.idea.maven.server.RemoteMavenServer";
 
@@ -101,8 +100,6 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
 	private boolean myDownloadListenerExported;
 
 	private State myState = new State();
-	private final File myBundledMaven2Home;
-	private final File myBundledMaven3Home;
 
 	static class State
 	{
@@ -114,7 +111,7 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
 		@Attribute
 		public String jdkName;
 		@Attribute
-		public String mavenHome;
+		public String mavenBundleName;
 		@Attribute
 		public MavenExecutionOptions.LoggingLevel loggingLevel = MavenExecutionOptions.LoggingLevel.INFO;
 	}
@@ -127,11 +124,6 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
 	public MavenServerManager()
 	{
 		super(null);
-
-		File pluginPath = PluginManager.getPluginPath(getClass());
-
-		myBundledMaven2Home = new File(pluginPath, "maven2");
-		myBundledMaven3Home = new File(pluginPath, "maven3");
 
 		mySupport = new RemoteProcessSupport<Object, MavenServer, Object>(MavenServer.class)
 		{
@@ -412,27 +404,58 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
 	}
 
 	@Nullable
-	public String getMavenVersion(@Nullable String mavenHome)
+	public String getMavenVersion(@Nullable String mavenBundleName)
 	{
-		return MavenUtil.getMavenVersion(getMavenHomeFile(mavenHome));
+		File file = MavenUtil.resolveMavenHomeDirectory(mavenBundleName);
+		if(file != null)
+		{
+			return MavenUtil.getMavenVersion(file);
+		}
+		return null;
 	}
 
 	@SuppressWarnings("unused")
 	@Nullable
-	public String getMavenVersion(@javax.annotation.Nullable File mavenHome)
+	public String getMavenVersion(@Nullable File mavenHome)
 	{
 		return MavenUtil.getMavenVersion(mavenHome);
 	}
 
 	public String getCurrentMavenVersion()
 	{
-		return getMavenVersion(myState.mavenHome);
+		return getMavenVersion(myState.mavenBundleName);
 	}
 
+	@Nullable
+	private static Sdk findMaven2Bundle()
+	{
+		List<Sdk> sdksOfType = SdkTable.getInstance().getSdksOfType(MavenBundleType.getInstance());
+		for(Sdk sdk : sdksOfType)
+		{
+			if(sdk.isPredefined())
+			{
+				Version version = Version.parseVersion(StringUtil.notNullize(sdk.getVersionString()));
+				if(version != null && version.major == 2)
+				{
+					return sdk;
+				}
+			}
+		}
+		return null;
+	}
+
+	@Nullable
+	private static File findMaven2BundlePath()
+	{
+		Sdk maven2Bundle = findMaven2Bundle();
+		return maven2Bundle == null ? null : new File(maven2Bundle.getHomePath());
+	}
+
+	@Nonnull
 	public List<File> collectClassPathAndLibsFolder(boolean forceMaven2)
 	{
 		final String currentMavenVersion = forceMaven2 ? "2.2.1" : getCurrentMavenVersion();
-		File mavenHome = forceMaven2 ? myBundledMaven2Home : currentMavenVersion == null ? myBundledMaven3Home : getCurrentMavenHomeFile();
+		File mavenHome = forceMaven2 ? findMaven2BundlePath() : getCurrentMavenHomeFile();
 
 		File pluginPath = PluginManager.getPluginPath(getClass());
 		File libDir = new File(pluginPath, "lib");
@@ -621,7 +644,7 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
 
 	private static class UseMavenConverter extends Converter<Boolean>
 	{
-		@javax.annotation.Nullable
+		@Nullable
 		@Override
 		public Boolean fromString(@Nonnull String value)
 		{
@@ -651,44 +674,26 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
 	@TestOnly
 	public void setUseMaven2(boolean useMaven2)
 	{
-		String newMavenHome = useMaven2 ? BUNDLED_MAVEN_2 : BUNDLED_MAVEN_3;
-		if(!StringUtil.equals(myState.mavenHome, newMavenHome))
+		Sdk maven2Bundle = findMaven2Bundle();
+		String newBundleName = useMaven2 ? maven2Bundle == null ? null : maven2Bundle.getName() : null;
+		if(!StringUtil.equals(myState.mavenBundleName, newBundleName))
 		{
-			myState.mavenHome = newMavenHome;
+			myState.mavenBundleName = newBundleName;
 			shutdown(false);
 		}
 	}
 
-	@javax.annotation.Nullable
-	public File getMavenHomeFile(@javax.annotation.Nullable String mavenHome)
-	{
-		if(mavenHome == null)
-		{
-			return null;
-		}
-		if(StringUtil.equals(BUNDLED_MAVEN_2, mavenHome))
-		{
-			return myBundledMaven2Home;
-		}
-		if(StringUtil.equals(BUNDLED_MAVEN_3, mavenHome))
-		{
-			return myBundledMaven3Home;
-		}
-		final File home = new File(mavenHome);
-		return MavenUtil.isValidMavenHome(home) ? home : null;
-	}
-
-	@javax.annotation.Nullable
+	@Nullable
 	public File getCurrentMavenHomeFile()
 	{
-		return getMavenHomeFile(myState.mavenHome);
+		return MavenUtil.resolveMavenHomeDirectory(myState.mavenBundleName);
 	}
 
-	public void setMavenHome(@Nonnull String mavenHome)
+	public void setMavenBundleName(@Nonnull String mavenHome)
 	{
-		if(!StringUtil.equals(myState.mavenHome, mavenHome))
+		if(!StringUtil.equals(myState.mavenBundleName, mavenHome))
 		{
-			myState.mavenHome = mavenHome;
+			myState.mavenBundleName = mavenHome;
 			shutdown(false);
 		}
 	}

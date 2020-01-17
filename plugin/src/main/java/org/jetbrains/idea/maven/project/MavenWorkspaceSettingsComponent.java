@@ -15,18 +15,15 @@
  */
 package org.jetbrains.idea.maven.project;
 
-import javax.annotation.Nonnull;
-import org.jetbrains.idea.maven.model.MavenExplicitProfiles;
-import org.jetbrains.idea.maven.server.MavenServerManager;
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.components.PersistentStateComponent;
-import com.intellij.openapi.components.ServiceManager;
-import com.intellij.openapi.components.State;
-import com.intellij.openapi.components.Storage;
-import com.intellij.openapi.components.StoragePathMacros;
+import com.intellij.openapi.components.*;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.text.StringUtil;
+import org.jetbrains.idea.maven.model.MavenExplicitProfiles;
 
+import javax.annotation.Nonnull;
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
+@Singleton
 @State(name = "MavenImportPreferences", storages = {@Storage(file = StoragePathMacros.WORKSPACE_FILE)})
 public class MavenWorkspaceSettingsComponent implements PersistentStateComponent<MavenWorkspaceSettings>
 {
@@ -34,10 +31,10 @@ public class MavenWorkspaceSettingsComponent implements PersistentStateComponent
 
 	private final Project myProject;
 
+	@Inject
 	public MavenWorkspaceSettingsComponent(Project project)
 	{
 		myProject = project;
-		applyDefaults(mySettings);
 	}
 
 	public static MavenWorkspaceSettingsComponent getInstance(Project project)
@@ -59,26 +56,10 @@ public class MavenWorkspaceSettingsComponent implements PersistentStateComponent
 	public void loadState(MavenWorkspaceSettings state)
 	{
 		mySettings = state;
-		applyDefaults(mySettings);
 	}
 
 	public MavenWorkspaceSettings getSettings()
 	{
 		return mySettings;
-	}
-
-	private static void applyDefaults(MavenWorkspaceSettings settings)
-	{
-		if(StringUtil.isEmptyOrSpaces(settings.generalSettings.getMavenHome()))
-		{
-			if(MavenServerManager.getInstance().isUsedMaven2ForProjectImport() || ApplicationManager.getApplication().isUnitTestMode())
-			{
-				settings.generalSettings.setMavenHome(MavenServerManager.BUNDLED_MAVEN_2);
-			}
-			else
-			{
-				settings.generalSettings.setMavenHome(MavenServerManager.BUNDLED_MAVEN_3);
-			}
-		}
 	}
 }

@@ -17,213 +17,233 @@
 
 package org.jetbrains.idea.maven.project;
 
+import com.intellij.icons.AllIcons;
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory;
+import com.intellij.openapi.projectRoots.Sdk;
+import com.intellij.openapi.projectRoots.SdkTable;
 import com.intellij.openapi.ui.LabeledComponent;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.openapi.util.Comparing;
+import com.intellij.openapi.util.Conditions;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.ui.DocumentAdapter;
 import com.intellij.ui.PanelWithAnchor;
-import com.intellij.ui.components.JBLabel;
 import com.intellij.util.Alarm;
 import com.intellij.util.ui.UIUtil;
-import javax.annotation.Nonnull;
-
+import consulo.maven.bundle.MavenBundleType;
+import consulo.roots.ui.configuration.SdkComboBox;
 import org.jetbrains.idea.maven.utils.MavenUtil;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.*;
 import java.io.File;
 
-public class MavenEnvironmentForm implements PanelWithAnchor {
-  private JPanel panel;
-  private LabeledComponent<TextFieldWithBrowseButton> mavenHomeComponent;
-  private LabeledComponent<TextFieldWithBrowseButton> settingsFileComponent;
-  private LabeledComponent<TextFieldWithBrowseButton> localRepositoryComponent;
-  private JCheckBox mavenHomeOverrideCheckBox;
-  private JCheckBox settingsOverrideCheckBox;
-  private JCheckBox localRepositoryOverrideCheckBox;
-  private JBLabel myFakeLabel;
-  private JComponent anchor;
+public class MavenEnvironmentForm implements PanelWithAnchor
+{
+	private JPanel panel;
+	private LabeledComponent<TextFieldWithBrowseButton> settingsFileComponent;
+	private LabeledComponent<TextFieldWithBrowseButton> localRepositoryComponent;
+	private JCheckBox settingsOverrideCheckBox;
+	private JCheckBox localRepositoryOverrideCheckBox;
+	private JPanel myMavenBundlePanel;
+	private JComponent anchor;
 
-  private final PathOverrider mavenHomeOverrider;
-  private final PathOverrider userSettingsFileOverrider;
-  private final PathOverrider localRepositoryOverrider;
+	private final PathOverrider userSettingsFileOverrider;
+	private final PathOverrider localRepositoryOverrider;
 
-  private boolean isUpdating = false;
-  private final Alarm myUpdateAlarm = new Alarm(Alarm.ThreadToUse.SWING_THREAD);
+	private boolean isUpdating = false;
+	private final Alarm myUpdateAlarm = new Alarm(Alarm.ThreadToUse.SWING_THREAD);
 
-  public MavenEnvironmentForm() {
-    DocumentAdapter listener = new DocumentAdapter() {
-      @Override
-      protected void textChanged(DocumentEvent e) {
-        UIUtil.invokeLaterIfNeeded(new Runnable() {
-          @Override
-          public void run() {
-            if (isUpdating) return;
-            if (!panel.isShowing()) return;
+	private final LabeledComponent<JComponent> myMavenComboBoxLabeled;
+	private final SdkComboBox myMavenBundleBox;
 
-            myUpdateAlarm.cancelAllRequests();
-            myUpdateAlarm.addRequest(new Runnable() {
-                @Override
-                public void run() {
-                  isUpdating = true;
-                  mavenHomeOverrider.updateDefault();
-                  userSettingsFileOverrider.updateDefault();
-                  localRepositoryOverrider.updateDefault();
-                  isUpdating = false;
-                }
-              }, 100);
-          }
-        });
-      }
-    };
+	public MavenEnvironmentForm()
+	{
+		myMavenBundleBox = new SdkComboBox(SdkTable.getInstance(), Conditions.equalTo(MavenBundleType.getInstance()), null, "Auto Select", AllIcons.Actions.FindPlain);
 
-    mavenHomeOverrider = new PathOverrider(mavenHomeComponent, mavenHomeOverrideCheckBox, listener, new PathProvider() {
-      @javax.annotation.Nullable
-      protected File getFile() {
-        return MavenUtil.resolveMavenHomeDirectory("");
-      }
-    });
+		DocumentAdapter listener = new DocumentAdapter()
+		{
+			@Override
+			protected void textChanged(DocumentEvent e)
+			{
+				UIUtil.invokeLaterIfNeeded(() -> {
+					if(isUpdating)
+					{
+						return;
+					}
+					if(!panel.isShowing())
+					{
+						return;
+					}
 
-    userSettingsFileOverrider =
-      new PathOverrider(settingsFileComponent, settingsOverrideCheckBox, listener, new PathProvider() {
-        @javax.annotation.Nullable
-        protected File getFile() {
-          return MavenUtil.resolveUserSettingsFile("");
-        }
-      });
+					myUpdateAlarm.cancelAllRequests();
+					myUpdateAlarm.addRequest(() -> {
+						isUpdating = true;
+						userSettingsFileOverrider.updateDefault();
+						localRepositoryOverrider.updateDefault();
+						isUpdating = false;
+					}, 100);
+				});
+			}
+		};
 
-    localRepositoryOverrider =
-      new PathOverrider(localRepositoryComponent, localRepositoryOverrideCheckBox, listener, new PathProvider() {
-        @javax.annotation.Nullable
-        protected File getFile() {
-          return MavenUtil.resolveLocalRepository("",
-                                                  mavenHomeComponent.getComponent().getText(),
-                                                  settingsFileComponent.getComponent().getText());
-        }
-      });
+		myMavenComboBoxLabeled = LabeledComponent.create(myMavenBundleBox, "Maven Bundle");
+		myMavenBundlePanel.add(myMavenComboBoxLabeled, BorderLayout.CENTER);
 
-    setAnchor(mavenHomeComponent.getLabel());
-  }
+		userSettingsFileOverrider = new PathOverrider(settingsFileComponent, settingsOverrideCheckBox, listener, () -> MavenUtil.resolveUserSettingsFile(""));
 
-  public boolean isModified(MavenGeneralSettings data) {
-    MavenGeneralSettings formData = new MavenGeneralSettings();
-    setData(formData);
-    return !formData.equals(data);
-  }
+		localRepositoryOverrider =
+				new PathOverrider(localRepositoryComponent, localRepositoryOverrideCheckBox, listener, () -> MavenUtil.resolveLocalRepository("",
+						getMavenHome(),
+						settingsFileComponent.getComponent().getText()));
 
-  public void setData(MavenGeneralSettings data) {
-    data.setMavenHome(mavenHomeOverrider.getResult());
-    data.setUserSettingsFile(userSettingsFileOverrider.getResult());
-    data.setLocalRepository(localRepositoryOverrider.getResult());
-  }
+		setAnchor(myMavenComboBoxLabeled.getLabel());
+	}
 
-  public void getData(MavenGeneralSettings data) {
-    mavenHomeOverrider.reset(data.getMavenHome());
-    userSettingsFileOverrider.reset(data.getUserSettingsFile());
-    localRepositoryOverrider.reset(data.getLocalRepository());
-  }
+	public boolean isModified(MavenGeneralSettings data)
+	{
+		MavenGeneralSettings formData = new MavenGeneralSettings();
+		setData(formData);
+		return !formData.equals(data);
+	}
 
-  @Nonnull
-  public String getMavenHome() {
-    return mavenHomeOverrider.getResult();
-  }
+	public void setData(MavenGeneralSettings data)
+	{
+		data.setMavenBundleName(consulo.util.lang.StringUtil.notNullize(myMavenBundleBox.getSelectedSdkName()));
+		data.setUserSettingsFile(userSettingsFileOverrider.getResult());
+		data.setLocalRepository(localRepositoryOverrider.getResult());
+	}
 
-  public JComponent createComponent() {
-    // all listeners will be removed when dialog is closed
-    mavenHomeComponent.getComponent().addBrowseFolderListener(ProjectBundle.message("maven.select.maven.home.directory"), "", null,
-                                                              FileChooserDescriptorFactory.createSingleFolderDescriptor());
-    settingsFileComponent.getComponent().addBrowseFolderListener(ProjectBundle.message("maven.select.maven.settings.file"), "", null,
-                                                                 FileChooserDescriptorFactory.createSingleFileNoJarsDescriptor());
-    localRepositoryComponent.getComponent().addBrowseFolderListener(ProjectBundle.message("maven.select.local.repository"), "", null,
-                                                                    FileChooserDescriptorFactory.createSingleFolderDescriptor());
-    return panel;
-  }
+	public void getData(MavenGeneralSettings data)
+	{
+		String mavenHome = data.getMavenBundleName();
+		myMavenBundleBox.setSelectedSdk(consulo.util.lang.StringUtil.nullize(mavenHome));
+		userSettingsFileOverrider.reset(data.getUserSettingsFile());
+		localRepositoryOverrider.reset(data.getLocalRepository());
+	}
 
-  @Override
-  public JComponent getAnchor() {
-    return anchor;
-  }
+	@Nonnull
+	public String getMavenHome()
+	{
+		Sdk selectedSdk = myMavenBundleBox.getSelectedSdk();
+		if(selectedSdk == null)
+		{
+			File file = MavenUtil.resolveMavenHomeDirectory("");
+			return file == null ? "" : file.getPath();
+		}
+		return consulo.util.lang.StringUtil.notNullize(selectedSdk.getHomePath());
+	}
 
-  @Override
-  public void setAnchor(JComponent anchor) {
-    this.anchor = anchor;
-    mavenHomeComponent.setAnchor(anchor);
-    settingsFileComponent.setAnchor(anchor);
-    localRepositoryComponent.setAnchor(anchor);
-    myFakeLabel.setAnchor(anchor);
-  }
+	public JComponent createComponent()
+	{
+		settingsFileComponent.getComponent().addBrowseFolderListener(ProjectBundle.message("maven.select.maven.settings.file"), "", null,
+				FileChooserDescriptorFactory.createSingleFileNoJarsDescriptor());
+		localRepositoryComponent.getComponent().addBrowseFolderListener(ProjectBundle.message("maven.select.local.repository"), "", null,
+				FileChooserDescriptorFactory.createSingleFolderDescriptor());
+		return panel;
+	}
 
-  private static abstract class PathProvider {
-    public String getPath() {
-      final File file = getFile();
-      return file == null ? "" : file.getPath();
-    }
+	@Override
+	public JComponent getAnchor()
+	{
+		return anchor;
+	}
 
-    @javax.annotation.Nullable
-    abstract protected File getFile();
-  }
+	@Override
+	public void setAnchor(JComponent anchor)
+	{
+		this.anchor = anchor;
+		myMavenComboBoxLabeled.setAnchor(anchor);
+		settingsFileComponent.setAnchor(anchor);
+		localRepositoryComponent.setAnchor(anchor);
+	}
 
-  private static class PathOverrider {
-    private final TextFieldWithBrowseButton component;
-    private final JCheckBox checkBox;
-    private final PathProvider pathProvider;
+	private static interface PathProvider
+	{
+		default String getPath()
+		{
+			final File file = getFile();
+			return file == null ? "" : file.getPath();
+		}
 
-    private Boolean isOverridden;
-    private String overrideText;
+		@Nullable
+		File getFile();
+	}
 
-    public PathOverrider(final LabeledComponent<TextFieldWithBrowseButton> component,
-                         final JCheckBox checkBox,
-                         DocumentListener docListener,
-                         PathProvider pathProvider) {
-      this.component = component.getComponent();
-      this.component.getTextField().getDocument().addDocumentListener(docListener);
-      this.checkBox = checkBox;
-      this.pathProvider = pathProvider;
-      checkBox.addActionListener(new ActionListener() {
-        public void actionPerformed(final ActionEvent e) {
-          update();
-        }
-      });
-    }
+	private static class PathOverrider
+	{
+		private final TextFieldWithBrowseButton component;
+		private final JCheckBox checkBox;
+		private final PathProvider pathProvider;
 
-    private void update() {
-      final boolean override = checkBox.isSelected();
-      if (Comparing.equal(isOverridden, override)) return;
+		private Boolean isOverridden;
+		private String overrideText;
 
-      isOverridden = override;
+		public PathOverrider(final LabeledComponent<TextFieldWithBrowseButton> component,
+							 final JCheckBox checkBox,
+							 DocumentListener docListener,
+							 PathProvider pathProvider)
+		{
+			this.component = component.getComponent();
+			this.component.getTextField().getDocument().addDocumentListener(docListener);
+			this.checkBox = checkBox;
+			this.pathProvider = pathProvider;
+			checkBox.addActionListener(e -> update());
+		}
 
-      component.setEditable(override);
-      component.setEnabled(override && checkBox.isEnabled());
+		private void update()
+		{
+			final boolean override = checkBox.isSelected();
+			if(Comparing.equal(isOverridden, override))
+			{
+				return;
+			}
 
-      if (override) {
-        if (overrideText != null) component.setText(overrideText);
-      }
-      else {
-        if (!StringUtil.isEmptyOrSpaces(component.getText())) overrideText = component.getText();
-        component.setText(pathProvider.getPath());
-      }
-    }
+			isOverridden = override;
 
-    private void updateDefault() {
-      if (!checkBox.isSelected()) {
-        component.setText(pathProvider.getPath());
-      }
-    }
+			component.setEditable(override);
+			component.setEnabled(override && checkBox.isEnabled());
 
-    public void reset(String text) {
-      isOverridden = null;
-      checkBox.setSelected(!StringUtil.isEmptyOrSpaces(text));
-      overrideText = StringUtil.isEmptyOrSpaces(text) ? null : text;
-      update();
-    }
+			if(override)
+			{
+				if(overrideText != null)
+				{
+					component.setText(overrideText);
+				}
+			}
+			else
+			{
+				if(!StringUtil.isEmptyOrSpaces(component.getText()))
+				{
+					overrideText = component.getText();
+				}
+				component.setText(pathProvider.getPath());
+			}
+		}
 
-    public String getResult() {
-      return checkBox.isSelected() ? component.getText().trim() : "";
-    }
-  }
+		private void updateDefault()
+		{
+			if(!checkBox.isSelected())
+			{
+				component.setText(pathProvider.getPath());
+			}
+		}
+
+		public void reset(String text)
+		{
+			isOverridden = null;
+			checkBox.setSelected(!StringUtil.isEmptyOrSpaces(text));
+			overrideText = StringUtil.isEmptyOrSpaces(text) ? null : text;
+			update();
+		}
+
+		public String getResult()
+		{
+			return checkBox.isSelected() ? component.getText().trim() : "";
+		}
+	}
 }

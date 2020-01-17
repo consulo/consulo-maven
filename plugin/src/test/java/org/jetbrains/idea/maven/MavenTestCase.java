@@ -83,7 +83,7 @@ public abstract class MavenTestCase extends UsefulTestCase
 		String home = getTestMavenHome();
 		if(home != null)
 		{
-			getMavenGeneralSettings().setMavenHome(home);
+			getMavenGeneralSettings().setMavenBundleName(home);
 		}
 
 		restoreSettingsFile();

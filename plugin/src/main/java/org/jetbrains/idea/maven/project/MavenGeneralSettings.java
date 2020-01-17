@@ -15,21 +15,6 @@
  */
 package org.jetbrains.idea.maven.project;
 
-import gnu.trove.THashSet;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
-import org.jdom.Element;
-import org.jetbrains.idea.maven.execution.MavenExecutionOptions;
-import org.jetbrains.idea.maven.server.MavenServerManager;
-import org.jetbrains.idea.maven.utils.MavenJDOMUtil;
-import org.jetbrains.idea.maven.utils.MavenUtil;
 import com.intellij.openapi.util.Comparing;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.LocalFileSystem;
@@ -37,11 +22,24 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.xmlb.annotations.Property;
 import com.intellij.util.xmlb.annotations.Transient;
+import gnu.trove.THashSet;
+import org.jdom.Element;
+import org.jetbrains.idea.maven.execution.MavenExecutionOptions;
+import org.jetbrains.idea.maven.server.MavenServerManager;
+import org.jetbrains.idea.maven.utils.MavenJDOMUtil;
+import org.jetbrains.idea.maven.utils.MavenUtil;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 public class MavenGeneralSettings implements Cloneable
 {
 	private boolean workOffline = false;
-	private String mavenHome = "";
+	private String mavenBundleName = "";
 	private String mavenSettingsFile = "";
 	private String overriddenLocalRepository = "";
 	private boolean printErrorStackTraces = false;
@@ -180,26 +178,26 @@ public class MavenGeneralSettings implements Cloneable
 	}
 
 	@Nonnull
-	public String getMavenHome()
+	public String getMavenBundleName()
 	{
-		return mavenHome;
+		return mavenBundleName;
 	}
 
-	public void setMavenHome(@Nonnull final String mavenHome)
+	public void setMavenBundleName(@Nonnull final String mavenBundleName)
 	{
-		if(!Comparing.equal(this.mavenHome, mavenHome))
+		if(!Comparing.equal(this.mavenBundleName, mavenBundleName))
 		{
-			this.mavenHome = mavenHome;
-			MavenServerManager.getInstance().setMavenHome(mavenHome);
+			this.mavenBundleName = mavenBundleName;
+			MavenServerManager.getInstance().setMavenBundleName(mavenBundleName);
 			myDefaultPluginsCache = null;
 			changed();
 		}
 	}
 
-	@javax.annotation.Nullable
+	@Nullable
 	public File getEffectiveMavenHome()
 	{
-		return MavenUtil.resolveMavenHomeDirectory(getMavenHome());
+		return MavenUtil.resolveMavenHomeDirectory(getMavenBundleName());
 	}
 
 	@Nonnull
@@ -208,7 +206,7 @@ public class MavenGeneralSettings implements Cloneable
 		return mavenSettingsFile;
 	}
 
-	public void setUserSettingsFile(@javax.annotation.Nullable String mavenSettingsFile)
+	public void setUserSettingsFile(@Nullable String mavenSettingsFile)
 	{
 		if(mavenSettingsFile == null)
 		{
@@ -222,19 +220,19 @@ public class MavenGeneralSettings implements Cloneable
 		}
 	}
 
-	@javax.annotation.Nullable
+	@Nullable
 	public File getEffectiveUserSettingsIoFile()
 	{
 		return MavenUtil.resolveUserSettingsFile(getUserSettingsFile());
 	}
 
-	@javax.annotation.Nullable
+	@Nullable
 	public File getEffectiveGlobalSettingsIoFile()
 	{
-		return MavenUtil.resolveGlobalSettingsFile(getMavenHome());
+		return MavenUtil.resolveGlobalSettingsFile(getMavenBundleName());
 	}
 
-	@javax.annotation.Nullable
+	@Nullable
 	public VirtualFile getEffectiveUserSettingsFile()
 	{
 		File file = getEffectiveUserSettingsIoFile();
@@ -257,7 +255,7 @@ public class MavenGeneralSettings implements Cloneable
 		return result;
 	}
 
-	@javax.annotation.Nullable
+	@Nullable
 	public VirtualFile getEffectiveGlobalSettingsFile()
 	{
 		File file = getEffectiveGlobalSettingsIoFile();
@@ -293,12 +291,12 @@ public class MavenGeneralSettings implements Cloneable
 			return result;
 		}
 
-		result = MavenUtil.resolveLocalRepository(overriddenLocalRepository, mavenHome, mavenSettingsFile);
+		result = MavenUtil.resolveLocalRepository(overriddenLocalRepository, mavenBundleName, mavenSettingsFile);
 		myEffectiveLocalRepositoryCache = result;
 		return result;
 	}
 
-	@javax.annotation.Nullable
+	@Nullable
 	public VirtualFile getEffectiveSuperPom()
 	{
 		return MavenUtil.resolveSuperPomFile(getEffectiveMavenHome());
@@ -380,7 +378,7 @@ public class MavenGeneralSettings implements Cloneable
 		changed();
 	}
 
-	@javax.annotation.Nullable
+	@Nullable
 	public String getThreads()
 	{
 		return threads;
@@ -445,7 +443,7 @@ public class MavenGeneralSettings implements Cloneable
 		{
 			return false;
 		}
-		if(!mavenHome.equals(that.mavenHome))
+		if(!mavenBundleName.equals(that.mavenBundleName))
 		{
 			return false;
 		}
@@ -465,7 +463,7 @@ public class MavenGeneralSettings implements Cloneable
 	{
 		int result;
 		result = (workOffline ? 1 : 0);
-		result = 31 * result + mavenHome.hashCode();
+		result = 31 * result + mavenBundleName.hashCode();
 		result = 31 * result + mavenSettingsFile.hashCode();
 		result = 31 * result + overriddenLocalRepository.hashCode();
 		result = 31 * result + (printErrorStackTraces ? 1 : 0);
