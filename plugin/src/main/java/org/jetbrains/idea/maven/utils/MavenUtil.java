@@ -15,6 +15,37 @@
  */
 package org.jetbrains.idea.maven.utils;
 
+import gnu.trove.THashSet;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
+import java.util.zip.CRC32;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+
+import org.jetbrains.idea.maven.model.MavenConstants;
+import org.jetbrains.idea.maven.model.MavenId;
+import org.jetbrains.idea.maven.model.MavenPlugin;
+import org.jetbrains.idea.maven.project.MavenProject;
+import org.jetbrains.idea.maven.project.MavenProjectsManager;
+import org.jetbrains.idea.maven.server.MavenServerManager;
+import org.jetbrains.idea.maven.server.MavenServerUtil;
+import org.xml.sax.Attributes;
+import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
+import org.xml.sax.helpers.DefaultHandler;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.codeInsight.template.TemplateManager;
@@ -56,6 +87,7 @@ import com.intellij.psi.PsiManager;
 import com.intellij.util.DisposeAwareRunnable;
 import com.intellij.util.Function;
 import com.intellij.util.SystemProperties;
+import com.intellij.util.concurrency.AppExecutorUtil;
 import com.intellij.util.concurrency.Semaphore;
 import com.intellij.util.containers.ContainerUtil;
 import consulo.awt.TargetAWT;
@@ -63,36 +95,7 @@ import consulo.container.boot.ContainerPathManager;
 import consulo.java.module.extension.JavaModuleExtension;
 import consulo.maven.bundle.MavenBundleType;
 import consulo.vfs.util.ArchiveVfsUtil;
-import gnu.trove.THashSet;
 import icons.MavenIcons;
-import org.jetbrains.idea.maven.model.MavenConstants;
-import org.jetbrains.idea.maven.model.MavenId;
-import org.jetbrains.idea.maven.model.MavenPlugin;
-import org.jetbrains.idea.maven.project.MavenProject;
-import org.jetbrains.idea.maven.project.MavenProjectsManager;
-import org.jetbrains.idea.maven.server.MavenServerManager;
-import org.jetbrains.idea.maven.server.MavenServerUtil;
-import org.xml.sax.Attributes;
-import org.xml.sax.SAXException;
-import org.xml.sax.SAXParseException;
-import org.xml.sax.helpers.DefaultHandler;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
-import java.util.zip.CRC32;
 
 public class MavenUtil
 {
@@ -582,83 +585,56 @@ public class MavenUtil
 	{
 		final MavenProgressIndicator indicator = new MavenProgressIndicator();
 
-		Runnable runnable = new Runnable()
-		{
-			@Override
-			public void run()
+		Runnable runnable = () -> {
+			if(project.isDisposed())
 			{
-				if(project.isDisposed())
-				{
-					return;
-				}
+				return;
+			}
 
-				try
-				{
-					task.run(indicator);
-				}
-				catch(MavenProcessCanceledException ignore)
-				{
-					indicator.cancel();
-				}
-				catch(ProcessCanceledException ignore)
-				{
-					indicator.cancel();
-				}
+			try
+			{
+				task.run(indicator);
+			}
+			catch(MavenProcessCanceledException | ProcessCanceledException ignore)
+			{
+				indicator.cancel();
 			}
 		};
 
 		if(isNoBackgroundMode())
 		{
 			runnable.run();
-			return new MavenTaskHandler()
-			{
-				@Override
-				public void waitFor()
-				{
-				}
+			return () -> {
 			};
 		}
 		else
 		{
-			final Future<?> future = ApplicationManager.getApplication().executeOnPooledThread(runnable);
-			final MavenTaskHandler handler = new MavenTaskHandler()
-			{
-				@Override
-				public void waitFor()
+			final Future<?> future = AppExecutorUtil.getAppExecutorService().submit(runnable);
+			final MavenTaskHandler handler = () -> {
+				try
 				{
-					try
-					{
-						future.get();
-					}
-					catch(InterruptedException e)
-					{
-						MavenLog.LOG.error(e);
-					}
-					catch(ExecutionException e)
-					{
-						MavenLog.LOG.error(e);
-					}
+					future.get();
+				}
+				catch(InterruptedException | ExecutionException e)
+				{
+					MavenLog.LOG.error(e);
 				}
 			};
-			invokeLater(project, new Runnable()
-			{
-				@Override
-				public void run()
+
+			invokeLater(project, () -> {
+				if(future.isDone())
 				{
-					if(future.isDone())
-					{
-						return;
-					}
-					new Task.Backgroundable(project, title, cancellable)
-					{
-						@Override
-						public void run(@Nonnull ProgressIndicator i)
-						{
-							indicator.setIndicator(i);
-							handler.waitFor();
-						}
-					}.queue();
+					return;
 				}
+				new Task.Backgroundable(project, title, cancellable)
+				{
+					@Override
+					public void run(@Nonnull ProgressIndicator i)
+					{
+						indicator.setIndicator(i);
+						handler.waitFor();
+					}
+				}.queue();
 			});
 			return handler;
 		}
