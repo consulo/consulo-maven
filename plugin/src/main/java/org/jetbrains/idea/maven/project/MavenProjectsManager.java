@@ -17,7 +17,6 @@ package org.jetbrains.idea.maven.project;
 
 import com.intellij.ide.startup.StartupManagerEx;
 import com.intellij.notification.NotificationGroup;
-import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.AccessToken;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ReadAction;
@@ -38,6 +37,8 @@ import com.intellij.util.NullableConsumer;
 import com.intellij.util.ObjectUtils;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.ui.update.Update;
+import consulo.disposer.Disposable;
+import consulo.disposer.Disposer;
 import consulo.maven.module.extension.MavenModuleExtension;
 import gnu.trove.THashMap;
 import gnu.trove.THashSet;

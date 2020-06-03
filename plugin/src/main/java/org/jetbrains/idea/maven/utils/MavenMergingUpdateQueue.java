@@ -21,7 +21,6 @@ import javax.annotation.Nonnull;
 import javax.swing.JComponent;
 
 import com.intellij.ProjectTopics;
-import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.AccessToken;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ModalityStateListener;
@@ -41,6 +40,7 @@ import com.intellij.openapi.roots.ModuleRootListener;
 import com.intellij.util.messages.MessageBusConnection;
 import com.intellij.util.ui.update.MergingUpdateQueue;
 import com.intellij.util.ui.update.Update;
+import consulo.disposer.Disposable;
 
 public class MavenMergingUpdateQueue extends MergingUpdateQueue
 {

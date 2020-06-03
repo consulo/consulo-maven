@@ -20,10 +20,10 @@ import com.intellij.execution.process.ProcessEvent;
 import com.intellij.execution.runners.ProgramRunner;
 import com.intellij.execution.ui.RunContentDescriptor;
 import com.intellij.openapi.application.WriteAction;
-import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.util.concurrency.Semaphore;
 import com.intellij.util.ui.UIUtil;
+import consulo.disposer.Disposer;
 import org.jetbrains.idea.maven.MavenImportingTestCase;
 
 import javax.swing.*;
