@@ -656,13 +656,13 @@ public abstract class MavenClasspathsAndSearchScopesTest extends MavenImportingT
 		switch(scope)
 		{
 			case MODULE:
-				searchScope = module.getModuleScope();
+				searchScope = GlobalSearchScope.moduleScope(module);
 				break;
 			case COMPILE:
-				searchScope = module.getModuleWithDependenciesAndLibrariesScope(type == Type.TESTS);
+				searchScope = GlobalSearchScope.moduleWithDependenciesAndLibrariesScope(module, type == Type.TESTS);
 				break;
 			case RUNTIME:
-				searchScope = module.getModuleRuntimeScope(type == Type.TESTS);
+				searchScope = GlobalSearchScope.moduleRuntimeScope(module, type == Type.TESTS);
 				break;
 		}
 
