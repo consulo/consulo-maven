@@ -15,21 +15,7 @@
  */
 package org.jetbrains.idea.maven.server;
 
-import java.io.File;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
-import java.rmi.RemoteException;
-import java.rmi.server.UnicastRemoteObject;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
-
-import javax.annotation.Nonnull;
-
-import org.apache.maven.AbstractMavenLifecycleParticipant;
-import org.apache.maven.DefaultMaven;
-import org.apache.maven.Maven;
-import org.apache.maven.MavenExecutionException;
-import org.apache.maven.RepositoryUtils;
+import org.apache.maven.*;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.InvalidRepositoryException;
 import org.apache.maven.artifact.factory.ArtifactFactory;
@@ -37,34 +23,23 @@ import org.apache.maven.artifact.metadata.ArtifactMetadataSource;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.repository.ArtifactRepositoryFactory;
 import org.apache.maven.artifact.repository.metadata.RepositoryMetadataManager;
-import org.apache.maven.artifact.resolver.ArtifactNotFoundException;
-import org.apache.maven.artifact.resolver.ArtifactResolutionException;
-import org.apache.maven.artifact.resolver.ArtifactResolutionRequest;
-import org.apache.maven.artifact.resolver.ArtifactResolutionResult;
-import org.apache.maven.artifact.resolver.ArtifactResolver;
-import org.apache.maven.artifact.resolver.ResolutionListener;
+import org.apache.maven.artifact.resolver.*;
 import org.apache.maven.cli.MavenCli;
-import org.apache.maven.execution.DefaultMavenExecutionRequest;
-import org.apache.maven.execution.DefaultMavenExecutionResult;
-import org.apache.maven.execution.MavenExecutionRequest;
-import org.apache.maven.execution.MavenExecutionRequestPopulationException;
-import org.apache.maven.execution.MavenExecutionRequestPopulator;
-import org.apache.maven.execution.MavenSession;
-import org.apache.maven.execution.ReactorManager;
+import org.apache.maven.execution.*;
 import org.apache.maven.model.Activation;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.model.Profile;
 import org.apache.maven.model.interpolation.ModelInterpolator;
+import org.apache.maven.model.interpolation.StringSearchModelInterpolator;
+import org.apache.maven.model.path.DefaultUrlNormalizer;
+import org.apache.maven.model.path.UrlNormalizer;
 import org.apache.maven.model.profile.DefaultProfileInjector;
 import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.plugin.PluginDescriptorCache;
 import org.apache.maven.plugin.internal.PluginDependenciesResolver;
-import org.apache.maven.profiles.activation.JdkPrefixProfileActivator;
-import org.apache.maven.profiles.activation.OperatingSystemProfileActivator;
-import org.apache.maven.profiles.activation.ProfileActivationException;
-import org.apache.maven.profiles.activation.ProfileActivator;
-import org.apache.maven.profiles.activation.SystemPropertyProfileActivator;
+import org.apache.maven.profiles.activation.*;
+import org.apache.maven.project.ProjectDependenciesResolver;
 import org.apache.maven.project.*;
 import org.apache.maven.project.inheritance.DefaultModelInheritanceAssembler;
 import org.apache.maven.project.interpolation.AbstractStringBasedModelInterpolator;
@@ -74,11 +49,7 @@ import org.apache.maven.project.path.PathTranslator;
 import org.apache.maven.project.validation.ModelValidationResult;
 import org.apache.maven.repository.RepositorySystem;
 import org.apache.maven.settings.Settings;
-import org.apache.maven.settings.building.DefaultSettingsBuilderFactory;
-import org.apache.maven.settings.building.DefaultSettingsBuildingRequest;
-import org.apache.maven.settings.building.SettingsBuilder;
-import org.apache.maven.settings.building.SettingsBuildingException;
-import org.apache.maven.settings.building.SettingsBuildingRequest;
+import org.apache.maven.settings.building.*;
 import org.apache.maven.shared.dependency.tree.DependencyNode;
 import org.apache.maven.shared.dependency.tree.DependencyTreeResolutionListener;
 import org.codehaus.plexus.DefaultPlexusContainer;
@@ -99,18 +70,21 @@ import org.eclipse.aether.repository.LocalRepositoryManager;
 import org.eclipse.aether.repository.RemoteRepository;
 import org.eclipse.aether.resolution.ArtifactRequest;
 import org.eclipse.aether.resolution.ArtifactResult;
-import org.eclipse.aether.spi.log.LoggerFactory;
 import org.eclipse.aether.util.graph.visitor.PreorderNodeListGenerator;
 import org.jetbrains.idea.maven.model.*;
-import org.jetbrains.idea.maven.server.embedder.CustomMaven32ArtifactResolver;
-import org.jetbrains.idea.maven.server.embedder.CustomMaven3ArtifactFactory;
-import org.jetbrains.idea.maven.server.embedder.CustomMaven3ModelInterpolator;
-import org.jetbrains.idea.maven.server.embedder.CustomMaven3ModelInterpolator2;
-import org.jetbrains.idea.maven.server.embedder.CustomMaven3RepositoryMetadataManager;
-import org.jetbrains.idea.maven.server.embedder.FieldAccessor;
 import org.jetbrains.idea.maven.server.embedder.MavenExecutionResult;
+import org.jetbrains.idea.maven.server.embedder.*;
 import org.jetbrains.idea.maven.util.MavenFileUtil;
 import org.jetbrains.idea.maven.util.MavenStringUtil;
+
+import javax.annotation.Nonnull;
+import java.io.File;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
+import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Overridden maven components:
@@ -626,6 +600,7 @@ public class Maven32ServerEmbedderImpl extends Maven3ServerEmbedder
 		}
 	}
 
+	@Override
 	public void customizeComponents() throws RemoteException
 	{
 		// replace some plexus components
@@ -633,8 +608,35 @@ public class Maven32ServerEmbedderImpl extends Maven3ServerEmbedder
 		myContainer.addComponent(getComponent(ArtifactResolver.class, "ide"), ArtifactResolver.ROLE);
 		myContainer.addComponent(getComponent(RepositoryMetadataManager.class, "ide"), RepositoryMetadataManager.class.getName());
 		myContainer.addComponent(getComponent(PluginDescriptorCache.class, "ide"), PluginDescriptorCache.class.getName());
-		myContainer.addComponent(getComponent(ModelInterpolator.class, "ide"), ModelInterpolator.class.getName());
-		myContainer.addComponent(getComponent(org.apache.maven.project.interpolation.ModelInterpolator.class, "ide"), org.apache.maven.project.interpolation.ModelInterpolator.ROLE);
+
+		createAndPutInterpolator(myContainer);
+	}
+
+	private ModelInterpolator createAndPutInterpolator(DefaultPlexusContainer container)
+	{
+		if(MavenStringUtil.compareVersionNumbers(getMavenVersion(), "3.6.2") >= 0)
+		{
+			org.apache.maven.model.path.DefaultPathTranslator pathTranslator = new org.apache.maven.model.path.DefaultPathTranslator();
+			UrlNormalizer urlNormalizer = new DefaultUrlNormalizer();
+			container.addComponent(pathTranslator, org.apache.maven.model.path.PathTranslator.class.getName());
+			container.addComponent(pathTranslator, org.apache.maven.model.path.PathTranslator.class, "ide");
+
+			container.addComponent(urlNormalizer, UrlNormalizer.class.getName());
+			container.addComponent(urlNormalizer, UrlNormalizer.class, "ide");
+
+			StringSearchModelInterpolator interpolator = new CustomMaven3ModelInterpolator2();
+			interpolator.setPathTranslator(pathTranslator);
+			interpolator.setUrlNormalizer(urlNormalizer);
+			return interpolator;
+		}
+		else
+		{
+
+			ModelInterpolator modelInterpolator = getComponent(ModelInterpolator.class, "ide");
+			myContainer.addComponent(modelInterpolator, ModelInterpolator.class.getName());
+			myContainer.addComponent(getComponent(org.apache.maven.project.interpolation.ModelInterpolator.class, "ide"), org.apache.maven.project.interpolation.ModelInterpolator.ROLE);
+			return modelInterpolator;
+		}
 	}
 
 	private void setConsoleAndIndicator(MavenServerConsole console, MavenServerProgressIndicator indicator)
@@ -831,7 +833,7 @@ public class Maven32ServerEmbedderImpl extends Maven3ServerEmbedder
 	}
 
 	/**
-	 * copied from {@link DefaultProjectBuilder#resolveDependencies(MavenProject, org.sonatype.aether.RepositorySystemSession)}
+	 * copied from {@link DefaultProjectBuilder#resolveDependencies(MavenProject, RepositorySystemSession)}
 	 */
 	private DependencyResolutionResult resolveDependencies(MavenProject project, RepositorySystemSession session)
 	{
@@ -1290,25 +1292,31 @@ public class Maven32ServerEmbedderImpl extends Maven3ServerEmbedder
 			DefaultMaven maven = (DefaultMaven) getComponent(Maven.class);
 			RepositorySystemSession repositorySystemSession = maven.newRepositorySession(request);
 
-			final org.eclipse.aether.impl.ArtifactResolver artifactResolver = getComponent(org.eclipse.aether.impl.ArtifactResolver.class);
-			final MyLoggerFactory loggerFactory = new MyLoggerFactory();
-			if(artifactResolver instanceof DefaultArtifactResolver)
-			{
-				((DefaultArtifactResolver) artifactResolver).setLoggerFactory(loggerFactory);
-			}
+			initalizeLogger();
 
 			final org.eclipse.aether.RepositorySystem repositorySystem = getComponent(org.eclipse.aether.RepositorySystem.class);
-			if(repositorySystem instanceof DefaultRepositorySystem)
-			{
-				((DefaultRepositorySystem) repositorySystem).setLoggerFactory(loggerFactory);
-			}
-
 			List<RemoteRepository> repositories = RepositoryUtils.toRepos(request.getRemoteRepositories());
 			repositories = repositorySystem.newResolutionRepositories(repositorySystemSession, repositories);
 
 			final ArtifactResult artifactResult = repositorySystem.resolveArtifact(repositorySystemSession, new ArtifactRequest(RepositoryUtils.toArtifact(artifact), repositories, null));
 
 			return RepositoryUtils.toArtifact(artifactResult.getArtifact());
+		}
+	}
+
+	protected void initalizeLogger()
+	{
+		final org.eclipse.aether.impl.ArtifactResolver artifactResolver = getComponent(org.eclipse.aether.impl.ArtifactResolver.class);
+		final Maven3WrapperAetherLoggerFactory loggerFactory = new Maven3WrapperAetherLoggerFactory(myConsoleWrapper);
+		if(artifactResolver instanceof DefaultArtifactResolver)
+		{
+			((DefaultArtifactResolver) artifactResolver).setLoggerFactory(loggerFactory);
+		}
+
+		final org.eclipse.aether.RepositorySystem repositorySystem = getComponent(org.eclipse.aether.RepositorySystem.class);
+		if(repositorySystem instanceof DefaultRepositorySystem)
+		{
+			((DefaultRepositorySystem) repositorySystem).setLoggerFactory(loggerFactory);
 		}
 	}
 
@@ -1442,57 +1450,6 @@ public class Maven32ServerEmbedderImpl extends Maven3ServerEmbedder
 	protected ArtifactRepository getLocalRepository()
 	{
 		return myLocalRepository;
-	}
-
-	public interface Computable<T>
-	{
-		T compute();
-	}
-
-	private class MyLoggerFactory implements LoggerFactory
-	{
-		@Override
-		public org.eclipse.aether.spi.log.Logger getLogger(String s)
-		{
-			return new org.eclipse.aether.spi.log.Logger()
-			{
-				@Override
-				public boolean isDebugEnabled()
-				{
-					return myConsoleWrapper.isDebugEnabled();
-				}
-
-				@Override
-				public void debug(String s)
-				{
-					myConsoleWrapper.debug(s);
-				}
-
-				@Override
-				public void debug(String s, Throwable throwable)
-				{
-					myConsoleWrapper.debug(s, throwable);
-				}
-
-				@Override
-				public boolean isWarnEnabled()
-				{
-					return myConsoleWrapper.isWarnEnabled();
-				}
-
-				@Override
-				public void warn(String s)
-				{
-					myConsoleWrapper.warn(s);
-				}
-
-				@Override
-				public void warn(String s, Throwable throwable)
-				{
-					myConsoleWrapper.debug(s, throwable);
-				}
-			};
-		}
 	}
 }
 

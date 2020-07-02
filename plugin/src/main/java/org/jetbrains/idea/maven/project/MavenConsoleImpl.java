@@ -159,8 +159,7 @@ public class MavenConsoleImpl extends MavenConsole {
       public void run() {
         MessageView messageView = MessageView.SERVICE.getInstance(myProject);
 
-        Content content = ContentFactory.SERVICE.getInstance().createContent(
-          myConsoleView.getComponent(), myTitle, true);
+        Content content = ContentFactory.getInstance().createContent(myConsoleView.getComponent(), myTitle, true);
         content.putUserData(CONSOLE_KEY, MavenConsoleImpl.this);
         messageView.getContentManager().addContent(content);
         messageView.getContentManager().setSelectedContent(content);
