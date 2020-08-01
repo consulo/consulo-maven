@@ -15,17 +15,15 @@
  */
 package org.jetbrains.idea.maven.tasks;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
-
+import com.intellij.openapi.actionSystem.*;
+import com.intellij.openapi.keymap.KeymapExtension;
+import com.intellij.openapi.keymap.KeymapGroup;
+import com.intellij.openapi.keymap.KeymapGroupFactory;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Condition;
+import com.intellij.openapi.util.Pair;
+import consulo.awt.TargetAWT;
+import icons.ExternalSystemIcons;
 import org.jetbrains.annotations.TestOnly;
 import org.jetbrains.idea.maven.execution.MavenRunConfigurationType;
 import org.jetbrains.idea.maven.execution.MavenRunnerParameters;
@@ -36,18 +34,9 @@ import org.jetbrains.idea.maven.utils.MavenArtifactUtil;
 import org.jetbrains.idea.maven.utils.MavenPluginInfo;
 import org.jetbrains.idea.maven.utils.actions.MavenAction;
 import org.jetbrains.idea.maven.utils.actions.MavenActionUtil;
-import com.intellij.openapi.actionSystem.ActionManager;
-import com.intellij.openapi.actionSystem.AnAction;
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.DataContext;
-import com.intellij.openapi.actionSystem.Presentation;
-import com.intellij.openapi.keymap.KeymapExtension;
-import com.intellij.openapi.keymap.KeymapGroup;
-import com.intellij.openapi.keymap.KeymapGroupFactory;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Condition;
-import com.intellij.openapi.util.Pair;
-import consulo.awt.TargetAWT;
+
+import java.io.File;
+import java.util.*;
 
 public class MavenKeymapExtension implements KeymapExtension {
   public KeymapGroup createGroup(Condition<AnAction> condition, Project project) {
@@ -179,7 +168,7 @@ public class MavenKeymapExtension implements KeymapExtension {
       myGoal = goal;
       Presentation template = getTemplatePresentation();
       template.setText(goal, false);
-      template.setIcon(TargetAWT.to(icons.MavenIcons.Phase));
+      template.setIcon(ExternalSystemIcons.Task);
     }
 
     public void actionPerformed(AnActionEvent e) {

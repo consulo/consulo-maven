@@ -13,17 +13,16 @@ public class MavenIcons {
   }
 
   public static final Image ChildrenProjects = load("/images/childrenProjects.png"); // 12x12
-  public static final Image MavenLogo = load("/images/mavenLogo.png"); // 16x16
+  public static final Image MavenLogo = load("/images/mavenLogo.svg"); // 16x16
   public static final Image MavenPlugin = load("/images/mavenPlugin.png"); // 16x16
   public static final Image MavenProject = load("/images/mavenProject.png"); // 16x16
   public static final Image ModulesClosed = load("/images/modulesClosed.png"); // 16x16
   public static final Image OfflineMode = load("/images/offlineMode.png"); // 16x16
   public static final Image ParentProject = load("/images/parentProject.png"); // 12x12
-  public static final Image Phase = load("/images/phase.png"); // 16x16
   public static final Image PhasesClosed = load("/images/phasesClosed.png"); // 16x16
   public static final Image PluginGoal = load("/images/pluginGoal.png"); // 16x16
   public static final Image ProfilesClosed = load("/images/profilesClosed.png"); // 16x16
-  public static final Image ToolWindowMaven = load("/images/toolWindowMaven.png"); // 13x13
+  public static final Image ToolWindowMaven = load("/images/toolWindowMaven.svg"); // 13x13
   public static final Image UpdateFolders = load("/images/updateFolders.png"); // 16x16
   public static final Image Console = load("/images/ql_console.png"); // 16x16
 }

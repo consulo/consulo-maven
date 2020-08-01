@@ -41,6 +41,7 @@ import gnu.trove.THashMap;
 import gnu.trove.THashSet;
 
 import consulo.disposer.Disposer;
+import icons.ExternalSystemIcons;
 import icons.MavenIcons;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.TestOnly;
@@ -1236,7 +1237,7 @@ public class MavenProjectsStructure extends SimpleTreeStructure
 			myMavenProject = findParent(ProjectNode.class).getMavenProject();
 			myGoal = goal;
 			myDisplayName = displayName;
-			setIcon(MavenIcons.Phase);
+			setIcon(ExternalSystemIcons.Task);
 		}
 
 		public MavenProject getMavenProject()
@@ -1779,7 +1780,7 @@ public class MavenProjectsStructure extends SimpleTreeStructure
 		public RunConfigurationsNode(ProjectNode parent)
 		{
 			super(parent);
-			setIcon(MavenIcons.Phase);
+			setIcon(ExternalSystemIcons.Task);
 		}
 
 		@Override

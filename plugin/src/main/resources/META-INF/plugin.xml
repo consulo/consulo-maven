@@ -176,7 +176,7 @@
 		<projectService serviceImplementation="org.jetbrains.idea.maven.indices.MavenProjectIndicesManager" lazy="false" />
 		<projectService serviceImplementation="org.jetbrains.idea.maven.project.MavenProjectsManager" lazy="false" />
 
-		<toolWindow id="Maven" requireModuleExtensions="maven" icon="/images/toolWindowMaven.png" anchor="right" factoryClass="consulo.maven.toolWindow.MavenToolWindowFactory" />
+		<toolWindow id="Maven" requireModuleExtensions="maven" icon="/images/toolWindowMaven.svg" anchor="right" factoryClass="consulo.maven.toolWindow.MavenToolWindowFactory" />
 	</extensions>
 
 	<extensions defaultExtensionNs="org.jetbrains.idea.maven">
