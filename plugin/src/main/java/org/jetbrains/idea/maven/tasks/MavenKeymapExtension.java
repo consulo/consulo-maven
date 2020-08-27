@@ -40,7 +40,7 @@ import java.util.*;
 
 public class MavenKeymapExtension implements KeymapExtension {
   public KeymapGroup createGroup(Condition<AnAction> condition, Project project) {
-    KeymapGroup result = KeymapGroupFactory.getInstance().createGroup(TasksBundle.message("maven.tasks.action.group.name"), TargetAWT.to(icons.MavenIcons.PhasesClosed));
+    KeymapGroup result = KeymapGroupFactory.getInstance().createGroup(TasksBundle.message("maven.tasks.action.group.name"), icons.MavenIcons.PhasesClosed);
     if (project == null) return result;
 
     Comparator<MavenProject> projectComparator = new Comparator<MavenProject>() {
@@ -82,7 +82,7 @@ public class MavenKeymapExtension implements KeymapExtension {
       MavenProject mavenProject = each.getKey();
       Set<Pair<String, String>> goalsToActionIds = each.getValue();
       if (goalsToActionIds.isEmpty()) continue;
-      KeymapGroup group = KeymapGroupFactory.getInstance().createGroup(mavenProject.getDisplayName(), TargetAWT.to(icons.MavenIcons.PhasesClosed));
+      KeymapGroup group = KeymapGroupFactory.getInstance().createGroup(mavenProject.getDisplayName(), icons.MavenIcons.PhasesClosed);
       result.addGroup(group);
       for (Pair<String, String> eachGoalToActionId : goalsToActionIds) {
         group.addActionId(eachGoalToActionId.getSecond());

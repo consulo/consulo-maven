@@ -78,7 +78,7 @@ public class MavenRunConfigurationMenu extends DefaultActionGroup implements Dum
 
 		public ExecuteMavenRunConfigurationAction(Executor executor, boolean enabled, Project project, RunnerAndConfigurationSettings settings)
 		{
-			super(executor.getActionName(), null, TargetAWT.to(executor.getIcon()));
+			super(executor.getActionName(), null, executor.getIcon());
 			myExecutor = executor;
 			myEnabled = enabled;
 			myProject = project;

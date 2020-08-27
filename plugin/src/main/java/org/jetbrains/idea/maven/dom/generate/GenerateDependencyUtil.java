@@ -15,15 +15,6 @@
  */
 package org.jetbrains.idea.maven.dom.generate;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
-import javax.annotation.Nonnull;
-
-import org.jetbrains.idea.maven.dom.MavenDomBundle;
-import org.jetbrains.idea.maven.dom.model.MavenDomDependency;
-import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
 import com.intellij.codeInsight.generation.ClassMember;
 import com.intellij.codeInsight.generation.MemberChooserObject;
 import com.intellij.codeInsight.generation.MemberChooserObjectBase;
@@ -36,6 +27,15 @@ import com.intellij.psi.PsiFile;
 import com.intellij.util.Function;
 import com.intellij.util.containers.ContainerUtil;
 import consulo.awt.TargetAWT;
+import org.jetbrains.idea.maven.dom.MavenDomBundle;
+import org.jetbrains.idea.maven.dom.model.MavenDomDependency;
+import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * @author Serega.Vasiliev
@@ -116,8 +116,8 @@ public class GenerateDependencyUtil {
                                                                  getProjectName(dependency));
     }
 
-    @javax.annotation.Nullable
-    private static String getProjectName(@javax.annotation.Nullable MavenDomDependency dependency) {
+    @Nullable
+    private static String getProjectName(@Nullable MavenDomDependency dependency) {
       if (dependency != null) {
         MavenDomProjectModel model = dependency.getParentOfType(MavenDomProjectModel.class, false);
         if (model != null) {
@@ -134,7 +134,7 @@ public class GenerateDependencyUtil {
 
     private static class MavenDomProjectModelFileMemberChooserObjectBase extends PsiElementMemberChooserObject {
 
-      public MavenDomProjectModelFileMemberChooserObjectBase(@Nonnull final PsiFile psiFile, @javax.annotation.Nullable String projectName) {
+      public MavenDomProjectModelFileMemberChooserObjectBase(@Nonnull final PsiFile psiFile, @Nullable String projectName) {
         super(psiFile, StringUtil.isEmptyOrSpaces(projectName) ? psiFile.getName() : projectName, TargetAWT.to(icons.MavenIcons.MavenProject));
       }
     }
