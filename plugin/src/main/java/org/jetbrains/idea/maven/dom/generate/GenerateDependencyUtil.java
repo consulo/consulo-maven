@@ -30,6 +30,7 @@ import consulo.awt.TargetAWT;
 import org.jetbrains.idea.maven.dom.MavenDomBundle;
 import org.jetbrains.idea.maven.dom.model.MavenDomDependency;
 import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
+import org.jetbrains.idea.maven.localize.MavenDomLocalize;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -57,7 +58,7 @@ public class GenerateDependencyUtil {
     MemberChooser<MavenDomProjectModelMember> chooser =
       new MemberChooser<MavenDomProjectModelMember>(memberCandidates, true, true, project) {
         protected ShowContainersAction getShowContainersAction() {
-          return new ShowContainersAction(MavenDomBundle.message("chooser.show.project.files"), TargetAWT.to(icons.MavenIcons.MavenProject));
+          return new ShowContainersAction(MavenDomLocalize.chooserShowProjectFiles(), icons.MavenIcons.MavenProject);
         }
 
         protected String getAllContainersNodeName() {

@@ -1,0 +1,68 @@
+inspection.group:
+  text: Maven
+inspection.name:
+  text: Maven Model Inspection
+fix.create.module:
+  text: Create Module
+fix.create.module.with.parent:
+  text: Create Module with Parent
+fix.update.indices:
+  text: Update Maven Indices
+fix.parent.path:
+  text: Fix Relative Path
+fix.open.file:
+  text: Open ''{0}''
+intention.choose.file:
+  text: Choose File
+maven.repository:
+  text: Repository
+maven.dependency:
+  text: Dependency
+maven.plugin:
+  text: Plugin
+generate.dependency:
+  text: Dependency
+generate.managed.dependency:
+  text: Managed Dependency
+generate.dependency.template:
+  text: Dependency Template
+generate.plugin.template:
+  text: Plugin Template
+generate.repository.template:
+  text: Repository Template
+generate.parent:
+  text: Parent
+overriden.dependency.title:
+  text: Navigate to Managing Dependency
+overriden.plugin.title:
+  text: Navigate to 'pluginManagement' section
+overriding.dependency.title:
+  text: Navigate to Dependency Usages
+overriding.plugin.title:
+  text: Navigate to Plugin Usages
+navigate.parent.dependency.title:
+  text: Choose Dependency to Navigate to
+navigate.parent.plugin.title:
+  text: Choose Plugin to Navigate to
+parent.pom.title:
+  text: Navigate to Parent
+children.poms.title:
+  text: Navigate to Children Projects
+navigate.children.poms.title:
+  text: Choose Project
+dependencies.chooser.title:
+  text: Choose Dependency
+all.dependencies:
+  text: All Dependencies
+chooser.show.project.files:
+  text: Project Files
+refactoring.introduce.property:
+  text: Introduce Property
+choose.project:
+  text: Choose project
+inspection.duplicate.dependencies.name:
+  text: Duplicate Dependencies
+MavenDuplicateDependenciesInspection.has.duplicates:
+  text: '<html><body>Dependency is duplicated in file(s): {0} </body></html>'
+inspection.redundant.groupId.name:
+  text: Redundant groupId
