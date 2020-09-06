@@ -26,6 +26,7 @@ import com.intellij.util.ui.JBUI;
 import consulo.maven.importProvider.MavenImportModuleContext;
 import consulo.ui.Component;
 import consulo.ui.annotation.RequiredUIAccess;
+import consulo.ui.image.Image;
 import consulo.ui.wizard.WizardStep;
 import consulo.ui.wizard.WizardStepValidationException;
 import org.jetbrains.idea.maven.project.MavenProject;
@@ -57,7 +58,7 @@ public abstract class SelectImportedProjectsStep implements WizardStep<MavenImpo
 			}
 
 			@Override
-			protected Icon getItemIcon(@Nonnull final MavenProject item)
+			protected Image getItemIcon(@Nonnull final MavenProject item)
 			{
 				return getElementIcon(item);
 			}
@@ -92,7 +93,7 @@ public abstract class SelectImportedProjectsStep implements WizardStep<MavenImpo
 	}
 
 	@Nullable
-	protected Icon getElementIcon(final MavenProject item)
+	protected Image getElementIcon(final MavenProject item)
 	{
 		return null;
 	}
