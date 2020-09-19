@@ -1,5 +1,6 @@
 package icons;
 
+import com.intellij.icons.AllIcons;
 import com.intellij.openapi.util.IconLoader;
 import consulo.ui.image.Image;
 
@@ -12,17 +13,19 @@ public class MavenIcons {
     return IconLoader.getIcon(path, MavenIcons.class);
   }
 
-  public static final Image ChildrenProjects = load("/images/childrenProjects.png"); // 12x12
+  public static final Image ChildrenProjects = load("/images/childrenProjects.svg"); // 12x12
   public static final Image MavenLogo = load("/images/mavenLogo.svg"); // 16x16
-  public static final Image MavenPlugin = load("/images/mavenPlugin.png"); // 16x16
-  public static final Image MavenProject = load("/images/mavenProject.png"); // 16x16
-  public static final Image ModulesClosed = load("/images/modulesClosed.png"); // 16x16
+  public static final Image MavenPlugin = load("/images/mavenPlugin.svg"); // 16x16
+  // TODO [VISTALL] use file icon
+  public static final Image MavenProject = MavenLogo; // 16x16
+  public static final Image ModulesClosed = load("/images/modulesClosed.svg"); // 16x16
+  // TODO [VISTALL] use icon from platform new
   public static final Image OfflineMode = load("/images/offlineMode.png"); // 16x16
-  public static final Image ParentProject = load("/images/parentProject.png"); // 12x12
-  public static final Image PhasesClosed = load("/images/phasesClosed.png"); // 16x16
-  public static final Image PluginGoal = load("/images/pluginGoal.png"); // 16x16
-  public static final Image ProfilesClosed = load("/images/profilesClosed.png"); // 16x16
+  public static final Image ParentProject = load("/images/parentProject.svg"); // 12x12
+  public static final Image PhasesClosed = AllIcons.Nodes.ConfigFolder; // 16x16
+  public static final Image PluginGoal = load("/images/pluginGoal.svg"); // 16x16
+  public static final Image ProfilesClosed = load("/images/profilesClosed.svg"); // 16x16
   public static final Image ToolWindowMaven = load("/images/toolWindowMaven.svg"); // 13x13
-  public static final Image UpdateFolders = load("/images/updateFolders.png"); // 16x16
+  public static final Image UpdateFolders = load("/images/updateFolders.svg"); // 16x16
   public static final Image Console = load("/images/ql_console.png"); // 16x16
 }
