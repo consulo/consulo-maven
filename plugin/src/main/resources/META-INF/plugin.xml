@@ -70,7 +70,7 @@
 								 parentKey="java"
 								 systemOnly="true"
 								 name="Maven"
-								 icon="/images/mavenLogo.png"
+								 icon="/images/mavenLogo.svg"
 								 immutableClass="consulo.maven.module.extension.MavenModuleExtension"
 								 mutableClass="consulo.maven.module.extension.MavenMutableModuleExtension"/>
 
