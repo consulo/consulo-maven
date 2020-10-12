@@ -15,35 +15,6 @@
  */
 package org.jetbrains.idea.maven.indices;
 
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionListener;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-
-import javax.annotation.Nonnull;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JPanel;
-import javax.swing.JTable;
-import javax.swing.ListSelectionModel;
-import javax.swing.Timer;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-import javax.swing.table.AbstractTableModel;
-import javax.swing.table.DefaultTableCellRenderer;
-
-import org.jetbrains.idea.maven.model.MavenRepositoryInfo;
-import org.jetbrains.idea.maven.services.MavenRepositoryServicesManager;
-import org.jetbrains.idea.maven.utils.library.RepositoryAttachHandler;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.options.BaseConfigurable;
 import com.intellij.openapi.options.Configurable;
@@ -63,7 +34,29 @@ import com.intellij.util.text.DateFormatUtil;
 import com.intellij.util.ui.AnimatedIcon;
 import com.intellij.util.ui.AsyncProcessIcon;
 import com.intellij.util.ui.UIUtil;
+import consulo.awt.TargetAWT;
 import consulo.disposer.Disposer;
+import org.jetbrains.idea.maven.model.MavenRepositoryInfo;
+import org.jetbrains.idea.maven.services.MavenRepositoryServicesManager;
+import org.jetbrains.idea.maven.utils.library.RepositoryAttachHandler;
+
+import javax.annotation.Nonnull;
+import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.table.AbstractTableModel;
+import javax.swing.table.DefaultTableCellRenderer;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionListener;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 public class MavenRepositoriesConfigurable extends BaseConfigurable implements SearchableConfigurable, Configurable.NoScroll {
   private final MavenProjectIndicesManager myManager;
@@ -379,9 +372,9 @@ public class MavenRepositoriesConfigurable extends BaseConfigurable implements S
           myUpdatingIcon.paint(g);
           break;
         case WAITING:
-          int x = (size.width - AllIcons.Process.Step_passive.getIconWidth()) / 2;
-          int y = (size.height - AllIcons.Process.Step_passive.getIconHeight()) / 2;
-          AllIcons.Process.Step_passive.paintIcon(this, g, x, y);
+          int x = (size.width - AllIcons.Process.Step_passive.getWidth()) / 2;
+          int y = (size.height - AllIcons.Process.Step_passive.getHeight()) / 2;
+          TargetAWT.to(AllIcons.Process.Step_passive).paintIcon(this, g, x, y);
           break;
       }
     }

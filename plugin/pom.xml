@@ -116,6 +116,7 @@
 						<id>gen</id>
 						<phase>generate-sources</phase>
 						<goals>
+							<goal>generate-icon</goal>
 							<goal>generate-localize</goal>
 						</goals>
 					</execution>
@@ -247,6 +248,11 @@
 			<groupId>${project.groupId}</groupId>
 			<artifactId>com.intellij.spellchecker</artifactId>
 			<version>${project.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>jakarta.xml.bind</groupId>
+			<artifactId>jakarta.xml.bind-api</artifactId>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>

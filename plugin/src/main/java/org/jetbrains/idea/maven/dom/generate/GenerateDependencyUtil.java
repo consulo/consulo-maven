@@ -26,7 +26,6 @@ import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.PsiFile;
 import com.intellij.util.Function;
 import com.intellij.util.containers.ContainerUtil;
-import consulo.awt.TargetAWT;
 import org.jetbrains.idea.maven.dom.MavenDomBundle;
 import org.jetbrains.idea.maven.dom.model.MavenDomDependency;
 import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
@@ -136,7 +135,7 @@ public class GenerateDependencyUtil {
     private static class MavenDomProjectModelFileMemberChooserObjectBase extends PsiElementMemberChooserObject {
 
       public MavenDomProjectModelFileMemberChooserObjectBase(@Nonnull final PsiFile psiFile, @Nullable String projectName) {
-        super(psiFile, StringUtil.isEmptyOrSpaces(projectName) ? psiFile.getName() : projectName, TargetAWT.to(icons.MavenIcons.MavenProject));
+        super(psiFile, StringUtil.isEmptyOrSpaces(projectName) ? psiFile.getName() : projectName, icons.MavenIcons.MavenProject);
       }
     }
   }

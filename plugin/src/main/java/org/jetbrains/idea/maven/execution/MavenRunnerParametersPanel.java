@@ -30,11 +30,12 @@ import com.intellij.ui.PanelWithAnchor;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.util.TextFieldCompletionProvider;
 import com.intellij.util.execution.ParametersListUtil;
-import javax.annotation.Nonnull;
+import consulo.awt.TargetAWT;
 import org.jetbrains.idea.maven.execution.cmd.ParametersListLexer;
 import org.jetbrains.idea.maven.model.MavenConstants;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 
+import javax.annotation.Nonnull;
 import javax.swing.*;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -97,7 +98,7 @@ public class MavenRunnerParametersPanel implements PanelWithAnchor {
       goalsComponent.setComponent(new MavenArgumentsCompletionProvider(project).createEditor(project));
     }
 
-    showProjectTreeButton.setIcon(AllIcons.Actions.Module);
+    showProjectTreeButton.setIcon(TargetAWT.to(AllIcons.Actions.Module));
 
     MavenSelectProjectPopup.attachToWorkingDirectoryField(MavenProjectsManager.getInstance(project),
                                                           workingDirComponent.getComponent().getTextField(),

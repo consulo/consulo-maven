@@ -70,7 +70,7 @@
 								 parentKey="java"
 								 systemOnly="true"
 								 name="Maven"
-								 icon="/images/mavenLogo.svg"
+								 icon="consulo.maven.MavenIconGroup@mavenlogo"
 								 immutableClass="consulo.maven.module.extension.MavenModuleExtension"
 								 mutableClass="consulo.maven.module.extension.MavenMutableModuleExtension"/>
 
@@ -176,7 +176,7 @@
 		<projectService serviceImplementation="org.jetbrains.idea.maven.indices.MavenProjectIndicesManager" lazy="false" />
 		<projectService serviceImplementation="org.jetbrains.idea.maven.project.MavenProjectsManager" lazy="false" />
 
-		<toolWindow id="Maven" requireModuleExtensions="maven" icon="/images/toolWindowMaven.svg" anchor="right" factoryClass="consulo.maven.toolWindow.MavenToolWindowFactory" />
+		<toolWindow id="Maven" requireModuleExtensions="maven" icon="consulo.maven.MavenIconGroup@toolwindowmaven" anchor="right" factoryClass="consulo.maven.toolWindow.MavenToolWindowFactory" />
 	</extensions>
 
 	<extensions defaultExtensionNs="org.jetbrains.idea.maven">
@@ -289,60 +289,60 @@
 	<actions>
 		<action id="Maven.Reimport" class="org.jetbrains.idea.maven.project.actions.ReimportAction"
 				text="Reimport All Maven Projects"
-				icon="AllIcons.Actions.Refresh">
+				icon="consulo.platform.base.PlatformIconGroup@actions.refresh">
 		</action>
 
 		<action id="Maven.ReimportProject" class="org.jetbrains.idea.maven.project.actions.ReimportProjectAction"
 				text="Reimport" description="Reimport selected Maven projects"
-				icon="AllIcons.Actions.Refresh">
+				icon="consulo.platform.base.PlatformIconGroup@actions.refresh">
 		</action>
 
 		<action id="Maven.UpdateFolders" class="org.jetbrains.idea.maven.project.actions.UpdateFoldersAction"
 				text="Generate Sources and Update Folders For All Projects"
-				icon="MavenIcons.UpdateFolders">
+				icon="consulo.maven.MavenIconGroup@updatefolders">
 		</action>
 
 		<action id="Maven.UpdateFoldersForProject" class="org.jetbrains.idea.maven.project.actions.UpdateFoldersForProjectAction"
 				text="Generate Sources and Update Folders"
-				icon="MavenIcons.UpdateFolders">
+				icon="consulo.maven.MavenIconGroup@updatefolders">
 		</action>
 
 		<action id="Maven.DownloadAllSources" class="org.jetbrains.idea.maven.project.actions.DownloadAllSourcesAction"
 				text="Download Sources" description="Download sources for all dependencies"
-				icon="AllIcons.Actions.Download">
+				icon="consulo.platform.base.PlatformIconGroup@actions.download">
 		</action>
 
 		<action id="Maven.DownloadAllDocs" class="org.jetbrains.idea.maven.project.actions.DownloadAllDocsAction"
 				text="Download Documentation" description="Download documentation for all dependencies"
-				icon="AllIcons.Actions.Download">
+				icon="consulo.platform.base.PlatformIconGroup@actions.download">
 		</action>
 
 		<action id="Maven.DownloadAllSourcesAndDocs" class="org.jetbrains.idea.maven.project.actions.DownloadAllSourcesAndDocsAction"
 				text="Download Sources and Documentation" description="Download sources and documentation for all dependencies"
-				icon="AllIcons.Actions.Download">
+				icon="consulo.platform.base.PlatformIconGroup@actions.download">
 		</action>
 
 		<action id="Maven.DownloadSelectedSourcesAndDocs" class="org.jetbrains.idea.maven.project.actions.DownloadSelectedSourcesAndDocsAction"
 				text="Download Sources and Documentation"
 				description="Download sources and documentation for all dependencies for selected projects"
-				icon="AllIcons.Actions.Download">
+				icon="consulo.platform.base.PlatformIconGroup@actions.download">
 		</action>
 
 		<action id="Maven.DownloadSelectedSources" class="org.jetbrains.idea.maven.project.actions.DownloadSelectedSourcesAction"
 				text="Download Sources" description="Download sources for all dependencies for selected projects"
-				icon="AllIcons.Actions.Download">
+				icon="consulo.platform.base.PlatformIconGroup@actions.download">
 		</action>
 
 		<action id="Maven.DownloadSelectedDocs" class="org.jetbrains.idea.maven.project.actions.DownloadSelectedDocsAction"
 				text="Download Documentation" description="Download documentation for all dependencies for selected projects"
-				icon="AllIcons.Actions.Download">
+				icon="consulo.platform.base.PlatformIconGroup@actions.download">
 		</action>
 
 		<action id="Maven.AddManagedFiles"
 				class="org.jetbrains.idea.maven.project.actions.AddManagedFilesAction"
 				text="Add Maven Projects"
 				description="Add and import Maven projects to the projects tree"
-				icon="AllIcons.General.Add">
+				icon="consulo.platform.base.PlatformIconGroup@general.add">
 		</action>
 
 		<action id="Maven.GroupProjects"
@@ -350,19 +350,19 @@
 				text="Group Modules"
 				description="Group projects according to Maven structure"
 				secondary="true"
-				icon="AllIcons.Nodes.Folder"/>
+				icon="consulo.platform.base.PlatformIconGroup@nodes.folder"/>
 		<action id="Maven.ShowIgnored"
 				class="org.jetbrains.idea.maven.navigator.actions.ShowIgnoredProjectsAction"
 				text="Show Ignored Projects"
 				description="Show ignored projects"
 				secondary="true"
-				icon="AllIcons.Actions.ShowHiddens"/>
+				icon="consulo.platform.base.PlatformIconGroup@actions.showhiddens"/>
 		<action id="Maven.ShowBasicPhasesOnly"
 				class="org.jetbrains.idea.maven.navigator.actions.ShowBasicPhasesOnlyAction"
 				text="Show Basic Phases Only"
 				description="Show basic phases only"
 				secondary="true"
-				icon="AllIcons.General.Filter"/>
+				icon="consulo.platform.base.PlatformIconGroup@general.filter"/>
 		<action id="Maven.AlwaysShowArtifactId"
 				class="org.jetbrains.idea.maven.navigator.actions.AlwaysShowArtifactIdAction"
 				text="Always Show ArtifactId"
@@ -376,7 +376,7 @@
 				class="org.jetbrains.idea.maven.project.actions.AddFileAsMavenProjectAction"
 				text="Add as Maven Project"
 				description="Add and import Maven project to the projects tree"
-				icon="AllIcons.General.Add">
+				icon="consulo.platform.base.PlatformIconGroup@general.add">
 			<add-to-group group-id="EditorPopupMenu" anchor="before" relative-to-action="Maven.GlobalProjectMenu"/>
 			<add-to-group group-id="ProjectViewPopupMenu" anchor="before" relative-to-action="Maven.GlobalProjectMenu"/>
 		</action>
@@ -385,7 +385,7 @@
 				class="org.jetbrains.idea.maven.project.actions.RemoveManagedFilesAction"
 				text="Remove Projects"
 				description="Remove selected Maven projects from the project tree"
-				icon="AllIcons.General.Remove">
+				icon="consulo.platform.base.PlatformIconGroup@general.remove">
 		</action>
 
 		<action id="Maven.OpenSettingsXml"
@@ -413,36 +413,36 @@
 				class="org.jetbrains.idea.maven.project.actions.RunBuildAction"
 				text="_Run Maven Build"
 				description="Execute selected phases or goals"
-				icon="AllIcons.Actions.Execute">
+				icon="consulo.platform.base.PlatformIconGroup@actions.execute">
 		</action>
 
 		<action id="Maven.ShowSettings"
 				class="org.jetbrains.idea.maven.project.actions.EditSettingsAction" text="Maven Settings"
 				description="Edit Maven integration settings for the current project"
-				icon="AllIcons.General.ProjectSettings">
+				icon="consulo.platform.base.PlatformIconGroup@general.projectsettings">
 		</action>
 
 		<action id="Maven.ToggleOffline"
 				class="org.jetbrains.idea.maven.project.actions.ToggleOfflineAction" text="Toggle Offline Mode"
 				description="Toggle offline mode for Maven builds"
-				icon="MavenIcons.OfflineMode">
+				icon="consulo.maven.MavenIconGroup@offlinemode">
 		</action>
 
 		<action id="Maven.ToggleSkipTests"
 				class="org.jetbrains.idea.maven.project.actions.ToggleSkipTestsAction" text="Toggle 'Skip Tests' Mode"
 				description="Toggle 'Skip tests' mode for Maven builds"
-				icon="AllIcons.Nodes.ExceptionClass">
+				icon="consulo.platform.base.PlatformIconGroup@nodes.exceptionclass">
 		</action>
 
 		<action id="Maven.ExpandAll" class="org.jetbrains.idea.maven.navigator.actions.MavenTreeAction$ExpandAll" text="Expand All"
-				icon="AllIcons.Actions.Expandall"
+				icon="consulo.platform.base.PlatformIconGroup@actions.expandall"
 				use-shortcut-of="ExpandAll"/>
 		<action id="Maven.CollapseAll" class="org.jetbrains.idea.maven.navigator.actions.MavenTreeAction$CollapseAll" text="Collapse All"
-				icon="AllIcons.Actions.Collapseall"
+				icon="consulo.platform.base.PlatformIconGroup@actions.collapseall"
 				use-shortcut-of="CollapseAll"/>
 
 		<action id="Maven.RunGoal" class="org.jetbrains.idea.maven.navigator.actions.MavenExecuteGoalAction" text="Run Maven Goal"
-				icon="MavenIcons.Console">
+				icon="consulo.maven.MavenIconGroup@ql_console">
 		</action>
 
 		<group id="Maven.TasksGroup">
@@ -476,7 +476,7 @@
 			<reference id="Maven.UpdateFolders"/>
 
 			<group id="Maven.DownloadAllGroupPopup" popup="true" class="org.jetbrains.idea.maven.project.actions.DownloadActionGroup"
-				   icon="AllIcons.Actions.Download">
+				   icon="consulo.platform.base.PlatformIconGroup@actions.download">
 				<reference id="Maven.DownloadAllGroup"/>
 			</group>
 			<separator/>
@@ -528,7 +528,7 @@
 		</group>
 
 		<group id="Maven.GlobalProjectMenu" class="org.jetbrains.idea.maven.utils.actions.MavenActionGroup" popup="true" text="Maven"
-			   icon="MavenIcons.MavenLogo">
+			   icon="consulo.maven.MavenIconGroup@mavenlogo">
 			<add-to-group group-id="EditorPopupMenu" anchor="last"/>
 			<add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
 			<reference ref="Maven.BaseProjectMenu"/>

@@ -15,32 +15,26 @@
  */
 package org.jetbrains.idea.maven.execution;
 
-import java.util.Collection;
-
-import javax.annotation.Nonnull;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-
-import javax.annotation.Nullable;
-import org.jetbrains.idea.maven.model.MavenConstants;
-import org.jetbrains.idea.maven.project.MavenProject;
-import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.fileTypes.PlainTextFileType;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.ComboBox;
-import com.intellij.openapi.ui.DialogWrapper;
-import com.intellij.openapi.ui.FixedSizeButton;
-import com.intellij.openapi.ui.TextFieldWithBrowseButton;
-import com.intellij.openapi.ui.ValidationInfo;
+import com.intellij.openapi.ui.*;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.EditorComboBoxEditor;
 import com.intellij.ui.EditorComboBoxRenderer;
 import com.intellij.ui.EditorTextField;
 import com.intellij.ui.StringComboboxEditor;
 import com.intellij.util.ArrayUtilRt;
+import consulo.awt.TargetAWT;
+import org.jetbrains.idea.maven.model.MavenConstants;
+import org.jetbrains.idea.maven.project.MavenProject;
+import org.jetbrains.idea.maven.project.MavenProjectsManager;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.swing.*;
+import java.util.Collection;
 
 public class MavenEditGoalDialog extends DialogWrapper
 {
@@ -112,7 +106,7 @@ public class MavenEditGoalDialog extends DialogWrapper
 
 		MavenProjectsManager projectsManager = MavenProjectsManager.getInstance(myProject);
 
-		showProjectTreeButton.setIcon(AllIcons.Actions.Module);
+		showProjectTreeButton.setIcon(TargetAWT.to(AllIcons.Actions.Module));
 		MavenSelectProjectPopup.attachToWorkingDirectoryField(projectsManager, workDirectoryField.getTextField(), showProjectTreeButton, goalsComboBox != null ? goalsComboBox : goalsEditor);
 
 		workDirectoryField.addBrowseFolderListener(RunnerBundle.message("maven.select.maven.project.file"), "", myProject, new FileChooserDescriptor(false, true, false, false, false, false)
