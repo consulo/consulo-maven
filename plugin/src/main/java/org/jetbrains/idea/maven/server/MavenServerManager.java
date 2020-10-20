@@ -272,15 +272,6 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
 					}
 				}
 
-				if(SystemInfo.isMac)
-				{
-					String arch = System.getProperty("sun.arch.data.model");
-					if(arch != null)
-					{
-						params.getVMParametersList().addParametersString("-d" + arch);
-					}
-				}
-
 				defs.put("java.awt.headless", "true");
 				for(Map.Entry<String, String> each : defs.entrySet())
 				{
