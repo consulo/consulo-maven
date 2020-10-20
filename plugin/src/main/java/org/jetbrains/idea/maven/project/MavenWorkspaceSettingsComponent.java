@@ -17,11 +17,11 @@ package org.jetbrains.idea.maven.project;
 
 import com.intellij.openapi.components.*;
 import com.intellij.openapi.project.Project;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import org.jetbrains.idea.maven.model.MavenExplicitProfiles;
 
 import javax.annotation.Nonnull;
-import javax.inject.Inject;
-import javax.inject.Singleton;
 
 @Singleton
 @State(name = "MavenImportPreferences", storages = {@Storage(file = StoragePathMacros.WORKSPACE_FILE)})

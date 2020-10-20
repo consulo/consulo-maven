@@ -23,8 +23,8 @@ import java.util.List;
 import java.util.Set;
 
 import javax.annotation.Nullable;
-import javax.inject.Singleton;
 
+import jakarta.inject.Singleton;
 import org.apache.lucene.search.Query;
 import org.jetbrains.idea.maven.model.MavenArtifactInfo;
 import org.jetbrains.idea.maven.model.MavenId;

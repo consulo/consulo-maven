@@ -57,6 +57,7 @@ import consulo.maven.bundle.MavenBundleType;
 import consulo.maven.util.MavenJdkUtil;
 import consulo.util.rmi.RemoteServer;
 import gnu.trove.THashMap;
+import jakarta.inject.Singleton;
 import org.apache.lucene.search.Query;
 import org.jdom.Document;
 import org.jetbrains.annotations.NonNls;
@@ -75,7 +76,6 @@ import org.jetbrains.idea.maven.utils.MavenUtil;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.inject.Singleton;
 import java.io.File;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;

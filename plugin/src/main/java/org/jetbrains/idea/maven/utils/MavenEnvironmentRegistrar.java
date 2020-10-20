@@ -18,10 +18,9 @@ package org.jetbrains.idea.maven.utils;
 
 import java.io.File;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import com.intellij.openapi.application.PathMacros;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class MavenEnvironmentRegistrar

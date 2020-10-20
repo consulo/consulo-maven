@@ -42,6 +42,8 @@ import consulo.disposer.Disposer;
 import consulo.maven.module.extension.MavenModuleExtension;
 import gnu.trove.THashMap;
 import gnu.trove.THashSet;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import org.jetbrains.annotations.TestOnly;
 import org.jetbrains.idea.maven.importing.MavenDefaultModifiableModelsProvider;
 import org.jetbrains.idea.maven.importing.MavenFoldersImporter;
@@ -56,8 +58,6 @@ import org.jetbrains.idea.maven.utils.MavenUtil;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
