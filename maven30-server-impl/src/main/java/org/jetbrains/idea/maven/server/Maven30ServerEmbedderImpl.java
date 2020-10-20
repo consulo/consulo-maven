@@ -105,7 +105,6 @@ import org.sonatype.aether.graph.Dependency;
 import org.sonatype.aether.repository.LocalRepositoryManager;
 import org.sonatype.aether.util.DefaultRepositorySystemSession;
 import org.sonatype.aether.util.graph.PreorderNodeListGenerator;
-import com.sun.javafx.runtime.SystemProperties;
 
 /**
  * Overridden maven components:
