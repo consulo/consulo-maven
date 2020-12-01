@@ -25,7 +25,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.SystemInfo;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.ui.JBColor;
+import consulo.ui.style.StandardColors;
 
 import java.awt.*;
 import java.util.regex.Matcher;
@@ -79,8 +79,8 @@ public class MavenGroovyConsoleFilter implements Filter {
 
   private static TextAttributes createCompilationErrorAttr() {
     TextAttributes attr = EditorColorsManager.getInstance().getGlobalScheme().getAttributes(CodeInsightColors.HYPERLINK_ATTRIBUTES).clone();
-    attr.setForegroundColor(JBColor.RED);
-    attr.setEffectColor(JBColor.RED);
+    attr.setForegroundColor(StandardColors.RED);
+    attr.setEffectColor(StandardColors.RED);
     attr.setEffectType(EffectType.LINE_UNDERSCORE);
     attr.setFontType(Font.PLAIN);
     return attr;
