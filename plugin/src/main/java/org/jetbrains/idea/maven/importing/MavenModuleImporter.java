@@ -154,10 +154,10 @@ public class MavenModuleImporter
 			}
 		}
 
-		// default source and target settings of maven-compiler-plugin is 1.5, see details at http://maven.apache.org/plugins/maven-compiler-plugin
+		// default source and target settings of maven-compiler-plugin is 1.6, see details at http://maven.apache.org/plugins/maven-compiler-plugin
 		if(level == null)
 		{
-			level = LanguageLevel.JDK_1_5;
+			level = LanguageLevel.JDK_1_6;
 		}
 
 		myRootModelAdapter.setLanguageLevel(level);
