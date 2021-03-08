@@ -15,18 +15,15 @@
  */
 package org.jetbrains.idea.maven.project;
 
-import java.util.Collection;
-
+import com.intellij.openapi.application.Application;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.AsyncResult;
+import com.intellij.openapi.vfs.VirtualFileManager;
 import org.jetbrains.idea.maven.model.MavenArtifact;
 import org.jetbrains.idea.maven.utils.MavenProcessCanceledException;
 import org.jetbrains.idea.maven.utils.MavenProgressIndicator;
-import org.jetbrains.idea.maven.utils.MavenUtil;
-import com.intellij.openapi.application.AccessToken;
-import com.intellij.openapi.application.WriteAction;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.roots.ex.ProjectRootManagerEx;
-import com.intellij.openapi.util.AsyncResult;
-import com.intellij.openapi.util.EmptyRunnable;
+
+import java.util.Collection;
 
 public class MavenProjectsProcessorArtifactsDownloadingTask implements MavenProjectsProcessorTask
 {
@@ -38,11 +35,11 @@ public class MavenProjectsProcessorArtifactsDownloadingTask implements MavenProj
 	private final AsyncResult<MavenArtifactDownloader.DownloadResult> myCallbackResult;
 
 	public MavenProjectsProcessorArtifactsDownloadingTask(Collection<MavenProject> projects,
-			Collection<MavenArtifact> artifacts,
-			MavenProjectsTree tree,
-			boolean downloadSources,
-			boolean downloadDocs,
-			AsyncResult<MavenArtifactDownloader.DownloadResult> callbackResult)
+														  Collection<MavenArtifact> artifacts,
+														  MavenProjectsTree tree,
+														  boolean downloadSources,
+														  boolean downloadDocs,
+														  AsyncResult<MavenArtifactDownloader.DownloadResult> callbackResult)
 	{
 		myProjects = projects;
 		myArtifacts = artifacts;
@@ -61,22 +58,8 @@ public class MavenProjectsProcessorArtifactsDownloadingTask implements MavenProj
 			myCallbackResult.setDone(result);
 		}
 
-		// todo: hack to update all file pointers.
-		MavenUtil.invokeLater(project, new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				AccessToken accessToken = WriteAction.start();
-				try
-				{
-					ProjectRootManagerEx.getInstanceEx(project).makeRootsChange(EmptyRunnable.getInstance(), false, true);
-				}
-				finally
-				{
-					accessToken.finish();
-				}
-			}
+		Application.get().invokeLater(() -> {
+			VirtualFileManager.getInstance().asyncRefresh(null);
 		});
 	}
 }
