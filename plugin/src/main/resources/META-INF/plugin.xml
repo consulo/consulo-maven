@@ -425,7 +425,7 @@
 		<action id="Maven.ToggleOffline"
 				class="org.jetbrains.idea.maven.project.actions.ToggleOfflineAction" text="Toggle Offline Mode"
 				description="Toggle offline mode for Maven builds"
-				icon="consulo.maven.MavenIconGroup@offlinemode">
+				icon="consulo.platform.base.PlatformIconGroup@actions.offlinemode">
 		</action>
 
 		<action id="Maven.ToggleSkipTests"

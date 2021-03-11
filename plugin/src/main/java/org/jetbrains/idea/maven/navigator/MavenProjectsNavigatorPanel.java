@@ -89,8 +89,7 @@ public class MavenProjectsNavigatorPanel extends SimpleToolWindowPanel implement
 		myTree = tree;
 
 		final ActionManager actionManager = ActionManager.getInstance();
-		ActionToolbar actionToolbar = actionManager.createActionToolbar("Maven Navigator Toolbar", (DefaultActionGroup) actionManager.getAction
-				("Maven.NavigatorActionsToolbar"), true);
+		ActionToolbar actionToolbar = actionManager.createActionToolbar("Maven Navigator Toolbar", (DefaultActionGroup) actionManager.getAction("Maven.NavigatorActionsToolbar"), true);
 
 		actionToolbar.setTargetComponent(tree);
 		setToolbar(actionToolbar.getComponent());
@@ -114,7 +113,7 @@ public class MavenProjectsNavigatorPanel extends SimpleToolWindowPanel implement
 				}
 			}
 
-			@javax.annotation.Nullable
+			@Nullable
 			private String getMenuId(Collection<? extends MavenProjectsStructure.MavenSimpleNode> nodes)
 			{
 				String id = null;
@@ -343,14 +342,14 @@ public class MavenProjectsNavigatorPanel extends SimpleToolWindowPanel implement
 		return getSelectedNodes(MavenProjectsStructure.ProjectNode.class);
 	}
 
-	@javax.annotation.Nullable
+	@Nullable
 	private MavenProjectsStructure.ProjectNode getSelectedProjectNode()
 	{
 		final List<MavenProjectsStructure.ProjectNode> projectNodes = getSelectedProjectNodes();
 		return projectNodes.size() == 1 ? projectNodes.get(0) : null;
 	}
 
-	@javax.annotation.Nullable
+	@Nullable
 	private MavenProjectsStructure.ProjectNode getContextProjectNode()
 	{
 		MavenProjectsStructure.ProjectNode projectNode = getSelectedProjectNode();
