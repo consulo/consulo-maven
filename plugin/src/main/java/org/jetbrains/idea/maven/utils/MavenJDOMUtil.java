@@ -25,6 +25,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.encoding.EncodingRegistry;
 import com.intellij.psi.impl.source.parsing.xml.XmlBuilder;
 import com.intellij.psi.impl.source.parsing.xml.XmlBuilderDriver;
+import consulo.localize.LocalizeValue;
 import org.jdom.Element;
 import org.jdom.IllegalNameException;
 import javax.annotation.Nullable;
@@ -68,7 +69,7 @@ public class MavenJDOMUtil {
     final Element[] result = {null};
     XmlBuilderDriver driver = new XmlBuilderDriver(text);
     XmlBuilder builder = new XmlBuilder() {
-      public void doctype(@javax.annotation.Nullable CharSequence publicId, @Nullable CharSequence systemId, int startOffset, int endOffset) {
+      public void doctype(@Nullable CharSequence publicId, @Nullable CharSequence systemId, int startOffset, int endOffset) {
       }
 
       public ProcessingOrder startTag(CharSequence localName, String namespace, int startoffset, int endoffset, int headerEndOffset) {
@@ -119,7 +120,7 @@ public class MavenJDOMUtil {
       public void entityRef(CharSequence ref, int startOffset, int endOffset) {
       }
 
-      public void error(String message, int startOffset, int endOffset) {
+      public void error(LocalizeValue message, int startOffset, int endOffset) {
         if (handler != null) handler.onSyntaxError();
       }
     };
