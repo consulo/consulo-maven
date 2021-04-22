@@ -22,14 +22,15 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ModifiableRootModel;
 import com.intellij.openapi.roots.libraries.Library;
 import com.intellij.openapi.roots.libraries.LibraryTable;
-import com.intellij.openapi.roots.ui.configuration.ModulesConfigurator;
+import com.intellij.openapi.roots.ui.configuration.ModulesConfiguratorImpl;
 import com.intellij.openapi.roots.ui.configuration.projectRoot.LibrariesModifiableModel;
 import com.intellij.openapi.roots.ui.configuration.projectRoot.ProjectLibrariesConfigurable;
 import com.intellij.packaging.artifacts.ModifiableArtifactModel;
+import consulo.roots.ui.configuration.ModulesConfigurator;
 
 public class MavenUIModifiableModelsProvider extends MavenBaseModifiableModelsProvider {
   private final ModifiableModuleModel myModel;
-  private final ModulesConfigurator myModulesConfigurator;
+  private final ModulesConfiguratorImpl myModulesConfigurator;
   private final ModifiableArtifactModel myModifiableArtifactModel;
   private final LibrariesModifiableModel myLibrariesModel;
 
@@ -39,11 +40,11 @@ public class MavenUIModifiableModelsProvider extends MavenBaseModifiableModelsPr
                                          ModifiableArtifactModel modifiableArtifactModel) {
     super(project);
     myModel = model;
-    myModulesConfigurator = modulesConfigurator;
+    myModulesConfigurator = (ModulesConfiguratorImpl) modulesConfigurator;
     myModifiableArtifactModel = modifiableArtifactModel;
 
     ProjectLibrariesConfigurable configurable = ProjectLibrariesConfigurable.getInstance(project);
-    myLibrariesModel = configurable.getModelProvider().getModifiableModel();
+    myLibrariesModel = (LibrariesModifiableModel) configurable.getModelProvider().getModifiableModel();
   }
 
   @Override
@@ -66,18 +67,22 @@ public class MavenUIModifiableModelsProvider extends MavenBaseModifiableModelsPr
     return myLibrariesModel;
   }
 
+  @Override
   public Library[] getAllLibraries() {
     return myLibrariesModel.getLibraries();
   }
 
+  @Override
   public Library getLibraryByName(String name) {
     return myLibrariesModel.getLibraryByName(name);
   }
 
+  @Override
   public Library createLibrary(String name) {
     return myLibrariesModel.createLibrary(name);
   }
 
+  @Override
   public void removeLibrary(Library library) {
     myLibrariesModel.removeLibrary(library);
   }
@@ -87,13 +92,16 @@ public class MavenUIModifiableModelsProvider extends MavenBaseModifiableModelsPr
     return myLibrariesModel.getLibraryModifiableModel(library);
   }
 
+  @Override
   public void commit() {
     processExternalArtifactDependencies();
   }
 
+  @Override
   public void dispose() {
   }
 
+  @Override
   public ModalityState getModalityStateForQuestionDialogs() {
     return ModalityState.defaultModalityState();
   }
