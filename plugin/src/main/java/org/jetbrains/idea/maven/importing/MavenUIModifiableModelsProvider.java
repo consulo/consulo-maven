@@ -24,85 +24,99 @@ import com.intellij.openapi.roots.libraries.Library;
 import com.intellij.openapi.roots.libraries.LibraryTable;
 import com.intellij.openapi.roots.ui.configuration.ModulesConfiguratorImpl;
 import com.intellij.openapi.roots.ui.configuration.projectRoot.LibrariesModifiableModel;
-import com.intellij.openapi.roots.ui.configuration.projectRoot.ProjectLibrariesConfigurable;
 import com.intellij.packaging.artifacts.ModifiableArtifactModel;
+import consulo.roots.ui.configuration.LibrariesConfigurator;
 import consulo.roots.ui.configuration.ModulesConfigurator;
 
-public class MavenUIModifiableModelsProvider extends MavenBaseModifiableModelsProvider {
-  private final ModifiableModuleModel myModel;
-  private final ModulesConfiguratorImpl myModulesConfigurator;
-  private final ModifiableArtifactModel myModifiableArtifactModel;
-  private final LibrariesModifiableModel myLibrariesModel;
+public class MavenUIModifiableModelsProvider extends MavenBaseModifiableModelsProvider
+{
+	private final ModifiableModuleModel myModel;
+	private final ModulesConfiguratorImpl myModulesConfigurator;
+	private final ModifiableArtifactModel myModifiableArtifactModel;
+	private final LibrariesModifiableModel myLibrariesModel;
 
-  public MavenUIModifiableModelsProvider(Project project,
-                                         ModifiableModuleModel model,
-                                         ModulesConfigurator modulesConfigurator,
-                                         ModifiableArtifactModel modifiableArtifactModel) {
-    super(project);
-    myModel = model;
-    myModulesConfigurator = (ModulesConfiguratorImpl) modulesConfigurator;
-    myModifiableArtifactModel = modifiableArtifactModel;
+	public MavenUIModifiableModelsProvider(Project project,
+										   ModifiableModuleModel model,
+										   ModulesConfigurator modulesConfigurator,
+										   LibrariesConfigurator librariesConfigurator,
+										   ModifiableArtifactModel modifiableArtifactModel)
+	{
+		super(project);
+		myModel = model;
+		myModulesConfigurator = (ModulesConfiguratorImpl) modulesConfigurator;
+		myModifiableArtifactModel = modifiableArtifactModel;
 
-    ProjectLibrariesConfigurable configurable = ProjectLibrariesConfigurable.getInstance(project);
-    myLibrariesModel = (LibrariesModifiableModel) configurable.getModelProvider().getModifiableModel();
-  }
+		myLibrariesModel = (LibrariesModifiableModel) librariesConfigurator.getProjectLibrariesProvider().getModifiableModel();
+	}
 
-  @Override
-  protected ModifiableArtifactModel doGetArtifactModel() {
-    return myModifiableArtifactModel;
-  }
+	@Override
+	protected ModifiableArtifactModel doGetArtifactModel()
+	{
+		return myModifiableArtifactModel;
+	}
 
-  @Override
-  protected ModifiableModuleModel doGetModuleModel() {
-    return myModel;
-  }
+	@Override
+	protected ModifiableModuleModel doGetModuleModel()
+	{
+		return myModel;
+	}
 
-  @Override
-  protected ModifiableRootModel doGetRootModel(Module module) {
-    return myModulesConfigurator.getOrCreateModuleEditor(module).getModifiableRootModel();
-  }
+	@Override
+	protected ModifiableRootModel doGetRootModel(Module module)
+	{
+		return myModulesConfigurator.getOrCreateModuleEditor(module).getModifiableRootModel();
+	}
 
-  @Override
-  public LibraryTable.ModifiableModel getProjectLibrariesModel() {
-    return myLibrariesModel;
-  }
+	@Override
+	public LibraryTable.ModifiableModel getProjectLibrariesModel()
+	{
+		return myLibrariesModel;
+	}
 
-  @Override
-  public Library[] getAllLibraries() {
-    return myLibrariesModel.getLibraries();
-  }
+	@Override
+	public Library[] getAllLibraries()
+	{
+		return myLibrariesModel.getLibraries();
+	}
 
-  @Override
-  public Library getLibraryByName(String name) {
-    return myLibrariesModel.getLibraryByName(name);
-  }
+	@Override
+	public Library getLibraryByName(String name)
+	{
+		return myLibrariesModel.getLibraryByName(name);
+	}
 
-  @Override
-  public Library createLibrary(String name) {
-    return myLibrariesModel.createLibrary(name);
-  }
+	@Override
+	public Library createLibrary(String name)
+	{
+		return myLibrariesModel.createLibrary(name);
+	}
 
-  @Override
-  public void removeLibrary(Library library) {
-    myLibrariesModel.removeLibrary(library);
-  }
+	@Override
+	public void removeLibrary(Library library)
+	{
+		myLibrariesModel.removeLibrary(library);
+	}
 
-  @Override
-  protected Library.ModifiableModel doGetLibraryModel(Library library) {
-    return myLibrariesModel.getLibraryModifiableModel(library);
-  }
+	@Override
+	protected Library.ModifiableModel doGetLibraryModel(Library library)
+	{
+		return myLibrariesModel.getLibraryModifiableModel(library);
+	}
 
-  @Override
-  public void commit() {
-    processExternalArtifactDependencies();
-  }
+	@Override
+	public void commit()
+	{
+		processExternalArtifactDependencies();
+	}
 
-  @Override
-  public void dispose() {
-  }
+	@Override
+	public void dispose()
+	{
+	}
 
-  @Override
-  public ModalityState getModalityStateForQuestionDialogs() {
-    return ModalityState.defaultModalityState();
-  }
+	@Override
+	public ModalityState getModalityStateForQuestionDialogs()
+	{
+		return ModalityState.defaultModalityState();
+	}
 }
