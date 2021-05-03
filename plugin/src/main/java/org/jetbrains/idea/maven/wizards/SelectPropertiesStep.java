@@ -18,6 +18,7 @@ package org.jetbrains.idea.maven.wizards;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
 import com.intellij.util.containers.hash.HashMap;
+import consulo.disposer.Disposable;
 import consulo.maven.newProject.MavenNewModuleContext;
 import consulo.ui.Component;
 import consulo.ui.annotation.RequiredUIAccess;
@@ -107,13 +108,13 @@ public class SelectPropertiesStep implements WizardStep<MavenNewModuleContext>
 	@RequiredUIAccess
 	@Nonnull
 	@Override
-	public Component getComponent()
+	public Component getComponent(@Nonnull Disposable uiDisposable)
 	{
 		throw new UnsupportedOperationException("desktop only");
 	}
 
 	@Override
-	public JComponent getSwingComponent()
+	public JComponent getSwingComponent(@Nonnull Disposable uiDisposable)
 	{
 		return myMainPanel;
 	}

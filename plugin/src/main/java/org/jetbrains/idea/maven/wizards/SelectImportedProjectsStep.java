@@ -23,6 +23,7 @@ import com.intellij.ui.IdeBorderFactory;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.util.ui.JBUI;
+import consulo.disposer.Disposable;
 import consulo.maven.importProvider.MavenImportModuleContext;
 import consulo.ui.Component;
 import consulo.ui.annotation.RequiredUIAccess;
@@ -103,7 +104,7 @@ public abstract class SelectImportedProjectsStep implements WizardStep<MavenImpo
 	@RequiredUIAccess
 	@Nonnull
 	@Override
-	public Component getComponent()
+	public Component getComponent(@Nonnull Disposable disposable)
 	{
 		throw new UnsupportedOperationException("desktop only");
 	}
@@ -111,7 +112,7 @@ public abstract class SelectImportedProjectsStep implements WizardStep<MavenImpo
 	@RequiredUIAccess
 	@Nonnull
 	@Override
-	public JComponent getSwingComponent()
+	public JComponent getSwingComponent(@Nonnull Disposable disposable)
 	{
 		return panel;
 	}

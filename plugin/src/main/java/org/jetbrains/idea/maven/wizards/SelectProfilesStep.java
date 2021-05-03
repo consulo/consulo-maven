@@ -16,6 +16,7 @@
 package org.jetbrains.idea.maven.wizards;
 
 import com.intellij.ide.util.MultiStateElementsChooser;
+import consulo.disposer.Disposable;
 import consulo.maven.importProvider.MavenImportModuleContext;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.wizard.WizardStep;
@@ -48,7 +49,7 @@ public class SelectProfilesStep implements WizardStep<MavenImportModuleContext>
 	}
 
 	@Override
-	public boolean isVisible()
+	public boolean isVisible(MavenImportModuleContext context)
 	{
 		return !myContext.getProfiles().isEmpty();
 	}
@@ -62,13 +63,13 @@ public class SelectProfilesStep implements WizardStep<MavenImportModuleContext>
 	@RequiredUIAccess
 	@Nonnull
 	@Override
-	public consulo.ui.Component getComponent()
+	public consulo.ui.Component getComponent(@Nonnull Disposable uiDisposable)
 	{
 		throw new UnsupportedOperationException("desktop only");
 	}
 
 	@Override
-	public JComponent getSwingComponent()
+	public JComponent getSwingComponent(@Nonnull Disposable uiDisposable)
 	{
 		return panel;
 	}

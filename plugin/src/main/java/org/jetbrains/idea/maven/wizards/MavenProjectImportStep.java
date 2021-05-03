@@ -21,6 +21,7 @@ import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VirtualFile;
+import consulo.disposer.Disposable;
 import consulo.maven.importProvider.MavenImportModuleContext;
 import consulo.ui.Component;
 import consulo.ui.annotation.RequiredUIAccess;
@@ -88,7 +89,7 @@ public class MavenProjectImportStep implements WizardStep<MavenImportModuleConte
 	@RequiredUIAccess
 	@Nonnull
 	@Override
-	public Component getComponent()
+	public Component getComponent(@Nonnull Disposable disposable)
 	{
 		throw new UnsupportedOperationException("destop only");
 	}
@@ -96,7 +97,7 @@ public class MavenProjectImportStep implements WizardStep<MavenImportModuleConte
 	@RequiredUIAccess
 	@Nonnull
 	@Override
-	public JComponent getSwingComponent()
+	public JComponent getSwingComponent(@Nonnull Disposable disposable)
 	{
 		return myPanel;
 	}

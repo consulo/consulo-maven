@@ -7,7 +7,7 @@ import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VfsUtilCore;
 import com.intellij.openapi.vfs.VirtualFile;
 import consulo.annotation.access.RequiredReadAction;
-import consulo.ide.newProject.ui.ProjectOrModuleNameStep;
+import consulo.ide.newProject.ui.UnifiedProjectOrModuleNameStep;
 import consulo.moduleImport.ModuleImportProvider;
 import consulo.ui.image.Image;
 import consulo.ui.wizard.WizardStep;
@@ -124,7 +124,7 @@ public class MavenModuleImportProvider implements ModuleImportProvider<MavenImpo
 				myContext.setName(context.getSuggestedProjectName());
 			}
 		});
-		consumer.accept(new ProjectOrModuleNameStep<>(context));
+		consumer.accept(new UnifiedProjectOrModuleNameStep<>(context));
 	}
 
 	@RequiredReadAction

@@ -24,6 +24,8 @@ import com.intellij.ui.treeStructure.Tree;
 import com.intellij.util.ui.AsyncProcessIcon;
 import com.intellij.util.ui.UIUtil;
 import com.intellij.util.ui.tree.TreeUtil;
+import consulo.disposer.Disposable;
+import consulo.disposer.Disposer;
 import consulo.maven.newProject.MavenNewModuleContext;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.wizard.WizardStep;
@@ -210,12 +212,6 @@ public class MavenModuleWizardStep implements WizardStep<MavenNewModuleContext>
 		myContext.setArchetype(getSelectedArchetype());
 	}
 
-	@Override
-	public void disposeUIResources()
-	{
-		myLoadingIcon.dispose();
-	}
-
 	private void loadSettings()
 	{
 		myContext.setInheritedOptions(getSavedValue(INHERIT_GROUP_ID_KEY, true),
@@ -270,13 +266,16 @@ public class MavenModuleWizardStep implements WizardStep<MavenNewModuleContext>
 	@RequiredUIAccess
 	@Nonnull
 	@Override
-	public consulo.ui.Component getComponent()
+	public consulo.ui.Component getComponent(@Nonnull Disposable uiDisposable)
 	{
 		throw new UnsupportedOperationException("desktop only");
 	}
 
-	public JComponent getSwingComponent()
+	@Nonnull
+	@Override
+	public JComponent getSwingComponent(@Nonnull Disposable uiDisposable)
 	{
+		Disposer.register(uiDisposable, myLoadingIcon);
 		return myMainPanel;
 	}
 
