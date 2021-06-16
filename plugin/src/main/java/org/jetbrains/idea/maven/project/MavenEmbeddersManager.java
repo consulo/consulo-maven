@@ -19,13 +19,13 @@ import com.intellij.openapi.project.Project;
 import com.intellij.util.Function;
 import com.intellij.util.containers.ContainerUtil;
 import consulo.util.dataholder.Key;
-import gnu.trove.THashSet;
 import org.jetbrains.annotations.TestOnly;
 import org.jetbrains.idea.maven.server.MavenEmbedderWrapper;
 import org.jetbrains.idea.maven.server.MavenServerManager;
 import org.jetbrains.idea.maven.utils.MavenLog;
 
 import javax.annotation.Nonnull;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -41,8 +41,8 @@ public class MavenEmbeddersManager {
   private final Project myProject;
 
   private final Map<Key, MavenEmbedderWrapper> myPool = ContainerUtil.createSoftValueMap();
-  private final Set<MavenEmbedderWrapper> myEmbeddersInUse = new THashSet<MavenEmbedderWrapper>();
-  private final Set<MavenEmbedderWrapper> myEmbeddersToClear = new THashSet<MavenEmbedderWrapper>();
+  private final Set<MavenEmbedderWrapper> myEmbeddersInUse = new HashSet<MavenEmbedderWrapper>();
+  private final Set<MavenEmbedderWrapper> myEmbeddersToClear = new HashSet<MavenEmbedderWrapper>();
 
   public MavenEmbeddersManager(Project project) {
     myProject = project;

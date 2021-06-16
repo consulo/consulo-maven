@@ -20,7 +20,6 @@ import consulo.disposer.Disposable;
 import consulo.maven.importProvider.MavenImportModuleContext;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.wizard.WizardStep;
-import gnu.trove.THashSet;
 import org.jetbrains.idea.maven.model.MavenExplicitProfiles;
 import org.jetbrains.idea.maven.model.MavenProfileKind;
 
@@ -129,7 +128,7 @@ public class SelectProfilesStep implements WizardStep<MavenImportModuleContext>
 
 		public void setActivatedProfiles(Collection<String> activatedProfiles)
 		{
-			myActivatedProfiles = new THashSet<>(activatedProfiles);
+			myActivatedProfiles = new HashSet<>(activatedProfiles);
 		}
 
 		@Nonnull

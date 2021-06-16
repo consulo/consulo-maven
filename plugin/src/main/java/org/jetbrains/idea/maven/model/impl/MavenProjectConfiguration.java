@@ -21,10 +21,10 @@ import com.intellij.util.execution.ParametersListUtil;
 import com.intellij.util.xmlb.annotations.MapAnnotation;
 import com.intellij.util.xmlb.annotations.Tag;
 import com.intellij.util.xmlb.annotations.Transient;
-import gnu.trove.THashMap;
-import gnu.trove.THashSet;
-import javax.annotation.Nonnull;
+import consulo.util.collection.Sets;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -39,16 +39,16 @@ public class MavenProjectConfiguration {
   private static final Pattern PROPERTY_PATTERN = Pattern.compile("-D(\\S+?)=(.+)");
   public static final Set<String> DEFAULT_FILTERING_EXCLUDED_EXTENSIONS;
   static {
-    final THashSet<String> set = new THashSet<String>(FileUtil.PATH_HASHING_STRATEGY);
+    final Set<String> set = Sets.newHashSet(FileUtil.PATH_HASHING_STRATEGY);
     set.addAll(Arrays.asList("jpg", "jpeg", "gif", "bmp", "png"));
     DEFAULT_FILTERING_EXCLUDED_EXTENSIONS = Collections.unmodifiableSet(set);
   }
 
   @Tag("resource-processing")
   @MapAnnotation(surroundWithTag = false, surroundKeyWithTag = false, surroundValueWithTag = false, entryTagName = "maven-module", keyAttributeName = "name")
-  public Map<String, MavenModuleResourceConfiguration> moduleConfigurations = new THashMap<String, MavenModuleResourceConfiguration>();
+  public Map<String, MavenModuleResourceConfiguration> moduleConfigurations = new HashMap<String, MavenModuleResourceConfiguration>();
 
-  @javax.annotation.Nullable
+  @Nullable
   public MavenModuleResourceConfiguration findProject(MavenIdBean id) {
     return getModuleConfigurationMap().get(id);
   }
@@ -60,7 +60,7 @@ public class MavenProjectConfiguration {
   private Map<MavenIdBean, MavenModuleResourceConfiguration> getModuleConfigurationMap() {
     Map<MavenIdBean, MavenModuleResourceConfiguration> map = myIdToModuleMap;
     if (map == null) {
-      map = new THashMap<MavenIdBean, MavenModuleResourceConfiguration>();
+      map = new HashMap<MavenIdBean, MavenModuleResourceConfiguration>();
       for (MavenModuleResourceConfiguration configuration : moduleConfigurations.values()) {
         if (configuration != null) {
           map.put(configuration.id, configuration);
@@ -71,7 +71,7 @@ public class MavenProjectConfiguration {
     return map;
   }
 
-  @javax.annotation.Nullable
+  @Nullable
   public String resolveProperty(final String propName, final MavenModuleResourceConfiguration moduleConfig, Map<String, String> additionalProperties) {
     boolean hasPrefix = false;
     String unprefixed = propName;

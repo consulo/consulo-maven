@@ -15,13 +15,6 @@
  */
 package org.jetbrains.idea.maven.importing;
 
-import gnu.trove.THashMap;
-
-import java.util.IdentityHashMap;
-import java.util.Map;
-
-import javax.annotation.Nonnull;
-
 import com.intellij.openapi.module.ModifiableModuleModel;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
@@ -37,9 +30,14 @@ import com.intellij.packaging.artifacts.ArtifactModel;
 import com.intellij.packaging.artifacts.ModifiableArtifactModel;
 import com.intellij.packaging.elements.PackagingElementResolvingContext;
 
+import javax.annotation.Nonnull;
+import java.util.HashMap;
+import java.util.IdentityHashMap;
+import java.util.Map;
+
 public abstract class MavenBaseModifiableModelsProvider implements MavenModifiableModelsProvider {
   protected ModifiableModuleModel myModuleModel;
-  protected Map<Module, ModifiableRootModel> myRootModels = new THashMap<Module, ModifiableRootModel>();
+  protected Map<Module, ModifiableRootModel> myRootModels = new HashMap<Module, ModifiableRootModel>();
   protected Map<Library, Library.ModifiableModel> myLibraryModels = new IdentityHashMap<Library, Library.ModifiableModel>();
   protected ModifiableArtifactModel myArtifactModel;
   protected final Project myProject;

@@ -17,7 +17,6 @@ package org.jetbrains.idea.maven.wizards;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
-import com.intellij.util.containers.hash.HashMap;
 import consulo.disposer.Disposable;
 import consulo.maven.newProject.MavenNewModuleContext;
 import consulo.ui.Component;
@@ -35,6 +34,7 @@ import javax.annotation.Nonnull;
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 

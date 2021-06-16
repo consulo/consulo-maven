@@ -41,15 +41,12 @@ import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.ui.AsyncProcessIcon;
 import com.intellij.xml.util.XmlStringUtil;
 import consulo.disposer.Disposer;
-
-import gnu.trove.THashMap;
 import org.jetbrains.annotations.NonNls;
-import javax.annotation.Nonnull;
-
 import org.jetbrains.idea.maven.model.MavenArtifactInfo;
 import org.jetbrains.idea.maven.model.MavenRepositoryInfo;
 import org.jetbrains.idea.maven.utils.library.RepositoryAttachHandler;
 
+import javax.annotation.Nonnull;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.text.JTextComponent;
@@ -57,8 +54,8 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 
 public class RepositoryAttachDialog extends DialogWrapper {
   @NonNls private static final String PROPERTY_DOWNLOAD_TO_PATH = "Downloaded.Files.Path";
@@ -74,8 +71,8 @@ public class RepositoryAttachDialog extends DialogWrapper {
   private ComboboxWithBrowseButton myComboComponent;
   private JPanel myPanel;
   private JBLabel myCaptionLabel;
-  private final THashMap<String, Pair<MavenArtifactInfo, MavenRepositoryInfo>> myCoordinates
-    = new THashMap<String, Pair<MavenArtifactInfo, MavenRepositoryInfo>>();
+  private final Map<String, Pair<MavenArtifactInfo, MavenRepositoryInfo>> myCoordinates
+    = new HashMap<String, Pair<MavenArtifactInfo, MavenRepositoryInfo>>();
   private final Map<String, MavenRepositoryInfo> myRepositories = new TreeMap<String, MavenRepositoryInfo>();
   private final ArrayList<String> myShownItems = new ArrayList<String>();
   private final JComboBox myCombobox;
@@ -232,7 +229,7 @@ public class RepositoryAttachDialog extends DialogWrapper {
 
   private boolean performSearch() {
     final String text = getCoordinateText();
-    if (myCoordinates.contains(text)) return false;
+    if (myCoordinates.containsKey(text)) return false;
     if (myProgressIcon.isRunning()) return false;
     myProgressIcon.resume();
     RepositoryAttachHandler.searchArtifacts(myProject, text, new PairProcessor<Collection<Pair<MavenArtifactInfo, MavenRepositoryInfo>>, Boolean>() {

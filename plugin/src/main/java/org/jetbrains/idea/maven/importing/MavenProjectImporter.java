@@ -37,8 +37,6 @@ import com.intellij.util.containers.Stack;
 import consulo.java.module.extension.JavaMutableModuleExtensionImpl;
 import consulo.maven.importing.MavenImportSession;
 import consulo.maven.module.extension.MavenMutableModuleExtension;
-import gnu.trove.THashMap;
-import gnu.trove.THashSet;
 import org.jetbrains.idea.maven.importing.configurers.MavenModuleConfigurer;
 import org.jetbrains.idea.maven.model.MavenArtifact;
 import org.jetbrains.idea.maven.project.*;
@@ -66,9 +64,9 @@ public class MavenProjectImporter
 
 	private final List<Module> myCreatedModules = new ArrayList<Module>();
 
-	private final Map<MavenProject, Module> myMavenProjectToModule = new THashMap<MavenProject, Module>();
-	private final Map<MavenProject, String> myMavenProjectToModuleName = new THashMap<MavenProject, String>();
-	private final Map<MavenProject, String> myMavenProjectToModulePath = new THashMap<MavenProject, String>();
+	private final Map<MavenProject, Module> myMavenProjectToModule = new HashMap<MavenProject, Module>();
+	private final Map<MavenProject, String> myMavenProjectToModuleName = new HashMap<MavenProject, String>();
+	private final Map<MavenProject, String> myMavenProjectToModulePath = new HashMap<MavenProject, String>();
 
 	public MavenProjectImporter(Project p,
 								MavenProjectsTree projectsTree,
@@ -212,7 +210,7 @@ public class MavenProjectImporter
 
 	private Map<MavenProject, MavenProjectChanges> collectProjectsToImport(Map<MavenProject, MavenProjectChanges> projectsToImport)
 	{
-		Map<MavenProject, MavenProjectChanges> result = new THashMap<MavenProject, MavenProjectChanges>(projectsToImport);
+		Map<MavenProject, MavenProjectChanges> result = new HashMap<MavenProject, MavenProjectChanges>(projectsToImport);
 		result.putAll(collectNewlyCreatedProjects()); // e.g. when 'create modules fro aggregators' setting changes
 
 		Set<MavenProject> allProjectsToImport = result.keySet();
@@ -232,7 +230,7 @@ public class MavenProjectImporter
 
 	private Map<MavenProject, MavenProjectChanges> collectNewlyCreatedProjects()
 	{
-		Map<MavenProject, MavenProjectChanges> result = new THashMap<MavenProject, MavenProjectChanges>();
+		Map<MavenProject, MavenProjectChanges> result = new HashMap<MavenProject, MavenProjectChanges>();
 
 		for(MavenProject each : myAllProjects)
 		{
@@ -248,7 +246,7 @@ public class MavenProjectImporter
 
 	private Set<MavenProject> selectProjectsToImport(Collection<MavenProject> originalProjects)
 	{
-		Set<MavenProject> result = new THashSet<MavenProject>();
+		Set<MavenProject> result = new HashSet<MavenProject>();
 		for(MavenProject each : originalProjects)
 		{
 			if(!shouldCreateModuleFor(each))
@@ -388,7 +386,7 @@ public class MavenProjectImporter
 			artifacts.addAll(each.getDependencies());
 		}
 
-		final Set<File> files = new THashSet<File>();
+		final Set<File> files = new HashSet<File>();
 		for(MavenArtifact each : artifacts)
 		{
 			if(each.isResolved())
@@ -441,7 +439,7 @@ public class MavenProjectImporter
 	{
 		Map<MavenProject, MavenProjectChanges> projectsWithChanges = myProjectsToImportWithChanges;
 
-		Set<MavenProject> projectsWithNewlyCreatedModules = new THashSet<MavenProject>();
+		Set<MavenProject> projectsWithNewlyCreatedModules = new HashSet<MavenProject>();
 
 		for(MavenProject each : projectsWithChanges.keySet())
 		{
@@ -639,7 +637,7 @@ public class MavenProjectImporter
 
 	private Collection<ModuleRootModel> collectModuleModels()
 	{
-		Map<Module, ModuleRootModel> rootModels = new THashMap<Module, ModuleRootModel>();
+		Map<Module, ModuleRootModel> rootModels = new HashMap<Module, ModuleRootModel>();
 		for(MavenProject each : myProjectsToImportWithChanges.keySet())
 		{
 			Module module = myMavenProjectToModule.get(each);

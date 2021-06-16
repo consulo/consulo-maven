@@ -29,10 +29,7 @@ import com.intellij.psi.PsiManager;
 import com.intellij.util.ArrayUtil;
 import com.intellij.util.xml.*;
 import com.intellij.util.xml.impl.GenericDomValueReference;
-import gnu.trove.THashSet;
 import org.jetbrains.annotations.NonNls;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import org.jetbrains.idea.maven.dom.MavenDomBundle;
 import org.jetbrains.idea.maven.dom.MavenDomProjectProcessorUtils;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
@@ -43,8 +40,11 @@ import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.utils.MavenArtifactUtil;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.File;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Set;
 
 public abstract class MavenArtifactCoordinatesConverter extends ResolvingConverter<String> implements MavenDomSoftAwareConverter {
@@ -298,7 +298,7 @@ public abstract class MavenArtifactCoordinatesConverter extends ResolvingConvert
     @Override
     public Set<String> getVariants(MavenId id, MavenProjectIndicesManager manager, MavenDomShortArtifactCoordinates coordinates) {
       if (StringUtil.isEmpty(id.getGroupId())) {
-        Set<String> result = new THashSet<String>();
+        Set<String> result = new HashSet<String>();
         if (DomUtil.hasXml(coordinates.getGroupId())) {
           for (String each : manager.getGroupIds()) {
             id = new MavenId(each, id.getArtifactId(), id.getVersion());
@@ -349,7 +349,7 @@ public abstract class MavenArtifactCoordinatesConverter extends ResolvingConvert
     @Override
     public Set<String> getVariants(MavenId id, MavenProjectIndicesManager manager, MavenDomShortArtifactCoordinates coordinates) {
       if (StringUtil.isEmpty(id.getGroupId())) {
-        Set<String> result = new THashSet<String>();
+        Set<String> result = new HashSet<String>();
 
         for (String each : getGroupIdVariants(manager, coordinates)) {
           id = new MavenId(each, id.getArtifactId(), id.getVersion());

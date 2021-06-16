@@ -15,23 +15,6 @@
  */
 package org.jetbrains.idea.maven.utils;
 
-import gnu.trove.THashSet;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-
-import javax.swing.SwingUtilities;
-
-import javax.annotation.Nonnull;
-import org.jetbrains.idea.maven.importing.MavenRootModelAdapter;
-import org.jetbrains.idea.maven.model.MavenArtifact;
-import org.jetbrains.idea.maven.model.MavenId;
-import org.jetbrains.idea.maven.project.MavenArtifactDownloader;
-import org.jetbrains.idea.maven.project.MavenProject;
-import org.jetbrains.idea.maven.project.MavenProjectsManager;
-import org.jetbrains.idea.maven.project.ProjectBundle;
 import com.intellij.codeInsight.AttachSourcesProvider;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
@@ -43,6 +26,17 @@ import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.util.ActionCallback;
 import com.intellij.openapi.util.AsyncResult;
 import com.intellij.psi.PsiFile;
+import org.jetbrains.idea.maven.importing.MavenRootModelAdapter;
+import org.jetbrains.idea.maven.model.MavenArtifact;
+import org.jetbrains.idea.maven.model.MavenId;
+import org.jetbrains.idea.maven.project.MavenArtifactDownloader;
+import org.jetbrains.idea.maven.project.MavenProject;
+import org.jetbrains.idea.maven.project.MavenProjectsManager;
+import org.jetbrains.idea.maven.project.ProjectBundle;
+
+import javax.annotation.Nonnull;
+import javax.swing.*;
+import java.util.*;
 
 public class MavenAttachSourcesProvider implements AttachSourcesProvider
 {
@@ -137,7 +131,7 @@ public class MavenAttachSourcesProvider implements AttachSourcesProvider
 
 	private static Collection<MavenArtifact> findArtifacts(Collection<MavenProject> mavenProjects, List<LibraryOrderEntry> orderEntries)
 	{
-		Collection<MavenArtifact> artifacts = new THashSet<MavenArtifact>();
+		Collection<MavenArtifact> artifacts = new HashSet<MavenArtifact>();
 		for(MavenProject each : mavenProjects)
 		{
 			for(LibraryOrderEntry entry : orderEntries)

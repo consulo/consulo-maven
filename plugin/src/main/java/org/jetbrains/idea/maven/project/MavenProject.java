@@ -27,7 +27,6 @@ import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.containers.ContainerUtil;
 import consulo.util.dataholder.Key;
-import gnu.trove.THashSet;
 import org.jdom.Element;
 import org.jetbrains.idea.maven.importing.MavenExtraArtifactType;
 import org.jetbrains.idea.maven.importing.MavenImporter;
@@ -174,7 +173,7 @@ public class MavenProject
 		}
 		else
 		{
-			Set<String> mergedProfiles = new THashSet<String>(newState.myProfilesIds);
+			Set<String> mergedProfiles = new HashSet<String>(newState.myProfilesIds);
 			mergedProfiles.addAll(newProfiles);
 			newState.myProfilesIds = new ArrayList<String>(mergedProfiles);
 		}
@@ -195,7 +194,7 @@ public class MavenProject
 	{
 		MavenModel model = readerResult.mavenModel;
 
-		Set<MavenId> newUnresolvedArtifacts = new THashSet<MavenId>();
+		Set<MavenId> newUnresolvedArtifacts = new HashSet<MavenId>();
 		LinkedHashSet<MavenRemoteRepository> newRepositories = new LinkedHashSet<MavenRemoteRepository>();
 		LinkedHashSet<MavenArtifact> newDependencies = new LinkedHashSet<MavenArtifact>();
 		LinkedHashSet<MavenArtifactNode> newDependencyTree = new LinkedHashSet<MavenArtifactNode>();
@@ -307,7 +306,7 @@ public class MavenProject
 			return Collections.emptyList();
 		}
 
-		Set<String> result = new THashSet<String>(profiles.size());
+		Set<String> result = new HashSet<String>(profiles.size());
 		for(MavenProfile each : profiles)
 		{
 			result.add(each.getId());
@@ -1036,7 +1035,7 @@ public class MavenProject
 
 	public Set<String> getDependencyTypesFromImporters(@Nonnull SupportedRequestType type)
 	{
-		THashSet<String> res = new THashSet<String>();
+		Set<String> res = new HashSet<String>();
 
 		for(MavenImporter each : getSuitableImporters())
 		{
@@ -1049,7 +1048,7 @@ public class MavenProject
 	@Nonnull
 	public Set<String> getSupportedDependencyScopes()
 	{
-		Set<String> result = new THashSet<String>(Arrays.asList(MavenConstants.SCOPE_COMPILE, MavenConstants.SCOPE_PROVIDED, MavenConstants.SCOPE_RUNTIME, MavenConstants.SCOPE_TEST,
+		Set<String> result = new HashSet<String>(Arrays.asList(MavenConstants.SCOPE_COMPILE, MavenConstants.SCOPE_PROVIDED, MavenConstants.SCOPE_RUNTIME, MavenConstants.SCOPE_TEST,
 				MavenConstants.SCOPE_SYSTEM));
 		for(MavenImporter each : getSuitableImporters())
 		{

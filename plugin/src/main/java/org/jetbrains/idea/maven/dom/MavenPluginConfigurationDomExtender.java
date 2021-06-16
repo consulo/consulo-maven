@@ -30,7 +30,6 @@ import com.intellij.util.xml.reflect.DomExtender;
 import com.intellij.util.xml.reflect.DomExtension;
 import com.intellij.util.xml.reflect.DomExtensionsRegistrar;
 import consulo.util.dataholder.Key;
-import gnu.trove.THashMap;
 import org.jetbrains.idea.maven.dom.converters.MavenDomConvertersRegistry;
 import org.jetbrains.idea.maven.dom.converters.MavenPluginCustomParameterValueConverter;
 import org.jetbrains.idea.maven.dom.model.MavenDomConfiguration;
@@ -102,7 +101,7 @@ public class MavenPluginConfigurationDomExtender extends DomExtender<MavenDomCon
       }
     }
 
-    Map<String, ParameterData> namesWithParameters = new THashMap<String, ParameterData>();
+    Map<String, ParameterData> namesWithParameters = new HashMap<String, ParameterData>();
 
     for (MavenDomMojo eachMojo : pluginModel.getMojos().getMojos()) {
       String goal = eachMojo.getGoal().getStringValue();

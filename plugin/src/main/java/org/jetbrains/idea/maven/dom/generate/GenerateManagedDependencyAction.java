@@ -15,18 +15,6 @@
  */
 package org.jetbrains.idea.maven.dom.generate;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.annotation.Nonnull;
-
-import org.jetbrains.idea.maven.dom.DependencyConflictId;
-import org.jetbrains.idea.maven.dom.MavenDomBundle;
-import org.jetbrains.idea.maven.dom.MavenDomProjectProcessorUtils;
-import org.jetbrains.idea.maven.dom.MavenDomUtil;
-import org.jetbrains.idea.maven.dom.model.MavenDomDependency;
-import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Maps;
 import com.intellij.icons.AllIcons;
@@ -35,9 +23,16 @@ import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.util.Processor;
-import com.intellij.util.containers.hash.HashMap;
-import com.intellij.util.containers.hash.HashSet;
 import com.intellij.util.xml.ui.actions.generate.GenerateDomElementAction;
+import org.jetbrains.idea.maven.dom.DependencyConflictId;
+import org.jetbrains.idea.maven.dom.MavenDomBundle;
+import org.jetbrains.idea.maven.dom.MavenDomProjectProcessorUtils;
+import org.jetbrains.idea.maven.dom.MavenDomUtil;
+import org.jetbrains.idea.maven.dom.model.MavenDomDependency;
+import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
+
+import javax.annotation.Nonnull;
+import java.util.*;
 
 public class GenerateManagedDependencyAction extends GenerateDomElementAction
 {

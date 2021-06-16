@@ -31,7 +31,7 @@ import com.intellij.testFramework.UsefulTestCase;
 import com.intellij.testFramework.fixtures.IdeaProjectTestFixture;
 import com.intellij.testFramework.fixtures.IdeaTestFixtureFactory;
 import com.intellij.util.ui.UIUtil;
-import gnu.trove.THashSet;
+import consulo.util.collection.Sets;
 import org.intellij.lang.annotations.Language;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.idea.maven.indices.MavenIndicesManager;
@@ -593,7 +593,7 @@ public abstract class MavenTestCase extends UsefulTestCase
 
 	protected static void assertUnorderedPathsAreEqual(Collection<String> actual, Collection<String> expected)
 	{
-		assertEquals(new THashSet<String>(expected, FileUtil.PATH_HASHING_STRATEGY), new THashSet<String>(actual, FileUtil.PATH_HASHING_STRATEGY));
+		assertEquals(Sets.newHashSet(expected, FileUtil.PATH_HASHING_STRATEGY), Sets.newHashSet(actual, FileUtil.PATH_HASHING_STRATEGY));
 	}
 
 	protected static <T> void assertUnorderedElementsAreEqual(T[] actual, T... expected)

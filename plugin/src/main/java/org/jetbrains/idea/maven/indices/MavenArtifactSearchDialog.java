@@ -15,29 +15,22 @@
  */
 package org.jetbrains.idea.maven.indices;
 
-import gnu.trove.THashMap;
-
-import java.awt.Dimension;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.annotation.Nonnull;
-import javax.swing.Action;
-import javax.swing.JComponent;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-
-import org.jetbrains.idea.maven.dom.model.MavenDomDependency;
-import org.jetbrains.idea.maven.model.MavenId;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.ui.TabbedPaneWrapper;
+import org.jetbrains.idea.maven.dom.model.MavenDomDependency;
+import org.jetbrains.idea.maven.model.MavenId;
+
+import javax.annotation.Nonnull;
+import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import java.awt.*;
+import java.util.List;
+import java.util.*;
 
 public class MavenArtifactSearchDialog extends DialogWrapper
 {
@@ -51,7 +44,7 @@ public class MavenArtifactSearchDialog extends DialogWrapper
 
 	private final Map<Pair<String, String>, String> myManagedDependenciesMap = new HashMap<Pair<String, String>, String>();
 
-	private final Map<MavenArtifactSearchPanel, Boolean> myOkButtonStates = new THashMap<MavenArtifactSearchPanel, Boolean>();
+	private final Map<MavenArtifactSearchPanel, Boolean> myOkButtonStates = new HashMap<MavenArtifactSearchPanel, Boolean>();
 
 	@Nonnull
 	public static List<MavenId> searchForClass(Project project, String className)

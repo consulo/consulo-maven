@@ -15,18 +15,6 @@
  */
 package org.jetbrains.idea.maven.dom.refactorings.extract;
 
-import java.util.Collections;
-import java.util.Set;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import org.jetbrains.idea.maven.dom.DependencyConflictId;
-import org.jetbrains.idea.maven.dom.MavenDomProjectProcessorUtils;
-import org.jetbrains.idea.maven.dom.MavenDomUtil;
-import org.jetbrains.idea.maven.dom.model.MavenDomDependency;
-import org.jetbrains.idea.maven.dom.model.MavenDomExclusion;
-import org.jetbrains.idea.maven.dom.model.MavenDomExclusions;
-import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
 import com.intellij.lang.Language;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.application.Result;
@@ -42,8 +30,20 @@ import com.intellij.psi.xml.XmlElement;
 import com.intellij.refactoring.RefactoringActionHandler;
 import com.intellij.refactoring.actions.BaseRefactoringAction;
 import com.intellij.util.Function;
-import com.intellij.util.containers.hash.HashSet;
 import com.intellij.util.xml.DomUtil;
+import org.jetbrains.idea.maven.dom.DependencyConflictId;
+import org.jetbrains.idea.maven.dom.MavenDomProjectProcessorUtils;
+import org.jetbrains.idea.maven.dom.MavenDomUtil;
+import org.jetbrains.idea.maven.dom.model.MavenDomDependency;
+import org.jetbrains.idea.maven.dom.model.MavenDomExclusion;
+import org.jetbrains.idea.maven.dom.model.MavenDomExclusions;
+import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 public class ExtractManagedDependenciesAction extends BaseRefactoringAction
 {

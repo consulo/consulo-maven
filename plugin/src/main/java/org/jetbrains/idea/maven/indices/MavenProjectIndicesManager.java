@@ -15,15 +15,17 @@
  */
 package org.jetbrains.idea.maven.indices;
 
-import gnu.trove.THashSet;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-
-import javax.annotation.Nullable;
-
+import com.intellij.openapi.application.AccessToken;
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.application.ReadAction;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Pair;
+import com.intellij.openapi.util.text.StringUtil;
+import com.intellij.util.Consumer;
+import com.intellij.util.containers.ContainerUtil;
+import com.intellij.util.ui.update.MergingUpdateQueue;
+import com.intellij.util.ui.update.Update;
+import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import org.apache.lucene.search.Query;
 import org.jetbrains.idea.maven.model.MavenArtifactInfo;
@@ -36,16 +38,13 @@ import org.jetbrains.idea.maven.project.MavenProjectsTree;
 import org.jetbrains.idea.maven.server.NativeMavenProjectHolder;
 import org.jetbrains.idea.maven.utils.MavenMergingUpdateQueue;
 import org.jetbrains.idea.maven.utils.MavenSimpleProjectComponent;
-import com.intellij.openapi.application.AccessToken;
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.application.ReadAction;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Pair;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.util.Consumer;
-import com.intellij.util.containers.ContainerUtil;
-import com.intellij.util.ui.update.MergingUpdateQueue;
-import com.intellij.util.ui.update.Update;
+
+import javax.annotation.Nullable;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Singleton
 public class MavenProjectIndicesManager extends MavenSimpleProjectComponent
@@ -58,6 +57,7 @@ public class MavenProjectIndicesManager extends MavenSimpleProjectComponent
 		return p.getComponent(MavenProjectIndicesManager.class);
 	}
 
+	@Inject
 	public MavenProjectIndicesManager(Project project)
 	{
 		super(project);
@@ -150,7 +150,7 @@ public class MavenProjectIndicesManager extends MavenSimpleProjectComponent
 
 	private Set<Pair<String, String>> collectRemoteRepositoriesIdsAndUrls()
 	{
-		Set<Pair<String, String>> result = new THashSet<>();
+		Set<Pair<String, String>> result = new HashSet<>();
 		Set<MavenRemoteRepository> remoteRepositories = ContainerUtil.newHashSet(getMavenProjectManager().getRemoteRepositories());
 		for(MavenRepositoryProvider repositoryProvider : MavenRepositoryProvider.EP_NAME.getExtensions())
 		{
@@ -293,7 +293,7 @@ public class MavenProjectIndicesManager extends MavenSimpleProjectComponent
 
 	public Set<MavenArtifactInfo> search(Query query, int maxResult)
 	{
-		Set<MavenArtifactInfo> result = new THashSet<>();
+		Set<MavenArtifactInfo> result = new HashSet<>();
 
 		for(MavenIndex each : myProjectIndices)
 		{
@@ -310,7 +310,7 @@ public class MavenProjectIndicesManager extends MavenSimpleProjectComponent
 
 	private Set<String> getProjectGroupIds()
 	{
-		Set<String> result = new THashSet<>();
+		Set<String> result = new HashSet<>();
 		for(MavenId each : getProjectsIds())
 		{
 			result.add(each.getGroupId());
@@ -320,7 +320,7 @@ public class MavenProjectIndicesManager extends MavenSimpleProjectComponent
 
 	private Set<String> getProjectArtifactIds(String groupId)
 	{
-		Set<String> result = new THashSet<>();
+		Set<String> result = new HashSet<>();
 		for(MavenId each : getProjectsIds())
 		{
 			if(groupId.equals(each.getGroupId()))
@@ -333,7 +333,7 @@ public class MavenProjectIndicesManager extends MavenSimpleProjectComponent
 
 	private Set<String> getProjectVersions(String groupId, String artifactId)
 	{
-		Set<String> result = new THashSet<>();
+		Set<String> result = new HashSet<>();
 		for(MavenId each : getProjectsIds())
 		{
 			if(groupId.equals(each.getGroupId()) && artifactId.equals(each.getArtifactId()))
@@ -361,7 +361,7 @@ public class MavenProjectIndicesManager extends MavenSimpleProjectComponent
 
 	private Set<MavenId> getProjectsIds()
 	{
-		Set<MavenId> result = new THashSet<>();
+		Set<MavenId> result = new HashSet<>();
 		for(MavenProject each : MavenProjectsManager.getInstance(myProject).getProjects())
 		{
 			result.add(each.getMavenId());

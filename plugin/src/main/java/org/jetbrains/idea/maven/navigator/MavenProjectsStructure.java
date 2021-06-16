@@ -37,9 +37,6 @@ import com.intellij.ui.treeStructure.*;
 import com.intellij.util.ObjectUtils;
 import com.intellij.util.PathUtil;
 import com.intellij.util.containers.ContainerUtil;
-import gnu.trove.THashMap;
-import gnu.trove.THashSet;
-
 import consulo.disposer.Disposer;
 import icons.ExternalSystemIcons;
 import icons.MavenIcons;
@@ -93,7 +90,7 @@ public class MavenProjectsStructure extends SimpleTreeStructure
 	private final SimpleTreeBuilder myTreeBuilder;
 	private final RootNode myRoot = new RootNode();
 
-	private final Map<MavenProject, ProjectNode> myProjectToNodeMapping = new THashMap<>();
+	private final Map<MavenProject, ProjectNode> myProjectToNodeMapping = new HashMap<>();
 
 	public MavenProjectsStructure(Project project,
 			MavenProjectsManager projectsManager,
@@ -1799,7 +1796,7 @@ public class MavenProjectsStructure extends SimpleTreeStructure
 		{
 			boolean childChanged = false;
 
-			Set<RunnerAndConfigurationSettings> settings = new THashSet<>(RunManager.getInstance(myProject).getConfigurationSettingsList(MavenRunConfigurationType.getInstance()));
+			Set<RunnerAndConfigurationSettings> settings = new HashSet<>(RunManager.getInstance(myProject).getConfigurationSettingsList(MavenRunConfigurationType.getInstance()));
 
 			for(Iterator<RunConfigurationNode> itr = myChildren.iterator(); itr.hasNext(); )
 			{

@@ -27,7 +27,10 @@ import com.intellij.openapi.module.ModuleUtilCore;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.roots.ProjectRootManager;
-import com.intellij.openapi.util.*;
+import com.intellij.openapi.util.AsyncResult;
+import com.intellij.openapi.util.ModificationTracker;
+import com.intellij.openapi.util.Pair;
+import com.intellij.openapi.util.Ref;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
@@ -40,8 +43,6 @@ import com.intellij.util.ui.update.Update;
 import consulo.disposer.Disposable;
 import consulo.disposer.Disposer;
 import consulo.maven.module.extension.MavenModuleExtension;
-import gnu.trove.THashMap;
-import gnu.trove.THashSet;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import org.jetbrains.annotations.TestOnly;
@@ -271,7 +272,7 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 	private void applyTreeToState()
 	{
 		myState.originalFiles = myProjectsTree.getManagedFilesPaths();
-		myState.ignoredFiles = new THashSet<>(myProjectsTree.getIgnoredFilesPaths());
+		myState.ignoredFiles = new HashSet<>(myProjectsTree.getIgnoredFilesPaths());
 		myState.ignoredPathMasks = myProjectsTree.getIgnoredFilesPatterns();
 	}
 
@@ -392,7 +393,7 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 				}
 
 				// resolve updated, theirs dependents, and dependents of deleted
-				Set<MavenProject> toResolve = new THashSet<>(updatedProjects);
+				Set<MavenProject> toResolve = new HashSet<>(updatedProjects);
 				toResolve.addAll(myProjectsTree.getDependentProjects(ContainerUtil.concat(updatedProjects, deleted)));
 
 				// do not try to resolve projects with syntactic errors
@@ -875,7 +876,7 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 
 	public Set<MavenRemoteRepository> getRemoteRepositories()
 	{
-		Set<MavenRemoteRepository> result = new THashSet<>();
+		Set<MavenRemoteRepository> result = new HashSet<>();
 		for(MavenProject each : getProjects())
 		{
 			for(MavenRemoteRepository eachRepository : each.getRemoteRepositories())
@@ -1338,7 +1339,7 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 
 	private static Map<VirtualFile, Module> getFileToModuleMapping(MavenModelsProvider modelsProvider)
 	{
-		Map<VirtualFile, Module> result = new THashMap<>();
+		Map<VirtualFile, Module> result = new HashMap<>();
 		for(Module each : modelsProvider.getModules())
 		{
 			VirtualFile f = findPomFile(each, modelsProvider);

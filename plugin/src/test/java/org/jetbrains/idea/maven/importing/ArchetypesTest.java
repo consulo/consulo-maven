@@ -15,19 +15,18 @@
  */
 package org.jetbrains.idea.maven.importing;
 
-import gnu.trove.THashMap;
-
-import java.io.File;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Map;
-
+import com.intellij.openapi.progress.EmptyProgressIndicator;
 import org.jetbrains.idea.maven.MavenTestCase;
 import org.jetbrains.idea.maven.execution.MavenExecutor;
 import org.jetbrains.idea.maven.execution.MavenExternalExecutor;
 import org.jetbrains.idea.maven.execution.MavenRunnerParameters;
 import org.jetbrains.idea.maven.execution.MavenRunnerSettings;
-import com.intellij.openapi.progress.EmptyProgressIndicator;
+
+import java.io.File;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 public abstract class ArchetypesTest extends MavenTestCase {
   public void testGenerating() throws Exception {
@@ -41,7 +40,7 @@ public abstract class ArchetypesTest extends MavenTestCase {
                                                              Collections.<String>emptyList());
 
     MavenRunnerSettings settings = new MavenRunnerSettings();
-    Map<String, String> props = new THashMap<String, String>();
+    Map<String, String> props = new HashMap<String, String>();
     props.put("archetypeGroupId", "org.apache.maven.archetypes");
     props.put("archetypeArtifactId", "maven-archetype-quickstart");
     props.put("archetypeVersion", "1.0");

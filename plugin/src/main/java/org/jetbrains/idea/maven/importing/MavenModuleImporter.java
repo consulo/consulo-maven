@@ -35,7 +35,6 @@ import consulo.roots.types.BinariesOrderRootType;
 import consulo.roots.types.DocumentationOrderRootType;
 import consulo.roots.types.SourcesOrderRootType;
 import consulo.vfs.util.ArchiveVfsUtil;
-import gnu.trove.THashSet;
 import org.jdom.Element;
 import org.jetbrains.idea.maven.execution.MavenRunner;
 import org.jetbrains.idea.maven.model.MavenArtifact;
@@ -45,8 +44,10 @@ import org.jetbrains.idea.maven.utils.MavenUtil;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class MavenModuleImporter
 {
@@ -254,7 +255,7 @@ public class MavenModuleImporter
 
 	private void configDependencies()
 	{
-		THashSet<String> dependencyTypesFromSettings = new THashSet<String>();
+		Set<String> dependencyTypesFromSettings = new HashSet<String>();
 
 		AccessToken accessToken = ReadAction.start();
 		try

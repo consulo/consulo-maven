@@ -22,7 +22,6 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.xmlb.annotations.Property;
 import com.intellij.util.xmlb.annotations.Transient;
-import gnu.trove.THashSet;
 import org.jdom.Element;
 import org.jetbrains.idea.maven.execution.MavenExecutionOptions;
 import org.jetbrains.idea.maven.server.MavenServerManager;
@@ -33,6 +32,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -316,7 +316,7 @@ public class MavenGeneralSettings implements Cloneable
 			return result;
 		}
 
-		result = new THashSet<String>();
+		result = new HashSet<String>();
 
 		VirtualFile effectiveSuperPom = getEffectiveSuperPom();
 		if(effectiveSuperPom != null)

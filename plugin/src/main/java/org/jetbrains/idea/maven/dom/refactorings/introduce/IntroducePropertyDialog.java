@@ -30,8 +30,6 @@ import com.intellij.util.StringLenComparator;
 import com.intellij.util.xml.DomElement;
 import com.intellij.util.xml.DomFileElement;
 import com.intellij.util.xml.DomUtil;
-import gnu.trove.THashSet;
-import javax.annotation.Nonnull;
 import org.jetbrains.idea.maven.dom.MavenDomBundle;
 import org.jetbrains.idea.maven.dom.MavenDomProjectProcessorUtils;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
@@ -41,12 +39,11 @@ import org.jetbrains.idea.maven.dom.model.MavenDomShortArtifactCoordinates;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.utils.ComboBoxUtil;
 
+import javax.annotation.Nonnull;
 import javax.swing.*;
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
+import java.util.*;
 
 public class IntroducePropertyDialog extends DialogWrapper {
 
@@ -110,7 +107,7 @@ public class IntroducePropertyDialog extends DialogWrapper {
   }
 
   private String[] getSuggestions(int level) {
-    Collection<String> result = new THashSet<String>();
+    Collection<String> result = new HashSet<String>();
 
     String value = mySelectedString.trim();
     boolean addUnqualifiedForm = true;

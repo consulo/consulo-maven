@@ -15,42 +15,24 @@
  */
 package org.jetbrains.idea.maven.project;
 
-import gnu.trove.THashMap;
-import gnu.trove.THashSet;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.Future;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import javax.annotation.Nonnull;
-
-import org.jetbrains.idea.maven.importing.MavenExtraArtifactType;
-import org.jetbrains.idea.maven.model.MavenArtifact;
-import org.jetbrains.idea.maven.model.MavenArtifactInfo;
-import org.jetbrains.idea.maven.model.MavenConstants;
-import org.jetbrains.idea.maven.model.MavenId;
-import org.jetbrains.idea.maven.model.MavenRemoteRepository;
-import org.jetbrains.idea.maven.server.MavenEmbedderWrapper;
-import org.jetbrains.idea.maven.utils.MavenLog;
-import org.jetbrains.idea.maven.utils.MavenProcessCanceledException;
-import org.jetbrains.idea.maven.utils.MavenProgressIndicator;
 import com.intellij.openapi.application.AccessToken;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.vfs.LocalFileSystem;
+import org.jetbrains.idea.maven.importing.MavenExtraArtifactType;
+import org.jetbrains.idea.maven.model.*;
+import org.jetbrains.idea.maven.server.MavenEmbedderWrapper;
+import org.jetbrains.idea.maven.utils.MavenLog;
+import org.jetbrains.idea.maven.utils.MavenProcessCanceledException;
+import org.jetbrains.idea.maven.utils.MavenProgressIndicator;
+
+import javax.annotation.Nonnull;
+import java.io.File;
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class MavenArtifactDownloader
 {
@@ -95,7 +77,7 @@ public class MavenArtifactDownloader
 		myProject = project;
 		myProjectsTree = projectsTree;
 		myMavenProjects = mavenProjects;
-		myArtifacts = artifacts == null ? null : new THashSet<MavenArtifact>(artifacts);
+		myArtifacts = artifacts == null ? null : new HashSet<MavenArtifact>(artifacts);
 		myEmbedder = embedder;
 		myProgress = p;
 	}
@@ -138,9 +120,9 @@ public class MavenArtifactDownloader
 
 	private Map<MavenId, DownloadData> collectArtifactsToDownload(List<MavenExtraArtifactType> types)
 	{
-		Map<MavenId, DownloadData> result = new THashMap<MavenId, DownloadData>();
+		Map<MavenId, DownloadData> result = new HashMap<MavenId, DownloadData>();
 
-		THashSet<String> dependencyTypesFromSettings = new THashSet<String>();
+		Set<String> dependencyTypesFromSettings = new HashSet<String>();
 
 		AccessToken accessToken = ReadAction.start();
 		try
@@ -355,10 +337,10 @@ public class MavenArtifactDownloader
 
 	public static class DownloadResult
 	{
-		public final Set<MavenId> resolvedSources = new THashSet<MavenId>();
-		public final Set<MavenId> resolvedDocs = new THashSet<MavenId>();
+		public final Set<MavenId> resolvedSources = new HashSet<MavenId>();
+		public final Set<MavenId> resolvedDocs = new HashSet<MavenId>();
 
-		public final Set<MavenId> unresolvedSources = new THashSet<MavenId>();
-		public final Set<MavenId> unresolvedDocs = new THashSet<MavenId>();
+		public final Set<MavenId> unresolvedSources = new HashSet<MavenId>();
+		public final Set<MavenId> unresolvedDocs = new HashSet<MavenId>();
 	}
 }

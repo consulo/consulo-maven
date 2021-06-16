@@ -15,27 +15,17 @@
  */
 package org.jetbrains.idea.maven.indices;
 
-import gnu.trove.THashMap;
-import gnu.trove.THashSet;
-
-import java.io.Closeable;
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-
-import javax.annotation.Nonnull;
-
+import com.intellij.openapi.util.ModificationTracker;
+import com.intellij.openapi.util.io.FileUtil;
+import com.intellij.openapi.util.text.StringUtil;
+import com.intellij.psi.util.CachedValue;
+import com.intellij.psi.util.CachedValueProvider;
+import com.intellij.util.CachedValueImpl;
+import com.intellij.util.containers.ContainerUtil;
+import com.intellij.util.io.DataExternalizer;
+import com.intellij.util.io.EnumeratorStringDescriptor;
+import com.intellij.util.io.PersistentEnumeratorBase;
+import com.intellij.util.io.PersistentHashMap;
 import org.apache.lucene.search.Query;
 import org.jetbrains.annotations.TestOnly;
 import org.jetbrains.idea.maven.model.MavenArtifactInfo;
@@ -48,17 +38,12 @@ import org.jetbrains.idea.maven.server.MavenServerIndexerException;
 import org.jetbrains.idea.maven.utils.MavenLog;
 import org.jetbrains.idea.maven.utils.MavenProcessCanceledException;
 import org.jetbrains.idea.maven.utils.MavenProgressIndicator;
-import com.intellij.openapi.util.ModificationTracker;
-import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.psi.util.CachedValue;
-import com.intellij.psi.util.CachedValueProvider;
-import com.intellij.util.CachedValueImpl;
-import com.intellij.util.containers.ContainerUtil;
-import com.intellij.util.io.DataExternalizer;
-import com.intellij.util.io.EnumeratorStringDescriptor;
-import com.intellij.util.io.PersistentEnumeratorBase;
-import com.intellij.util.io.PersistentHashMap;
+
+import javax.annotation.Nonnull;
+import java.io.*;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.*;
 
 public class MavenIndex
 {
@@ -550,8 +535,8 @@ public class MavenIndex
 
 	private void doUpdateIndexData(IndexData data, MavenProgressIndicator progress) throws IOException, MavenServerIndexerException
 	{
-		final Map<String, Set<String>> groupToArtifactMap = new THashMap<>();
-		final Map<String, Set<String>> groupWithArtifactToVersionMap = new THashMap<>();
+		final Map<String, Set<String>> groupToArtifactMap = new HashMap<>();
+		final Map<String, Set<String>> groupWithArtifactToVersionMap = new HashMap<>();
 
 		final StringBuilder builder = new StringBuilder();
 
@@ -601,7 +586,7 @@ public class MavenIndex
 		Set<T> result = map.get(key);
 		if(result == null)
 		{
-			result = new THashSet<>();
+			result = new HashSet<>();
 			map.put(key, result);
 		}
 		return result;
@@ -674,7 +659,7 @@ public class MavenIndex
 		Set<String> values = cache.get(key);
 		if(values == null)
 		{
-			values = new THashSet<>();
+			values = new HashSet<>();
 		}
 		values.add(value);
 		cache.put(key, values);
@@ -830,9 +815,9 @@ public class MavenIndex
 		final PersistentHashMap<String, Set<String>> groupToArtifactMap;
 		final PersistentHashMap<String, Set<String>> groupWithArtifactToVersionMap;
 
-		final Map<String, Boolean> hasGroupCache = new THashMap<>();
-		final Map<String, Boolean> hasArtifactCache = new THashMap<>();
-		final Map<String, Boolean> hasVersionCache = new THashMap<>();
+		final Map<String, Boolean> hasGroupCache = new HashMap<>();
+		final Map<String, Boolean> hasArtifactCache = new HashMap<>();
+		final Map<String, Boolean> hasVersionCache = new HashMap<>();
 
 		private final int indexId;
 
@@ -943,7 +928,7 @@ public class MavenIndex
 		public Set<String> read(@Nonnull DataInput s) throws IOException
 		{
 			int count = s.readInt();
-			Set<String> result = new THashSet<>(count);
+			Set<String> result = new HashSet<>(count);
 			while(count-- > 0)
 			{
 				result.add(s.readUTF());

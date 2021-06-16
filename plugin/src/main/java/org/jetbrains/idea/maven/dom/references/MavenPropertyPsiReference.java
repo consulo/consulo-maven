@@ -41,7 +41,6 @@ import com.intellij.xml.XmlElementDescriptor;
 import com.intellij.xml.XmlNSDescriptor;
 import consulo.java.module.extension.JavaModuleExtensionImpl;
 import consulo.ui.image.Image;
-import gnu.trove.THashSet;
 import org.jetbrains.idea.maven.dom.MavenDomProjectProcessorUtils;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
 import org.jetbrains.idea.maven.dom.MavenSchemaProvider;
@@ -323,7 +322,7 @@ public class MavenPropertyPsiReference extends MavenPsiReference {
   @Nonnull
   public Object[] getVariants() {
     List<Object> result = new ArrayList<Object>();
-    collectVariants(result, new THashSet<String>());
+    collectVariants(result, new HashSet<String>());
     return ArrayUtil.toObjectArray(result);
   }
 
@@ -463,7 +462,7 @@ public class MavenPropertyPsiReference extends MavenPsiReference {
     XmlDocument document = xmlFile.getDocument();
     XmlNSDescriptor desc = (XmlNSDescriptor)document.getMetaData();
     XmlElementDescriptor[] descriptors = desc.getRootElementsDescriptors(document);
-    return doProcessSchema(descriptors, null, processor, new THashSet<XmlElementDescriptor>());
+    return doProcessSchema(descriptors, null, processor, new HashSet<XmlElementDescriptor>());
   }
 
   private static <T> T doProcessSchema(XmlElementDescriptor[] descriptors,

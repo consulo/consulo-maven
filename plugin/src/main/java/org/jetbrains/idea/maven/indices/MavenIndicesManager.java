@@ -15,35 +15,6 @@
  */
 package org.jetbrains.idea.maven.indices;
 
-import gnu.trove.THashSet;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-
-import javax.annotation.Nonnull;
-
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.JDOMException;
-import org.jetbrains.annotations.TestOnly;
-import org.jetbrains.idea.maven.model.MavenArchetype;
-import org.jetbrains.idea.maven.project.MavenGeneralSettings;
-import org.jetbrains.idea.maven.project.MavenProjectsManager;
-import org.jetbrains.idea.maven.server.MavenIndexerWrapper;
-import org.jetbrains.idea.maven.server.MavenServerDownloadListener;
-import org.jetbrains.idea.maven.server.MavenServerManager;
-import org.jetbrains.idea.maven.utils.MavenLog;
-import org.jetbrains.idea.maven.utils.MavenProcessCanceledException;
-import org.jetbrains.idea.maven.utils.MavenProgressIndicator;
-import org.jetbrains.idea.maven.utils.MavenRehighlighter;
-import org.jetbrains.idea.maven.utils.MavenUtil;
-import consulo.disposer.Disposable;
 import com.intellij.openapi.application.AccessToken;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.ServiceManager;
@@ -56,6 +27,23 @@ import com.intellij.openapi.util.JDOMUtil;
 import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.text.StringUtil;
+import consulo.disposer.Disposable;
+import org.jdom.Document;
+import org.jdom.Element;
+import org.jdom.JDOMException;
+import org.jetbrains.annotations.TestOnly;
+import org.jetbrains.idea.maven.model.MavenArchetype;
+import org.jetbrains.idea.maven.project.MavenGeneralSettings;
+import org.jetbrains.idea.maven.project.MavenProjectsManager;
+import org.jetbrains.idea.maven.server.MavenIndexerWrapper;
+import org.jetbrains.idea.maven.server.MavenServerDownloadListener;
+import org.jetbrains.idea.maven.server.MavenServerManager;
+import org.jetbrains.idea.maven.utils.*;
+
+import javax.annotation.Nonnull;
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
 
 public class MavenIndicesManager implements Disposable
 {
@@ -386,7 +374,7 @@ public class MavenIndicesManager implements Disposable
 	public synchronized Set<MavenArchetype> getArchetypes()
 	{
 		ensureInitialized();
-		Set<MavenArchetype> result = new THashSet<MavenArchetype>(myIndexer.getArchetypes());
+		Set<MavenArchetype> result = new HashSet<MavenArchetype>(myIndexer.getArchetypes());
 		result.addAll(myUserArchetypes);
 
 		for(MavenArchetypesProvider each : Extensions.getExtensions(MavenArchetypesProvider.EP_NAME))

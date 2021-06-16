@@ -17,7 +17,6 @@ package org.jetbrains.idea.maven.indices;
 
 import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.util.text.StringUtil;
-import gnu.trove.THashMap;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.*;
 import org.jetbrains.idea.maven.model.MavenArtifactInfo;
@@ -57,7 +56,7 @@ public class MavenArtifactSearcher extends MavenSearcher<MavenArtifactSearchResu
   }
 
   protected Collection<MavenArtifactSearchResult> processResults(Set<MavenArtifactInfo> infos, String pattern, int maxResult) {
-    Map<String, MavenArtifactSearchResult> result = new THashMap<String, MavenArtifactSearchResult>();
+    Map<String, MavenArtifactSearchResult> result = new HashMap<String, MavenArtifactSearchResult>();
 
     for (MavenArtifactInfo each : infos) {
       if (!StringUtil.isEmptyOrSpaces(each.getClassifier())) {

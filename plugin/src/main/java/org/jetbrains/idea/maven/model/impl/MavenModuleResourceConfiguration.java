@@ -20,9 +20,9 @@ import com.intellij.util.xmlb.annotations.AbstractCollection;
 import com.intellij.util.xmlb.annotations.MapAnnotation;
 import com.intellij.util.xmlb.annotations.OptionTag;
 import com.intellij.util.xmlb.annotations.Tag;
-import gnu.trove.THashSet;
-import javax.annotation.Nonnull;
+import consulo.util.collection.Sets;
 
+import javax.annotation.Nonnull;
 import java.util.*;
 
 /**
@@ -56,7 +56,7 @@ public class MavenModuleResourceConfiguration {
 
   @Tag("filtering-excluded-extensions")
   @AbstractCollection(surroundWithTag = false, elementTag = "extension")
-  public Set<String> filteringExclusions = new THashSet<String>(FileUtil.PATH_HASHING_STRATEGY);
+  public Set<String> filteringExclusions = Sets.newHashSet(FileUtil.PATH_HASHING_STRATEGY);
 
   @OptionTag
   public String escapeString = MavenProjectConfiguration.DEFAULT_ESCAPE_STRING;
@@ -77,7 +77,7 @@ public class MavenModuleResourceConfiguration {
     if (filteringExclusions.isEmpty()) {
       return MavenProjectConfiguration.DEFAULT_FILTERING_EXCLUDED_EXTENSIONS;
     }
-    final Set<String> result = new THashSet<String>(FileUtil.PATH_HASHING_STRATEGY);
+    final Set<String> result = Sets.newHashSet(FileUtil.PATH_HASHING_STRATEGY);
     result.addAll(MavenProjectConfiguration.DEFAULT_FILTERING_EXCLUDED_EXTENSIONS);
     result.addAll(filteringExclusions);
     return Collections.unmodifiableSet(result);

@@ -23,11 +23,11 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.util.ArrayUtil;
-import gnu.trove.THashSet;
-import javax.annotation.Nonnull;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -36,7 +36,7 @@ public class MavenGotoSettingsFileContributor implements ChooseByNameContributor
   public String[] getNames(Project project, boolean includeNonProjectItems) {
     if (!includeNonProjectItems) return ArrayUtil.EMPTY_STRING_ARRAY;
 
-    Set<String> result = new THashSet<String>();
+    Set<String> result = new HashSet<String>();
     for (VirtualFile each : getSettingsFiles(project)) {
       result.add(each.getName());
     }

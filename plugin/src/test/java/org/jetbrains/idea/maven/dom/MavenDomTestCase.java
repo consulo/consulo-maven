@@ -54,7 +54,6 @@ import com.intellij.util.containers.ContainerUtil;
 import consulo.codeInsight.TargetElementUtil;
 import consulo.codeInsight.TargetElementUtilEx;
 import consulo.util.dataholder.Key;
-import gnu.trove.THashMap;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.idea.maven.MavenImportingTestCase;
 import org.jetbrains.idea.maven.dom.inspections.MavenModelInspection;
@@ -65,13 +64,14 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public abstract class MavenDomTestCase extends MavenImportingTestCase
 {
 	protected CodeInsightTestFixture myFixture;
-	private final Map<VirtualFile, Long> myConfigTimestamps = new THashMap<VirtualFile, Long>();
+	private final Map<VirtualFile, Long> myConfigTimestamps = new HashMap<VirtualFile, Long>();
 	private boolean myOriginalAutoCompletion;
 
 	@Override

@@ -15,20 +15,6 @@
  */
 package org.jetbrains.idea.maven.tasks;
 
-import gnu.trove.THashSet;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import jakarta.inject.Singleton;
-import org.jetbrains.idea.maven.execution.MavenRunner;
-import org.jetbrains.idea.maven.execution.MavenRunnerParameters;
-import org.jetbrains.idea.maven.project.MavenProject;
-import org.jetbrains.idea.maven.project.MavenProjectsManager;
-import org.jetbrains.idea.maven.utils.MavenSimpleProjectComponent;
 import com.intellij.execution.RunManagerEx;
 import com.intellij.openapi.compiler.CompileContext;
 import com.intellij.openapi.components.PersistentStateComponent;
@@ -39,6 +25,16 @@ import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.containers.ContainerUtil;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+import org.jetbrains.idea.maven.execution.MavenRunner;
+import org.jetbrains.idea.maven.execution.MavenRunnerParameters;
+import org.jetbrains.idea.maven.project.MavenProject;
+import org.jetbrains.idea.maven.project.MavenProjectsManager;
+import org.jetbrains.idea.maven.utils.MavenSimpleProjectComponent;
+
+import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @Singleton
 @State(name = "MavenCompilerTasksManager", storages = @Storage("misc.xml"))
@@ -58,6 +54,7 @@ public class MavenTasksManager extends MavenSimpleProjectComponent implements Pe
 		return project.getComponent(MavenTasksManager.class);
 	}
 
+	@Inject
 	public MavenTasksManager(Project project, MavenProjectsManager projectsManager, MavenRunner runner)
 	{
 		super(project);
@@ -69,8 +66,8 @@ public class MavenTasksManager extends MavenSimpleProjectComponent implements Pe
 	public synchronized MavenTasksManagerState getState()
 	{
 		MavenTasksManagerState result = new MavenTasksManagerState();
-		result.afterCompileTasks = new THashSet<>(myState.afterCompileTasks);
-		result.beforeCompileTasks = new THashSet<>(myState.beforeCompileTasks);
+		result.afterCompileTasks = new HashSet<>(myState.afterCompileTasks);
+		result.beforeCompileTasks = new HashSet<>(myState.beforeCompileTasks);
 		return result;
 	}
 

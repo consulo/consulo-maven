@@ -17,7 +17,6 @@ package org.jetbrains.idea.maven.indices;
 
 import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.util.text.StringUtil;
-import gnu.trove.THashMap;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.Query;
@@ -86,7 +85,7 @@ public class MavenClassSearcher extends MavenSearcher<MavenClassSearchResult> {
       return Collections.emptyList();
     }
 
-    Map<String, MavenClassSearchResult> result = new THashMap<String, MavenClassSearchResult>();
+    Map<String, MavenClassSearchResult> result = new HashMap<String, MavenClassSearchResult>();
     for (MavenArtifactInfo each : infos) {
       if (each.getClassNames() == null) continue;
 

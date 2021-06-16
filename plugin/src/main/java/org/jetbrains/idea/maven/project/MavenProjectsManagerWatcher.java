@@ -16,7 +16,6 @@
 package org.jetbrains.idea.maven.project;
 
 import com.intellij.ProjectTopics;
-import consulo.disposer.Disposable;
 import com.intellij.openapi.application.WriteAction;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.EditorFactory;
@@ -44,9 +43,9 @@ import com.intellij.util.PathUtil;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.messages.MessageBusConnection;
 import com.intellij.util.ui.update.Update;
+import consulo.disposer.Disposable;
 import consulo.disposer.Disposer;
 import consulo.util.dataholder.Key;
-import gnu.trove.THashSet;
 import org.jetbrains.annotations.TestOnly;
 import org.jetbrains.idea.maven.model.MavenConstants;
 import org.jetbrains.idea.maven.model.MavenExplicitProfiles;
@@ -78,7 +77,7 @@ public class MavenProjectsManagerWatcher
 	private final List<VirtualFilePointer> mySettingsFilesPointers = new ArrayList<>();
 	private final List<LocalFileSystem.WatchRequest> myWatchedRoots = new ArrayList<>();
 
-	private final Set<Document> myChangedDocuments = new THashSet<>();
+	private final Set<Document> myChangedDocuments = new HashSet<>();
 	private final MavenMergingUpdateQueue myChangedDocumentsQueue;
 
 	public MavenProjectsManagerWatcher(Project project,

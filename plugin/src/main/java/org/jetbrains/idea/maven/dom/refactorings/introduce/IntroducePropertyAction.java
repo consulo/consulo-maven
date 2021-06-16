@@ -31,7 +31,6 @@ import com.intellij.refactoring.actions.BaseRefactoringAction;
 import com.intellij.usageView.UsageInfo;
 import com.intellij.usages.*;
 import com.intellij.util.Processor;
-import com.intellij.util.containers.hash.HashSet;
 import consulo.vfs.ArchiveFileSystem;
 import org.jetbrains.idea.maven.dom.MavenDomProjectProcessorUtils;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;

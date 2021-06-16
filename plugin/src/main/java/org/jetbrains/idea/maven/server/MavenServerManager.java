@@ -40,7 +40,6 @@ import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.projectRoots.SdkTable;
 import com.intellij.openapi.util.Comparing;
 import com.intellij.openapi.util.ShutDownTracker;
-import com.intellij.openapi.util.SystemInfo;
 import com.intellij.openapi.util.Version;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.pom.java.LanguageLevel;
@@ -56,7 +55,6 @@ import consulo.maven.*;
 import consulo.maven.bundle.MavenBundleType;
 import consulo.maven.util.MavenJdkUtil;
 import consulo.util.rmi.RemoteServer;
-import gnu.trove.THashMap;
 import jakarta.inject.Singleton;
 import org.apache.lucene.search.Query;
 import org.jdom.Document;
@@ -258,7 +256,7 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
 
 				params.setMainClass(MAIN_CLASS);
 
-				Map<String, String> defs = new THashMap<>();
+				Map<String, String> defs = new HashMap<>();
 				defs.putAll(MavenUtil.getPropertiesFromMavenOpts());
 
 				// pass ssl-related options

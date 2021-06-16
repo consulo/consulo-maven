@@ -15,16 +15,8 @@
  */
 package org.jetbrains.idea.maven.server;
 
-import gnu.trove.TIntObjectHashMap;
-
-import java.io.File;
-import java.rmi.RemoteException;
-import java.rmi.server.UnicastRemoteObject;
-import java.util.Collection;
-import java.util.Set;
-
-import javax.annotation.Nonnull;
-
+import consulo.util.collection.primitive.ints.IntMaps;
+import consulo.util.collection.primitive.ints.IntObjectMap;
 import org.apache.lucene.search.Query;
 import org.jetbrains.annotations.TestOnly;
 import org.jetbrains.idea.maven.model.MavenArchetype;
@@ -35,11 +27,19 @@ import org.jetbrains.idea.maven.utils.MavenLog;
 import org.jetbrains.idea.maven.utils.MavenProcessCanceledException;
 import org.jetbrains.idea.maven.utils.MavenProgressIndicator;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.io.File;
+import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
+import java.util.Collection;
+import java.util.Set;
+
 public abstract class MavenIndexerWrapper extends RemoteObjectWrapper<MavenServerIndexer>
 {
-	private final TIntObjectHashMap<IndexData> myDataMap = new TIntObjectHashMap<IndexData>();
+	private final IntObjectMap<IndexData> myDataMap = IntMaps.newIntObjectHashMap();
 
-	public MavenIndexerWrapper(@javax.annotation.Nullable RemoteObjectWrapper<?> parent)
+	public MavenIndexerWrapper(@Nullable RemoteObjectWrapper<?> parent)
 	{
 		super(parent);
 	}
@@ -56,22 +56,15 @@ public abstract class MavenIndexerWrapper extends RemoteObjectWrapper<MavenServe
 
 	public synchronized int createIndex(@Nonnull final String indexId,
 			@Nonnull final String repositoryId,
-			@javax.annotation.Nullable final File file,
-			@javax.annotation.Nullable final String url,
+			@Nullable final File file,
+			@Nullable final String url,
 			@Nonnull final File indexDir) throws MavenServerIndexerException
 	{
 		IndexData data = new IndexData(indexId, repositoryId, file, url, indexDir);
 		final int localId = System.identityHashCode(data);
 		myDataMap.put(localId, data);
 
-		perform(new IndexRetriable<Object>()
-		{
-			@Override
-			public Object execute() throws RemoteException, MavenServerIndexerException
-			{
-				return getRemoteId(localId);
-			}
-		});
+		perform((IndexRetriable<Object>) () -> getRemoteId(localId));
 
 		return localId;
 	}
@@ -251,10 +244,10 @@ public abstract class MavenIndexerWrapper extends RemoteObjectWrapper<MavenServe
 		@Nonnull
 		String repositoryId;
 		private final
-		@javax.annotation.Nullable
+		@Nullable
 		File file;
 		private final
-		@javax.annotation.Nullable
+		@Nullable
 		String url;
 		private final
 		@Nonnull

@@ -15,20 +15,6 @@
  */
 package org.jetbrains.idea.maven.dom;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Set;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import org.jetbrains.idea.maven.dom.model.*;
-import org.jetbrains.idea.maven.model.MavenId;
-import org.jetbrains.idea.maven.project.MavenGeneralSettings;
-import org.jetbrains.idea.maven.project.MavenParentDesc;
-import org.jetbrains.idea.maven.project.MavenParentProjectFileProcessor;
-import org.jetbrains.idea.maven.project.MavenProject;
-import org.jetbrains.idea.maven.project.MavenProjectsManager;
-import org.jetbrains.idea.maven.utils.MavenUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Ref;
 import com.intellij.openapi.util.text.StringUtil;
@@ -41,10 +27,20 @@ import com.intellij.util.Function;
 import com.intellij.util.Processor;
 import com.intellij.util.SmartList;
 import com.intellij.util.containers.ContainerUtil;
-import com.intellij.util.containers.hash.HashSet;
 import com.intellij.util.xml.DomUtil;
 import com.intellij.util.xml.GenericDomValue;
 import com.intellij.util.xml.impl.GenericDomValueReference;
+import org.jetbrains.idea.maven.dom.model.*;
+import org.jetbrains.idea.maven.model.MavenId;
+import org.jetbrains.idea.maven.project.*;
+import org.jetbrains.idea.maven.utils.MavenUtil;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 public class MavenDomProjectProcessorUtils
 {

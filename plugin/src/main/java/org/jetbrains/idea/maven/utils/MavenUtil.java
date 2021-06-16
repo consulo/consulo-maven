@@ -63,7 +63,6 @@ import consulo.container.boot.ContainerPathManager;
 import consulo.java.module.extension.JavaModuleExtension;
 import consulo.maven.bundle.MavenBundleType;
 import consulo.vfs.util.ArchiveVfsUtil;
-import gnu.trove.THashSet;
 import icons.ExternalSystemIcons;
 import org.jetbrains.idea.maven.model.MavenConstants;
 import org.jetbrains.idea.maven.model.MavenId;
@@ -363,7 +362,7 @@ public class MavenUtil
 
 	private static <T> Collection<T> toSet(final Collection<T> collection)
 	{
-		return (collection instanceof Set ? collection : new THashSet<T>(collection));
+		return (collection instanceof Set ? collection : new HashSet<T>(collection));
 	}
 
 	public static <T, U> List<Pair<T, U>> mapToList(Map<T, U> map)

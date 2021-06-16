@@ -33,6 +33,7 @@ import com.intellij.ui.content.ContentFactory;
 import com.intellij.ui.content.ContentManager;
 import com.intellij.ui.treeStructure.SimpleTree;
 import com.intellij.util.containers.ContainerUtil;
+import com.intellij.util.ui.UIUtil;
 import consulo.disposer.Disposable;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -52,6 +53,8 @@ import javax.annotation.Nullable;
 import javax.swing.*;
 import javax.swing.tree.TreeSelectionModel;
 import java.awt.*;
+import java.io.IOException;
+import java.io.StringReader;
 import java.net.URL;
 import java.util.Collections;
 import java.util.List;
@@ -301,16 +304,32 @@ public class MavenProjectsNavigator extends MavenSimpleProjectComponent implemen
 	{
 		myTree = new SimpleTree()
 		{
-			private final JLabel myLabel = new JLabel(ProjectBundle.message("maven.navigator.nothing.to.display", MavenUtil.formatHtmlImage(ADD_ICON_URL), MavenUtil.formatHtmlImage(SYNC_ICON_URL)));
+			private final JEditorPane myLabel;
 
+			{
+				myLabel = new JEditorPane();
+				myLabel.setOpaque(false);
+				myLabel.setEditorKit(UIUtil.getHTMLEditorKit());
+				String text = ProjectBundle.message("maven.navigator.nothing.to.display", MavenUtil.formatHtmlImage(ADD_ICON_URL), MavenUtil.formatHtmlImage(SYNC_ICON_URL));
+				try
+				{
+					myLabel.read(new StringReader(text), null);
+				}
+				catch(IOException e)
+				{
+					e.printStackTrace();
+				}
+
+			}
+			
 			@Override
 			protected void paintComponent(Graphics g)
 			{
-				super.paintComponent(g);
-				if(myProjectsManager.hasProjects())
-				{
-					return;
-				}
+//				super.paintComponent(g);
+//				if(myProjectsManager.hasProjects())
+//				{
+//					return;
+//				}
 
 				myLabel.setFont(getFont());
 				myLabel.setBackground(getBackground());

@@ -32,11 +32,11 @@ import com.intellij.psi.xml.XmlFile;
 import com.intellij.psi.xml.XmlTag;
 import com.intellij.xml.XmlElementDescriptor;
 import com.intellij.xml.impl.schema.XmlNSDescriptorImpl;
-import gnu.trove.THashMap;
-import javax.annotation.Nonnull;
 
+import javax.annotation.Nonnull;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.Map;
 
 public class MavenDomElementDescriptorHolder {
@@ -63,8 +63,7 @@ public class MavenDomElementDescriptorHolder {
   }
 
   private final Project myProject;
-  private final Map<FileKind, CachedValue<XmlNSDescriptorImpl>> myDescriptorsMap =
-    new THashMap<FileKind, CachedValue<XmlNSDescriptorImpl>>();
+  private final Map<FileKind, CachedValue<XmlNSDescriptorImpl>> myDescriptorsMap = new HashMap<FileKind, CachedValue<XmlNSDescriptorImpl>>();
 
   public MavenDomElementDescriptorHolder(Project project) {
     myProject = project;

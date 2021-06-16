@@ -31,8 +31,6 @@ import com.intellij.ui.ScrollPaneFactory;
 import com.intellij.ui.treeStructure.SimpleTree;
 import com.intellij.util.containers.ContainerUtil;
 import consulo.util.dataholder.Key;
-import gnu.trove.THashMap;
-import gnu.trove.THashSet;
 import org.jetbrains.idea.maven.execution.MavenGoalLocation;
 import org.jetbrains.idea.maven.model.MavenArtifact;
 import org.jetbrains.idea.maven.model.MavenConstants;
@@ -70,7 +68,7 @@ public class MavenProjectsNavigatorPanel extends SimpleToolWindowPanel implement
 		{
 			if(standardGoalOrder == null)
 			{
-				standardGoalOrder = new THashMap<String, Integer>();
+				standardGoalOrder = new HashMap<String, Integer>();
 				int i = 0;
 				for(String aGoal : MavenConstants.PHASES)
 				{
@@ -295,7 +293,7 @@ public class MavenProjectsNavigatorPanel extends SimpleToolWindowPanel implement
 	private Object extractProfiles()
 	{
 		final List<MavenProjectsStructure.ProfileNode> nodes = getSelectedNodes(MavenProjectsStructure.ProfileNode.class);
-		final Map<String, MavenProfileKind> profiles = new THashMap<String, MavenProfileKind>();
+		final Map<String, MavenProfileKind> profiles = new HashMap<String, MavenProfileKind>();
 		for(MavenProjectsStructure.ProfileNode node : nodes)
 		{
 			profiles.put(node.getProfileName(), node.getState());
@@ -305,7 +303,7 @@ public class MavenProjectsNavigatorPanel extends SimpleToolWindowPanel implement
 
 	private Set<MavenArtifact> extractDependencies()
 	{
-		Set<MavenArtifact> result = new THashSet<MavenArtifact>();
+		Set<MavenArtifact> result = new HashSet<MavenArtifact>();
 
 		List<MavenProjectsStructure.ProjectNode> projectNodes = getSelectedProjectNodes();
 		if(!projectNodes.isEmpty())

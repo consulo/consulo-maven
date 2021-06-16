@@ -15,26 +15,9 @@
  */
 package org.jetbrains.idea.maven.project;
 
-import static com.intellij.openapi.util.text.StringUtil.isEmptyOrSpaces;
-
-import gnu.trove.THashMap;
-import gnu.trove.THashSet;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
+import com.intellij.openapi.util.Comparing;
+import com.intellij.openapi.util.Pair;
+import com.intellij.openapi.vfs.VirtualFile;
 import org.jdom.Element;
 import org.jetbrains.idea.maven.model.*;
 import org.jetbrains.idea.maven.server.MavenEmbedderWrapper;
@@ -45,20 +28,25 @@ import org.jetbrains.idea.maven.utils.MavenJDOMUtil;
 import org.jetbrains.idea.maven.utils.MavenLog;
 import org.jetbrains.idea.maven.utils.MavenProcessCanceledException;
 import org.jetbrains.idea.maven.utils.MavenUtil;
-import com.intellij.openapi.util.Comparing;
-import com.intellij.openapi.util.Pair;
-import com.intellij.openapi.vfs.VirtualFile;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
+
+import static com.intellij.openapi.util.text.StringUtil.isEmptyOrSpaces;
 
 public class MavenProjectReader
 {
 	private static final String UNKNOWN = MavenId.UNKNOWN_VALUE;
 
-	private final Map<VirtualFile, RawModelReadResult> myRawModelsCache = new THashMap<VirtualFile, RawModelReadResult>();
+	private final Map<VirtualFile, RawModelReadResult> myRawModelsCache = new HashMap<VirtualFile, RawModelReadResult>();
 	private SettingsProfilesCache mySettingsProfilesCache;
 
 	public MavenProjectReaderResult readProject(MavenGeneralSettings generalSettings, VirtualFile file, MavenExplicitProfiles explicitProfiles, MavenProjectReaderProjectLocator locator)
 	{
-		Pair<RawModelReadResult, MavenExplicitProfiles> readResult = doReadProjectModel(generalSettings, file, explicitProfiles, new THashSet<VirtualFile>(), locator);
+		Pair<RawModelReadResult, MavenExplicitProfiles> readResult = doReadProjectModel(generalSettings, file, explicitProfiles, new HashSet<VirtualFile>(), locator);
 
 		File basedir = getBaseDir(file);
 		MavenModel model = MavenServerManager.getInstance().interpolateAndAlignModel(readResult.first.model, basedir);
@@ -72,7 +60,7 @@ public class MavenProjectReader
 		modelMap.put("build.finalName", model.getBuild().getFinalName());
 		modelMap.put("build.directory", model.getBuild().getDirectory());
 
-		return new MavenProjectReaderResult(model, modelMap, readResult.second, null, readResult.first.problems, new THashSet<MavenId>());
+		return new MavenProjectReaderResult(model, modelMap, readResult.second, null, readResult.first.problems, new HashSet<MavenId>());
 	}
 
 	private static File getBaseDir(VirtualFile file)
@@ -271,7 +259,7 @@ public class MavenProjectReader
 
 			List<MavenProfile> settingsProfiles = new ArrayList<MavenProfile>();
 			Collection<MavenProjectProblem> settingsProblems = MavenProjectProblem.createProblemsList();
-			Set<String> settingsAlwaysOnProfiles = new THashSet<String>();
+			Set<String> settingsAlwaysOnProfiles = new HashSet<String>();
 
 			for(VirtualFile each : generalSettings.getEffectiveSettingsFiles())
 			{

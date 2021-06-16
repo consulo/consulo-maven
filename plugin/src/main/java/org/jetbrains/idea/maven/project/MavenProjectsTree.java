@@ -29,9 +29,9 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.containers.ArrayListSet;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.containers.Stack;
+import consulo.util.collection.HashingStrategy;
+import consulo.util.collection.Sets;
 import consulo.util.dataholder.Key;
-import gnu.trove.THashSet;
-import gnu.trove.TObjectHashingStrategy;
 import org.jdom.Element;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
@@ -53,7 +53,6 @@ import java.util.zip.CRC32;
 
 public class MavenProjectsTree
 {
-
 	private static final Logger LOG = Logger.getInstance(MavenProjectsTree.class);
 
 	private static final String STORAGE_VERSION = MavenProjectsTree.class.getSimpleName() + ".6";
@@ -109,7 +108,7 @@ public class MavenProjectsTree
 				result.myManagedFilesPaths = readCollection(in, new LinkedHashSet<String>());
 				result.myIgnoredFilesPaths = readCollection(in, new ArrayList<String>());
 				result.myIgnoredFilesPatterns = readCollection(in, new ArrayList<String>());
-				result.myExplicitProfiles = new MavenExplicitProfiles(readCollection(in, new THashSet<String>()), readCollection(in, new THashSet<String>()));
+				result.myExplicitProfiles = new MavenExplicitProfiles(readCollection(in, new HashSet<String>()), readCollection(in, new HashSet<String>()));
 				result.myRootProjects.addAll(readProjectsRecursively(in, result));
 			}
 			catch(IOException e)
@@ -460,11 +459,11 @@ public class MavenProjectsTree
 
 	private void updateExplicitProfiles(Collection<String> explicitProfiles, Collection<String> temporarilyRemovedExplicitProfiles, Collection<String> available)
 	{
-		Collection<String> removedProfiles = new THashSet<String>(explicitProfiles);
+		Collection<String> removedProfiles = new HashSet<String>(explicitProfiles);
 		removedProfiles.removeAll(available);
 		temporarilyRemovedExplicitProfiles.addAll(removedProfiles);
 
-		Collection<String> restoredProfiles = new THashSet<String>(temporarilyRemovedExplicitProfiles);
+		Collection<String> restoredProfiles = new HashSet<String>(temporarilyRemovedExplicitProfiles);
 		restoredProfiles.retainAll(available);
 		temporarilyRemovedExplicitProfiles.removeAll(restoredProfiles);
 
@@ -474,7 +473,7 @@ public class MavenProjectsTree
 
 	public Collection<String> getAvailableProfiles()
 	{
-		Collection<String> res = new THashSet<String>();
+		Collection<String> res = new HashSet<String>();
 
 		for(MavenProject each : getProjects())
 		{
@@ -488,8 +487,8 @@ public class MavenProjectsTree
 	{
 		Collection<Pair<String, MavenProfileKind>> result = new ArrayListSet<Pair<String, MavenProfileKind>>();
 
-		Collection<String> available = new THashSet<String>();
-		Collection<String> active = new THashSet<String>();
+		Collection<String> available = new HashSet<String>();
+		Collection<String> active = new HashSet<String>();
 		for(MavenProject each : getProjects())
 		{
 			available.addAll(each.getProfilesIds());
@@ -849,7 +848,7 @@ public class MavenProjectsTree
 		UpdateContext updateContext = new UpdateContext();
 		Stack<MavenProject> updateStack = new Stack<MavenProject>();
 
-		Set<MavenProject> inheritorsToUpdate = new THashSet<MavenProject>();
+		Set<MavenProject> inheritorsToUpdate = new HashSet<MavenProject>();
 		for(VirtualFile each : files)
 		{
 			MavenProject mavenProject = findProject(each);
@@ -1419,14 +1418,14 @@ public class MavenProjectsTree
 		{
 			List<MavenProject> result = null;
 
-			Set<MavenCoordinate> projectIds = new THashSet<MavenCoordinate>(new MavenCoordinateHashCodeStrategy());
+			Set<MavenCoordinate> projectIds = Sets.newHashSet(new MavenCoordinateHashCodeStrategy());
 
 			for(MavenProject project : projects)
 			{
 				projectIds.add(project.getMavenId());
 			}
 
-			final Set<File> projectPaths = new THashSet<File>(FileUtil.FILE_HASHING_STRATEGY);
+			final Set<File> projectPaths = Sets.newHashSet(FileUtil.FILE_HASHING_STRATEGY);
 
 			for(MavenProject project : projects)
 			{
@@ -1981,11 +1980,10 @@ public class MavenProjectsTree
 		}
 	}
 
-	private static class MavenCoordinateHashCodeStrategy implements TObjectHashingStrategy<MavenCoordinate>
+	private static class MavenCoordinateHashCodeStrategy implements HashingStrategy<MavenCoordinate>
 	{
-
 		@Override
-		public int computeHashCode(MavenCoordinate object)
+		public int hashCode(MavenCoordinate object)
 		{
 			String artifactId = object.getArtifactId();
 			return artifactId == null ? 0 : artifactId.hashCode();
