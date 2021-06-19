@@ -325,11 +325,11 @@ public class MavenProjectsNavigator extends MavenSimpleProjectComponent implemen
 			@Override
 			protected void paintComponent(Graphics g)
 			{
-//				super.paintComponent(g);
-//				if(myProjectsManager.hasProjects())
-//				{
-//					return;
-//				}
+				super.paintComponent(g);
+				if(myProjectsManager.hasProjects())
+				{
+					return;
+				}
 
 				myLabel.setFont(getFont());
 				myLabel.setBackground(getBackground());
