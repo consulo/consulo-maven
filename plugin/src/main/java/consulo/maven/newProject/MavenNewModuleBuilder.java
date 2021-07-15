@@ -7,9 +7,9 @@ import consulo.annotation.access.RequiredReadAction;
 import consulo.ide.newProject.NewModuleBuilder;
 import consulo.ide.newProject.NewModuleBuilderProcessor;
 import consulo.ide.newProject.NewModuleContext;
-import consulo.ide.newProject.ui.ProjectOrModuleNameStep;
+import consulo.ide.newProject.ui.UnifiedProjectOrModuleNameStep;
+import consulo.maven.icon.MavenIconGroup;
 import consulo.ui.wizard.WizardStep;
-import icons.MavenIcons;
 import org.jetbrains.idea.maven.wizards.MavenModuleWizardStep;
 import org.jetbrains.idea.maven.wizards.SelectPropertiesStep;
 
@@ -25,7 +25,7 @@ public class MavenNewModuleBuilder implements NewModuleBuilder
 	@Override
 	public void setupContext(@Nonnull NewModuleContext newModuleContext)
 	{
-		newModuleContext.get("java").add("From Maven", MavenIcons.MavenLogo, new NewModuleBuilderProcessor<MavenNewModuleContext>()
+		newModuleContext.get("jvm").add("From Maven", MavenIconGroup.mavenLogo(), new NewModuleBuilderProcessor<MavenNewModuleContext>()
 		{
 			@Nonnull
 			@Override
@@ -39,7 +39,7 @@ public class MavenNewModuleBuilder implements NewModuleBuilder
 			{
 				consumer.accept(new MavenModuleWizardStep(context));
 				consumer.accept(new SelectPropertiesStep());
-				consumer.accept(new ProjectOrModuleNameStep<>(context));
+				consumer.accept(new UnifiedProjectOrModuleNameStep<>(context));
 			}
 
 			@RequiredReadAction
