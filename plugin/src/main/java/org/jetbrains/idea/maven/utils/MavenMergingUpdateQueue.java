@@ -184,7 +184,7 @@ public class MavenMergingUpdateQueue extends MergingUpdateQueue
 				final ModalityStateListener listener = new ModalityStateListener()
 				{
 					@Override
-					public void beforeModalityStateChanged(boolean entering)
+					public void beforeModalityStateChanged(boolean entering, @Nonnull Object o)
 					{
 						if(entering)
 						{
