@@ -15,20 +15,10 @@
  */
 package org.jetbrains.idea.maven.utils;
 
-import java.util.List;
-
-import jakarta.inject.Singleton;
-
-import jakarta.inject.Inject;
-import org.jetbrains.idea.maven.dom.MavenDomUtil;
-import org.jetbrains.idea.maven.project.MavenProject;
-import org.jetbrains.idea.maven.project.MavenProjectChanges;
-import org.jetbrains.idea.maven.project.MavenProjectsManager;
-import org.jetbrains.idea.maven.project.MavenProjectsTree;
-import org.jetbrains.idea.maven.server.NativeMavenProjectHolder;
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer;
 import com.intellij.openapi.application.AccessToken;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
@@ -40,6 +30,16 @@ import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiFile;
 import com.intellij.util.ui.update.MergingUpdateQueue;
 import com.intellij.util.ui.update.Update;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+import org.jetbrains.idea.maven.dom.MavenDomUtil;
+import org.jetbrains.idea.maven.project.MavenProject;
+import org.jetbrains.idea.maven.project.MavenProjectChanges;
+import org.jetbrains.idea.maven.project.MavenProjectsManager;
+import org.jetbrains.idea.maven.project.MavenProjectsTree;
+import org.jetbrains.idea.maven.server.NativeMavenProjectHolder;
+
+import java.util.List;
 
 @Singleton
 public class MavenRehighlighter extends MavenSimpleProjectComponent
@@ -120,19 +120,14 @@ public class MavenRehighlighter extends MavenSimpleProjectComponent
 
 	public static void rehighlight(final Project project, final MavenProject mavenProject)
 	{
-		AccessToken accessToken = ApplicationManager.getApplication().acquireReadActionLock();
-		try
+		ReadAction.run(() ->
 		{
 			if(project.isDisposed())
 			{
 				return;
 			}
 			ServiceManager.getService(project, MavenRehighlighter.class).myQueue.queue(new MyUpdate(project, mavenProject));
-		}
-		finally
-		{
-			accessToken.finish();
-		}
+		});
 	}
 
 	private static class MyUpdate extends Update

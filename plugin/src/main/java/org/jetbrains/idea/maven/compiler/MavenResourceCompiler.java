@@ -18,7 +18,6 @@ package org.jetbrains.idea.maven.compiler;
 import com.intellij.compiler.CompilerIOUtil;
 import com.intellij.compiler.impl.CompileDriver;
 import com.intellij.compiler.impl.CompilerUtil;
-import com.intellij.openapi.application.AccessToken;
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.compiler.*;
 import com.intellij.openapi.module.Module;
@@ -176,8 +175,7 @@ public class MavenResourceCompiler implements ClassPostProcessingCompiler
 
 		Date timestamp = new Date();
 
-		AccessToken accessToken = ReadAction.start();
-		try
+		ReadAction.run(() ->
 		{
 			for(Module eachModule : context.getCompileScope().getAffectedModules())
 			{
@@ -214,11 +212,7 @@ public class MavenResourceCompiler implements ClassPostProcessingCompiler
 
 			removeObsoleteModulesFromCache(project);
 			saveCache(project);
-		}
-		finally
-		{
-			accessToken.finish();
-		}
+		});
 
 		return allItemsToProcess.toArray(new ProcessingItem[allItemsToProcess.size()]);
 	}

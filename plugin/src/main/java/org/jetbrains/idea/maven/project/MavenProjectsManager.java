@@ -17,7 +17,6 @@ package org.jetbrains.idea.maven.project;
 
 import com.intellij.ide.startup.StartupManagerEx;
 import com.intellij.notification.NotificationGroup;
-import com.intellij.openapi.application.AccessToken;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.components.*;
@@ -440,7 +439,7 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 			}
 
 			@Override
-			public void projectResolved(Pair<MavenProject, MavenProjectChanges> projectWithChanges, @javax.annotation.Nullable NativeMavenProjectHolder nativeMavenProject)
+			public void projectResolved(Pair<MavenProject, MavenProjectChanges> projectWithChanges, @Nullable NativeMavenProjectHolder nativeMavenProject)
 			{
 				if(nativeMavenProject != null)
 				{
@@ -448,20 +447,11 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 					{
 						scheduleForNextImport(projectWithChanges);
 
-						MavenImportingSettings importingSettings;
+						MavenImportingSettings importingSettings = ReadAction.compute(() -> myProject.isDisposed() ? null : getImportingSettings());
 
-						AccessToken token = ReadAction.start();
-						try
+						if(importingSettings == null)
 						{
-							if(myProject.isDisposed())
-							{
-								return;
-							}
-							importingSettings = getImportingSettings();
-						}
-						finally
-						{
-							token.finish();
+							return;
 						}
 
 						scheduleArtifactsDownloading(Collections.singleton(projectWithChanges.first), null, importingSettings.isDownloadSourcesAutomatically(), importingSettings
@@ -546,16 +536,7 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 
 	public boolean isMavenizedModule(@Nonnull final Module m)
 	{
-		AccessToken accessToken = ApplicationManager.getApplication().acquireReadActionLock();
-		try
-		{
-			final MavenModuleExtension extension = ModuleUtilCore.getExtension(m, MavenModuleExtension.class);
-			return extension != null;
-		}
-		finally
-		{
-			accessToken.finish();
-		}
+		return ReadAction.compute(() -> ModuleUtilCore.getExtension(m, MavenModuleExtension.class) != null);
 	}
 
 	@TestOnly
@@ -705,7 +686,7 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 		return myProjectsTree.findProject(id);
 	}
 
-	@javax.annotation.Nullable
+	@Nullable
 	public MavenProject findProject(@Nonnull MavenArtifact artifact)
 	{
 		if(!isInitialized())
@@ -735,7 +716,7 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 		return f == null ? null : findProject(f);
 	}
 
-	@javax.annotation.Nullable
+	@Nullable
 	public Module findModule(@Nonnull MavenProject project)
 	{
 		if(!isInitialized())
@@ -766,7 +747,7 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 		return module == null ? null : findProject(module);
 	}
 
-	@javax.annotation.Nullable
+	@Nullable
 	private static VirtualFile findPomFile(@Nonnull Module module, @Nonnull MavenModelsProvider modelsProvider)
 	{
 		for(VirtualFile root : modelsProvider.getContentRoots(module))
@@ -780,7 +761,7 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 		return null;
 	}
 
-	@javax.annotation.Nullable
+	@Nullable
 	public MavenProject findAggregator(@Nonnull MavenProject module)
 	{
 		if(!isInitialized())
@@ -1045,7 +1026,7 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 			@Nullable final Collection<MavenArtifact> artifacts,
 			final boolean sources,
 			final boolean docs,
-			@javax.annotation.Nullable final AsyncResult<MavenArtifactDownloader.DownloadResult> result)
+			@Nullable final AsyncResult<MavenArtifactDownloader.DownloadResult> result)
 	{
 		if(!sources && !docs)
 		{

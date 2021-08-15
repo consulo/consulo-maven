@@ -15,7 +15,6 @@
  */
 package org.jetbrains.idea.maven.project;
 
-import com.intellij.openapi.application.AccessToken;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.project.Project;
@@ -124,20 +123,21 @@ public class MavenArtifactDownloader
 
 		Set<String> dependencyTypesFromSettings = new HashSet<String>();
 
-		AccessToken accessToken = ReadAction.start();
-		try
+		Set<String> dependencyTypes = ReadAction.compute(() ->
 		{
 			if(myProject.isDisposed())
 			{
-				return result;
+				return null;
 			}
+			return MavenProjectsManager.getInstance(myProject).getImportingSettings().getDependencyTypesAsSet();
+		});
 
-			dependencyTypesFromSettings.addAll(MavenProjectsManager.getInstance(myProject).getImportingSettings().getDependencyTypesAsSet());
-		}
-		finally
+		if(dependencyTypes == null)
 		{
-			accessToken.finish();
+			return result;
 		}
+
+		dependencyTypesFromSettings.addAll(dependencyTypes);
 
 		for(MavenProject eachProject : myMavenProjects)
 		{

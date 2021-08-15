@@ -15,18 +15,7 @@
  */
 package org.jetbrains.idea.maven.importing;
 
-import java.io.File;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import org.jetbrains.idea.maven.model.MavenArtifact;
-import org.jetbrains.idea.maven.model.MavenConstants;
-import org.jetbrains.idea.maven.project.MavenProject;
-import org.jetbrains.idea.maven.project.MavenProjectsManager;
-import org.jetbrains.idea.maven.utils.Path;
-import org.jetbrains.idea.maven.utils.Url;
 import com.intellij.ide.highlighter.JarArchiveFileType;
-import com.intellij.openapi.application.AccessToken;
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.module.ModifiableModuleModel;
 import com.intellij.openapi.module.Module;
@@ -44,13 +33,19 @@ import consulo.compiler.ModuleCompilerPathsManager;
 import consulo.java.module.extension.JavaMutableModuleExtensionImpl;
 import consulo.roots.ContentFolderScopes;
 import consulo.roots.ContentFolderTypeProvider;
-import consulo.roots.impl.ExcludedContentFolderTypeProvider;
-import consulo.roots.impl.ProductionContentFolderTypeProvider;
-import consulo.roots.impl.ProductionResourceContentFolderTypeProvider;
-import consulo.roots.impl.TestContentFolderTypeProvider;
-import consulo.roots.impl.TestResourceContentFolderTypeProvider;
+import consulo.roots.impl.*;
 import consulo.roots.impl.property.GeneratedContentFolderPropertyProvider;
 import consulo.vfs.ArchiveFileSystem;
+import org.jetbrains.idea.maven.model.MavenArtifact;
+import org.jetbrains.idea.maven.model.MavenConstants;
+import org.jetbrains.idea.maven.project.MavenProject;
+import org.jetbrains.idea.maven.project.MavenProjectsManager;
+import org.jetbrains.idea.maven.utils.Path;
+import org.jetbrains.idea.maven.utils.Url;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.io.File;
 
 public class MavenRootModelAdapter
 {
@@ -354,15 +349,7 @@ public class MavenRootModelAdapter
 		}
 		else
 		{
-			AccessToken accessToken = ReadAction.start();
-			try
-			{
-				e = myRootModel.addInvalidModuleEntry(moduleName);
-			}
-			finally
-			{
-				accessToken.finish();
-			}
+			e = ReadAction.compute(() -> myRootModel.addInvalidModuleEntry(moduleName));
 		}
 
 		e.setScope(scope);

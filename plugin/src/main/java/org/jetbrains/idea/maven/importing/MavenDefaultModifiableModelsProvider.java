@@ -49,13 +49,7 @@ public class MavenDefaultModifiableModelsProvider extends MavenBaseModifiableMod
 
   @Override
   protected ModifiableModuleModel doGetModuleModel() {
-    AccessToken accessToken = ApplicationManager.getApplication().acquireReadActionLock();
-    try {
-      return ModuleManager.getInstance(myProject).getModifiableModel();
-    }
-    finally {
-      accessToken.finish();
-    }
+    return ReadAction.compute(() -> ModuleManager.getInstance(myProject).getModifiableModel());
   }
 
   @Override

@@ -44,7 +44,6 @@ import org.jetbrains.idea.maven.utils.MavenUtil;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -255,22 +254,15 @@ public class MavenModuleImporter
 
 	private void configDependencies()
 	{
-		Set<String> dependencyTypesFromSettings = new HashSet<String>();
-
-		AccessToken accessToken = ReadAction.start();
-		try
+		Set<String> dependencyTypesFromSettings = ReadAction.compute(() ->
 		{
 			if(myModule.getProject().isDisposed())
 			{
-				return;
+				return null;
 			}
 
-			dependencyTypesFromSettings.addAll(MavenProjectsManager.getInstance(myModule.getProject()).getImportingSettings().getDependencyTypesAsSet());
-		}
-		finally
-		{
-			accessToken.finish();
-		}
+			return MavenProjectsManager.getInstance(myModule.getProject()).getImportingSettings().getDependencyTypesAsSet();
+		});
 
 		for(MavenArtifact artifact : myMavenProject.getDependencies())
 		{

@@ -15,8 +15,8 @@
  */
 package org.jetbrains.idea.maven.project;
 
-import com.intellij.openapi.application.AccessToken;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
@@ -761,8 +761,7 @@ public class MavenProjectsTree
 
 	private MavenProjectTimestamp calculateTimestamp(final MavenProject mavenProject, final MavenExplicitProfiles explicitProfiles, final MavenGeneralSettings generalSettings)
 	{
-		AccessToken accessToken = ApplicationManager.getApplication().acquireReadActionLock();
-		try
+		return ReadAction.compute(() ->
 		{
 			long pomTimestamp = getFileTimestamp(mavenProject.getFile());
 			MavenProject parent = findParent(mavenProject);
@@ -776,11 +775,7 @@ public class MavenProjectsTree
 			int profilesHashCode = explicitProfiles.hashCode();
 
 			return new MavenProjectTimestamp(pomTimestamp, parentLastReadStamp, profilesTimestamp, userSettingsTimestamp, globalSettingsTimestamp, profilesHashCode);
-		}
-		finally
-		{
-			accessToken.finish();
-		}
+		});
 	}
 
 	private static long getFileTimestamp(VirtualFile file)

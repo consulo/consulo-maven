@@ -16,34 +16,10 @@
 
 package org.jetbrains.idea.maven;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import javax.swing.SwingUtilities;
-
-import org.jetbrains.annotations.NonNls;
-import org.jetbrains.idea.maven.execution.MavenExecutor;
-import org.jetbrains.idea.maven.execution.MavenExternalExecutor;
-import org.jetbrains.idea.maven.execution.MavenRunnerParameters;
-import org.jetbrains.idea.maven.execution.MavenRunnerSettings;
-import org.jetbrains.idea.maven.execution.SoutMavenConsole;
-import org.jetbrains.idea.maven.model.MavenArtifact;
-import org.jetbrains.idea.maven.model.MavenExplicitProfiles;
-import org.jetbrains.idea.maven.project.MavenArtifactDownloader;
-import org.jetbrains.idea.maven.project.MavenProject;
-import org.jetbrains.idea.maven.project.MavenProjectsManager;
-import org.jetbrains.idea.maven.project.MavenProjectsTree;
 import com.intellij.compiler.CompilerWorkspaceConfiguration;
 import com.intellij.compiler.impl.ModuleCompileScope;
 import com.intellij.compiler.impl.TranslatingCompilerFilesMonitorImpl;
-import com.intellij.openapi.application.AccessToken;
-import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.compiler.CompileContext;
 import com.intellij.openapi.compiler.CompileScope;
 import com.intellij.openapi.compiler.CompileStatusNotification;
@@ -72,6 +48,20 @@ import consulo.roots.ContentFolderScopes;
 import consulo.roots.impl.ProductionContentFolderTypeProvider;
 import consulo.roots.impl.TestContentFolderTypeProvider;
 import consulo.roots.types.DocumentationOrderRootType;
+import org.jetbrains.annotations.NonNls;
+import org.jetbrains.idea.maven.execution.*;
+import org.jetbrains.idea.maven.model.MavenArtifact;
+import org.jetbrains.idea.maven.model.MavenExplicitProfiles;
+import org.jetbrains.idea.maven.project.MavenArtifactDownloader;
+import org.jetbrains.idea.maven.project.MavenProject;
+import org.jetbrains.idea.maven.project.MavenProjectsManager;
+import org.jetbrains.idea.maven.project.MavenProjectsTree;
+
+import javax.swing.*;
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public abstract class MavenImportingTestCase extends MavenTestCase
 {
@@ -365,17 +355,11 @@ public abstract class MavenImportingTestCase extends MavenTestCase
 
 	protected Module getModule(final String name)
 	{
-		AccessToken accessToken = ApplicationManager.getApplication().acquireReadActionLock();
-		try
-		{
+		return ReadAction.compute(() -> {
 			Module m = ModuleManager.getInstance(myProject).findModuleByName(name);
 			assertNotNull("Module " + name + " not found", m);
 			return m;
-		}
-		finally
-		{
-			accessToken.finish();
-		}
+		});
 	}
 
 	private ContentEntry getContentRoot(String moduleName)

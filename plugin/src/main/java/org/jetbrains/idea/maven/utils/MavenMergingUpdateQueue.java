@@ -15,24 +15,14 @@
  */
 package org.jetbrains.idea.maven.utils;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
-import javax.annotation.Nonnull;
-import javax.swing.JComponent;
-
 import com.intellij.ProjectTopics;
-import com.intellij.openapi.application.AccessToken;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ModalityStateListener;
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.application.impl.LaterInvocator;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.EditorFactory;
-import com.intellij.openapi.editor.event.CaretAdapter;
-import com.intellij.openapi.editor.event.CaretEvent;
-import com.intellij.openapi.editor.event.DocumentAdapter;
-import com.intellij.openapi.editor.event.DocumentEvent;
-import com.intellij.openapi.editor.event.EditorEventMulticaster;
+import com.intellij.openapi.editor.event.*;
 import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ModuleRootEvent;
@@ -41,6 +31,10 @@ import com.intellij.util.messages.MessageBusConnection;
 import com.intellij.util.ui.update.MergingUpdateQueue;
 import com.intellij.util.ui.update.Update;
 import consulo.disposer.Disposable;
+
+import javax.annotation.Nonnull;
+import javax.swing.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class MavenMergingUpdateQueue extends MergingUpdateQueue
 {
@@ -82,96 +76,81 @@ public class MavenMergingUpdateQueue extends MergingUpdateQueue
 
 	public void makeUserAware(final Project project)
 	{
-		AccessToken accessToken = ReadAction.start();
+		EditorEventMulticaster multicaster = EditorFactory.getInstance().getEventMulticaster();
 
-		try
+		multicaster.addCaretListener(new CaretAdapter()
 		{
-			EditorEventMulticaster multicaster = EditorFactory.getInstance().getEventMulticaster();
-
-			multicaster.addCaretListener(new CaretAdapter()
+			@Override
+			public void caretPositionChanged(CaretEvent e)
 			{
-				@Override
-				public void caretPositionChanged(CaretEvent e)
+				MavenMergingUpdateQueue.this.restartTimer();
+			}
+		}, this);
+
+		multicaster.addDocumentListener(new DocumentAdapter()
+		{
+			@Override
+			public void documentChanged(DocumentEvent event)
+			{
+				MavenMergingUpdateQueue.this.restartTimer();
+			}
+		}, this);
+
+		project.getMessageBus().connect(this).subscribe(ProjectTopics.PROJECT_ROOTS, new ModuleRootListener()
+		{
+			int beforeCalled;
+
+			@Override
+			public void beforeRootsChange(ModuleRootEvent event)
+			{
+				if(beforeCalled++ == 0)
 				{
+					suspend();
+				}
+			}
+
+			@Override
+			public void rootsChanged(ModuleRootEvent event)
+			{
+				if(beforeCalled == 0)
+				{
+					return; // This may occur if listener has been added between beforeRootsChange() and rootsChanged() calls.
+				}
+
+				if(--beforeCalled == 0)
+				{
+					resume();
 					MavenMergingUpdateQueue.this.restartTimer();
 				}
-			}, this);
-
-			multicaster.addDocumentListener(new DocumentAdapter()
-			{
-				@Override
-				public void documentChanged(DocumentEvent event)
-				{
-					MavenMergingUpdateQueue.this.restartTimer();
-				}
-			}, this);
-
-			project.getMessageBus().connect(this).subscribe(ProjectTopics.PROJECT_ROOTS, new ModuleRootListener()
-			{
-				int beforeCalled;
-
-				@Override
-				public void beforeRootsChange(ModuleRootEvent event)
-				{
-					if(beforeCalled++ == 0)
-					{
-						suspend();
-					}
-				}
-
-				@Override
-				public void rootsChanged(ModuleRootEvent event)
-				{
-					if(beforeCalled == 0)
-					{
-						return; // This may occur if listener has been added between beforeRootsChange() and rootsChanged() calls.
-					}
-
-					if(--beforeCalled == 0)
-					{
-						resume();
-						MavenMergingUpdateQueue.this.restartTimer();
-					}
-				}
-			});
-		}
-		finally
-		{
-			accessToken.finish();
-		}
+			}
+		});
 	}
 
 	public void makeDumbAware(final Project project)
 	{
-		AccessToken accessToken = ReadAction.start();
-
-		try
+		MessageBusConnection connection = project.getMessageBus().connect(this);
+		connection.subscribe(DumbService.DUMB_MODE, new DumbService.DumbModeListener()
 		{
-			MessageBusConnection connection = project.getMessageBus().connect(this);
-			connection.subscribe(DumbService.DUMB_MODE, new DumbService.DumbModeListener()
+			@Override
+			public void enteredDumbMode()
 			{
-				@Override
-				public void enteredDumbMode()
-				{
-					suspend();
-				}
+				suspend();
+			}
 
-				@Override
-				public void exitDumbMode()
-				{
-					resume();
-				}
-			});
+			@Override
+			public void exitDumbMode()
+			{
+				resume();
+			}
+		});
 
+		ReadAction.run(() ->
+		{
 			if(DumbService.getInstance(project).isDumb())
 			{
 				suspend();
 			}
-		}
-		finally
-		{
-			accessToken.finish();
-		}
+		});
 	}
 
 	public void makeModalAware(Project project)

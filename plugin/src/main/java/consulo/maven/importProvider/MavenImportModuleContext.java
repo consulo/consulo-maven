@@ -2,8 +2,8 @@ package consulo.maven.importProvider;
 
 import com.intellij.ide.DataManager;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
-import com.intellij.openapi.application.AccessToken;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.vfs.LocalFileSystem;
@@ -248,15 +248,7 @@ public class MavenImportModuleContext extends ModuleImportContext
 	{
 		if(myGeneralSettingsCache == null)
 		{
-			AccessToken accessToken = ApplicationManager.getApplication().acquireReadActionLock();
-			try
-			{
-				myGeneralSettingsCache = getDirectProjectsSettings().generalSettings.clone();
-			}
-			finally
-			{
-				accessToken.finish();
-			}
+			myGeneralSettingsCache = ReadAction.compute(() -> getDirectProjectsSettings().generalSettings.clone());
 		}
 		return myGeneralSettingsCache;
 	}
@@ -265,15 +257,7 @@ public class MavenImportModuleContext extends ModuleImportContext
 	{
 		if(myImportingSettingsCache == null)
 		{
-			AccessToken accessToken = ApplicationManager.getApplication().acquireReadActionLock();
-			try
-			{
-				myImportingSettingsCache = getDirectProjectsSettings().importingSettings.clone();
-			}
-			finally
-			{
-				accessToken.finish();
-			}
+			myImportingSettingsCache = ReadAction.compute(() -> getDirectProjectsSettings().importingSettings.clone());
 		}
 		return myImportingSettingsCache;
 	}

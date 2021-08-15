@@ -114,25 +114,13 @@ public class MavenProjectIndicesManager extends MavenSimpleProjectComponent
 			@Override
 			public void run()
 			{
-				Set<Pair<String, String>> remoteRepositoriesIdsAndUrls;
-				File localRepository;
-
-				AccessToken accessToken = ReadAction.start();
-
-				try
+				if(myProject.isDisposed())
 				{
-					if(myProject.isDisposed())
-					{
-						return;
-					}
+					return;
+				}
 
-					remoteRepositoriesIdsAndUrls = collectRemoteRepositoriesIdsAndUrls();
-					localRepository = getLocalRepository();
-				}
-				finally
-				{
-					accessToken.finish();
-				}
+				Set<Pair<String, String>> remoteRepositoriesIdsAndUrls = ReadAction.compute(() -> collectRemoteRepositoriesIdsAndUrls());
+				File localRepository = ReadAction.compute(() -> getLocalRepository());
 
 				myProjectIndices = MavenIndicesManager.getInstance().ensureIndicesExist(myProject, localRepository, remoteRepositoriesIdsAndUrls);
 				if(consumer != null)
