@@ -27,7 +27,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Map;
-import javax.activation.DataSource;
+import jakarta.activation.DataSource;
 
 /**
  * Comms utility containing methods used by code

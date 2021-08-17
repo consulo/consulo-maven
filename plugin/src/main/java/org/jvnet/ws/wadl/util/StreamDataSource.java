@@ -19,10 +19,11 @@
 
 package org.jvnet.ws.wadl.util;
 
+import jakarta.activation.DataSource;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import javax.activation.DataSource;
 
 /**
  *

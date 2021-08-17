@@ -16,13 +16,13 @@
  */
 package org.jetbrains.idea.maven.services.artifactory;
 
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBException;
 import org.jvnet.ws.wadl.util.DSDispatcher;
 import org.jvnet.ws.wadl.util.JAXBDispatcher;
 import org.jvnet.ws.wadl.util.UriBuilder;
 
-import javax.activation.DataSource;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
+import jakarta.activation.DataSource;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.Collections;

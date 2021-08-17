@@ -18,7 +18,7 @@ package org.jetbrains.idea.maven.services.nexus;
 
 import org.jetbrains.idea.maven.model.MavenRepositoryInfo;
 
-import javax.xml.bind.annotation.*;
+import jakarta.xml.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
 

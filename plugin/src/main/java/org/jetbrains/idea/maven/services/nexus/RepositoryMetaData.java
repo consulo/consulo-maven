@@ -16,7 +16,7 @@
  */
 package org.jetbrains.idea.maven.services.nexus;
 
-import javax.xml.bind.annotation.*;
+import jakarta.xml.bind.annotation.*;
 import java.math.BigInteger;
 
 

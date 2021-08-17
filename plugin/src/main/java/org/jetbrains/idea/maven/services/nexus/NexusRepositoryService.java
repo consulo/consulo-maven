@@ -17,13 +17,13 @@ package org.jetbrains.idea.maven.services.nexus;
 
 import com.intellij.openapi.util.Comparing;
 import com.intellij.openapi.util.text.StringUtil;
-import javax.annotation.Nonnull;
+import jakarta.xml.bind.JAXBException;
+import jakarta.xml.bind.UnmarshalException;
 import org.jetbrains.idea.maven.model.MavenArtifactInfo;
 import org.jetbrains.idea.maven.model.MavenRepositoryInfo;
 import org.jetbrains.idea.maven.services.MavenRepositoryService;
 
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.UnmarshalException;
+import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;

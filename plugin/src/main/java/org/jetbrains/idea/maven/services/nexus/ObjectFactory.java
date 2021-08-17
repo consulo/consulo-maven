@@ -17,7 +17,7 @@ package org.jetbrains.idea.maven.services.nexus;
 
 import org.jetbrains.idea.maven.model.MavenRepositoryInfo;
 
-import javax.xml.bind.annotation.XmlRegistry;
+import jakarta.xml.bind.annotation.XmlRegistry;
 
 
 /**
