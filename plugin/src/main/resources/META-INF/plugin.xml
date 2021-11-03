@@ -9,6 +9,11 @@
 	<depends>consulo.java</depends>
 	<depends>com.intellij.properties</depends>
 	<category>Build</category>
+
+	<tags>
+		<tag>build.framework</tag>
+	</tags>
+
 	<extensionPoints>
 		<extensionPoint name="importer" interface="org.jetbrains.idea.maven.importing.MavenImporter"/>
 		<extensionPoint name="additional.importing.settings" interface="org.jetbrains.idea.maven.project.AdditionalMavenImportingSettings"/>
