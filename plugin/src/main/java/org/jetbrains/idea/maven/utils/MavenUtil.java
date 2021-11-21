@@ -62,6 +62,7 @@ import com.intellij.util.containers.ContainerUtil;
 import consulo.container.boot.ContainerPathManager;
 import consulo.java.module.extension.JavaModuleExtension;
 import consulo.maven.bundle.MavenBundleType;
+import consulo.ui.image.ImageKey;
 import consulo.vfs.util.ArchiveVfsUtil;
 import icons.ExternalSystemIcons;
 import org.jetbrains.idea.maven.model.MavenConstants;
@@ -84,7 +85,6 @@ import javax.xml.parsers.SAXParserFactory;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -367,19 +367,12 @@ public class MavenUtil
 
 	public static <T, U> List<Pair<T, U>> mapToList(Map<T, U> map)
 	{
-		return ContainerUtil.map2List(map.entrySet(), new Function<Map.Entry<T, U>, Pair<T, U>>()
-		{
-			@Override
-			public Pair<T, U> fun(Map.Entry<T, U> tuEntry)
-			{
-				return Pair.create(tuEntry.getKey(), tuEntry.getValue());
-			}
-		});
+		return ContainerUtil.map2List(map.entrySet(), tuEntry -> Pair.create(tuEntry.getKey(), tuEntry.getValue()));
 	}
 
-	public static String formatHtmlImage(URL url)
+	public static String formatHtmlImage(ImageKey imageKey)
 	{
-		return "<img src=\"" + url + "\"> ";
+		return "<icon src=\"" + imageKey.getGroupId() + "@" + imageKey.getImageId() + "\"/> ";
 	}
 
 	public static void runOrApplyMavenProjectFileTemplate(Project project, VirtualFile file, @Nonnull MavenId projectId, boolean interactive) throws IOException

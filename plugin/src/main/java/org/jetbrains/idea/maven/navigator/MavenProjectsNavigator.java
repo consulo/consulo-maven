@@ -33,8 +33,9 @@ import com.intellij.ui.content.ContentFactory;
 import com.intellij.ui.content.ContentManager;
 import com.intellij.ui.treeStructure.SimpleTree;
 import com.intellij.util.containers.ContainerUtil;
-import com.intellij.util.ui.UIUtil;
+import com.intellij.util.ui.JBHtmlEditorKit;
 import consulo.disposer.Disposable;
+import consulo.platform.base.icon.PlatformIconGroup;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import org.jdom.Element;
@@ -53,8 +54,6 @@ import javax.annotation.Nullable;
 import javax.swing.*;
 import javax.swing.tree.TreeSelectionModel;
 import java.awt.*;
-import java.io.IOException;
-import java.io.StringReader;
 import java.net.URL;
 import java.util.Collections;
 import java.util.List;
@@ -64,9 +63,6 @@ import java.util.List;
 public class MavenProjectsNavigator extends MavenSimpleProjectComponent implements PersistentStateComponent<MavenProjectsNavigatorState>, Disposable
 {
 	public static final String TOOL_WINDOW_ID = "Maven";
-
-	private static final URL ADD_ICON_URL = MavenProjectsNavigator.class.getResource("/general/add.png");
-	private static final URL SYNC_ICON_URL = MavenProjectsNavigator.class.getResource("/actions/refresh.png");
 
 	private MavenProjectsNavigatorState myState = new MavenProjectsNavigatorState();
 
@@ -307,29 +303,21 @@ public class MavenProjectsNavigator extends MavenSimpleProjectComponent implemen
 			private final JEditorPane myLabel;
 
 			{
-				myLabel = new JEditorPane();
+				myLabel = new JEditorPane("text/html", "");
 				myLabel.setOpaque(false);
-				myLabel.setEditorKit(UIUtil.getHTMLEditorKit());
-				String text = ProjectBundle.message("maven.navigator.nothing.to.display", MavenUtil.formatHtmlImage(ADD_ICON_URL), MavenUtil.formatHtmlImage(SYNC_ICON_URL));
-				try
-				{
-					myLabel.read(new StringReader(text), null);
-				}
-				catch(IOException e)
-				{
-					e.printStackTrace();
-				}
-
+				myLabel.setEditorKit(JBHtmlEditorKit.create());
+				String text = ProjectBundle.message("maven.navigator.nothing.to.display", MavenUtil.formatHtmlImage(PlatformIconGroup.generalAdd()), MavenUtil.formatHtmlImage(PlatformIconGroup.actionsRefresh()));
+				myLabel.setText(text);
 			}
-			
+
 			@Override
 			protected void paintComponent(Graphics g)
 			{
-				super.paintComponent(g);
-				if(myProjectsManager.hasProjects())
-				{
-					return;
-				}
+//				super.paintComponent(g);
+//				if(myProjectsManager.hasProjects())
+//				{
+//					return;
+//				}
 
 				myLabel.setFont(getFont());
 				myLabel.setBackground(getBackground());

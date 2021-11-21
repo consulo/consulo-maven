@@ -38,6 +38,7 @@ import com.intellij.util.ObjectUtils;
 import com.intellij.util.PathUtil;
 import com.intellij.util.containers.ContainerUtil;
 import consulo.disposer.Disposer;
+import consulo.platform.base.icon.PlatformIconGroup;
 import icons.ExternalSystemIcons;
 import icons.MavenIcons;
 import org.jetbrains.annotations.NonNls;
@@ -75,7 +76,6 @@ import static org.jetbrains.idea.maven.project.ProjectBundle.message;
 
 public class MavenProjectsStructure extends SimpleTreeStructure
 {
-	private static final URL ERROR_ICON_URL = MavenProjectsStructure.class.getResource("/general/error.png");
 	private static final Collection<String> BASIC_PHASES = MavenConstants.BASIC_PHASES;
 	private static final Collection<String> PHASES = MavenConstants.PHASES;
 
@@ -1118,7 +1118,7 @@ public class MavenProjectsStructure extends SimpleTreeStructure
 				desc.append("<tr>");
 				if(first)
 				{
-					desc.append("<td nowrap valign=top>").append(MavenUtil.formatHtmlImage(ERROR_ICON_URL)).append("</td>");
+					desc.append("<td nowrap valign=top>").append(MavenUtil.formatHtmlImage(PlatformIconGroup.generalError())).append("</td>");
 					desc.append("<td nowrap valign=top>Problems:</td>");
 					first = false;
 				}
