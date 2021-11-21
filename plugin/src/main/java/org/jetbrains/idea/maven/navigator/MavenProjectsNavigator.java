@@ -54,7 +54,6 @@ import javax.annotation.Nullable;
 import javax.swing.*;
 import javax.swing.tree.TreeSelectionModel;
 import java.awt.*;
-import java.net.URL;
 import java.util.Collections;
 import java.util.List;
 
@@ -313,11 +312,11 @@ public class MavenProjectsNavigator extends MavenSimpleProjectComponent implemen
 			@Override
 			protected void paintComponent(Graphics g)
 			{
-//				super.paintComponent(g);
-//				if(myProjectsManager.hasProjects())
-//				{
-//					return;
-//				}
+				super.paintComponent(g);
+				if(myProjectsManager.hasProjects())
+				{
+					return;
+				}
 
 				myLabel.setFont(getFont());
 				myLabel.setBackground(getBackground());
