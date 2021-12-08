@@ -138,13 +138,6 @@ public class MavenModuleImporter
 			level = MAVEN_IDEA_PLUGIN_LEVELS.get(cfg.getChildTextTrim("jdkLevel"));
 		}
 
-		String compilerId = myMavenProject.getCompilerId();
-		if("javi".equals(compilerId))
-		{
-			// javi compiler allow compilation from jdk 8+
-			level = LanguageLevel.JDK_1_8;
-		}
-
 		if(level == null)
 		{
 			String mavenProjectSourceLevel = myMavenProject.getSourceLevel();
@@ -167,6 +160,13 @@ public class MavenModuleImporter
 		}
 
 		myRootModelAdapter.setLanguageLevel(level);
+		String compilerId = myMavenProject.getCompilerId();
+		if("javi".equals(compilerId))
+		{
+			// javi compiler allow compilation from jdk 8+
+			return LanguageLevel.JDK_1_8;
+		}
+
 		return level;
 	}
 
