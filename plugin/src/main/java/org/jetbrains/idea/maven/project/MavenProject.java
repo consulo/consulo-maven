@@ -1192,23 +1192,29 @@ public class MavenProject
 	@Nullable
 	public String getSourceLevel()
 	{
-		return getCompilerLevel("source");
+		return getCompilerAttributeValue("source");
 	}
 
 	@Nullable
 	public String getReleaseLevel()
 	{
-		return getCompilerLevel("release");
+		return getCompilerAttributeValue("release");
 	}
 
 	@Nullable
 	public String getTargetLevel()
 	{
-		return getCompilerLevel("target");
+		return getCompilerAttributeValue("target");
 	}
 
 	@Nullable
-	private String getCompilerLevel(String level)
+	public String getCompilerId()
+	{
+		return getCompilerAttributeValue("compilerId");
+	}
+
+	@Nullable
+	private String getCompilerAttributeValue(String level)
 	{
 		String result = MavenJDOMUtil.findChildValueByPath(getCompilerConfig(), level);
 

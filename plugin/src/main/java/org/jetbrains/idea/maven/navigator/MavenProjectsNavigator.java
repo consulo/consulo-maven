@@ -266,7 +266,7 @@ public class MavenProjectsNavigator extends MavenSimpleProjectComponent implemen
 			boolean wasVisible = false;
 
 			@Override
-			public void stateChanged()
+			public void stateChanged(ToolWindowManager toolWindowManager)
 			{
 				if(toolWindow.isDisposed())
 				{

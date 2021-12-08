@@ -16,7 +16,6 @@
 package org.jetbrains.idea.maven.importing;
 
 import com.google.common.collect.ImmutableMap;
-import com.intellij.openapi.application.AccessToken;
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.projectRoots.Sdk;
@@ -111,7 +110,7 @@ public class MavenModuleImporter
 
 		LanguageLevel languageLevel = configureLanguageLevel();
 
-		configurateJavaSdk(languageLevel, javaModuleExtension, session);
+		configureJavaSdk(languageLevel, javaModuleExtension, session);
 
 		ModuleExtensionWithSdkOrderEntry moduleExtensionSdkEntry = rootModel.findModuleExtensionSdkEntry(javaModuleExtension);
 		if(moduleExtensionSdkEntry == null)
@@ -139,6 +138,13 @@ public class MavenModuleImporter
 			level = MAVEN_IDEA_PLUGIN_LEVELS.get(cfg.getChildTextTrim("jdkLevel"));
 		}
 
+		String compilerId = myMavenProject.getCompilerId();
+		if("javi".equals(compilerId))
+		{
+			// javi compiler allow compilation from jdk 8+
+			level = LanguageLevel.JDK_1_8;
+		}
+
 		if(level == null)
 		{
 			String mavenProjectSourceLevel = myMavenProject.getSourceLevel();
@@ -164,7 +170,7 @@ public class MavenModuleImporter
 		return level;
 	}
 
-	private void configurateJavaSdk(LanguageLevel level, JavaMutableModuleExtensionImpl javaMutableModuleExtension, MavenImportSession session)
+	private void configureJavaSdk(LanguageLevel level, JavaMutableModuleExtensionImpl javaMutableModuleExtension, MavenImportSession session)
 	{
 		Sdk targetSdk = session.getOrCalculate(level, languageLevel -> {
 			MavenRunner mavenRunner = MavenRunner.getInstance(javaMutableModuleExtension.getProject());
