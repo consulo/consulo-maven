@@ -17,10 +17,12 @@ package org.jetbrains.idea.maven.execution;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Pair;
-import javax.annotation.Nonnull;
-
+import consulo.disposer.Disposable;
+import consulo.ui.annotation.RequiredUIAccess;
 import org.jetbrains.idea.maven.project.MavenDisablePanelCheckbox;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.swing.*;
 
 /**
@@ -34,7 +36,7 @@ public abstract class MavenRunnerConfigurableWithUseProjectSettings extends Mave
     super(project, true);
   }
 
-  public abstract void setState(@javax.annotation.Nullable MavenRunnerSettings state);
+  public abstract void setState(@Nullable MavenRunnerSettings state);
 
   @Override
   public boolean isModified() {
@@ -78,13 +80,12 @@ public abstract class MavenRunnerConfigurableWithUseProjectSettings extends Mave
     }
   }
 
+  @RequiredUIAccess
   @Override
-  public JComponent createComponent() {
-    Pair<JPanel,JCheckBox> pair = MavenDisablePanelCheckbox.createPanel(super.createComponent(), "Use project settings");
+  public JComponent createComponent(@Nonnull Disposable uiDisposable) {
+    Pair<JPanel,JCheckBox> pair = MavenDisablePanelCheckbox.createPanel(super.createComponent(uiDisposable), "Use project settings");
 
     myUseProjectSettings = pair.second;
     return pair.first;
   }
-
-
 }

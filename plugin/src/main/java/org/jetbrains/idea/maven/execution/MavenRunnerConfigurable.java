@@ -1,13 +1,13 @@
 package org.jetbrains.idea.maven.execution;
 
-import javax.annotation.Nonnull;
-
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.options.SearchableConfigurable;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.Nls;
-import org.jetbrains.annotations.NonNls;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * @author Sergey Evdokimov
@@ -18,7 +18,7 @@ public abstract class MavenRunnerConfigurable extends MavenRunnerPanel implement
     super(p, isRunConfiguration);
   }
 
-  @javax.annotation.Nullable
+  @Nullable
   protected abstract MavenRunnerSettings getState();
 
   public boolean isModified() {
@@ -40,8 +40,7 @@ public abstract class MavenRunnerConfigurable extends MavenRunnerPanel implement
     return RunnerBundle.message("maven.tab.runner");
   }
 
-  @javax.annotation.Nullable
-  @NonNls
+  @Nullable
   public String getHelpTopic() {
     return "reference.settings.project.maven.runner";
   }

@@ -31,6 +31,7 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.idea.maven.project.*;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -169,19 +170,11 @@ public class MavenProjectImportStep implements WizardStep<MavenImportModuleConte
 			return ProjectBundle.message("maven.import.environment.settings.title");
 		}
 
-		@Override
-		@javax.annotation.Nullable
-		@NonNls
-		public String getHelpTopic()
-		{
-			return null;
-		}
-
 		@RequiredUIAccess
 		@Override
-		public JComponent createComponent()
+		public JComponent createComponent(@Nonnull Disposable uiDisposable)
 		{
-			return myForm.createComponent();
+			return myForm.createComponent(uiDisposable);
 		}
 
 		@RequiredUIAccess

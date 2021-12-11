@@ -19,6 +19,7 @@ import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.options.SearchableConfigurable;
 import com.intellij.openapi.project.Project;
+import consulo.disposer.Disposable;
 import consulo.ui.annotation.RequiredUIAccess;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.idea.maven.execution.MavenRunner;
@@ -81,9 +82,9 @@ public class MavenSettings implements SearchableConfigurable.Parent
 
 	@RequiredUIAccess
 	@Override
-	public JComponent createComponent()
+	public JComponent createComponent(@Nonnull Disposable uiDisposable)
 	{
-		return myConfigurable.createComponent();
+		return myConfigurable.createComponent(uiDisposable);
 	}
 
 	@RequiredUIAccess

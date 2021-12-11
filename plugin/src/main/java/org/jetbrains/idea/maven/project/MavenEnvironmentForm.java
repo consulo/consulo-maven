@@ -30,6 +30,7 @@ import com.intellij.ui.DocumentAdapter;
 import com.intellij.ui.PanelWithAnchor;
 import com.intellij.util.Alarm;
 import com.intellij.util.ui.UIUtil;
+import consulo.disposer.Disposable;
 import consulo.maven.bundle.MavenBundleType;
 import consulo.roots.ui.configuration.SdkComboBox;
 import org.jetbrains.idea.maven.utils.MavenUtil;
@@ -138,7 +139,7 @@ public class MavenEnvironmentForm implements PanelWithAnchor
 		return consulo.util.lang.StringUtil.notNullize(selectedSdk.getHomePath());
 	}
 
-	public JComponent createComponent()
+	public JComponent createComponent(Disposable uiDisposable)
 	{
 		settingsFileComponent.getComponent().addBrowseFolderListener(ProjectBundle.message("maven.select.maven.settings.file"), "", null,
 				FileChooserDescriptorFactory.createSingleFileNoJarsDescriptor());

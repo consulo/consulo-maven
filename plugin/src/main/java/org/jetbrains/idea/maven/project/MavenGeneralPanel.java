@@ -17,22 +17,18 @@
 
 package org.jetbrains.idea.maven.project;
 
-import java.util.Arrays;
-
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-
-import org.jetbrains.annotations.Nls;
-import org.jetbrains.idea.maven.execution.MavenExecutionOptions;
-import org.jetbrains.idea.maven.utils.ComboBoxUtil;
 import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.ui.PanelWithAnchor;
 import com.intellij.ui.components.JBLabel;
+import consulo.disposer.Disposable;
+import org.jetbrains.annotations.Nls;
+import org.jetbrains.idea.maven.execution.MavenExecutionOptions;
+import org.jetbrains.idea.maven.utils.ComboBoxUtil;
+
+import javax.annotation.Nonnull;
+import javax.swing.*;
+import java.util.Arrays;
 
 /**
  * @author Ralf Quebbemann (ralfq@codehaus.org)
@@ -89,9 +85,9 @@ public class MavenGeneralPanel implements PanelWithAnchor
 				each));
 	}
 
-	public JComponent createComponent()
+	public JComponent createComponent(@Nonnull Disposable uiDisposable)
 	{
-		mavenPathsForm.createComponent(); // have to initialize all listeners
+		mavenPathsForm.createComponent(uiDisposable); // have to initialize all listeners
 		return panel;
 	}
 

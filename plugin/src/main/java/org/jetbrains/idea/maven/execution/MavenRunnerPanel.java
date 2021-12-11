@@ -17,21 +17,6 @@
 
 package org.jetbrains.idea.maven.execution;
 
-import java.awt.BorderLayout;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Properties;
-
-import javax.annotation.Nonnull;
-import javax.swing.JCheckBox;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-
-import org.jetbrains.idea.maven.project.MavenProject;
-import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import com.intellij.execution.configuration.EnvironmentVariablesComponent;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.project.Project;
@@ -41,7 +26,17 @@ import com.intellij.openapi.roots.ui.configuration.projectRoot.ProjectSdksModel;
 import com.intellij.openapi.util.Conditions;
 import com.intellij.ui.IdeBorderFactory;
 import com.intellij.ui.RawCommandLineEditor;
+import consulo.disposer.Disposable;
 import consulo.roots.ui.configuration.SdkComboBox;
+import org.jetbrains.idea.maven.project.MavenProject;
+import org.jetbrains.idea.maven.project.MavenProjectsManager;
+
+import javax.annotation.Nonnull;
+import javax.swing.*;
+import java.awt.*;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Properties;
 
 public class MavenRunnerPanel
 {
@@ -63,7 +58,7 @@ public class MavenRunnerPanel
 		myRunConfigurationMode = isRunConfiguration;
 	}
 
-	public JComponent createComponent()
+	public JComponent createComponent(@Nonnull Disposable uiDiposable)
 	{
 		JPanel panel = new JPanel(new GridBagLayout());
 

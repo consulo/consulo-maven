@@ -57,18 +57,16 @@ public class SelectPropertiesStep implements WizardStep<MavenNewModuleContext>
 	public SelectPropertiesStep()
 	{
 		myProjectOrNull = null;
-
-		initComponents();
 	}
 
-	private void initComponents()
+	private void initComponents(@Nonnull Disposable uiDisposable)
 	{
 		myEnvironmentForm = new MavenEnvironmentForm();
 
 		Project project = myProjectOrNull == null ? ProjectManager.getInstance().getDefaultProject() : myProjectOrNull;
 		myEnvironmentForm.getData(MavenProjectsManager.getInstance(project).getGeneralSettings().clone());
 
-		myEnvironmentPanel.add(myEnvironmentForm.createComponent(), BorderLayout.CENTER);
+		myEnvironmentPanel.add(myEnvironmentForm.createComponent(uiDisposable), BorderLayout.CENTER);
 
 		myMavenPropertiesPanel = new MavenPropertiesPanel(myAvailableProperties);
 		myPropertiesPanel.add(myMavenPropertiesPanel);
@@ -116,6 +114,7 @@ public class SelectPropertiesStep implements WizardStep<MavenNewModuleContext>
 	@Override
 	public JComponent getSwingComponent(@Nonnull Disposable uiDisposable)
 	{
+		initComponents(uiDisposable);
 		return myMainPanel;
 	}
 
