@@ -15,15 +15,15 @@
  */
 package org.jetbrains.idea.maven.project;
 
-import java.io.File;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import com.intellij.openapi.vfs.LocalFileSystem;
+import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.idea.maven.model.MavenConstants;
 import org.jetbrains.idea.maven.model.MavenId;
 import org.jetbrains.idea.maven.utils.MavenArtifactUtil;
-import com.intellij.openapi.vfs.LocalFileSystem;
-import com.intellij.openapi.vfs.VirtualFile;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.io.File;
 
 public abstract class MavenParentProjectFileProcessor<RESULT_TYPE>
 {
@@ -31,7 +31,7 @@ public abstract class MavenParentProjectFileProcessor<RESULT_TYPE>
 	public RESULT_TYPE process(@Nonnull MavenGeneralSettings generalSettings, @Nonnull VirtualFile projectFile, @Nullable MavenParentDesc parentDesc)
 	{
 		VirtualFile superPom = generalSettings.getEffectiveSuperPom();
-		if(projectFile.equals(superPom))
+		if(superPom == null || projectFile.equals(superPom))
 		{
 			return null;
 		}
