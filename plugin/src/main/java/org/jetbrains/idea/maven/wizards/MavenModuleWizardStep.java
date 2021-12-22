@@ -266,14 +266,14 @@ public class MavenModuleWizardStep implements WizardStep<MavenNewModuleContext>
 	@RequiredUIAccess
 	@Nonnull
 	@Override
-	public consulo.ui.Component getComponent(@Nonnull Disposable uiDisposable)
+	public consulo.ui.Component getComponent(@Nonnull MavenNewModuleContext context, @Nonnull Disposable uiDisposable)
 	{
 		throw new UnsupportedOperationException("desktop only");
 	}
 
 	@Nonnull
 	@Override
-	public JComponent getSwingComponent(@Nonnull Disposable uiDisposable)
+	public JComponent getSwingComponent(@Nonnull MavenNewModuleContext context, @Nonnull Disposable uiDisposable)
 	{
 		Disposer.register(uiDisposable, myLoadingIcon);
 		return myMainPanel;

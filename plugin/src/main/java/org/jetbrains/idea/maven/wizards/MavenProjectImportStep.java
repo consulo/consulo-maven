@@ -27,11 +27,9 @@ import consulo.ui.Component;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.wizard.WizardStep;
 import org.jetbrains.annotations.Nls;
-import org.jetbrains.annotations.NonNls;
 import org.jetbrains.idea.maven.project.*;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -90,7 +88,7 @@ public class MavenProjectImportStep implements WizardStep<MavenImportModuleConte
 	@RequiredUIAccess
 	@Nonnull
 	@Override
-	public Component getComponent(@Nonnull Disposable disposable)
+	public Component getComponent(@Nonnull MavenImportModuleContext context, @Nonnull Disposable disposable)
 	{
 		throw new UnsupportedOperationException("destop only");
 	}
@@ -98,7 +96,7 @@ public class MavenProjectImportStep implements WizardStep<MavenImportModuleConte
 	@RequiredUIAccess
 	@Nonnull
 	@Override
-	public JComponent getSwingComponent(@Nonnull Disposable disposable)
+	public JComponent getSwingComponent(@Nonnull MavenImportModuleContext context, @Nonnull Disposable disposable)
 	{
 		return myPanel;
 	}

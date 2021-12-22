@@ -106,13 +106,13 @@ public class SelectPropertiesStep implements WizardStep<MavenNewModuleContext>
 	@RequiredUIAccess
 	@Nonnull
 	@Override
-	public Component getComponent(@Nonnull Disposable uiDisposable)
+	public Component getComponent(@Nonnull MavenNewModuleContext context, @Nonnull Disposable uiDisposable)
 	{
 		throw new UnsupportedOperationException("desktop only");
 	}
 
 	@Override
-	public JComponent getSwingComponent(@Nonnull Disposable uiDisposable)
+	public JComponent getSwingComponent(@Nonnull MavenNewModuleContext context, @Nonnull Disposable uiDisposable)
 	{
 		initComponents(uiDisposable);
 		return myMainPanel;

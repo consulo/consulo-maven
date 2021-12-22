@@ -62,13 +62,13 @@ public class SelectProfilesStep implements WizardStep<MavenImportModuleContext>
 	@RequiredUIAccess
 	@Nonnull
 	@Override
-	public consulo.ui.Component getComponent(@Nonnull Disposable uiDisposable)
+	public consulo.ui.Component getComponent(@Nonnull MavenImportModuleContext context, @Nonnull Disposable uiDisposable)
 	{
 		throw new UnsupportedOperationException("desktop only");
 	}
 
 	@Override
-	public JComponent getSwingComponent(@Nonnull Disposable uiDisposable)
+	public JComponent getSwingComponent(@Nonnull MavenImportModuleContext context, @Nonnull Disposable uiDisposable)
 	{
 		return panel;
 	}

@@ -104,7 +104,7 @@ public abstract class SelectImportedProjectsStep implements WizardStep<MavenImpo
 	@RequiredUIAccess
 	@Nonnull
 	@Override
-	public Component getComponent(@Nonnull Disposable disposable)
+	public Component getComponent(@Nonnull MavenImportModuleContext context, @Nonnull Disposable disposable)
 	{
 		throw new UnsupportedOperationException("desktop only");
 	}
@@ -112,7 +112,7 @@ public abstract class SelectImportedProjectsStep implements WizardStep<MavenImpo
 	@RequiredUIAccess
 	@Nonnull
 	@Override
-	public JComponent getSwingComponent(@Nonnull Disposable disposable)
+	public JComponent getSwingComponent(@Nonnull MavenImportModuleContext context, @Nonnull Disposable disposable)
 	{
 		return panel;
 	}
