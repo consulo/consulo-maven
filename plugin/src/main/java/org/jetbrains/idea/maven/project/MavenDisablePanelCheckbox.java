@@ -16,10 +16,10 @@
 package org.jetbrains.idea.maven.project;
 
 import com.intellij.openapi.util.Pair;
+import com.intellij.ui.JBColor;
 import com.intellij.util.ui.JBUI;
 
 import javax.annotation.Nonnull;
-
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -89,7 +89,7 @@ public class MavenDisablePanelCheckbox extends JCheckBox {
       @Override
       public void setEnabled(boolean enabled) {
         super.setEnabled(enabled);
-        Color c = enabled ? Color.GRAY : Color.LIGHT_GRAY;
+        Color c = enabled ? JBColor.GRAY : JBColor.LIGHT_GRAY;
         setBorder(BorderFactory.createCompoundBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, c), BorderFactory.createEmptyBorder(10, 0, 0, 0)));
       }
     };
