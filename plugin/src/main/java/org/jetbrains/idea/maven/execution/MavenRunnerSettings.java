@@ -27,9 +27,6 @@ import java.util.*;
 
 public class MavenRunnerSettings implements Cloneable
 {
-	@NonNls
-	public static final String USE_JAVA_HOME = "#JAVA_HOME";
-
 	private boolean runMavenInBackground = true;
 	@Nullable
 	private String jreName;

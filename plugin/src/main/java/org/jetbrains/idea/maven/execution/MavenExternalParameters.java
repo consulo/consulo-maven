@@ -31,7 +31,6 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.projectRoots.JavaSdk;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.projectRoots.SdkTable;
 import com.intellij.openapi.roots.ui.configuration.ProjectSettingsService;
@@ -286,20 +285,6 @@ public class MavenExternalParameters
 	private static Sdk getJdk(MavenRunnerSettings runnerSettings, LanguageLevel languageLevel, boolean isGlobalRunnerSettings) throws ExecutionException
 	{
 		String name = runnerSettings.getJreName();
-		if(MavenRunnerSettings.USE_JAVA_HOME.equals(name))
-		{
-			final String javaHome = System.getenv("JAVA_HOME");
-			if(StringUtil.isEmptyOrSpaces(javaHome))
-			{
-				throw new ExecutionException(RunnerBundle.message("maven.java.home.undefined"));
-			}
-			final Sdk jdk = JavaSdk.getInstance().createJdk("", javaHome);
-			if(jdk == null)
-			{
-				throw new ExecutionException(RunnerBundle.message("maven.java.home.invalid", javaHome));
-			}
-			return jdk;
-		}
 
 		if(name != null)
 		{

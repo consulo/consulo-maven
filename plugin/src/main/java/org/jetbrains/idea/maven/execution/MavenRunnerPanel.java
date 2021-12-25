@@ -102,7 +102,6 @@ public class MavenRunnerPanel
 		ProjectSdksModel sdksModel = new ProjectSdksModel();
 		sdksModel.reset();
 		myJdkCombo = new SdkComboBox(sdksModel, Conditions.<SdkTypeId>is(javaSdkType), null, "Auto Select", AllIcons.Actions.FindPlain);
-		myJdkCombo.insertCustomSdkItem(MavenRunnerSettings.USE_JAVA_HOME, RunnerBundle.message("maven.java.home.env"), javaSdkType.getIcon());
 
 		jdkLabel.setLabelFor(myJdkCombo);
 		c.gridx = 0;

@@ -35,7 +35,6 @@ import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.projectRoots.JavaSdk;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.projectRoots.SdkTable;
 import com.intellij.openapi.util.Comparing;
@@ -61,8 +60,6 @@ import org.jdom.Document;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.TestOnly;
 import org.jetbrains.idea.maven.execution.MavenExecutionOptions;
-import org.jetbrains.idea.maven.execution.MavenRunnerSettings;
-import org.jetbrains.idea.maven.execution.RunnerBundle;
 import org.jetbrains.idea.maven.model.MavenExplicitProfiles;
 import org.jetbrains.idea.maven.model.MavenModel;
 import org.jetbrains.idea.maven.project.MavenConsole;
@@ -219,21 +216,6 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
 	private Sdk getSdkForRun(@Nonnull LanguageLevel languageLevel) throws ExecutionException
 	{
 		String name = myState.jdkName;
-
-		if(MavenRunnerSettings.USE_JAVA_HOME.equals(name))
-		{
-			final String javaHome = System.getenv("JAVA_HOME");
-			if(StringUtil.isEmptyOrSpaces(javaHome))
-			{
-				throw new ExecutionException(RunnerBundle.message("maven.java.home.undefined"));
-			}
-			final Sdk jdk = JavaSdk.getInstance().createJdk("", javaHome);
-			if(jdk == null)
-			{
-				throw new ExecutionException(RunnerBundle.message("maven.java.home.invalid", javaHome));
-			}
-			return jdk;
-		}
 
 		if(name != null)
 		{
