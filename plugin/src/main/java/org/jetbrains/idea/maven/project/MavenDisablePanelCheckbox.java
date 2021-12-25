@@ -16,6 +16,8 @@
 package org.jetbrains.idea.maven.project;
 
 import com.intellij.openapi.util.Pair;
+import com.intellij.util.ui.JBUI;
+
 import javax.annotation.Nonnull;
 
 import javax.swing.*;
@@ -97,6 +99,7 @@ public class MavenDisablePanelCheckbox extends JCheckBox {
     JCheckBox checkbox = new MavenDisablePanelCheckbox(title, panel);
 
     JPanel res = new JPanel(new BorderLayout(0, 10));
+    res.setBorder(JBUI.Borders.empty(5, 0, 0, 0));
     res.add(checkbox, BorderLayout.NORTH);
     res.add(panel, BorderLayout.CENTER);
 
