@@ -20,7 +20,6 @@ import consulo.application.Result;
 import consulo.codeEditor.Editor;
 import consulo.fileChooser.FileChooserDescriptor;
 import consulo.fileChooser.IdeaFileChooser;
-import consulo.ide.impl.idea.util.Producer;
 import consulo.language.editor.WriteCommandAction;
 import consulo.language.editor.intention.IntentionAction;
 import consulo.language.editor.intention.IntentionMetaData;
@@ -92,7 +91,7 @@ public class ChooseFileIntentionAction implements IntentionAction {
   }
 
   @TestOnly
-  public void setFileChooser(@Nullable final Producer<VirtualFile[]> fileChooser) {
+  public void setFileChooser(@Nullable final Supplier<VirtualFile[]> fileChooser) {
     myFileChooser = fileChooser;
   }
 

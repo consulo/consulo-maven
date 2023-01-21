@@ -17,15 +17,16 @@ package org.jetbrains.idea.maven.utils;
 
 import consulo.application.AllIcons;
 import consulo.application.ApplicationManager;
+import consulo.component.PropertiesComponent;
 import consulo.disposer.Disposer;
 import consulo.fileChooser.FileChooserDescriptor;
 import consulo.fileChooser.FileChooserDescriptorFactory;
 import consulo.fileChooser.FileChooserDialog;
-import consulo.ide.impl.idea.ide.util.PropertiesComponent;
 import consulo.maven.rt.server.common.model.MavenArtifactInfo;
 import consulo.maven.rt.server.common.model.MavenRepositoryInfo;
 import consulo.project.Project;
 import consulo.project.ProjectBundle;
+import consulo.project.ProjectPropertiesComponent;
 import consulo.ui.ex.awt.*;
 import consulo.ui.ex.awt.event.DocumentAdapter;
 import consulo.util.collection.ContainerUtil;
@@ -130,7 +131,7 @@ public class RepositoryAttachDialog extends DialogWrapper
         }
       }
     });
-    final PropertiesComponent storage = PropertiesComponent.getInstance(myProject);
+    final PropertiesComponent storage = ProjectPropertiesComponent.getInstance(myProject);
     final boolean pathValueSet = storage.isValueSet(PROPERTY_DOWNLOAD_TO_PATH);
     if (pathValueSet) {
       myDirectoryField.setText(storage.getValue(PROPERTY_DOWNLOAD_TO_PATH));
@@ -289,7 +290,7 @@ public class RepositoryAttachDialog extends DialogWrapper
   @Override
   protected void dispose() {
     Disposer.dispose(myProgressIcon);
-    final PropertiesComponent storage = PropertiesComponent.getInstance(myProject);
+    final PropertiesComponent storage = ProjectPropertiesComponent.getInstance(myProject);
     storage.setValue(PROPERTY_DOWNLOAD_TO_PATH, myDirectoryField.getText());
     storage.setValue(PROPERTY_ATTACH_JAVADOC, String.valueOf(myJavaDocCheckBox.isSelected()));
     storage.setValue(PROPERTY_ATTACH_SOURCES, String.valueOf(mySourcesCheckBox.isSelected()));

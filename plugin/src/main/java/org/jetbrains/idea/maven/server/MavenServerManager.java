@@ -57,6 +57,7 @@ import consulo.project.Project;
 import consulo.ui.ex.action.AnAction;
 import consulo.util.collection.ContainerUtil;
 import consulo.util.collection.Lists;
+import consulo.util.io.ClassPathUtil;
 import consulo.util.lang.Comparing;
 import consulo.util.lang.ShutDownTracker;
 import consulo.util.lang.StringUtil;
@@ -303,8 +304,8 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
 
 				final List<String> classPath = new ArrayList<>();
 
-				classPath.add(PathManager.getJarPathForClass(RemoteServer.class)); // consulo-util-rmi
-				classPath.add(PathManager.getJarPathForClass(Document.class)); // jdom
+				classPath.add(ClassPathUtil.getJarPathForClass(RemoteServer.class)); // consulo-util-rmi
+				classPath.add(ClassPathUtil.getJarPathForClass(Document.class)); // jdom
 				ContainerUtil.addIfNotNull(classPath, PathUtil.getJarPathForClass(Query.class));
 				params.getClassPath().addAll(classPath);
 
@@ -467,7 +468,7 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
 
 	private static void addJarFromClass(List<File> files, Class<?> clazz)
 	{
-		String jarPathForClass = PathManager.getJarPathForClass(clazz);
+		String jarPathForClass = ClassPathUtil.getJarPathForClass(clazz);
 		if(jarPathForClass == null)
 		{
 			throw new RuntimeException("No path for class: " + clazz);

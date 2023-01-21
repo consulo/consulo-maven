@@ -17,7 +17,6 @@ package org.jetbrains.idea.maven.execution;
 
 import consulo.application.AllIcons;
 import consulo.fileChooser.FileChooserDescriptor;
-import consulo.ide.impl.idea.util.ArrayUtilRt;
 import consulo.language.editor.ui.awt.EditorComboBoxEditor;
 import consulo.language.editor.ui.awt.EditorComboBoxRenderer;
 import consulo.language.editor.ui.awt.EditorTextField;
@@ -27,6 +26,7 @@ import consulo.maven.rt.server.common.model.MavenConstants;
 import consulo.project.Project;
 import consulo.ui.ex.awt.*;
 import consulo.ui.ex.awtUnsafe.TargetAWT;
+import consulo.util.collection.ArrayUtil;
 import consulo.virtualFileSystem.VirtualFile;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
@@ -81,7 +81,7 @@ public class MavenEditGoalDialog extends DialogWrapper
 		}
 		else
 		{
-			goalsComboBox = new ComboBox(ArrayUtilRt.toStringArray(myHistory));
+			goalsComboBox = new ComboBox(ArrayUtil.toStringArray(myHistory));
 			goalComponent = goalsComboBox;
 
 			goalsLabel.setLabelFor(goalsComboBox);

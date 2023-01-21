@@ -25,7 +25,6 @@ import consulo.content.base.SourcesOrderRootType;
 import consulo.content.bundle.Sdk;
 import consulo.content.library.Library;
 import consulo.content.library.LibraryTable;
-import consulo.ide.impl.idea.openapi.vfs.VfsUtil;
 import consulo.java.impl.module.extension.JavaMutableModuleExtensionImpl;
 import consulo.maven.importing.MavenImportSession;
 import consulo.maven.module.extension.MavenMutableModuleExtension;

@@ -19,11 +19,12 @@ package org.jetbrains.idea.maven.execution;
 
 import com.intellij.java.language.projectRoots.JavaSdk;
 import consulo.application.AllIcons;
+import consulo.content.bundle.SdkModel;
 import consulo.content.bundle.SdkTypeId;
 import consulo.disposer.Disposable;
 import consulo.execution.ui.awt.EnvironmentVariablesComponent;
 import consulo.execution.ui.awt.RawCommandLineEditor;
-import consulo.ide.impl.idea.openapi.roots.ui.configuration.projectRoot.ProjectSdksModel;
+import consulo.ide.setting.ShowSettingsUtil;
 import consulo.module.ui.awt.SdkComboBox;
 import consulo.project.Project;
 import consulo.ui.ex.awt.IdeBorderFactory;
@@ -99,8 +100,7 @@ public class MavenRunnerPanel
 		JLabel jdkLabel = new JLabel("JRE:");
 		jdkLabel.setDisplayedMnemonic('j');
 		JavaSdk javaSdkType = JavaSdk.getInstance();
-		ProjectSdksModel sdksModel = new ProjectSdksModel();
-		sdksModel.reset();
+		SdkModel sdksModel = ShowSettingsUtil.getInstance().getSdksModel();
 		myJdkCombo = new SdkComboBox(sdksModel, Conditions.<SdkTypeId>is(javaSdkType), null, "Auto Select", AllIcons.Actions.FindPlain);
 
 		jdkLabel.setLabelFor(myJdkCombo);
