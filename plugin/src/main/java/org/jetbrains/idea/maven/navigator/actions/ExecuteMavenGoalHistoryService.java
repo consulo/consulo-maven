@@ -15,27 +15,31 @@
  */
 package org.jetbrains.idea.maven.navigator.actions;
 
+import consulo.annotation.component.ComponentScope;
+import consulo.annotation.component.ServiceAPI;
+import consulo.annotation.component.ServiceImpl;
+import consulo.component.persist.PersistentStateComponent;
+import consulo.component.persist.State;
+import consulo.component.persist.Storage;
+import consulo.component.persist.StoragePathMacros;
+import consulo.ide.ServiceManager;
+import consulo.project.Project;
+import jakarta.inject.Singleton;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
-import com.intellij.openapi.components.PersistentStateComponent;
-import com.intellij.openapi.components.ServiceManager;
-import com.intellij.openapi.components.State;
-import com.intellij.openapi.components.Storage;
-import com.intellij.openapi.components.StoragePathMacros;
-import com.intellij.openapi.project.Project;
-
 /**
  * @author Sergey Evdokimov
  */
-@State(
-		name = "mavenExecuteGoalHistory",
-		storages = @Storage(file = StoragePathMacros.WORKSPACE_FILE))
+@Singleton
+@State(name = "mavenExecuteGoalHistory", storages = @Storage(file = StoragePathMacros.WORKSPACE_FILE))
+@ServiceAPI(ComponentScope.PROJECT)
+@ServiceImpl
 public class ExecuteMavenGoalHistoryService implements PersistentStateComponent<String[]>
 {
 	@Nonnull
@@ -58,7 +62,7 @@ public class ExecuteMavenGoalHistoryService implements PersistentStateComponent<
 		return myCanceledCommand;
 	}
 
-	public void setCanceledCommand(@javax.annotation.Nullable String canceledCommand)
+	public void setCanceledCommand(@Nullable String canceledCommand)
 	{
 		myCanceledCommand = canceledCommand;
 	}
@@ -94,7 +98,7 @@ public class ExecuteMavenGoalHistoryService implements PersistentStateComponent<
 		return myWorkDirectory;
 	}
 
-	@javax.annotation.Nullable
+	@Nullable
 	@Override
 	public String[] getState()
 	{

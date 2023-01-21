@@ -1,9 +1,9 @@
 package org.jetbrains.idea.maven.dom.converters;
 
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.util.xml.ConvertContext;
+import consulo.util.lang.StringUtil;
+import consulo.xml.util.xml.ConvertContext;
 import org.jetbrains.idea.maven.indices.MavenProjectIndicesManager;
-import org.jetbrains.idea.maven.model.MavenId;
+import consulo.maven.rt.server.common.model.MavenId;
 
 import java.util.Collection;
 import java.util.HashSet;

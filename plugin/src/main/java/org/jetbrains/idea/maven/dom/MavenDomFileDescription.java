@@ -15,12 +15,12 @@
  */
 package org.jetbrains.idea.maven.dom;
 
-import javax.annotation.Nonnull;
-
+import consulo.xml.psi.xml.XmlFile;
+import consulo.xml.util.xml.DomFileDescription;
+import consulo.xml.util.xml.highlighting.DomElementsAnnotator;
 import org.jetbrains.idea.maven.dom.annotator.MavenDomAnnotator;
-import com.intellij.psi.xml.XmlFile;
-import com.intellij.util.xml.DomFileDescription;
-import com.intellij.util.xml.highlighting.DomElementsAnnotator;
+
+import javax.annotation.Nonnull;
 
 public abstract class MavenDomFileDescription<T> extends DomFileDescription<T> {
   public MavenDomFileDescription(Class<T> rootElementClass, String rootTagName) {

@@ -15,9 +15,9 @@
  */
 package org.jetbrains.idea.maven.project.actions;
 
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.DefaultActionGroup;
-import com.intellij.openapi.project.DumbAware;
+import consulo.ui.ex.action.DefaultActionGroup;
+import consulo.application.dumb.DumbAware;
+import consulo.ui.ex.action.AnActionEvent;
 import org.jetbrains.idea.maven.utils.actions.MavenActionUtil;
 
 public class DownloadActionGroup extends DefaultActionGroup implements DumbAware {

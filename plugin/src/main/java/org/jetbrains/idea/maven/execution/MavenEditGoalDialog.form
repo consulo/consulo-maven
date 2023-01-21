@@ -39,13 +39,13 @@
             <properties/>
             <border type="none"/>
             <children>
-              <component id="118a4" class="com.intellij.openapi.ui.FixedSizeButton" binding="showProjectTreeButton">
+              <component id="118a4" class="consulo.ui.ex.awt.FixedSizeButton" binding="showProjectTreeButton">
                 <constraints border-constraint="East"/>
                 <properties>
                   <toolTipText value="Select maven project"/>
                 </properties>
               </component>
-              <component id="d7025" class="com.intellij.openapi.ui.TextFieldWithBrowseButton" binding="workDirectoryField">
+              <component id="d7025" class="consulo.ui.ex.awt.TextFieldWithBrowseButton" binding="workDirectoryField">
                 <constraints border-constraint="Center"/>
                 <properties/>
               </component>

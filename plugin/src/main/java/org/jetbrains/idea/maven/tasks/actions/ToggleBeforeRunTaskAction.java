@@ -15,20 +15,19 @@
  */
 package org.jetbrains.idea.maven.tasks.actions;
 
-import java.util.List;
-
-import javax.annotation.Nullable;
-
+import consulo.dataContext.DataContext;
+import consulo.execution.RunManager;
+import consulo.ui.ex.action.AnActionEvent;
+import consulo.util.lang.Pair;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.tasks.MavenBeforeRunTask;
 import org.jetbrains.idea.maven.tasks.MavenBeforeRunTasksProvider;
 import org.jetbrains.idea.maven.utils.MavenDataKeys;
 import org.jetbrains.idea.maven.utils.actions.MavenActionUtil;
 import org.jetbrains.idea.maven.utils.actions.MavenToggleAction;
-import com.intellij.execution.RunManagerEx;
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.DataContext;
-import com.intellij.openapi.util.Pair;
+
+import javax.annotation.Nullable;
+import java.util.List;
 
 public class ToggleBeforeRunTaskAction extends MavenToggleAction
 {
@@ -85,8 +84,8 @@ public class ToggleBeforeRunTaskAction extends MavenToggleAction
 		return Pair.create(mavenProject, goals.get(0));
 	}
 
-	private static RunManagerEx getRunManager(DataContext context)
+	private static RunManager getRunManager(DataContext context)
 	{
-		return RunManagerEx.getInstanceEx(MavenActionUtil.getProject(context));
+		return RunManager.getInstance(MavenActionUtil.getProject(context));
 	}
 }

@@ -1,12 +1,12 @@
 package consulo.maven.newProject;
 
-import com.intellij.openapi.project.DumbAwareRunnable;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.LocalFileSystem;
-import com.intellij.openapi.vfs.VirtualFile;
-import consulo.ide.wizard.newModule.NewModuleWizardContextBase;
-import org.jetbrains.idea.maven.model.MavenArchetype;
-import org.jetbrains.idea.maven.model.MavenId;
+import consulo.application.dumb.DumbAwareRunnable;
+import consulo.ide.newModule.NewModuleWizardContextBase;
+import consulo.maven.rt.server.common.model.MavenArchetype;
+import consulo.maven.rt.server.common.model.MavenId;
+import consulo.project.Project;
+import consulo.virtualFileSystem.LocalFileSystem;
+import consulo.virtualFileSystem.VirtualFile;
 import org.jetbrains.idea.maven.project.MavenEnvironmentForm;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;

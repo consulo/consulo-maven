@@ -15,8 +15,12 @@
  */
 package org.jetbrains.idea.maven.dom.converters.repositories;
 
-import com.intellij.openapi.components.ServiceManager;
-import com.intellij.util.xmlb.XmlSerializer;
+import consulo.annotation.component.ComponentScope;
+import consulo.annotation.component.ServiceAPI;
+import consulo.annotation.component.ServiceImpl;
+import consulo.ide.ServiceManager;
+import consulo.util.xml.serializer.XmlSerializer;
+import jakarta.inject.Singleton;
 import org.jetbrains.idea.maven.dom.converters.repositories.beans.RepositoriesBean;
 import org.jetbrains.idea.maven.dom.converters.repositories.beans.RepositoryBeanInfo;
 
@@ -29,44 +33,55 @@ import java.util.Set;
 /**
  * @author Serega.Vasiliev
  */
-public class MavenRepositoriesProvider {
-  public static MavenRepositoriesProvider getInstance() {
-    return ServiceManager.getService(MavenRepositoriesProvider.class);
-  }
+@ServiceAPI(ComponentScope.APPLICATION)
+@ServiceImpl
+@Singleton
+public class MavenRepositoriesProvider
+{
+	public static MavenRepositoriesProvider getInstance()
+	{
+		return ServiceManager.getService(MavenRepositoriesProvider.class);
+	}
 
-  final Map<String, RepositoryBeanInfo> myRepositoriesMap = new HashMap<String, RepositoryBeanInfo>();
+	final Map<String, RepositoryBeanInfo> myRepositoriesMap = new HashMap<String, RepositoryBeanInfo>();
 
-  public MavenRepositoriesProvider() {
-    final RepositoriesBean repositoriesBean =
-      XmlSerializer.deserialize(MavenRepositoriesProvider.class.getResource("repositories.xml"), RepositoriesBean.class);
+	public MavenRepositoriesProvider()
+	{
+		final RepositoriesBean repositoriesBean =
+				XmlSerializer.deserialize(MavenRepositoriesProvider.class.getResource("repositories.xml"), RepositoriesBean.class);
 
-    assert repositoriesBean != null;
-    RepositoryBeanInfo[] repositories = repositoriesBean.getRepositories();
-    assert repositories != null;
+		assert repositoriesBean != null;
+		RepositoryBeanInfo[] repositories = repositoriesBean.getRepositories();
+		assert repositories != null;
 
-    for (RepositoryBeanInfo repository : repositories) {
-      registerRepository(repository.getId(), repository);
-    }
-  }
+		for(RepositoryBeanInfo repository : repositories)
+		{
+			registerRepository(repository.getId(), repository);
+		}
+	}
 
-  public void registerRepository(@Nonnull String id, RepositoryBeanInfo info) {
-    myRepositoriesMap.put(id, info);
-  }
+	public void registerRepository(@Nonnull String id, RepositoryBeanInfo info)
+	{
+		myRepositoriesMap.put(id, info);
+	}
 
-  @Nonnull
-  public Set<String> getRepositoryIds() {
-    return myRepositoriesMap.keySet();
-  }
+	@Nonnull
+	public Set<String> getRepositoryIds()
+	{
+		return myRepositoriesMap.keySet();
+	}
 
-  @javax.annotation.Nullable
-  public String getRepositoryName(@javax.annotation.Nullable String id) {
-    RepositoryBeanInfo pair = myRepositoriesMap.get(id);
-    return pair != null ? pair.getName() : null;
-  }
+	@Nullable
+	public String getRepositoryName(@Nullable String id)
+	{
+		RepositoryBeanInfo pair = myRepositoriesMap.get(id);
+		return pair != null ? pair.getName() : null;
+	}
 
-  @Nullable
-  public String getRepositoryUrl(@Nullable String id) {
-    RepositoryBeanInfo pair = myRepositoriesMap.get(id);
-    return pair != null ? pair.getUrl() : null;
-  }
+	@Nullable
+	public String getRepositoryUrl(@Nullable String id)
+	{
+		RepositoryBeanInfo pair = myRepositoriesMap.get(id);
+		return pair != null ? pair.getUrl() : null;
+	}
 }

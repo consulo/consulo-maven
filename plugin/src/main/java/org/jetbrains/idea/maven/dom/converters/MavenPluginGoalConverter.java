@@ -15,10 +15,10 @@
  */
 package org.jetbrains.idea.maven.dom.converters;
 
-import com.intellij.psi.PsiElement;
-import com.intellij.util.xml.ConvertContext;
-import com.intellij.util.xml.DomElement;
-import com.intellij.util.xml.ResolvingConverter;
+import consulo.language.psi.PsiElement;
+import consulo.xml.util.xml.ConvertContext;
+import consulo.xml.util.xml.DomElement;
+import consulo.xml.util.xml.ResolvingConverter;
 import org.jetbrains.annotations.NonNls;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;

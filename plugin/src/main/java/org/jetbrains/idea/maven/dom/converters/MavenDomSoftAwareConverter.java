@@ -17,7 +17,7 @@ package org.jetbrains.idea.maven.dom.converters;
 
 import javax.annotation.Nonnull;
 
-import com.intellij.util.xml.DomElement;
+import consulo.xml.util.xml.DomElement;
 
 /**
  * @author Sergey Evdokimov

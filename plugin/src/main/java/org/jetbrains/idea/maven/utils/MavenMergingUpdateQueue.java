@@ -15,22 +15,26 @@
  */
 package org.jetbrains.idea.maven.utils;
 
-import com.intellij.ProjectTopics;
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.application.ModalityStateListener;
-import com.intellij.openapi.application.ReadAction;
-import com.intellij.openapi.application.impl.LaterInvocator;
-import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.editor.EditorFactory;
-import com.intellij.openapi.editor.event.*;
-import com.intellij.openapi.project.DumbService;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.roots.ModuleRootEvent;
-import com.intellij.openapi.roots.ModuleRootListener;
-import com.intellij.util.messages.MessageBusConnection;
-import com.intellij.util.ui.update.MergingUpdateQueue;
-import com.intellij.util.ui.update.Update;
+import consulo.application.ApplicationManager;
+import consulo.application.ReadAction;
+import consulo.codeEditor.EditorFactory;
+import consulo.codeEditor.event.CaretAdapter;
+import consulo.codeEditor.event.CaretEvent;
+import consulo.codeEditor.event.EditorEventMulticaster;
+import consulo.component.messagebus.MessageBusConnection;
 import consulo.disposer.Disposable;
+import consulo.document.event.DocumentAdapter;
+import consulo.document.event.DocumentEvent;
+import consulo.logging.Logger;
+import consulo.module.content.layer.event.ModuleRootEvent;
+import consulo.module.content.layer.event.ModuleRootListener;
+import consulo.project.DumbService;
+import consulo.project.Project;
+import consulo.project.event.DumbModeListener;
+import consulo.ui.UIAccess;
+import consulo.ui.event.ModalityStateListener;
+import consulo.ui.ex.awt.util.MergingUpdateQueue;
+import consulo.ui.ex.awt.util.Update;
 
 import javax.annotation.Nonnull;
 import javax.swing.*;
@@ -38,7 +42,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class MavenMergingUpdateQueue extends MergingUpdateQueue
 {
-
 	private static final Logger LOG = Logger.getInstance(MavenMergingUpdateQueue.class);
 
 	private final AtomicInteger mySuspendCounter = new AtomicInteger(0);
@@ -96,7 +99,7 @@ public class MavenMergingUpdateQueue extends MergingUpdateQueue
 			}
 		}, this);
 
-		project.getMessageBus().connect(this).subscribe(ProjectTopics.PROJECT_ROOTS, new ModuleRootListener()
+		project.getMessageBus().connect(this).subscribe(ModuleRootListener.class, new ModuleRootListener()
 		{
 			int beforeCalled;
 
@@ -129,7 +132,7 @@ public class MavenMergingUpdateQueue extends MergingUpdateQueue
 	public void makeDumbAware(final Project project)
 	{
 		MessageBusConnection connection = project.getMessageBus().connect(this);
-		connection.subscribe(DumbService.DUMB_MODE, new DumbService.DumbModeListener()
+		connection.subscribe(DumbModeListener.class, new DumbModeListener()
 		{
 			@Override
 			public void enteredDumbMode()
@@ -175,7 +178,7 @@ public class MavenMergingUpdateQueue extends MergingUpdateQueue
 						}
 					}
 				};
-				LaterInvocator.addModalityStateListener(listener, MavenMergingUpdateQueue.this);
+				UIAccess.addModalityStateListener(listener, MavenMergingUpdateQueue.this);
 				if(MavenUtil.isInModalContext())
 				{
 					suspend();

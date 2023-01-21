@@ -15,8 +15,8 @@
  */
 package org.jetbrains.idea.maven.navigator;
 
+import consulo.util.xml.serializer.annotation.Tag;
 import org.jdom.Element;
-import com.intellij.util.xmlb.annotations.Tag;
 
 public class MavenProjectsNavigatorState
 {

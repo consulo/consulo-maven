@@ -19,16 +19,17 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import com.intellij.openapi.roots.libraries.LibraryProperties;
-import com.intellij.openapi.roots.libraries.LibraryType;
-import com.intellij.openapi.roots.libraries.ui.LibraryEditorComponent;
-import com.intellij.openapi.roots.libraries.ui.LibraryPropertiesEditor;
-import com.intellij.util.ui.UIUtil;
+import consulo.content.library.LibraryProperties;
+import consulo.content.library.LibraryType;
+import consulo.content.library.ui.LibraryPropertiesEditor;
+import consulo.content.library.ui.LibraryEditorComponent;
+import consulo.ui.ex.awt.UIUtil;
 
 /**
  * @author nik
@@ -42,7 +43,7 @@ public abstract class LibraryPropertiesEditorBase<P extends LibraryProperties, T
 	protected final LibraryEditorComponent<P> myEditorComponent;
 	protected final T myLibraryType;
 
-	protected LibraryPropertiesEditorBase(final LibraryEditorComponent<P> editorComponent, T libraryType, @javax.annotation.Nullable String editButtonText)
+	protected LibraryPropertiesEditorBase(final LibraryEditorComponent<P> editorComponent, T libraryType, @Nullable String editButtonText)
 	{
 		myEditorComponent = editorComponent;
 		myLibraryType = libraryType;

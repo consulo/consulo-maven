@@ -16,8 +16,8 @@
 
 package org.jetbrains.idea.maven.dom.converters.repositories.beans;
 
-import com.intellij.util.xmlb.annotations.AbstractCollection;
-import com.intellij.util.xmlb.annotations.Tag;
+import consulo.util.xml.serializer.annotation.AbstractCollection;
+import consulo.util.xml.serializer.annotation.Tag;
 
 public class RepositoriesBean {
   @Tag("repositories")

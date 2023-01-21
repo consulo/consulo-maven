@@ -15,14 +15,15 @@
  */
 package org.jetbrains.idea.maven.utils.library;
 
-import com.intellij.openapi.roots.libraries.LibraryProperties;
-import com.intellij.openapi.util.Comparing;
-import com.intellij.util.xmlb.annotations.Attribute;
+import consulo.content.library.LibraryProperties;
+import consulo.util.lang.Comparing;
+import consulo.util.xml.serializer.annotation.Attribute;
 
 /**
  * @author nik
  */
-public class RepositoryLibraryProperties extends LibraryProperties<RepositoryLibraryProperties> {
+public class RepositoryLibraryProperties extends LibraryProperties<RepositoryLibraryProperties>
+{
   private String myMavenId;
 
   public RepositoryLibraryProperties() {

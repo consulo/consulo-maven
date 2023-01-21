@@ -15,20 +15,24 @@
  */
 package org.jetbrains.idea.maven.tasks;
 
-import com.intellij.openapi.actionSystem.Shortcut;
-import com.intellij.openapi.keymap.Keymap;
-import com.intellij.openapi.keymap.KeymapManager;
-import com.intellij.openapi.keymap.KeymapManagerListener;
-import com.intellij.openapi.keymap.KeymapUtil;
-import com.intellij.openapi.keymap.ex.KeymapManagerEx;
-import com.intellij.openapi.project.DumbAwareRunnable;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Pair;
-import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.util.containers.ContainerUtil;
-import com.intellij.util.ui.update.MergingUpdateQueue;
-import com.intellij.util.ui.update.Update;
+import consulo.annotation.component.ComponentScope;
+import consulo.annotation.component.ServiceAPI;
+import consulo.annotation.component.ServiceImpl;
+import consulo.application.dumb.DumbAwareRunnable;
 import consulo.disposer.Disposable;
+import consulo.maven.rt.server.common.server.NativeMavenProjectHolder;
+import consulo.project.Project;
+import consulo.ui.ex.action.Shortcut;
+import consulo.ui.ex.awt.util.MergingUpdateQueue;
+import consulo.ui.ex.awt.util.Update;
+import consulo.ui.ex.keymap.Keymap;
+import consulo.ui.ex.keymap.KeymapManager;
+import consulo.ui.ex.keymap.event.KeymapManagerListener;
+import consulo.ui.ex.keymap.util.KeymapUtil;
+import consulo.util.collection.ContainerUtil;
+import consulo.util.collection.Lists;
+import consulo.util.io.FileUtil;
+import consulo.util.lang.Pair;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import org.jetbrains.annotations.TestOnly;
@@ -37,7 +41,6 @@ import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectChanges;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.project.MavenProjectsTree;
-import org.jetbrains.idea.maven.server.NativeMavenProjectHolder;
 import org.jetbrains.idea.maven.utils.MavenMergingUpdateQueue;
 import org.jetbrains.idea.maven.utils.MavenSimpleProjectComponent;
 import org.jetbrains.idea.maven.utils.MavenUtil;
@@ -51,6 +54,8 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Singleton
+@ServiceAPI(value = ComponentScope.PROJECT, lazy = false)
+@ServiceImpl
 public class MavenShortcutsManager extends MavenSimpleProjectComponent implements Disposable
 {
 	private static final String ACTION_ID_PREFIX = "Maven_";
@@ -60,7 +65,7 @@ public class MavenShortcutsManager extends MavenSimpleProjectComponent implement
 	private final MavenProjectsManager myProjectsManager;
 
 	private MyKeymapListener myKeymapListener;
-	private final List<Listener> myListeners = ContainerUtil.createLockFreeCopyOnWriteList();
+	private final List<Listener> myListeners = Lists.newLockFreeCopyOnWriteList();
 
 	public static MavenShortcutsManager getInstance(Project project)
 	{
@@ -115,7 +120,7 @@ public class MavenShortcutsManager extends MavenSimpleProjectComponent implement
 		MavenKeymapExtension.clearActions(myProject);
 	}
 
-	public String getActionId(@Nullable String projectPath, @javax.annotation.Nullable String goal)
+	public String getActionId(@Nullable String projectPath, @Nullable String goal)
 	{
 		StringBuilder result = new StringBuilder(ACTION_ID_PREFIX);
 		result.append(myProject.getLocationHash());
@@ -212,7 +217,7 @@ public class MavenShortcutsManager extends MavenSimpleProjectComponent implement
 		public void stopListen()
 		{
 			listenTo(null);
-			KeymapManagerEx.getInstanceEx().removeKeymapManagerListener(this);
+			KeymapManager.getInstance().removeKeymapManagerListener(this);
 		}
 	}
 

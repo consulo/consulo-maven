@@ -15,42 +15,42 @@
  */
 package org.jetbrains.idea.maven.wizards;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Collections;
-import java.util.Map;
-
-import javax.annotation.Nonnull;
+import consulo.application.Application;
+import consulo.application.Result;
+import consulo.document.Document;
+import consulo.document.FileDocumentManager;
+import consulo.ide.impl.idea.openapi.util.io.FileUtil;
+import consulo.language.codeStyle.CodeStyleManager;
+import consulo.language.editor.WriteCommandAction;
+import consulo.language.editor.util.EditorHelper;
+import consulo.language.psi.PsiDocumentManager;
+import consulo.language.psi.PsiFile;
+import consulo.language.psi.PsiManager;
+import consulo.maven.rt.server.common.model.MavenArchetype;
+import consulo.maven.rt.server.common.model.MavenConstants;
+import consulo.maven.rt.server.common.model.MavenId;
+import consulo.project.Project;
+import consulo.virtualFileSystem.LocalFileSystem;
+import consulo.virtualFileSystem.VirtualFile;
+import consulo.virtualFileSystem.util.VirtualFileUtil;
+import consulo.xml.psi.xml.XmlElement;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
 import org.jetbrains.idea.maven.dom.model.MavenDomModule;
 import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
 import org.jetbrains.idea.maven.execution.MavenRunner;
 import org.jetbrains.idea.maven.execution.MavenRunnerParameters;
 import org.jetbrains.idea.maven.execution.MavenRunnerSettings;
-import org.jetbrains.idea.maven.model.MavenArchetype;
-import org.jetbrains.idea.maven.model.MavenConstants;
-import org.jetbrains.idea.maven.model.MavenId;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.project.MavenProjectsManagerWatcher;
 import org.jetbrains.idea.maven.utils.MavenLog;
 import org.jetbrains.idea.maven.utils.MavenUtil;
-import com.intellij.ide.util.EditorHelper;
-import com.intellij.openapi.application.ModalityState;
-import com.intellij.openapi.application.Result;
-import com.intellij.openapi.command.WriteCommandAction;
-import com.intellij.openapi.editor.Document;
-import com.intellij.openapi.fileEditor.FileDocumentManager;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.openapi.vfs.LocalFileSystem;
-import com.intellij.openapi.vfs.VfsUtil;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiDocumentManager;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiManager;
-import com.intellij.psi.codeStyle.CodeStyleManager;
-import com.intellij.psi.xml.XmlElement;
+
+import javax.annotation.Nonnull;
+import java.io.File;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.Map;
 
 public class MavenModuleBuilderHelper
 {
@@ -134,9 +134,9 @@ public class MavenModuleBuilderHelper
 		{
 			try
 			{
-				VfsUtil.createDirectories(root.getPath() + "/src/main/java");
-				VfsUtil.createDirectories(root.getPath() + "/src/main/resources");
-				VfsUtil.createDirectories(root.getPath() + "/src/test/java");
+				VirtualFileUtil.createDirectories(root.getPath() + "/src/main/java");
+				VirtualFileUtil.createDirectories(root.getPath() + "/src/main/resources");
+				VirtualFileUtil.createDirectories(root.getPath() + "/src/test/java");
 			}
 			catch(IOException e)
 			{
@@ -145,7 +145,7 @@ public class MavenModuleBuilderHelper
 		}
 
 		// execute when current dialog is closed (e.g. Project Structure)
-		MavenUtil.invokeLater(project, ModalityState.NON_MODAL, new Runnable()
+		MavenUtil.invokeLater(project, Application.get().getNoneModalityState(), new Runnable()
 		{
 			public void run()
 			{

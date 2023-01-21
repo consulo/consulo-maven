@@ -15,13 +15,13 @@
  */
 package org.jetbrains.idea.maven.project;
 
-import com.intellij.openapi.util.Comparing;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.openapi.vfs.LocalFileSystem;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.util.containers.ContainerUtil;
-import com.intellij.util.xmlb.annotations.Property;
-import com.intellij.util.xmlb.annotations.Transient;
+import consulo.util.collection.Lists;
+import consulo.util.lang.Comparing;
+import consulo.util.lang.StringUtil;
+import consulo.util.xml.serializer.annotation.Property;
+import consulo.util.xml.serializer.annotation.Transient;
+import consulo.virtualFileSystem.LocalFileSystem;
+import consulo.virtualFileSystem.VirtualFile;
 import org.jdom.Element;
 import org.jetbrains.idea.maven.execution.MavenExecutionOptions;
 import org.jetbrains.idea.maven.server.MavenServerManager;
@@ -59,7 +59,7 @@ public class MavenGeneralSettings implements Cloneable
 	private Set<String> myDefaultPluginsCache;
 
 	private int myBulkUpdateLevel = 0;
-	private List<Listener> myListeners = ContainerUtil.createLockFreeCopyOnWriteList();
+	private List<Listener> myListeners = Lists.newLockFreeCopyOnWriteList();
 
 	public void beginUpdate()
 	{
@@ -482,7 +482,7 @@ public class MavenGeneralSettings implements Cloneable
 		try
 		{
 			MavenGeneralSettings result = (MavenGeneralSettings) super.clone();
-			result.myListeners = ContainerUtil.createLockFreeCopyOnWriteList();
+			result.myListeners = Lists.newLockFreeCopyOnWriteList();
 			result.myBulkUpdateLevel = 0;
 			return result;
 		}

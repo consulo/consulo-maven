@@ -8,7 +8,7 @@
     <properties/>
     <border type="none"/>
     <children>
-      <component id="9784e" class="com.intellij.ide.util.ElementsChooser" binding="profileChooser" custom-create="true">
+      <component id="9784e" class="consulo.ui.ex.awt.MultiStateElementsChooser" binding="profileChooser" custom-create="true">
         <constraints>
           <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
         </constraints>

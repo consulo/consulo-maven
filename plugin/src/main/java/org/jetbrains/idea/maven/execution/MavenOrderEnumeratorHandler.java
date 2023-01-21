@@ -12,50 +12,58 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ *//*
+
 package org.jetbrains.idea.maven.execution;
+
+import consulo.module.Module;
+import consulo.project.Project;
+import org.jetbrains.idea.maven.project.MavenProjectsManager;
 
 import javax.annotation.Nonnull;
 
-import com.intellij.openapi.module.Module;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.roots.OrderEnumerationHandler;
-import org.jetbrains.idea.maven.project.MavenProjectsManager;
+public class MavenOrderEnumeratorHandler extends consulo.module.impl.internal.layer.OrderEnumerationHandler
+{
+	public static class FactoryImpl extends consulo.module.impl.internal.layer.OrderEnumerationHandler.Factory
+	{
+		@Override
+		public boolean isApplicable(@Nonnull Project project)
+		{
+			return MavenProjectsManager.getInstance(project).isMavenizedProject();
+		}
 
-public class MavenOrderEnumeratorHandler extends OrderEnumerationHandler {
+		@Override
+		public boolean isApplicable(@Nonnull Module module)
+		{
+			final MavenProjectsManager manager = MavenProjectsManager.getInstance(module.getProject());
+			return manager.isMavenizedModule(module);
+		}
 
-  public static class FactoryImpl extends OrderEnumerationHandler.Factory {
-    @Override
-    public boolean isApplicable(@Nonnull Project project) {
-      return MavenProjectsManager.getInstance(project).isMavenizedProject();
-    }
+		@Override
+		public consulo.module.impl.internal.layer.OrderEnumerationHandler createHandler(@javax.annotation.Nullable consulo.module.Module module)
+		{
+			return INSTANCE;
+		}
+	}
 
-    @Override
-    public boolean isApplicable(@Nonnull Module module) {
-      final MavenProjectsManager manager = MavenProjectsManager.getInstance(module.getProject());
-      return manager.isMavenizedModule(module);
-    }
+	private static final MavenOrderEnumeratorHandler INSTANCE = new MavenOrderEnumeratorHandler();
 
-    @Override
-    public OrderEnumerationHandler createHandler(@javax.annotation.Nullable Module module) {
-      return INSTANCE;
-    }
-  }
+	@Override
+	public boolean shouldAddRuntimeDependenciesToTestCompilationClasspath()
+	{
+		return true;
+	}
 
-  private static final MavenOrderEnumeratorHandler INSTANCE = new MavenOrderEnumeratorHandler();
+	@Override
+	public boolean shouldIncludeTestsFromDependentModulesToTestClasspath()
+	{
+		return false;
+	}
 
-  @Override
-  public boolean shouldAddRuntimeDependenciesToTestCompilationClasspath() {
-    return true;
-  }
-
-  @Override
-  public boolean shouldIncludeTestsFromDependentModulesToTestClasspath() {
-    return false;
-  }
-
-  @Override
-  public boolean shouldProcessDependenciesRecursively() {
-    return false;
-  }
+	@Override
+	public boolean shouldProcessDependenciesRecursively()
+	{
+		return false;
+	}
 }
+*/

@@ -15,20 +15,20 @@
  */
 package org.jetbrains.idea.maven.navigator;
 
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.DialogWrapper;
-import com.intellij.ui.ScrollPaneFactory;
-import com.intellij.ui.treeStructure.SimpleNode;
-import com.intellij.ui.treeStructure.SimpleNodeVisitor;
-import com.intellij.ui.treeStructure.SimpleTree;
-import javax.annotation.Nullable;
+import consulo.project.Project;
+import consulo.ui.ex.awt.DialogWrapper;
+import consulo.ui.ex.awt.ScrollPaneFactory;
+import consulo.ui.ex.awt.tree.SimpleNode;
+import consulo.ui.ex.awt.tree.SimpleTree;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.tasks.MavenShortcutsManager;
 import org.jetbrains.idea.maven.tasks.MavenTasksManager;
 
+import javax.annotation.Nullable;
 import javax.swing.*;
 import javax.swing.tree.TreeSelectionModel;
 import java.awt.*;
+import java.util.function.Predicate;
 
 public class SelectFromMavenProjectsDialog extends DialogWrapper {
   private final Project myProject;
@@ -71,8 +71,8 @@ public class SelectFromMavenProjectsDialog extends DialogWrapper {
     treeStructure.update();
 
     final SimpleNode[] selection = new SimpleNode[]{null};
-    treeStructure.accept(new SimpleNodeVisitor() {
-      public boolean accept(SimpleNode each) {
+    treeStructure.accept(new Predicate<SimpleNode>() {
+      public boolean test(SimpleNode each) {
         if (!mySelector.shouldSelect(each)) return false;
         selection[0] = each;
         return true;

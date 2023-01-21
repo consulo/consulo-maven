@@ -15,11 +15,11 @@
  */
 package org.jetbrains.idea.maven.utils;
 
-import javax.annotation.Nonnull;
+import consulo.util.io.FileUtil;
+import consulo.util.io.PathUtil;
+import consulo.virtualFileSystem.util.VirtualFileUtil;
 
-import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.openapi.vfs.VfsUtil;
-import com.intellij.util.PathUtil;
+import javax.annotation.Nonnull;
 
 public class Path {
   private final String path;
@@ -36,7 +36,7 @@ public class Path {
   }
 
   public Url toUrl() {
-    return new Url(VfsUtil.pathToUrl(path));
+    return new Url(VirtualFileUtil.pathToUrl(path));
   }
 
   @Override

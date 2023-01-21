@@ -15,29 +15,34 @@
  */
 package org.jetbrains.idea.maven.compiler;
 
-import com.intellij.compiler.CompilerIOUtil;
-import com.intellij.compiler.impl.CompileDriver;
-import com.intellij.compiler.impl.CompilerUtil;
-import com.intellij.openapi.application.ReadAction;
-import com.intellij.openapi.compiler.*;
-import com.intellij.openapi.module.Module;
-import com.intellij.openapi.module.ModuleManager;
-import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.roots.ProjectFileIndex;
-import com.intellij.openapi.roots.ProjectRootManager;
-import com.intellij.openapi.util.Comparing;
-import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.openapi.vfs.*;
-import com.intellij.util.containers.ContainerUtil;
-import consulo.compiler.roots.CompilerPathsImpl;
+import consulo.annotation.component.ExtensionImpl;
+import consulo.application.ReadAction;
+import consulo.application.progress.ProgressIndicator;
+import consulo.compiler.*;
+import consulo.compiler.scope.CompileScope;
+import consulo.compiler.util.CompilerUtil;
+import consulo.ide.impl.compiler.CompilerIOUtil;
+import consulo.ide.impl.idea.compiler.impl.CompileDriver;
+import consulo.maven.rt.server.common.model.MavenResource;
+import consulo.module.Module;
+import consulo.module.ModuleManager;
+import consulo.module.content.ProjectFileIndex;
+import consulo.module.content.ProjectRootManager;
+import consulo.project.Project;
 import consulo.util.collection.Sets;
 import consulo.util.dataholder.Key;
+import consulo.util.io.FilePermissionCopier;
+import consulo.util.io.FileUtil;
+import consulo.util.lang.Comparing;
+import consulo.util.lang.StringUtil;
+import consulo.virtualFileSystem.LocalFileSystem;
+import consulo.virtualFileSystem.VirtualFile;
+import consulo.virtualFileSystem.util.VirtualFileUtil;
+import consulo.virtualFileSystem.util.VirtualFileVisitor;
+import jakarta.inject.Inject;
 import org.jdom.Element;
 import org.jetbrains.idea.maven.dom.MavenPropertyResolver;
 import org.jetbrains.idea.maven.dom.references.MavenPropertyPsiReference;
-import org.jetbrains.idea.maven.model.MavenResource;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.utils.MavenJDOMUtil;
@@ -47,19 +52,22 @@ import org.jetbrains.idea.maven.utils.MavenUtil;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.*;
+import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Pattern;
 
+@ExtensionImpl
 public class MavenResourceCompiler implements ClassPostProcessingCompiler
 {
 	private static final Key<List<String>> FILES_TO_DELETE_KEY = Key.create(MavenResourceCompiler.class.getSimpleName() + ".FILES_TO_DELETE");
 
 	// See org.apache.maven.shared.filtering.DefaultMavenResourcesFiltering#defaultNonFilteredFileExtensions
-	private static final Set<String> DEFAULT_NON_FILTERED_EXTENSIONS = ContainerUtil.newHashSet("jpg", "jpeg", "gif", "bmp", "png");
+	private static final Set<String> DEFAULT_NON_FILTERED_EXTENSIONS = Set.of("jpg", "jpeg", "gif", "bmp", "png");
 
 	private Map<String, Set<String>> myOutputItemsCache = new HashMap<String, Set<String>>();
 
+	@Inject
 	public MavenResourceCompiler(Project project)
 	{
 		loadCache(project);
@@ -268,7 +276,7 @@ public class MavenResourceCompiler implements ClassPostProcessingCompiler
 			}
 			catch(IOException e)
 			{
-				String url = VfsUtil.pathToUrl(mavenProject.getFile().getPath());
+				String url = VirtualFileUtil.pathToUrl(mavenProject.getFile().getPath());
 				context.addMessage(CompilerMessageCategory.WARNING, "Maven: Cannot read the filter. " + e.getMessage(), url, -1, -1);
 			}
 		}
@@ -288,7 +296,7 @@ public class MavenResourceCompiler implements ClassPostProcessingCompiler
 			boolean tests,
 			List<MyProcessingItem> result)
 	{
-		String outputDir = CompilerPathsImpl.getModuleOutputPath(module, tests);
+		String outputDir = CompilerPaths.getModuleOutputPath(module, tests);
 		if(outputDir == null)
 		{
 			context.addMessage(CompilerMessageCategory.ERROR, "Maven: Module '" + module.getName() + "'output is not specified", null, -1, -1);
@@ -315,7 +323,7 @@ public class MavenResourceCompiler implements ClassPostProcessingCompiler
 		}
 	}
 
-	public static List<Pattern> collectPatterns(@javax.annotation.Nullable List<String> values, @Nullable String defaultValue)
+	public static List<Pattern> collectPatterns(@Nullable List<String> values, @Nullable String defaultValue)
 	{
 		List<Pattern> result = new ArrayList<Pattern>();
 		if(values == null || values.isEmpty())
@@ -347,7 +355,7 @@ public class MavenResourceCompiler implements ClassPostProcessingCompiler
 			final List<MyProcessingItem> result,
 			final ProgressIndicator indicator)
 	{
-		VfsUtilCore.visitChildrenRecursively(currentDir, new VirtualFileVisitor()
+		VirtualFileUtil.visitChildrenRecursively(currentDir, new VirtualFileVisitor()
 		{
 			@Override
 			public boolean visitFile(@Nonnull VirtualFile file)
@@ -356,7 +364,7 @@ public class MavenResourceCompiler implements ClassPostProcessingCompiler
 
 				if(!file.isDirectory())
 				{
-					String relPath = VfsUtilCore.getRelativePath(file, sourceRoot, '/');
+					String relPath = VirtualFileUtil.getRelativePath(file, sourceRoot, '/');
 					if(relPath == null)
 					{
 						MavenLog.LOG.error("Cannot calculate relate path for file: " + file + " in root: " + sourceRoot);
@@ -467,7 +475,7 @@ public class MavenResourceCompiler implements ClassPostProcessingCompiler
 				if(shouldFilter)
 				{
 					String charset = sourceVirtualFile.getCharset().name();
-					String text = new String(FileUtil.loadFileBytes(sourceFile), charset);
+					String text = new String(Files.readAllBytes(sourceFile.toPath()), charset);
 
 					PrintWriter printWriter = new PrintWriter(outputFile, charset);
 					try
@@ -481,7 +489,7 @@ public class MavenResourceCompiler implements ClassPostProcessingCompiler
 				}
 				else
 				{
-					FileUtil.copy(sourceFile, outputFile);
+					FileUtil.copy(sourceFile, outputFile, FilePermissionCopier.BY_NIO2);
 				}
 
 				eachItem.getValidityState().setOutputFileTimestamp(outputFile.lastModified());
@@ -555,7 +563,7 @@ public class MavenResourceCompiler implements ClassPostProcessingCompiler
 		@Nonnull
 		public File getFile()
 		{
-			return VfsUtilCore.virtualToIoFile(mySourceFile);
+			return VirtualFileUtil.virtualToIoFile(mySourceFile);
 		}
 
 		public String getOutputPath()

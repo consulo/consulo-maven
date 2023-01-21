@@ -15,10 +15,10 @@
  */
 package org.jetbrains.idea.maven.utils;
 
-import com.intellij.openapi.progress.EmptyProgressIndicator;
-import com.intellij.openapi.progress.ProcessCanceledException;
-import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.util.Condition;
+import consulo.application.progress.EmptyProgressIndicator;
+import consulo.application.progress.ProgressIndicator;
+import consulo.util.lang.function.Condition;
+import consulo.component.ProcessCanceledException;
 
 import java.util.ArrayList;
 import java.util.List;

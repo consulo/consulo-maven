@@ -15,17 +15,17 @@
  */
 package org.jetbrains.idea.maven.wizards;
 
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.project.ProjectManager;
 import consulo.disposer.Disposable;
 import consulo.maven.newProject.MavenNewModuleContext;
+import consulo.maven.rt.server.common.model.MavenArchetype;
+import consulo.maven.rt.server.common.model.MavenId;
+import consulo.project.Project;
+import consulo.project.ProjectManager;
 import consulo.ui.Component;
 import consulo.ui.annotation.RequiredUIAccess;
-import consulo.ui.wizard.WizardStep;
-import consulo.ui.wizard.WizardStepValidationException;
+import consulo.ui.ex.wizard.WizardStep;
+import consulo.ui.ex.wizard.WizardStepValidationException;
 import org.jetbrains.idea.maven.execution.MavenPropertiesPanel;
-import org.jetbrains.idea.maven.model.MavenArchetype;
-import org.jetbrains.idea.maven.model.MavenId;
 import org.jetbrains.idea.maven.project.MavenEnvironmentForm;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.utils.MavenUtil;

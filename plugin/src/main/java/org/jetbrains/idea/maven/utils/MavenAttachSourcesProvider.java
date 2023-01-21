@@ -15,20 +15,22 @@
  */
 package org.jetbrains.idea.maven.utils;
 
-import com.intellij.codeInsight.AttachSourcesProvider;
-import com.intellij.notification.Notification;
-import com.intellij.notification.NotificationType;
-import com.intellij.notification.Notifications;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.roots.LibraryOrderEntry;
-import com.intellij.openapi.roots.OrderEntry;
-import com.intellij.openapi.roots.ProjectRootManager;
-import com.intellij.openapi.util.ActionCallback;
-import com.intellij.openapi.util.AsyncResult;
-import com.intellij.psi.PsiFile;
+import com.intellij.java.impl.codeInsight.AttachSourcesProvider;
+import consulo.language.psi.PsiFile;
+import consulo.maven.MavenNotificationGroup;
+import consulo.maven.rt.server.common.model.MavenArtifact;
+import consulo.maven.rt.server.common.model.MavenId;
+import consulo.module.content.ProjectRootManager;
+import consulo.module.content.layer.orderEntry.LibraryOrderEntry;
+import consulo.module.content.layer.orderEntry.OrderEntry;
+import consulo.project.Project;
+import consulo.project.ui.notification.Notification;
+import consulo.project.ui.notification.NotificationType;
+import consulo.project.ui.notification.Notifications;
+import consulo.ui.Component;
+import consulo.ui.event.UIEvent;
+import consulo.util.concurrent.AsyncResult;
 import org.jetbrains.idea.maven.importing.MavenRootModelAdapter;
-import org.jetbrains.idea.maven.model.MavenArtifact;
-import org.jetbrains.idea.maven.model.MavenId;
 import org.jetbrains.idea.maven.project.MavenArtifactDownloader;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
@@ -38,6 +40,7 @@ import javax.annotation.Nonnull;
 import javax.swing.*;
 import java.util.*;
 
+//@ExtensionImpl
 public class MavenAttachSourcesProvider implements AttachSourcesProvider
 {
 	@Nonnull
@@ -65,13 +68,14 @@ public class MavenAttachSourcesProvider implements AttachSourcesProvider
 				return ProjectBundle.message("maven.action.download.sources.busy.text");
 			}
 
-			public ActionCallback perform(List<LibraryOrderEntry> orderEntries)
+			@Override
+			public AsyncResult<Void> perform(@Nonnull List<LibraryOrderEntry> list, @Nonnull UIEvent<Component> uiEvent)
 			{
 				// may have been changed by this time...
 				Collection<MavenProject> mavenProjects = getMavenProjects(psiFile);
 				if(mavenProjects.isEmpty())
 				{
-					return new ActionCallback.Rejected();
+					return AsyncResult.rejected();
 				}
 
 				MavenProjectsManager manager = MavenProjectsManager.getInstance(psiFile.getProject());
@@ -79,13 +83,13 @@ public class MavenAttachSourcesProvider implements AttachSourcesProvider
 				Collection<MavenArtifact> artifacts = findArtifacts(mavenProjects, orderEntries);
 				if(artifacts.isEmpty())
 				{
-					return new ActionCallback.Rejected();
+					return AsyncResult.rejected();
 				}
 
 				final AsyncResult<MavenArtifactDownloader.DownloadResult> result = new AsyncResult<MavenArtifactDownloader.DownloadResult>();
 				manager.scheduleArtifactsDownloading(mavenProjects, artifacts, true, false, result);
 
-				final ActionCallback resultWrapper = new ActionCallback();
+				AsyncResult<Void> resultWrapper = AsyncResult.undefined();
 
 				result.doWhenDone(downloadResult -> {
 					if(!downloadResult.unresolvedSources.isEmpty())
@@ -108,8 +112,7 @@ public class MavenAttachSourcesProvider implements AttachSourcesProvider
 						{
 							public void run()
 							{
-								Notifications.Bus.notify(new Notification(MavenUtil.MAVEN_NOTIFICATION_GROUP, "Cannot download sources", finalMessage, NotificationType.WARNING), psiFile.getProject
-										());
+								Notifications.Bus.notify(new Notification(MavenNotificationGroup.ROOT, "Cannot download sources", finalMessage, NotificationType.WARNING), psiFile.getProject());
 							}
 						});
 					}

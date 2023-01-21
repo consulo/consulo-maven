@@ -15,13 +15,16 @@
  */
 package org.jetbrains.idea.maven.indices;
 
-import com.intellij.openapi.extensions.ExtensionPointName;
-import org.jetbrains.idea.maven.model.MavenArchetype;
+import consulo.annotation.component.ComponentScope;
+import consulo.annotation.component.ExtensionAPI;
+import consulo.component.extension.ExtensionPointName;
+import consulo.maven.rt.server.common.model.MavenArchetype;
 
 import java.util.Collection;
 
+@ExtensionAPI(ComponentScope.APPLICATION)
 public interface MavenArchetypesProvider {
-  ExtensionPointName<MavenArchetypesProvider> EP_NAME = ExtensionPointName.create("org.jetbrains.idea.maven.archetypesProvider");
+  ExtensionPointName<MavenArchetypesProvider> EP_NAME = ExtensionPointName.create(MavenArchetypesProvider.class);
 
   Collection<MavenArchetype> getArchetypes();
 }

@@ -15,15 +15,15 @@
  */
 package org.jetbrains.idea.maven.project;
 
-import com.intellij.openapi.util.Comparing;
-import com.intellij.openapi.util.Pair;
-import com.intellij.openapi.vfs.VirtualFile;
+import consulo.util.lang.Comparing;
+import consulo.util.lang.Pair;
+import consulo.virtualFileSystem.VirtualFile;
+import consulo.maven.rt.server.common.model.*;
+import consulo.maven.rt.server.common.server.MavenServerExecutionResult;
+import consulo.maven.rt.server.common.server.ProfileApplicationResult;
 import org.jdom.Element;
-import org.jetbrains.idea.maven.model.*;
 import org.jetbrains.idea.maven.server.MavenEmbedderWrapper;
-import org.jetbrains.idea.maven.server.MavenServerExecutionResult;
 import org.jetbrains.idea.maven.server.MavenServerManager;
-import org.jetbrains.idea.maven.server.ProfileApplicationResult;
 import org.jetbrains.idea.maven.utils.MavenJDOMUtil;
 import org.jetbrains.idea.maven.utils.MavenLog;
 import org.jetbrains.idea.maven.utils.MavenProcessCanceledException;
@@ -35,7 +35,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
-import static com.intellij.openapi.util.text.StringUtil.isEmptyOrSpaces;
+import static consulo.util.lang.StringUtil.isEmptyOrSpaces;
 
 public class MavenProjectReader
 {
@@ -69,10 +69,10 @@ public class MavenProjectReader
 	}
 
 	private Pair<RawModelReadResult, MavenExplicitProfiles> doReadProjectModel(MavenGeneralSettings generalSettings,
-			VirtualFile file,
-			MavenExplicitProfiles explicitProfiles,
-			Set<VirtualFile> recursionGuard,
-			MavenProjectReaderProjectLocator locator)
+																								 VirtualFile file,
+																								 MavenExplicitProfiles explicitProfiles,
+																								 Set<VirtualFile> recursionGuard,
+																								 MavenProjectReaderProjectLocator locator)
 	{
 		RawModelReadResult cachedModel = myRawModelsCache.get(file);
 		if(cachedModel == null)
@@ -280,12 +280,12 @@ public class MavenProjectReader
 	}
 
 	private void collectProfilesFromSettingsXmlOrProfilesXml(VirtualFile profilesFile,
-			String rootElementName,
-			boolean wrapRootIfNecessary,
-			String profilesSource,
-			List<MavenProfile> result,
-			Set<String> alwaysOnProfiles,
-			Collection<MavenProjectProblem> problems)
+															 String rootElementName,
+															 boolean wrapRootIfNecessary,
+															 String profilesSource,
+															 List<MavenProfile> result,
+															 Set<String> alwaysOnProfiles,
+															 Collection<MavenProjectProblem> problems)
 	{
 		Element rootElement = readXml(profilesFile, problems, MavenProjectProblem.ProblemType.SETTINGS_OR_PROFILES);
 		if(rootElement == null)

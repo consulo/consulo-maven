@@ -15,44 +15,48 @@
  */
 package org.jetbrains.idea.maven.project;
 
-import com.intellij.ProjectTopics;
-import com.intellij.openapi.application.WriteAction;
-import com.intellij.openapi.editor.Document;
-import com.intellij.openapi.editor.EditorFactory;
-import com.intellij.openapi.editor.event.DocumentAdapter;
-import com.intellij.openapi.editor.event.DocumentEvent;
-import com.intellij.openapi.fileEditor.FileDocumentManager;
-import com.intellij.openapi.fileEditor.impl.FileDocumentManagerImpl;
-import com.intellij.openapi.module.Module;
-import com.intellij.openapi.project.ModuleAdapter;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.roots.ModuleRootAdapter;
-import com.intellij.openapi.roots.ModuleRootEvent;
-import com.intellij.openapi.util.AsyncResult;
-import com.intellij.openapi.util.Comparing;
-import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.openapi.vfs.*;
-import com.intellij.openapi.vfs.newvfs.BulkFileListener;
-import com.intellij.openapi.vfs.newvfs.NewVirtualFile;
-import com.intellij.openapi.vfs.newvfs.events.*;
-import com.intellij.openapi.vfs.pointers.VirtualFilePointer;
-import com.intellij.openapi.vfs.pointers.VirtualFilePointerListener;
-import com.intellij.openapi.vfs.pointers.VirtualFilePointerManager;
-import com.intellij.psi.PsiDocumentManager;
-import com.intellij.util.PathUtil;
-import com.intellij.util.containers.ContainerUtil;
-import com.intellij.util.messages.MessageBusConnection;
-import com.intellij.util.ui.update.Update;
+import consulo.application.WriteAction;
+import consulo.codeEditor.EditorFactory;
+import consulo.component.messagebus.MessageBusConnection;
 import consulo.disposer.Disposable;
 import consulo.disposer.Disposer;
+import consulo.document.Document;
+import consulo.document.FileDocumentManager;
+import consulo.document.event.DocumentAdapter;
+import consulo.document.event.DocumentEvent;
+import consulo.ide.impl.idea.openapi.fileEditor.impl.FileDocumentManagerImpl;
+import consulo.language.psi.PsiDocumentManager;
+import consulo.maven.rt.server.common.model.MavenConstants;
+import consulo.maven.rt.server.common.model.MavenExplicitProfiles;
+import consulo.module.Module;
+import consulo.module.content.layer.event.ModuleRootAdapter;
+import consulo.module.content.layer.event.ModuleRootEvent;
+import consulo.module.content.layer.event.ModuleRootListener;
+import consulo.module.event.ModuleAdapter;
+import consulo.module.event.ModuleListener;
+import consulo.project.Project;
+import consulo.ui.ex.awt.util.Update;
+import consulo.util.collection.ContainerUtil;
+import consulo.util.concurrent.AsyncResult;
 import consulo.util.dataholder.Key;
+import consulo.util.io.FileUtil;
+import consulo.util.io.PathUtil;
+import consulo.util.lang.Comparing;
+import consulo.virtualFileSystem.LocalFileSystem;
+import consulo.virtualFileSystem.NewVirtualFile;
+import consulo.virtualFileSystem.VirtualFile;
+import consulo.virtualFileSystem.event.*;
+import consulo.virtualFileSystem.pointer.VirtualFilePointer;
+import consulo.virtualFileSystem.pointer.VirtualFilePointerListener;
+import consulo.virtualFileSystem.pointer.VirtualFilePointerManager;
+import consulo.virtualFileSystem.util.VirtualFileUtil;
+import consulo.virtualFileSystem.util.VirtualFileVisitor;
 import org.jetbrains.annotations.TestOnly;
-import org.jetbrains.idea.maven.model.MavenConstants;
-import org.jetbrains.idea.maven.model.MavenExplicitProfiles;
 import org.jetbrains.idea.maven.utils.MavenMergingUpdateQueue;
 import org.jetbrains.idea.maven.utils.MavenUtil;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
@@ -60,7 +64,6 @@ import java.util.concurrent.ConcurrentMap;
 
 public class MavenProjectsManagerWatcher
 {
-
 	private static final Key<ConcurrentMap<Project, Integer>> CRC_WITHOUT_SPACES = Key.create("MavenProjectsManagerWatcher.CRC_WITHOUT_SPACES");
 
 	public static final Key<Boolean> FORCE_IMPORT_AND_RESOLVE_ON_REFRESH = Key.create(MavenProjectsManagerWatcher.class + "FORCE_IMPORT_AND_RESOLVE_ON_REFRESH");
@@ -101,16 +104,16 @@ public class MavenProjectsManagerWatcher
 	public synchronized void start()
 	{
 		final MessageBusConnection connection = myProject.getMessageBus().connect(myChangedDocumentsQueue);
-		connection.subscribe(VirtualFileManager.VFS_CHANGES, new MyFileChangeListener());
-		connection.subscribe(ProjectTopics.PROJECT_ROOTS, new MyRootChangesListener());
+		connection.subscribe(BulkFileListener.class, new MyFileChangeListener());
+		connection.subscribe(ModuleRootListener.class, new MyRootChangesListener());
 
 		myChangedDocumentsQueue.makeUserAware(myProject);
 		myChangedDocumentsQueue.activate();
 
-		connection.subscribe(ProjectTopics.MODULES, new ModuleAdapter()
+		connection.subscribe(ModuleListener.class, new ModuleAdapter()
 		{
 			@Override
-			public void moduleRemoved(@Nonnull Project project, @Nonnull Module module)
+			public void moduleRemoved(@Nonnull Project project, @Nonnull consulo.module.Module module)
 			{
 				MavenProject mavenProject = myManager.findProject(module);
 				if(mavenProject != null && !myManager.isIgnored(mavenProject))
@@ -253,7 +256,7 @@ public class MavenProjectsManagerWatcher
 			String path = getNormalizedPath(settingsFile);
 			if(path != null)
 			{
-				String url = VfsUtilCore.pathToUrl(path);
+				String url = VirtualFileUtil.pathToUrl(path);
 				mySettingsFilesPointers.add(VirtualFilePointerManager.getInstance().create(url, myChangedDocumentsQueue, new VirtualFilePointerListener()
 				{
 					@Override
@@ -272,7 +275,7 @@ public class MavenProjectsManagerWatcher
 		myWatchedRoots.addAll(LocalFileSystem.getInstance().addRootsToWatch(pathsToWatch, false));
 	}
 
-	@javax.annotation.Nullable
+	@Nullable
 	private static String getNormalizedPath(@Nonnull File settingsFile)
 	{
 		String canonized = PathUtil.getCanonicalPath(settingsFile.getAbsolutePath());
@@ -537,7 +540,7 @@ public class MavenProjectsManagerWatcher
 			}
 		}
 
-		@javax.annotation.Nullable
+		@Nullable
 		private VirtualFile getPomFileProfilesFile(VirtualFile f)
 		{
 			if(!f.getName().equals(MavenConstants.PROFILES_XML))
@@ -646,7 +649,7 @@ public class MavenProjectsManagerWatcher
 
 		private void deleteRecursively(VirtualFile f, final VFileEvent event)
 		{
-			VfsUtilCore.visitChildrenRecursively(f, new VirtualFileVisitor()
+			VirtualFileUtil.visitChildrenRecursively(f, new VirtualFileVisitor()
 			{
 				@Override
 				public boolean visitFile(@Nonnull VirtualFile f)
@@ -658,7 +661,7 @@ public class MavenProjectsManagerWatcher
 					return true;
 				}
 
-				@javax.annotation.Nullable
+				@Nullable
 				@Override
 				public Iterable<VirtualFile> getChildrenIterable(@Nonnull VirtualFile f)
 				{

@@ -15,112 +15,166 @@
  */
 package org.jetbrains.idea.maven.dom;
 
-import com.intellij.lang.documentation.DocumentationProvider;
-import com.intellij.lang.findUsages.DescriptiveNameUtil;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.psi.*;
-import com.intellij.psi.impl.FakePsiElement;
-import com.intellij.psi.util.PsiTreeUtil;
-import com.intellij.psi.xml.XmlTag;
-import com.intellij.usageView.UsageViewTypeLocation;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import consulo.annotation.component.ExtensionImpl;
+import consulo.language.Language;
+import consulo.language.editor.documentation.LanguageDocumentationProvider;
+import consulo.language.findUsage.DescriptiveNameUtil;
+import consulo.language.impl.psi.FakePsiElement;
+import consulo.language.psi.ElementDescriptionLocation;
+import consulo.language.psi.PsiElement;
+import consulo.language.psi.PsiFile;
+import consulo.language.psi.util.PsiTreeUtil;
+import consulo.usage.UsageViewTypeLocation;
+import consulo.util.lang.StringUtil;
+import consulo.xml.lang.xml.XMLLanguage;
+import consulo.xml.psi.xml.XmlTag;
 import org.jetbrains.idea.maven.dom.references.MavenPsiElementWrapper;
 import org.jetbrains.idea.maven.utils.MavenLog;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class MavenModelDocumentationProvider implements DocumentationProvider, ElementDescriptionProvider {
-  public String getQuickNavigateInfo(PsiElement element, PsiElement originalElement) {
-    return getDoc(element, false);
-  }
+@ExtensionImpl
+public class MavenModelDocumentationProvider implements LanguageDocumentationProvider
+{
+	public String getQuickNavigateInfo(PsiElement element, PsiElement originalElement)
+	{
+		return getDoc(element, false);
+	}
 
-  public List<String> getUrlFor(PsiElement element, PsiElement originalElement) {
-    element = getMavenElement(element);
-    if (element == null) return null;
-    if (MavenDomUtil.isMavenProperty(element)) return Collections.emptyList();
+	public List<String> getUrlFor(PsiElement element, PsiElement originalElement)
+	{
+		element = getMavenElement(element);
+		if(element == null)
+		{
+			return null;
+		}
+		if(MavenDomUtil.isMavenProperty(element))
+		{
+			return Collections.emptyList();
+		}
 
-    // todo hard-coded maven version
-    // todo add auto-opening the element's doc
-    //String name = ((PsiNamedElement)element).getName();
-    return Collections.singletonList("http://maven.apache.org/ref/2.2.1/maven-model/maven.html");
-  }
+		// todo hard-coded maven version
+		// todo add auto-opening the element's doc
+		//String name = ((PsiNamedElement)element).getName();
+		return Collections.singletonList("http://maven.apache.org/ref/2.2.1/maven-model/maven.html");
+	}
 
-  public String generateDoc(PsiElement element, PsiElement originalElement) {
-    return getDoc(element, true);
-  }
+	public String generateDoc(PsiElement element, PsiElement originalElement)
+	{
+		return getDoc(element, true);
+	}
 
-  public PsiElement getDocumentationElementForLookupItem(PsiManager psiManager, Object object, PsiElement element) {
-    return null;
-  }
+	@Nullable
+	private String getDoc(PsiElement element, boolean html)
+	{
+		return getMavenElementDescription(element, DescKind.TYPE_NAME_VALUE, html);
+	}
 
-  public PsiElement getDocumentationElementForLink(PsiManager psiManager, String link, PsiElement context) {
-    return null;
-  }
+	public String getElementDescription(@Nonnull PsiElement element, @Nonnull ElementDescriptionLocation location)
+	{
+		return getMavenElementDescription(element, location instanceof UsageViewTypeLocation ? DescKind.TYPE : DescKind.NAME, false);
+	}
 
-  @Nullable
-  private String getDoc(PsiElement element, boolean html) {
-    return getMavenElementDescription(element, DescKind.TYPE_NAME_VALUE, html);
-  }
+	@Nullable
+	private static String getMavenElementDescription(PsiElement e, DescKind kind, boolean html)
+	{
+		e = getMavenElement(e);
+		if(e == null)
+		{
+			return null;
+		}
 
-  public String getElementDescription(@Nonnull PsiElement element, @Nonnull ElementDescriptionLocation location) {
-    return getMavenElementDescription(element, location instanceof UsageViewTypeLocation ? DescKind.TYPE : DescKind.NAME, false);
-  }
+		if(e instanceof FakePsiElement)
+		{
+			return ((FakePsiElement) e).getPresentableText();
+		}
 
-  @Nullable
-  private static String getMavenElementDescription(PsiElement e, DescKind kind, boolean html) {
-    e = getMavenElement(e);
-    if (e == null) return null;
+		boolean property = MavenDomUtil.isMavenProperty(e);
 
-    if (e instanceof FakePsiElement) {
-      return ((FakePsiElement)e).getPresentableText();
-    }
+		String type = property ? "Property" : "Model Property";
+		if(kind == DescKind.TYPE)
+		{
+			return type;
+		}
 
-    boolean property = MavenDomUtil.isMavenProperty(e);
+		String name = buildPropertyName(e, property);
+		if(kind == DescKind.NAME)
+		{
+			return name;
+		}
 
-    String type = property ? "Property" : "Model Property";
-    if (kind == DescKind.TYPE) return type;
+		if(kind == DescKind.TYPE_NAME_VALUE)
+		{
+			String br = html ? "<br>" : "\n ";
+			String[] bold = html ? new String[]{
+					"<b>",
+					"</b>"
+			} : new String[]{
+					"",
+					""
+			};
+			String valueSuffix = "";
+			if(e instanceof XmlTag)
+			{
+				valueSuffix = ": " + bold[0] + ((XmlTag) e).getValue().getTrimmedText() + bold[1];
+			}
+			return type + br + name + valueSuffix;
+		}
 
-    String name = buildPropertyName(e, property);
-    if (kind == DescKind.NAME) return name;
+		MavenLog.LOG.error("unexpected desc kind: " + kind);
+		return null;
+	}
 
-    if (kind == DescKind.TYPE_NAME_VALUE) {
-      String br = html ? "<br>" : "\n ";
-      String[] bold = html ? new String[]{"<b>", "</b>"} : new String[]{"", ""};
-      String valueSuffix = "";
-      if (e instanceof XmlTag) {
-        valueSuffix = ": " + bold[0] + ((XmlTag)e).getValue().getTrimmedText() + bold[1];
-      }
-      return type + br + name + valueSuffix;
-    }
+	private static String buildPropertyName(PsiElement e, boolean property)
+	{
+		if(property)
+		{
+			return DescriptiveNameUtil.getDescriptiveName(e);
+		}
 
-    MavenLog.LOG.error("unexpected desc kind: " + kind);
-    return null;
-  }
+		List<String> path = new ArrayList<String>();
+		do
+		{
+			path.add(DescriptiveNameUtil.getDescriptiveName(e));
+		}
+		while((e = PsiTreeUtil.getParentOfType(e, XmlTag.class)) != null);
+		Collections.reverse(path);
+		return StringUtil.join(path, ".");
+	}
 
-  private static String buildPropertyName(PsiElement e, boolean property) {
-    if (property) return DescriptiveNameUtil.getDescriptiveName(e);
+	private static PsiElement getMavenElement(PsiElement e)
+	{
+		if(e instanceof MavenPsiElementWrapper)
+		{
+			e = ((MavenPsiElementWrapper) e).getWrappee();
+		}
 
-    List<String> path = new ArrayList<String>();
-    do {
-      path.add(DescriptiveNameUtil.getDescriptiveName(e));
-    }
-    while ((e = PsiTreeUtil.getParentOfType(e, XmlTag.class)) != null);
-    Collections.reverse(path);
-    return StringUtil.join(path, ".");
-  }
+		if(!MavenDomUtil.isMavenFile(e))
+		{
+			return null;
+		}
+		if(e instanceof PsiFile)
+		{
+			return null;
+		}
+		return e;
+	}
 
-  private static PsiElement getMavenElement(PsiElement e) {
-    if (e instanceof MavenPsiElementWrapper) e = ((MavenPsiElementWrapper)e).getWrappee();
+	@Nonnull
+	@Override
+	public Language getLanguage()
+	{
+		return XMLLanguage.INSTANCE;
+	}
 
-    if (!MavenDomUtil.isMavenFile(e)) return null;
-    if (e instanceof PsiFile) return null;
-    return e;
-  }
-
-  private enum DescKind {
-    TYPE, NAME, TYPE_NAME_VALUE
-  }
+	private enum DescKind
+	{
+		TYPE,
+		NAME,
+		TYPE_NAME_VALUE
+	}
 }

@@ -17,10 +17,10 @@ package org.jetbrains.idea.maven.dom.references;
 
 import javax.annotation.Nonnull;
 
-import com.intellij.ide.BrowserUtil;
-import com.intellij.openapi.util.TextRange;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.impl.FakePsiElement;
+import consulo.ide.impl.idea.ide.BrowserUtil;
+import consulo.document.util.TextRange;
+import consulo.language.impl.psi.FakePsiElement;
+import consulo.language.psi.PsiElement;
 
 public class MavenUrlPsiReference extends MavenPsiReference {
   public MavenUrlPsiReference(PsiElement element, String text, TextRange range) {

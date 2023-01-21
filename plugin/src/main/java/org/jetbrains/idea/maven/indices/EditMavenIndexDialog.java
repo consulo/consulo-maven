@@ -15,8 +15,8 @@
  */
 package org.jetbrains.idea.maven.indices;
 
-import com.intellij.openapi.ui.DialogWrapper;
-import com.intellij.openapi.vfs.VirtualFileManager;
+import consulo.ui.ex.awt.DialogWrapper;
+import consulo.virtualFileSystem.VirtualFileManager;
 
 import javax.swing.*;
 

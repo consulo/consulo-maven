@@ -15,7 +15,7 @@
  */
 package org.jetbrains.idea.maven.dom.converters;
 
-import com.intellij.util.xml.ConvertContext;
+import consulo.xml.util.xml.ConvertContext;
 import javax.annotation.Nonnull;
 import org.jetbrains.idea.maven.project.MavenProject;
 

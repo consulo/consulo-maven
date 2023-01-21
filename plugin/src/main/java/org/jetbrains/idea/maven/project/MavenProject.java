@@ -15,25 +15,25 @@
  */
 package org.jetbrains.idea.maven.project;
 
-import com.intellij.execution.configurations.ParametersList;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Comparing;
-import com.intellij.openapi.util.Condition;
-import com.intellij.openapi.util.Pair;
-import com.intellij.openapi.util.io.BufferExposingByteArrayOutputStream;
-import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.openapi.vfs.LocalFileSystem;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.util.containers.ContainerUtil;
+import consulo.maven.rt.server.common.model.*;
+import consulo.maven.rt.server.common.server.NativeMavenProjectHolder;
+import consulo.process.cmd.ParametersList;
+import consulo.project.Project;
+import consulo.util.collection.ContainerUtil;
 import consulo.util.dataholder.Key;
+import consulo.util.io.BufferExposingByteArrayOutputStream;
+import consulo.util.io.FileUtil;
+import consulo.util.lang.Comparing;
+import consulo.util.lang.Pair;
+import consulo.util.lang.StringUtil;
+import consulo.util.lang.function.Condition;
+import consulo.virtualFileSystem.LocalFileSystem;
+import consulo.virtualFileSystem.VirtualFile;
 import org.jdom.Element;
 import org.jetbrains.idea.maven.importing.MavenExtraArtifactType;
 import org.jetbrains.idea.maven.importing.MavenImporter;
-import org.jetbrains.idea.maven.model.*;
 import org.jetbrains.idea.maven.plugins.api.MavenModelPropertiesPatcher;
 import org.jetbrains.idea.maven.server.MavenEmbedderWrapper;
-import org.jetbrains.idea.maven.server.NativeMavenProjectHolder;
 import org.jetbrains.idea.maven.utils.*;
 
 import javax.annotation.Nonnull;
@@ -44,7 +44,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class MavenProject
 {
-
 	private static final Key<MavenArtifactIndex> DEPENDENCIES_CACHE_KEY = Key.create("MavenProject.DEPENDENCIES_CACHE_KEY");
 	private static final Key<List<String>> FILTERS_CACHE_KEY = Key.create("MavenProject.FILTERS_CACHE_KEY");
 
@@ -775,11 +774,11 @@ public class MavenProject
 
 	@Nonnull
 	public Pair<MavenProjectChanges, NativeMavenProjectHolder> resolve(@Nonnull Project project,
-			@Nonnull MavenGeneralSettings generalSettings,
-			@Nonnull MavenEmbedderWrapper embedder,
-			@Nonnull MavenProjectReader reader,
-			@Nonnull MavenProjectReaderProjectLocator locator,
-			@Nonnull ResolveContext context) throws MavenProcessCanceledException
+																						 @Nonnull MavenGeneralSettings generalSettings,
+																						 @Nonnull MavenEmbedderWrapper embedder,
+																						 @Nonnull MavenProjectReader reader,
+																						 @Nonnull MavenProjectReaderProjectLocator locator,
+																						 @Nonnull ResolveContext context) throws MavenProcessCanceledException
 	{
 		MavenProjectReaderResult result = reader.resolveProject(generalSettings, embedder, getFile(), getActivatedProfilesIds(), locator);
 		MavenProjectChanges changes = set(result, generalSettings, false, result.readingProblems.isEmpty(), false);
@@ -1025,7 +1024,7 @@ public class MavenProject
 	@Nonnull
 	public Set<String> getSupportedPackagings()
 	{
-		Set<String> result = ContainerUtil.newHashSet(MavenConstants.TYPE_POM, MavenConstants.TYPE_JAR, "ejb", "ejb-client", "war", "ear", "bundle", "maven-plugin");
+		Set<String> result = new HashSet<>(Set.of(MavenConstants.TYPE_POM, MavenConstants.TYPE_JAR, "ejb", "ejb-client", "war", "ear", "bundle", "maven-plugin"));
 		for(MavenImporter each : getSuitableImporters())
 		{
 			each.getSupportedPackagings(result);

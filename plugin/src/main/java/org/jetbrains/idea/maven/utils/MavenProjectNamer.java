@@ -1,8 +1,8 @@
 package org.jetbrains.idea.maven.utils;
 
-import com.intellij.openapi.util.Comparing;
-import com.intellij.util.containers.MultiMap;
-import org.jetbrains.idea.maven.model.MavenId;
+import consulo.util.lang.Comparing;
+import consulo.util.collection.MultiMap;
+import consulo.maven.rt.server.common.model.MavenId;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 

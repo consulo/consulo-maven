@@ -15,16 +15,17 @@
  */
 package org.jetbrains.idea.maven.project.actions;
 
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.DataContext;
-import com.intellij.openapi.actionSystem.PlatformDataKeys;
-import com.intellij.openapi.vfs.VirtualFile;
+import consulo.language.editor.PlatformDataKeys;
+import consulo.ui.ex.action.AnActionEvent;
+import consulo.dataContext.DataContext;
+import consulo.virtualFileSystem.VirtualFile;
 import consulo.ui.annotation.RequiredUIAccess;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.utils.actions.MavenAction;
 import org.jetbrains.idea.maven.utils.actions.MavenActionUtil;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Collections;
 
 public class AddFileAsMavenProjectAction extends MavenAction
@@ -58,7 +59,7 @@ public class AddFileAsMavenProjectAction extends MavenAction
 		return manager.findProject(file) != null;
 	}
 
-	@javax.annotation.Nullable
+	@Nullable
 	private static VirtualFile getSelectedFile(DataContext context)
 	{
 		return context.getData(PlatformDataKeys.VIRTUAL_FILE);

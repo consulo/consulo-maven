@@ -15,28 +15,28 @@
  */
 package org.jetbrains.idea.maven.dom.intentions;
 
-import java.util.List;
-import java.util.regex.Pattern;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import com.intellij.java.language.psi.PsiJavaCodeReferenceElement;
+import consulo.application.Result;
+import consulo.codeEditor.Editor;
+import consulo.language.editor.WriteCommandAction;
+import consulo.language.editor.intention.IntentionAction;
+import consulo.language.editor.intention.LowPriorityAction;
+import consulo.language.psi.PsiElement;
+import consulo.language.psi.PsiFile;
+import consulo.language.util.IncorrectOperationException;
+import consulo.maven.rt.server.common.model.MavenId;
+import consulo.project.Project;
+import consulo.xml.util.xml.DomUtil;
 import org.jetbrains.idea.maven.dom.MavenDomBundle;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
 import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
 import org.jetbrains.idea.maven.indices.MavenArtifactSearchDialog;
-import org.jetbrains.idea.maven.model.MavenId;
 import org.jetbrains.idea.maven.project.MavenProject;
-import com.intellij.codeInsight.intention.IntentionAction;
-import com.intellij.codeInsight.intention.LowPriorityAction;
-import com.intellij.openapi.application.Result;
-import com.intellij.openapi.command.WriteCommandAction;
-import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.project.Project;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiJavaCodeReferenceElement;
-import com.intellij.util.IncorrectOperationException;
-import com.intellij.util.xml.DomUtil;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.List;
+import java.util.regex.Pattern;
 
 public class AddMavenDependencyQuickFix implements IntentionAction, LowPriorityAction {
 
@@ -68,7 +68,8 @@ public class AddMavenDependencyQuickFix implements IntentionAction, LowPriorityA
     return CLASSNAME_PATTERN.matcher(text).matches();
   }
 
-  public void invoke(@Nonnull final Project project, Editor editor, final PsiFile file) throws IncorrectOperationException {
+  public void invoke(@Nonnull final Project project, Editor editor, final PsiFile file) throws IncorrectOperationException
+  {
     if (!myRef.isValid()) return;
 
     MavenProject mavenProject = MavenDomUtil.findContainingProject(file);

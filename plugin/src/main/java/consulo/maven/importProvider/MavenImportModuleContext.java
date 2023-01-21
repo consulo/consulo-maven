@@ -1,17 +1,17 @@
 package consulo.maven.importProvider;
 
-import com.intellij.ide.DataManager;
-import com.intellij.openapi.actionSystem.CommonDataKeys;
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.application.ReadAction;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.project.ProjectManager;
-import com.intellij.openapi.vfs.LocalFileSystem;
-import com.intellij.openapi.vfs.VirtualFile;
 import consulo.annotation.access.RequiredReadAction;
-import consulo.moduleImport.ModuleImportContext;
-import org.jetbrains.idea.maven.model.MavenExplicitProfiles;
-import org.jetbrains.idea.maven.model.MavenId;
+import consulo.application.ApplicationManager;
+import consulo.application.ReadAction;
+import consulo.dataContext.DataManager;
+import consulo.ide.moduleImport.ModuleImportContext;
+import consulo.language.editor.CommonDataKeys;
+import consulo.maven.rt.server.common.model.MavenExplicitProfiles;
+import consulo.maven.rt.server.common.model.MavenId;
+import consulo.project.Project;
+import consulo.project.ProjectManager;
+import consulo.virtualFileSystem.LocalFileSystem;
+import consulo.virtualFileSystem.VirtualFile;
 import org.jetbrains.idea.maven.project.*;
 import org.jetbrains.idea.maven.utils.*;
 
@@ -90,7 +90,7 @@ public class MavenImportModuleContext extends ModuleImportContext
 		return myProjectToUpdate;
 	}
 
-	@javax.annotation.Nullable
+	@Nullable
 	public VirtualFile getRootDirectory()
 	{
 		if(myImportRoot == null && isUpdate())

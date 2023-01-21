@@ -21,11 +21,11 @@ import java.util.Set;
 
 import javax.annotation.Nonnull;
 
-import org.jetbrains.idea.maven.model.MavenConstants;
+import consulo.maven.rt.server.common.model.MavenConstants;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.project.SupportedRequestType;
-import com.intellij.util.xml.ConvertContext;
+import consulo.xml.util.xml.ConvertContext;
 
 public class MavenDependencyTypeConverter extends MavenProjectConstantListConverter
 {

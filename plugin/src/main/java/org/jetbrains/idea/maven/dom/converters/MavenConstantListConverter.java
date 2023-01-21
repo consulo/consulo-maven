@@ -15,9 +15,9 @@
  */
 package org.jetbrains.idea.maven.dom.converters;
 
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.util.xml.ConvertContext;
-import com.intellij.util.xml.ResolvingConverter;
+import consulo.util.lang.StringUtil;
+import consulo.xml.util.xml.ConvertContext;
+import consulo.xml.util.xml.ResolvingConverter;
 import org.jetbrains.annotations.NonNls;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -36,7 +36,7 @@ public abstract class MavenConstantListConverter extends ResolvingConverter<Stri
   }
 
   @Override
-  public String fromString(@javax.annotation.Nullable @NonNls String s, ConvertContext context) {
+  public String fromString(@Nullable @NonNls String s, ConvertContext context) {
     if (!myStrict) return s;
     return getValues(context).contains(s) ? s : null;
   }

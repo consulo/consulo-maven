@@ -15,13 +15,13 @@
  */
 package org.jetbrains.idea.maven.navigator.actions;
 
-import com.intellij.execution.RunManager;
-import com.intellij.execution.RunnerAndConfigurationSettings;
-import com.intellij.execution.impl.EditConfigurationsDialog;
-import com.intellij.openapi.actionSystem.AnAction;
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.project.Project;
+import consulo.execution.RunManager;
+import consulo.execution.RunnerAndConfigurationSettings;
+import consulo.ide.impl.idea.execution.impl.EditConfigurationsDialog;
+import consulo.ui.ex.action.AnActionEvent;
+import consulo.project.Project;
 import consulo.ui.annotation.RequiredUIAccess;
+import consulo.ui.ex.action.AnAction;
 import org.jetbrains.idea.maven.utils.MavenDataKeys;
 
 import javax.annotation.Nonnull;
@@ -35,7 +35,7 @@ public class EditMavenRunConfigurationAction extends AnAction
 	@Override
 	public void actionPerformed(@Nonnull AnActionEvent e)
 	{
-		Project project = e.getProject();
+		Project project = e.getData(Project.KEY);
 		RunnerAndConfigurationSettings settings = e.getData(MavenDataKeys.RUN_CONFIGURATION);
 
 		assert settings != null && project != null;
@@ -50,7 +50,7 @@ public class EditMavenRunConfigurationAction extends AnAction
 	@Override
 	public void update(@Nonnull AnActionEvent e)
 	{
-		Project project = e.getProject();
+		Project project = e.getData(Project.KEY);
 		RunnerAndConfigurationSettings settings = e.getData(MavenDataKeys.RUN_CONFIGURATION);
 
 		boolean enabled = settings != null && project != null;

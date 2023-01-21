@@ -15,37 +15,42 @@
  */
 package org.jetbrains.idea.maven.dom;
 
+import consulo.annotation.component.ExtensionImpl;
+import consulo.virtualFileSystem.VirtualFile;
+import consulo.virtualFileSystem.util.VirtualFileUtil;
+import consulo.xml.javaee.ExternalResourceManager;
+import consulo.xml.javaee.ExternalResourceManagerEx;
+import consulo.xml.javaee.ResourceRegistrar;
+import consulo.xml.javaee.StandardResourceProvider;
+
 import javax.annotation.Nonnull;
 
-import com.intellij.javaee.ExternalResourceManager;
-import com.intellij.javaee.ExternalResourceManagerEx;
-import com.intellij.javaee.ResourceRegistrar;
-import com.intellij.javaee.StandardResourceProvider;
-import com.intellij.openapi.vfs.VfsUtil;
-import com.intellij.openapi.vfs.VirtualFile;
+@ExtensionImpl
+public class MavenSchemaProvider implements StandardResourceProvider
+{
+	public static final String MAVEN_PROJECT_SCHEMA_URL = "http://maven.apache.org/xsd/maven-4.0.0.xsd";
+	public static final String MAVEN_PROFILES_SCHEMA_URL = "http://maven.apache.org/xsd/profiles-1.0.0.xsd";
+	public static final String MAVEN_SETTINGS_SCHEMA_URL = "http://maven.apache.org/xsd/settings-1.0.0.xsd";
 
-public class MavenSchemaProvider implements StandardResourceProvider {
-  public static final String MAVEN_PROJECT_SCHEMA_URL = "http://maven.apache.org/xsd/maven-4.0.0.xsd";
-  public static final String MAVEN_PROFILES_SCHEMA_URL = "http://maven.apache.org/xsd/profiles-1.0.0.xsd";
-  public static final String MAVEN_SETTINGS_SCHEMA_URL = "http://maven.apache.org/xsd/settings-1.0.0.xsd";
+	public void registerResources(ResourceRegistrar registrar)
+	{
+		registrar.addStdResource("http://maven.apache.org/maven-v4_0_0.xsd", "/schemas/maven-4.0.0.xsd", getClass());
+		registrar.addStdResource(MAVEN_PROJECT_SCHEMA_URL, "/schemas/maven-4.0.0.xsd", getClass());
 
-  public void registerResources(ResourceRegistrar registrar) {
-    registrar.addStdResource("http://maven.apache.org/maven-v4_0_0.xsd", "/schemas/maven-4.0.0.xsd", getClass());
-    registrar.addStdResource(MAVEN_PROJECT_SCHEMA_URL, "/schemas/maven-4.0.0.xsd", getClass());
+		registrar.addStdResource(MAVEN_PROFILES_SCHEMA_URL, "/schemas/profiles-1.0.0.xsd", getClass());
+		registrar.addStdResource(MAVEN_SETTINGS_SCHEMA_URL, "/schemas/settings-1.0.0.xsd", getClass());
+	}
 
-    registrar.addStdResource(MAVEN_PROFILES_SCHEMA_URL, "/schemas/profiles-1.0.0.xsd", getClass());
-    registrar.addStdResource(MAVEN_SETTINGS_SCHEMA_URL, "/schemas/settings-1.0.0.xsd", getClass());
-  }
+	@Nonnull
+	public static VirtualFile getSchemaFile(@Nonnull String url)
+	{
+		String location = ((ExternalResourceManagerEx) ExternalResourceManager.getInstance()).getStdResource(url, null);
+		assert location != null : "cannot find a standard resource for " + url;
 
-  @Nonnull
-  public static VirtualFile getSchemaFile(@Nonnull String url) {
-    String location = ((ExternalResourceManagerEx)ExternalResourceManager.getInstance()).getStdResource(url, null);
-    assert location != null : "cannot find a standard resource for " + url;
+		VirtualFile result = VirtualFileUtil.findRelativeFile(location, null);
+		assert result != null : "cannot find a schema file for URL: " + url + " location: " + location;
 
-    VirtualFile result = VfsUtil.findRelativeFile(location, null);
-    assert result != null : "cannot find a schema file for URL: " + url + " location: " + location;
-
-    return result;
-  }
+		return result;
+	}
 }
 

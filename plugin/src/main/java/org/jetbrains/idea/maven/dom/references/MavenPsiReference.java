@@ -15,73 +15,89 @@
  */
 package org.jetbrains.idea.maven.dom.references;
 
-import javax.annotation.Nonnull;
-
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.TextRange;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiReference;
-import com.intellij.util.IncorrectOperationException;
+import consulo.document.util.TextRange;
+import consulo.language.psi.PsiElement;
+import consulo.language.psi.PsiFile;
+import consulo.language.psi.PsiReference;
+import consulo.language.util.IncorrectOperationException;
+import consulo.project.Project;
+import consulo.virtualFileSystem.VirtualFile;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 
-public abstract class MavenPsiReference implements PsiReference {
-  protected final @Nonnull
-  Project myProject;
-  protected final @Nonnull
-  MavenProjectsManager myProjectsManager;
+import javax.annotation.Nonnull;
 
-  protected final @Nonnull
-  PsiFile myPsiFile;
-  protected final @Nonnull
-  VirtualFile myVirtualFile;
+public abstract class MavenPsiReference implements PsiReference
+{
+	protected final
+	@Nonnull
+	Project myProject;
+	protected final
+	@Nonnull
+	MavenProjectsManager myProjectsManager;
 
-  protected final @Nonnull
-  PsiElement myElement;
-  protected final @Nonnull
-  String myText;
-  protected final @Nonnull
-  TextRange myRange;
+	protected final
+	@Nonnull
+	PsiFile myPsiFile;
+	protected final
+	@Nonnull
+	VirtualFile myVirtualFile;
 
-  public MavenPsiReference(@Nonnull PsiElement element, @Nonnull String text, @Nonnull TextRange range) {
-    myProject = element.getProject();
-    myProjectsManager = MavenProjectsManager.getInstance(myProject);
+	protected final
+	@Nonnull
+	PsiElement myElement;
+	protected final
+	@Nonnull
+	String myText;
+	protected final
+	@Nonnull
+	TextRange myRange;
 
-    myPsiFile = element.getContainingFile().getOriginalFile();
-    myVirtualFile = myPsiFile.getVirtualFile();
+	public MavenPsiReference(@Nonnull PsiElement element, @Nonnull String text, @Nonnull TextRange range)
+	{
+		myProject = element.getProject();
+		myProjectsManager = MavenProjectsManager.getInstance(myProject);
 
-    myElement = element;
-    myText = text;
-    myRange = range;
-  }
+		myPsiFile = element.getContainingFile().getOriginalFile();
+		myVirtualFile = myPsiFile.getVirtualFile();
 
-  public PsiElement getElement() {
-    return myElement;
-  }
+		myElement = element;
+		myText = text;
+		myRange = range;
+	}
 
-  @Nonnull
-  public String getCanonicalText() {
-    return myText;
-  }
+	public PsiElement getElement()
+	{
+		return myElement;
+	}
 
-  public TextRange getRangeInElement() {
-    return myRange;
-  }
+	@Nonnull
+	public String getCanonicalText()
+	{
+		return myText;
+	}
 
-  public boolean isReferenceTo(PsiElement element) {
-    return getElement().getManager().areElementsEquivalent(element, resolve());
-  }
+	public TextRange getRangeInElement()
+	{
+		return myRange;
+	}
 
-  public PsiElement handleElementRename(String newElementName) throws IncorrectOperationException {
-    return null;
-  }
+	public boolean isReferenceTo(PsiElement element)
+	{
+		return getElement().getManager().areElementsEquivalent(element, resolve());
+	}
 
-  public PsiElement bindToElement(@Nonnull PsiElement element) throws IncorrectOperationException {
-    return null;
-  }
+	public PsiElement handleElementRename(String newElementName) throws IncorrectOperationException
+	{
+		return null;
+	}
 
-  public boolean isSoft() {
-    return true;
-  }
+	public PsiElement bindToElement(@Nonnull PsiElement element) throws IncorrectOperationException
+	{
+		return null;
+	}
+
+	public boolean isSoft()
+	{
+		return true;
+	}
 }

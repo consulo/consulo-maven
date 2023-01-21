@@ -15,12 +15,13 @@
  */
 package org.jetbrains.idea.maven.execution;
 
-import com.intellij.openapi.options.Configurable;
-import com.intellij.openapi.options.ConfigurationException;
-import com.intellij.ui.components.JBTabbedPane;
+import consulo.configurable.Configurable;
+import consulo.configurable.ConfigurationException;
+import consulo.ui.ex.awt.JBTabbedPane;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NonNls;
 
+import javax.annotation.Nullable;
 import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -77,7 +78,7 @@ public class CompositeConfigurable implements Configurable {
     tabbedPane = null;
   }
 
-  @javax.annotation.Nullable
+  @Nullable
   @NonNls
   public String getHelpTopic() {
     return selectedTabIndex < configurables.size() ? configurables.get(selectedTabIndex).getHelpTopic() : null;

@@ -17,22 +17,22 @@
 
 package org.jetbrains.idea.maven.project;
 
-import com.intellij.icons.AllIcons;
-import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory;
-import com.intellij.openapi.projectRoots.Sdk;
-import com.intellij.openapi.projectRoots.SdkTable;
-import com.intellij.openapi.ui.LabeledComponent;
-import com.intellij.openapi.ui.TextFieldWithBrowseButton;
-import com.intellij.openapi.util.Comparing;
-import com.intellij.openapi.util.Conditions;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.ui.DocumentAdapter;
-import com.intellij.ui.PanelWithAnchor;
-import com.intellij.util.Alarm;
-import com.intellij.util.ui.UIUtil;
+import consulo.application.AllIcons;
+import consulo.content.bundle.Sdk;
+import consulo.content.bundle.SdkTable;
 import consulo.disposer.Disposable;
+import consulo.fileChooser.FileChooserDescriptorFactory;
 import consulo.maven.bundle.MavenBundleType;
-import consulo.roots.ui.configuration.SdkComboBox;
+import consulo.module.ui.awt.SdkComboBox;
+import consulo.ui.ex.awt.LabeledComponent;
+import consulo.ui.ex.awt.PanelWithAnchor;
+import consulo.ui.ex.awt.TextFieldWithBrowseButton;
+import consulo.ui.ex.awt.UIUtil;
+import consulo.ui.ex.awt.event.DocumentAdapter;
+import consulo.ui.ex.awt.util.Alarm;
+import consulo.util.lang.Comparing;
+import consulo.util.lang.StringUtil;
+import consulo.util.lang.function.Conditions;
 import org.jetbrains.idea.maven.utils.MavenUtil;
 
 import javax.annotation.Nonnull;
@@ -114,7 +114,7 @@ public class MavenEnvironmentForm implements PanelWithAnchor
 
 	public void setData(MavenGeneralSettings data)
 	{
-		data.setMavenBundleName(consulo.util.lang.StringUtil.notNullize(myMavenBundleBox.getSelectedSdkName()));
+		data.setMavenBundleName(StringUtil.notNullize(myMavenBundleBox.getSelectedSdkName()));
 		data.setUserSettingsFile(userSettingsFileOverrider.getResult());
 		data.setLocalRepository(localRepositoryOverrider.getResult());
 	}
@@ -122,7 +122,7 @@ public class MavenEnvironmentForm implements PanelWithAnchor
 	public void getData(MavenGeneralSettings data)
 	{
 		String mavenHome = data.getMavenBundleName();
-		myMavenBundleBox.setSelectedSdk(consulo.util.lang.StringUtil.nullize(mavenHome));
+		myMavenBundleBox.setSelectedSdk(StringUtil.nullize(mavenHome));
 		userSettingsFileOverrider.reset(data.getUserSettingsFile());
 		localRepositoryOverrider.reset(data.getLocalRepository());
 	}
@@ -136,7 +136,7 @@ public class MavenEnvironmentForm implements PanelWithAnchor
 			File file = MavenUtil.resolveMavenHomeDirectory("");
 			return file == null ? "" : file.getPath();
 		}
-		return consulo.util.lang.StringUtil.notNullize(selectedSdk.getHomePath());
+		return StringUtil.notNullize(selectedSdk.getHomePath());
 	}
 
 	public JComponent createComponent(Disposable uiDisposable)

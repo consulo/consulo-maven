@@ -15,12 +15,12 @@
  */
 package org.jetbrains.idea.maven.utils;
 
-import com.intellij.openapi.util.Pair;
-import com.intellij.util.Function;
-import javax.annotation.Nullable;
+import consulo.util.lang.Pair;
 
+import javax.annotation.Nullable;
 import javax.swing.*;
 import java.util.Collection;
+import java.util.function.Function;
 
 public class ComboBoxUtil {
 
@@ -49,7 +49,7 @@ public class ComboBoxUtil {
   public static <T> void setModel(JComboBox comboBox, DefaultComboBoxModel model, Collection<T> values, Function<T, Pair<String, ?>> func) {
     model.removeAllElements();
     for (T each : values) {
-      Pair<String, ?> pair = func.fun(each);
+      Pair<String, ?> pair = func.apply(each);
       addToModel(model, pair.second, pair.first);
     }
     comboBox.setModel(model);
@@ -73,7 +73,7 @@ public class ComboBoxUtil {
     return String.valueOf(getSelectedValue(model));
   }
 
-  @javax.annotation.Nullable
+  @Nullable
   public static Object getSelectedValue(DefaultComboBoxModel model) {
     final Object item = model.getSelectedItem();
     return item != null ? ((Item)item).getValue() : null;

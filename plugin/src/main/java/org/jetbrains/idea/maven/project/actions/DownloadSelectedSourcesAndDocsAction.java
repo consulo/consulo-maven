@@ -15,8 +15,8 @@
  */
 package org.jetbrains.idea.maven.project.actions;
 
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import org.jetbrains.idea.maven.model.MavenArtifact;
+import consulo.ui.ex.action.AnActionEvent;
+import consulo.maven.rt.server.common.model.MavenArtifact;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.utils.MavenDataKeys;

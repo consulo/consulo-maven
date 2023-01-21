@@ -15,10 +15,10 @@
  */
 package org.jetbrains.idea.maven.dom.converters;
 
-import com.intellij.openapi.util.TextRange;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiReference;
-import com.intellij.util.xml.ConvertContext;
+import consulo.document.util.TextRange;
+import consulo.language.psi.PsiReference;
+import consulo.language.psi.PsiElement;
+import consulo.xml.util.xml.ConvertContext;
 import org.jetbrains.annotations.NonNls;
 import javax.annotation.Nullable;
 import org.jetbrains.idea.maven.dom.references.MavenUrlPsiReference;

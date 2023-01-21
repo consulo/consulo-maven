@@ -15,48 +15,61 @@
  */
 package org.jetbrains.idea.maven.dom.refactorings;
 
-import javax.annotation.Nonnull;
+import consulo.annotation.component.ExtensionImpl;
+import consulo.application.ApplicationManager;
+import consulo.codeEditor.Editor;
+import consulo.dataContext.DataContext;
+import consulo.language.editor.LangDataKeys;
+import consulo.language.editor.PlatformDataKeys;
+import consulo.language.editor.refactoring.rename.PsiElementRenameHandler;
+import consulo.language.editor.refactoring.rename.RenameDialog;
+import consulo.language.psi.PsiElement;
+import consulo.language.psi.PsiFile;
+import consulo.project.Project;
+import consulo.ui.ex.awt.DialogWrapper;
 import org.jetbrains.idea.maven.dom.references.MavenTargetUtil;
-import com.intellij.openapi.actionSystem.DataContext;
-import com.intellij.openapi.actionSystem.LangDataKeys;
-import com.intellij.openapi.actionSystem.PlatformDataKeys;
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.DialogWrapper;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiFile;
-import com.intellij.refactoring.rename.PsiElementRenameHandler;
-import com.intellij.refactoring.rename.RenameDialog;
 
-public class MavenPropertyRenameHandler extends PsiElementRenameHandler {
-  @Override
-  public boolean isAvailableOnDataContext(DataContext context) {
-    return findTarget(context) != null;
-  }
+import javax.annotation.Nonnull;
 
-  @Override
-  public void invoke(@Nonnull Project project, Editor editor, PsiFile file, DataContext dataContext) {
-    invoke(project, PsiElement.EMPTY_ARRAY, dataContext);
-  }
+@ExtensionImpl
+public class MavenPropertyRenameHandler extends PsiElementRenameHandler
+{
+	@Override
+	public boolean isAvailableOnDataContext(DataContext context)
+	{
+		return findTarget(context) != null;
+	}
 
-  @Override
-  public void invoke(@Nonnull Project project, @Nonnull PsiElement[] elements, DataContext dataContext) {
-    PsiElement element = elements.length == 1 ? elements[0] : null;
-    if (element == null) element = findTarget(dataContext);
+	@Override
+	public void invoke(@Nonnull Project project, Editor editor, PsiFile file, DataContext dataContext)
+	{
+		invoke(project, PsiElement.EMPTY_ARRAY, dataContext);
+	}
 
-    RenameDialog dialog = new RenameDialog(project, element, null, dataContext.getData(PlatformDataKeys.EDITOR));
-    if (ApplicationManager.getApplication().isUnitTestMode()) {
-      String name = dataContext.getData(DEFAULT_NAME);
-      dialog.performRename(name);
-      dialog.close(DialogWrapper.OK_EXIT_CODE);
-    }
-    else {
-      dialog.show();
-    }
-  }
+	@Override
+	public void invoke(@Nonnull Project project, @Nonnull PsiElement[] elements, DataContext dataContext)
+	{
+		PsiElement element = elements.length == 1 ? elements[0] : null;
+		if(element == null)
+		{
+			element = findTarget(dataContext);
+		}
 
-  private static PsiElement findTarget(DataContext context) {
-    return MavenTargetUtil.getRefactorTarget(context.getData(PlatformDataKeys.EDITOR), context.getData(LangDataKeys.PSI_FILE));
-  }
+		RenameDialog dialog = new RenameDialog(project, element, null, dataContext.getData(PlatformDataKeys.EDITOR));
+		if(ApplicationManager.getApplication().isUnitTestMode())
+		{
+			String name = dataContext.getData(DEFAULT_NAME);
+			dialog.performRename(name);
+			dialog.close(DialogWrapper.OK_EXIT_CODE);
+		}
+		else
+		{
+			dialog.show();
+		}
+	}
+
+	private static PsiElement findTarget(DataContext context)
+	{
+		return MavenTargetUtil.getRefactorTarget(context.getData(PlatformDataKeys.EDITOR), context.getData(LangDataKeys.PSI_FILE));
+	}
 }

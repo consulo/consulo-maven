@@ -15,14 +15,15 @@
  */
 package consulo.maven;
 
-import com.intellij.openapi.project.DumbService;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiFile;
+import consulo.annotation.component.ExtensionImpl;
+import consulo.language.icon.IconDescriptorUpdater;
+import consulo.language.psi.PsiFile;
+import consulo.project.DumbService;
+import consulo.language.psi.PsiElement;
 import consulo.annotation.access.RequiredReadAction;
-import consulo.ide.IconDescriptor;
-import consulo.ide.IconDescriptorUpdater;
-import icons.MavenIcons;
+import consulo.language.icon.IconDescriptor;
+import consulo.virtualFileSystem.VirtualFile;
+import org.jetbrains.idea.maven.MavenIcons;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 
 import javax.annotation.Nonnull;
@@ -31,6 +32,7 @@ import javax.annotation.Nonnull;
  * @author VISTALL
  * @since 15:13/20.07.13
  */
+@ExtensionImpl(order = "after xml")
 public class MavenIconDescriptorUpdater implements IconDescriptorUpdater
 {
   @RequiredReadAction

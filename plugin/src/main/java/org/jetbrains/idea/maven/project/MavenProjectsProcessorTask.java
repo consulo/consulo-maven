@@ -15,7 +15,7 @@
  */
 package org.jetbrains.idea.maven.project;
 
-import com.intellij.openapi.project.Project;
+import consulo.project.Project;
 import org.jetbrains.idea.maven.utils.MavenProcessCanceledException;
 import org.jetbrains.idea.maven.utils.MavenProgressIndicator;
 

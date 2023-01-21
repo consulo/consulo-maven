@@ -15,29 +15,29 @@
  */
 package org.jetbrains.idea.maven.navigator;
 
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Comparing;
-import com.intellij.openapi.vfs.LocalFileSystem;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.pom.Navigatable;
-import com.intellij.pom.NavigatableAdapter;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiManager;
-import com.intellij.psi.xml.XmlDocument;
-import com.intellij.psi.xml.XmlFile;
-import com.intellij.psi.xml.XmlTag;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import consulo.language.psi.PsiFile;
+import consulo.language.psi.PsiManager;
+import consulo.maven.rt.server.common.model.MavenArtifact;
+import consulo.maven.rt.server.common.model.MavenId;
+import consulo.navigation.Navigatable;
+import consulo.navigation.NavigatableAdapter;
+import consulo.project.Project;
+import consulo.util.lang.Comparing;
+import consulo.virtualFileSystem.LocalFileSystem;
+import consulo.virtualFileSystem.VirtualFile;
+import consulo.xml.psi.xml.XmlDocument;
+import consulo.xml.psi.xml.XmlFile;
+import consulo.xml.psi.xml.XmlTag;
 import org.jetbrains.idea.maven.dom.MavenDomProjectProcessorUtils;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
 import org.jetbrains.idea.maven.dom.model.MavenDomDependencies;
 import org.jetbrains.idea.maven.dom.model.MavenDomDependency;
 import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
-import org.jetbrains.idea.maven.model.MavenArtifact;
-import org.jetbrains.idea.maven.model.MavenId;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.utils.MavenArtifactUtil;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.File;
 
 /**
@@ -128,7 +128,7 @@ public class MavenNavigationUtil {
 
   }
 
-  @javax.annotation.Nullable
+  @Nullable
   public static VirtualFile getArtifactFile(Project project, MavenId id) {
     final File file = MavenArtifactUtil.getArtifactFile(MavenProjectsManager.getInstance(project).getLocalRepository(), id);
     return file.exists() ? LocalFileSystem.getInstance().findFileByIoFile(file) : null;

@@ -15,29 +15,28 @@
  */
 package org.jetbrains.idea.maven.indices;
 
-import com.intellij.icons.AllIcons;
-import com.intellij.openapi.options.BaseConfigurable;
-import com.intellij.openapi.options.Configurable;
-import com.intellij.openapi.options.ConfigurationException;
-import com.intellij.openapi.options.SearchableConfigurable;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.InputValidator;
-import com.intellij.openapi.ui.Messages;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.ui.CollectionListModel;
-import com.intellij.ui.JBColor;
-import com.intellij.ui.ListUtil;
-import com.intellij.ui.components.JBList;
-import com.intellij.ui.table.JBTable;
-import com.intellij.util.Processor;
-import com.intellij.util.text.DateFormatUtil;
-import com.intellij.util.ui.AnimatedIcon;
-import com.intellij.util.ui.AsyncProcessIcon;
-import com.intellij.util.ui.UIUtil;
-import consulo.awt.TargetAWT;
+import consulo.application.AllIcons;
+import consulo.application.util.DateFormatUtil;
+import consulo.configurable.BaseConfigurable;
+import consulo.configurable.Configurable;
+import consulo.configurable.ConfigurationException;
+import consulo.configurable.SearchableConfigurable;
+import consulo.project.Project;
+import consulo.ui.ex.InputValidator;
+import consulo.ui.ex.awt.*;
+import consulo.ui.ex.awt.table.JBTable;
+import consulo.ui.ex.awt.util.ListUtil;
+import consulo.util.lang.StringUtil;
+import consulo.ui.ex.JBColor;
+import consulo.ui.ex.awt.JBList;
+import consulo.application.util.function.Processor;
+import consulo.ui.ex.awt.AsyncProcessIcon;
+import consulo.ui.ex.awt.UIUtil;
+import consulo.ui.ex.awtUnsafe.TargetAWT;
 import consulo.disposer.Disposable;
 import consulo.disposer.Disposer;
-import org.jetbrains.idea.maven.model.MavenRepositoryInfo;
+import consulo.maven.rt.server.common.model.MavenRepositoryInfo;
+import consulo.ui.ex.awt.Messages;
 import org.jetbrains.idea.maven.services.MavenRepositoryServicesManager;
 import org.jetbrains.idea.maven.utils.library.RepositoryAttachHandler;
 
@@ -71,7 +70,7 @@ public class MavenRepositoriesConfigurable extends BaseConfigurable implements S
   private JButton myTestButton;
   private JButton myEditButton;
 
-  private AnimatedIcon myUpdatingIcon;
+  private AsyncProcessIcon myUpdatingIcon;
   private Timer myRepaintTimer;
   private ActionListener myTimerListener;
   private final Project myProject;

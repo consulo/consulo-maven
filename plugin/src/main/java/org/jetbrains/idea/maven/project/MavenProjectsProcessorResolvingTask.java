@@ -17,9 +17,10 @@ package org.jetbrains.idea.maven.project;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+
+import consulo.project.Project;
 import org.jetbrains.idea.maven.utils.MavenProcessCanceledException;
 import org.jetbrains.idea.maven.utils.MavenProgressIndicator;
-import com.intellij.openapi.project.Project;
 
 public class MavenProjectsProcessorResolvingTask extends MavenProjectsProcessorBasicTask
 {

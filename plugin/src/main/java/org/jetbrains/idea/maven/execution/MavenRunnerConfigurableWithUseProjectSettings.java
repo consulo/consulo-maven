@@ -15,8 +15,8 @@
  */
 package org.jetbrains.idea.maven.execution;
 
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Pair;
+import consulo.project.Project;
+import consulo.util.lang.Pair;
 import consulo.disposer.Disposable;
 import consulo.ui.annotation.RequiredUIAccess;
 import org.jetbrains.idea.maven.project.MavenDisablePanelCheckbox;

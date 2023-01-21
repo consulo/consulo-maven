@@ -15,30 +15,32 @@
  */
 package org.jetbrains.idea.maven.importing;
 
-import com.intellij.compiler.impl.javaCompiler.javac.JavacCompilerConfiguration;
-import com.intellij.compiler.impl.javaCompiler.javac.JpsJavaCompilerOptions;
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.module.ModifiableModuleModel;
-import com.intellij.openapi.module.Module;
-import com.intellij.openapi.progress.ProcessCanceledException;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.roots.*;
-import com.intellij.openapi.roots.impl.libraries.LibraryImpl;
-import com.intellij.openapi.roots.libraries.Library;
-import com.intellij.openapi.ui.Messages;
-import com.intellij.openapi.util.Pair;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.openapi.vfs.LocalFileSystem;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.util.ArrayUtil;
-import com.intellij.util.Function;
-import com.intellij.util.containers.Stack;
-import consulo.java.module.extension.JavaMutableModuleExtensionImpl;
+import com.intellij.java.compiler.impl.javaCompiler.javac.JavacCompilerConfiguration;
+import com.intellij.java.compiler.impl.javaCompiler.javac.JpsJavaCompilerOptions;
+import consulo.application.ApplicationManager;
+import consulo.component.ProcessCanceledException;
+import consulo.content.library.Library;
+import consulo.java.impl.module.extension.JavaMutableModuleExtensionImpl;
+import consulo.logging.Logger;
 import consulo.maven.importing.MavenImportSession;
 import consulo.maven.module.extension.MavenMutableModuleExtension;
+import consulo.maven.rt.server.common.model.MavenArtifact;
+import consulo.module.ModifiableModuleModel;
+import consulo.module.Module;
+import consulo.module.content.ModuleRootManager;
+import consulo.module.content.layer.ModifiableRootModel;
+import consulo.module.content.layer.ModuleRootModel;
+import consulo.module.content.layer.orderEntry.LibraryOrderEntry;
+import consulo.module.content.layer.orderEntry.OrderEntry;
+import consulo.project.Project;
+import consulo.ui.ex.awt.Messages;
+import consulo.util.collection.ArrayUtil;
+import consulo.util.collection.Stack;
+import consulo.util.lang.Pair;
+import consulo.util.lang.StringUtil;
+import consulo.virtualFileSystem.LocalFileSystem;
+import consulo.virtualFileSystem.VirtualFile;
 import org.jetbrains.idea.maven.importing.configurers.MavenModuleConfigurer;
-import org.jetbrains.idea.maven.model.MavenArtifact;
 import org.jetbrains.idea.maven.project.*;
 import org.jetbrains.idea.maven.utils.MavenProcessCanceledException;
 import org.jetbrains.idea.maven.utils.MavenProgressIndicator;
@@ -62,9 +64,9 @@ public class MavenProjectImporter
 
 	private final ModifiableModuleModel myModuleModel;
 
-	private final List<Module> myCreatedModules = new ArrayList<Module>();
+	private final List<consulo.module.Module> myCreatedModules = new ArrayList<Module>();
 
-	private final Map<MavenProject, Module> myMavenProjectToModule = new HashMap<MavenProject, Module>();
+	private final Map<MavenProject, consulo.module.Module> myMavenProjectToModule = new HashMap<MavenProject, Module>();
 	private final Map<MavenProject, String> myMavenProjectToModuleName = new HashMap<MavenProject, String>();
 	private final Map<MavenProject, String> myMavenProjectToModulePath = new HashMap<MavenProject, String>();
 
@@ -234,7 +236,7 @@ public class MavenProjectImporter
 
 		for(MavenProject each : myAllProjects)
 		{
-			Module module = myFileToModuleMapping.get(each.getFile());
+			consulo.module.Module module = myFileToModuleMapping.get(each.getFile());
 			if(module == null)
 			{
 				result.put(each, MavenProjectChanges.ALL);
@@ -269,17 +271,13 @@ public class MavenProjectImporter
 
 	private static String formatProjectsWithModules(List<Pair<MavenProject, Module>> projectsWithModules)
 	{
-		return StringUtil.join(projectsWithModules, new Function<Pair<MavenProject, Module>, String>()
+		return StringUtil.join(projectsWithModules, each ->
 		{
-			@Override
-			public String fun(Pair<MavenProject, Module> each)
-			{
-				MavenProject project = each.first;
-				Module module = each.second;
-				return module.getName() +
-						"' for Maven project " +
-						project.getMavenId().getDisplayString();
-			}
+			MavenProject project = each.first;
+			Module module = each.second;
+			return module.getName() +
+					"' for Maven project " +
+					project.getMavenId().getDisplayString();
 		}, "<br>");
 	}
 
@@ -322,7 +320,7 @@ public class MavenProjectImporter
 
 	private List<Module> collectObsoleteModules()
 	{
-		List<Module> remainingModules = new ArrayList<Module>();
+		List<consulo.module.Module> remainingModules = new ArrayList<consulo.module.Module>();
 		Collections.addAll(remainingModules, myModuleModel.getModules());
 
 		for(MavenProject each : selectProjectsToImport(myAllProjects))
@@ -332,7 +330,7 @@ public class MavenProjectImporter
 
 		List<Module> obsolete = new ArrayList<Module>();
 		final MavenProjectsManager manager = MavenProjectsManager.getInstance(myProject);
-		for(Module each : remainingModules)
+		for(consulo.module.Module each : remainingModules)
 		{
 			if(manager.isMavenizedModule(each))
 			{
@@ -342,7 +340,7 @@ public class MavenProjectImporter
 		return obsolete;
 	}
 
-	private static String formatModules(final Collection<Module> modules)
+	private static String formatModules(final Collection<consulo.module.Module> modules)
 	{
 		StringBuilder res = new StringBuilder();
 
@@ -417,7 +415,7 @@ public class MavenProjectImporter
 	{
 		for(MavenProject each : myAllProjects)
 		{
-			Module module = myFileToModuleMapping.get(each.getFile());
+			consulo.module.Module module = myFileToModuleMapping.get(each.getFile());
 			if(module != null)
 			{
 				myMavenProjectToModule.put(each, module);
@@ -449,7 +447,7 @@ public class MavenProjectImporter
 			}
 		}
 
-		List<Module> modulesToMavenize = new ArrayList<Module>();
+		List<consulo.module.Module> modulesToMavenize = new ArrayList<Module>();
 		List<MavenModuleImporter> importers = new ArrayList<MavenModuleImporter>();
 
 		MavenImportSession session = new MavenImportSession();
@@ -494,7 +492,7 @@ public class MavenProjectImporter
 		setMavenizedModules(modulesToMavenize, true);
 	}
 
-	private void setMavenizedModules(final Collection<Module> modules, final boolean mavenized)
+	private void setMavenizedModules(final Collection<consulo.module.Module> modules, final boolean mavenized)
 	{
 		MavenUtil.invokeAndWaitWriteAction(myProject, new Runnable()
 		{
@@ -546,7 +544,7 @@ public class MavenProjectImporter
 			return;
 		}
 
-		final Stack<String> groups = new Stack<String>();
+		final Stack<String> groups = new consulo.util.collection.Stack<String>();
 		final boolean createTopLevelGroup = myProjectsTree.getRootProjects().size() > 1;
 
 		myProjectsTree.visit(new MavenProjectsTree.SimpleVisitor()
@@ -577,7 +575,7 @@ public class MavenProjectImporter
 					return;
 				}
 
-				Module module = myModuleModel.findModuleByName(name);
+				consulo.module.Module module = myModuleModel.findModuleByName(name);
 				if(module == null)
 				{
 					return;
@@ -632,7 +630,7 @@ public class MavenProjectImporter
 
 	private static boolean isDisposed(Library library)
 	{
-		return library instanceof LibraryImpl && ((LibraryImpl) library).isDisposed();
+		return library.isDisposed();
 	}
 
 	private Collection<ModuleRootModel> collectModuleModels()
@@ -644,7 +642,7 @@ public class MavenProjectImporter
 			ModifiableRootModel rootModel = myModelsProvider.getRootModel(module);
 			rootModels.put(module, rootModel);
 		}
-		for(Module each : myModuleModel.getModules())
+		for(consulo.module.Module each : myModuleModel.getModules())
 		{
 			if(rootModels.containsKey(each))
 			{

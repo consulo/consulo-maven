@@ -15,15 +15,16 @@
  */
 package org.jetbrains.idea.maven.tasks.actions;
 
-import com.intellij.execution.impl.BaseExecuteBeforeRunDialog;
-import com.intellij.openapi.project.Project;
+import consulo.ide.impl.idea.execution.impl.BaseExecuteBeforeRunDialog;
+import consulo.project.Project;
 import consulo.util.dataholder.Key;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.tasks.MavenBeforeRunTask;
 import org.jetbrains.idea.maven.tasks.MavenBeforeRunTasksProvider;
 import org.jetbrains.idea.maven.tasks.TasksBundle;
 
-public class MavenExecuteBeforeRunDialog extends BaseExecuteBeforeRunDialog<MavenBeforeRunTask> {
+public class MavenExecuteBeforeRunDialog extends BaseExecuteBeforeRunDialog<MavenBeforeRunTask>
+{
   private final MavenProject myMavenProject;
   private final String myGoal;
 

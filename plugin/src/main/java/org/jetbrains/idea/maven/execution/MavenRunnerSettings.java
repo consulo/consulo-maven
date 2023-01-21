@@ -18,8 +18,7 @@
 
 package org.jetbrains.idea.maven.execution;
 
-import com.intellij.util.containers.ContainerUtil;
-import org.jetbrains.annotations.NonNls;
+import consulo.util.collection.Lists;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -38,7 +37,7 @@ public class MavenRunnerSettings implements Cloneable
 	private Map<String, String> environmentProperties = new HashMap<>();
 	private boolean passParentEnv = true;
 
-	private List<Listener> myListeners = ContainerUtil.createLockFreeCopyOnWriteList();
+	private List<Listener> myListeners = Lists.newLockFreeCopyOnWriteList();
 
 	public boolean isRunMavenInBackground()
 	{
@@ -214,7 +213,7 @@ public class MavenRunnerSettings implements Cloneable
 		{
 			final MavenRunnerSettings clone = (MavenRunnerSettings) super.clone();
 			clone.mavenProperties = cloneMap(mavenProperties);
-			clone.myListeners = ContainerUtil.createLockFreeCopyOnWriteList();
+			clone.myListeners = Lists.newLockFreeCopyOnWriteList();
 			clone.environmentProperties = new HashMap<>(environmentProperties);
 			return clone;
 		}

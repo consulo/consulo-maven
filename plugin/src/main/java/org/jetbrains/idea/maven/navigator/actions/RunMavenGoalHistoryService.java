@@ -15,11 +15,12 @@
  */
 package org.jetbrains.idea.maven.navigator.actions;
 
-import com.intellij.openapi.components.PersistentStateComponent;
-import com.intellij.openapi.components.State;
-import com.intellij.openapi.components.Storage;
-import com.intellij.openapi.components.StoragePathMacros;
+import consulo.component.persist.State;
+import consulo.component.persist.Storage;
+import consulo.component.persist.PersistentStateComponent;
+import consulo.component.persist.StoragePathMacros;
 
+import javax.annotation.Nullable;
 import java.util.LinkedList;
 
 /**
@@ -31,13 +32,14 @@ import java.util.LinkedList;
       file = StoragePathMacros.APP_CONFIG + "/other.xml"
     )
 )
-public class RunMavenGoalHistoryService implements PersistentStateComponent<String[]> {
+public class RunMavenGoalHistoryService implements PersistentStateComponent<String[]>
+{
 
   private static final int MAX_HISTORY_LENGTH = 20;
 
   private final LinkedList<String> myHistory = new LinkedList<String>();
 
-  @javax.annotation.Nullable
+  @Nullable
   @Override
   public String[] getState() {
     return new String[0];  //To change body of implemented methods use File | Settings | File Templates.

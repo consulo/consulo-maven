@@ -15,12 +15,12 @@
  */
 package org.jetbrains.idea.maven.plugins.api;
 
-import javax.annotation.Nonnull;
-
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiReference;
-import com.intellij.util.ProcessingContext;
+import consulo.language.psi.PsiElement;
+import consulo.language.psi.PsiReference;
+import consulo.language.util.ProcessingContext;
 import org.jetbrains.idea.maven.dom.model.MavenDomConfiguration;
+
+import javax.annotation.Nonnull;
 
 /**
  * @author Sergey Evdokimov

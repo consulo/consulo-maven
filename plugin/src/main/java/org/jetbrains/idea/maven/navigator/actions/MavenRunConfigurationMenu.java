@@ -15,29 +15,27 @@
  */
 package org.jetbrains.idea.maven.navigator.actions;
 
-import javax.annotation.Nonnull;
-
+import consulo.application.dumb.DumbAware;
+import consulo.execution.ProgramRunnerUtil;
+import consulo.execution.RunnerAndConfigurationSettings;
+import consulo.execution.RunnerRegistry;
+import consulo.execution.executor.Executor;
+import consulo.execution.executor.ExecutorRegistry;
+import consulo.execution.runner.ProgramRunner;
+import consulo.project.Project;
+import consulo.ui.ex.action.AnAction;
+import consulo.ui.ex.action.AnActionEvent;
+import consulo.ui.ex.action.Constraints;
+import consulo.ui.ex.action.DefaultActionGroup;
 import org.jetbrains.idea.maven.utils.MavenDataKeys;
-import com.intellij.execution.Executor;
-import com.intellij.execution.ExecutorRegistry;
-import com.intellij.execution.ProgramRunnerUtil;
-import com.intellij.execution.RunnerAndConfigurationSettings;
-import com.intellij.execution.RunnerRegistry;
-import com.intellij.execution.runners.ProgramRunner;
-import com.intellij.openapi.actionSystem.AnAction;
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.Constraints;
-import com.intellij.openapi.actionSystem.DefaultActionGroup;
-import com.intellij.openapi.project.DumbAware;
-import com.intellij.openapi.project.Project;
-import consulo.awt.TargetAWT;
+
+import javax.annotation.Nonnull;
 
 /**
  * @author Sergey Evdokimov
  */
 public class MavenRunConfigurationMenu extends DefaultActionGroup implements DumbAware
 {
-
 	@Override
 	public void update(AnActionEvent e)
 	{
@@ -49,7 +47,7 @@ public class MavenRunConfigurationMenu extends DefaultActionGroup implements Dum
 			}
 		}
 
-		final Project project = e.getProject();
+		final Project project = e.getData(Project.KEY);
 
 		final RunnerAndConfigurationSettings settings = e.getData(MavenDataKeys.RUN_CONFIGURATION);
 

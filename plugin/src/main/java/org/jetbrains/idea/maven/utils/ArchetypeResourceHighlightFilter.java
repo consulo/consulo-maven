@@ -1,14 +1,16 @@
 package org.jetbrains.idea.maven.utils;
 
-import javax.annotation.Nonnull;
+import consulo.annotation.component.ExtensionImpl;
+import consulo.language.editor.ProblemHighlightFilter;
+import consulo.language.psi.PsiFile;
+import consulo.virtualFileSystem.VirtualFile;
 
-import com.intellij.codeInsight.daemon.ProblemHighlightFilter;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiFile;
+import javax.annotation.Nonnull;
 
 /**
  * @author Sergey Evdokimov
  */
+@ExtensionImpl
 public class ArchetypeResourceHighlightFilter extends ProblemHighlightFilter {
 
   @Override

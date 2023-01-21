@@ -15,10 +15,11 @@
  */
 package org.jetbrains.idea.maven.dom;
 
-import com.intellij.util.xml.DomElement;
-import com.intellij.util.xml.JavaNameStrategy;
-import com.intellij.util.xml.NameStrategy;
+import consulo.xml.util.xml.DomElement;
+import consulo.xml.util.xml.JavaNameStrategy;
+import consulo.xml.util.xml.NameStrategy;
 
 @NameStrategy(JavaNameStrategy.class)
-public interface MavenDomElement extends DomElement {
+public interface MavenDomElement extends DomElement
+{
 }

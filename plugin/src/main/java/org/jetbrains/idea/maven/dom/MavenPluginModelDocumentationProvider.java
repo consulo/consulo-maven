@@ -15,49 +15,78 @@
  */
 package org.jetbrains.idea.maven.dom;
 
-import com.intellij.lang.documentation.DocumentationProvider;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiManager;
+import consulo.annotation.component.ExtensionImpl;
+import consulo.language.Language;
+import consulo.language.editor.documentation.LanguageDocumentationProvider;
+import consulo.language.psi.PsiElement;
+import consulo.xml.lang.xml.XMLLanguage;
 
-import java.util.List;
+import javax.annotation.Nonnull;
 
-public class MavenPluginModelDocumentationProvider implements DocumentationProvider {
-  public String getQuickNavigateInfo(PsiElement element, PsiElement originalElement) {
-    return getDocForMavenPluginParameter(element, false);
-  }
+@ExtensionImpl
+public class MavenPluginModelDocumentationProvider implements LanguageDocumentationProvider
+{
+	@Override
+	public String getQuickNavigateInfo(PsiElement element, PsiElement originalElement)
+	{
+		return getDocForMavenPluginParameter(element, false);
+	}
 
-  public List<String> getUrlFor(PsiElement element, PsiElement originalElement) {
-    return null;
-  }
+	@Override
+	public String generateDoc(PsiElement element, PsiElement originalElement)
+	{
+		return getDocForMavenPluginParameter(element, true);
+	}
 
-  public String generateDoc(PsiElement element, PsiElement originalElement) {
-    return getDocForMavenPluginParameter(element, true);
-  }
+	private String getDocForMavenPluginParameter(PsiElement element, boolean html)
+	{
+		MavenPluginConfigurationDomExtender.ParameterData p = element.getUserData(MavenPluginConfigurationDomExtender.PLUGIN_PARAMETER_KEY);
+		if(p == null)
+		{
+			return null;
+		}
 
-  public PsiElement getDocumentationElementForLookupItem(PsiManager psiManager, Object object, PsiElement element) {
-    return null;
-  }
+		String[] ss = html ? new String[]{
+				"<br>",
+				"<b>",
+				"</b>",
+				"<i>",
+				"</i>"
+		}
+				: new String[]{
+				"\n ",
+				"",
+				"",
+				"",
+				""
+		};
 
-  public PsiElement getDocumentationElementForLink(PsiManager psiManager, String link, PsiElement context) {
-    return null;
-  }
+		String text = "";
+		if(html)
+		{
+			text += "Type: " + ss[1] + p.parameter.getType().getStringValue() + ss[2] + ss[0];
+			if(p.defaultValue != null)
+			{
+				text += "Default Value: " + ss[1] + p.defaultValue + ss[2] + ss[0];
+			}
+			if(p.expression != null)
+			{
+				text += "Expression: " + ss[1] + p.expression + ss[2] + ss[0];
+			}
+			if(p.parameter.getRequired().getValue() == Boolean.TRUE)
+			{
+				text += ss[1] + "Required" + ss[2] + ss[0];
+			}
+			text += ss[0];
+		}
+		text += ss[3] + p.parameter.getDescription().getStringValue() + ss[4];
+		return text;
+	}
 
-  private String getDocForMavenPluginParameter(PsiElement element, boolean html) {
-    MavenPluginConfigurationDomExtender.ParameterData p = element.getUserData(MavenPluginConfigurationDomExtender.PLUGIN_PARAMETER_KEY);
-    if (p == null) return null;
-
-    String[] ss = html ? new String[]{"<br>", "<b>", "</b>", "<i>", "</i>"}
-                       : new String[]{"\n ", "", "", "", ""};
-
-    String text = "";
-    if (html) {
-      text += "Type: " + ss[1] + p.parameter.getType().getStringValue() + ss[2] + ss[0];
-      if (p.defaultValue != null) text += "Default Value: " + ss[1] + p.defaultValue + ss[2] + ss[0];
-      if (p.expression != null) text += "Expression: " + ss[1] + p.expression + ss[2] + ss[0];
-      if (p.parameter.getRequired().getValue() == Boolean.TRUE) text += ss[1] + "Required" + ss[2] + ss[0];
-      text += ss[0];
-    }
-    text += ss[3] + p.parameter.getDescription().getStringValue() + ss[4];
-    return text;
-  }
+	@Nonnull
+	@Override
+	public Language getLanguage()
+	{
+		return XMLLanguage.INSTANCE;
+	}
 }

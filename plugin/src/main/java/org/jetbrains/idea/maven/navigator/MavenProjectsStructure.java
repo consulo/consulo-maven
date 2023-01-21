@@ -15,34 +15,38 @@
  */
 package org.jetbrains.idea.maven.navigator;
 
-import com.intellij.execution.ProgramRunnerUtil;
-import com.intellij.execution.RunManager;
-import com.intellij.execution.RunnerAndConfigurationSettings;
-import com.intellij.execution.executors.DefaultRunExecutor;
-import com.intellij.icons.AllIcons;
-import com.intellij.ide.util.treeView.NodeDescriptor;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.popup.JBPopupFactory;
-import com.intellij.openapi.util.Comparing;
-import com.intellij.openapi.util.Pair;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.pom.Navigatable;
-import com.intellij.pom.NavigatableAdapter;
-import com.intellij.psi.xml.XmlElement;
-import com.intellij.ui.JBColor;
-import com.intellij.ui.SimpleTextAttributes;
-import com.intellij.ui.components.JBList;
-import com.intellij.ui.treeStructure.*;
-import com.intellij.util.ObjectUtils;
-import com.intellij.util.PathUtil;
-import com.intellij.util.containers.ContainerUtil;
+import consulo.application.AllIcons;
 import consulo.disposer.Disposer;
+import consulo.execution.ProgramRunnerUtil;
+import consulo.execution.RunManager;
+import consulo.execution.RunnerAndConfigurationSettings;
+import consulo.execution.executor.DefaultRunExecutor;
+import consulo.ide.impl.idea.ui.treeStructure.SimpleTreeBuilder;
+import consulo.maven.rt.server.common.model.*;
+import consulo.navigation.Navigatable;
+import consulo.navigation.NavigatableAdapter;
 import consulo.platform.base.icon.PlatformIconGroup;
-import icons.ExternalSystemIcons;
-import icons.MavenIcons;
+import consulo.project.Project;
+import consulo.ui.ex.JBColor;
+import consulo.ui.ex.SimpleTextAttributes;
+import consulo.ui.ex.awt.tree.CachingSimpleNode;
+import consulo.ui.ex.awt.tree.SimpleNode;
+import consulo.ui.ex.awt.tree.SimpleTree;
+import consulo.ui.ex.awt.tree.SimpleTreeStructure;
+import consulo.ui.ex.popup.IPopupChooserBuilder;
+import consulo.ui.ex.popup.JBPopupFactory;
+import consulo.ui.ex.tree.NodeDescriptor;
+import consulo.util.collection.ContainerUtil;
+import consulo.util.io.PathUtil;
+import consulo.util.lang.Comparing;
+import consulo.util.lang.ObjectUtil;
+import consulo.util.lang.Pair;
+import consulo.util.lang.StringUtil;
+import consulo.virtualFileSystem.VirtualFile;
+import consulo.xml.psi.xml.XmlElement;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.TestOnly;
+import org.jetbrains.idea.maven.MavenIcons;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
 import org.jetbrains.idea.maven.dom.MavenPluginDomUtil;
 import org.jetbrains.idea.maven.dom.model.MavenDomProfile;
@@ -54,7 +58,6 @@ import org.jetbrains.idea.maven.dom.plugin.MavenDomPluginModel;
 import org.jetbrains.idea.maven.execution.MavenRunConfiguration;
 import org.jetbrains.idea.maven.execution.MavenRunConfigurationType;
 import org.jetbrains.idea.maven.execution.MavenRunner;
-import org.jetbrains.idea.maven.model.*;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.tasks.MavenShortcutsManager;
@@ -68,9 +71,9 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.awt.event.InputEvent;
-import java.net.URL;
 import java.util.List;
 import java.util.*;
+import java.util.function.Predicate;
 
 import static org.jetbrains.idea.maven.project.ProjectBundle.message;
 
@@ -93,11 +96,11 @@ public class MavenProjectsStructure extends SimpleTreeStructure
 	private final Map<MavenProject, ProjectNode> myProjectToNodeMapping = new HashMap<>();
 
 	public MavenProjectsStructure(Project project,
-			MavenProjectsManager projectsManager,
-			MavenTasksManager tasksManager,
-			MavenShortcutsManager shortcutsManager,
-			MavenProjectsNavigator projectsNavigator,
-			SimpleTree tree)
+								  MavenProjectsManager projectsManager,
+								  MavenTasksManager tasksManager,
+								  MavenShortcutsManager shortcutsManager,
+								  MavenProjectsNavigator projectsNavigator,
+								  SimpleTree tree)
 	{
 		myProject = project;
 		myProjectsManager = projectsManager;
@@ -282,7 +285,7 @@ public class MavenProjectsStructure extends SimpleTreeStructure
 		}
 	}
 
-	public void accept(SimpleNodeVisitor visitor)
+	public void accept(Predicate<SimpleNode> visitor)
 	{
 		((SimpleTree) myTreeBuilder.getTree()).accept(myTreeBuilder, visitor);
 	}
@@ -428,6 +431,11 @@ public class MavenProjectsStructure extends SimpleTreeStructure
 		{
 			super(MavenProjectsStructure.this.myProject, null);
 			setParent(parent);
+		}
+
+		public Project getProject()
+		{
+			return myProject;
 		}
 
 		public void setParent(MavenSimpleNode parent)
@@ -896,8 +904,8 @@ public class MavenProjectsStructure extends SimpleTreeStructure
 					@Override
 					public void navigate(final boolean requestFocus)
 					{
-						final JBList list = new JBList(profiles);
-						list.setCellRenderer(new DefaultListCellRenderer()
+						IPopupChooserBuilder<MavenDomProfile> builder = JBPopupFactory.getInstance().createPopupChooserBuilder(profiles);
+						builder.setRenderer(new DefaultListCellRenderer()
 						{
 							@Override
 							public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus)
@@ -912,9 +920,9 @@ public class MavenProjectsStructure extends SimpleTreeStructure
 								return result;
 							}
 						});
-						JBPopupFactory.getInstance().createListPopupBuilder(list).setTitle("Choose file to open ").setItemChoosenCallback(() ->
+						builder.setTitle("Choose file to open ");
+						builder.setItemChosenCallback(value ->
 						{
-							final Object value = list.getSelectedValue();
 							if(value instanceof MavenDomProfile)
 							{
 								final Navigatable navigatable = getNavigatable((MavenDomProfile) value);
@@ -923,7 +931,8 @@ public class MavenProjectsStructure extends SimpleTreeStructure
 									navigatable.navigate(requestFocus);
 								}
 							}
-						}).createPopup().showInFocusCenter();
+						});
+						builder.createPopup().showInFocusCenter();
 					}
 				};
 			}
@@ -1134,7 +1143,7 @@ public class MavenProjectsStructure extends SimpleTreeStructure
 
 		private String wrappedText(MavenProjectProblem each)
 		{
-			String description = ObjectUtils.chooseNotNull(each.getDescription(), each.getPath());
+			String description = ObjectUtil.chooseNotNull(each.getDescription(), each.getPath());
 			if(description == null)
 			{
 				return "";
@@ -1234,7 +1243,7 @@ public class MavenProjectsStructure extends SimpleTreeStructure
 			myMavenProject = findParent(ProjectNode.class).getMavenProject();
 			myGoal = goal;
 			myDisplayName = displayName;
-			setIcon(ExternalSystemIcons.Task);
+			setIcon(PlatformIconGroup.nodesTask());
 		}
 
 		public MavenProject getMavenProject()
@@ -1777,7 +1786,7 @@ public class MavenProjectsStructure extends SimpleTreeStructure
 		public RunConfigurationsNode(ProjectNode parent)
 		{
 			super(parent);
-			setIcon(ExternalSystemIcons.Task);
+			setIcon(PlatformIconGroup.nodesTask());
 		}
 
 		@Override

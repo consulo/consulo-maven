@@ -2,7 +2,7 @@
   <components>
     <component>
       <role>org.apache.maven.artifact.resolver.ArtifactResolver</role>
-      <implementation>org.jetbrains.idea.maven.artifactResolver.MyArtifactResolver</implementation>
+      <implementation>org.jetbrains.idea.maven.rt.m2.artifactResolver.MyArtifactResolver</implementation>
       <requirements>
         <requirement>
           <role>org.apache.maven.artifact.manager.WagonManager</role>

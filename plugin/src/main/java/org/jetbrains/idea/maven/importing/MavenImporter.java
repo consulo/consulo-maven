@@ -15,46 +15,41 @@
  */
 package org.jetbrains.idea.maven.importing;
 
+import consulo.annotation.component.ComponentScope;
+import consulo.annotation.component.ExtensionAPI;
+import consulo.component.extension.ExtensionPointName;
+import consulo.content.ContentFolderTypeProvider;
+import consulo.language.content.ProductionContentFolderTypeProvider;
+import consulo.language.content.TestContentFolderTypeProvider;
+import consulo.maven.rt.server.common.model.MavenArtifact;
+import consulo.maven.rt.server.common.server.NativeMavenProjectHolder;
+import consulo.module.Module;
+import consulo.module.content.layer.ModifiableRootModel;
+import consulo.module.extension.ModuleExtension;
+import consulo.module.extension.MutableModuleExtension;
+import consulo.project.Project;
+import consulo.util.collection.MultiMap;
+import consulo.util.collection.SmartList;
+import consulo.util.lang.Pair;
+import org.jetbrains.idea.maven.project.*;
+import org.jetbrains.idea.maven.server.MavenEmbedderWrapper;
+import org.jetbrains.idea.maven.utils.MavenProcessCanceledException;
+
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.Nullable;
-
-import org.jetbrains.idea.maven.model.MavenArtifact;
-import org.jetbrains.idea.maven.project.MavenProject;
-import org.jetbrains.idea.maven.project.MavenProjectChanges;
-import org.jetbrains.idea.maven.project.MavenProjectsProcessorTask;
-import org.jetbrains.idea.maven.project.MavenProjectsTree;
-import org.jetbrains.idea.maven.project.ResolveContext;
-import org.jetbrains.idea.maven.project.SupportedRequestType;
-import org.jetbrains.idea.maven.server.MavenEmbedderWrapper;
-import org.jetbrains.idea.maven.server.NativeMavenProjectHolder;
-import org.jetbrains.idea.maven.utils.MavenProcessCanceledException;
-import com.intellij.openapi.extensions.ExtensionPointName;
-import com.intellij.openapi.module.Module;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.roots.ModifiableRootModel;
-import com.intellij.openapi.util.Pair;
-import com.intellij.util.SmartList;
-import com.intellij.util.containers.MultiMap;
-import consulo.module.extension.ModuleExtension;
-import consulo.module.extension.MutableModuleExtension;
-import consulo.roots.ContentFolderTypeProvider;
-import consulo.roots.impl.ProductionContentFolderTypeProvider;
-import consulo.roots.impl.TestContentFolderTypeProvider;
-
-
+@ExtensionAPI(ComponentScope.APPLICATION)
 public abstract class MavenImporter
 {
-	public static ExtensionPointName<MavenImporter> EXTENSION_POINT_NAME = ExtensionPointName.create("org.jetbrains.idea.maven.importer");
-
+	public static ExtensionPointName<MavenImporter> EP_NAME = ExtensionPointName.create(MavenImporter.class);
 
 	public static List<MavenImporter> getSuitableImporters(MavenProject p)
 	{
-		final List<MavenImporter> result = new ArrayList<MavenImporter>();
-		for(MavenImporter importer : EXTENSION_POINT_NAME.getExtensions())
+		final List<MavenImporter> result = new ArrayList<>();
+		for(MavenImporter importer : EP_NAME.getExtensionList())
 		{
 			if(importer.isApplicable(p))
 			{
@@ -92,7 +87,7 @@ public abstract class MavenImporter
 	{
 	}
 
-	public abstract void preProcess(Module module, MavenProject mavenProject, MavenProjectChanges changes, MavenModifiableModelsProvider modifiableModelsProvider);
+	public abstract void preProcess(consulo.module.Module module, MavenProject mavenProject, MavenProjectChanges changes, MavenModifiableModelsProvider modifiableModelsProvider);
 
 	public abstract void process(MavenModifiableModelsProvider modifiableModelsProvider,
 			Module module,
@@ -104,7 +99,7 @@ public abstract class MavenImporter
 			List<MavenProjectsProcessorTask> postTasks);
 
 	@SuppressWarnings("unchecked")
-	public <T extends ModuleExtension<T>> T enableModuleExtension(Module module, MavenModifiableModelsProvider modelsProvider, Class<T> clazz)
+	public <T extends ModuleExtension<T>> T enableModuleExtension(consulo.module.Module module, MavenModifiableModelsProvider modelsProvider, Class<T> clazz)
 	{
 		final ModifiableRootModel rootModel = modelsProvider.getRootModel(module);
 

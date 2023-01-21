@@ -15,12 +15,13 @@
  */
 package org.jetbrains.idea.maven.dom.references;
 
-import com.intellij.openapi.util.TextRange;
-import com.intellij.pom.Navigatable;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiNamedElement;
-import com.intellij.psi.impl.RenameableFakePsiElement;
+import consulo.document.util.TextRange;
+import consulo.navigation.Navigatable;
+import consulo.language.psi.PsiElement;
+import consulo.language.psi.PsiNamedElement;
+import consulo.language.impl.psi.RenameableFakePsiElement;
 import consulo.ui.image.Image;
+import org.jetbrains.idea.maven.MavenIcons;
 
 public class MavenPsiElementWrapper extends RenameableFakePsiElement {
   private final PsiElement myWrappee;
@@ -55,7 +56,7 @@ public class MavenPsiElementWrapper extends RenameableFakePsiElement {
   }
 
   public Image getIcon() {
-    return icons.MavenIcons.MavenLogo;
+    return MavenIcons.MavenLogo;
   }
 
   @Override

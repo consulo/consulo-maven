@@ -15,11 +15,11 @@
  */
 package org.jetbrains.idea.maven.utils;
 
-import com.intellij.openapi.util.Comparing;
-import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.openapi.util.text.StringUtil;
+import consulo.maven.rt.server.common.model.MavenId;
+import consulo.util.io.StreamUtil;
+import consulo.util.lang.Comparing;
+import consulo.util.lang.StringUtil;
 import org.jetbrains.idea.maven.indices.IndicesBundle;
-import org.jetbrains.idea.maven.model.MavenId;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -206,15 +206,10 @@ public class MavenArtifactUtil
 					return null;
 				}
 
-				InputStream is = jar.getInputStream(entry);
-				try
+				try (InputStream is = jar.getInputStream(entry))
 				{
-					byte[] bytes = FileUtil.loadBytes(is);
+					byte[] bytes = StreamUtil.loadFromStream(is);
 					return new MavenPluginInfo(bytes);
-				}
-				finally
-				{
-					is.close();
 				}
 			}
 			finally

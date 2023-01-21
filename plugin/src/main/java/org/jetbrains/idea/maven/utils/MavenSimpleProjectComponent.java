@@ -15,8 +15,8 @@
  */
 package org.jetbrains.idea.maven.utils;
 
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.project.Project;
+import consulo.application.ApplicationManager;
+import consulo.project.Project;
 
 public abstract class MavenSimpleProjectComponent
 {

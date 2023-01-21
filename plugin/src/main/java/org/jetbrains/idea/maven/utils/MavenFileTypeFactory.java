@@ -15,20 +15,21 @@
  */
 package org.jetbrains.idea.maven.utils;
 
-import com.intellij.ide.highlighter.XmlFileType;
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.fileTypes.FileTypeConsumer;
-import com.intellij.openapi.fileTypes.FileTypeFactory;
+import consulo.annotation.component.ExtensionImpl;
+import consulo.maven.rt.server.common.model.MavenConstants;
+import consulo.virtualFileSystem.fileType.FileTypeConsumer;
+import consulo.virtualFileSystem.fileType.FileTypeFactory;
+import consulo.xml.ide.highlighter.XmlFileType;
+
 import javax.annotation.Nonnull;
-import org.jetbrains.idea.maven.model.MavenConstants;
 
 /**
  * @author yole
  */
+@ExtensionImpl
 public class MavenFileTypeFactory extends FileTypeFactory {
   @Override
   public void createFileTypes(@Nonnull FileTypeConsumer consumer) {
-    if (ApplicationManager.getApplication().isUnitTestMode()) return;
     consumer.consume(XmlFileType.INSTANCE, MavenConstants.POM_EXTENSION);
   }
 }

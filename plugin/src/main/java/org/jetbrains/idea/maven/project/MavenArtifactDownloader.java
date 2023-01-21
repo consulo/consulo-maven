@@ -15,19 +15,20 @@
  */
 package org.jetbrains.idea.maven.project;
 
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.application.ReadAction;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Pair;
-import com.intellij.openapi.vfs.LocalFileSystem;
+import consulo.application.ApplicationManager;
+import consulo.project.Project;
+import consulo.virtualFileSystem.LocalFileSystem;
+import consulo.application.ReadAction;
+import consulo.maven.rt.server.common.model.*;
+import consulo.util.lang.Pair;
 import org.jetbrains.idea.maven.importing.MavenExtraArtifactType;
-import org.jetbrains.idea.maven.model.*;
 import org.jetbrains.idea.maven.server.MavenEmbedderWrapper;
 import org.jetbrains.idea.maven.utils.MavenLog;
 import org.jetbrains.idea.maven.utils.MavenProcessCanceledException;
 import org.jetbrains.idea.maven.utils.MavenProgressIndicator;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.File;
 import java.util.*;
 import java.util.concurrent.*;
@@ -57,7 +58,7 @@ public class MavenArtifactDownloader
 	public static DownloadResult download(@Nonnull Project project,
 			MavenProjectsTree projectsTree,
 			Collection<MavenProject> mavenProjects,
-			@javax.annotation.Nullable Collection<MavenArtifact> artifacts,
+			@Nullable Collection<MavenArtifact> artifacts,
 			boolean downloadSources,
 			boolean downloadDocs,
 			MavenEmbedderWrapper embedder,

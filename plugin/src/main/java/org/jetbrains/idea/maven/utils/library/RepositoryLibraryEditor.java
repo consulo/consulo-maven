@@ -15,10 +15,10 @@
  */
 package org.jetbrains.idea.maven.utils.library;
 
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.roots.libraries.NewLibraryConfiguration;
-import com.intellij.openapi.roots.libraries.ui.LibraryEditorComponent;
-import com.intellij.openapi.roots.ui.configuration.libraryEditor.LibraryEditorBase;
+import consulo.content.library.ui.LibraryEditorComponent;
+import consulo.ide.impl.idea.openapi.roots.ui.configuration.libraryEditor.LibraryEditorBase;
+import consulo.content.library.NewLibraryConfiguration;
+import consulo.project.Project;
 
 /**
  * @author nik

@@ -1,22 +1,22 @@
 // Copyright 2000-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.idea.maven.dom.references;
 
-import com.intellij.openapi.util.Condition;
-import com.intellij.openapi.util.Conditions;
-import com.intellij.openapi.util.TextRange;
-import com.intellij.openapi.vfs.LocalFileSystem;
-import com.intellij.openapi.vfs.VfsUtil;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.*;
-import com.intellij.psi.impl.source.resolve.reference.impl.providers.FileReference;
-import com.intellij.psi.impl.source.resolve.reference.impl.providers.FileReferenceSet;
-import com.intellij.psi.impl.source.xml.XmlFileImpl;
-import com.intellij.util.xml.ConvertContext;
-import com.intellij.util.xml.DomElement;
-import com.intellij.util.xml.DomUtil;
-import com.intellij.util.xml.GenericDomValue;
-import com.intellij.util.xml.converters.PathReferenceConverter;
+import consulo.document.util.TextRange;
+import consulo.ide.impl.idea.openapi.vfs.VfsUtil;
+import consulo.language.psi.*;
+import consulo.language.psi.path.FileReference;
+import consulo.language.psi.path.FileReferenceSet;
 import consulo.platform.Platform;
+import consulo.util.lang.function.Condition;
+import consulo.util.lang.function.Conditions;
+import consulo.virtualFileSystem.LocalFileSystem;
+import consulo.virtualFileSystem.VirtualFile;
+import consulo.xml.psi.impl.source.xml.XmlFileImpl;
+import consulo.xml.util.xml.ConvertContext;
+import consulo.xml.util.xml.DomElement;
+import consulo.xml.util.xml.DomUtil;
+import consulo.xml.util.xml.GenericDomValue;
+import consulo.xml.util.xml.converters.PathReferenceConverter;
 import org.jetbrains.idea.maven.dom.MavenPropertyResolver;
 import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
 
@@ -62,7 +62,7 @@ public class MavenPathReferenceConverter extends PathReferenceConverter
 			private MavenDomProjectModel model;
 
 			@Override
-			protected Condition<PsiFileSystemItem> getReferenceCompletionFilter()
+			public Condition<PsiFileSystemItem> getReferenceCompletionFilter()
 			{
 				return fileFilter;
 			}
@@ -192,7 +192,7 @@ public class MavenPathReferenceConverter extends PathReferenceConverter
 
 				if(virtualFile == null)
 				{
-					return FileReferenceSet.ABSOLUTE_TOP_LEVEL.fun(file);
+					return FileReferenceSet.ABSOLUTE_TOP_LEVEL.apply(file);
 				}
 
 				virtualFile = VfsUtil.getRootFile(virtualFile);
@@ -200,7 +200,7 @@ public class MavenPathReferenceConverter extends PathReferenceConverter
 
 				if(root == null)
 				{
-					return FileReferenceSet.ABSOLUTE_TOP_LEVEL.fun(file);
+					return FileReferenceSet.ABSOLUTE_TOP_LEVEL.apply(file);
 				}
 
 				return Collections.singletonList(root);

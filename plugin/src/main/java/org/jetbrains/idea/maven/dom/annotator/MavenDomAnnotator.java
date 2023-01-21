@@ -15,26 +15,26 @@
  */
 package org.jetbrains.idea.maven.dom.annotator;
 
-import com.intellij.codeInspection.LocalQuickFix;
-import com.intellij.codeInspection.ProblemDescriptor;
-import com.intellij.lang.annotation.HighlightSeverity;
-import com.intellij.openapi.fileEditor.OpenFileDescriptor;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Comparing;
-import com.intellij.openapi.vfs.LocalFileSystem;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.util.xml.DomElement;
-import com.intellij.util.xml.DomUtil;
-import com.intellij.util.xml.highlighting.DomElementAnnotationHolder;
-import com.intellij.util.xml.highlighting.DomElementsAnnotator;
-import javax.annotation.Nonnull;
+import consulo.language.editor.annotation.HighlightSeverity;
+import consulo.language.editor.inspection.LocalQuickFix;
+import consulo.language.editor.inspection.ProblemDescriptor;
+import consulo.maven.rt.server.common.model.MavenProjectProblem;
+import consulo.navigation.OpenFileDescriptorFactory;
+import consulo.project.Project;
+import consulo.util.lang.Comparing;
+import consulo.virtualFileSystem.LocalFileSystem;
+import consulo.virtualFileSystem.VirtualFile;
+import consulo.xml.util.xml.DomElement;
+import consulo.xml.util.xml.DomUtil;
+import consulo.xml.util.xml.highlighting.DomElementAnnotationHolder;
+import consulo.xml.util.xml.highlighting.DomElementsAnnotator;
 import org.jetbrains.idea.maven.dom.MavenDomBundle;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
 import org.jetbrains.idea.maven.dom.model.MavenDomParent;
 import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
-import org.jetbrains.idea.maven.model.MavenProjectProblem;
 import org.jetbrains.idea.maven.project.MavenProject;
 
+import javax.annotation.Nonnull;
 import java.util.Arrays;
 
 public class MavenDomAnnotator implements DomElementsAnnotator {
@@ -86,7 +86,7 @@ public class MavenDomAnnotator implements DomElementsAnnotator {
     }
 
     public void applyFix(@Nonnull Project project, @Nonnull ProblemDescriptor descriptor) {
-      new OpenFileDescriptor(project, myFile).navigate(true);
+      OpenFileDescriptorFactory.getInstance(project).builder(myFile).build().navigate(true);
     }
   }
 }

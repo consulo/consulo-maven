@@ -16,13 +16,18 @@
 
 package org.jetbrains.idea.maven.utils;
 
-import java.io.File;
-
-import com.intellij.openapi.application.PathMacros;
+import consulo.annotation.component.ComponentScope;
+import consulo.annotation.component.ServiceAPI;
+import consulo.annotation.component.ServiceImpl;
+import consulo.application.macro.PathMacros;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
+import java.io.File;
+
 @Singleton
+@ServiceAPI(value = ComponentScope.APPLICATION, lazy = false)
+@ServiceImpl
 public class MavenEnvironmentRegistrar
 {
 	private static final String MAVEN_REPOSITORY = "MAVEN_REPOSITORY";

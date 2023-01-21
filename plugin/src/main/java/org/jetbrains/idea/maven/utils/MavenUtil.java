@@ -15,63 +15,66 @@
  */
 package org.jetbrains.idea.maven.utils;
 
-import com.intellij.codeInsight.lookup.LookupElement;
-import com.intellij.codeInsight.lookup.LookupElementBuilder;
-import com.intellij.codeInsight.template.TemplateManager;
-import com.intellij.codeInsight.template.impl.TemplateImpl;
-import com.intellij.execution.configurations.ParametersList;
-import com.intellij.ide.fileTemplates.FileTemplate;
-import com.intellij.ide.fileTemplates.FileTemplateManager;
-import com.intellij.notification.Notification;
-import com.intellij.notification.NotificationType;
-import com.intellij.notification.Notifications;
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.application.ModalityState;
-import com.intellij.openapi.application.impl.LaterInvocator;
-import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.fileEditor.FileEditorManager;
-import com.intellij.openapi.fileEditor.OpenFileDescriptor;
-import com.intellij.openapi.module.Module;
-import com.intellij.openapi.module.ModuleUtilCore;
-import com.intellij.openapi.progress.ProcessCanceledException;
-import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.progress.ProgressManager;
-import com.intellij.openapi.progress.Task;
-import com.intellij.openapi.project.DumbService;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.projectRoots.Sdk;
-import com.intellij.openapi.projectRoots.SdkTable;
-import com.intellij.openapi.startup.StartupManager;
-import com.intellij.openapi.util.Comparing;
-import com.intellij.openapi.util.Pair;
-import com.intellij.openapi.util.SystemInfo;
-import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.openapi.util.io.JarUtil;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.openapi.vfs.LocalFileSystem;
-import com.intellij.openapi.vfs.VfsUtil;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiManager;
-import com.intellij.util.DisposeAwareRunnable;
-import com.intellij.util.Function;
-import com.intellij.util.SystemProperties;
-import com.intellij.util.concurrency.AppExecutorUtil;
-import com.intellij.util.concurrency.Semaphore;
-import com.intellij.util.containers.ContainerUtil;
+import consulo.application.Application;
+import consulo.application.ApplicationManager;
+import consulo.application.progress.ProgressIndicator;
+import consulo.application.progress.ProgressManager;
+import consulo.application.progress.Task;
+import consulo.application.util.Semaphore;
+import consulo.application.util.SystemInfo;
+import consulo.application.util.concurrent.AppExecutorUtil;
+import consulo.codeEditor.Editor;
+import consulo.component.ProcessCanceledException;
 import consulo.container.boot.ContainerPathManager;
-import consulo.java.module.extension.JavaModuleExtension;
+import consulo.content.bundle.Sdk;
+import consulo.content.bundle.SdkTable;
+import consulo.fileEditor.FileEditorManager;
+import consulo.fileTemplate.FileTemplate;
+import consulo.fileTemplate.FileTemplateManager;
+import consulo.ide.impl.idea.openapi.util.io.JarUtil;
+import consulo.ide.impl.idea.openapi.vfs.VfsUtil;
+import consulo.ide.impl.idea.util.DisposeAwareRunnable;
+import consulo.java.language.module.extension.JavaModuleExtension;
+import consulo.language.editor.completion.lookup.LookupElement;
+import consulo.language.editor.completion.lookup.LookupElementBuilder;
+import consulo.language.editor.template.Template;
+import consulo.language.editor.template.TemplateManager;
+import consulo.language.psi.PsiFile;
+import consulo.language.psi.PsiManager;
+import consulo.language.util.ModuleUtilCore;
+import consulo.maven.MavenNotificationGroup;
 import consulo.maven.bundle.MavenBundleType;
+import consulo.maven.rt.server.common.model.MavenConstants;
+import consulo.maven.rt.server.common.model.MavenId;
+import consulo.maven.rt.server.common.model.MavenPlugin;
+import consulo.maven.rt.server.common.server.MavenServerUtil;
+import consulo.module.Module;
+import consulo.navigation.OpenFileDescriptor;
+import consulo.navigation.OpenFileDescriptorFactory;
+import consulo.platform.base.icon.PlatformIconGroup;
+import consulo.process.cmd.ParametersList;
+import consulo.project.DumbService;
+import consulo.project.Project;
+import consulo.project.startup.StartupManager;
+import consulo.project.ui.notification.Notification;
+import consulo.project.ui.notification.NotificationType;
+import consulo.project.ui.notification.Notifications;
+import consulo.ui.ModalityState;
+import consulo.ui.UIAccess;
 import consulo.ui.image.ImageKey;
-import consulo.vfs.util.ArchiveVfsUtil;
-import icons.ExternalSystemIcons;
-import org.jetbrains.idea.maven.model.MavenConstants;
-import org.jetbrains.idea.maven.model.MavenId;
-import org.jetbrains.idea.maven.model.MavenPlugin;
+import consulo.util.collection.ContainerUtil;
+import consulo.util.io.FileUtil;
+import consulo.util.lang.Comparing;
+import consulo.util.lang.Pair;
+import consulo.util.lang.StringUtil;
+import consulo.util.lang.SystemProperties;
+import consulo.virtualFileSystem.LocalFileSystem;
+import consulo.virtualFileSystem.VirtualFile;
+import consulo.virtualFileSystem.archive.ArchiveVfsUtil;
+import consulo.virtualFileSystem.util.VirtualFileUtil;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.server.MavenServerManager;
-import org.jetbrains.idea.maven.server.MavenServerUtil;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
@@ -85,6 +88,7 @@ import javax.xml.parsers.SAXParserFactory;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -95,7 +99,6 @@ import java.util.zip.CRC32;
 
 public class MavenUtil
 {
-	public static final String MAVEN_NOTIFICATION_GROUP = "Maven";
 	public static final String SETTINGS_XML = "settings.xml";
 	public static final String DOT_M2_DIR = ".m2";
 	public static final String PROP_USER_HOME = "user.home";
@@ -141,7 +144,7 @@ public class MavenUtil
 
 	public static void invokeLater(Project p, Runnable r)
 	{
-		invokeLater(p, ModalityState.defaultModalityState(), r);
+		invokeLater(p, Application.get().getDefaultModalityState(), r);
 	}
 
 	public static void invokeLater(final Project p, final ModalityState state, final Runnable r)
@@ -158,7 +161,7 @@ public class MavenUtil
 
 	public static void invokeAndWait(Project p, Runnable r)
 	{
-		invokeAndWait(p, ModalityState.defaultModalityState(), r);
+		invokeAndWait(p, Application.get().getDefaultModalityState(), r);
 	}
 
 	public static void invokeAndWait(final Project p, final ModalityState state, final Runnable r)
@@ -266,13 +269,13 @@ public class MavenUtil
 		{
 			return false;
 		}
-		return LaterInvocator.isInModalContext();
+		return UIAccess.current().isInModalContext();
 	}
 
 	public static void showError(Project project, String title, Throwable e)
 	{
 		MavenLog.LOG.warn(title, e);
-		Notifications.Bus.notify(new Notification(MAVEN_NOTIFICATION_GROUP, title, e.getMessage(), NotificationType.ERROR), project);
+		Notifications.Bus.notify(new Notification(MavenNotificationGroup.ROOT, title, e.getMessage(), NotificationType.ERROR), project);
 	}
 
 	public static File getPluginSystemDir(String folder)
@@ -333,26 +336,12 @@ public class MavenUtil
 
 	public static List<String> collectPaths(List<VirtualFile> files)
 	{
-		return ContainerUtil.map(files, new Function<VirtualFile, String>()
-		{
-			@Override
-			public String fun(VirtualFile file)
-			{
-				return file.getPath();
-			}
-		});
+		return ContainerUtil.map(files, file -> file.getPath());
 	}
 
 	public static List<VirtualFile> collectFiles(Collection<MavenProject> projects)
 	{
-		return ContainerUtil.map(projects, new Function<MavenProject, VirtualFile>()
-		{
-			@Override
-			public VirtualFile fun(MavenProject project)
-			{
-				return project.getFile();
-			}
-		});
+		return ContainerUtil.map(projects, project -> project.getFile());
 	}
 
 	public static <T> boolean equalAsSets(final Collection<T> collection1, final Collection<T> collection2)
@@ -449,7 +438,7 @@ public class MavenUtil
 		matcher.appendTail(builder);
 		text = builder.toString();
 
-		TemplateImpl template = (TemplateImpl) TemplateManager.getInstance(project).createTemplate("", "", text);
+		Template template = TemplateManager.getInstance(project).createTemplate("", "", text);
 		for(int i = 0; i < template.getSegmentsCount(); i++)
 		{
 			if(i == template.getEndSegmentNumber())
@@ -463,14 +452,14 @@ public class MavenUtil
 
 		if(interactive)
 		{
-			OpenFileDescriptor descriptor = new OpenFileDescriptor(project, file);
+			OpenFileDescriptor descriptor = OpenFileDescriptorFactory.getInstance(project).builder(file).build();
 			Editor editor = FileEditorManager.getInstance(project).openTextEditor(descriptor, true);
 			editor.getDocument().setText("");
 			TemplateManager.getInstance(project).startTemplate(editor, template);
 		}
 		else
 		{
-			VfsUtil.saveText(file, template.getTemplateText());
+			VirtualFileUtil.saveText(file, template.getTemplateText());
 
 			PsiFile psiFile = PsiManager.getInstance(project).findFile(file);
 			if(psiFile != null)
@@ -632,7 +621,7 @@ public class MavenUtil
 	@Nullable
 	public static File resolveMavenHomeDirectory(@Nullable String mavenBundleName)
 	{
-		if(!consulo.util.lang.StringUtil.isEmptyOrSpaces(mavenBundleName))
+		if(!StringUtil.isEmptyOrSpaces(mavenBundleName))
 		{
 			Sdk sdk = SdkTable.getInstance().findSdk(mavenBundleName);
 			if(sdk != null)
@@ -648,7 +637,7 @@ public class MavenUtil
 		}
 
 		String m2home = System.getenv(ENV_M2_HOME);
-		if(!consulo.util.lang.StringUtil.isEmptyOrSpaces(m2home))
+		if(!StringUtil.isEmptyOrSpaces(m2home))
 		{
 			final File homeFromEnv = new File(m2home);
 			if(isValidMavenHome(homeFromEnv))
@@ -658,7 +647,7 @@ public class MavenUtil
 		}
 
 		String mavenHome = System.getenv("MAVEN_HOME");
-		if(!consulo.util.lang.StringUtil.isEmptyOrSpaces(mavenHome))
+		if(!StringUtil.isEmptyOrSpaces(mavenHome))
 		{
 			final File mavenHomeFile = new File(mavenHome);
 			if(isValidMavenHome(mavenHomeFile))
@@ -668,7 +657,7 @@ public class MavenUtil
 		}
 
 		String userHome = SystemProperties.getUserHome();
-		if(!consulo.util.lang.StringUtil.isEmptyOrSpaces(userHome))
+		if(!StringUtil.isEmptyOrSpaces(userHome))
 		{
 			final File underUserHome = new File(userHome, M2_DIR);
 			if(isValidMavenHome(underUserHome))
@@ -855,7 +844,7 @@ public class MavenUtil
 	@Nonnull
 	public static File resolveUserSettingsFile(@Nullable String overriddenUserSettingsFile)
 	{
-		if(!consulo.util.lang.StringUtil.isEmptyOrSpaces(overriddenUserSettingsFile))
+		if(!StringUtil.isEmptyOrSpaces(overriddenUserSettingsFile))
 		{
 			return new File(overriddenUserSettingsFile);
 		}
@@ -872,7 +861,7 @@ public class MavenUtil
 	public static File resolveLocalRepository(@Nullable String overriddenLocalRepository, @Nullable String overriddenMavenHome, @Nullable String overriddenUserSettingsFile)
 	{
 		File result = null;
-		if(!consulo.util.lang.StringUtil.isEmptyOrSpaces(overriddenLocalRepository))
+		if(!StringUtil.isEmptyOrSpaces(overriddenLocalRepository))
 		{
 			result = new File(overriddenLocalRepository);
 		}
@@ -919,7 +908,7 @@ public class MavenUtil
 	{
 		try
 		{
-			byte[] bytes = FileUtil.loadFileBytes(file);
+			byte[] bytes = Files.readAllBytes(file.toPath());
 			return expandProperties(MavenJDOMUtil.findChildValueByPath(MavenJDOMUtil.read(bytes, null), "localRepository", null));
 		}
 		catch(IOException e)
@@ -1017,7 +1006,7 @@ public class MavenUtil
 		List<LookupElement> res = new ArrayList<LookupElement>(goals.size());
 		for(String goal : goals)
 		{
-			res.add(LookupElementBuilder.create(goal).withIcon(ExternalSystemIcons.Task));
+			res.add(LookupElementBuilder.create(goal).withIcon(PlatformIconGroup.nodesTask()));
 		}
 
 		return res;

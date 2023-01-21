@@ -15,21 +15,24 @@
  */
 package org.jetbrains.idea.maven.plugins.api;
 
-import com.intellij.openapi.extensions.AbstractExtensionPointBean;
-import com.intellij.openapi.extensions.ExtensionPointName;
-import com.intellij.openapi.util.Pair;
-import com.intellij.util.xml.Required;
-import com.intellij.util.xmlb.annotations.AbstractCollection;
-import com.intellij.util.xmlb.annotations.Attribute;
-import com.intellij.util.xmlb.annotations.Property;
-import com.intellij.util.xmlb.annotations.Tag;
+import consulo.annotation.component.ComponentScope;
+import consulo.annotation.component.ExtensionAPI;
+import consulo.component.extension.ExtensionPointName;
+import consulo.util.lang.Pair;
+import consulo.util.xml.serializer.annotation.AbstractCollection;
+import consulo.util.xml.serializer.annotation.Attribute;
+import consulo.util.xml.serializer.annotation.Property;
+import consulo.util.xml.serializer.annotation.Tag;
+import consulo.xml.util.xml.Required;
 
 /**
  * @author Sergey Evdokimov
  */
-public class MavenPluginDescriptor extends AbstractExtensionPointBean {
+@ExtensionAPI(ComponentScope.APPLICATION)
+@Deprecated
+public class MavenPluginDescriptor {
 
-  public static final ExtensionPointName<MavenPluginDescriptor> EP_NAME = ExtensionPointName.create("org.jetbrains.idea.maven.pluginDescriptor");
+  public static final ExtensionPointName<MavenPluginDescriptor> EP_NAME = ExtensionPointName.create(MavenPluginDescriptor.class);
 
   @Attribute("mavenId")
   @Required

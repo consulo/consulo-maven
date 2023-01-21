@@ -17,10 +17,10 @@ package org.jetbrains.idea.maven.project;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.ImmutableBiMap;
-import com.intellij.execution.process.ProcessHandler;
+import consulo.process.ProcessHandler;
 import org.jetbrains.idea.maven.execution.MavenExecutionOptions;
 import org.jetbrains.idea.maven.execution.RunnerBundle;
-import org.jetbrains.idea.maven.server.MavenServerConsole;
+import consulo.maven.rt.server.common.server.MavenServerConsole;
 
 import java.text.MessageFormat;
 

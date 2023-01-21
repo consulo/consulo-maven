@@ -19,7 +19,7 @@
 
 package org.jetbrains.idea.maven.dom.model;
 
-import com.intellij.util.xml.DefinesXml;
+import consulo.xml.util.xml.DefinesXml;
 
 /**
  * http://maven.apache.org/POM/4.0.0:configurationElemType interface.

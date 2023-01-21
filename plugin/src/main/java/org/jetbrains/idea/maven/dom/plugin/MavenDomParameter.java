@@ -15,7 +15,7 @@
  */
 package org.jetbrains.idea.maven.dom.plugin;
 
-import com.intellij.util.xml.GenericDomValue;
+import consulo.xml.util.xml.GenericDomValue;
 import javax.annotation.Nonnull;
 import org.jetbrains.idea.maven.dom.MavenDomElement;
 

@@ -15,21 +15,21 @@
  */
 package org.jetbrains.idea.maven.wizards;
 
-import com.intellij.ide.IdeBundle;
-import com.intellij.ide.util.ElementsChooser;
-import com.intellij.openapi.actionSystem.*;
-import com.intellij.refactoring.RefactoringBundle;
-import com.intellij.ui.IdeBorderFactory;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
-import com.intellij.util.ui.JBUI;
 import consulo.disposer.Disposable;
+import consulo.ide.IdeBundle;
+import consulo.language.editor.refactoring.RefactoringBundle;
 import consulo.maven.importProvider.MavenImportModuleContext;
 import consulo.ui.Component;
 import consulo.ui.annotation.RequiredUIAccess;
+import consulo.ui.ex.action.*;
+import consulo.ui.ex.awt.ElementsChooser;
+import consulo.ui.ex.awt.IdeBorderFactory;
+import consulo.ui.ex.awt.JBUI;
+import consulo.ui.ex.wizard.WizardStep;
+import consulo.ui.ex.wizard.WizardStepValidationException;
 import consulo.ui.image.Image;
-import consulo.ui.wizard.WizardStep;
-import consulo.ui.wizard.WizardStepValidationException;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.ProjectBundle;
 

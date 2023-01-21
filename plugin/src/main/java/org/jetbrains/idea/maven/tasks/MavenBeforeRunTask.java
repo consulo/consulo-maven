@@ -15,8 +15,8 @@
  */
 package org.jetbrains.idea.maven.tasks;
 
-import com.intellij.execution.BeforeRunTask;
-import com.intellij.openapi.util.io.FileUtil;
+import consulo.execution.BeforeRunTask;
+import consulo.util.io.FileUtil;
 import org.jdom.Element;
 import org.jetbrains.idea.maven.project.MavenProject;
 

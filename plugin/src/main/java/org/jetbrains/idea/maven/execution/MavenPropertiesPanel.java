@@ -15,8 +15,9 @@
  */
 package org.jetbrains.idea.maven.execution;
 
-import com.intellij.openapi.util.Pair;
-import com.intellij.ui.AddEditRemovePanel;
+import consulo.ui.ex.awt.AddEditRemovePanel;
+import consulo.util.lang.Pair;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -27,7 +28,8 @@ import java.util.List;
 /**
 * @author Sergey Evdokimov
 */
-public class MavenPropertiesPanel extends AddEditRemovePanel<Pair<String, String>> {
+public class MavenPropertiesPanel extends AddEditRemovePanel<Pair<String, String>>
+{
   private Map<String, String> myAvailableProperties;
 
   public MavenPropertiesPanel(Map<String, String> availableProperties) {
@@ -49,7 +51,7 @@ public class MavenPropertiesPanel extends AddEditRemovePanel<Pair<String, String
   }
 
   @Nullable
-  private Pair<String, String> doAddOrEdit(@javax.annotation.Nullable Pair<String, String> o) {
+  private Pair<String, String> doAddOrEdit(@Nullable Pair<String, String> o) {
     EditMavenPropertyDialog d = new EditMavenPropertyDialog(o, myAvailableProperties);
     d.show();
     if (!d.isOK()) return null;

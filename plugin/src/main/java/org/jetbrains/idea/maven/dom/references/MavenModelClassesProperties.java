@@ -16,10 +16,9 @@
 package org.jetbrains.idea.maven.dom.references;
 
 import com.google.common.collect.ImmutableMap;
-import com.intellij.psi.CommonClassNames;
-import com.intellij.util.containers.ContainerUtil;
-import javax.annotation.Nonnull;
+import com.intellij.java.language.psi.CommonClassNames;
 
+import javax.annotation.Nonnull;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -37,7 +36,7 @@ public class MavenModelClassesProperties {
   static {
     Map<String, Map<String, String>> res = new HashMap<String, Map<String, String>>();
 
-    res.put(MAVEN_PROJECT_CLASS, ContainerUtil.<String, String>immutableMapBuilder()
+    res.put(MAVEN_PROJECT_CLASS, ImmutableMap.<String, String>builder()
       .put("parentFile", "java.io.File")
       .put("artifact", "org.apache.maven.artifact.Artifact")
       .put("model", MAVEN_MODEL_CLASS)

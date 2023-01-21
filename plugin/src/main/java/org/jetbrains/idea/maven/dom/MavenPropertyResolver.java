@@ -15,6 +15,27 @@
  */
 package org.jetbrains.idea.maven.dom;
 
+import consulo.content.bundle.Sdk;
+import consulo.java.impl.module.extension.JavaModuleExtensionImpl;
+import consulo.language.util.ModuleUtilCore;
+import consulo.maven.rt.server.common.model.MavenId;
+import consulo.maven.rt.server.common.server.MavenServerUtil;
+import consulo.module.Module;
+import consulo.virtualFileSystem.VirtualFile;
+import consulo.xml.psi.xml.XmlElement;
+import consulo.xml.psi.xml.XmlTag;
+import org.jdom.Element;
+import org.jetbrains.idea.maven.compiler.MavenEscapeWindowsCharacterUtils;
+import org.jetbrains.idea.maven.dom.model.MavenDomProfile;
+import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
+import org.jetbrains.idea.maven.dom.model.MavenDomProperties;
+import org.jetbrains.idea.maven.dom.references.MavenFilteredPropertyPsiReferenceProvider;
+import org.jetbrains.idea.maven.project.MavenProject;
+import org.jetbrains.idea.maven.project.MavenProjectsManager;
+import org.jetbrains.idea.maven.utils.MavenJDOMUtil;
+import org.jetbrains.idea.maven.utils.MavenUtil;
+
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
@@ -22,27 +43,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.jdom.Element;
-import javax.annotation.Nullable;
-import org.jetbrains.idea.maven.compiler.MavenEscapeWindowsCharacterUtils;
-import org.jetbrains.idea.maven.dom.model.MavenDomProfile;
-import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
-import org.jetbrains.idea.maven.dom.model.MavenDomProperties;
-import org.jetbrains.idea.maven.dom.references.MavenFilteredPropertyPsiReferenceProvider;
-import org.jetbrains.idea.maven.model.MavenId;
-import org.jetbrains.idea.maven.project.MavenProject;
-import org.jetbrains.idea.maven.project.MavenProjectsManager;
-import org.jetbrains.idea.maven.server.MavenServerUtil;
-import org.jetbrains.idea.maven.utils.MavenJDOMUtil;
-import org.jetbrains.idea.maven.utils.MavenUtil;
-import com.intellij.openapi.module.Module;
-import com.intellij.openapi.module.ModuleUtilCore;
-import com.intellij.openapi.projectRoots.Sdk;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.xml.XmlElement;
-import com.intellij.psi.xml.XmlTag;
-import consulo.java.module.extension.JavaModuleExtensionImpl;
 
 public class MavenPropertyResolver
 {
@@ -71,9 +71,9 @@ public class MavenPropertyResolver
 			MavenProject mavenProject,
 			String text,
 			Properties additionalProperties,
-			@javax.annotation.Nullable String escapeString,
+			@Nullable String escapeString,
 			boolean escapeWindowsPath,
-			@javax.annotation.Nullable Map<String, String> resolvedPropertiesParam,
+			@Nullable Map<String, String> resolvedPropertiesParam,
 			Appendable out) throws IOException
 	{
 		Map<String, String> resolvedProperties = resolvedPropertiesParam;

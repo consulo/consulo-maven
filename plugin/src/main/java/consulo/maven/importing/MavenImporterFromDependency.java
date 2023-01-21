@@ -17,7 +17,7 @@ package consulo.maven.importing;
 
 import consulo.annotation.UsedInPlugin;
 import org.jetbrains.idea.maven.importing.MavenImporter;
-import org.jetbrains.idea.maven.model.MavenArtifact;
+import consulo.maven.rt.server.common.model.MavenArtifact;
 import org.jetbrains.idea.maven.project.MavenProject;
 
 import java.util.List;

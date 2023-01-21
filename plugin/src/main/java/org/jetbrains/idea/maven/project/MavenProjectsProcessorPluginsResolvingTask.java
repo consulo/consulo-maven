@@ -15,8 +15,8 @@
  */
 package org.jetbrains.idea.maven.project;
 
-import com.intellij.openapi.project.Project;
-import org.jetbrains.idea.maven.server.NativeMavenProjectHolder;
+import consulo.project.Project;
+import consulo.maven.rt.server.common.server.NativeMavenProjectHolder;
 import org.jetbrains.idea.maven.utils.MavenProcessCanceledException;
 import org.jetbrains.idea.maven.utils.MavenProgressIndicator;
 

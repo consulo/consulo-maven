@@ -15,10 +15,11 @@
  */
 package org.jetbrains.idea.maven.importing;
 
-import com.intellij.openapi.module.Module;
-import com.intellij.openapi.util.text.StringUtil;
+import consulo.module.Module;
+
 import javax.annotation.Nullable;
-import org.jetbrains.idea.maven.model.MavenId;
+import consulo.maven.rt.server.common.model.MavenId;
+import consulo.util.lang.StringUtil;
 import org.jetbrains.idea.maven.project.MavenProject;
 
 import java.util.*;
@@ -114,7 +115,7 @@ public class MavenModuleNameMapper {
     public int number = -1; // has no duplicates
     public boolean hasDuplicatedGroup;
 
-    public NameItem(MavenProject project, @Nullable Module module) {
+    public NameItem(MavenProject project, @Nullable consulo.module.Module module) {
       this.project = project;
       this.module = module;
       originalName = calcOriginalName();

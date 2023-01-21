@@ -15,13 +15,13 @@
  */
 package org.jetbrains.idea.maven.model.impl;
 
-import com.intellij.openapi.util.SystemInfo;
-import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.util.execution.ParametersListUtil;
-import com.intellij.util.xmlb.annotations.MapAnnotation;
-import com.intellij.util.xmlb.annotations.Tag;
-import com.intellij.util.xmlb.annotations.Transient;
+import consulo.application.util.SystemInfo;
+import consulo.process.cmd.ParametersListUtil;
 import consulo.util.collection.Sets;
+import consulo.util.io.FileUtil;
+import consulo.util.xml.serializer.annotation.MapAnnotation;
+import consulo.util.xml.serializer.annotation.Tag;
+import consulo.util.xml.serializer.annotation.Transient;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;

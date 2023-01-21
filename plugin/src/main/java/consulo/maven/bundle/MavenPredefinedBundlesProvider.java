@@ -1,9 +1,10 @@
 package consulo.maven.bundle;
 
-import com.intellij.openapi.projectRoots.Sdk;
-import com.intellij.openapi.projectRoots.SdkModificator;
-import consulo.bundle.PredefinedBundlesProvider;
+import consulo.annotation.component.ExtensionImpl;
+import consulo.content.bundle.SdkModificator;
+import consulo.content.bundle.PredefinedBundlesProvider;
 import consulo.container.plugin.PluginManager;
+import consulo.content.bundle.Sdk;
 
 import javax.annotation.Nonnull;
 import java.io.File;
@@ -12,6 +13,7 @@ import java.io.File;
  * @author VISTALL
  * @since 2020-01-17
  */
+@ExtensionImpl
 public class MavenPredefinedBundlesProvider extends PredefinedBundlesProvider
 {
 	@Override

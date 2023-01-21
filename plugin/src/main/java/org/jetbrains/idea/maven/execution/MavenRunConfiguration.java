@@ -15,42 +15,37 @@
  */
 package org.jetbrains.idea.maven.execution;
 
-import javax.annotation.Nonnull;
-
-import org.jdom.Element;
-
-import javax.annotation.Nullable;
-import org.jetbrains.idea.maven.project.MavenConsoleImpl;
-import org.jetbrains.idea.maven.project.MavenGeneralSettings;
-import org.jetbrains.idea.maven.project.MavenGeneralSettingsEditor;
-import org.jetbrains.idea.maven.project.MavenProjectsManager;
-import org.jetbrains.idea.maven.project.ProjectBundle;
-import com.intellij.diagnostic.logging.LogConfigurationPanel;
-import com.intellij.execution.DefaultExecutionResult;
-import com.intellij.execution.ExecutionBundle;
-import com.intellij.execution.ExecutionException;
-import com.intellij.execution.ExecutionResult;
-import com.intellij.execution.Executor;
-import com.intellij.execution.configurations.ConfigurationFactory;
-import com.intellij.execution.configurations.JavaCommandLineState;
-import com.intellij.execution.configurations.LocatableConfigurationBase;
-import com.intellij.execution.configurations.RunConfiguration;
-import com.intellij.execution.configurations.RunProfileState;
-import com.intellij.execution.process.OSProcessHandler;
-import com.intellij.execution.process.ProcessAdapter;
-import com.intellij.execution.process.ProcessEvent;
-import com.intellij.execution.runners.ExecutionEnvironment;
-import com.intellij.execution.runners.ProgramRunner;
-import com.intellij.openapi.module.Module;
-import com.intellij.openapi.options.SettingsEditor;
-import com.intellij.openapi.options.SettingsEditorGroup;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.InvalidDataException;
-import com.intellij.openapi.util.WriteExternalException;
-import com.intellij.openapi.wm.ToolWindowId;
-import com.intellij.util.xmlb.XmlSerializer;
+import com.intellij.java.execution.configurations.JavaCommandLineState;
+import consulo.execution.DefaultExecutionResult;
+import consulo.execution.ExecutionBundle;
+import consulo.execution.ExecutionResult;
+import consulo.execution.configuration.ConfigurationFactory;
+import consulo.execution.configuration.LocatableConfigurationBase;
+import consulo.execution.configuration.RunConfiguration;
+import consulo.execution.configuration.RunProfileState;
+import consulo.execution.configuration.log.ui.LogConfigurationPanel;
+import consulo.execution.configuration.ui.SettingsEditor;
+import consulo.execution.configuration.ui.SettingsEditorGroup;
+import consulo.execution.executor.Executor;
+import consulo.execution.runner.ExecutionEnvironment;
+import consulo.execution.runner.ProgramRunner;
 import consulo.java.debugger.impl.GenericDebugRunnerConfiguration;
 import consulo.java.execution.configurations.OwnJavaParameters;
+import consulo.module.Module;
+import consulo.process.ExecutionException;
+import consulo.process.ProcessHandler;
+import consulo.process.event.ProcessAdapter;
+import consulo.process.event.ProcessEvent;
+import consulo.project.Project;
+import consulo.project.ui.wm.ToolWindowId;
+import consulo.util.xml.serializer.InvalidDataException;
+import consulo.util.xml.serializer.WriteExternalException;
+import consulo.util.xml.serializer.XmlSerializer;
+import org.jdom.Element;
+import org.jetbrains.idea.maven.project.*;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class MavenRunConfiguration extends LocatableConfigurationBase implements GenericDebugRunnerConfiguration
 {
@@ -116,10 +111,10 @@ public class MavenRunConfiguration extends LocatableConfigurationBase implements
 
 			@Nonnull
 			@Override
-			protected OSProcessHandler startProcess() throws ExecutionException
+			protected ProcessHandler startProcess() throws ExecutionException
 			{
-				OSProcessHandler result = super.startProcess();
-				result.setShouldDestroyProcessRecursively(true);
+				ProcessHandler result = super.startProcess();
+				// process always destroy recursive result.setShouldDestroyProcessRecursively(true);
 				result.addProcessListener(new ProcessAdapter()
 				{
 					@Override
@@ -142,7 +137,7 @@ public class MavenRunConfiguration extends LocatableConfigurationBase implements
 
 	@Override
 	@Nonnull
-	public Module[] getModules()
+	public consulo.module.Module[] getModules()
 	{
 		return Module.EMPTY_ARRAY;
 	}

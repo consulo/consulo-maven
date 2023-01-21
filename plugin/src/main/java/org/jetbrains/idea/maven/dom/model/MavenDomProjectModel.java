@@ -19,16 +19,16 @@
 
 package org.jetbrains.idea.maven.dom.model;
 
-import javax.annotation.Nonnull;
-
-import com.intellij.util.xml.Convert;
-import com.intellij.util.xml.GenericDomValue;
-import com.intellij.util.xml.Required;
-import com.intellij.util.xml.SubTag;
+import consulo.xml.util.xml.Convert;
+import consulo.xml.util.xml.GenericDomValue;
+import consulo.xml.util.xml.Required;
+import consulo.xml.util.xml.SubTag;
 import org.jetbrains.idea.maven.dom.MavenDomElement;
 import org.jetbrains.idea.maven.dom.converters.MavenModelVersionConverter;
 import org.jetbrains.idea.maven.dom.converters.MavenPackagingConverter;
 import org.jetbrains.idea.maven.dom.converters.MavenUrlConverter;
+
+import javax.annotation.Nonnull;
 
 /**
  * http://maven.apache.org/POM/4.0.0:Model interface.

@@ -15,27 +15,28 @@
  */
 package org.jetbrains.idea.maven.indices;
 
-import com.intellij.openapi.application.AccessToken;
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.application.ReadAction;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Pair;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.util.Consumer;
-import com.intellij.util.containers.ContainerUtil;
-import com.intellij.util.ui.update.MergingUpdateQueue;
-import com.intellij.util.ui.update.Update;
+import consulo.annotation.component.ComponentScope;
+import consulo.annotation.component.ServiceAPI;
+import consulo.annotation.component.ServiceImpl;
+import consulo.application.ApplicationManager;
+import consulo.application.ReadAction;
+import consulo.maven.rt.server.common.model.MavenArtifactInfo;
+import consulo.maven.rt.server.common.model.MavenId;
+import consulo.maven.rt.server.common.model.MavenRemoteRepository;
+import consulo.maven.rt.server.common.server.NativeMavenProjectHolder;
+import consulo.project.Project;
+import consulo.ui.ex.awt.util.MergingUpdateQueue;
+import consulo.ui.ex.awt.util.Update;
+import consulo.util.collection.ContainerUtil;
+import consulo.util.lang.Pair;
+import consulo.util.lang.StringUtil;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import org.apache.lucene.search.Query;
-import org.jetbrains.idea.maven.model.MavenArtifactInfo;
-import org.jetbrains.idea.maven.model.MavenId;
-import org.jetbrains.idea.maven.model.MavenRemoteRepository;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectChanges;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.project.MavenProjectsTree;
-import org.jetbrains.idea.maven.server.NativeMavenProjectHolder;
 import org.jetbrains.idea.maven.utils.MavenMergingUpdateQueue;
 import org.jetbrains.idea.maven.utils.MavenSimpleProjectComponent;
 
@@ -45,8 +46,11 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Consumer;
 
 @Singleton
+@ServiceAPI(value = ComponentScope.PROJECT, lazy = false)
+@ServiceImpl
 public class MavenProjectIndicesManager extends MavenSimpleProjectComponent
 {
 	private volatile List<MavenIndex> myProjectIndices = new ArrayList<>();
@@ -125,7 +129,7 @@ public class MavenProjectIndicesManager extends MavenSimpleProjectComponent
 				myProjectIndices = MavenIndicesManager.getInstance().ensureIndicesExist(myProject, localRepository, remoteRepositoriesIdsAndUrls);
 				if(consumer != null)
 				{
-					consumer.consume(myProjectIndices);
+					consumer.accept(myProjectIndices);
 				}
 			}
 		});
@@ -139,8 +143,8 @@ public class MavenProjectIndicesManager extends MavenSimpleProjectComponent
 	private Set<Pair<String, String>> collectRemoteRepositoriesIdsAndUrls()
 	{
 		Set<Pair<String, String>> result = new HashSet<>();
-		Set<MavenRemoteRepository> remoteRepositories = ContainerUtil.newHashSet(getMavenProjectManager().getRemoteRepositories());
-		for(MavenRepositoryProvider repositoryProvider : MavenRepositoryProvider.EP_NAME.getExtensions())
+		Set<MavenRemoteRepository> remoteRepositories = new HashSet<>(getMavenProjectManager().getRemoteRepositories());
+		for(MavenRepositoryProvider repositoryProvider : MavenRepositoryProvider.EP_NAME.getExtensionList())
 		{
 			ContainerUtil.addAll(remoteRepositories, repositoryProvider.getRemoteRepositories(myProject));
 		}

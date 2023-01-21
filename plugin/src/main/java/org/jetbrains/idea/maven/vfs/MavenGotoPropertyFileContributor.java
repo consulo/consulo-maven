@@ -15,30 +15,42 @@
  */
 package org.jetbrains.idea.maven.vfs;
 
+import consulo.annotation.component.ExtensionImpl;
+import consulo.ide.navigation.GotoFileContributor;
+import consulo.language.psi.PsiFile;
+import consulo.language.psi.PsiManager;
+import consulo.navigation.NavigationItem;
+import consulo.project.Project;
+import consulo.util.collection.ArrayUtil;
+import consulo.virtualFileSystem.VirtualFile;
+
 import javax.annotation.Nonnull;
 
-import com.intellij.navigation.ChooseByNameContributor;
-import com.intellij.navigation.NavigationItem;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiManager;
-import com.intellij.util.ArrayUtil;
+@ExtensionImpl
+public class MavenGotoPropertyFileContributor implements GotoFileContributor
+{
+	@Nonnull
+	public String[] getNames(Project project, boolean includeNonProjectItems)
+	{
+		if(!includeNonProjectItems)
+		{
+			return ArrayUtil.EMPTY_STRING_ARRAY;
+		}
+		return MavenPropertiesVirtualFileSystem.PROPERTIES_FILES;
+	}
 
-public class MavenGotoPropertyFileContributor implements ChooseByNameContributor {
-  @Nonnull
-  public String[] getNames(Project project, boolean includeNonProjectItems) {
-    if (!includeNonProjectItems) return ArrayUtil.EMPTY_STRING_ARRAY;
-    return MavenPropertiesVirtualFileSystem.PROPERTIES_FILES;
-  }
-
-  @Nonnull
-  public NavigationItem[] getItemsByName(String name, String pattern, Project project, boolean includeNonProjectItems) {
-    VirtualFile file = MavenPropertiesVirtualFileSystem.getInstance().findFileByPath(name);
-    if (file != null) {
-      PsiFile psiFile = PsiManager.getInstance(project).findFile(file);
-      if (psiFile != null) return new NavigationItem[]{psiFile};
-    }
-    return NavigationItem.EMPTY_NAVIGATION_ITEM_ARRAY;
-  }
+	@Nonnull
+	public NavigationItem[] getItemsByName(String name, String pattern, Project project, boolean includeNonProjectItems)
+	{
+		VirtualFile file = MavenPropertiesVirtualFileSystem.getInstance().findFileByPath(name);
+		if(file != null)
+		{
+			PsiFile psiFile = PsiManager.getInstance(project).findFile(file);
+			if(psiFile != null)
+			{
+				return new NavigationItem[]{psiFile};
+			}
+		}
+		return NavigationItem.EMPTY_NAVIGATION_ITEM_ARRAY;
+	}
 }

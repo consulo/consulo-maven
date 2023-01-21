@@ -15,16 +15,17 @@
  */
 package org.jetbrains.idea.maven.dom.inspections;
 
-import com.intellij.codeHighlighting.HighlightDisplayLevel;
-import com.intellij.lang.annotation.HighlightSeverity;
-import com.intellij.openapi.util.Comparing;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.xml.XmlTag;
-import com.intellij.util.Processor;
-import com.intellij.util.xml.DomFileElement;
-import com.intellij.util.xml.highlighting.BasicDomElementsInspection;
-import com.intellij.util.xml.highlighting.DomElementAnnotationHolder;
+import consulo.annotation.component.ExtensionImpl;
+import consulo.application.util.function.Processor;
+import consulo.language.editor.annotation.HighlightSeverity;
+import consulo.language.editor.rawHighlight.HighlightDisplayLevel;
+import consulo.util.lang.Comparing;
+import consulo.util.lang.StringUtil;
+import consulo.virtualFileSystem.VirtualFile;
+import consulo.xml.psi.xml.XmlTag;
+import consulo.xml.util.xml.DomFileElement;
+import consulo.xml.util.xml.highlighting.BasicDomElementsInspection;
+import consulo.xml.util.xml.highlighting.DomElementAnnotationHolder;
 import org.jetbrains.idea.maven.dom.MavenDomBundle;
 import org.jetbrains.idea.maven.dom.MavenDomProjectProcessorUtils;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
@@ -36,6 +37,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
 
+@ExtensionImpl
 public class MavenDuplicateDependenciesInspection extends BasicDomElementsInspection<MavenDomProjectModel> {
   public MavenDuplicateDependenciesInspection() {
     super(MavenDomProjectModel.class);

@@ -15,26 +15,32 @@
  */
 package org.jetbrains.idea.maven.navigator;
 
-import com.intellij.execution.Location;
-import com.intellij.ide.dnd.FileCopyPasteUtil;
-import com.intellij.openapi.actionSystem.*;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.SimpleToolWindowPanel;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.openapi.vfs.VfsUtil;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.pom.Navigatable;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiManager;
-import com.intellij.ui.PopupHandler;
-import com.intellij.ui.ScrollPaneFactory;
-import com.intellij.ui.treeStructure.SimpleTree;
-import com.intellij.util.containers.ContainerUtil;
+import consulo.dataContext.DataProvider;
+import consulo.execution.action.Location;
+import consulo.ide.impl.idea.ide.dnd.FileCopyPasteUtil;
+import consulo.language.editor.CommonDataKeys;
+import consulo.language.editor.PlatformDataKeys;
+import consulo.language.psi.PsiFile;
+import consulo.language.psi.PsiManager;
+import consulo.maven.rt.server.common.model.MavenArtifact;
+import consulo.maven.rt.server.common.model.MavenConstants;
+import consulo.maven.rt.server.common.model.MavenProfileKind;
+import consulo.navigation.Navigatable;
+import consulo.project.Project;
+import consulo.ui.ex.action.ActionGroup;
+import consulo.ui.ex.action.ActionManager;
+import consulo.ui.ex.action.ActionToolbar;
+import consulo.ui.ex.action.DefaultActionGroup;
+import consulo.ui.ex.awt.PopupHandler;
+import consulo.ui.ex.awt.ScrollPaneFactory;
+import consulo.ui.ex.awt.SimpleToolWindowPanel;
+import consulo.ui.ex.awt.tree.SimpleTree;
+import consulo.util.collection.ContainerUtil;
 import consulo.util.dataholder.Key;
+import consulo.util.lang.StringUtil;
+import consulo.virtualFileSystem.VirtualFile;
+import consulo.virtualFileSystem.util.VirtualFileUtil;
 import org.jetbrains.idea.maven.execution.MavenGoalLocation;
-import org.jetbrains.idea.maven.model.MavenArtifact;
-import org.jetbrains.idea.maven.model.MavenConstants;
-import org.jetbrains.idea.maven.model.MavenProfileKind;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.utils.MavenDataKeys;
@@ -224,7 +230,7 @@ public class MavenProjectsNavigatorPanel extends SimpleToolWindowPanel implement
 				files.add(file);
 			}
 		}
-		return files.isEmpty() ? null : VfsUtil.toVirtualFileArray(files);
+		return files.isEmpty() ? null : VirtualFileUtil.toVirtualFileArray(files);
 	}
 
 	private Object extractNavigatables()
@@ -385,7 +391,7 @@ public class MavenProjectsNavigatorPanel extends SimpleToolWindowPanel implement
 
 				for(File file : fileList)
 				{
-					VirtualFile virtualFile = VfsUtil.findFileByIoFile(file, true);
+					VirtualFile virtualFile = VirtualFileUtil.findFileByIoFile(file, true);
 					if(file.isFile() && virtualFile != null && MavenActionUtil.isMavenProjectFile(virtualFile) && !manager.isManagedFile
 							(virtualFile))
 					{

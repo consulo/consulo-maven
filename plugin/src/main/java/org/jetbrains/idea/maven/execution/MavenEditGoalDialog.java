@@ -15,19 +15,19 @@
  */
 package org.jetbrains.idea.maven.execution;
 
-import com.intellij.icons.AllIcons;
-import com.intellij.openapi.fileChooser.FileChooserDescriptor;
-import com.intellij.openapi.fileTypes.PlainTextFileType;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.*;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.ui.EditorComboBoxEditor;
-import com.intellij.ui.EditorComboBoxRenderer;
-import com.intellij.ui.EditorTextField;
-import com.intellij.ui.StringComboboxEditor;
-import com.intellij.util.ArrayUtilRt;
-import consulo.awt.TargetAWT;
-import org.jetbrains.idea.maven.model.MavenConstants;
+import consulo.application.AllIcons;
+import consulo.fileChooser.FileChooserDescriptor;
+import consulo.ide.impl.idea.util.ArrayUtilRt;
+import consulo.language.editor.ui.awt.EditorComboBoxEditor;
+import consulo.language.editor.ui.awt.EditorComboBoxRenderer;
+import consulo.language.editor.ui.awt.EditorTextField;
+import consulo.language.editor.ui.awt.StringComboboxEditor;
+import consulo.language.plain.PlainTextFileType;
+import consulo.maven.rt.server.common.model.MavenConstants;
+import consulo.project.Project;
+import consulo.ui.ex.awt.*;
+import consulo.ui.ex.awtUnsafe.TargetAWT;
+import consulo.virtualFileSystem.VirtualFile;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 
@@ -38,9 +38,8 @@ import java.util.Collection;
 
 public class MavenEditGoalDialog extends DialogWrapper
 {
-
 	private final Project myProject;
-	@javax.annotation.Nullable
+	@Nullable
 	private final Collection<String> myHistory;
 
 	private JPanel contentPane;
@@ -169,7 +168,7 @@ public class MavenEditGoalDialog extends DialogWrapper
 		workDirectoryField.setText(path);
 	}
 
-	public void setSelectedMavenProject(@javax.annotation.Nullable MavenProject mavenProject)
+	public void setSelectedMavenProject(@Nullable MavenProject mavenProject)
 	{
 		workDirectoryField.setText(mavenProject == null ? "" : mavenProject.getDirectory());
 	}

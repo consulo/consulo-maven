@@ -15,64 +15,77 @@
  */
 package org.jetbrains.idea.maven.utils.library;
 
+import consulo.annotation.component.ExtensionImpl;
+import consulo.content.library.LibraryType;
+import consulo.content.library.NewLibraryConfiguration;
+import consulo.content.library.PersistentLibraryKind;
+import consulo.content.library.ui.LibraryEditorComponent;
+import consulo.content.library.ui.LibraryPropertiesEditor;
+import consulo.project.Project;
+import consulo.ui.image.Image;
+import consulo.virtualFileSystem.VirtualFile;
+import org.jetbrains.idea.maven.MavenIcons;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.swing.JComponent;
-
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.roots.libraries.LibraryType;
-import com.intellij.openapi.roots.libraries.NewLibraryConfiguration;
-import com.intellij.openapi.roots.libraries.PersistentLibraryKind;
-import com.intellij.openapi.roots.libraries.ui.LibraryEditorComponent;
-import com.intellij.openapi.roots.libraries.ui.LibraryPropertiesEditor;
-import com.intellij.openapi.vfs.VirtualFile;
-import consulo.ui.image.Image;
+import javax.swing.*;
 
 /**
  * @author nik
  */
-public class RepositoryLibraryType extends LibraryType<RepositoryLibraryProperties> {
-  private static final PersistentLibraryKind<RepositoryLibraryProperties> LIBRARY_KIND = new PersistentLibraryKind<RepositoryLibraryProperties>("repository") {
-    @Nonnull
-    @Override
-    public RepositoryLibraryProperties createDefaultProperties() {
-      return new RepositoryLibraryProperties();
-    }
-  };
+@ExtensionImpl
+public class RepositoryLibraryType extends LibraryType<RepositoryLibraryProperties>
+{
+	private static final PersistentLibraryKind<RepositoryLibraryProperties> LIBRARY_KIND = new PersistentLibraryKind<RepositoryLibraryProperties>("repository")
+	{
+		@Nonnull
+		@Override
+		public RepositoryLibraryProperties createDefaultProperties()
+		{
+			return new RepositoryLibraryProperties();
+		}
+	};
 
-  public static RepositoryLibraryType getInstance() {
-    return EP_NAME.findExtension(RepositoryLibraryType.class);
-  }
+	public static RepositoryLibraryType getInstance()
+	{
+		return EP_NAME.findExtension(RepositoryLibraryType.class);
+	}
 
-  public RepositoryLibraryType() {
-    super(LIBRARY_KIND);
-  }
+	public RepositoryLibraryType()
+	{
+		super(LIBRARY_KIND);
+	}
 
-  @Override
-  public String getCreateActionName() {
-    return "From Maven...";
-  }
+	@Override
+	public String getCreateActionName()
+	{
+		return "From Maven...";
+	}
 
-  @Override
-  public NewLibraryConfiguration createNewLibrary(@Nonnull JComponent parentComponent,
-                                                  @Nullable VirtualFile contextDirectory,
-                                                  @Nonnull Project project) {
-    return RepositoryAttachHandler.chooseLibraryAndDownload(project, null, parentComponent);
-  }
+	@Override
+	public NewLibraryConfiguration createNewLibrary(@Nonnull JComponent parentComponent,
+													@Nullable VirtualFile contextDirectory,
+													@Nonnull Project project)
+	{
+		return RepositoryAttachHandler.chooseLibraryAndDownload(project, null, parentComponent);
+	}
 
-  @Override
-  public LibraryPropertiesEditor createPropertiesEditor(@Nonnull LibraryEditorComponent<RepositoryLibraryProperties> component) {
-    return new RepositoryLibraryEditor(component, this);
-  }
+	@Override
+	public LibraryPropertiesEditor createPropertiesEditor(@Nonnull LibraryEditorComponent<RepositoryLibraryProperties> component)
+	{
+		return new RepositoryLibraryEditor(component, this);
+	}
 
-  @Override
-  public String getDescription(@Nonnull RepositoryLibraryProperties properties) {
-    final String mavenIdKey = properties.getMavenId();
-    return "Library " + (mavenIdKey != null ? mavenIdKey + " " : "") + "from Maven repository";
-  }
+	@Override
+	public String getDescription(@Nonnull RepositoryLibraryProperties properties)
+	{
+		final String mavenIdKey = properties.getMavenId();
+		return "Library " + (mavenIdKey != null ? mavenIdKey + " " : "") + "from Maven repository";
+	}
 
-  @Override
-  public Image getIcon() {
-    return icons.MavenIcons.MavenLogo;
-  }
+	@Override
+	public Image getIcon()
+	{
+		return MavenIcons.MavenLogo;
+	}
 }

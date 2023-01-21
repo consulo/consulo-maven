@@ -17,34 +17,34 @@ package org.jetbrains.idea.maven.dom;
 
 import com.intellij.lang.properties.IProperty;
 import com.intellij.lang.properties.psi.PropertiesFile;
-import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.module.Module;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.roots.ProjectFileIndex;
-import com.intellij.openapi.roots.ProjectRootManager;
-import com.intellij.openapi.util.Comparing;
-import com.intellij.openapi.util.Pair;
-import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.openapi.vfs.LocalFileSystem;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.vfs.VirtualFileManager;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiManager;
-import com.intellij.psi.search.GlobalSearchScope;
-import com.intellij.psi.util.PsiTreeUtil;
-import com.intellij.psi.xml.XmlElement;
-import com.intellij.psi.xml.XmlFile;
-import com.intellij.psi.xml.XmlTag;
-import com.intellij.util.containers.ContainerUtil;
-import com.intellij.util.xml.*;
-import com.intellij.util.xml.reflect.DomCollectionChildDescription;
+import consulo.codeEditor.Editor;
+import consulo.language.psi.PsiElement;
+import consulo.language.psi.PsiFile;
+import consulo.language.psi.PsiManager;
+import consulo.language.psi.scope.GlobalSearchScope;
+import consulo.language.psi.util.PsiTreeUtil;
+import consulo.maven.rt.server.common.model.MavenConstants;
+import consulo.maven.rt.server.common.model.MavenId;
+import consulo.maven.rt.server.common.model.MavenResource;
+import consulo.module.Module;
+import consulo.module.content.ProjectFileIndex;
+import consulo.module.content.ProjectRootManager;
+import consulo.project.Project;
+import consulo.util.collection.ContainerUtil;
 import consulo.util.dataholder.Key;
+import consulo.util.io.FileUtil;
+import consulo.util.lang.Comparing;
+import consulo.util.lang.Pair;
+import consulo.util.lang.StringUtil;
+import consulo.virtualFileSystem.LocalFileSystem;
+import consulo.virtualFileSystem.VirtualFile;
+import consulo.virtualFileSystem.VirtualFileManager;
+import consulo.xml.psi.xml.XmlElement;
+import consulo.xml.psi.xml.XmlFile;
+import consulo.xml.psi.xml.XmlTag;
+import consulo.xml.util.xml.*;
+import consulo.xml.util.xml.reflect.DomCollectionChildDescription;
 import org.jetbrains.idea.maven.dom.model.*;
-import org.jetbrains.idea.maven.model.MavenConstants;
-import org.jetbrains.idea.maven.model.MavenId;
-import org.jetbrains.idea.maven.model.MavenResource;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.utils.MavenLog;
@@ -64,7 +64,7 @@ public class MavenDomUtil
 	private static final Key<Pair<Long, Set<VirtualFile>>> FILTERED_RESOURCES_ROOTS_KEY = Key.create("MavenDomUtil.FILTERED_RESOURCES_ROOTS");
 
 	// see http://maven.apache.org/settings.html
-	private static final Set<String> SUBTAGS_IN_SETTINGS_FILE = ContainerUtil.newHashSet("localRepository", "interactiveMode", "usePluginRegistry",
+	private static final Set<String> SUBTAGS_IN_SETTINGS_FILE = Set.of("localRepository", "interactiveMode", "usePluginRegistry",
 			"offline", "pluginGroups", "servers", "mirrors", "proxies", "profiles", "activeProfiles");
 
 	public static boolean isMavenFile(PsiFile file)
@@ -142,7 +142,7 @@ public class MavenDomUtil
 		return isMavenFile(element.getContainingFile());
 	}
 
-	@javax.annotation.Nullable
+	@Nullable
 	public static Module findContainingMavenizedModule(@Nonnull PsiFile psiFile)
 	{
 		VirtualFile file = psiFile.getVirtualFile();
@@ -161,7 +161,7 @@ public class MavenDomUtil
 
 		ProjectFileIndex index = ProjectRootManager.getInstance(project).getFileIndex();
 
-		Module module = index.getModuleForFile(file);
+		consulo.module.Module module = index.getModuleForFile(file);
 		if(module == null || !manager.isMavenizedModule(module))
 		{
 			return null;
@@ -223,14 +223,14 @@ public class MavenDomUtil
 		return getVirtualFile(psiFile);
 	}
 
-	@javax.annotation.Nullable
+	@Nullable
 	public static VirtualFile getVirtualFile(@Nonnull PsiElement element)
 	{
 		PsiFile psiFile = element.getContainingFile();
 		return getVirtualFile(psiFile);
 	}
 
-	@javax.annotation.Nullable
+	@Nullable
 	private static VirtualFile getVirtualFile(PsiFile psiFile)
 	{
 		if(psiFile == null)
@@ -259,7 +259,7 @@ public class MavenDomUtil
 		return manager.findProject(file);
 	}
 
-	@javax.annotation.Nullable
+	@Nullable
 	public static MavenProject findContainingProject(@Nonnull DomElement element)
 	{
 		PsiElement psi = element.getXmlElement();
@@ -278,13 +278,13 @@ public class MavenDomUtil
 		return manager.findContainingProject(file);
 	}
 
-	@javax.annotation.Nullable
+	@Nullable
 	public static MavenDomProjectModel getMavenDomProjectModel(@Nonnull Project project, @Nonnull VirtualFile file)
 	{
 		return getMavenDomModel(project, file, MavenDomProjectModel.class);
 	}
 
-	@javax.annotation.Nullable
+	@Nullable
 	public static MavenDomProfiles getMavenDomProfilesModel(@Nonnull Project project, @Nonnull VirtualFile file)
 	{
 		MavenDomProfilesModel model = getMavenDomModel(project, file, MavenDomProfilesModel.class);
@@ -327,7 +327,7 @@ public class MavenDomUtil
 		return DomManager.getDomManager(file.getProject()).getFileElement((XmlFile) file, clazz);
 	}
 
-	@javax.annotation.Nullable
+	@Nullable
 	public static XmlTag findTag(@Nonnull DomElement domElement, @Nonnull String path)
 	{
 		List<String> elements = StringUtil.split(path, ".");
@@ -402,7 +402,7 @@ public class MavenDomUtil
 		return children[index];
 	}
 
-	@javax.annotation.Nullable
+	@Nullable
 	public static PropertiesFile getPropertiesFile(@Nonnull Project project, @Nonnull VirtualFile file)
 	{
 		PsiFile psiFile = PsiManager.getInstance(project).findFile(file);
@@ -413,14 +413,14 @@ public class MavenDomUtil
 		return (PropertiesFile) psiFile;
 	}
 
-	@javax.annotation.Nullable
+	@Nullable
 	public static IProperty findProperty(@Nonnull Project project, @Nonnull VirtualFile file, @Nonnull String propName)
 	{
 		PropertiesFile propertiesFile = getPropertiesFile(project, file);
 		return propertiesFile == null ? null : propertiesFile.findPropertyByKey(propName);
 	}
 
-	@javax.annotation.Nullable
+	@Nullable
 	public static PsiElement findPropertyValue(@Nonnull Project project, @Nonnull VirtualFile file, @Nonnull String propName)
 	{
 		IProperty prop = findProperty(project, file, propName);
@@ -526,7 +526,7 @@ public class MavenDomUtil
 	}
 
 	@Nonnull
-	public static MavenDomDependency createDomDependency(MavenDomProjectModel model, @javax.annotation.Nullable Editor editor, @Nonnull final MavenId id)
+	public static MavenDomDependency createDomDependency(MavenDomProjectModel model, @Nullable Editor editor, @Nonnull final MavenId id)
 	{
 		return createDomDependency(model.getDependencies(), editor, id);
 	}
@@ -544,13 +544,13 @@ public class MavenDomUtil
 	}
 
 	@Nonnull
-	public static MavenDomDependency createDomDependency(@Nonnull MavenDomProjectModel model, @javax.annotation.Nullable Editor editor)
+	public static MavenDomDependency createDomDependency(@Nonnull MavenDomProjectModel model, @Nullable Editor editor)
 	{
 		return createDomDependency(model.getDependencies(), editor);
 	}
 
 	@Nonnull
-	public static MavenDomDependency createDomDependency(@Nonnull MavenDomDependencies dependencies, @javax.annotation.Nullable Editor editor)
+	public static MavenDomDependency createDomDependency(@Nonnull MavenDomDependencies dependencies, @Nullable Editor editor)
 	{
 		int index = getCollectionIndex(dependencies, editor);
 		if(index >= 0)
@@ -569,7 +569,7 @@ public class MavenDomUtil
 	}
 
 
-	public static int getCollectionIndex(@Nonnull final MavenDomDependencies dependencies, @javax.annotation.Nullable final Editor editor)
+	public static int getCollectionIndex(@Nonnull final MavenDomDependencies dependencies, @Nullable final Editor editor)
 	{
 		if(editor != null)
 		{

@@ -18,41 +18,40 @@
 
 package org.jetbrains.idea.maven.execution;
 
-import com.intellij.execution.ExecutionException;
-import com.intellij.execution.RunManager;
-import com.intellij.execution.configurations.ParametersList;
-import com.intellij.execution.impl.EditConfigurationsDialog;
-import com.intellij.execution.impl.RunManagerImpl;
-import com.intellij.notification.Notification;
-import com.intellij.notification.NotificationListener;
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.module.Module;
-import com.intellij.openapi.module.ModuleManager;
-import com.intellij.openapi.options.ShowSettingsUtil;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.projectRoots.Sdk;
-import com.intellij.openapi.projectRoots.SdkTable;
-import com.intellij.openapi.roots.ui.configuration.ProjectSettingsService;
-import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.openapi.vfs.encoding.EncodingManager;
-import com.intellij.openapi.vfs.encoding.EncodingProjectManager;
-import com.intellij.pom.java.LanguageLevel;
-import com.intellij.util.PathUtil;
+import com.intellij.java.language.LanguageLevel;
 import consulo.annotation.access.RequiredReadAction;
+import consulo.application.ApplicationManager;
 import consulo.container.boot.ContainerPathManager;
+import consulo.content.bundle.Sdk;
+import consulo.content.bundle.SdkTable;
+import consulo.execution.RunManager;
+import consulo.ide.impl.idea.execution.impl.EditConfigurationsDialog;
+import consulo.ide.impl.idea.execution.impl.RunManagerImpl;
+import consulo.ide.impl.idea.util.PathUtil;
+import consulo.ide.setting.ShowSettingsUtil;
 import consulo.java.execution.configurations.OwnJavaParameters;
+import consulo.logging.Logger;
+import consulo.maven.rt.server.common.server.MavenServerUtil;
 import consulo.maven.util.MavenJdkUtil;
+import consulo.module.Module;
+import consulo.module.ModuleManager;
+import consulo.process.ExecutionException;
+import consulo.process.cmd.ParametersList;
+import consulo.project.Project;
+import consulo.project.ui.notification.Notification;
+import consulo.project.ui.notification.event.NotificationListener;
+import consulo.util.io.FileUtil;
+import consulo.util.lang.StringUtil;
+import consulo.virtualFileSystem.encoding.EncodingManager;
+import consulo.virtualFileSystem.encoding.EncodingProjectManager;
 import org.jetbrains.annotations.NonNls;
-import org.jetbrains.idea.maven.artifactResolver.MavenArtifactResolvedM2RtMarker;
-import org.jetbrains.idea.maven.artifactResolver.MavenArtifactResolvedM31RtMarker;
-import org.jetbrains.idea.maven.artifactResolver.MavenArtifactResolvedM3RtMarker;
 import org.jetbrains.idea.maven.artifactResolver.common.MavenModuleMap;
 import org.jetbrains.idea.maven.project.MavenGeneralSettings;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
-import org.jetbrains.idea.maven.server.MavenServerUtil;
+import org.jetbrains.idea.maven.rt.m2.MavenArtifactResolvedM2RtMarker;
+import org.jetbrains.idea.maven.rt.m3.MavenArtifactResolvedM3RtMarker;
+import org.jetbrains.idea.maven.rt.m31.MavenArtifactResolvedM31RtMarker;
 import org.jetbrains.idea.maven.utils.MavenSettings;
 import org.jetbrains.idea.maven.utils.MavenUtil;
 
@@ -68,7 +67,6 @@ import java.util.*;
  */
 public class MavenExternalParameters
 {
-
 	private static final Logger LOG = Logger.getInstance(MavenExternalParameters.class);
 
 	public static final String MAVEN_LAUNCHER_CLASS = "org.codehaus.classworlds.Launcher";
@@ -79,9 +77,9 @@ public class MavenExternalParameters
 	@Deprecated // Use createJavaParameters(Project,MavenRunnerParameters, MavenGeneralSettings,MavenRunnerSettings,MavenRunConfiguration)
 	@RequiredReadAction
 	public static OwnJavaParameters createJavaParameters(@Nullable final Project project,
-			@Nonnull final MavenRunnerParameters parameters,
-			@Nullable MavenGeneralSettings coreSettings,
-			@javax.annotation.Nullable MavenRunnerSettings runnerSettings) throws ExecutionException
+														 @Nonnull final MavenRunnerParameters parameters,
+														 @Nullable MavenGeneralSettings coreSettings,
+														 @Nullable MavenRunnerSettings runnerSettings) throws ExecutionException
 	{
 		return createJavaParameters(project, parameters, coreSettings, runnerSettings, null);
 	}
@@ -102,11 +100,11 @@ public class MavenExternalParameters
 	 * @throws ExecutionException
 	 */
 	@RequiredReadAction
-	public static OwnJavaParameters createJavaParameters(@javax.annotation.Nullable final Project project,
-			@Nonnull final MavenRunnerParameters parameters,
-			@Nullable MavenGeneralSettings coreSettings,
-			@Nullable MavenRunnerSettings runnerSettings,
-			@Nullable MavenRunConfiguration runConfiguration) throws ExecutionException
+	public static OwnJavaParameters createJavaParameters(@Nullable final Project project,
+														 @Nonnull final MavenRunnerParameters parameters,
+														 @Nullable MavenGeneralSettings coreSettings,
+														 @Nullable MavenRunnerSettings runnerSettings,
+														 @Nullable MavenRunConfiguration runConfiguration) throws ExecutionException
 	{
 		final OwnJavaParameters params = new OwnJavaParameters();
 
@@ -357,7 +355,7 @@ public class MavenExternalParameters
 	 * @throws ExecutionException
 	 */
 	@Nonnull
-	public static String resolveMavenHome(@Nonnull MavenGeneralSettings coreSettings, @javax.annotation.Nullable Project project, @Nullable MavenRunConfiguration runConfiguration) throws ExecutionException
+	public static String resolveMavenHome(@Nonnull MavenGeneralSettings coreSettings, @Nullable Project project, @Nullable MavenRunConfiguration runConfiguration) throws ExecutionException
 	{
 		final File file = MavenUtil.resolveMavenHomeDirectory(coreSettings.getMavenBundleName());
 
@@ -390,10 +388,10 @@ public class MavenExternalParameters
 	}
 
 	private static ExecutionException createExecutionException(String text,
-			String textWithFix,
-			@Nonnull MavenGeneralSettings coreSettings,
-			@Nullable Project project,
-			@Nullable MavenRunConfiguration runConfiguration)
+															   String textWithFix,
+															   @Nonnull MavenGeneralSettings coreSettings,
+															   @Nullable Project project,
+															   @Nullable MavenRunConfiguration runConfiguration)
 	{
 		Project notNullProject = project;
 		if(notNullProject == null)
@@ -537,7 +535,6 @@ public class MavenExternalParameters
 
 	private static class ProjectSettingsOpenerExecutionException extends WithHyperlinkExecutionException
 	{
-
 		private final Project myProject;
 
 		public ProjectSettingsOpenerExecutionException(final String s, Project project)
@@ -567,7 +564,7 @@ public class MavenExternalParameters
 		@Override
 		protected void hyperlinkClicked()
 		{
-			ProjectSettingsService.getInstance(myProject).openProjectSettings();
+			ShowSettingsUtil.getInstance().showProjectStructureDialog(myProject);
 		}
 	}
 

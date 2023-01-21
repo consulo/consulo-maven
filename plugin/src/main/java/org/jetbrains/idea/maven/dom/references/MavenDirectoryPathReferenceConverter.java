@@ -15,7 +15,7 @@
  */
 package org.jetbrains.idea.maven.dom.references;
 
-import com.intellij.psi.impl.source.resolve.reference.impl.providers.FileReferenceSet;
+import consulo.language.psi.path.FileReferenceSet;
 
 /**
  * @author Sergey Evdokimov

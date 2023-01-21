@@ -15,38 +15,39 @@
  */
 package org.jetbrains.idea.maven.dom.intentions;
 
-import com.intellij.codeInsight.intention.IntentionAction;
-import com.intellij.openapi.application.Result;
-import com.intellij.openapi.command.WriteCommandAction;
-import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.fileChooser.FileChooser;
-import com.intellij.openapi.fileChooser.FileChooserDescriptor;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiManager;
-import com.intellij.psi.util.PsiTreeUtil;
-import com.intellij.psi.util.PsiUtilCore;
-import com.intellij.psi.xml.XmlTag;
-import com.intellij.util.IncorrectOperationException;
-import com.intellij.util.Producer;
-import com.intellij.util.xml.DomElement;
-import com.intellij.util.xml.DomManager;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import consulo.annotation.component.ExtensionImpl;
+import consulo.application.Result;
+import consulo.codeEditor.Editor;
+import consulo.fileChooser.FileChooserDescriptor;
+import consulo.fileChooser.IdeaFileChooser;
+import consulo.ide.impl.idea.util.Producer;
+import consulo.language.editor.WriteCommandAction;
+import consulo.language.editor.intention.IntentionAction;
+import consulo.language.editor.intention.IntentionMetaData;
+import consulo.language.psi.PsiElement;
+import consulo.language.psi.PsiFile;
+import consulo.language.psi.PsiManager;
+import consulo.language.psi.PsiUtilCore;
+import consulo.language.psi.util.PsiTreeUtil;
+import consulo.language.util.IncorrectOperationException;
+import consulo.project.Project;
+import consulo.virtualFileSystem.VirtualFile;
+import consulo.xml.psi.xml.XmlTag;
+import consulo.xml.util.xml.DomElement;
+import consulo.xml.util.xml.DomManager;
 import org.jetbrains.annotations.TestOnly;
 import org.jetbrains.idea.maven.dom.MavenDomBundle;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
 import org.jetbrains.idea.maven.dom.model.MavenDomDependency;
 
-public class ChooseFileIntentionAction implements IntentionAction {
-  private Producer<VirtualFile[]> myFileChooser = null;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.function.Supplier;
 
-  @Nonnull
-  public String getFamilyName() {
-    return MavenDomBundle.message("inspection.group");
-  }
+@ExtensionImpl
+@IntentionMetaData(ignoreId = "maven.choose.file.intention", categories = {"Java", "Maven"}, fileExtensions = "xml")
+public class ChooseFileIntentionAction implements IntentionAction {
+  private Supplier<VirtualFile[]> myFileChooser = null;
 
   @Nonnull
   public String getText() {
@@ -71,10 +72,10 @@ public class ChooseFileIntentionAction implements IntentionAction {
       final FileChooserDescriptor descriptor = new FileChooserDescriptor(true, false, true, true, false, false);
       final PsiFile currentValue = dep != null ? dep.getSystemPath().getValue() : null;
       final VirtualFile toSelect = currentValue == null ? null : currentValue.getVirtualFile();
-      files = FileChooser.chooseFiles(descriptor, project, toSelect);
+      files = IdeaFileChooser.chooseFiles(descriptor, project, toSelect);
     }
     else {
-      files = myFileChooser.produce();
+      files = myFileChooser.get();
     }
     if (files == null || files.length == 0) return;
 

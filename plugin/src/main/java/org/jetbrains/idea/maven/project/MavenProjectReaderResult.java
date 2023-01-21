@@ -20,11 +20,11 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.Nullable;
-import org.jetbrains.idea.maven.model.MavenExplicitProfiles;
-import org.jetbrains.idea.maven.model.MavenId;
-import org.jetbrains.idea.maven.model.MavenModel;
-import org.jetbrains.idea.maven.model.MavenProjectProblem;
-import org.jetbrains.idea.maven.server.NativeMavenProjectHolder;
+import consulo.maven.rt.server.common.model.MavenExplicitProfiles;
+import consulo.maven.rt.server.common.model.MavenId;
+import consulo.maven.rt.server.common.model.MavenModel;
+import consulo.maven.rt.server.common.model.MavenProjectProblem;
+import consulo.maven.rt.server.common.server.NativeMavenProjectHolder;
 
 public class MavenProjectReaderResult
 {
@@ -39,7 +39,7 @@ public class MavenProjectReaderResult
 	public MavenProjectReaderResult(MavenModel mavenModel,
 			Map<String, String> nativeModelMap,
 			MavenExplicitProfiles activatedProfiles,
-			@javax.annotation.Nullable NativeMavenProjectHolder nativeMavenProject,
+			@Nullable NativeMavenProjectHolder nativeMavenProject,
 			Collection<MavenProjectProblem> readingProblems,
 			Set<MavenId> unresolvedArtifactIds)
 	{

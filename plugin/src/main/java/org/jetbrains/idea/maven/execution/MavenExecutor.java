@@ -18,11 +18,11 @@
 
 package org.jetbrains.idea.maven.execution;
 
-import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.progress.ProgressManager;
+import consulo.application.progress.ProgressIndicator;
+import consulo.application.progress.ProgressManager;
 import javax.annotation.Nullable;
 import org.jetbrains.idea.maven.project.MavenConsole;
-import org.jetbrains.idea.maven.server.MavenServerConsole;
+import consulo.maven.rt.server.common.server.MavenServerConsole;
 
 import java.text.MessageFormat;
 
@@ -52,7 +52,7 @@ public abstract class MavenExecutor {
     return myConsole;
   }
 
-  public void setAction(@javax.annotation.Nullable final String action) {
+  public void setAction(@Nullable final String action) {
     myAction = action;
   }
 

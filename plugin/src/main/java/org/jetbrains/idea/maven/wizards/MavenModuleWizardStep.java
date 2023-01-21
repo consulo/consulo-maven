@@ -15,24 +15,29 @@
  */
 package org.jetbrains.idea.maven.wizards;
 
-import com.intellij.ide.util.PropertiesComponent;
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.ui.*;
-import com.intellij.ui.treeStructure.Tree;
-import com.intellij.util.ui.AsyncProcessIcon;
-import com.intellij.util.ui.UIUtil;
-import com.intellij.util.ui.tree.TreeUtil;
+import consulo.application.ApplicationManager;
+import consulo.application.ApplicationPropertiesComponent;
 import consulo.disposer.Disposable;
 import consulo.disposer.Disposer;
 import consulo.maven.newProject.MavenNewModuleContext;
+import consulo.maven.rt.server.common.model.MavenArchetype;
+import consulo.maven.rt.server.common.model.MavenId;
+import consulo.project.Project;
+import consulo.ui.Component;
 import consulo.ui.annotation.RequiredUIAccess;
-import consulo.ui.wizard.WizardStep;
-import consulo.ui.wizard.WizardStepValidationException;
+import consulo.ui.ex.SimpleTextAttributes;
+import consulo.ui.ex.awt.AsyncProcessIcon;
+import consulo.ui.ex.awt.ScrollPaneFactory;
+import consulo.ui.ex.awt.UIUtil;
+import consulo.ui.ex.awt.speedSearch.SpeedSearchComparator;
+import consulo.ui.ex.awt.speedSearch.TreeSpeedSearch;
+import consulo.ui.ex.awt.tree.ColoredTreeCellRenderer;
+import consulo.ui.ex.awt.tree.Tree;
+import consulo.ui.ex.awt.tree.TreeUtil;
+import consulo.ui.ex.wizard.WizardStep;
+import consulo.ui.ex.wizard.WizardStepValidationException;
+import consulo.util.lang.StringUtil;
 import org.jetbrains.idea.maven.indices.MavenIndicesManager;
-import org.jetbrains.idea.maven.model.MavenArchetype;
-import org.jetbrains.idea.maven.model.MavenId;
 import org.jetbrains.idea.maven.navigator.SelectMavenProjectDialog;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
@@ -248,7 +253,7 @@ public class MavenModuleWizardStep implements WizardStep<MavenNewModuleContext>
 
 	private static String getSavedValue(String key, String defaultValue)
 	{
-		String value = PropertiesComponent.getInstance().getValue(key);
+		String value = ApplicationPropertiesComponent.getInstance().getValue(key);
 		return value == null ? defaultValue : value;
 	}
 
@@ -259,14 +264,14 @@ public class MavenModuleWizardStep implements WizardStep<MavenNewModuleContext>
 
 	private static void saveValue(String key, String value)
 	{
-		PropertiesComponent props = PropertiesComponent.getInstance();
+		ApplicationPropertiesComponent props = ApplicationPropertiesComponent.getInstance();
 		props.setValue(key, value);
 	}
 
 	@RequiredUIAccess
 	@Nonnull
 	@Override
-	public consulo.ui.Component getComponent(@Nonnull MavenNewModuleContext context, @Nonnull Disposable uiDisposable)
+	public Component getComponent(@Nonnull MavenNewModuleContext context, @Nonnull Disposable uiDisposable)
 	{
 		throw new UnsupportedOperationException("desktop only");
 	}

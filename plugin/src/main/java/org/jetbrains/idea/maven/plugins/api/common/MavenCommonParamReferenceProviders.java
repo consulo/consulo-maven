@@ -15,16 +15,15 @@
  */
 package org.jetbrains.idea.maven.plugins.api.common;
 
-import com.intellij.codeInsight.lookup.LookupElement;
-import com.intellij.codeInsight.lookup.LookupElementBuilder;
-import com.intellij.openapi.util.Condition;
-import com.intellij.openapi.vfs.CharsetToolkit;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiReference;
-import com.intellij.psi.PsiReferenceBase;
-import com.intellij.psi.impl.source.resolve.reference.impl.providers.FileReferenceSet;
-import com.intellij.util.ProcessingContext;
-import javax.annotation.Nonnull;
+import consulo.language.editor.completion.lookup.LookupElement;
+import consulo.language.editor.completion.lookup.LookupElementBuilder;
+import consulo.language.psi.PsiElement;
+import consulo.language.psi.PsiReference;
+import consulo.language.psi.PsiReferenceBase;
+import consulo.language.psi.path.FileReferenceSet;
+import consulo.language.util.ProcessingContext;
+import consulo.util.io.CharsetToolkit;
+import consulo.util.lang.function.Condition;
 import org.jetbrains.idea.maven.dom.model.MavenDomConfiguration;
 import org.jetbrains.idea.maven.dom.references.MavenDependencyReferenceProvider;
 import org.jetbrains.idea.maven.dom.references.MavenPathReferenceConverter;
@@ -33,6 +32,7 @@ import org.jetbrains.idea.maven.plugins.api.MavenParamReferenceProvider;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.utils.MavenUtil;
 
+import javax.annotation.Nonnull;
 import java.nio.charset.Charset;
 
 /**
@@ -46,8 +46,8 @@ public class MavenCommonParamReferenceProviders {
   public static class FilePath implements MavenParamReferenceProvider {
     @Override
     public PsiReference[] getReferencesByElement(@Nonnull PsiElement element,
-                                                 @Nonnull MavenDomConfiguration domCfg,
-                                                 @Nonnull ProcessingContext context) {
+												 @Nonnull MavenDomConfiguration domCfg,
+												 @Nonnull ProcessingContext context) {
       return MavenPathReferenceConverter.createReferences(domCfg, element, Condition.TRUE);
     }
   }
@@ -55,8 +55,8 @@ public class MavenCommonParamReferenceProviders {
   public static class DirPath implements MavenParamReferenceProvider {
     @Override
     public PsiReference[] getReferencesByElement(@Nonnull PsiElement element,
-                                                 @Nonnull MavenDomConfiguration domCfg,
-                                                 @Nonnull ProcessingContext context) {
+																	  @Nonnull MavenDomConfiguration domCfg,
+																	  @Nonnull ProcessingContext context) {
       return MavenPathReferenceConverter.createReferences(domCfg, element, FileReferenceSet.DIRECTORY_FILTER);
     }
   }

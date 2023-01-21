@@ -18,106 +18,116 @@
 
 package org.jetbrains.idea.maven.execution;
 
-import com.intellij.execution.ExecutionException;
-import com.intellij.execution.process.OSProcessHandler;
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.project.Project;
+import consulo.application.ApplicationManager;
+import consulo.application.progress.ProgressIndicator;
 import consulo.java.execution.configurations.OwnJavaParameters;
-import consulo.util.dataholder.Key;
+import consulo.maven.rt.server.common.server.MavenServerConsole;
+import consulo.process.ExecutionException;
+import consulo.process.ProcessHandler;
+import consulo.process.ProcessHandlerBuilder;
+import consulo.project.Project;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.idea.maven.project.MavenConsole;
 import org.jetbrains.idea.maven.project.MavenGeneralSettings;
-import org.jetbrains.idea.maven.server.MavenServerConsole;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class MavenExternalExecutor extends MavenExecutor {
+public class MavenExternalExecutor extends MavenExecutor
+{
+	private ProcessHandler myProcessHandler;
 
-  private OSProcessHandler myProcessHandler;
+	@NonNls
+	private static final String PHASE_INFO_REGEXP = "\\[INFO\\] \\[.*:.*\\]";
+	@NonNls
+	private static final int INFO_PREFIX_SIZE = "[INFO] ".length();
 
-  @NonNls private static final String PHASE_INFO_REGEXP = "\\[INFO\\] \\[.*:.*\\]";
-  @NonNls private static final int INFO_PREFIX_SIZE = "[INFO] ".length();
+	private OwnJavaParameters myJavaParameters;
+	private ExecutionException myParameterCreationError;
 
-  private OwnJavaParameters myJavaParameters;
-  private ExecutionException myParameterCreationError;
+	public MavenExternalExecutor(Project project,
+								 @Nonnull MavenRunnerParameters parameters,
+								 @Nullable MavenGeneralSettings coreSettings,
+								 @Nullable MavenRunnerSettings runnerSettings,
+								 @Nonnull MavenConsole console)
+	{
+		super(parameters, RunnerBundle.message("external.executor.caption"), console);
 
-  public MavenExternalExecutor(Project project,
-                               @Nonnull MavenRunnerParameters parameters,
-                               @Nullable MavenGeneralSettings coreSettings,
-                               @Nullable MavenRunnerSettings runnerSettings,
-                               @Nonnull MavenConsole console) {
-    super(parameters, RunnerBundle.message("external.executor.caption"), console);
+		try
+		{
+			myJavaParameters = MavenExternalParameters.createJavaParameters(project, myParameters, coreSettings, runnerSettings);
+		}
+		catch(ExecutionException e)
+		{
+			myParameterCreationError = e;
+		}
+	}
 
-    try {
-      myJavaParameters = MavenExternalParameters.createJavaParameters(project, myParameters, coreSettings, runnerSettings);
-    }
-    catch (ExecutionException e) {
-      myParameterCreationError = e;
-    }
-  }
+	public boolean execute(final ProgressIndicator indicator)
+	{
+		displayProgress();
 
-  public boolean execute(final ProgressIndicator indicator) {
-    displayProgress();
+		try
+		{
+			if(myParameterCreationError != null)
+			{
+				throw myParameterCreationError;
+			}
 
-    try {
-      if (myParameterCreationError != null) {
-        throw myParameterCreationError;
-      }
+			myProcessHandler = ProcessHandlerBuilder.create(myJavaParameters.toCommandLine()).build();
+			myConsole.attachToProcess(myProcessHandler);
+		}
+		catch(ExecutionException e)
+		{
+			myConsole.systemMessage(MavenServerConsole.LEVEL_FATAL, RunnerBundle.message("external.startup.failed", e.getMessage()), null);
+			return false;
+		}
 
-      myProcessHandler = new OSProcessHandler(myJavaParameters.toCommandLine()) {
-          public void notifyTextAvailable(String text, Key outputType) {
-            // todo move this logic to ConsoleAdapter class
-            if (!myConsole.isSuppressed(text)) {
-              super.notifyTextAvailable(text, outputType);
-            }
-            updateProgress(indicator, text);
-          }
-        };
+		start();
+		readProcessOutput();
+		stop();
 
-      myConsole.attachToProcess(myProcessHandler);
-    }
-    catch (ExecutionException e) {
-      myConsole.systemMessage(MavenServerConsole.LEVEL_FATAL, RunnerBundle.message("external.startup.failed", e.getMessage()), null);
-      return false;
-    }
+		return printExitSummary();
+	}
 
-    start();
-    readProcessOutput();
-    stop();
+	void stop()
+	{
+		if(myProcessHandler != null)
+		{
+			myProcessHandler.destroyProcess();
+			myProcessHandler.waitFor();
+			setExitCode(myProcessHandler.getExitCode());
+		}
+		super.stop();
+	}
 
-    return printExitSummary();
-  }
+	private void readProcessOutput()
+	{
+		myProcessHandler.startNotify();
+		myProcessHandler.waitFor();
+	}
 
-  void stop() {
-    if (myProcessHandler != null) {
-      myProcessHandler.destroyProcess();
-      myProcessHandler.waitFor();
-      setExitCode(myProcessHandler.getProcess().exitValue());
-    }
-    super.stop();
-  }
-
-  private void readProcessOutput() {
-    myProcessHandler.startNotify();
-    myProcessHandler.waitFor();
-  }
-
-  private void updateProgress(@Nullable final ProgressIndicator indicator, final String text) {
-    if (indicator != null) {
-      if (indicator.isCanceled()) {
-        if (!isCancelled()) {
-          ApplicationManager.getApplication().invokeLater(new Runnable() {
-            public void run() {
-              cancel();
-            }
-          });
-        }
-      }
-      if (text.matches(PHASE_INFO_REGEXP)) {
-        indicator.setText2(text.substring(INFO_PREFIX_SIZE));
-      }
-    }
-  }
+	private void updateProgress(@Nullable final ProgressIndicator indicator, final String text)
+	{
+		if(indicator != null)
+		{
+			if(indicator.isCanceled())
+			{
+				if(!isCancelled())
+				{
+					ApplicationManager.getApplication().invokeLater(new Runnable()
+					{
+						public void run()
+						{
+							cancel();
+						}
+					});
+				}
+			}
+			if(text.matches(PHASE_INFO_REGEXP))
+			{
+				indicator.setText2(text.substring(INFO_PREFIX_SIZE));
+			}
+		}
+	}
 }

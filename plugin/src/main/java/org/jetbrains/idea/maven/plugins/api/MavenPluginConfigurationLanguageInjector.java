@@ -15,48 +15,56 @@
  */
 package org.jetbrains.idea.maven.plugins.api;
 
-import javax.annotation.Nonnull;
+import consulo.annotation.component.ExtensionImpl;
+import consulo.document.util.TextRange;
+import consulo.language.Language;
+import consulo.language.inject.InjectedLanguagePlaces;
+import consulo.language.inject.LanguageInjector;
+import consulo.language.psi.PsiLanguageInjectionHost;
+import consulo.xml.psi.xml.XmlText;
 
-import com.intellij.lang.Language;
-import com.intellij.openapi.util.TextRange;
-import com.intellij.psi.InjectedLanguagePlaces;
-import com.intellij.psi.LanguageInjector;
-import com.intellij.psi.PsiLanguageInjectionHost;
-import com.intellij.psi.xml.XmlText;
-import com.intellij.util.PairProcessor;
-import org.jetbrains.idea.maven.dom.model.MavenDomConfiguration;
+import javax.annotation.Nonnull;
 
 /**
  * @author Sergey Evdokimov
  */
-public final class MavenPluginConfigurationLanguageInjector implements LanguageInjector {
+@ExtensionImpl
+public final class MavenPluginConfigurationLanguageInjector implements LanguageInjector
+{
+	@Override
+	public void injectLanguages(@Nonnull final PsiLanguageInjectionHost host, @Nonnull final InjectedLanguagePlaces injectionPlacesRegistrar)
+	{
+		if(!(host instanceof XmlText))
+		{
+			return;
+		}
 
-  @Override
-  public void getLanguagesToInject(@Nonnull final PsiLanguageInjectionHost host, @Nonnull final InjectedLanguagePlaces injectionPlacesRegistrar) {
-    if (!(host instanceof XmlText)) return;
+		final XmlText xmlText = (XmlText) host;
 
-    final XmlText xmlText = (XmlText)host;
+		if(!MavenPluginParamInfo.isSimpleText(xmlText))
+		{
+			return;
+		}
 
-    if (!MavenPluginParamInfo.isSimpleText(xmlText)) return;
+		MavenPluginParamInfo.processParamInfo(xmlText, (info, configuration) ->
+		{
+			Language language = info.getLanguage();
 
-    MavenPluginParamInfo.processParamInfo(xmlText, new PairProcessor<MavenPluginParamInfo.ParamInfo, MavenDomConfiguration>() {
-      @Override
-      public boolean process(MavenPluginParamInfo.ParamInfo info, MavenDomConfiguration configuration) {
-        Language language = info.getLanguage();
+			if(language == null)
+			{
+				MavenParamLanguageProvider provider = info.getLanguageProvider();
+				if(provider != null)
+				{
+					language = provider.getLanguage(xmlText, configuration);
+				}
+			}
 
-        if (language == null) {
-          MavenParamLanguageProvider provider = info.getLanguageProvider();
-          if (provider != null) {
-            language = provider.getLanguage(xmlText, configuration);
-          }
-        }
-
-        if (language != null) {
-          injectionPlacesRegistrar.addPlace(language, TextRange.from(0, host.getTextLength()), info.getLanguageInjectionPrefix(), info.getLanguageInjectionSuffix());
-          return false;
-        }
-        return true;
-      }
-    });
-  }
+			if(language != null)
+			{
+				injectionPlacesRegistrar.addPlace(language, TextRange.from(0, host.getTextLength()), info.getLanguageInjectionPrefix(), info.getLanguageInjectionSuffix());
+				return false;
+			}
+			return true;
+		});
+	}
 }

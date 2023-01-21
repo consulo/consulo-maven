@@ -15,53 +15,61 @@
  */
 package org.jetbrains.idea.maven.server;
 
-import com.intellij.execution.DefaultExecutionResult;
-import com.intellij.execution.ExecutionException;
-import com.intellij.execution.ExecutionResult;
-import com.intellij.execution.Executor;
-import com.intellij.execution.configurations.CommandLineState;
-import com.intellij.execution.configurations.GeneralCommandLine;
-import com.intellij.execution.configurations.ParametersList;
-import com.intellij.execution.configurations.RunProfileState;
-import com.intellij.execution.process.OSProcessHandler;
-import com.intellij.execution.process.ProcessHandler;
-import com.intellij.execution.rmi.RemoteProcessSupport;
-import com.intellij.execution.runners.ProgramRunner;
-import com.intellij.ide.plugins.PluginManager;
-import com.intellij.openapi.actionSystem.AnAction;
-import com.intellij.openapi.application.PathManager;
-import com.intellij.openapi.components.PersistentStateComponent;
-import com.intellij.openapi.components.ServiceManager;
-import com.intellij.openapi.components.State;
-import com.intellij.openapi.components.Storage;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.projectRoots.Sdk;
-import com.intellij.openapi.projectRoots.SdkTable;
-import com.intellij.openapi.util.Comparing;
-import com.intellij.openapi.util.ShutDownTracker;
-import com.intellij.openapi.util.Version;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.pom.java.LanguageLevel;
-import com.intellij.util.PathUtil;
-import com.intellij.util.containers.ContainerUtil;
-import com.intellij.util.io.BaseOutputReader;
-import com.intellij.util.xmlb.Converter;
-import com.intellij.util.xmlb.annotations.Attribute;
+import com.intellij.java.language.LanguageLevel;
+import consulo.annotation.component.ComponentScope;
+import consulo.annotation.component.ServiceAPI;
+import consulo.annotation.component.ServiceImpl;
+import consulo.component.persist.PersistentStateComponent;
+import consulo.component.persist.State;
+import consulo.component.persist.Storage;
 import consulo.container.boot.ContainerPathManager;
+import consulo.container.plugin.PluginManager;
+import consulo.content.bundle.Sdk;
+import consulo.content.bundle.SdkTable;
+import consulo.execution.DefaultExecutionResult;
+import consulo.execution.ExecutionResult;
+import consulo.execution.configuration.CommandLineState;
+import consulo.execution.configuration.RunProfileState;
+import consulo.execution.executor.Executor;
+import consulo.execution.runner.ProgramRunner;
+import consulo.ide.ServiceManager;
+import consulo.ide.impl.idea.execution.rmi.RemoteProcessSupport;
+import consulo.ide.impl.idea.openapi.application.PathManager;
+import consulo.ide.impl.idea.util.PathUtil;
 import consulo.java.execution.OwnSimpleJavaParameters;
-import consulo.java.projectRoots.OwnJdkUtil;
-import consulo.maven.*;
+import consulo.java.execution.projectRoots.OwnJdkUtil;
 import consulo.maven.bundle.MavenBundleType;
+import consulo.maven.rt.m2.server.MavenServer2MarkerRt;
+import consulo.maven.rt.m3.common.MavenServer3CommonMarkerRt;
+import consulo.maven.rt.m3.server.MavenServer30MarkerRt;
+import consulo.maven.rt.m32.server.MavenServer32MarkerRt;
+import consulo.maven.rt.server.common.MavenServerApiMarkerRt;
+import consulo.maven.rt.server.common.model.MavenExplicitProfiles;
+import consulo.maven.rt.server.common.model.MavenModel;
+import consulo.maven.rt.server.common.server.*;
 import consulo.maven.util.MavenJdkUtil;
+import consulo.process.ExecutionException;
+import consulo.process.ProcessHandler;
+import consulo.process.ProcessHandlerBuilder;
+import consulo.process.cmd.GeneralCommandLine;
+import consulo.process.cmd.ParametersList;
+import consulo.project.Project;
+import consulo.ui.ex.action.AnAction;
+import consulo.util.collection.ContainerUtil;
+import consulo.util.collection.Lists;
+import consulo.util.lang.Comparing;
+import consulo.util.lang.ShutDownTracker;
+import consulo.util.lang.StringUtil;
+import consulo.util.lang.Version;
+import consulo.util.lang.ref.SimpleReference;
 import consulo.util.rmi.RemoteServer;
+import consulo.util.xml.serializer.Converter;
+import consulo.util.xml.serializer.annotation.Attribute;
 import jakarta.inject.Singleton;
 import org.apache.lucene.search.Query;
 import org.jdom.Document;
-import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.TestOnly;
 import org.jetbrains.idea.maven.execution.MavenExecutionOptions;
-import org.jetbrains.idea.maven.model.MavenExplicitProfiles;
-import org.jetbrains.idea.maven.model.MavenModel;
 import org.jetbrains.idea.maven.project.MavenConsole;
 import org.jetbrains.idea.maven.project.MavenGeneralSettings;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
@@ -78,10 +86,13 @@ import java.util.*;
 
 @State(name = "MavenVersion", storages = @Storage("mavenVersion.xml"))
 @Singleton
+@ServiceAPI(ComponentScope.APPLICATION)
+@ServiceImpl
 public class MavenServerManager extends RemoteObjectWrapper<MavenServer> implements PersistentStateComponent<MavenServerManager.State>
 {
-	@NonNls
-	private static final String MAIN_CLASS = "org.jetbrains.idea.maven.server.RemoteMavenServer";
+	private static final String MAIN_CLASS_V2 = "consulo.maven.rt.m2.server.RemoteMavenServer";
+	private static final String MAIN_CLASS_V3 = "consulo.maven.rt.m3.server.RemoteMavenServer";
+	private static final String MAIN_CLASS_V32 = "consulo.maven.rt.m32.server.RemoteMavenServer";
 
 	private static final String DEFAULT_VM_OPTIONS = "-Xmx512m";
 
@@ -236,8 +247,6 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
 
 				params.setWorkingDirectory(ContainerPathManager.get().getBinPath());
 
-				params.setMainClass(MAIN_CLASS);
-
 				Map<String, String> defs = new HashMap<>();
 				defs.putAll(MavenUtil.getPropertiesFromMavenOpts());
 
@@ -298,7 +307,10 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
 				classPath.add(PathManager.getJarPathForClass(Document.class)); // jdom
 				ContainerUtil.addIfNotNull(classPath, PathUtil.getJarPathForClass(Query.class));
 				params.getClassPath().addAll(classPath);
-				params.getClassPath().addAllFiles(collectClassPathAndLibsFolder(forceMaven2));
+
+				SimpleReference<String> mainClassRef = new SimpleReference<>(MAIN_CLASS_V2);
+				params.getClassPath().addAllFiles(collectClassPathAndLibsFolder(forceMaven2, mainClassRef));
+				params.setMainClass(mainClassRef.get());
 
 				String embedderXmx = System.getProperty("idea.maven.embedder.xmx");
 				if(embedderXmx != null)
@@ -344,7 +356,7 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
 
 			@Override
 			@Nonnull
-			protected OSProcessHandler startProcess() throws ExecutionException
+			protected ProcessHandler startProcess() throws ExecutionException
 			{
 				OwnSimpleJavaParameters params = createJavaParameters();
 				Sdk sdk = params.getJdk();
@@ -352,19 +364,7 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
 
 				GeneralCommandLine commandLine = OwnJdkUtil.setupJVMCommandLine(params);
 
-				OSProcessHandler processHandler = new OSProcessHandler(commandLine)
-				{
-					@Nonnull
-					@Override
-					protected BaseOutputReader.Options readerOptions()
-					{
-						return BaseOutputReader.Options.forMostlySilentProcess();
-					}
-				};
-
-				processHandler.setShouldDestroyProcessRecursively(false);
-
-				return processHandler;
+				return ProcessHandlerBuilder.create(commandLine).shouldDestroyProcessRecursively(false).silentReader().build();
 			}
 		};
 	}
@@ -423,7 +423,7 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
 	}
 
 	@Nonnull
-	public List<File> collectClassPathAndLibsFolder(boolean forceMaven2)
+	public List<File> collectClassPathAndLibsFolder(boolean forceMaven2, SimpleReference<String> mainClassRef)
 	{
 		final String currentMavenVersion = forceMaven2 ? "2.2.1" : getCurrentMavenVersion();
 		File mavenHome = forceMaven2 ? findMaven2BundlePath() : getCurrentMavenHomeFile();
@@ -437,6 +437,8 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
 
 		if(forceMaven2 || (currentMavenVersion != null && StringUtil.compareVersionNumbers(currentMavenVersion, "3") < 0))
 		{
+			mainClassRef.set(MAIN_CLASS_V2);
+
 			addJarFromClass(classpath, MavenServer2MarkerRt.class);
 			addDir(classpath, new File(libDir, "maven2-server-lib"));
 		}
@@ -447,10 +449,14 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
 
 			if(currentMavenVersion == null || StringUtil.compareVersionNumbers(currentMavenVersion, "3.1") < 0)
 			{
+				mainClassRef.set(MAIN_CLASS_V3);
+
 				addJarFromClass(classpath, MavenServer30MarkerRt.class);
 			}
 			else
 			{
+				mainClassRef.set(MAIN_CLASS_V32);
+
 				addJarFromClass(classpath, MavenServer32MarkerRt.class);
 			}
 		}
@@ -761,7 +767,7 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
 
 	private static class RemoteMavenServerDownloadListener extends MavenRemoteObject implements MavenServerDownloadListener
 	{
-		private final List<MavenServerDownloadListener> myListeners = ContainerUtil.createLockFreeCopyOnWriteList();
+		private final List<MavenServerDownloadListener> myListeners = Lists.newLockFreeCopyOnWriteList();
 
 		@Override
 		public void artifactDownloaded(File file, String relativePath) throws RemoteException

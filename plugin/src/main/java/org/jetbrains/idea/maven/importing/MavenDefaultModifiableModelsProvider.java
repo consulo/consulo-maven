@@ -15,108 +15,130 @@
  */
 package org.jetbrains.idea.maven.importing;
 
-import com.intellij.openapi.application.*;
-import com.intellij.openapi.module.ModifiableModuleModel;
-import com.intellij.openapi.module.Module;
-import com.intellij.openapi.module.ModuleManager;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.roots.ModifiableRootModel;
-import com.intellij.openapi.roots.ModuleRootManager;
-import com.intellij.openapi.roots.ProjectRootManager;
-import com.intellij.openapi.roots.ex.ProjectRootManagerEx;
-import com.intellij.openapi.roots.impl.ModifiableModelCommitter;
-import com.intellij.openapi.roots.impl.libraries.ProjectLibraryTable;
-import com.intellij.openapi.roots.libraries.Library;
-import com.intellij.openapi.roots.libraries.LibraryTable;
-import com.intellij.packaging.artifacts.ArtifactManager;
-import com.intellij.packaging.artifacts.ModifiableArtifactModel;
-import javax.annotation.Nonnull;
+import consulo.application.Application;
+import consulo.application.ReadAction;
+import consulo.compiler.artifact.ArtifactManager;
+import consulo.compiler.artifact.ModifiableArtifactModel;
+import consulo.content.library.Library;
+import consulo.content.library.LibraryTable;
+import consulo.module.ModifiableModuleModel;
+import consulo.module.Module;
+import consulo.module.ModuleManager;
+import consulo.module.content.ModifiableModelCommitter;
+import consulo.module.content.ModuleRootManager;
+import consulo.module.content.ProjectRootManager;
+import consulo.module.content.layer.ModifiableRootModel;
+import consulo.project.Project;
+import consulo.project.content.library.ProjectLibraryTable;
+import consulo.ui.ModalityState;
 
+import javax.annotation.Nonnull;
 import java.util.Collection;
 
-public class MavenDefaultModifiableModelsProvider extends MavenBaseModifiableModelsProvider {
-  private final LibraryTable.ModifiableModel myLibrariesModel;
+public class MavenDefaultModifiableModelsProvider extends MavenBaseModifiableModelsProvider
+{
+	private final LibraryTable.ModifiableModel myLibrariesModel;
 
-  public MavenDefaultModifiableModelsProvider(Project project) {
-    super(project);
-    myLibrariesModel = ProjectLibraryTable.getInstance(myProject).getModifiableModel();
-  }
+	public MavenDefaultModifiableModelsProvider(Project project)
+	{
+		super(project);
+		myLibrariesModel = ProjectLibraryTable.getInstance(myProject).getModifiableModel();
+	}
 
-  @Override
-  protected ModifiableArtifactModel doGetArtifactModel() {
-    return ReadAction.compute(() -> ArtifactManager.getInstance(myProject).createModifiableModel());
-  }
+	@Override
+	protected ModifiableArtifactModel doGetArtifactModel()
+	{
+		return ReadAction.compute(() -> ArtifactManager.getInstance(myProject).createModifiableModel());
+	}
 
-  @Override
-  protected ModifiableModuleModel doGetModuleModel() {
-    return ReadAction.compute(() -> ModuleManager.getInstance(myProject).getModifiableModel());
-  }
+	@Override
+	protected ModifiableModuleModel doGetModuleModel()
+	{
+		return ReadAction.compute(() -> ModuleManager.getInstance(myProject).getModifiableModel());
+	}
 
-  @Override
-  protected ModifiableRootModel doGetRootModel(@Nonnull final Module module) {
-    return ReadAction.compute(() -> ModuleRootManager.getInstance(module).getModifiableModel());
-  }
+	@Override
+	protected ModifiableRootModel doGetRootModel(@Nonnull final Module module)
+	{
+		return ReadAction.compute(() -> ModuleRootManager.getInstance(module).getModifiableModel());
+	}
 
-  @Override
-  public LibraryTable.ModifiableModel getProjectLibrariesModel() {
-    return myLibrariesModel;
-  }
+	@Override
+	public LibraryTable.ModifiableModel getProjectLibrariesModel()
+	{
+		return myLibrariesModel;
+	}
 
-  public Library[] getAllLibraries() {
-    return myLibrariesModel.getLibraries();
-  }
+	public Library[] getAllLibraries()
+	{
+		return myLibrariesModel.getLibraries();
+	}
 
-  public Library getLibraryByName(String name) {
-    return myLibrariesModel.getLibraryByName(name);
-  }
+	public Library getLibraryByName(String name)
+	{
+		return myLibrariesModel.getLibraryByName(name);
+	}
 
-  public Library createLibrary(String name) {
-    return myLibrariesModel.createLibrary(name);
-  }
+	public Library createLibrary(String name)
+	{
+		return myLibrariesModel.createLibrary(name);
+	}
 
-  public void removeLibrary(Library library) {
-    myLibrariesModel.removeLibrary(library);
-  }
+	public void removeLibrary(Library library)
+	{
+		myLibrariesModel.removeLibrary(library);
+	}
 
-  @Override
-  protected Library.ModifiableModel doGetLibraryModel(Library library) {
-    return library.getModifiableModel();
-  }
+	@Override
+	protected Library.ModifiableModel doGetLibraryModel(Library library)
+	{
+		return library.getModifiableModel();
+	}
 
-  public void commit() {
-    ((ProjectRootManagerEx)ProjectRootManager.getInstance(myProject)).mergeRootsChangesDuring(new Runnable() {
-      public void run() {
-        processExternalArtifactDependencies();
-        for (Library.ModifiableModel each : myLibraryModels.values()) {
-          each.commit();
-        }
-        myLibrariesModel.commit();
-        Collection<ModifiableRootModel> rootModels = myRootModels.values();
+	public void commit()
+	{
+		ProjectRootManager.getInstance(myProject).mergeRootsChangesDuring(new Runnable()
+		{
+			public void run()
+			{
+				processExternalArtifactDependencies();
+				for(Library.ModifiableModel each : myLibraryModels.values())
+				{
+					each.commit();
+				}
+				myLibrariesModel.commit();
+				Collection<ModifiableRootModel> rootModels = myRootModels.values();
 
-        ModifiableRootModel[] rootModels1 = rootModels.toArray(new ModifiableRootModel[rootModels.size()]);
-        for (ModifiableRootModel model : rootModels1) {
-          assert !model.isDisposed() : "Already disposed: " + model;
-        }
-        ModifiableModelCommitter.multiCommit(rootModels1, myModuleModel);
+				ModifiableRootModel[] rootModels1 = rootModels.toArray(new ModifiableRootModel[rootModels.size()]);
+				for(ModifiableRootModel model : rootModels1)
+				{
+					assert !model.isDisposed() : "Already disposed: " + model;
+				}
+				ModifiableModelCommitter.getInstance(myProject).multiCommit(rootModels1, myModuleModel);
 
-        if (myArtifactModel != null) {
-          myArtifactModel.commit();
-        }
-      }
-    });
-  }
+				if(myArtifactModel != null)
+				{
+					myArtifactModel.commit();
+				}
+			}
+		});
+	}
 
-  public void dispose() {
-    for (ModifiableRootModel each : myRootModels.values()) {
-      each.dispose();
-    }
-    myModuleModel.dispose();
-    if (myArtifactModel != null) {
-      myArtifactModel.dispose();
-    }
-  }
+	public void dispose()
+	{
+		for(ModifiableRootModel each : myRootModels.values())
+		{
+			each.dispose();
+		}
+		myModuleModel.dispose();
+		if(myArtifactModel != null)
+		{
+			myArtifactModel.dispose();
+		}
+	}
 
-  public ModalityState getModalityStateForQuestionDialogs() {
-    return ModalityState.NON_MODAL;
-  }
+	public ModalityState getModalityStateForQuestionDialogs()
+	{
+		return Application.get().getNoneModalityState();
+	}
 }

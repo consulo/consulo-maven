@@ -18,9 +18,9 @@ package org.jetbrains.idea.maven.services.artifactory;
 
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
-import org.jvnet.ws.wadl.util.DSDispatcher;
-import org.jvnet.ws.wadl.util.JAXBDispatcher;
-import org.jvnet.ws.wadl.util.UriBuilder;
+import consulo.maven.internal.org.jvnet.ws.wadl.util.DSDispatcher;
+import consulo.maven.internal.org.jvnet.ws.wadl.util.JAXBDispatcher;
+import consulo.maven.internal.org.jvnet.ws.wadl.util.UriBuilder;
 
 import jakarta.activation.DataSource;
 import java.io.IOException;

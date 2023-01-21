@@ -16,13 +16,13 @@
 package org.jetbrains.idea.maven.dom.references;
 
 import com.intellij.lang.properties.IProperty;
-import com.intellij.openapi.util.TextRange;
-import com.intellij.openapi.vfs.LocalFileSystem;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiFileFactory;
-import com.intellij.util.IncorrectOperationException;
+import consulo.document.util.TextRange;
+import consulo.language.psi.PsiElement;
+import consulo.language.psi.PsiFile;
+import consulo.language.psi.PsiFileFactory;
+import consulo.language.util.IncorrectOperationException;
+import consulo.virtualFileSystem.LocalFileSystem;
+import consulo.virtualFileSystem.VirtualFile;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
 import org.jetbrains.idea.maven.project.MavenProject;
 
@@ -61,7 +61,8 @@ public class MavenFilteredPropertyPsiReference extends MavenPropertyPsiReference
   }
 
   @Override
-  public PsiElement handleElementRename(String newElementName) throws IncorrectOperationException {
+  public PsiElement handleElementRename(String newElementName) throws IncorrectOperationException
+  {
     String newText = myRange.replace(myElement.getText(), newElementName);
     PsiFile psiFile = myElement.getContainingFile();
     String newFileText = myElement.getTextRange().replace(psiFile.getText(), newText);

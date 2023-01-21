@@ -15,17 +15,24 @@
  */
 package org.jetbrains.idea.maven.execution;
 
-import com.intellij.openapi.application.AccessToken;
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.application.ReadAction;
-import com.intellij.openapi.components.*;
-import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.fileEditor.FileDocumentManager;
-import com.intellij.openapi.progress.ProcessCanceledException;
-import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.progress.ProgressManager;
-import com.intellij.openapi.progress.Task;
-import com.intellij.openapi.project.Project;
+import consulo.annotation.component.ComponentScope;
+import consulo.annotation.component.ServiceAPI;
+import consulo.annotation.component.ServiceImpl;
+import consulo.application.ApplicationManager;
+import consulo.application.ReadAction;
+import consulo.application.progress.ProgressIndicator;
+import consulo.application.progress.ProgressManager;
+import consulo.application.progress.Task;
+import consulo.component.ProcessCanceledException;
+import consulo.component.persist.PersistentStateComponent;
+import consulo.component.persist.State;
+import consulo.component.persist.Storage;
+import consulo.component.persist.StoragePathMacros;
+import consulo.document.FileDocumentManager;
+import consulo.ide.ServiceManager;
+import consulo.logging.Logger;
+import consulo.project.Project;
+import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import org.jetbrains.idea.maven.project.MavenConsole;
 import org.jetbrains.idea.maven.project.MavenConsoleImpl;
@@ -39,9 +46,10 @@ import java.util.List;
 
 @State(name = "MavenRunner", storages = {@Storage(file = StoragePathMacros.WORKSPACE_FILE)})
 @Singleton
+@ServiceAPI(ComponentScope.PROJECT)
+@ServiceImpl
 public class MavenRunner implements PersistentStateComponent<MavenRunnerSettings>
 {
-
 	private static final Logger LOG = Logger.getInstance(MavenRunner.class);
 
 	private MavenRunnerSettings mySettings = new MavenRunnerSettings();
@@ -52,6 +60,7 @@ public class MavenRunner implements PersistentStateComponent<MavenRunnerSettings
 		return ServiceManager.getService(project, MavenRunner.class);
 	}
 
+	@Inject
 	public MavenRunner(final Project project)
 	{
 		myProject = project;

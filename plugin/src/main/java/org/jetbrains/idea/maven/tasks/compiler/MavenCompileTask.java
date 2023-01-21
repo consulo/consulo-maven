@@ -1,8 +1,8 @@
 package org.jetbrains.idea.maven.tasks.compiler;
 
+import consulo.compiler.CompileContext;
 import org.jetbrains.idea.maven.tasks.MavenTasksManager;
-import com.intellij.openapi.compiler.CompileContext;
-import com.intellij.openapi.compiler.CompileTask;
+import consulo.compiler.CompileTask;
 
 /**
  * @author VISTALL
@@ -10,25 +10,9 @@ import com.intellij.openapi.compiler.CompileTask;
  */
 public class MavenCompileTask implements CompileTask
 {
-	public static class Before extends MavenCompileTask
-	{
-		public Before()
-		{
-			super(true);
-		}
-	}
-
-	public static class After extends MavenCompileTask
-	{
-		public After()
-		{
-			super(false);
-		}
-	}
-
 	private final boolean myBefore;
 
-	private MavenCompileTask(boolean before)
+	protected MavenCompileTask(boolean before)
 	{
 		myBefore = before;
 	}

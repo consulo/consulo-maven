@@ -15,6 +15,8 @@
  */
 package org.jetbrains.idea.maven.server;
 
+import consulo.maven.rt.server.common.server.IndexedMavenId;
+
 import java.util.Collection;
 
 @FunctionalInterface

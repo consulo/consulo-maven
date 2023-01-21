@@ -15,21 +15,20 @@
  */
 package org.jetbrains.idea.maven.dom.refactorings.introduce;
 
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.DialogWrapper;
-import com.intellij.openapi.util.Pair;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.psi.codeStyle.CodeStyleSettingsManager;
-import com.intellij.psi.util.PsiTreeUtil;
-import com.intellij.psi.xml.XmlElement;
-import com.intellij.psi.xml.XmlTag;
-import com.intellij.refactoring.ui.NameSuggestionsField;
-import com.intellij.util.ArrayUtil;
-import com.intellij.util.Function;
-import com.intellij.util.StringLenComparator;
-import com.intellij.util.xml.DomElement;
-import com.intellij.util.xml.DomFileElement;
-import com.intellij.util.xml.DomUtil;
+import consulo.language.codeStyle.CodeStyleSettingsManager;
+import consulo.language.editor.refactoring.ui.NameSuggestionsField;
+import consulo.language.psi.util.PsiTreeUtil;
+import consulo.project.Project;
+import consulo.ui.ex.awt.DialogWrapper;
+import consulo.util.collection.ArrayUtil;
+import consulo.util.lang.Pair;
+import consulo.util.lang.StringLenComparator;
+import consulo.util.lang.StringUtil;
+import consulo.xml.psi.xml.XmlElement;
+import consulo.xml.psi.xml.XmlTag;
+import consulo.xml.util.xml.DomElement;
+import consulo.xml.util.xml.DomFileElement;
+import consulo.xml.util.xml.DomUtil;
 import org.jetbrains.idea.maven.dom.MavenDomBundle;
 import org.jetbrains.idea.maven.dom.MavenDomProjectProcessorUtils;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
@@ -44,6 +43,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.List;
 import java.util.*;
+import java.util.function.Function;
 
 public class IntroducePropertyDialog extends DialogWrapper {
 
@@ -199,7 +199,7 @@ public class IntroducePropertyDialog extends DialogWrapper {
 
     ComboBoxUtil
       .setModel(myMavenProjectsComboBox, new DefaultComboBoxModel(), projects, new Function<MavenDomProjectModel, Pair<String, ?>>() {
-        public Pair<String, ?> fun(MavenDomProjectModel model) {
+        public Pair<String, ?> apply(MavenDomProjectModel model) {
           String projectName = model.getName().getStringValue();
           MavenProject mavenProject = MavenDomUtil.findProject(model);
           if (mavenProject != null) {

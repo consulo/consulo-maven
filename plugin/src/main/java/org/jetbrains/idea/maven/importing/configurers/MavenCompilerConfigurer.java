@@ -15,17 +15,17 @@
  */
 package org.jetbrains.idea.maven.importing.configurers;
 
+import consulo.compiler.CompilerManager;
+import consulo.compiler.setting.ExcludeEntryDescription;
+import consulo.compiler.setting.ExcludedEntriesConfiguration;
+import consulo.module.Module;
+import consulo.project.Project;
+import consulo.virtualFileSystem.VirtualFile;
+import consulo.virtualFileSystem.util.VirtualFileUtil;
+import org.jetbrains.idea.maven.project.MavenProject;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
-import org.jetbrains.idea.maven.project.MavenProject;
-import com.intellij.openapi.compiler.CompilerManager;
-import com.intellij.openapi.compiler.options.ExcludeEntryDescription;
-import com.intellij.openapi.compiler.options.ExcludedEntriesConfiguration;
-import com.intellij.openapi.module.Module;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.VfsUtil;
-import com.intellij.openapi.vfs.VirtualFile;
 
 /**
  * @author Sergey Evdokimov
@@ -45,7 +45,7 @@ public class MavenCompilerConfigurer extends MavenModuleConfigurer
 		VirtualFile directoryFile = mavenProject.getDirectoryFile();
 
 		// Exclude src/main/archetype-resources
-		VirtualFile archetypeResourcesDir = VfsUtil.findRelativeFile(directoryFile, "src", "main", "resources", "archetype-resources");
+		VirtualFile archetypeResourcesDir = VirtualFileUtil.findRelativeFile(directoryFile, "src", "main", "resources", "archetype-resources");
 
 		if(archetypeResourcesDir != null)
 		{

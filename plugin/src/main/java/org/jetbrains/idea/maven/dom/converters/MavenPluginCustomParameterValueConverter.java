@@ -15,17 +15,17 @@
  */
 package org.jetbrains.idea.maven.dom.converters;
 
-import javax.annotation.Nonnull;
+import com.intellij.java.impl.util.xml.converters.values.GenericDomValueConvertersRegistry;
+import com.intellij.java.language.psi.JavaPsiFacade;
+import com.intellij.java.language.psi.PsiClass;
+import com.intellij.java.language.psi.util.PsiTypesUtil;
+import consulo.language.psi.scope.GlobalSearchScope;
+import consulo.project.Project;
+import consulo.xml.util.xml.Converter;
+import consulo.xml.util.xml.GenericDomValue;
+import consulo.xml.util.xml.WrappingConverter;
 
-import com.intellij.openapi.project.Project;
-import com.intellij.psi.JavaPsiFacade;
-import com.intellij.psi.PsiClass;
-import com.intellij.psi.search.GlobalSearchScope;
-import com.intellij.psi.util.PsiTypesUtil;
-import com.intellij.util.xml.Converter;
-import com.intellij.util.xml.GenericDomValue;
-import com.intellij.util.xml.WrappingConverter;
-import com.intellij.util.xml.converters.values.GenericDomValueConvertersRegistry;
+import javax.annotation.Nonnull;
 
 public class MavenPluginCustomParameterValueConverter extends WrappingConverter {
   private final String myType;

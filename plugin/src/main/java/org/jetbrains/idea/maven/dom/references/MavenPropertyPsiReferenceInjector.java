@@ -15,12 +15,12 @@
  */
 package org.jetbrains.idea.maven.dom.references;
 
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiReference;
-import com.intellij.util.xml.ConvertContext;
-import com.intellij.util.xml.DomReferenceInjector;
-import com.intellij.util.xml.DomUtil;
+import consulo.language.psi.PsiElement;
+import consulo.util.lang.StringUtil;
+import consulo.language.psi.PsiReference;
+import consulo.xml.util.xml.ConvertContext;
+import consulo.xml.util.xml.DomReferenceInjector;
+import consulo.xml.util.xml.DomUtil;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.jetbrains.idea.maven.dom.MavenPropertyResolver;

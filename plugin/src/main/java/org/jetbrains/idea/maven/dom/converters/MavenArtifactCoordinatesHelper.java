@@ -15,11 +15,11 @@
  */
 package org.jetbrains.idea.maven.dom.converters;
 
-import com.intellij.util.xml.ConvertContext;
+import consulo.xml.util.xml.ConvertContext;
 import javax.annotation.Nullable;
 import org.jetbrains.idea.maven.dom.model.MavenDomArtifactCoordinates;
 import org.jetbrains.idea.maven.dom.model.MavenDomShortArtifactCoordinates;
-import org.jetbrains.idea.maven.model.MavenId;
+import consulo.maven.rt.server.common.model.MavenId;
 
 public class MavenArtifactCoordinatesHelper {
   public static MavenId getId(ConvertContext context) {

@@ -15,66 +15,86 @@
  */
 package org.jetbrains.idea.maven.plugins.api;
 
-import com.intellij.patterns.PlatformPatterns;
-import com.intellij.patterns.XmlPatterns;
-import com.intellij.psi.*;
-import com.intellij.psi.xml.XmlText;
-import com.intellij.psi.xml.XmlTokenType;
-import com.intellij.util.PairProcessor;
-import com.intellij.util.ProcessingContext;
-import javax.annotation.Nonnull;
+import consulo.annotation.component.ExtensionImpl;
+import consulo.language.Language;
+import consulo.language.pattern.PlatformPatterns;
+import consulo.language.psi.*;
+import consulo.language.util.ProcessingContext;
+import consulo.maven.plugin.MavenPluginDescriptorParam;
+import consulo.xml.lang.xml.XMLLanguage;
+import consulo.xml.patterns.XmlPatterns;
+import consulo.xml.psi.xml.XmlText;
+import consulo.xml.psi.xml.XmlTokenType;
 import org.jetbrains.idea.maven.dom.model.MavenDomConfiguration;
 
-import static org.jetbrains.idea.maven.plugins.api.MavenPluginParamInfo.ParamInfo;
+import javax.annotation.Nonnull;
+import java.util.function.BiPredicate;
 
 /**
  * @author Sergey Evdokimov
  */
-public class MavenPluginParamReferenceContributor extends PsiReferenceContributor {
+@ExtensionImpl
+public class MavenPluginParamReferenceContributor extends PsiReferenceContributor
+{
+	@Override
+	public void registerReferenceProviders(PsiReferenceRegistrar registrar)
+	{
+		registrar.registerReferenceProvider(
+				PlatformPatterns.psiElement(XmlTokenType.XML_DATA_CHARACTERS).withParent(
+						XmlPatterns.xmlText().inFile(XmlPatterns.xmlFile().withName("pom.xml"))
+				),
+				new MavenPluginParamRefProvider());
+	}
 
-  @Override
-  public void registerReferenceProviders(PsiReferenceRegistrar registrar) {
-    registrar.registerReferenceProvider(
-      PlatformPatterns.psiElement(XmlTokenType.XML_DATA_CHARACTERS).withParent(
-        XmlPatterns.xmlText().inFile(XmlPatterns.xmlFile().withName("pom.xml"))
-      ),
-      new MavenPluginParamRefProvider());
-  }
+	private static class MavenPluginParamRefProvider extends PsiReferenceProvider
+	{
 
-  private static class MavenPluginParamRefProvider extends PsiReferenceProvider {
+		@Nonnull
+		@Override
+		public PsiReference[] getReferencesByElement(@Nonnull final PsiElement element, @Nonnull final ProcessingContext context)
+		{
+			final XmlText xmlText = (XmlText) element.getParent();
 
-    @Nonnull
-    @Override
-    public PsiReference[] getReferencesByElement(@Nonnull final PsiElement element, @Nonnull final ProcessingContext context) {
-      final XmlText xmlText = (XmlText)element.getParent();
+			if(!MavenPluginParamInfo.isSimpleText(xmlText))
+			{
+				return PsiReference.EMPTY_ARRAY;
+			}
 
-      if (!MavenPluginParamInfo.isSimpleText(xmlText)) return PsiReference.EMPTY_ARRAY;
+			class MyProcessor implements BiPredicate<MavenPluginDescriptorParam, MavenDomConfiguration>
+			{
+				PsiReference[] result;
 
-      class MyProcessor implements PairProcessor<ParamInfo, MavenDomConfiguration> {
-        PsiReference[] result;
+				@Override
+				public boolean test(MavenPluginDescriptorParam info, MavenDomConfiguration domCfg)
+				{
+					MavenParamReferenceProvider providerInstance = info.getRefProvider();
+					if(providerInstance != null)
+					{
+						result = providerInstance.getReferencesByElement(xmlText, domCfg, context);
+						return false;
+					}
 
-        @Override
-        public boolean process(ParamInfo info, MavenDomConfiguration domCfg) {
-          MavenParamReferenceProvider providerInstance = info.getProviderInstance();
-          if (providerInstance != null) {
-            result = providerInstance.getReferencesByElement(xmlText, domCfg, context);
-            return false;
-          }
+					return true;
+				}
+			}
 
-          return true;
-        }
-      }
+			MyProcessor processor = new MyProcessor();
 
-      MyProcessor processor = new MyProcessor();
+			MavenPluginParamInfo.processParamInfo(xmlText, processor);
 
-      MavenPluginParamInfo.processParamInfo(xmlText, processor);
+			if(processor.result != null)
+			{
+				return processor.result;
+			}
 
-      if (processor.result != null) {
-        return processor.result;
-      }
+			return PsiReference.EMPTY_ARRAY;
+		}
+	}
 
-      return PsiReference.EMPTY_ARRAY;
-    }
-  }
-
+	@Nonnull
+	@Override
+	public Language getLanguage()
+	{
+		return XMLLanguage.INSTANCE;
+	}
 }

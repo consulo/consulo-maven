@@ -15,7 +15,8 @@
 */
 package org.jetbrains.idea.maven.services.nexus;
 
-import org.jetbrains.idea.maven.model.MavenRepositoryInfo;
+import consulo.maven.rt.server.common.model.MavenArtifactInfo;
+import consulo.maven.rt.server.common.model.MavenRepositoryInfo;
 
 import jakarta.xml.bind.annotation.XmlRegistry;
 
@@ -72,7 +73,7 @@ public class ObjectFactory {
   }
 
   /**
-   * Create an instance of {@link org.jetbrains.idea.maven.model.MavenArtifactInfo }
+   * Create an instance of {@link MavenArtifactInfo }
    */
   public ArtifactType createArtifactType() {
     return new ArtifactType();

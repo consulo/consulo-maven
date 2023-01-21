@@ -15,38 +15,33 @@
  */
 package org.jetbrains.idea.maven.utils;
 
-import com.intellij.icons.AllIcons;
-import com.intellij.ide.util.PropertiesComponent;
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.fileChooser.FileChooserDescriptor;
-import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory;
-import com.intellij.openapi.fileChooser.FileChooserDialog;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.project.ProjectBundle;
-import com.intellij.openapi.ui.DialogWrapper;
-import com.intellij.openapi.ui.TextFieldWithBrowseButton;
-import com.intellij.openapi.ui.ValidationInfo;
-import com.intellij.openapi.util.Comparing;
-import com.intellij.openapi.util.Condition;
-import com.intellij.openapi.util.Pair;
-import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.ui.CollectionComboBoxModel;
-import com.intellij.ui.ComboboxWithBrowseButton;
-import com.intellij.ui.DocumentAdapter;
-import com.intellij.ui.components.JBLabel;
-import com.intellij.util.PairProcessor;
-import com.intellij.util.containers.ContainerUtil;
-import com.intellij.util.ui.AsyncProcessIcon;
-import com.intellij.xml.util.XmlStringUtil;
+import consulo.application.AllIcons;
+import consulo.application.ApplicationManager;
 import consulo.disposer.Disposer;
+import consulo.fileChooser.FileChooserDescriptor;
+import consulo.fileChooser.FileChooserDescriptorFactory;
+import consulo.fileChooser.FileChooserDialog;
+import consulo.ide.impl.idea.ide.util.PropertiesComponent;
+import consulo.maven.rt.server.common.model.MavenArtifactInfo;
+import consulo.maven.rt.server.common.model.MavenRepositoryInfo;
+import consulo.project.Project;
+import consulo.project.ProjectBundle;
+import consulo.ui.ex.awt.*;
+import consulo.ui.ex.awt.event.DocumentAdapter;
+import consulo.util.collection.ContainerUtil;
+import consulo.util.io.FileUtil;
+import consulo.util.lang.Comparing;
+import consulo.util.lang.Pair;
+import consulo.util.lang.StringUtil;
+import consulo.util.lang.function.Condition;
+import consulo.util.lang.function.PairProcessor;
+import consulo.util.lang.xml.XmlStringUtil;
+import consulo.virtualFileSystem.VirtualFile;
 import org.jetbrains.annotations.NonNls;
-import org.jetbrains.idea.maven.model.MavenArtifactInfo;
-import org.jetbrains.idea.maven.model.MavenRepositoryInfo;
 import org.jetbrains.idea.maven.utils.library.RepositoryAttachHandler;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.text.JTextComponent;
@@ -57,7 +52,8 @@ import java.io.File;
 import java.util.List;
 import java.util.*;
 
-public class RepositoryAttachDialog extends DialogWrapper {
+public class RepositoryAttachDialog extends DialogWrapper
+{
   @NonNls private static final String PROPERTY_DOWNLOAD_TO_PATH = "Downloaded.Files.Path";
   @NonNls private static final String PROPERTY_ATTACH_JAVADOC = "Repository.Attach.JavaDocs";
   @NonNls private static final String PROPERTY_ATTACH_SOURCES = "Repository.Attach.Sources";
@@ -81,7 +77,7 @@ public class RepositoryAttachDialog extends DialogWrapper {
   private String myFilterString;
   private boolean myInUpdate;
 
-  public RepositoryAttachDialog(Project project, boolean managed, final @javax.annotation.Nullable String initialFilter) {
+  public RepositoryAttachDialog(Project project, boolean managed, final @Nullable String initialFilter) {
     super(project, true);
     myProject = project;
     myManaged = managed;

@@ -15,18 +15,19 @@
  */
 package org.jetbrains.idea.maven.importing;
 
-import com.intellij.openapi.application.ModalityState;
-import com.intellij.openapi.module.ModifiableModuleModel;
-import com.intellij.openapi.module.Module;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.roots.ModifiableRootModel;
-import com.intellij.openapi.roots.libraries.Library;
-import com.intellij.openapi.roots.libraries.LibraryTable;
-import com.intellij.openapi.roots.ui.configuration.ModulesConfiguratorImpl;
-import com.intellij.openapi.roots.ui.configuration.projectRoot.LibrariesModifiableModel;
-import com.intellij.packaging.artifacts.ModifiableArtifactModel;
-import consulo.roots.ui.configuration.LibrariesConfigurator;
-import consulo.roots.ui.configuration.ModulesConfigurator;
+import consulo.application.Application;
+import consulo.compiler.artifact.ModifiableArtifactModel;
+import consulo.content.library.Library;
+import consulo.content.library.LibraryTable;
+import consulo.ide.impl.idea.openapi.roots.ui.configuration.ModulesConfiguratorImpl;
+import consulo.ide.impl.idea.openapi.roots.ui.configuration.projectRoot.LibrariesModifiableModel;
+import consulo.ide.setting.module.LibrariesConfigurator;
+import consulo.ide.setting.module.ModulesConfigurator;
+import consulo.module.ModifiableModuleModel;
+import consulo.module.Module;
+import consulo.module.content.layer.ModifiableRootModel;
+import consulo.project.Project;
+import consulo.ui.ModalityState;
 
 public class MavenUIModifiableModelsProvider extends MavenBaseModifiableModelsProvider
 {
@@ -117,6 +118,6 @@ public class MavenUIModifiableModelsProvider extends MavenBaseModifiableModelsPr
 	@Override
 	public ModalityState getModalityStateForQuestionDialogs()
 	{
-		return ModalityState.defaultModalityState();
+		return Application.get().getDefaultModalityState();
 	}
 }

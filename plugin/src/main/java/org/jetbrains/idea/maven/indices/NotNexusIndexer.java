@@ -4,7 +4,7 @@ package org.jetbrains.idea.maven.indices;
 import java.io.IOException;
 
 import org.jetbrains.idea.maven.server.MavenIndicesProcessor;
-import org.jetbrains.idea.maven.server.MavenServerIndexerException;
+import consulo.maven.rt.server.common.server.MavenServerIndexerException;
 import org.jetbrains.idea.maven.utils.MavenProgressIndicator;
 
 /**

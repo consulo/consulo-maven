@@ -15,13 +15,20 @@
  */
 package org.jetbrains.idea.maven.dom.refactorings;
 
-import com.intellij.openapi.util.Condition;
-import com.intellij.psi.PsiElement;
+import consulo.annotation.access.RequiredReadAction;
+import consulo.annotation.component.ExtensionImpl;
+import consulo.language.editor.refactoring.rename.VetoRenameCondition;
+import consulo.language.psi.PsiElement;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
 import org.jetbrains.idea.maven.dom.references.MavenPsiElementWrapper;
 
-public class MavenVetoModelRenameCondition implements Condition<PsiElement> {
-  public boolean value(PsiElement target) {
-    return target instanceof MavenPsiElementWrapper || MavenDomUtil.isMavenFile(target);
-  }
+@ExtensionImpl
+public class MavenVetoModelRenameCondition implements VetoRenameCondition
+{
+	@RequiredReadAction
+	@Override
+	public boolean isVetoed(PsiElement target)
+	{
+		return target instanceof MavenPsiElementWrapper || MavenDomUtil.isMavenFile(target);
+	}
 }

@@ -15,18 +15,19 @@
  */
 package org.jetbrains.idea.maven.navigator.actions;
 
-import com.intellij.execution.configurations.ParametersList;
-import com.intellij.notification.Notification;
-import com.intellij.notification.NotificationListener;
-import com.intellij.notification.NotificationType;
-import com.intellij.notification.Notifications;
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.CommonDataKeys;
-import com.intellij.openapi.options.ShowSettingsUtil;
-import com.intellij.openapi.project.DumbAwareAction;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.text.StringUtil;
+import consulo.ide.setting.ShowSettingsUtil;
+import consulo.maven.MavenNotificationGroup;
+import consulo.process.cmd.ParametersList;
+import consulo.project.Project;
+import consulo.project.ui.notification.Notification;
+import consulo.project.ui.notification.NotificationType;
+import consulo.project.ui.notification.Notifications;
+import consulo.project.ui.notification.event.NotificationListener;
+import consulo.language.editor.CommonDataKeys;
+import consulo.ui.ex.action.DumbAwareAction;
 import consulo.ui.annotation.RequiredUIAccess;
+import consulo.ui.ex.action.AnActionEvent;
+import consulo.util.lang.StringUtil;
 import org.jetbrains.idea.maven.execution.*;
 import org.jetbrains.idea.maven.project.MavenGeneralSettings;
 import org.jetbrains.idea.maven.project.MavenProject;
@@ -101,7 +102,7 @@ public class MavenExecuteGoalAction extends DumbAwareAction
 		File mavenHome = MavenUtil.resolveMavenHomeDirectory(projectsManager.getGeneralSettings().getMavenBundleName());
 		if(mavenHome == null)
 		{
-			Notification notification = new Notification(MavenUtil.MAVEN_NOTIFICATION_GROUP, "Failed to execute goal", RunnerBundle.message("external.maven.home.no.default.with.fix"),
+			Notification notification = new Notification(MavenNotificationGroup.ROOT, "Failed to execute goal", RunnerBundle.message("external.maven.home.no.default.with.fix"),
 					NotificationType.ERROR, new NotificationListener.Adapter()
 			{
 				@Override

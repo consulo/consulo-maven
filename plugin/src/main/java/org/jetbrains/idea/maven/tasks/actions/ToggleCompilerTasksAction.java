@@ -25,8 +25,8 @@ import org.jetbrains.idea.maven.tasks.MavenTasksManager;
 import org.jetbrains.idea.maven.utils.MavenDataKeys;
 import org.jetbrains.idea.maven.utils.actions.MavenActionUtil;
 import org.jetbrains.idea.maven.utils.actions.MavenToggleAction;
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.DataContext;
+import consulo.ui.ex.action.AnActionEvent;
+import consulo.dataContext.DataContext;
 
 public abstract class ToggleCompilerTasksAction extends MavenToggleAction
 {

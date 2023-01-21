@@ -14,50 +14,11 @@
 		<tag>build.framework</tag>
 	</tags>
 
-	<extensionPoints>
-		<extensionPoint name="importer" interface="org.jetbrains.idea.maven.importing.MavenImporter"/>
-		<extensionPoint name="additional.importing.settings" interface="org.jetbrains.idea.maven.project.AdditionalMavenImportingSettings"/>
-		<extensionPoint name="archetypesProvider" interface="org.jetbrains.idea.maven.indices.MavenArchetypesProvider"/>
 
-		<extensionPoint name="pluginDescriptor" beanClass="org.jetbrains.idea.maven.plugins.api.MavenPluginDescriptor"/>
-		<extensionPoint name="repositoryProvider" interface="org.jetbrains.idea.maven.indices.MavenRepositoryProvider"/>
-
-	</extensionPoints>
-
-	<extensions defaultExtensionNs="com.intellij.xml.dom">
-		<fileDescription implementation="org.jetbrains.idea.maven.dom.MavenDomProjectModelDescription"/>
-		<fileDescription implementation="org.jetbrains.idea.maven.dom.MavenDomProfilesModelDescription"/>
-		<fileDescription implementation="org.jetbrains.idea.maven.dom.MavenDomOldProfilesModelDescription"/>
-		<fileDescription implementation="org.jetbrains.idea.maven.dom.MavenDomSettingsModelDescription"/>
-		<fileDescription implementation="org.jetbrains.idea.maven.dom.MavenDomPluginModelDescription"/>
-
-		<extender domClass="org.jetbrains.idea.maven.dom.model.MavenDomConfiguration"
-				  extenderClass="org.jetbrains.idea.maven.dom.MavenPluginConfigurationDomExtender"/>
-		<extender domClass="org.jetbrains.idea.maven.dom.model.MavenDomConfigurationParameter"
-				  extenderClass="org.jetbrains.idea.maven.dom.MavenPluginConfigurationParameterDomExtender"/>
-	</extensions>
-
-	<extensions defaultExtensionNs="com.intellij.xml">
-		<standardResourceProvider implementation="org.jetbrains.idea.maven.dom.MavenSchemaProvider"/>
-	</extensions>
-
-	<extensions defaultExtensionNs="consulo.java">
-		<testPatcher implementation="org.jetbrains.idea.maven.execution.MavenJUnitPatcher"/>
-
-		<attachSourcesProvider implementation="org.jetbrains.idea.maven.utils.MavenAttachSourcesProvider"/>
-	</extensions>
 
 	<extensions defaultExtensionNs="com.intellij">
-		<predefinedBundlesProvider implementation="consulo.maven.bundle.MavenPredefinedBundlesProvider" />
-		<sdkType implementation="consulo.maven.bundle.MavenBundleType" />
 
-		<fileTypeFactory implementation="org.jetbrains.idea.maven.utils.MavenFileTypeFactory"/>
-		<moduleImportProvider implementation="consulo.maven.importProvider.MavenModuleImportProvider"/>
-		<newModuleBuilder implementation="consulo.maven.newProject.MavenNewModuleBuilder" />
 
-		<applicationService serviceImplementation="org.jetbrains.idea.maven.server.MavenServerManager"/>
-		<applicationService serviceImplementation="org.jetbrains.idea.maven.indices.MavenIndicesManager"/>
-		<applicationService serviceImplementation="org.jetbrains.idea.maven.services.MavenRepositoryServicesManager"/>
 
 		<projectConfigurable instance="org.jetbrains.idea.maven.utils.MavenSettings" parentId="execution" id="MavenSettings" displayName="Maven">
 			<configurable instance="org.jetbrains.idea.maven.project.MavenImportingConfigurable" id="reference.settings.project.maven.importing"
@@ -71,132 +32,28 @@
 						  nonDefaultProject="true"/>
 		</projectConfigurable>
 
-		<moduleExtensionProvider key="maven"
-								 parentKey="java"
-								 systemOnly="true"
-								 name="Maven"
-								 icon="consulo.maven.MavenIconGroup@mavenlogo"
-								 immutableClass="consulo.maven.module.extension.MavenModuleExtension"
-								 mutableClass="consulo.maven.module.extension.MavenMutableModuleExtension"/>
 
-		<stepsBeforeRunProvider implementation="org.jetbrains.idea.maven.tasks.MavenBeforeRunTasksProvider"/>
-		<keymapExtension implementation="org.jetbrains.idea.maven.tasks.MavenKeymapExtension"/>
-		<configurationType implementation="org.jetbrains.idea.maven.execution.MavenRunConfigurationType"/>
-		<configurationProducer implementation="org.jetbrains.idea.maven.execution.MavenConfigurationProducer"/>
 		<orderEnumerationHandlerFactory implementation="org.jetbrains.idea.maven.execution.MavenOrderEnumeratorHandler$FactoryImpl"/>
 
-		<compiler implementation="org.jetbrains.idea.maven.compiler.MavenResourceCompiler" order="last"/>
-		<compiler.beforeTask implementation="org.jetbrains.idea.maven.tasks.compiler.MavenCompileTask$Before"/>
-		<compiler.afterTask implementation="org.jetbrains.idea.maven.tasks.compiler.MavenCompileTask$After"/>
-
-		<languageInjector implementation="org.jetbrains.idea.maven.plugins.api.MavenPluginConfigurationLanguageInjector"/>
-
-		<selectInTarget implementation="org.jetbrains.idea.maven.navigator.SelectInMavenNavigatorTarget"/>
-
-		<iconDescriptorUpdater implementation="consulo.maven.MavenIconDescriptorUpdater" order="after xml"/>
-		<editorTabTitleProvider implementation="org.jetbrains.idea.maven.utils.MavenEditorTabTitleProvider"/>
-
-		<problemFileHighlightFilter implementation="org.jetbrains.idea.maven.utils.MavenProblemFileHighlighter"/>
-
-		<liveTemplateContext implementation="org.jetbrains.idea.maven.utils.MavenLiveTemplateContextType"/>
-		<defaultLiveTemplatesProvider implementation="org.jetbrains.idea.maven.utils.MavenLiveTemplatesProvider"/>
-
-		<xml.elementDescriptorProvider implementation="org.jetbrains.idea.maven.dom.MavenDomElementDescriptorProvider"/>
-
-		<lang.documentationProvider language="XML" implementationClass="org.jetbrains.idea.maven.dom.MavenModelDocumentationProvider"
-									order="first"/>
-		<lang.documentationProvider language="XML" implementationClass="org.jetbrains.idea.maven.dom.MavenPluginModelDocumentationProvider"
-									order="first"/>
-		<lang.documentationProvider language="XML" implementationClass="org.jetbrains.idea.maven.dom.MavenPomXmlDocumentationProvider"/>
-
-		<elementDescriptionProvider implementation="org.jetbrains.idea.maven.dom.MavenModelDocumentationProvider" order="first"/>
-
-		<localInspection language="XML" shortName="MavenModelInspection" bundle="MavenDomBundle" key="inspection.name"
-						 groupKey="inspection.group"
-						 enabledByDefault="true" level="ERROR"
-						 implementationClass="org.jetbrains.idea.maven.dom.inspections.MavenModelInspection"/>
-		<localInspection language="XML" shortName="MavenDuplicateDependenciesInspection" bundle="MavenDomBundle"
-						 key="inspection.duplicate.dependencies.name"
-						 groupKey="inspection.group" enabledByDefault="true" level="WARNING"
-						 implementationClass="org.jetbrains.idea.maven.dom.inspections.MavenDuplicateDependenciesInspection"/>
-		<localInspection language="XML" shortName="MavenRedundantGroupId" bundle="MavenDomBundle" key="inspection.redundant.groupId.name"
-						 groupKey="inspection.group" enabledByDefault="true" level="WARNING"
-						 implementationClass="org.jetbrains.idea.maven.dom.inspections.MavenRedundantGroupIdInspection"/>
 
 
-		<completion.contributor language="any"
-								implementationClass="org.jetbrains.idea.maven.dom.references.MavenPropertyCompletionContributor"
-								id="Maven" order="after propertiesCompletion, before javaClassReference"/>
-		<completion.contributor language="XML"
-								implementationClass="org.jetbrains.idea.maven.dom.model.completion.MavenSmartCompletionContributor"/>
-		<completion.contributor language="XML"
-								implementationClass="org.jetbrains.idea.maven.dom.model.completion.MavenVersionCompletionContributor"/>
-
-		<psi.referenceContributor implementation="org.jetbrains.idea.maven.dom.references.MavenPropertyPsiReferenceContributor"/>
-
-		<psi.referenceContributor language="XML" implementation="org.jetbrains.idea.maven.plugins.api.MavenPluginParamReferenceContributor"/>
-
-		<usageTargetProvider implementation="org.jetbrains.idea.maven.dom.references.MavenUsageTargetProvider"/>
-
-		<renameHandler implementation="org.jetbrains.idea.maven.dom.refactorings.MavenPropertyRenameHandler" order="first"/>
-		<vetoRenameCondition implementation="org.jetbrains.idea.maven.dom.refactorings.MavenVetoModelRenameCondition"/>
-
-		<projectService serviceImplementation="org.jetbrains.idea.maven.dom.MavenDomElementDescriptorHolder"/>
-		<projectService serviceImplementation="org.jetbrains.idea.maven.navigator.actions.ExecuteMavenGoalHistoryService"/>
-		<applicationService serviceImplementation="org.jetbrains.idea.maven.dom.converters.MavenDomConvertersRegistry"/>
-		<applicationService serviceImplementation="org.jetbrains.idea.maven.dom.converters.repositories.MavenRepositoriesProvider"/>
-
-		<typedHandler implementation="org.jetbrains.idea.maven.dom.code.MavenTypedHandlerDelegate"/>
-		<library.type implementation="org.jetbrains.idea.maven.utils.library.RepositoryLibraryType"/>
-		<backspaceHandlerDelegate implementation="org.jetbrains.idea.maven.dom.code.MavenBackspaceHandlerDelegate"/>
-
-		<intentionAction>
-			<className>org.jetbrains.idea.maven.dom.intentions.ChooseFileIntentionAction</className>
-		</intentionAction>
-
-		<problemHighlightFilter implementation="org.jetbrains.idea.maven.utils.ArchetypeResourceHighlightFilter"/>
-
-		<codeInsight.unresolvedReferenceQuickFixProvider
-				implementation="org.jetbrains.idea.maven.dom.intentions.ResolveReferenceQuickFixProvider"/>
-
-		<gotoFileContributor implementation="org.jetbrains.idea.maven.utils.MavenGotoFileContributor"/>
-		<gotoFileContributor implementation="org.jetbrains.idea.maven.utils.MavenGotoSettingsFileContributor"/>
-		<gotoFileContributor implementation="org.jetbrains.idea.maven.vfs.MavenGotoPropertyFileContributor"/>
-		<fileTemplateGroup implementation="org.jetbrains.idea.maven.utils.MavenFileTemplateGroupFactory"/>
-
-		<annotator language="XML" implementationClass="org.jetbrains.idea.maven.dom.annotator.MavenDomGutterAnnotator"/>
-		<virtualFileSystem implementation="org.jetbrains.idea.maven.vfs.MavenPropertiesVirtualFileSystem"/>
-
-		<projectService serviceImplementation="org.jetbrains.idea.maven.project.MavenWorkspaceSettingsComponent"/>
-		<projectService serviceImplementation="org.jetbrains.idea.maven.execution.MavenRunner"/>
-
-		<applicationService serviceImplementation="org.jetbrains.idea.maven.utils.MavenEnvironmentRegistrar" lazy="false"/>
-
-		<projectService serviceImplementation="org.jetbrains.idea.maven.utils.MavenRehighlighter" lazy="false" />
-		<projectService serviceImplementation="org.jetbrains.idea.maven.utils.MavenImportNotifier" lazy="false" />
-		<projectService serviceImplementation="org.jetbrains.idea.maven.utils.MavenEditorTabTitleUpdater" lazy="false" />
-		<projectService serviceImplementation="org.jetbrains.idea.maven.tasks.MavenShortcutsManager" lazy="false" />
-		<projectService serviceImplementation="org.jetbrains.idea.maven.tasks.MavenTasksManager" lazy="false" />
-		<projectService serviceImplementation="org.jetbrains.idea.maven.navigator.MavenProjectsNavigator" />
-		<projectService serviceImplementation="org.jetbrains.idea.maven.indices.MavenProjectIndicesManager" lazy="false" />
-		<projectService serviceImplementation="org.jetbrains.idea.maven.project.MavenProjectsManager" lazy="false" />
-
-		<toolWindow id="Maven" requireModuleExtensions="maven" icon="consulo.maven.MavenIconGroup@toolwindowmaven" anchor="right" factoryClass="consulo.maven.toolWindow.MavenToolWindowFactory" />
 	</extensions>
 
 	<extensions defaultExtensionNs="org.jetbrains.idea.maven">
 		<pluginDescriptor mavenId="org.apache.maven.plugins:maven-surefire-plugin">
-			<param name="additionalClasspathElements/additionalClasspathElement"
-				   refProvider="org.jetbrains.idea.maven.plugins.api.common.MavenCommonParamReferenceProviders$DirPath"/>
-			<param name="classpathDependencyExcludes/classpathDependencyExclude"
-				   refProvider="org.jetbrains.idea.maven.plugins.api.common.MavenCommonParamReferenceProviders$DependencyWithoutVersion"/>
-			<param name="forkMode" values="never, once, always, perthread" soft="true"/>
-			<param name="junitArtifactName"
-				   refProvider="org.jetbrains.idea.maven.plugins.api.common.MavenCommonParamReferenceProviders$DependencyWithoutVersion"/>
+			<!--<param name="additionalClasspathElements/additionalClasspathElement"-->
+				   <!--refProvider="org.jetbrains.idea.maven.plugins.api.common.MavenCommonParamReferenceProviders$DirPath"/>-->
+			<!--<param name="classpathDependencyExcludes/classpathDependencyExclude"-->
+				   <!--refProvider="org.jetbrains.idea.maven.plugins.api.common.MavenCommonParamReferenceProviders$DependencyWithoutVersion"/>-->
+			<!--<param name="forkMode" values="never, once, always, perthread" soft="true"/>-->
+			<!--<param name="junitArtifactName"-->
+				   <!--refProvider="org.jetbrains.idea.maven.plugins.api.common.MavenCommonParamReferenceProviders$DependencyWithoutVersion"/>-->
+<!--
 			<param name="reportFormat" values="brief, plain" soft="true"/>
-			<param name="runOrder" values="alphabetical, reversealphabetical, random, hourly, failedfirst, balanced, filesystem" soft="true"/>
-			<param name="testNGArtifactName"
-				   refProvider="org.jetbrains.idea.maven.plugins.api.common.MavenCommonParamReferenceProviders$DependencyWithoutVersion"/>
+-->
+			<!--<param name="runOrder" values="alphabetical, reversealphabetical, random, hourly, failedfirst, balanced, filesystem" soft="true"/>-->
+			<!--<param name="testNGArtifactName"-->
+				   <!--refProvider="org.jetbrains.idea.maven.plugins.api.common.MavenCommonParamReferenceProviders$DependencyWithoutVersion"/>-->
 		</pluginDescriptor>
 
 		<pluginDescriptor mavenId="org.apache.maven.plugins:maven-failsafe-plugin">

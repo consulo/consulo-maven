@@ -19,14 +19,14 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
+import consulo.dataContext.DataContext;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.tasks.MavenShortcutsManager;
 import org.jetbrains.idea.maven.utils.MavenDataKeys;
 import org.jetbrains.idea.maven.utils.actions.MavenAction;
 import org.jetbrains.idea.maven.utils.actions.MavenActionUtil;
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.DataContext;
-import com.intellij.openapi.keymap.impl.ui.EditKeymapsDialog;
+import consulo.ui.ex.action.AnActionEvent;
+import consulo.ide.impl.idea.openapi.keymap.impl.ui.EditKeymapsDialog;
 
 public class AssignShortcutAction extends MavenAction
 {

@@ -15,14 +15,14 @@
  */
 package org.jetbrains.idea.maven.utils;
 
-import com.intellij.ide.DataManager;
-import com.intellij.ide.util.ElementsChooser;
-import com.intellij.openapi.actionSystem.ActionManager;
-import com.intellij.openapi.actionSystem.AnAction;
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.Presentation;
-import com.intellij.ui.treeStructure.SimpleTree;
-import com.intellij.util.ui.UIUtil;
+import consulo.dataContext.DataManager;
+import consulo.ui.ex.action.ActionManager;
+import consulo.ui.ex.action.AnAction;
+import consulo.ui.ex.action.AnActionEvent;
+import consulo.ui.ex.action.Presentation;
+import consulo.ui.ex.awt.ElementsChooser;
+import consulo.ui.ex.awt.UIUtil;
+import consulo.ui.ex.awt.tree.SimpleTree;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -32,6 +32,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.List;
 import java.util.TreeSet;
 
 public class MavenUIUtil {
@@ -50,7 +51,7 @@ public class MavenUIUtil {
   }
 
   public static <E> void setElements(ElementsChooser<E> chooser, Collection<E> all, Collection<E> selected, Comparator<E> comparator) {
-    java.util.List<E> selection = chooser.getSelectedElements();
+    List<E> selection = chooser.getSelectedElements();
     chooser.clear();
     Collection<E> sorted = new TreeSet<E>(comparator);
     sorted.addAll(all);

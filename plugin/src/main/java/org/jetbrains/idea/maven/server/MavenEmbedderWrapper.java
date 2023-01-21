@@ -15,6 +15,16 @@
  */
 package org.jetbrains.idea.maven.server;
 
+import consulo.virtualFileSystem.VirtualFile;
+import consulo.maven.rt.server.common.model.*;
+import consulo.maven.rt.server.common.server.*;
+import org.jetbrains.idea.maven.project.MavenConsole;
+import org.jetbrains.idea.maven.utils.MavenLog;
+import org.jetbrains.idea.maven.utils.MavenProcessCanceledException;
+import org.jetbrains.idea.maven.utils.MavenProgressIndicator;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.File;
 import java.rmi.NoSuchObjectException;
 import java.rmi.RemoteException;
@@ -24,25 +34,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import javax.annotation.Nonnull;
-
-import org.jetbrains.idea.maven.model.MavenArtifact;
-import org.jetbrains.idea.maven.model.MavenArtifactInfo;
-import org.jetbrains.idea.maven.model.MavenId;
-import org.jetbrains.idea.maven.model.MavenPlugin;
-import org.jetbrains.idea.maven.model.MavenRemoteRepository;
-import org.jetbrains.idea.maven.model.MavenWorkspaceMap;
-import org.jetbrains.idea.maven.project.MavenConsole;
-import org.jetbrains.idea.maven.utils.MavenLog;
-import org.jetbrains.idea.maven.utils.MavenProcessCanceledException;
-import org.jetbrains.idea.maven.utils.MavenProgressIndicator;
-import com.intellij.openapi.vfs.VirtualFile;
-
 public abstract class MavenEmbedderWrapper extends RemoteObjectWrapper<MavenServerEmbedder>
 {
 	private Customization myCustomization;
 
-	public MavenEmbedderWrapper(@javax.annotation.Nullable RemoteObjectWrapper<?> parent)
+	public MavenEmbedderWrapper(@Nullable RemoteObjectWrapper<?> parent)
 	{
 		super(parent);
 	}
@@ -125,8 +121,8 @@ public abstract class MavenEmbedderWrapper extends RemoteObjectWrapper<MavenServ
 
 	@Nonnull
 	public MavenServerExecutionResult resolveProject(@Nonnull final VirtualFile file,
-			@Nonnull final Collection<String> activeProfiles,
-			@Nonnull final Collection<String> inactiveProfiles) throws MavenProcessCanceledException
+													 @Nonnull final Collection<String> activeProfiles,
+													 @Nonnull final Collection<String> inactiveProfiles) throws MavenProcessCanceledException
 	{
 		return perform(new RetriableCancelable<MavenServerExecutionResult>()
 		{
@@ -138,7 +134,7 @@ public abstract class MavenEmbedderWrapper extends RemoteObjectWrapper<MavenServ
 		});
 	}
 
-	@javax.annotation.Nullable
+	@Nullable
 	public String evaluateEffectivePom(@Nonnull final VirtualFile file,
 			@Nonnull final Collection<String> activeProfiles,
 			@Nonnull final Collection<String> inactiveProfiles) throws MavenProcessCanceledException

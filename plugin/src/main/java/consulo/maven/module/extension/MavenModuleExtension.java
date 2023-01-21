@@ -15,8 +15,8 @@
  */
 package consulo.maven.module.extension;
 
-import consulo.module.extension.impl.ModuleExtensionImpl;
-import consulo.roots.ModuleRootLayer;
+import consulo.module.content.layer.ModuleRootLayer;
+import consulo.module.content.layer.extension.ModuleExtensionBase;
 
 import javax.annotation.Nonnull;
 
@@ -24,7 +24,7 @@ import javax.annotation.Nonnull;
  * @author VISTALL
  * @since 15:17/12.07.13
  */
-public class MavenModuleExtension extends ModuleExtensionImpl<MavenModuleExtension>
+public class MavenModuleExtension extends ModuleExtensionBase<MavenModuleExtension>
 {
 	public MavenModuleExtension(@Nonnull String id, @Nonnull ModuleRootLayer moduleRootLayer)
 	{

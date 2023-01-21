@@ -15,14 +15,13 @@
  */
 package org.jetbrains.idea.maven.navigator.actions;
 
-import com.intellij.execution.RunManager;
-import com.intellij.execution.RunManagerEx;
-import com.intellij.execution.RunnerAndConfigurationSettings;
-import com.intellij.openapi.actionSystem.AnAction;
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.Messages;
+import consulo.execution.RunManager;
+import consulo.execution.RunnerAndConfigurationSettings;
+import consulo.project.Project;
 import consulo.ui.annotation.RequiredUIAccess;
+import consulo.ui.ex.action.AnAction;
+import consulo.ui.ex.action.AnActionEvent;
+import consulo.ui.ex.awt.Messages;
 import org.jetbrains.idea.maven.utils.MavenDataKeys;
 
 import javax.annotation.Nonnull;
@@ -36,7 +35,7 @@ public class RemoveMavenRunConfigurationAction extends AnAction
 	@Override
 	public void actionPerformed(@Nonnull AnActionEvent e)
 	{
-		Project project = e.getProject();
+		Project project = e.getData(Project.KEY);
 		RunnerAndConfigurationSettings settings = e.getData(MavenDataKeys.RUN_CONFIGURATION);
 
 		assert settings != null && project != null;
@@ -44,7 +43,7 @@ public class RemoveMavenRunConfigurationAction extends AnAction
 		int res = Messages.showYesNoDialog(project, "Delete \"" + settings.getName() + "\"?", "Confirmation", Messages.getQuestionIcon());
 		if(res == Messages.YES)
 		{
-			((RunManagerEx) RunManager.getInstance(project)).removeConfiguration(settings);
+			RunManager.getInstance(project).removeConfiguration(settings);
 		}
 	}
 
@@ -52,7 +51,7 @@ public class RemoveMavenRunConfigurationAction extends AnAction
 	@Override
 	public void update(@Nonnull AnActionEvent e)
 	{
-		Project project = e.getProject();
+		Project project = e.getData(Project.KEY);
 		RunnerAndConfigurationSettings settings = e.getData(MavenDataKeys.RUN_CONFIGURATION);
 
 		boolean enabled = settings != null && project != null;

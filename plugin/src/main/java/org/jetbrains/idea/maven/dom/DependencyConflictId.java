@@ -2,9 +2,10 @@ package org.jetbrains.idea.maven.dom;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+
+import consulo.util.lang.StringUtil;
 import org.jetbrains.idea.maven.dom.model.MavenDomDependency;
-import org.jetbrains.idea.maven.model.MavenArtifact;
-import com.intellij.openapi.util.text.StringUtil;
+import consulo.maven.rt.server.common.model.MavenArtifact;
 
 /**
  * See org.apache.maven.artifact.Artifact#getDependencyConflictId()

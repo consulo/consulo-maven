@@ -16,7 +16,7 @@
 package org.jetbrains.idea.maven.indices;
 
 
-import org.jetbrains.idea.maven.model.MavenArtifactInfo;
+import consulo.maven.rt.server.common.model.MavenArtifactInfo;
 
 import java.util.ArrayList;
 import java.util.List;

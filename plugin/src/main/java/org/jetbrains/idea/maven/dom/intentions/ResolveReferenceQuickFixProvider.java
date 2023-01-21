@@ -15,19 +15,24 @@
  */
 package org.jetbrains.idea.maven.dom.intentions;
 
-import com.intellij.codeInsight.daemon.QuickFixActionRegistrar;
-import com.intellij.codeInsight.quickfix.UnresolvedReferenceQuickFixProvider;
-import com.intellij.psi.PsiJavaCodeReferenceElement;
+import com.intellij.java.language.psi.PsiJavaCodeReferenceElement;
+import consulo.annotation.component.ExtensionImpl;
+import consulo.language.editor.intention.QuickFixActionRegistrar;
+import consulo.language.editor.intention.UnresolvedReferenceQuickFixProvider;
+
 import javax.annotation.Nonnull;
 
-public class ResolveReferenceQuickFixProvider extends UnresolvedReferenceQuickFixProvider<PsiJavaCodeReferenceElement> {
+@ExtensionImpl
+public class ResolveReferenceQuickFixProvider extends UnresolvedReferenceQuickFixProvider<PsiJavaCodeReferenceElement>
+{
+	public void registerFixes(PsiJavaCodeReferenceElement ref, QuickFixActionRegistrar registrar)
+	{
+		registrar.register(new AddMavenDependencyQuickFix(ref));
+	}
 
-  public void registerFixes(PsiJavaCodeReferenceElement ref, QuickFixActionRegistrar registrar) {
-    registrar.register(new AddMavenDependencyQuickFix(ref));
-  }
-
-  @Nonnull
-  public Class<PsiJavaCodeReferenceElement> getReferenceClass() {
-    return PsiJavaCodeReferenceElement.class;
-  }
+	@Nonnull
+	public Class<PsiJavaCodeReferenceElement> getReferenceClass()
+	{
+		return PsiJavaCodeReferenceElement.class;
+	}
 }

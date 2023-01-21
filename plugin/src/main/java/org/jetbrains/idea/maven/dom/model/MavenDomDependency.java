@@ -19,17 +19,16 @@
 
 package org.jetbrains.idea.maven.dom.model;
 
-import javax.annotation.Nonnull;
-
-import com.intellij.ide.presentation.Presentation;
-import com.intellij.psi.PsiFile;
-import com.intellij.util.xml.Convert;
-import com.intellij.util.xml.GenericDomValue;
-import com.intellij.util.xml.Required;
+import consulo.language.psi.PsiFile;
+import consulo.xml.util.xml.Convert;
+import consulo.xml.util.xml.GenericDomValue;
+import consulo.xml.util.xml.Required;
 import org.jetbrains.idea.maven.dom.MavenDomElement;
 import org.jetbrains.idea.maven.dom.converters.MavenDependencyScopeConverter;
 import org.jetbrains.idea.maven.dom.converters.MavenDependencySystemPathConverter;
 import org.jetbrains.idea.maven.dom.converters.MavenDependencyTypeConverter;
+
+import javax.annotation.Nonnull;
 
 /**
  * http://maven.apache.org/POM/4.0.0:Dependency interface.
@@ -38,7 +37,6 @@ import org.jetbrains.idea.maven.dom.converters.MavenDependencyTypeConverter;
  * 3.0.0+
  * </pre>
  */
-@Presentation(typeName = "Dependency", icon = "AllIcons.Nodes.PpLib")
 public interface MavenDomDependency extends MavenDomElement, MavenDomArtifactCoordinates {
   @Required(value = false, nonEmpty = true)
   GenericDomValue<String> getVersion();

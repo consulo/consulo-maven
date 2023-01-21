@@ -1,20 +1,21 @@
 package consulo.maven.importProvider;
 
-import com.intellij.openapi.module.ModifiableModuleModel;
-import com.intellij.openapi.module.Module;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.openapi.vfs.VfsUtilCore;
-import com.intellij.openapi.vfs.VirtualFile;
 import consulo.annotation.access.RequiredReadAction;
-import consulo.ide.newProject.ui.UnifiedProjectOrModuleNameStep;
-import consulo.moduleImport.ModuleImportProvider;
+import consulo.annotation.component.ExtensionImpl;
+import consulo.ide.moduleImport.ModuleImportProvider;
+import consulo.ide.newModule.ui.UnifiedProjectOrModuleNameStep;
+import consulo.maven.rt.server.common.model.MavenConstants;
+import consulo.maven.rt.server.common.model.MavenExplicitProfiles;
+import consulo.module.ModifiableModuleModel;
+import consulo.module.Module;
+import consulo.project.Project;
+import consulo.ui.ex.wizard.WizardStep;
 import consulo.ui.image.Image;
-import consulo.ui.wizard.WizardStep;
-import icons.MavenIcons;
+import consulo.util.lang.StringUtil;
+import consulo.virtualFileSystem.VirtualFile;
+import consulo.virtualFileSystem.util.VirtualFileUtil;
+import org.jetbrains.idea.maven.MavenIcons;
 import org.jetbrains.idea.maven.importing.MavenDefaultModifiableModelsProvider;
-import org.jetbrains.idea.maven.model.MavenConstants;
-import org.jetbrains.idea.maven.model.MavenExplicitProfiles;
 import org.jetbrains.idea.maven.project.*;
 import org.jetbrains.idea.maven.utils.MavenUtil;
 import org.jetbrains.idea.maven.wizards.MavenProjectImportStep;
@@ -32,6 +33,7 @@ import java.util.function.Consumer;
  * @author VISTALL
  * @since 31-Jan-17
  */
+@ExtensionImpl
 public class MavenModuleImportProvider implements ModuleImportProvider<MavenImportModuleContext>
 {
 	@Nonnull
@@ -90,7 +92,7 @@ public class MavenModuleImportProvider implements ModuleImportProvider<MavenImpo
 				VirtualFile root = context.getRootDirectory();
 				if(root != null)
 				{
-					final String relPath = VfsUtilCore.getRelativePath(project.getDirectoryFile(), root, File.separatorChar);
+					final String relPath = VirtualFileUtil.getRelativePath(project.getDirectoryFile(), root, File.separatorChar);
 					if(StringUtil.isNotEmpty(relPath))
 					{
 						stringBuilder.append(" [").append(relPath).append("]");

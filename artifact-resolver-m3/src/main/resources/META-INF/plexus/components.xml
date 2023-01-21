@@ -4,14 +4,14 @@
     <component>
       <role>org.apache.maven.repository.LocalArtifactRepository</role>
       <role-hint>ide-workspace</role-hint>
-      <implementation>org.jetbrains.idea.maven.artifactResolver.MyArtifactRepository</implementation>
+      <implementation>org.jetbrains.idea.maven.rt.m3.artifactResolver.MyArtifactRepository</implementation>
       <description />
       <isolated-realm>false</isolated-realm>
     </component>
     <component>
       <role>org.sonatype.aether.repository.WorkspaceReader</role>
       <role-hint>ide</role-hint>
-      <implementation>org.jetbrains.idea.maven.artifactResolver.MyWorkspaceReader</implementation>
+      <implementation>org.jetbrains.idea.maven.rt.m3.artifactResolver.MyWorkspaceReader</implementation>
       <description />
       <isolated-realm>false</isolated-realm>
     </component>

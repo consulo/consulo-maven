@@ -15,32 +15,34 @@
  */
 package org.jetbrains.idea.maven.dom.references;
 
-import com.intellij.codeInsight.lookup.LookupElement;
-import com.intellij.codeInsight.lookup.LookupElementBuilder;
-import com.intellij.icons.AllIcons;
 import com.intellij.lang.properties.IProperty;
 import com.intellij.lang.properties.PropertiesLanguage;
 import com.intellij.lang.properties.psi.PropertiesFile;
-import com.intellij.openapi.module.Module;
-import com.intellij.openapi.module.ModuleUtilCore;
-import com.intellij.openapi.projectRoots.Sdk;
-import com.intellij.openapi.util.TextRange;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.pom.Navigatable;
-import com.intellij.psi.*;
-import com.intellij.psi.util.PsiTreeUtil;
-import com.intellij.psi.xml.XmlDocument;
-import com.intellij.psi.xml.XmlFile;
-import com.intellij.psi.xml.XmlTag;
-import com.intellij.psi.xml.XmlTagChild;
-import com.intellij.util.ArrayUtil;
-import com.intellij.util.IncorrectOperationException;
-import com.intellij.util.xml.DomElement;
-import com.intellij.util.xml.DomUtil;
 import com.intellij.xml.XmlElementDescriptor;
 import com.intellij.xml.XmlNSDescriptor;
-import consulo.java.module.extension.JavaModuleExtensionImpl;
+import consulo.application.AllIcons;
+import consulo.content.bundle.Sdk;
+import consulo.document.util.TextRange;
+import consulo.java.impl.module.extension.JavaModuleExtensionImpl;
+import consulo.language.editor.completion.lookup.LookupElement;
+import consulo.language.editor.completion.lookup.LookupElementBuilder;
+import consulo.language.psi.*;
+import consulo.language.psi.util.PsiTreeUtil;
+import consulo.language.util.IncorrectOperationException;
+import consulo.language.util.ModuleUtilCore;
+import consulo.maven.rt.server.common.model.MavenId;
+import consulo.module.Module;
+import consulo.navigation.Navigatable;
 import consulo.ui.image.Image;
+import consulo.util.collection.ArrayUtil;
+import consulo.virtualFileSystem.VirtualFile;
+import consulo.xml.psi.xml.XmlDocument;
+import consulo.xml.psi.xml.XmlFile;
+import consulo.xml.psi.xml.XmlTag;
+import consulo.xml.psi.xml.XmlTagChild;
+import consulo.xml.util.xml.DomElement;
+import consulo.xml.util.xml.DomUtil;
+import org.jetbrains.idea.maven.MavenIcons;
 import org.jetbrains.idea.maven.dom.MavenDomProjectProcessorUtils;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
 import org.jetbrains.idea.maven.dom.MavenSchemaProvider;
@@ -49,7 +51,6 @@ import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
 import org.jetbrains.idea.maven.dom.model.MavenDomSettingsModel;
 import org.jetbrains.idea.maven.execution.MavenRunner;
 import org.jetbrains.idea.maven.execution.MavenRunnerSettings;
-import org.jetbrains.idea.maven.model.MavenId;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.utils.MavenUtil;
 import org.jetbrains.idea.maven.vfs.MavenPropertiesVirtualFileSystem;
@@ -64,7 +65,7 @@ import java.util.Set;
 public class MavenPropertyPsiReference extends MavenPsiReference {
   public static final String TIMESTAMP_PROP = "maven.build.timestamp";
 
-  @javax.annotation.Nullable
+  @Nullable
   protected final MavenDomProjectModel myProjectDom;
   protected final MavenProject myMavenProject;
   private final boolean mySoft;
@@ -76,7 +77,7 @@ public class MavenPropertyPsiReference extends MavenPsiReference {
     myProjectDom = MavenDomUtil.getMavenDomProjectModel(myProject, mavenProject.getFile());
   }
 
-  @javax.annotation.Nullable
+  @Nullable
   public PsiElement resolve() {
     PsiElement result = doResolve();
     if (result == null) {
@@ -120,7 +121,7 @@ public class MavenPropertyPsiReference extends MavenPsiReference {
   }
 
   // See org.apache.maven.project.interpolation.AbstractStringBasedModelInterpolator.createValueSources()
-  @javax.annotation.Nullable
+  @Nullable
   protected PsiElement doResolve() {
     boolean hasPrefix = false;
     String unprefixed = myText;
@@ -235,7 +236,7 @@ public class MavenPropertyPsiReference extends MavenPsiReference {
     return null;
   }
 
-  @javax.annotation.Nullable
+  @Nullable
   private PsiElement resolveToJavaHome(@Nonnull MavenProject mavenProject) {
     Module module = myProjectsManager.findModule(mavenProject);
     if (module == null) return null;
@@ -259,7 +260,7 @@ public class MavenPropertyPsiReference extends MavenPsiReference {
     return PsiManager.getInstance(myProject).findDirectory(mavenProject.getDirectoryFile());
   }
 
-  @javax.annotation.Nullable
+  @Nullable
   private PsiElement resolveSettingsModelProperty() {
     if (!schemaHasProperty(MavenSchemaProvider.MAVEN_SETTINGS_SCHEMA_URL, myText)) return null;
 
@@ -272,7 +273,7 @@ public class MavenPropertyPsiReference extends MavenPsiReference {
     return myElement;
   }
 
-  @javax.annotation.Nullable
+  @Nullable
   private PsiElement resolveModelProperty(@Nonnull MavenDomProjectModel projectDom,
                                           @Nonnull final String path,
                                           @Nonnull final Set<DomElement> recursionGuard) {
@@ -306,7 +307,7 @@ public class MavenPropertyPsiReference extends MavenPsiReference {
 
   private boolean schemaHasProperty(String schema, final String property) {
     return processSchema(schema, new SchemaProcessor<Boolean>() {
-      @javax.annotation.Nullable
+      @Nullable
       public Boolean process(@Nonnull String eachProperty, XmlElementDescriptor descriptor) {
         if (eachProperty.equals(property)) return true;
         return null;
@@ -315,7 +316,8 @@ public class MavenPropertyPsiReference extends MavenPsiReference {
   }
 
   @Override
-  public PsiElement handleElementRename(String newElementName) throws IncorrectOperationException {
+  public PsiElement handleElementRename(String newElementName) throws IncorrectOperationException
+  {
     return ElementManipulators.getManipulator(myElement).handleContentChange(myElement, myRange, newElementName);
   }
 
@@ -349,18 +351,18 @@ public class MavenPropertyPsiReference extends MavenPsiReference {
     final String prefix = prefixLength == 0 ? null : myText.substring(0, prefixLength);
 
     PsiDirectory baseDir = getBaseDir(mavenProject);
-    addVariant(result, "basedir", baseDir, prefix, icons.MavenIcons.MavenLogo);
+    addVariant(result, "basedir", baseDir, prefix, MavenIcons.MavenLogo);
     if (prefix == null) {
-      result.add(createLookupElement(baseDir, "project.baseUri", icons.MavenIcons.MavenLogo));
-      result.add(createLookupElement(baseDir, "pom.baseUri", icons.MavenIcons.MavenLogo));
-      result.add(LookupElementBuilder.create(TIMESTAMP_PROP).withIcon(icons.MavenIcons.MavenLogo));
+      result.add(createLookupElement(baseDir, "project.baseUri", MavenIcons.MavenLogo));
+      result.add(createLookupElement(baseDir, "pom.baseUri", MavenIcons.MavenLogo));
+      result.add(LookupElementBuilder.create(TIMESTAMP_PROP).withIcon(MavenIcons.MavenLogo));
     }
 
     processSchema(MavenSchemaProvider.MAVEN_PROJECT_SCHEMA_URL, new SchemaProcessor<Object>() {
       @Override
       public Object process(@Nonnull String property, XmlElementDescriptor descriptor) {
         if (property.startsWith("project.")) {
-          addVariant(result, property.substring("project.".length()), descriptor, prefix, icons.MavenIcons.MavenLogo);
+          addVariant(result, property.substring("project.".length()), descriptor, prefix, MavenIcons.MavenLogo);
         }
         return null;
       }
@@ -369,7 +371,7 @@ public class MavenPropertyPsiReference extends MavenPsiReference {
     processSchema(MavenSchemaProvider.MAVEN_SETTINGS_SCHEMA_URL, new SchemaProcessor<Object>(){
       @Override
       public Object process(@Nonnull String property, XmlElementDescriptor descriptor) {
-        result.add(createLookupElement(descriptor, property, icons.MavenIcons.MavenLogo));
+        result.add(createLookupElement(descriptor, property, MavenIcons.MavenLogo));
         return null;
       }
     });
@@ -400,7 +402,7 @@ public class MavenPropertyPsiReference extends MavenPsiReference {
     }
   }
 
-  private static void addVariant(List<Object> result, String name, @Nonnull Object element, @javax.annotation.Nullable String prefix, @Nonnull Image icon) {
+  private static void addVariant(List<Object> result, String name, @Nonnull Object element, @Nullable String prefix, @Nonnull Image icon) {
     String nameWithPrefix;
     if (prefix == null) {
       nameWithPrefix = name;
@@ -425,13 +427,13 @@ public class MavenPropertyPsiReference extends MavenPsiReference {
     }
   }
 
-  private void collectSystemEnvProperties(String propertiesFileName, @javax.annotation.Nullable String prefix, List<Object> result, Set<String> variants) {
+  private void collectSystemEnvProperties(String propertiesFileName, @Nullable String prefix, List<Object> result, Set<String> variants) {
     VirtualFile virtualFile = MavenPropertiesVirtualFileSystem.getInstance().findFileByPath(propertiesFileName);
     PropertiesFile file = MavenDomUtil.getPropertiesFile(myProject, virtualFile);
     collectPropertiesFileVariants(file, prefix, result, variants);
   }
 
-  protected static void collectPropertiesFileVariants(@Nullable PropertiesFile file, @javax.annotation.Nullable String prefix, List<Object> result, Set<String> variants) {
+  protected static void collectPropertiesFileVariants(@Nullable PropertiesFile file, @Nullable String prefix, List<Object> result, Set<String> variants) {
     if (file == null) return;
 
     for (IProperty each : file.getProperties()) {
@@ -452,7 +454,7 @@ public class MavenPropertyPsiReference extends MavenPsiReference {
       .withPresentableText(name);
   }
 
-  @javax.annotation.Nullable
+  @Nullable
   private <T> T processSchema(String schema, SchemaProcessor<T> processor) {
     VirtualFile file = MavenSchemaProvider.getSchemaFile(schema);
     PsiFile psiFile = PsiManager.getInstance(myProject).findFile(file);

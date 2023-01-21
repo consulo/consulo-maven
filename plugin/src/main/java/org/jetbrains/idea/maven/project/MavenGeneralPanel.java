@@ -17,10 +17,10 @@
 
 package org.jetbrains.idea.maven.project;
 
-import com.intellij.openapi.util.Pair;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.ui.PanelWithAnchor;
-import com.intellij.ui.components.JBLabel;
+import consulo.util.lang.Pair;
+import consulo.util.lang.StringUtil;
+import consulo.ui.ex.awt.PanelWithAnchor;
+import consulo.ui.ex.awt.JBLabel;
 import consulo.disposer.Disposable;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.idea.maven.execution.MavenExecutionOptions;

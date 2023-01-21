@@ -15,16 +15,18 @@
  */
 package org.jetbrains.idea.maven.utils;
 
-import com.intellij.codeInsight.template.impl.DefaultLiveTemplatesProvider;
+import consulo.annotation.component.ExtensionImpl;
+import consulo.language.editor.template.DefaultLiveTemplatesProvider;
 
-public class MavenLiveTemplatesProvider implements DefaultLiveTemplatesProvider {
-  @Override
-  public String[] getDefaultLiveTemplateFiles() {
-    return new String[]{"/liveTemplates/maven_xml"};
-  }
+import javax.annotation.Nonnull;
 
-  @Override
-  public String[] getHiddenLiveTemplateFiles() {
-    return null;
-  }
+@ExtensionImpl
+public class MavenLiveTemplatesProvider implements DefaultLiveTemplatesProvider
+{
+	@Nonnull
+	@Override
+	public String[] getDefaultLiveTemplateFiles()
+	{
+		return new String[]{"/liveTemplates/maven_xml"};
+	}
 }

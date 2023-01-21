@@ -15,17 +15,18 @@
  */
 package org.jetbrains.idea.maven.dom.references;
 
-import com.intellij.openapi.editor.Editor;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.util.PsiTreeUtil;
-import com.intellij.psi.xml.XmlTag;
-import com.intellij.util.containers.ContainerUtil;
 import com.intellij.xml.util.XmlUtil;
-import consulo.codeInsight.TargetElementUtil;
-import consulo.codeInsight.TargetElementUtilEx;
+import consulo.codeEditor.Editor;
+import consulo.language.editor.TargetElementUtil;
+import consulo.language.editor.TargetElementUtilExtender;
+import consulo.language.psi.PsiElement;
+import consulo.language.psi.PsiFile;
+import consulo.language.psi.util.PsiTreeUtil;
 import consulo.ui.annotation.RequiredUIAccess;
+import consulo.xml.psi.xml.XmlTag;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
+
+import java.util.Set;
 
 public class MavenTargetUtil
 {
@@ -44,7 +45,7 @@ public class MavenTargetUtil
 			return null;
 		}
 
-		PsiElement target = TargetElementUtil.findTargetElement(editor, ContainerUtil.newHashSet(TargetElementUtilEx.REFERENCED_ELEMENT_ACCEPTED));
+		PsiElement target = TargetElementUtil.findTargetElement(editor, Set.of(TargetElementUtilExtender.REFERENCED_ELEMENT_ACCEPTED));
 		if(target instanceof MavenPsiElementWrapper)
 		{
 			return ((MavenPsiElementWrapper) target).getWrappee();

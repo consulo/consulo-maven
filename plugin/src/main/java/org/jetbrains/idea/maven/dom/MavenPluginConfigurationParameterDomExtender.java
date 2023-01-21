@@ -15,21 +15,37 @@
  */
 package org.jetbrains.idea.maven.dom;
 
-import com.intellij.codeInsight.completion.CompletionUtil;
-import com.intellij.psi.xml.XmlAttribute;
-import com.intellij.util.xml.XmlName;
-import com.intellij.util.xml.reflect.DomExtender;
-import com.intellij.util.xml.reflect.DomExtensionsRegistrar;
-import javax.annotation.Nonnull;
+import consulo.annotation.component.ExtensionImpl;
+import consulo.language.editor.completion.CompletionUtilCore;
+import consulo.xml.psi.xml.XmlAttribute;
+import consulo.xml.util.xml.XmlName;
+import consulo.xml.util.xml.reflect.DomExtender;
+import consulo.xml.util.xml.reflect.DomExtensionsRegistrar;
 import org.jetbrains.idea.maven.dom.model.MavenDomConfigurationParameter;
 
-public class MavenPluginConfigurationParameterDomExtender extends DomExtender<MavenDomConfigurationParameter> {
-  @Override
-  public void registerExtensions(@Nonnull MavenDomConfigurationParameter param, @Nonnull DomExtensionsRegistrar r) {
-    for (XmlAttribute each : param.getXmlTag().getAttributes()) {
-      String name = each.getName();
-      if (CompletionUtil.DUMMY_IDENTIFIER_TRIMMED.equals(name)) continue;
-      r.registerGenericAttributeValueChildExtension(new XmlName(name), String.class);
-    }
-  }
+import javax.annotation.Nonnull;
+
+@ExtensionImpl
+public class MavenPluginConfigurationParameterDomExtender extends DomExtender<MavenDomConfigurationParameter>
+{
+	@Nonnull
+	@Override
+	public Class<MavenDomConfigurationParameter> getElementClass()
+	{
+		return MavenDomConfigurationParameter.class;
+	}
+
+	@Override
+	public void registerExtensions(@Nonnull MavenDomConfigurationParameter param, @Nonnull DomExtensionsRegistrar r)
+	{
+		for(XmlAttribute each : param.getXmlTag().getAttributes())
+		{
+			String name = each.getName();
+			if(CompletionUtilCore.DUMMY_IDENTIFIER_TRIMMED.equals(name))
+			{
+				continue;
+			}
+			r.registerGenericAttributeValueChildExtension(new XmlName(name), String.class);
+		}
+	}
 }

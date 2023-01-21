@@ -15,10 +15,10 @@
  */
 package org.jetbrains.idea.maven.execution;
 
-import com.intellij.openapi.options.ConfigurationException;
-import com.intellij.openapi.options.SettingsEditor;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Pair;
+import consulo.configurable.ConfigurationException;
+import consulo.execution.configuration.ui.SettingsEditor;
+import consulo.project.Project;
+import consulo.util.lang.Pair;
 import org.jetbrains.idea.maven.project.MavenDisablePanelCheckbox;
 
 import javax.annotation.Nonnull;

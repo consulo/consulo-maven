@@ -15,28 +15,27 @@
  */
 package org.jetbrains.idea.maven.indices;
 
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Insets;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseEvent;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import consulo.application.AllIcons;
+import consulo.colorScheme.EditorColorsManager;
+import consulo.colorScheme.EditorFontType;
+import consulo.maven.rt.server.common.model.MavenArtifactInfo;
+import consulo.maven.rt.server.common.model.MavenId;
+import consulo.project.Project;
+import consulo.ui.ex.SimpleTextAttributes;
+import consulo.ui.ex.awt.AbstractLayoutManager;
+import consulo.ui.ex.awt.ScrollPaneFactory;
+import consulo.ui.ex.awt.SimpleColoredComponent;
+import consulo.ui.ex.awt.UIUtil;
+import consulo.ui.ex.awt.event.DocumentAdapter;
+import consulo.ui.ex.awt.event.DoubleClickListener;
+import consulo.ui.ex.awt.tree.Tree;
+import consulo.ui.ex.awt.util.Alarm;
+import consulo.util.lang.Comparing;
+import consulo.util.lang.Pair;
+import org.jetbrains.idea.maven.utils.MavenLog;
 
-import javax.swing.JPanel;
-import javax.swing.JScrollBar;
-import javax.swing.JScrollPane;
-import javax.swing.JTextField;
-import javax.swing.JTree;
-import javax.swing.ScrollPaneConstants;
-import javax.swing.SwingUtilities;
+import javax.annotation.Nonnull;
+import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.TreeModelListener;
 import javax.swing.event.TreeSelectionEvent;
@@ -44,26 +43,12 @@ import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.TreeCellRenderer;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
-
-import javax.annotation.Nonnull;
-import org.jetbrains.idea.maven.model.MavenArtifactInfo;
-import org.jetbrains.idea.maven.model.MavenId;
-import org.jetbrains.idea.maven.utils.MavenLog;
-import com.intellij.icons.AllIcons;
-import com.intellij.openapi.editor.colors.EditorColorsManager;
-import com.intellij.openapi.editor.colors.EditorFontType;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Comparing;
-import com.intellij.openapi.util.Pair;
-import com.intellij.ui.DocumentAdapter;
-import com.intellij.ui.DoubleClickListener;
-import com.intellij.ui.ScrollPaneFactory;
-import com.intellij.ui.SimpleColoredComponent;
-import com.intellij.ui.SimpleTextAttributes;
-import com.intellij.ui.treeStructure.Tree;
-import com.intellij.util.Alarm;
-import com.intellij.util.ui.AbstractLayoutManager;
-import com.intellij.util.ui.UIUtil;
+import java.awt.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
+import java.util.List;
+import java.util.*;
 
 public class MavenArtifactSearchPanel extends JPanel
 {
@@ -80,7 +65,7 @@ public class MavenArtifactSearchPanel extends JPanel
 	private final Map<Pair<String, String>, String> myManagedDependenciesMap;
 
 	public MavenArtifactSearchPanel(Project project, String initialText, boolean classMode, Listener listener, MavenArtifactSearchDialog dialog,
-			Map<Pair<String, String>, String> managedDependenciesMap)
+									Map<Pair<String, String>, String> managedDependenciesMap)
 	{
 		myProject = project;
 		myDialog = dialog;

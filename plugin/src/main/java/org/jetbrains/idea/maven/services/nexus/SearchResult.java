@@ -16,6 +16,7 @@
  */
 package org.jetbrains.idea.maven.services.nexus;
 
+import consulo.maven.rt.server.common.model.MavenArtifactInfo;
 import jakarta.xml.bind.annotation.*;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -234,7 +235,7 @@ public class SearchResult {
          * 
          * <p>
          * Objects of the following type(s) are allowed in the list
-         * {@link org.jetbrains.idea.maven.model.MavenArtifactInfo }
+         * {@link MavenArtifactInfo }
          * 
          * 
          */

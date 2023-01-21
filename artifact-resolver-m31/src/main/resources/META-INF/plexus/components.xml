@@ -4,7 +4,7 @@
     <component>
       <role>org.eclipse.aether.repository.WorkspaceReader</role>
       <role-hint>ide</role-hint>
-      <implementation>org.jetbrains.idea.maven.artifactResolver.IntelliJWorkspaceReaderM31</implementation>
+      <implementation>org.jetbrains.idea.maven.rt.m31.artifactResolver.IntelliJWorkspaceReaderM31</implementation>
       <description />
       <isolated-realm>false</isolated-realm>
     </component>

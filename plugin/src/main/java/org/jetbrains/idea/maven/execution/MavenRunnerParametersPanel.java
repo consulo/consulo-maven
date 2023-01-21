@@ -15,28 +15,28 @@
  */
 package org.jetbrains.idea.maven.execution;
 
-import com.intellij.codeInsight.completion.CompletionResultSet;
-import com.intellij.codeInsight.lookup.LookupElementBuilder;
-import com.intellij.execution.configurations.ParametersList;
-import com.intellij.openapi.fileChooser.FileChooserDescriptor;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.ui.EditorTextField;
-import com.intellij.ui.JBColor;
-import com.intellij.ui.awt.RelativePoint;
-import com.intellij.ui.components.JBCheckBox;
-import com.intellij.ui.components.JBLabel;
-import com.intellij.util.TextFieldCompletionProvider;
-import com.intellij.util.execution.ParametersListUtil;
-import com.intellij.util.ui.FormBuilder;
-import com.intellij.util.ui.UIUtil;
-import consulo.awt.TargetAWT;
-import consulo.ide.ui.FileChooserTextBoxBuilder;
+import consulo.fileChooser.FileChooserDescriptor;
+import consulo.language.editor.completion.CompletionResultSet;
+import consulo.language.editor.completion.lookup.LookupElementBuilder;
+import consulo.language.editor.ui.awt.EditorTextField;
+import consulo.language.editor.ui.awt.TextFieldCompletionProvider;
 import consulo.maven.icon.MavenIconGroup;
+import consulo.maven.rt.server.common.model.MavenConstants;
+import consulo.process.cmd.ParametersList;
+import consulo.process.cmd.ParametersListUtil;
+import consulo.project.Project;
 import consulo.ui.TextBoxWithExtensions;
 import consulo.ui.annotation.RequiredUIAccess;
+import consulo.ui.ex.FileChooserTextBoxBuilder;
+import consulo.ui.ex.JBColor;
+import consulo.ui.ex.RelativePoint;
+import consulo.ui.ex.awt.FormBuilder;
+import consulo.ui.ex.awt.JBCheckBox;
+import consulo.ui.ex.awt.JBLabel;
+import consulo.ui.ex.awt.UIUtil;
+import consulo.ui.ex.awtUnsafe.TargetAWT;
+import consulo.virtualFileSystem.VirtualFile;
 import org.jetbrains.idea.maven.execution.cmd.ParametersListLexer;
-import org.jetbrains.idea.maven.model.MavenConstants;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 
 import javax.annotation.Nonnull;
@@ -92,7 +92,7 @@ public class MavenRunnerParametersPanel
 			TextFieldCompletionProvider profilesCompletionProvider = new TextFieldCompletionProvider(true)
 			{
 				@Override
-				protected final void addCompletionVariants(@Nonnull String text, int offset, @Nonnull String prefix, @Nonnull CompletionResultSet result)
+				public final void addCompletionVariants(@Nonnull String text, int offset, @Nonnull String prefix, @Nonnull CompletionResultSet result)
 				{
 					MavenProjectsManager manager = MavenProjectsManager.getInstance(project);
 					for(String profile : manager.getAvailableProfiles())
@@ -103,7 +103,7 @@ public class MavenRunnerParametersPanel
 
 				@Nonnull
 				@Override
-				protected String getPrefix(@Nonnull String currentTextPrefix)
+				public String getPrefix(@Nonnull String currentTextPrefix)
 				{
 					ParametersListLexer lexer = new ParametersListLexer(currentTextPrefix);
 					while(lexer.nextToken())
@@ -140,7 +140,7 @@ public class MavenRunnerParametersPanel
 
 		myFormBuilder.addComponent(myResolveToWorkspaceCheckBox);
 
-		myWorkingDirectory.getComponent().addFirstExtension(new TextBoxWithExtensions.Extension(false, MavenIconGroup.mavenLogoTransparent(), MavenIconGroup.mavenLogo(), clickEvent -> {
+		myWorkingDirectory.getComponent().addFirstExtension(new TextBoxWithExtensions.Extension(false, MavenIconGroup.mavenlogotransparent(), MavenIconGroup.mavenlogo(), clickEvent -> {
 			MavenSelectProjectPopup.buildPopup(MavenProjectsManager.getInstance(project), mavenProject -> {
 				myWorkingDirectory.setValue(mavenProject.getDirectory());
 			}).show(new RelativePoint(MouseInfo.getPointerInfo().getLocation()));

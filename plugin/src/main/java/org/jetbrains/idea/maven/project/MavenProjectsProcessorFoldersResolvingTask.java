@@ -18,14 +18,14 @@ package org.jetbrains.idea.maven.project;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.intellij.openapi.project.Project;
+import consulo.project.Project;
 import org.jetbrains.idea.maven.utils.MavenProcessCanceledException;
 import org.jetbrains.idea.maven.utils.MavenProgressIndicator;
 
 public class MavenProjectsProcessorFoldersResolvingTask extends MavenProjectsProcessorBasicTask {
   @Nonnull
   private final MavenImportingSettings myImportingSettings;
-  @javax.annotation.Nullable
+  @Nullable
   private final Runnable myOnCompletion;
 
   public MavenProjectsProcessorFoldersResolvingTask(@Nonnull MavenProject project,

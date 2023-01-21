@@ -17,7 +17,7 @@ package org.jetbrains.idea.maven.project;
 
 import javax.annotation.Nonnull;
 
-import org.jetbrains.idea.maven.model.MavenId;
+import consulo.maven.rt.server.common.model.MavenId;
 
 public class MavenParentDesc {
   private final MavenId myParentId;

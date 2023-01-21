@@ -15,15 +15,15 @@
  */
 package org.jetbrains.idea.maven.project.actions;
 
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.Presentation;
-import com.intellij.openapi.application.Result;
-import com.intellij.openapi.command.WriteCommandAction;
-import com.intellij.openapi.fileEditor.OpenFileDescriptor;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.LocalFileSystem;
-import com.intellij.openapi.vfs.VfsUtil;
-import com.intellij.openapi.vfs.VirtualFile;
+import consulo.application.Result;
+import consulo.language.editor.WriteCommandAction;
+import consulo.navigation.OpenFileDescriptorFactory;
+import consulo.project.Project;
+import consulo.ui.ex.action.AnActionEvent;
+import consulo.ui.ex.action.Presentation;
+import consulo.virtualFileSystem.LocalFileSystem;
+import consulo.virtualFileSystem.VirtualFile;
+import consulo.virtualFileSystem.util.VirtualFileUtil;
 import org.jetbrains.idea.maven.utils.MavenUtil;
 import org.jetbrains.idea.maven.utils.actions.MavenAction;
 import org.jetbrains.idea.maven.utils.actions.MavenActionUtil;
@@ -76,7 +76,7 @@ public abstract class MavenOpenOrCreateFilesAction extends MavenAction {
         protected void run(Result result) throws Throwable {
           File file = files.get(0);
           try {
-            VirtualFile newFile = VfsUtil.createDirectoryIfMissing(file.getParent()).createChildData(this, file.getName());
+            VirtualFile newFile = VirtualFileUtil.createDirectoryIfMissing(file.getParent()).createChildData(this, file.getName());
             virtualFiles.add(newFile);
             MavenUtil.runFileTemplate(project, newFile, getFileTemplate());
           }
@@ -89,7 +89,7 @@ public abstract class MavenOpenOrCreateFilesAction extends MavenAction {
     }
 
     for (VirtualFile each : virtualFiles) {
-      new OpenFileDescriptor(project, each).navigate(true);
+      OpenFileDescriptorFactory.getInstance(project).builder(each).build().navigate(true);
     }
   }
 

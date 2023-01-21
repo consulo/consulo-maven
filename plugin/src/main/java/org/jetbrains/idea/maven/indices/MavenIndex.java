@@ -15,31 +15,29 @@
  */
 package org.jetbrains.idea.maven.indices;
 
-import com.intellij.openapi.util.ModificationTracker;
-import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.psi.util.CachedValue;
-import com.intellij.psi.util.CachedValueProvider;
-import com.intellij.util.CachedValueImpl;
-import com.intellij.util.containers.ContainerUtil;
-import com.intellij.util.io.DataExternalizer;
-import com.intellij.util.io.EnumeratorStringDescriptor;
-import com.intellij.util.io.PersistentEnumeratorBase;
-import com.intellij.util.io.PersistentHashMap;
+import consulo.index.io.EnumeratorStringDescriptor;
+import consulo.index.io.PersistentEnumeratorBase;
+import consulo.index.io.PersistentHashMap;
+import consulo.index.io.data.DataExternalizer;
+import consulo.maven.rt.server.common.model.MavenArtifactInfo;
+import consulo.maven.rt.server.common.model.MavenId;
+import consulo.maven.rt.server.common.server.IndexedMavenId;
+import consulo.maven.rt.server.common.server.MavenServerIndexerException;
+import consulo.util.io.FilePermissionCopier;
+import consulo.util.io.FileUtil;
+import consulo.util.lang.StringUtil;
+import consulo.util.lang.lazy.LazyValue;
 import org.apache.lucene.search.Query;
 import org.jetbrains.annotations.TestOnly;
-import org.jetbrains.idea.maven.model.MavenArtifactInfo;
-import org.jetbrains.idea.maven.model.MavenId;
 import org.jetbrains.idea.maven.project.MavenGeneralSettings;
-import org.jetbrains.idea.maven.server.IndexedMavenId;
 import org.jetbrains.idea.maven.server.MavenIndexerWrapper;
 import org.jetbrains.idea.maven.server.MavenIndicesProcessor;
-import org.jetbrains.idea.maven.server.MavenServerIndexerException;
 import org.jetbrains.idea.maven.utils.MavenLog;
 import org.jetbrains.idea.maven.utils.MavenProcessCanceledException;
 import org.jetbrains.idea.maven.utils.MavenProgressIndicator;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -75,8 +73,8 @@ public class MavenIndex
 	private final NotNexusIndexer myNotNexusIndexer;
 	private final File myDir;
 
-	private final Set<String> myRegisteredRepositoryIds = ContainerUtil.newHashSet();
-	private final CachedValue<String> myId = new CachedValueImpl<>(new MyIndexRepositoryIdsProvider());
+	private final Set<String> myRegisteredRepositoryIds = new HashSet<>();
+	private final LazyValue<String> myId = LazyValue.notNullWithModCount(() -> StringUtil.join(myRegisteredRepositoryIds, ","), myRegisteredRepositoryIds::hashCode);
 
 	private final String myRepositoryPathOrUrl;
 	private final Kind myKind;
@@ -318,7 +316,7 @@ public class MavenIndex
 		Properties props = new Properties();
 
 		props.setProperty(KIND_KEY, myKind.toString());
-		props.setProperty(ID_KEY, myId.getValue());
+		props.setProperty(ID_KEY, myId.get());
 		props.setProperty(PATH_OR_URL_KEY, myRepositoryPathOrUrl);
 		props.setProperty(INDEX_VERSION_KEY, CURRENT_VERSION);
 		if(myUpdateTimestamp != null)
@@ -354,7 +352,7 @@ public class MavenIndex
 
 	public String getRepositoryId()
 	{
-		return myId.getValue();
+		return myId.get();
 	}
 
 	public File getRepositoryFile()
@@ -418,7 +416,7 @@ public class MavenIndex
 				{
 					try
 					{
-						FileUtil.copyDir(currentDataContextDir, newDataContextDir);
+						FileUtil.copyDir(currentDataContextDir, newDataContextDir, FilePermissionCopier.BY_NIO2);
 					}
 					catch(IOException e)
 					{
@@ -476,7 +474,7 @@ public class MavenIndex
 		}
 
 		String indexId = myDir.getName() + "-" + suffix;
-		return myNexusIndexer.createIndex(indexId, myId.getValue(), getRepositoryFile(), getRepositoryUrl(), contextDir);
+		return myNexusIndexer.createIndex(indexId, myId.get(), getRepositoryFile(), getRepositoryUrl(), contextDir);
 	}
 
 	private void updateContext(int indexId, MavenGeneralSettings settings, MavenProgressIndicator progress) throws MavenServerIndexerException, MavenProcessCanceledException
@@ -523,11 +521,15 @@ public class MavenIndex
 
 			oldData.close(true);
 
-			for(File each : FileUtil.notNullize(myDir.listFiles()))
+			File[] files = myDir.listFiles();
+			if(files != null)
 			{
-				if(each.getName().startsWith(DATA_DIR_PREFIX) && !each.getName().equals(myDataDirName))
+				for(File each : files)
 				{
-					FileUtil.delete(each);
+					if(each.getName().startsWith(DATA_DIR_PREFIX) && !each.getName().equals(myDataDirName))
+					{
+						FileUtil.delete(each);
+					}
 				}
 			}
 		}
@@ -876,7 +878,7 @@ public class MavenIndex
 			}
 		}
 
-		private void safeClose(@javax.annotation.Nullable Closeable enumerator, MavenIndexException[] exceptions)
+		private void safeClose(@Nullable Closeable enumerator, MavenIndexException[] exceptions)
 		{
 			try
 			{
@@ -940,15 +942,5 @@ public class MavenIndex
 	public interface IndexListener
 	{
 		void indexIsBroken(MavenIndex index);
-	}
-
-	private class MyIndexRepositoryIdsProvider implements CachedValueProvider<String>
-	{
-		@javax.annotation.Nullable
-		@Override
-		public Result<String> compute()
-		{
-			return Result.create(StringUtil.join(myRegisteredRepositoryIds, ","), (ModificationTracker) () -> myRegisteredRepositoryIds.hashCode());
-		}
 	}
 }

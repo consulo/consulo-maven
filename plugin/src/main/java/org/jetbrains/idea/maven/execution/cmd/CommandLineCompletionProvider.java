@@ -1,17 +1,16 @@
 package org.jetbrains.idea.maven.execution.cmd;
 
-import java.util.Collection;
-
-import javax.annotation.Nonnull;
-
+import consulo.language.editor.completion.CompletionResultSet;
+import consulo.language.editor.completion.lookup.LookupElement;
+import consulo.language.editor.completion.lookup.LookupElementBuilder;
+import consulo.language.editor.completion.lookup.TailType;
+import consulo.language.editor.completion.lookup.TailTypeDecorator;
+import consulo.language.editor.ui.awt.TextFieldCompletionProvider;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
-import com.intellij.codeInsight.TailType;
-import com.intellij.codeInsight.completion.CompletionResultSet;
-import com.intellij.codeInsight.lookup.LookupElement;
-import com.intellij.codeInsight.lookup.LookupElementBuilder;
-import com.intellij.codeInsight.lookup.TailTypeDecorator;
-import com.intellij.util.TextFieldCompletionProvider;
+
+import javax.annotation.Nonnull;
+import java.util.Collection;
 
 /**
  * @author Sergey Evdokimov
@@ -28,7 +27,7 @@ public abstract class CommandLineCompletionProvider extends TextFieldCompletionP
 
   @Nonnull
   @Override
-  protected String getPrefix(@Nonnull String currentTextPrefix) {
+  public String getPrefix(@Nonnull String currentTextPrefix) {
     ParametersListLexer lexer = new ParametersListLexer(currentTextPrefix);
     while (lexer.nextToken()) {
       if (lexer.getTokenEnd() == currentTextPrefix.length()) {
@@ -52,7 +51,7 @@ public abstract class CommandLineCompletionProvider extends TextFieldCompletionP
   protected abstract void addArgumentVariants(@Nonnull CompletionResultSet result);
 
   @Override
-  protected void addCompletionVariants(@Nonnull String text, int offset, @Nonnull String prefix, @Nonnull CompletionResultSet result) {
+  public void addCompletionVariants(@Nonnull String text, int offset, @Nonnull String prefix, @Nonnull CompletionResultSet result) {
     ParametersListLexer lexer = new ParametersListLexer(text);
 
     int argCount = 0;

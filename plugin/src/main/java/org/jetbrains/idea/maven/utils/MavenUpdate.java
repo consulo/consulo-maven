@@ -15,7 +15,7 @@
  */
 package org.jetbrains.idea.maven.utils;
 
-import com.intellij.util.ui.update.Update;
+import consulo.ui.ex.awt.util.Update;
 import org.jetbrains.annotations.NonNls;
 
 public abstract class MavenUpdate extends Update {

@@ -15,12 +15,13 @@
  */
 package org.jetbrains.idea.maven.utils;
 
-import com.intellij.ide.util.ElementsChooser;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.DialogWrapper;
-import com.intellij.ui.ScrollPaneFactory;
-import com.intellij.util.ui.UIUtil;
+import consulo.project.Project;
+import consulo.ui.ex.awt.DialogWrapper;
+import consulo.ui.ex.awt.ElementsChooser;
+import consulo.ui.ex.awt.ScrollPaneFactory;
+import consulo.ui.ex.awt.UIUtil;
 
+import javax.annotation.Nullable;
 import javax.swing.*;
 import java.awt.*;
 
@@ -41,7 +42,7 @@ public class ChooserDialog<T> extends DialogWrapper {
     init();
   }
 
-  @javax.annotation.Nullable
+  @Nullable
   protected JComponent createCenterPanel() {
     return ScrollPaneFactory.createScrollPane(myChooser);
   }

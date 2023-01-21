@@ -1,7 +1,7 @@
 // Copyright 2000-2017 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.idea.maven.indices;
 
-import static com.intellij.openapi.util.text.StringUtil.split;
+import static consulo.util.lang.StringUtil.split;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,17 +16,18 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
-import org.jetbrains.idea.maven.server.IndexedMavenId;
+import consulo.http.HttpRequests;
+import consulo.maven.rt.server.common.server.IndexedMavenId;
 import org.jetbrains.idea.maven.server.MavenIndicesProcessor;
-import org.jetbrains.idea.maven.server.MavenServerIndexerException;
+import consulo.maven.rt.server.common.server.MavenServerIndexerException;
 import org.jetbrains.idea.maven.utils.MavenProgressIndicator;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.intellij.util.io.HttpRequests;
 
 /**
  * @author ibessonov
@@ -35,7 +36,7 @@ class BintrayIndexer implements NotNexusIndexer
 {
 	private final String myUrlTemplate;
 
-	public BintrayIndexer(@Nonnull String subject, @javax.annotation.Nullable String repo)
+	public BintrayIndexer(@Nonnull String subject, @Nullable String repo)
 	{
 		myUrlTemplate = "https://bintray.com/api/v1/search/packages/maven?q=*&subject=" + subject + (repo != null ? "&repo=" + repo : "");
 	}

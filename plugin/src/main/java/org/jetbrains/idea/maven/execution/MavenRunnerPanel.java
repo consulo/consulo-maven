@@ -17,17 +17,17 @@
 
 package org.jetbrains.idea.maven.execution;
 
-import com.intellij.execution.configuration.EnvironmentVariablesComponent;
-import com.intellij.icons.AllIcons;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.projectRoots.JavaSdk;
-import com.intellij.openapi.projectRoots.SdkTypeId;
-import com.intellij.openapi.roots.ui.configuration.projectRoot.ProjectSdksModel;
-import com.intellij.openapi.util.Conditions;
-import com.intellij.ui.IdeBorderFactory;
-import com.intellij.ui.RawCommandLineEditor;
+import com.intellij.java.language.projectRoots.JavaSdk;
+import consulo.application.AllIcons;
+import consulo.content.bundle.SdkTypeId;
 import consulo.disposer.Disposable;
-import consulo.roots.ui.configuration.SdkComboBox;
+import consulo.execution.ui.awt.EnvironmentVariablesComponent;
+import consulo.execution.ui.awt.RawCommandLineEditor;
+import consulo.ide.impl.idea.openapi.roots.ui.configuration.projectRoot.ProjectSdksModel;
+import consulo.module.ui.awt.SdkComboBox;
+import consulo.project.Project;
+import consulo.ui.ex.awt.IdeBorderFactory;
+import consulo.util.lang.function.Conditions;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 

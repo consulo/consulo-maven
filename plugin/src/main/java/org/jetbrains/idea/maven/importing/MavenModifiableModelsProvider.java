@@ -17,15 +17,15 @@ package org.jetbrains.idea.maven.importing;
 
 import javax.annotation.Nonnull;
 
-import com.intellij.openapi.application.ModalityState;
-import com.intellij.openapi.module.ModifiableModuleModel;
-import com.intellij.openapi.module.Module;
-import com.intellij.openapi.roots.ModifiableRootModel;
-import com.intellij.openapi.roots.OrderRootType;
-import com.intellij.openapi.roots.libraries.Library;
-import com.intellij.openapi.roots.libraries.LibraryTable;
-import com.intellij.packaging.artifacts.ModifiableArtifactModel;
-import com.intellij.packaging.elements.PackagingElementResolvingContext;
+import consulo.module.ModifiableModuleModel;
+import consulo.module.content.layer.ModifiableRootModel;
+import consulo.ui.ModalityState;
+import consulo.module.Module;
+import consulo.content.OrderRootType;
+import consulo.content.library.Library;
+import consulo.content.library.LibraryTable;
+import consulo.compiler.artifact.ModifiableArtifactModel;
+import consulo.compiler.artifact.element.PackagingElementResolvingContext;
 import org.jetbrains.idea.maven.project.MavenModelsProvider;
 
 public interface MavenModifiableModelsProvider extends MavenModelsProvider {

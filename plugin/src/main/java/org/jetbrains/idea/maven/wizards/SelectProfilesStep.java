@@ -15,13 +15,13 @@
  */
 package org.jetbrains.idea.maven.wizards;
 
-import com.intellij.ide.util.MultiStateElementsChooser;
 import consulo.disposer.Disposable;
 import consulo.maven.importProvider.MavenImportModuleContext;
+import consulo.maven.rt.server.common.model.MavenExplicitProfiles;
+import consulo.maven.rt.server.common.model.MavenProfileKind;
 import consulo.ui.annotation.RequiredUIAccess;
-import consulo.ui.wizard.WizardStep;
-import org.jetbrains.idea.maven.model.MavenExplicitProfiles;
-import org.jetbrains.idea.maven.model.MavenProfileKind;
+import consulo.ui.ex.awt.MultiStateElementsChooser;
+import consulo.ui.ex.wizard.WizardStep;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;

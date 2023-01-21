@@ -1,17 +1,18 @@
 package org.jetbrains.idea.maven.dom.generate;
 
-import javax.annotation.Nonnull;
-
-import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.project.Project;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.xml.XmlFile;
-import com.intellij.util.Function;
-import com.intellij.util.xml.DomElement;
-import com.intellij.util.xml.ElementPresentationManager;
-import com.intellij.util.xml.ui.actions.generate.GenerateDomElementAction;
+import consulo.codeEditor.Editor;
+import consulo.language.psi.PsiFile;
+import consulo.project.Project;
+import consulo.xml.psi.xml.XmlFile;
+import consulo.xml.util.xml.DomElement;
+import consulo.xml.util.xml.ElementPresentationManager;
+import consulo.xml.util.xml.ui.actions.generate.GenerateDomElementAction;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
 import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.function.Function;
 
 /**
  * User: Sergey.Vasiliev
@@ -19,7 +20,7 @@ import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
 public class MavenGenerateTemplateAction extends GenerateDomElementAction {
   public MavenGenerateTemplateAction(@Nonnull final String description,
                                      @Nonnull final Class<? extends DomElement> childElementClass,
-                                     @javax.annotation.Nullable final String mappingId,
+                                     @Nullable final String mappingId,
                                      @Nonnull Function<MavenDomProjectModel, DomElement> parentFunction) {
     super(new MavenGenerateDomElementProvider(description, childElementClass, mappingId, parentFunction));
 

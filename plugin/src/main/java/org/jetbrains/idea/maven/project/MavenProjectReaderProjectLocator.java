@@ -15,8 +15,8 @@
  */
 package org.jetbrains.idea.maven.project;
 
-import com.intellij.openapi.vfs.VirtualFile;
-import org.jetbrains.idea.maven.model.MavenId;
+import consulo.maven.rt.server.common.model.MavenId;
+import consulo.virtualFileSystem.VirtualFile;
 
 public interface MavenProjectReaderProjectLocator {
   VirtualFile findProjectFile(MavenId coordinates);

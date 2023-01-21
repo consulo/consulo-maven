@@ -1,8 +1,8 @@
 package org.jetbrains.idea.maven.plugins.api;
 
-import com.intellij.openapi.util.Pair;
 import javax.annotation.Nullable;
-import org.jetbrains.idea.maven.model.MavenPlugin;
+import consulo.maven.rt.server.common.model.MavenPlugin;
+import consulo.util.lang.Pair;
 
 import java.util.*;
 
@@ -19,7 +19,7 @@ public class MavenModelPropertiesPatcher {
     if (res == null) {
       res = new HashMap<String, Map<String, String[]>>();
 
-      for (MavenPluginDescriptor pluginDescriptor : MavenPluginDescriptor.EP_NAME.getExtensions()) {
+      for (MavenPluginDescriptor pluginDescriptor : MavenPluginDescriptor.EP_NAME.getExtensionList()) {
         if (pluginDescriptor.properties != null && pluginDescriptor.properties.length > 0) {
           Pair<String, String> pluginId = MavenPluginDescriptor.parsePluginId(pluginDescriptor.mavenId);
 

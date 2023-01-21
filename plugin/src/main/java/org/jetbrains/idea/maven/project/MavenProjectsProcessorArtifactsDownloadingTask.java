@@ -15,11 +15,11 @@
  */
 package org.jetbrains.idea.maven.project;
 
-import com.intellij.openapi.application.Application;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.AsyncResult;
-import com.intellij.openapi.vfs.VirtualFileManager;
-import org.jetbrains.idea.maven.model.MavenArtifact;
+import consulo.util.concurrent.AsyncResult;
+import consulo.application.Application;
+import consulo.maven.rt.server.common.model.MavenArtifact;
+import consulo.project.Project;
+import consulo.virtualFileSystem.VirtualFileManager;
 import org.jetbrains.idea.maven.utils.MavenProcessCanceledException;
 import org.jetbrains.idea.maven.utils.MavenProgressIndicator;
 

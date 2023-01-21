@@ -15,29 +15,36 @@
  */
 package org.jetbrains.idea.maven.importing;
 
-import com.intellij.ide.highlighter.JarArchiveFileType;
-import com.intellij.openapi.application.ReadAction;
-import com.intellij.openapi.module.ModifiableModuleModel;
-import com.intellij.openapi.module.Module;
-import com.intellij.openapi.roots.*;
-import com.intellij.openapi.roots.impl.ModuleOrderEntryImpl;
-import com.intellij.openapi.roots.libraries.Library;
-import com.intellij.openapi.util.Pair;
-import com.intellij.openapi.util.Ref;
-import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.openapi.vfs.VirtualFileManager;
-import com.intellij.pom.java.LanguageLevel;
-import com.intellij.util.Processor;
+import com.intellij.java.language.LanguageLevel;
+import com.intellij.java.language.impl.JarArchiveFileType;
+import consulo.application.ReadAction;
+import consulo.application.util.function.Processor;
 import consulo.compiler.ModuleCompilerPathsManager;
-import consulo.java.module.extension.JavaMutableModuleExtensionImpl;
-import consulo.roots.ContentFolderScopes;
-import consulo.roots.ContentFolderTypeProvider;
-import consulo.roots.impl.*;
-import consulo.roots.impl.property.GeneratedContentFolderPropertyProvider;
-import consulo.vfs.ArchiveFileSystem;
-import org.jetbrains.idea.maven.model.MavenArtifact;
-import org.jetbrains.idea.maven.model.MavenConstants;
+import consulo.content.ContentFolderTypeProvider;
+import consulo.content.OrderRootType;
+import consulo.content.base.BinariesOrderRootType;
+import consulo.content.base.DocumentationOrderRootType;
+import consulo.content.base.ExcludedContentFolderTypeProvider;
+import consulo.content.base.SourcesOrderRootType;
+import consulo.content.library.Library;
+import consulo.ide.impl.roots.impl.property.GeneratedContentFolderPropertyProvider;
+import consulo.java.impl.module.extension.JavaMutableModuleExtensionImpl;
+import consulo.language.content.*;
+import consulo.maven.rt.server.common.model.MavenArtifact;
+import consulo.maven.rt.server.common.model.MavenConstants;
+import consulo.module.ModifiableModuleModel;
+import consulo.module.Module;
+import consulo.module.content.ModuleRootManager;
+import consulo.module.content.layer.ContentEntry;
+import consulo.module.content.layer.ContentFolder;
+import consulo.module.content.layer.ModifiableRootModel;
+import consulo.module.content.layer.orderEntry.*;
+import consulo.util.io.FileUtil;
+import consulo.util.lang.Pair;
+import consulo.util.lang.StringUtil;
+import consulo.util.lang.ref.Ref;
+import consulo.virtualFileSystem.VirtualFileManager;
+import consulo.virtualFileSystem.archive.ArchiveFileSystem;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.utils.Path;
@@ -49,7 +56,6 @@ import java.io.File;
 
 public class MavenRootModelAdapter
 {
-
 	private final MavenProject myMavenProject;
 	private final ModifiableModuleModel myModuleModel;
 	private final ModifiableRootModel myRootModel;
@@ -111,7 +117,7 @@ public class MavenRootModelAdapter
 			}
 			if(e instanceof ModuleOrderEntry)
 			{
-				Module m = ((ModuleOrderEntry) e).getModule();
+				consulo.module.Module m = ((ModuleOrderEntry) e).getModule();
 				if(m != null && !MavenProjectsManager.getInstance(myRootModel.getProject()).isMavenizedModule(m))
 				{
 					continue;
@@ -135,7 +141,7 @@ public class MavenRootModelAdapter
 	{
 		for(ContentEntry each : myRootModel.getContentEntries())
 		{
-			for(ContentFolder contentFolder : each.getFolders(ContentFolderScopes.all(false)))
+			for(ContentFolder contentFolder : each.getFolders(LanguageContentFolderScopes.all(false)))
 			{
 				each.removeFolder(contentFolder);
 			}
@@ -185,7 +191,7 @@ public class MavenRootModelAdapter
 		String url = toUrl(f.getPath()).getUrl();
 		for(ContentEntry eachEntry : myRootModel.getContentEntries())
 		{
-			for(ContentFolder eachFolder : eachEntry.getFolders(ContentFolderScopes.of(ProductionContentFolderTypeProvider.getInstance())))
+			for(ContentFolder eachFolder : eachEntry.getFolders(LanguageContentFolderScopes.of(ProductionContentFolderTypeProvider.getInstance())))
 			{
 				if(isEqualOrAncestor(url, eachFolder.getUrl()))
 				{
@@ -201,7 +207,7 @@ public class MavenRootModelAdapter
 		String url = toUrl(f.getPath()).getUrl();
 		for(ContentEntry eachEntry : myRootModel.getContentEntries())
 		{
-			for(ContentFolder eachFolder : eachEntry.getFolders(ContentFolderScopes.excluded()))
+			for(ContentFolder eachFolder : eachEntry.getFolders(LanguageContentFolderScopes.excluded()))
 			{
 				if(isEqualOrAncestor(eachFolder.getUrl(), url))
 				{
@@ -246,7 +252,7 @@ public class MavenRootModelAdapter
 		{
 			if(unregisterSources)
 			{
-				for(ContentFolder eachFolder : eachEntry.getFolders(ContentFolderScopes.all(false)))
+				for(ContentFolder eachFolder : eachEntry.getFolders(LanguageContentFolderScopes.all(false)))
 				{
 					String ancestor = under ? url.getUrl() : eachFolder.getUrl();
 					String child = under ? eachFolder.getUrl() : url.getUrl();
@@ -257,7 +263,7 @@ public class MavenRootModelAdapter
 				}
 			}
 
-			for(ContentFolder eachFolder : eachEntry.getFolders(ContentFolderScopes.excluded()))
+			for(ContentFolder eachFolder : eachEntry.getFolders(LanguageContentFolderScopes.excluded()))
 			{
 				String ancestor = under ? url.getUrl() : eachFolder.getUrl();
 				String child = under ? eachFolder.getUrl() : url.getUrl();
@@ -284,7 +290,7 @@ public class MavenRootModelAdapter
 
 		for(ContentEntry eachEntry : myRootModel.getContentEntries())
 		{
-			for(ContentFolder eachFolder : eachEntry.getFolders(ContentFolderScopes.of(ProductionContentFolderTypeProvider.getInstance())))
+			for(ContentFolder eachFolder : eachEntry.getFolders(LanguageContentFolderScopes.of(ProductionContentFolderTypeProvider.getInstance())))
 			{
 				String ancestor = url.getUrl();
 				String child = eachFolder.getUrl();
@@ -294,7 +300,7 @@ public class MavenRootModelAdapter
 				}
 			}
 
-			for(ContentFolder eachFolder : eachEntry.getFolders(ContentFolderScopes.excluded()))
+			for(ContentFolder eachFolder : eachEntry.getFolders(LanguageContentFolderScopes.excluded()))
 			{
 				String ancestor = url.getUrl();
 				String child = eachFolder.getUrl();
@@ -355,7 +361,7 @@ public class MavenRootModelAdapter
 		e.setScope(scope);
 		if(testJar)
 		{
-			((ModuleOrderEntryImpl) e).setProductionOnTestDependency(true);
+			e.setProductionOnTestDependency(true);
 		}
 	}
 
@@ -382,7 +388,7 @@ public class MavenRootModelAdapter
 		orderEntry.setScope(scope);
 
 		Library.ModifiableModel modifiableModel = library.getModifiableModel();
-		updateUrl(modifiableModel, OrderRootType.CLASSES, artifact, null, null, true);
+		updateUrl(modifiableModel, BinariesOrderRootType.getInstance(), artifact, null, null, true);
 		modifiableModel.commit();
 	}
 
@@ -399,9 +405,9 @@ public class MavenRootModelAdapter
 		}
 		Library.ModifiableModel libraryModel = provider.getLibraryModel(library);
 
-		updateUrl(libraryModel, OrderRootType.CLASSES, artifact, null, null, true);
-		updateUrl(libraryModel, OrderRootType.SOURCES, artifact, MavenExtraArtifactType.SOURCES, project, false);
-		updateUrl(libraryModel, OrderRootType.DOCUMENTATION, artifact, MavenExtraArtifactType.DOCS, project, false);
+		updateUrl(libraryModel, BinariesOrderRootType.getInstance(), artifact, null, null, true);
+		updateUrl(libraryModel, SourcesOrderRootType.getInstance(), artifact, MavenExtraArtifactType.SOURCES, project, false);
+		updateUrl(libraryModel, DocumentationOrderRootType.getInstance(), artifact, MavenExtraArtifactType.DOCS, project, false);
 
 		LibraryOrderEntry e = myRootModel.addLibraryEntry(library);
 		e.setScope(scope);
@@ -451,7 +457,7 @@ public class MavenRootModelAdapter
 
 	public static boolean isChangedByUser(Library library)
 	{
-		String[] classRoots = library.getUrls(OrderRootType.CLASSES);
+		String[] classRoots = library.getUrls(BinariesOrderRootType.getInstance());
 		if(classRoots.length != 1)
 		{
 			return true;
@@ -471,11 +477,11 @@ public class MavenRootModelAdapter
 		}
 		String pathToJar = classes.substring(0, dotPos);
 
-		if(hasUserPaths(OrderRootType.SOURCES, library, pathToJar))
+		if(hasUserPaths(SourcesOrderRootType.getInstance(), library, pathToJar))
 		{
 			return true;
 		}
-		if(hasUserPaths(OrderRootType.DOCUMENTATION, library, pathToJar))
+		if(hasUserPaths(DocumentationOrderRootType.getInstance(), library, pathToJar))
 		{
 			return true;
 		}
@@ -521,7 +527,7 @@ public class MavenRootModelAdapter
 		return artifact.getLibraryName();
 	}
 
-	public static boolean isMavenLibrary(@javax.annotation.Nullable Library library)
+	public static boolean isMavenLibrary(@Nullable Library library)
 	{
 		return library != null && MavenArtifact.isMavenLibrary(library.getName());
 	}
@@ -540,8 +546,8 @@ public class MavenRootModelAdapter
 		return null;
 	}
 
-	@javax.annotation.Nullable
-	public static MavenArtifact findArtifact(@Nonnull MavenProject project, @javax.annotation.Nullable Library library)
+	@Nullable
+	public static MavenArtifact findArtifact(@Nonnull MavenProject project, @Nullable Library library)
 	{
 		if(library == null)
 		{

@@ -15,12 +15,12 @@
  */
 package org.jetbrains.idea.maven.vfs;
 
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.openapi.vfs.VfsUtilCore;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.vfs.VirtualFileSystem;
-import javax.annotation.Nonnull;
+import consulo.util.lang.StringUtil;
+import consulo.virtualFileSystem.VirtualFile;
+import consulo.virtualFileSystem.VirtualFileSystem;
+import consulo.virtualFileSystem.util.VirtualFileUtil;
 
+import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -109,7 +109,7 @@ public class MavenPropertiesVirtualFile extends VirtualFile {
   }
 
   public InputStream getInputStream() throws IOException {
-    return VfsUtilCore.byteStreamSkippingBOM(myContent,this);
+    return VirtualFileUtil.byteStreamSkippingBOM(myContent,this);
   }
 
   @Nonnull

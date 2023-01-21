@@ -15,16 +15,19 @@
  */
 package org.jetbrains.idea.maven.tasks;
 
-import com.intellij.execution.RunManagerEx;
-import com.intellij.openapi.compiler.CompileContext;
-import com.intellij.openapi.components.PersistentStateComponent;
-import com.intellij.openapi.components.State;
-import com.intellij.openapi.components.Storage;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.openapi.vfs.LocalFileSystem;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.util.containers.ContainerUtil;
+import consulo.annotation.component.ComponentScope;
+import consulo.annotation.component.ServiceAPI;
+import consulo.annotation.component.ServiceImpl;
+import consulo.compiler.CompileContext;
+import consulo.component.persist.PersistentStateComponent;
+import consulo.component.persist.State;
+import consulo.component.persist.Storage;
+import consulo.execution.RunManager;
+import consulo.project.Project;
+import consulo.util.collection.Lists;
+import consulo.util.lang.StringUtil;
+import consulo.virtualFileSystem.LocalFileSystem;
+import consulo.virtualFileSystem.VirtualFile;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import org.jetbrains.idea.maven.execution.MavenRunner;
@@ -38,6 +41,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 @Singleton
 @State(name = "MavenCompilerTasksManager", storages = @Storage("misc.xml"))
+@ServiceAPI(value = ComponentScope.PROJECT, lazy = false)
+@ServiceImpl
 public class MavenTasksManager extends MavenSimpleProjectComponent implements PersistentStateComponent<MavenTasksManagerState>
 {
 	private final AtomicBoolean isInitialized = new AtomicBoolean();
@@ -47,7 +52,7 @@ public class MavenTasksManager extends MavenSimpleProjectComponent implements Pe
 	private final MavenProjectsManager myProjectsManager;
 	private final MavenRunner myRunner;
 
-	private final List<Listener> myListeners = ContainerUtil.createLockFreeCopyOnWriteList();
+	private final List<Listener> myListeners = Lists.newLockFreeCopyOnWriteList();
 
 	public static MavenTasksManager getInstance(Project project)
 	{
@@ -175,7 +180,7 @@ public class MavenTasksManager extends MavenSimpleProjectComponent implements Pe
 				result.add(TasksBundle.message("maven.tasks.goal.after.compile"));
 			}
 		}
-		RunManagerEx runManager = RunManagerEx.getInstanceEx(myProject);
+		RunManager runManager = RunManager.getInstance(myProject);
 		for(MavenBeforeRunTask each : runManager.getBeforeRunTasks(MavenBeforeRunTasksProvider.ID))
 		{
 			if(each.isFor(project, goal))

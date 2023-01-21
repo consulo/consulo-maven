@@ -15,33 +15,38 @@
  */
 package org.jetbrains.idea.maven.project;
 
-import com.intellij.ide.startup.StartupManagerEx;
-import com.intellij.notification.NotificationGroup;
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.application.ReadAction;
-import com.intellij.openapi.components.*;
-import com.intellij.openapi.fileEditor.FileDocumentManager;
-import com.intellij.openapi.module.Module;
-import com.intellij.openapi.module.ModuleUtilCore;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.roots.ModuleRootManager;
-import com.intellij.openapi.roots.ProjectRootManager;
-import com.intellij.openapi.util.AsyncResult;
-import com.intellij.openapi.util.ModificationTracker;
-import com.intellij.openapi.util.Pair;
-import com.intellij.openapi.util.Ref;
-import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.vfs.VirtualFileManager;
-import com.intellij.util.Alarm;
-import com.intellij.util.EventDispatcher;
-import com.intellij.util.NullableConsumer;
-import com.intellij.util.ObjectUtils;
-import com.intellij.util.containers.ContainerUtil;
-import com.intellij.util.ui.update.Update;
+import consulo.annotation.component.ComponentScope;
+import consulo.annotation.component.ServiceAPI;
+import consulo.annotation.component.ServiceImpl;
+import consulo.application.ApplicationManager;
+import consulo.application.ReadAction;
+import consulo.component.persist.*;
+import consulo.component.util.ModificationTracker;
 import consulo.disposer.Disposable;
 import consulo.disposer.Disposer;
+import consulo.document.FileDocumentManager;
+import consulo.language.util.ModuleUtilCore;
 import consulo.maven.module.extension.MavenModuleExtension;
+import consulo.maven.rt.server.common.model.*;
+import consulo.maven.rt.server.common.server.NativeMavenProjectHolder;
+import consulo.module.Module;
+import consulo.module.content.ModuleRootManager;
+import consulo.module.content.ProjectRootManager;
+import consulo.project.Project;
+import consulo.project.startup.StartupManager;
+import consulo.project.ui.notification.NotificationGroup;
+import consulo.proxy.EventDispatcher;
+import consulo.ui.ex.awt.util.Alarm;
+import consulo.ui.ex.awt.util.Update;
+import consulo.util.collection.ContainerUtil;
+import consulo.util.collection.Lists;
+import consulo.util.concurrent.AsyncResult;
+import consulo.util.io.FileUtil;
+import consulo.util.lang.ObjectUtil;
+import consulo.util.lang.Pair;
+import consulo.util.lang.ref.Ref;
+import consulo.virtualFileSystem.VirtualFile;
+import consulo.virtualFileSystem.VirtualFileManager;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import org.jetbrains.annotations.TestOnly;
@@ -49,8 +54,6 @@ import org.jetbrains.idea.maven.importing.MavenDefaultModifiableModelsProvider;
 import org.jetbrains.idea.maven.importing.MavenFoldersImporter;
 import org.jetbrains.idea.maven.importing.MavenModifiableModelsProvider;
 import org.jetbrains.idea.maven.importing.MavenProjectImporter;
-import org.jetbrains.idea.maven.model.*;
-import org.jetbrains.idea.maven.server.NativeMavenProjectHolder;
 import org.jetbrains.idea.maven.utils.MavenLog;
 import org.jetbrains.idea.maven.utils.MavenMergingUpdateQueue;
 import org.jetbrains.idea.maven.utils.MavenSimpleProjectComponent;
@@ -63,9 +66,12 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Consumer;
 
 @Singleton
 @State(name = "MavenProjectsManager", storages = @Storage(file = StoragePathMacros.PROJECT_CONFIG_DIR + "/misc.xml"))
+@ServiceAPI(value = ComponentScope.PROJECT, lazy = false)
+@ServiceImpl
 public class MavenProjectsManager extends MavenSimpleProjectComponent implements PersistentStateComponent<MavenProjectsManagerState>, SettingsSavingComponent, Disposable
 {
 	private static final int IMPORT_DELAY = 1000;
@@ -99,7 +105,7 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 	private boolean myImportModuleGroupsRequired = false;
 
 	private final EventDispatcher<MavenProjectsTree.Listener> myProjectsTreeDispatcher = EventDispatcher.create(MavenProjectsTree.Listener.class);
-	private final List<Listener> myManagerListeners = ContainerUtil.createLockFreeCopyOnWriteList();
+	private final List<Listener> myManagerListeners = Lists.newLockFreeCopyOnWriteList();
 	private ModificationTracker myModificationTracker;
 
 	private MavenWorkspaceSettings myWorkspaceSettings;
@@ -177,7 +183,7 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 			return;
 		}
 
-		StartupManagerEx startupManager = StartupManagerEx.getInstanceEx(myProject);
+		StartupManager startupManager = StartupManager.getInstance(myProject);
 
 		startupManager.registerStartupActivity(() ->
 		{
@@ -413,7 +419,7 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 
 				if(!deleted.isEmpty() && !hasScheduledProjects())
 				{
-					MavenProject project = ObjectUtils.chooseNotNull(ContainerUtil.getFirstItem(toResolve), ContainerUtil.getFirstItem(getNonIgnoredProjects()));
+					MavenProject project = ObjectUtil.chooseNotNull(ContainerUtil.getFirstItem(toResolve), ContainerUtil.getFirstItem(getNonIgnoredProjects()));
 					if(project != null)
 					{
 						scheduleForNextImport(Pair.create(project, MavenProjectChanges.ALL));
@@ -956,7 +962,7 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 		return result;
 	}
 
-	public void evaluateEffectivePom(@Nonnull final MavenProject mavenProject, @Nonnull final NullableConsumer<String> consumer)
+	public void evaluateEffectivePom(@Nonnull final MavenProject mavenProject, @Nonnull final Consumer<String> consumer)
 	{
 		runWhenFullyOpen(() -> myResolvingProcessor.scheduleTask((project, embeddersManager, console, indicator) ->
 		{
@@ -969,11 +975,11 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 				{
 					MavenExplicitProfiles profiles = mavenProject.getActivatedProfilesIds();
 					String res = embedder.evaluateEffectivePom(mavenProject.getFile(), profiles.getEnabledProfiles(), profiles.getDisabledProfiles());
-					consumer.consume(res);
+					consumer.accept(res);
 				}
 				catch(UnsupportedOperationException e)
 				{
-					consumer.consume(null); // null means UnsupportedOperationException
+					consumer.accept(null); // null means UnsupportedOperationException
 				}
 			});
 		}));
@@ -1023,10 +1029,10 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 	}
 
 	public void scheduleArtifactsDownloading(final Collection<MavenProject> projects,
-			@Nullable final Collection<MavenArtifact> artifacts,
-			final boolean sources,
-			final boolean docs,
-			@Nullable final AsyncResult<MavenArtifactDownloader.DownloadResult> result)
+											 @Nullable final Collection<MavenArtifact> artifacts,
+											 final boolean sources,
+											 final boolean docs,
+											 @Nullable final AsyncResult<MavenArtifactDownloader.DownloadResult> result)
 	{
 		if(!sources && !docs)
 		{
@@ -1153,7 +1159,7 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 		final Ref<Runnable> wrapper = new Ref<>();
 		wrapper.set(() ->
 		{
-			if(!StartupManagerEx.getInstanceEx(myProject).postStartupActivityPassed())
+			if(!StartupManager.getInstance(myProject).postStartupActivityPassed())
 			{
 				// should not remove previously schedules tasks
 				myInitializationAlarm.addRequest(() -> wrapper.get().run(), 1000);
@@ -1257,7 +1263,7 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 		return importProjects(new MavenDefaultModifiableModelsProvider(myProject));
 	}
 
-	public List<Module> importProjects(final MavenModifiableModelsProvider modelsProvider)
+	public List<consulo.module.Module> importProjects(final MavenModifiableModelsProvider modelsProvider)
 	{
 		final Map<MavenProject, MavenProjectChanges> projectsToImportWithChanges;
 		final boolean importModuleGroupsRequired;

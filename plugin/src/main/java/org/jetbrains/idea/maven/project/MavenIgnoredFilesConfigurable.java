@@ -15,13 +15,13 @@
  */
 package org.jetbrains.idea.maven.project;
 
-import com.intellij.ide.util.ElementsChooser;
-import com.intellij.openapi.options.Configurable;
-import com.intellij.openapi.options.ConfigurationException;
-import com.intellij.openapi.options.SearchableConfigurable;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.io.FileUtil;
+import consulo.configurable.Configurable;
+import consulo.configurable.ConfigurationException;
+import consulo.configurable.SearchableConfigurable;
 import consulo.disposer.Disposable;
+import consulo.project.Project;
+import consulo.ui.ex.awt.ElementsChooser;
+import consulo.util.io.FileUtil;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.idea.maven.utils.MavenUIUtil;
@@ -29,6 +29,7 @@ import org.jetbrains.idea.maven.utils.MavenUtil;
 import org.jetbrains.idea.maven.utils.Strings;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.swing.*;
 import java.util.Collection;
 import java.util.Comparator;
@@ -66,7 +67,8 @@ public class MavenIgnoredFilesConfigurable implements SearchableConfigurable, Co
            !myOriginallyIgnoredFilesPatterns.equals(myIgnoredFilesPattersEditor.getText());
   }
 
-  public void apply() throws ConfigurationException {
+  public void apply() throws ConfigurationException
+  {
     myManager.setIgnoredFilesPaths(myIgnoredFilesPathsChooser.getMarkedElements());
     myManager.setIgnoredFilesPatterns(Strings.tokenize(myIgnoredFilesPattersEditor.getText(), Strings.WHITESPACE + SEPARATOR));
   }
@@ -91,7 +93,7 @@ public class MavenIgnoredFilesConfigurable implements SearchableConfigurable, Co
     return ProjectBundle.message("maven.tab.ignored.files");
   }
 
-  @javax.annotation.Nullable
+  @Nullable
   @NonNls
   public String getHelpTopic() {
     return "reference.settings.project.maven.ignored.files";

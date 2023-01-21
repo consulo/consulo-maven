@@ -16,13 +16,13 @@
 package org.jetbrains.idea.maven.utils;
 
 import org.jdom.Element;
-import org.jetbrains.idea.maven.model.MavenId;
+import consulo.maven.rt.server.common.model.MavenId;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static org.jetbrains.idea.maven.model.MavenId.append;
+import static consulo.maven.rt.server.common.model.MavenId.append;
 
 public class MavenPluginInfo {
   private final String myGroupId;

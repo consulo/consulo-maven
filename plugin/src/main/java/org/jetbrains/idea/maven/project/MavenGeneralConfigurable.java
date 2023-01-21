@@ -15,7 +15,7 @@
  */
 package org.jetbrains.idea.maven.project;
 
-import com.intellij.openapi.options.SearchableConfigurable;
+import consulo.configurable.SearchableConfigurable;
 import consulo.ui.annotation.RequiredUIAccess;
 import org.jetbrains.annotations.NonNls;
 

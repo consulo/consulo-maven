@@ -15,16 +15,25 @@
  */
 package org.jetbrains.idea.maven.project;
 
-import com.intellij.openapi.components.*;
-import com.intellij.openapi.project.Project;
+import consulo.annotation.component.ComponentScope;
+import consulo.annotation.component.ServiceAPI;
+import consulo.annotation.component.ServiceImpl;
+import consulo.component.persist.PersistentStateComponent;
+import consulo.component.persist.State;
+import consulo.component.persist.Storage;
+import consulo.component.persist.StoragePathMacros;
+import consulo.ide.ServiceManager;
+import consulo.maven.rt.server.common.model.MavenExplicitProfiles;
+import consulo.project.Project;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
-import org.jetbrains.idea.maven.model.MavenExplicitProfiles;
 
 import javax.annotation.Nonnull;
 
 @Singleton
 @State(name = "MavenImportPreferences", storages = {@Storage(file = StoragePathMacros.WORKSPACE_FILE)})
+@ServiceAPI(ComponentScope.PROJECT)
+@ServiceImpl
 public class MavenWorkspaceSettingsComponent implements PersistentStateComponent<MavenWorkspaceSettings>
 {
 	private MavenWorkspaceSettings mySettings = new MavenWorkspaceSettings();

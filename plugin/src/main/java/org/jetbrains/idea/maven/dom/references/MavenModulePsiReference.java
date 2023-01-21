@@ -15,29 +15,29 @@
  */
 package org.jetbrains.idea.maven.dom.references;
 
-import com.intellij.codeInsight.lookup.LookupElementBuilder;
-import com.intellij.codeInspection.LocalQuickFix;
-import com.intellij.codeInspection.LocalQuickFixProvider;
-import com.intellij.codeInspection.ProblemDescriptor;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Comparing;
-import com.intellij.openapi.util.TextRange;
-import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.openapi.vfs.VfsUtil;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiManager;
-import com.intellij.util.PathUtil;
-import com.intellij.util.xml.DomFileElement;
-import javax.annotation.Nonnull;
+import consulo.document.util.TextRange;
+import consulo.ide.impl.idea.util.PathUtil;
+import consulo.language.editor.completion.lookup.LookupElementBuilder;
+import consulo.language.editor.inspection.LocalQuickFix;
+import consulo.language.editor.inspection.LocalQuickFixProvider;
+import consulo.language.editor.inspection.ProblemDescriptor;
+import consulo.language.psi.PsiElement;
+import consulo.language.psi.PsiFile;
+import consulo.language.psi.PsiManager;
+import consulo.maven.rt.server.common.model.MavenConstants;
+import consulo.maven.rt.server.common.model.MavenId;
+import consulo.project.Project;
+import consulo.util.io.FileUtil;
+import consulo.util.lang.Comparing;
+import consulo.virtualFileSystem.VirtualFile;
+import consulo.virtualFileSystem.util.VirtualFileUtil;
+import consulo.xml.util.xml.DomFileElement;
 import org.jetbrains.idea.maven.dom.MavenDomBundle;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
 import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
-import org.jetbrains.idea.maven.model.MavenConstants;
-import org.jetbrains.idea.maven.model.MavenId;
 import org.jetbrains.idea.maven.utils.MavenUtil;
 
+import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -142,7 +142,7 @@ public class MavenModulePsiReference extends MavenPsiReference implements LocalQ
     private VirtualFile createModulePom() throws IOException {
       VirtualFile baseDir = myVirtualFile.getParent();
       String modulePath = PathUtil.getCanonicalPath(baseDir.getPath() + "/" + myText);
-      VirtualFile moduleDir = VfsUtil.createDirectories(modulePath);
+      VirtualFile moduleDir = VirtualFileUtil.createDirectories(modulePath);
       return moduleDir.createChildData(this, MavenConstants.POM_XML);
     }
   }

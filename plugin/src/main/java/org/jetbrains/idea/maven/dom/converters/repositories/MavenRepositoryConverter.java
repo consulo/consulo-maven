@@ -15,20 +15,22 @@
  */
 package org.jetbrains.idea.maven.dom.converters.repositories;
 
-import com.intellij.codeInsight.lookup.LookupElement;
-import com.intellij.codeInsight.lookup.LookupElementBuilder;
-import com.intellij.openapi.module.Module;
-import com.intellij.openapi.util.TextRange;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.psi.ElementManipulators;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiReference;
-import com.intellij.util.xml.ConvertContext;
-import com.intellij.util.xml.GenericDomValue;
-import com.intellij.util.xml.ResolvingConverter;
+import consulo.language.psi.PsiElement;
+import consulo.language.psi.PsiReference;
+import consulo.module.Module;
+import consulo.document.util.TextRange;
+import consulo.util.lang.StringUtil;
+import consulo.language.psi.ElementManipulators;
+import consulo.language.editor.completion.lookup.LookupElement;
+import consulo.language.editor.completion.lookup.LookupElementBuilder;
+import consulo.xml.util.xml.ConvertContext;
+import consulo.xml.util.xml.GenericDomValue;
+import consulo.xml.util.xml.ResolvingConverter;
 import org.jetbrains.annotations.NonNls;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+
+import org.jetbrains.idea.maven.MavenIcons;
 import org.jetbrains.idea.maven.dom.converters.MavenUrlConverter;
 import org.jetbrains.idea.maven.dom.model.MavenDomRepositoryBase;
 import org.jetbrains.idea.maven.dom.references.MavenUrlPsiReference;
@@ -44,7 +46,7 @@ public abstract class MavenRepositoryConverter extends ResolvingConverter<String
   public static class Id extends MavenRepositoryConverter {
     @Nonnull
     public Collection<String> getVariants(final ConvertContext context) {
-      Module module = context.getModule();
+      consulo.module.Module module = context.getModule();
       if (module != null) {
         return MavenRepositoriesProvider.getInstance().getRepositoryIds();
       }
@@ -54,7 +56,7 @@ public abstract class MavenRepositoryConverter extends ResolvingConverter<String
     @Override
     public LookupElement createLookupElement(String s) {
       return LookupElementBuilder.create(s)
-        .withIcon(icons.MavenIcons.MavenPlugin)
+        .withIcon(MavenIcons.MavenPlugin)
         .withTailText(" (" + MavenRepositoriesProvider.getInstance().getRepositoryUrl(s) + ")", true);
     }
   }
@@ -84,7 +86,7 @@ public abstract class MavenRepositoryConverter extends ResolvingConverter<String
         @Nonnull
         @Override
         public Object[] getVariants() {
-          Module module = context.getModule();
+          consulo.module.Module module = context.getModule();
 
           if (module != null) {
             String name = MavenRepositoriesProvider.getInstance().getRepositoryUrl(getRepositoryId(context));
@@ -109,7 +111,7 @@ public abstract class MavenRepositoryConverter extends ResolvingConverter<String
   }
 
   @Override
-  public String toString(@javax.annotation.Nullable String s, ConvertContext convertContext) {
+  public String toString(@Nullable String s, ConvertContext convertContext) {
     return s;
   }
 }

@@ -15,9 +15,9 @@
  */
 package org.jetbrains.idea.maven.project;
 
-import com.intellij.openapi.util.ModificationTracker;
-import com.intellij.openapi.util.Pair;
-import org.jetbrains.idea.maven.server.NativeMavenProjectHolder;
+import consulo.util.lang.Pair;
+import consulo.component.util.ModificationTracker;
+import consulo.maven.rt.server.common.server.NativeMavenProjectHolder;
 
 import java.util.List;
 
@@ -26,7 +26,8 @@ import javax.annotation.Nullable;
 /**
  * @author Konstantin Bulenkov
  */
-public class MavenModificationTracker implements ModificationTracker {
+public class MavenModificationTracker implements ModificationTracker
+{
   private long myCounter = 0;
 
   public MavenModificationTracker(MavenProjectsManager manager) {

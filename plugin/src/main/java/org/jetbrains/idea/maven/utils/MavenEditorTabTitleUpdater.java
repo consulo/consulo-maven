@@ -16,21 +16,27 @@
 
 package org.jetbrains.idea.maven.utils;
 
-import java.util.List;
-
+import consulo.annotation.component.ComponentScope;
+import consulo.annotation.component.ServiceAPI;
+import consulo.annotation.component.ServiceImpl;
+import consulo.fileEditor.FileEditorManager;
+import consulo.project.Project;
+import consulo.util.lang.Pair;
+import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
-
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectChanges;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.project.MavenProjectsTree;
-import com.intellij.openapi.fileEditor.ex.FileEditorManagerEx;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Pair;
+
+import java.util.List;
 
 @Singleton
+@ServiceAPI(value = ComponentScope.PROJECT, lazy = false)
+@ServiceImpl
 public class MavenEditorTabTitleUpdater extends MavenSimpleProjectComponent
 {
+	@Inject
 	public MavenEditorTabTitleUpdater(Project project)
 	{
 		super(project);
@@ -56,7 +62,7 @@ public class MavenEditorTabTitleUpdater extends MavenSimpleProjectComponent
 		{
 			for(MavenProject each : projects)
 			{
-				FileEditorManagerEx.getInstanceEx(myProject).updateFilePresentation(each.getFile());
+				FileEditorManager.getInstance(myProject).updateFilePresentation(each.getFile());
 			}
 		});
 	}

@@ -15,24 +15,19 @@
  */
 package org.jetbrains.idea.maven.execution;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeSet;
+import com.google.common.base.Predicates;
+import com.google.common.collect.Maps;
+import consulo.maven.rt.server.common.model.MavenConstants;
+import consulo.maven.rt.server.common.model.MavenExplicitProfiles;
+import consulo.util.xml.serializer.annotation.MapAnnotation;
+import consulo.util.xml.serializer.annotation.OptionTag;
+import consulo.util.xml.serializer.annotation.Transient;
+import org.jetbrains.idea.maven.utils.Path;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.jetbrains.idea.maven.model.MavenConstants;
-import org.jetbrains.idea.maven.model.MavenExplicitProfiles;
-import org.jetbrains.idea.maven.utils.Path;
-import com.google.common.base.Predicates;
-import com.google.common.collect.Maps;
-import com.intellij.util.xmlb.annotations.MapAnnotation;
-import com.intellij.util.xmlb.annotations.OptionTag;
-import com.intellij.util.xmlb.annotations.Transient;
+import java.io.File;
+import java.util.*;
 
 public class MavenRunnerParameters implements Cloneable
 {
@@ -51,7 +46,7 @@ public class MavenRunnerParameters implements Cloneable
 		this(true, "", null, null, null);
 	}
 
-	public MavenRunnerParameters(boolean isPomExecution, @Nonnull String workingDirPath, @javax.annotation.Nullable List<String> goals, @Nullable Collection<String> explicitEnabledProfiles)
+	public MavenRunnerParameters(boolean isPomExecution, @Nonnull String workingDirPath, @Nullable List<String> goals, @Nullable Collection<String> explicitEnabledProfiles)
 	{
 		this(isPomExecution, workingDirPath, goals, explicitEnabledProfiles, null);
 	}
@@ -64,7 +59,7 @@ public class MavenRunnerParameters implements Cloneable
 	public MavenRunnerParameters(boolean isPomExecution,
 			@Nonnull String workingDirPath,
 			@Nullable List<String> goals,
-			@javax.annotation.Nullable Collection<String> explicitEnabledProfiles,
+			@Nullable Collection<String> explicitEnabledProfiles,
 			@Nullable Collection<String> explicitDisabledProfiles)
 	{
 		this.isPomExecution = isPomExecution;

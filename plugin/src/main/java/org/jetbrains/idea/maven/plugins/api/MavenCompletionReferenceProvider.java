@@ -1,10 +1,11 @@
 package org.jetbrains.idea.maven.plugins.api;
 
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiReference;
-import com.intellij.psi.PsiReferenceBase;
-import com.intellij.util.ProcessingContext;
+import consulo.language.psi.PsiElement;
+import consulo.language.psi.PsiReference;
+import consulo.language.util.ProcessingContext;
 import javax.annotation.Nonnull;
+
+import consulo.language.psi.PsiReferenceBase;
 import org.jetbrains.idea.maven.dom.model.MavenDomConfiguration;
 
 /**

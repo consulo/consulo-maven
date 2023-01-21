@@ -15,10 +15,10 @@
  */
 package org.jetbrains.idea.maven.wizards;
 
-import com.intellij.openapi.ui.DialogWrapper;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.ui.DocumentAdapter;
-import org.jetbrains.idea.maven.model.MavenArchetype;
+import consulo.ui.ex.awt.DialogWrapper;
+import consulo.ui.ex.awt.event.DocumentAdapter;
+import consulo.util.lang.StringUtil;
+import consulo.maven.rt.server.common.model.MavenArchetype;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;

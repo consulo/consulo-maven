@@ -15,7 +15,7 @@
  */
 package org.jetbrains.idea.maven.model.impl;
 
-import com.intellij.util.xmlb.annotations.Tag;
+import consulo.util.xml.serializer.annotation.Tag;
 
 /**
  * @author Eugene Zhuravlev

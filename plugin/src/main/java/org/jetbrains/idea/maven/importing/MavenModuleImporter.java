@@ -16,28 +16,33 @@
 package org.jetbrains.idea.maven.importing;
 
 import com.google.common.collect.ImmutableMap;
-import com.intellij.openapi.application.ReadAction;
-import com.intellij.openapi.module.Module;
-import com.intellij.openapi.projectRoots.Sdk;
-import com.intellij.openapi.roots.*;
-import com.intellij.openapi.roots.libraries.Library;
-import com.intellij.openapi.roots.libraries.LibraryTable;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.openapi.vfs.VfsUtil;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.pom.java.LanguageLevel;
-import consulo.java.module.extension.JavaMutableModuleExtensionImpl;
+import com.intellij.java.language.LanguageLevel;
+import consulo.application.ReadAction;
+import consulo.content.OrderRootType;
+import consulo.content.base.BinariesOrderRootType;
+import consulo.content.base.DocumentationOrderRootType;
+import consulo.content.base.SourcesOrderRootType;
+import consulo.content.bundle.Sdk;
+import consulo.content.library.Library;
+import consulo.content.library.LibraryTable;
+import consulo.ide.impl.idea.openapi.vfs.VfsUtil;
+import consulo.java.impl.module.extension.JavaMutableModuleExtensionImpl;
 import consulo.maven.importing.MavenImportSession;
 import consulo.maven.module.extension.MavenMutableModuleExtension;
+import consulo.maven.rt.server.common.model.MavenArtifact;
+import consulo.maven.rt.server.common.model.MavenConstants;
 import consulo.maven.util.MavenJdkUtil;
-import consulo.roots.types.BinariesOrderRootType;
-import consulo.roots.types.DocumentationOrderRootType;
-import consulo.roots.types.SourcesOrderRootType;
-import consulo.vfs.util.ArchiveVfsUtil;
+import consulo.module.Module;
+import consulo.module.content.layer.ModifiableRootModel;
+import consulo.module.content.layer.orderEntry.DependencyScope;
+import consulo.module.content.layer.orderEntry.LibraryOrderEntry;
+import consulo.module.content.layer.orderEntry.ModuleExtensionWithSdkOrderEntry;
+import consulo.util.lang.StringUtil;
+import consulo.virtualFileSystem.VirtualFile;
+import consulo.virtualFileSystem.archive.ArchiveVfsUtil;
+import consulo.virtualFileSystem.util.VirtualFileUtil;
 import org.jdom.Element;
 import org.jetbrains.idea.maven.execution.MavenRunner;
-import org.jetbrains.idea.maven.model.MavenArtifact;
-import org.jetbrains.idea.maven.model.MavenConstants;
 import org.jetbrains.idea.maven.project.*;
 import org.jetbrains.idea.maven.utils.MavenUtil;
 
@@ -49,7 +54,6 @@ import java.util.Set;
 
 public class MavenModuleImporter
 {
-
 	public static final String SUREFIRE_PLUGIN_LIBRARY_NAME = "maven-surefire-plugin urls";
 
 	private static final Map<String, LanguageLevel> MAVEN_IDEA_PLUGIN_LEVELS = ImmutableMap.of(
@@ -366,7 +370,7 @@ public class MavenModuleImporter
 					continue;
 				}
 
-				VirtualFile file = VfsUtil.findRelativeFile(filePath, mavenProject.getDirectoryFile());
+				VirtualFile file = VirtualFileUtil.findRelativeFile(filePath, mavenProject.getDirectoryFile());
 				if(file == null)
 				{
 					continue;

@@ -15,80 +15,108 @@
  */
 package org.jetbrains.idea.maven.dom.model.completion;
 
-import com.intellij.codeInsight.completion.*;
-import com.intellij.codeInsight.completion.impl.NegatingComparable;
-import com.intellij.codeInsight.lookup.LookupElement;
-import com.intellij.codeInsight.lookup.LookupElementBuilder;
-import com.intellij.codeInsight.lookup.LookupElementWeigher;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.xml.XmlTag;
-import com.intellij.psi.xml.XmlText;
-import com.intellij.util.xml.DomElement;
-import com.intellij.util.xml.DomManager;
-import com.intellij.util.xml.GenericDomValue;
-import javax.annotation.Nonnull;
-
+import consulo.annotation.component.ExtensionImpl;
+import consulo.language.Language;
+import consulo.language.editor.completion.*;
+import consulo.language.editor.completion.lookup.LookupElement;
+import consulo.language.editor.completion.lookup.LookupElementBuilder;
+import consulo.language.editor.completion.lookup.LookupElementWeigher;
+import consulo.language.psi.PsiElement;
+import consulo.language.util.NegatingComparable;
+import consulo.project.Project;
+import consulo.util.lang.StringUtil;
+import consulo.xml.lang.xml.XMLLanguage;
+import consulo.xml.psi.xml.XmlTag;
+import consulo.xml.psi.xml.XmlText;
+import consulo.xml.util.xml.DomElement;
+import consulo.xml.util.xml.DomManager;
+import consulo.xml.util.xml.GenericDomValue;
 import org.jetbrains.idea.maven.dom.MavenVersionComparable;
 import org.jetbrains.idea.maven.dom.converters.MavenArtifactCoordinatesVersionConverter;
 import org.jetbrains.idea.maven.dom.model.MavenDomArtifactCoordinates;
 import org.jetbrains.idea.maven.indices.MavenProjectIndicesManager;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Set;
 
 /**
  * @author Sergey Evdokimov
  */
-public class MavenVersionCompletionContributor extends CompletionContributor {
+@ExtensionImpl
+public class MavenVersionCompletionContributor extends CompletionContributor
+{
+	@Override
+	public void fillCompletionVariants(CompletionParameters parameters, CompletionResultSet result)
+	{
+		if(parameters.getCompletionType() != CompletionType.BASIC)
+		{
+			return;
+		}
 
-  @Override
-  public void fillCompletionVariants(CompletionParameters parameters, CompletionResultSet result) {
-    if (parameters.getCompletionType() != CompletionType.BASIC) return;
+		PsiElement element = parameters.getPosition();
 
-    PsiElement element = parameters.getPosition();
+		PsiElement xmlText = element.getParent();
+		if(!(xmlText instanceof XmlText))
+		{
+			return;
+		}
 
-    PsiElement xmlText = element.getParent();
-    if (!(xmlText instanceof XmlText)) return;
+		PsiElement tagElement = xmlText.getParent();
 
-    PsiElement tagElement = xmlText.getParent();
+		if(!(tagElement instanceof XmlTag))
+		{
+			return;
+		}
 
-    if (!(tagElement instanceof XmlTag)) return;
+		XmlTag tag = (XmlTag) tagElement;
 
-    XmlTag tag = (XmlTag)tagElement;
+		Project project = element.getProject();
 
-    Project project = element.getProject();
+		DomElement domElement = DomManager.getDomManager(project).getDomElement(tag);
 
-    DomElement domElement = DomManager.getDomManager(project).getDomElement(tag);
+		if(!(domElement instanceof GenericDomValue))
+		{
+			return;
+		}
 
-    if (!(domElement instanceof GenericDomValue)) return;
+		DomElement parent = domElement.getParent();
 
-    DomElement parent = domElement.getParent();
+		if(parent instanceof MavenDomArtifactCoordinates
+				&& ((GenericDomValue) domElement).getConverter() instanceof MavenArtifactCoordinatesVersionConverter)
+		{
+			MavenDomArtifactCoordinates coordinates = (MavenDomArtifactCoordinates) parent;
 
-    if (parent instanceof MavenDomArtifactCoordinates
-        && ((GenericDomValue)domElement).getConverter() instanceof MavenArtifactCoordinatesVersionConverter) {
-      MavenDomArtifactCoordinates coordinates = (MavenDomArtifactCoordinates)parent;
+			String groupId = coordinates.getGroupId().getStringValue();
+			String artifactId = coordinates.getArtifactId().getStringValue();
 
-      String groupId = coordinates.getGroupId().getStringValue();
-      String artifactId = coordinates.getArtifactId().getStringValue();
+			if(!StringUtil.isEmptyOrSpaces(groupId) && !StringUtil.isEmptyOrSpaces(artifactId))
+			{
+				Set<String> versions = MavenProjectIndicesManager.getInstance(project).getVersions(groupId, artifactId);
 
-      if (!StringUtil.isEmptyOrSpaces(groupId) && !StringUtil.isEmptyOrSpaces(artifactId)) {
-        Set<String> versions = MavenProjectIndicesManager.getInstance(project).getVersions(groupId, artifactId);
+				CompletionResultSet newResultSet = result.withRelevanceSorter(CompletionService.getCompletionService().emptySorter().weigh(
+						new LookupElementWeigher("mavenVersionWeigher")
+						{
+							@Nullable
+							@Override
+							public Comparable weigh(@Nonnull LookupElement element)
+							{
+								return new NegatingComparable(new MavenVersionComparable(element.getLookupString()));
+							}
+						}));
 
-        CompletionResultSet newResultSet = result.withRelevanceSorter(CompletionService.getCompletionService().emptySorter().weigh(
-          new LookupElementWeigher("mavenVersionWeigher") {
-            @javax.annotation.Nullable
-            @Override
-            public Comparable weigh(@Nonnull LookupElement element) {
-              return new NegatingComparable(new MavenVersionComparable(element.getLookupString()));
-            }
-          }));
+				for(String version : versions)
+				{
+					newResultSet.addElement(LookupElementBuilder.create(version));
+				}
+			}
+		}
+	}
 
-        for (String version : versions) {
-          newResultSet.addElement(LookupElementBuilder.create(version));
-        }
-      }
-    }
-  }
-
+	@Nonnull
+	@Override
+	public Language getLanguage()
+	{
+		return XMLLanguage.INSTANCE;
+	}
 }

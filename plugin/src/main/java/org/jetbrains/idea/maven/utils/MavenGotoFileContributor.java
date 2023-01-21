@@ -15,20 +15,22 @@
  */
 package org.jetbrains.idea.maven.utils;
 
-import com.intellij.navigation.ChooseByNameContributor;
-import com.intellij.navigation.NavigationItem;
-import com.intellij.openapi.project.Project;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiManager;
-import com.intellij.util.ArrayUtil;
-import javax.annotation.Nonnull;
+import consulo.annotation.component.ExtensionImpl;
+import consulo.ide.navigation.GotoFileContributor;
+import consulo.language.psi.PsiFile;
+import consulo.language.psi.PsiManager;
+import consulo.navigation.NavigationItem;
+import consulo.project.Project;
+import consulo.util.collection.ArrayUtil;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MavenGotoFileContributor implements ChooseByNameContributor {
+@ExtensionImpl
+public class MavenGotoFileContributor implements GotoFileContributor {
   @Nonnull
   public String[] getNames(Project project, boolean includeNonProjectItems) {
     List<String> result = new ArrayList<String>();

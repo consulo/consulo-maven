@@ -17,10 +17,11 @@ package org.jetbrains.idea.maven.services.artifactory;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
-import com.intellij.openapi.util.text.StringUtil;
+
 import javax.annotation.Nonnull;
-import org.jetbrains.idea.maven.model.MavenArtifactInfo;
-import org.jetbrains.idea.maven.model.MavenRepositoryInfo;
+import consulo.maven.rt.server.common.model.MavenArtifactInfo;
+import consulo.maven.rt.server.common.model.MavenRepositoryInfo;
+import consulo.util.lang.StringUtil;
 import org.jetbrains.idea.maven.services.MavenRepositoryService;
 
 import java.io.IOException;

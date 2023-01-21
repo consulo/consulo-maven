@@ -19,9 +19,9 @@
 
 package org.jetbrains.idea.maven.dom.model;
 
-import com.intellij.psi.PsiFile;
-import com.intellij.util.xml.Convert;
-import com.intellij.util.xml.GenericDomValue;
+import consulo.language.psi.PsiFile;
+import consulo.xml.util.xml.Convert;
+import consulo.xml.util.xml.GenericDomValue;
 import org.jetbrains.idea.maven.dom.MavenDomElement;
 import org.jetbrains.idea.maven.dom.converters.MavenModuleConverter;
 

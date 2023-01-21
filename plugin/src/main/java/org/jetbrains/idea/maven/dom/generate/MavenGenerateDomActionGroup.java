@@ -15,54 +15,44 @@
  */
 package org.jetbrains.idea.maven.dom.generate;
 
-import javax.annotation.Nonnull;
-
-import com.intellij.openapi.actionSystem.DefaultActionGroup;
-import com.intellij.util.Function;
-import com.intellij.util.xml.DomElement;
+import consulo.ui.ex.action.DefaultActionGroup;
+import consulo.xml.util.xml.DomElement;
 import org.jetbrains.annotations.NonNls;
-
-import javax.annotation.Nullable;
 import org.jetbrains.idea.maven.dom.MavenDomBundle;
 import org.jetbrains.idea.maven.dom.model.MavenDomDependency;
 import org.jetbrains.idea.maven.dom.model.MavenDomPlugin;
 import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
 import org.jetbrains.idea.maven.dom.model.MavenDomRepository;
 
-public class MavenGenerateDomActionGroup extends DefaultActionGroup {
-  public MavenGenerateDomActionGroup() {
-    add(new GenerateDependencyAction());
-    add(new GenerateManagedDependencyAction());
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.function.Function;
 
-    addSeparator();
-    add(createAction(MavenDomBundle.message("generate.dependency.template"), MavenDomDependency.class, "maven-dependency",
-                     new Function<MavenDomProjectModel, DomElement>() {
-                       public DomElement fun(MavenDomProjectModel mavenDomProjectModel) {
-                         return mavenDomProjectModel.getDependencies();
-                       }
-                     }));
-    add(createAction(MavenDomBundle.message("generate.plugin.template"), MavenDomPlugin.class, "maven-plugin",
-                     new Function<MavenDomProjectModel, DomElement>() {
-                       public DomElement fun(MavenDomProjectModel mavenDomProjectModel) {
-                         return mavenDomProjectModel.getBuild().getPlugins();
-                       }
-                     }));
+public class MavenGenerateDomActionGroup extends DefaultActionGroup
+{
+	public MavenGenerateDomActionGroup()
+	{
+		add(new GenerateDependencyAction());
+		add(new GenerateManagedDependencyAction());
 
-    add(createAction(MavenDomBundle.message("generate.repository.template"), MavenDomRepository.class, "maven-repository",
-                     new Function<MavenDomProjectModel, DomElement>() {
-                       public DomElement fun(MavenDomProjectModel mavenDomProjectModel) {
-                         return mavenDomProjectModel.getRepositories();
-                       }
-                     }));
+		addSeparator();
+		add(createAction(MavenDomBundle.message("generate.dependency.template"), MavenDomDependency.class, "maven-dependency",
+				mavenDomProjectModel -> mavenDomProjectModel.getDependencies()));
+		add(createAction(MavenDomBundle.message("generate.plugin.template"), MavenDomPlugin.class, "maven-plugin",
+				mavenDomProjectModel -> mavenDomProjectModel.getBuild().getPlugins()));
 
-    addSeparator();
-    add(new GenerateParentAction());
-  }
+		add(createAction(MavenDomBundle.message("generate.repository.template"), MavenDomRepository.class, "maven-repository",
+				mavenDomProjectModel -> mavenDomProjectModel.getRepositories()));
 
-  private static MavenGenerateTemplateAction createAction(String actionDescription,
-                                                          final Class<? extends DomElement> aClass,
-                                                          @NonNls @Nullable String mappingId,
-                                                          @Nonnull Function<MavenDomProjectModel, DomElement> parentFunction) {
-    return new MavenGenerateTemplateAction(actionDescription, aClass, mappingId, parentFunction);
-  }
+		addSeparator();
+		add(new GenerateParentAction());
+	}
+
+	private static MavenGenerateTemplateAction createAction(String actionDescription,
+															final Class<? extends DomElement> aClass,
+															@NonNls @Nullable String mappingId,
+															@Nonnull Function<MavenDomProjectModel, DomElement> parentFunction)
+	{
+		return new MavenGenerateTemplateAction(actionDescription, aClass, mappingId, parentFunction);
+	}
 }

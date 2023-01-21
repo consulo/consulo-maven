@@ -7,11 +7,12 @@ import java.util.Map;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+
+import consulo.util.collection.SmartList;
+import consulo.util.lang.Comparing;
 import org.jetbrains.idea.maven.dom.DependencyConflictId;
-import org.jetbrains.idea.maven.model.MavenArtifact;
-import org.jetbrains.idea.maven.model.MavenId;
-import com.intellij.openapi.util.Comparing;
-import com.intellij.util.SmartList;
+import consulo.maven.rt.server.common.model.MavenArtifact;
+import consulo.maven.rt.server.common.model.MavenId;
 
 /**
  * @author Sergey Evdokimov

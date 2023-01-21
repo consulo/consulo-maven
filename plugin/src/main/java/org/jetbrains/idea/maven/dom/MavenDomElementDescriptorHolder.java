@@ -16,122 +16,176 @@
 
 package org.jetbrains.idea.maven.dom;
 
-import com.intellij.javaee.ExternalResourceManager;
-import com.intellij.openapi.components.ServiceManager;
-import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.VfsUtil;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiManager;
-import com.intellij.psi.util.CachedValue;
-import com.intellij.psi.util.CachedValueProvider;
-import com.intellij.psi.util.CachedValuesManager;
-import com.intellij.psi.util.PsiModificationTracker;
-import com.intellij.psi.xml.XmlFile;
-import com.intellij.psi.xml.XmlTag;
 import com.intellij.xml.XmlElementDescriptor;
 import com.intellij.xml.impl.schema.XmlNSDescriptorImpl;
+import consulo.annotation.component.ComponentScope;
+import consulo.annotation.component.ServiceAPI;
+import consulo.annotation.component.ServiceImpl;
+import consulo.application.util.CachedValue;
+import consulo.application.util.CachedValueProvider;
+import consulo.application.util.CachedValuesManager;
+import consulo.ide.ServiceManager;
+import consulo.language.psi.PsiFile;
+import consulo.language.psi.PsiManager;
+import consulo.language.psi.PsiModificationTracker;
+import consulo.logging.Logger;
+import consulo.project.Project;
+import consulo.virtualFileSystem.VirtualFile;
+import consulo.virtualFileSystem.util.VirtualFileUtil;
+import consulo.xml.javaee.ExternalResourceManager;
+import consulo.xml.psi.xml.XmlFile;
+import consulo.xml.psi.xml.XmlTag;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
-public class MavenDomElementDescriptorHolder {
-  private static final Logger LOG = Logger.getInstance(MavenDomElementDescriptorHolder.class);
+@Singleton
+@ServiceAPI(ComponentScope.PROJECT)
+@ServiceImpl
+public class MavenDomElementDescriptorHolder
+{
+	private static final Logger LOG = Logger.getInstance(MavenDomElementDescriptorHolder.class);
 
-  private enum FileKind {
-    PROJECT_FILE {
-      public String getSchemaUrl() {
-        return MavenSchemaProvider.MAVEN_PROJECT_SCHEMA_URL;
-      }
-    },
-    PROFILES_FILE {
-      public String getSchemaUrl() {
-        return MavenSchemaProvider.MAVEN_PROFILES_SCHEMA_URL;
-      }
-    },
-    SETTINGS_FILE {
-      public String getSchemaUrl() {
-        return MavenSchemaProvider.MAVEN_SETTINGS_SCHEMA_URL;
-      }
-    };
+	private enum FileKind
+	{
+		PROJECT_FILE
+				{
+					public String getSchemaUrl()
+					{
+						return MavenSchemaProvider.MAVEN_PROJECT_SCHEMA_URL;
+					}
+				},
+		PROFILES_FILE
+				{
+					public String getSchemaUrl()
+					{
+						return MavenSchemaProvider.MAVEN_PROFILES_SCHEMA_URL;
+					}
+				},
+		SETTINGS_FILE
+				{
+					public String getSchemaUrl()
+					{
+						return MavenSchemaProvider.MAVEN_SETTINGS_SCHEMA_URL;
+					}
+				};
 
-    public abstract String getSchemaUrl();
-  }
+		public abstract String getSchemaUrl();
+	}
 
-  private final Project myProject;
-  private final Map<FileKind, CachedValue<XmlNSDescriptorImpl>> myDescriptorsMap = new HashMap<FileKind, CachedValue<XmlNSDescriptorImpl>>();
+	private final Project myProject;
+	private final Map<FileKind, CachedValue<XmlNSDescriptorImpl>> myDescriptorsMap = new HashMap<FileKind, CachedValue<XmlNSDescriptorImpl>>();
 
-  public MavenDomElementDescriptorHolder(Project project) {
-    myProject = project;
-  }
+	@Inject
+	public MavenDomElementDescriptorHolder(Project project)
+	{
+		myProject = project;
+	}
 
-  public static MavenDomElementDescriptorHolder getInstance(@Nonnull Project project) {
-    return ServiceManager.getService(project, MavenDomElementDescriptorHolder.class);
-  }
+	public static MavenDomElementDescriptorHolder getInstance(@Nonnull Project project)
+	{
+		return ServiceManager.getService(project, MavenDomElementDescriptorHolder.class);
+	}
 
-  @javax.annotation.Nullable
-  public XmlElementDescriptor getDescriptor(@Nonnull XmlTag tag) {
-    FileKind kind = getFileKind(tag.getContainingFile());
-    if (kind == null) return null;
+	@Nullable
+	public XmlElementDescriptor getDescriptor(@Nonnull XmlTag tag)
+	{
+		FileKind kind = getFileKind(tag.getContainingFile());
+		if(kind == null)
+		{
+			return null;
+		}
 
-    XmlNSDescriptorImpl desc;
-    synchronized (this) {
-      desc = tryGetOrCreateDescriptor(kind);
-      if (desc == null) return null;
-    }
-    LOG.assertTrue(tag.isValid());
-    LOG.assertTrue(desc.isValid());
-    return desc.getElementDescriptor(tag.getName(), desc.getDefaultNamespace());
-  }
+		XmlNSDescriptorImpl desc;
+		synchronized(this)
+		{
+			desc = tryGetOrCreateDescriptor(kind);
+			if(desc == null)
+			{
+				return null;
+			}
+		}
+		LOG.assertTrue(tag.isValid());
+		LOG.assertTrue(desc.isValid());
+		return desc.getElementDescriptor(tag.getName(), desc.getDefaultNamespace());
+	}
 
-  @javax.annotation.Nullable
-  private XmlNSDescriptorImpl tryGetOrCreateDescriptor(final FileKind kind) {
-    CachedValue<XmlNSDescriptorImpl> result = myDescriptorsMap.get(kind);
-    if (result == null) {
-      result = CachedValuesManager.getManager(myProject).createCachedValue(new CachedValueProvider<XmlNSDescriptorImpl>() {
-        @Override
-        public Result<XmlNSDescriptorImpl> compute() {
-          return Result.create(doCreateDescriptor(kind), PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT);
-        }
-      }, false);
-      myDescriptorsMap.put(kind, result);
-    }
-    return result.getValue();
-  }
+	@Nullable
+	private XmlNSDescriptorImpl tryGetOrCreateDescriptor(final FileKind kind)
+	{
+		CachedValue<XmlNSDescriptorImpl> result = myDescriptorsMap.get(kind);
+		if(result == null)
+		{
+			result = CachedValuesManager.getManager(myProject).createCachedValue(new CachedValueProvider<XmlNSDescriptorImpl>()
+			{
+				@Override
+				public Result<XmlNSDescriptorImpl> compute()
+				{
+					return Result.create(doCreateDescriptor(kind), PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT);
+				}
+			}, false);
+			myDescriptorsMap.put(kind, result);
+		}
+		return result.getValue();
+	}
 
-  @javax.annotation.Nullable
-  private XmlNSDescriptorImpl doCreateDescriptor(FileKind kind) {
-    String schemaUrl = kind.getSchemaUrl();
-    String location = ExternalResourceManager.getInstance().getResourceLocation(schemaUrl);
-    if (schemaUrl.equals(location)) return null;
+	@Nullable
+	private XmlNSDescriptorImpl doCreateDescriptor(FileKind kind)
+	{
+		String schemaUrl = kind.getSchemaUrl();
+		String location = ExternalResourceManager.getInstance().getResourceLocation(schemaUrl);
+		if(schemaUrl.equals(location))
+		{
+			return null;
+		}
 
-    VirtualFile schema;
-    try {
-      schema = VfsUtil.findFileByURL(new URL(location));
-    }
-    catch (MalformedURLException ignore) {
-      return null;
-    }
+		VirtualFile schema;
+		try
+		{
+			schema = VirtualFileUtil.findFileByURL(new URL(location));
+		}
+		catch(MalformedURLException ignore)
+		{
+			return null;
+		}
 
-    if (schema == null) return null;
+		if(schema == null)
+		{
+			return null;
+		}
 
-    PsiFile psiFile = PsiManager.getInstance(myProject).findFile(schema);
-    if (!(psiFile instanceof XmlFile)) return null;
+		PsiFile psiFile = PsiManager.getInstance(myProject).findFile(schema);
+		if(!(psiFile instanceof XmlFile))
+		{
+			return null;
+		}
 
-    XmlNSDescriptorImpl result = new XmlNSDescriptorImpl();
-    result.init(psiFile);
-    return result;
-  }
+		XmlNSDescriptorImpl result = new XmlNSDescriptorImpl();
+		result.init(psiFile);
+		return result;
+	}
 
-  @javax.annotation.Nullable
-  private FileKind getFileKind(PsiFile file) {
-    if (MavenDomUtil.isProjectFile(file)) return FileKind.PROJECT_FILE;
-    if (MavenDomUtil.isProfilesFile(file)) return FileKind.PROFILES_FILE;
-    if (MavenDomUtil.isSettingsFile(file)) return FileKind.SETTINGS_FILE;
-    return null;
-  }
+	@Nullable
+	private FileKind getFileKind(PsiFile file)
+	{
+		if(MavenDomUtil.isProjectFile(file))
+		{
+			return FileKind.PROJECT_FILE;
+		}
+		if(MavenDomUtil.isProfilesFile(file))
+		{
+			return FileKind.PROFILES_FILE;
+		}
+		if(MavenDomUtil.isSettingsFile(file))
+		{
+			return FileKind.SETTINGS_FILE;
+		}
+		return null;
+	}
 }

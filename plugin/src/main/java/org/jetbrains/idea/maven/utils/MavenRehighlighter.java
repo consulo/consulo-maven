@@ -15,21 +15,22 @@
  */
 package org.jetbrains.idea.maven.utils;
 
-import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer;
-import com.intellij.openapi.application.AccessToken;
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.application.ReadAction;
-import com.intellij.openapi.components.ServiceManager;
-import com.intellij.openapi.editor.Document;
-import com.intellij.openapi.fileEditor.FileDocumentManager;
-import com.intellij.openapi.fileEditor.FileEditorManager;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Pair;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiDocumentManager;
-import com.intellij.psi.PsiFile;
-import com.intellij.util.ui.update.MergingUpdateQueue;
-import com.intellij.util.ui.update.Update;
+import consulo.annotation.component.ComponentScope;
+import consulo.annotation.component.ServiceAPI;
+import consulo.annotation.component.ServiceImpl;
+import consulo.application.ReadAction;
+import consulo.fileEditor.FileEditorManager;
+import consulo.ide.ServiceManager;
+import consulo.document.Document;
+import consulo.document.FileDocumentManager;
+import consulo.language.psi.PsiFile;
+import consulo.project.Project;
+import consulo.ui.ex.awt.util.MergingUpdateQueue;
+import consulo.ui.ex.awt.util.Update;
+import consulo.util.lang.Pair;
+import consulo.virtualFileSystem.VirtualFile;
+import consulo.language.psi.PsiDocumentManager;
+import consulo.language.editor.DaemonCodeAnalyzer;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
@@ -37,11 +38,13 @@ import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectChanges;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.project.MavenProjectsTree;
-import org.jetbrains.idea.maven.server.NativeMavenProjectHolder;
+import consulo.maven.rt.server.common.server.NativeMavenProjectHolder;
 
 import java.util.List;
 
 @Singleton
+@ServiceAPI(value = ComponentScope.PROJECT, lazy = false)
+@ServiceImpl
 public class MavenRehighlighter extends MavenSimpleProjectComponent
 {
 	private MergingUpdateQueue myQueue;

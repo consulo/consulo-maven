@@ -17,17 +17,20 @@ package org.jetbrains.idea.maven.server;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+
+import consulo.maven.rt.server.common.server.MavenServerIndexerException;
+import consulo.maven.rt.server.common.server.MavenServerProcessCanceledException;
 import org.jetbrains.idea.maven.utils.MavenLog;
 import org.jetbrains.idea.maven.utils.MavenProcessCanceledException;
 
 import java.rmi.RemoteException;
 
 public abstract class RemoteObjectWrapper<T> {
-  @javax.annotation.Nullable
+  @Nullable
   private final RemoteObjectWrapper<?> myParent;
   @Nullable private T myWrappee;
 
-  protected RemoteObjectWrapper(@javax.annotation.Nullable RemoteObjectWrapper<?> parent) {
+  protected RemoteObjectWrapper(@Nullable RemoteObjectWrapper<?> parent) {
     myParent = parent;
   }
 
@@ -99,7 +102,8 @@ public abstract class RemoteObjectWrapper<T> {
     throw new RuntimeException("Cannot reconnect.", last);
   }
 
-  protected <T> T perform(IndexRetriable<T> r) throws MavenServerIndexerException {
+  protected <T> T perform(IndexRetriable<T> r) throws MavenServerIndexerException
+  {
     RemoteException last = null;
     for (int i = 0; i < 2; i++) {
       try {

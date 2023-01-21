@@ -1,13 +1,16 @@
 package org.jetbrains.idea.maven.project;
 
-import com.intellij.openapi.extensions.ExtensionPointName;
-import com.intellij.openapi.options.UnnamedConfigurable;
-import com.intellij.openapi.project.Project;
+import consulo.annotation.component.ComponentScope;
+import consulo.annotation.component.ExtensionAPI;
+import consulo.component.extension.ExtensionPointName;
+import consulo.configurable.UnnamedConfigurable;
+import consulo.project.Project;
 
-public interface AdditionalMavenImportingSettings {
+@ExtensionAPI(ComponentScope.APPLICATION)
+public interface AdditionalMavenImportingSettings
+{
 
-  ExtensionPointName<AdditionalMavenImportingSettings> EP_NAME =
-    ExtensionPointName.create("org.jetbrains.idea.maven.additional.importing.settings");
+	ExtensionPointName<AdditionalMavenImportingSettings> EP_NAME = ExtensionPointName.create(AdditionalMavenImportingSettings.class);
 
-  UnnamedConfigurable createConfigurable(Project project);
+	UnnamedConfigurable createConfigurable(Project project);
 }

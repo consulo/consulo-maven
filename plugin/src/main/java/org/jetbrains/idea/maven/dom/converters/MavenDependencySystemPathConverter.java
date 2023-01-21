@@ -18,22 +18,18 @@ package org.jetbrains.idea.maven.dom.converters;
 import java.util.Collection;
 import java.util.Collections;
 
+import consulo.language.psi.*;
+import consulo.util.lang.function.Condition;
+import consulo.virtualFileSystem.VirtualFile;
 import org.jetbrains.annotations.NonNls;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.jetbrains.idea.maven.dom.references.MavenPathReferenceConverter;
-import com.intellij.openapi.util.Condition;
-import com.intellij.openapi.vfs.LocalFileSystem;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiDirectory;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiFileSystemItem;
-import com.intellij.psi.PsiReference;
-import com.intellij.util.xml.ConvertContext;
-import com.intellij.util.xml.CustomReferenceConverter;
-import com.intellij.util.xml.GenericDomValue;
-import com.intellij.util.xml.ResolvingConverter;
+import consulo.virtualFileSystem.LocalFileSystem;
+import consulo.xml.util.xml.ConvertContext;
+import consulo.xml.util.xml.CustomReferenceConverter;
+import consulo.xml.util.xml.GenericDomValue;
+import consulo.xml.util.xml.ResolvingConverter;
 
 public class MavenDependencySystemPathConverter extends ResolvingConverter<PsiFile> implements CustomReferenceConverter
 {

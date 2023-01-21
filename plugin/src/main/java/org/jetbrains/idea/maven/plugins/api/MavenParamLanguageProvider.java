@@ -15,20 +15,19 @@
  */
 package org.jetbrains.idea.maven.plugins.api;
 
-import javax.annotation.Nonnull;
-
-import com.intellij.lang.Language;
-import com.intellij.psi.xml.XmlText;
-
-import javax.annotation.Nullable;
+import consulo.language.Language;
+import consulo.xml.psi.xml.XmlText;
 import org.jetbrains.idea.maven.dom.model.MavenDomConfiguration;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * @author Sergey Evdokimov
  */
-public abstract class MavenParamLanguageProvider {
-
-  @Nullable
-  public abstract Language getLanguage(@Nonnull XmlText xmlText, @Nonnull MavenDomConfiguration configuration);
-
+@FunctionalInterface
+public interface MavenParamLanguageProvider
+{
+	@Nullable
+	Language getLanguage(@Nonnull XmlText xmlText, @Nonnull MavenDomConfiguration configuration);
 }

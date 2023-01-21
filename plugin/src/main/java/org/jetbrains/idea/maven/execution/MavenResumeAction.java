@@ -15,25 +15,24 @@
  */
 package org.jetbrains.idea.maven.execution;
 
-import com.intellij.execution.ExecutionBundle;
-import com.intellij.execution.ExecutionException;
-import com.intellij.execution.RunCanceledByUserException;
-import com.intellij.execution.process.ProcessAdapter;
-import com.intellij.execution.process.ProcessEvent;
-import com.intellij.execution.process.ProcessHandler;
-import com.intellij.execution.process.ProcessOutputTypes;
-import com.intellij.execution.runners.ExecutionEnvironment;
-import com.intellij.execution.runners.ExecutionEnvironmentBuilder;
-import com.intellij.execution.runners.ProgramRunner;
-import com.intellij.icons.AllIcons;
-import com.intellij.openapi.actionSystem.AnAction;
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.Messages;
-import com.intellij.util.containers.ContainerUtil;
+import consulo.application.AllIcons;
+import consulo.application.ApplicationManager;
+import consulo.execution.ExecutionBundle;
+import consulo.execution.RunCanceledByUserException;
+import consulo.execution.runner.ExecutionEnvironment;
+import consulo.execution.runner.ExecutionEnvironmentBuilder;
+import consulo.execution.runner.ProgramRunner;
 import consulo.java.execution.configurations.OwnJavaParameters;
+import consulo.logging.Logger;
+import consulo.process.ExecutionException;
+import consulo.process.ProcessHandler;
+import consulo.process.ProcessOutputTypes;
+import consulo.process.event.ProcessAdapter;
+import consulo.process.event.ProcessEvent;
+import consulo.project.Project;
+import consulo.ui.ex.action.AnAction;
+import consulo.ui.ex.action.AnActionEvent;
+import consulo.ui.ex.awt.Messages;
 import consulo.util.dataholder.Key;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
@@ -51,8 +50,7 @@ public class MavenResumeAction extends AnAction {
 
   private static final Logger LOG = Logger.getInstance(MavenResumeAction.class);
 
-  private static final Set<String> PARAMS_DISABLING_RESUME = ContainerUtil.newHashSet("-rf", "-resume-from", "-pl", "-projects", "-am",
-                                                                                      "-also-make", "-amd", "-also-make-dependents");
+  private static final Set<String> PARAMS_DISABLING_RESUME = Set.of("-rf", "-resume-from", "-pl", "-projects", "-am", "-also-make", "-amd", "-also-make-dependents");
 
   public static final int STATE_INITIAL = 0;
   public static final int STATE_READING_PROJECT_LIST = 1;
@@ -240,7 +238,7 @@ public class MavenResumeAction extends AnAction {
     return candidate;
   }
 
-  public static boolean isApplicable(@javax.annotation.Nullable Project project, OwnJavaParameters javaParameters, MavenRunConfiguration runConfiguration) {
+  public static boolean isApplicable(@Nullable Project project, OwnJavaParameters javaParameters, MavenRunConfiguration runConfiguration) {
     if (hasResumeFromParameter(runConfiguration)) { // This runConfiguration was created by other MavenResumeAction.
       MavenRunConfiguration clonedRunConf = runConfiguration.clone();
       List<String> clonedGoals = clonedRunConf.getRunnerParameters().getGoals();

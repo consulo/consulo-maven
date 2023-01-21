@@ -21,10 +21,11 @@ import java.nio.charset.UnsupportedCharsetException;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+
+import consulo.module.Module;
+import consulo.project.Project;
 import org.jetbrains.idea.maven.project.MavenProject;
-import com.intellij.openapi.module.Module;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.encoding.EncodingProjectManager;
+import consulo.virtualFileSystem.encoding.EncodingProjectManager;
 
 /**
  * @author Sergey Evdokimov

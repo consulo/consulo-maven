@@ -15,12 +15,15 @@
  */
 package org.jetbrains.idea.maven.utils;
 
-import com.intellij.openapi.options.Configurable;
-import com.intellij.openapi.options.ConfigurationException;
-import com.intellij.openapi.options.SearchableConfigurable;
-import com.intellij.openapi.project.Project;
+import consulo.annotation.component.ExtensionImpl;
+import consulo.configurable.Configurable;
+import consulo.configurable.ConfigurationException;
+import consulo.configurable.ProjectConfigurable;
+import consulo.configurable.SearchableConfigurable;
 import consulo.disposer.Disposable;
+import consulo.project.Project;
 import consulo.ui.annotation.RequiredUIAccess;
+import jakarta.inject.Inject;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.idea.maven.execution.MavenRunner;
 import org.jetbrains.idea.maven.execution.MavenRunnerConfigurable;
@@ -29,11 +32,13 @@ import org.jetbrains.idea.maven.indices.MavenRepositoriesConfigurable;
 import org.jetbrains.idea.maven.project.*;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MavenSettings implements SearchableConfigurable.Parent
+@ExtensionImpl
+public class MavenSettings implements SearchableConfigurable.Parent, ProjectConfigurable
 {
 	public static final String DISPLAY_NAME = "Maven";
 
@@ -41,6 +46,7 @@ public class MavenSettings implements SearchableConfigurable.Parent
 	private final Configurable myConfigurable;
 	private final List<Configurable> myChildren;
 
+	@Inject
 	public MavenSettings(@Nonnull Project project)
 	{
 		myProject = project;
@@ -66,6 +72,13 @@ public class MavenSettings implements SearchableConfigurable.Parent
 		{
 			myChildren.add(new MavenRepositoriesConfigurable(myProject));
 		}
+	}
+
+	@Nullable
+	@Override
+	public String getParentId()
+	{
+		return "execution";
 	}
 
 	@Override
@@ -125,7 +138,7 @@ public class MavenSettings implements SearchableConfigurable.Parent
 	@Nonnull
 	public String getId()
 	{
-		return MavenSettings.class.getSimpleName();
+		return "MavenSettings";
 	}
 
 	@Override

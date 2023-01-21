@@ -15,17 +15,20 @@
  */
 package org.jetbrains.idea.maven.dom.inspections;
 
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.util.xml.Converter;
-import com.intellij.util.xml.DomUtil;
-import com.intellij.util.xml.GenericDomValue;
-import com.intellij.util.xml.highlighting.BasicDomElementsInspection;
-import javax.annotation.Nonnull;
+import consulo.annotation.component.ExtensionImpl;
+import consulo.virtualFileSystem.VirtualFile;
+import consulo.xml.util.xml.Converter;
+import consulo.xml.util.xml.DomUtil;
+import consulo.xml.util.xml.GenericDomValue;
+import consulo.xml.util.xml.highlighting.BasicDomElementsInspection;
 import org.jetbrains.idea.maven.dom.MavenDomBundle;
 import org.jetbrains.idea.maven.dom.converters.MavenDomSoftAwareConverter;
 import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 
+import javax.annotation.Nonnull;
+
+@ExtensionImpl
 public class MavenModelInspection extends BasicDomElementsInspection<MavenDomProjectModel> {
   public MavenModelInspection() {
     super(MavenDomProjectModel.class);

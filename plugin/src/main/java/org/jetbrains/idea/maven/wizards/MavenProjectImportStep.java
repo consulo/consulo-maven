@@ -15,17 +15,17 @@
  */
 package org.jetbrains.idea.maven.wizards;
 
-import com.intellij.ide.util.projectWizard.NamePathComponent;
-import com.intellij.openapi.options.Configurable;
-import com.intellij.openapi.options.ConfigurationException;
-import com.intellij.openapi.options.ShowSettingsUtil;
-import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.openapi.vfs.VirtualFile;
+import consulo.configurable.Configurable;
+import consulo.configurable.ConfigurationException;
 import consulo.disposer.Disposable;
+import consulo.ide.newModule.ui.NamePathComponent;
+import consulo.ide.setting.ShowSettingsUtil;
 import consulo.maven.importProvider.MavenImportModuleContext;
 import consulo.ui.Component;
 import consulo.ui.annotation.RequiredUIAccess;
-import consulo.ui.wizard.WizardStep;
+import consulo.ui.ex.wizard.WizardStep;
+import consulo.util.io.FileUtil;
+import consulo.virtualFileSystem.VirtualFile;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.idea.maven.project.*;
 

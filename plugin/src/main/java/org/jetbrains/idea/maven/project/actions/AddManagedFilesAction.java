@@ -15,12 +15,12 @@
  */
 package org.jetbrains.idea.maven.project.actions;
 
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.PlatformDataKeys;
-import com.intellij.openapi.fileChooser.FileChooser;
-import com.intellij.openapi.fileChooser.FileChooserDescriptor;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.VirtualFile;
+import consulo.fileChooser.FileChooserDescriptor;
+import consulo.fileChooser.IdeaFileChooser;
+import consulo.language.editor.PlatformDataKeys;
+import consulo.project.Project;
+import consulo.ui.ex.action.AnActionEvent;
+import consulo.virtualFileSystem.VirtualFile;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.utils.actions.MavenAction;
 import org.jetbrains.idea.maven.utils.actions.MavenActionUtil;
@@ -47,7 +47,7 @@ public class AddManagedFilesAction extends MavenAction {
     Project project = MavenActionUtil.getProject(e.getDataContext());
     VirtualFile fileToSelect = e.getData(PlatformDataKeys.VIRTUAL_FILE);
 
-    VirtualFile[] files = FileChooser.chooseFiles(singlePomSelection, project, fileToSelect);
+    VirtualFile[] files = IdeaFileChooser.chooseFiles(singlePomSelection, project, fileToSelect);
     if (files.length == 0) return;
 
     manager.addManagedFiles(Arrays.asList(files));

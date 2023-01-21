@@ -1,43 +1,43 @@
 package org.jetbrains.idea.maven.dom.refactorings.introduce;
 
-import com.intellij.find.FindManager;
-import com.intellij.find.FindModel;
-import com.intellij.find.impl.FindInProjectUtil;
-import com.intellij.find.replaceInProject.ReplaceInProjectManager;
-import com.intellij.lang.Language;
-import com.intellij.openapi.actionSystem.DataContext;
-import com.intellij.openapi.application.ReadAction;
-import com.intellij.openapi.application.Result;
-import com.intellij.openapi.command.WriteCommandAction;
-import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.DialogWrapper;
-import com.intellij.openapi.util.Factory;
-import com.intellij.openapi.util.Pair;
-import com.intellij.openapi.util.TextRange;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.openapi.vfs.ReadonlyStatusHandler;
-import com.intellij.openapi.vfs.VfsUtil;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiDocumentManager;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.XmlElementVisitor;
-import com.intellij.psi.util.PsiTreeUtil;
-import com.intellij.psi.xml.*;
-import com.intellij.refactoring.RefactoringActionHandler;
-import com.intellij.refactoring.actions.BaseRefactoringAction;
-import com.intellij.usageView.UsageInfo;
-import com.intellij.usages.*;
-import com.intellij.util.Processor;
-import consulo.vfs.ArchiveFileSystem;
+import consulo.application.ReadAction;
+import consulo.application.Result;
+import consulo.application.util.function.Processor;
+import consulo.codeEditor.Editor;
+import consulo.dataContext.DataContext;
+import consulo.document.util.TextRange;
+import consulo.find.FindManager;
+import consulo.find.FindModel;
+import consulo.ide.impl.idea.find.impl.FindInProjectUtil;
+import consulo.ide.impl.idea.find.replaceInProject.ReplaceInProjectManager;
+import consulo.language.Language;
+import consulo.language.editor.WriteCommandAction;
+import consulo.language.editor.refactoring.action.BaseRefactoringAction;
+import consulo.language.editor.refactoring.action.RefactoringActionHandler;
+import consulo.language.psi.PsiDocumentManager;
+import consulo.language.psi.PsiElement;
+import consulo.language.psi.PsiFile;
+import consulo.language.psi.util.PsiTreeUtil;
+import consulo.project.Project;
+import consulo.ui.ex.awt.DialogWrapper;
+import consulo.usage.*;
+import consulo.util.lang.Pair;
+import consulo.util.lang.StringUtil;
+import consulo.virtualFileSystem.ReadonlyStatusHandler;
+import consulo.virtualFileSystem.VirtualFile;
+import consulo.virtualFileSystem.archive.ArchiveFileSystem;
+import consulo.virtualFileSystem.util.VirtualFileUtil;
+import consulo.xml.psi.XmlElementVisitor;
+import consulo.xml.psi.xml.*;
 import org.jetbrains.idea.maven.dom.MavenDomProjectProcessorUtils;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
 import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
 import org.jetbrains.idea.maven.dom.model.MavenDomProperties;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.*;
+import java.util.function.Supplier;
 
 public class IntroducePropertyAction extends BaseRefactoringAction
 {
@@ -92,7 +92,7 @@ public class IntroducePropertyAction extends BaseRefactoringAction
 		return getSelectedElementAndTextRange(editor, file) != null;
 	}
 
-	@javax.annotation.Nullable
+	@Nullable
 	public static Pair<XmlElement, TextRange> getSelectedElementAndTextRange(Editor editor, final PsiFile file)
 	{
 		final int startOffset = editor.getSelectionModel().getSelectionStart();
@@ -223,7 +223,7 @@ public class IntroducePropertyAction extends BaseRefactoringAction
 				}
 			}
 
-			return VfsUtil.toVirtualFileArray(virtualFiles);
+			return VirtualFileUtil.toVirtualFileArray(virtualFiles);
 		}
 
 		private static void createMavenProperty(@Nonnull MavenDomProjectModel model,
@@ -268,7 +268,7 @@ public class IntroducePropertyAction extends BaseRefactoringAction
 		//IDEA-54113
 		private static void assureFindToolWindowRegistered(@Nonnull Project project)
 		{
-			com.intellij.usageView.UsageViewManager uvm = com.intellij.usageView.UsageViewManager.getInstance(project);
+			UsageViewManager uvm = UsageViewManager.getInstance(project);
 		}
 
 		private static FindModel createFindModel(FindManager findManager, String selectedString, String replaceWith)
@@ -290,7 +290,7 @@ public class IntroducePropertyAction extends BaseRefactoringAction
 		{
 		}
 
-		private static class MyUsageSearcherFactory implements Factory<UsageSearcher>
+		private static class MyUsageSearcherFactory implements Supplier<UsageSearcher>
 		{
 			private final MavenDomProjectModel myModel;
 			private final String myPropertyName;
@@ -304,7 +304,7 @@ public class IntroducePropertyAction extends BaseRefactoringAction
 			}
 
 			@Override
-			public UsageSearcher create()
+			public UsageSearcher get()
 			{
 				return new UsageSearcher()
 				{
@@ -322,7 +322,7 @@ public class IntroducePropertyAction extends BaseRefactoringAction
 
 							for(UsageInfo usage : usages)
 							{
-								processor.process(UsageInfo2UsageAdapter.CONVERTER.fun(usage));
+								processor.process(UsageInfo2UsageAdapter.CONVERTER.apply(usage));
 							}
 						});
 					}

@@ -16,13 +16,14 @@
 package org.jetbrains.idea.maven.dom.generate;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
-import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.project.Project;
-import com.intellij.psi.PsiFile;
-import com.intellij.util.xml.DomElement;
-import com.intellij.util.xml.DomUtil;
-import com.intellij.util.xml.actions.generate.AbstractDomGenerateProvider;
+import consulo.codeEditor.Editor;
+import consulo.project.Project;
+import consulo.language.psi.PsiFile;
+import consulo.xml.util.xml.DomElement;
+import consulo.xml.util.xml.DomUtil;
+import consulo.xml.util.xml.actions.generate.AbstractDomGenerateProvider;
 import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
 
 public abstract class MavenGenerateProvider<ELEMENT_TYPE extends DomElement> extends AbstractDomGenerateProvider<ELEMENT_TYPE> {
@@ -36,12 +37,12 @@ public abstract class MavenGenerateProvider<ELEMENT_TYPE extends DomElement> ext
   }
 
   @Override
-  public ELEMENT_TYPE generate(@javax.annotation.Nullable DomElement parent, Editor editor) {
+  public ELEMENT_TYPE generate(@Nullable DomElement parent, Editor editor) {
     if (parent == null) return null;
     return doGenerate((MavenDomProjectModel)parent, editor);
   }
 
-  @javax.annotation.Nullable
+  @Nullable
   protected abstract ELEMENT_TYPE doGenerate(@Nonnull MavenDomProjectModel mavenModel, Editor editor);
 
   @Override

@@ -15,10 +15,10 @@
  */
 package org.jetbrains.idea.maven.project;
 
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Condition;
-import com.intellij.util.concurrency.Semaphore;
+import consulo.application.ApplicationManager;
+import consulo.project.Project;
+import consulo.application.util.Semaphore;
+import consulo.util.lang.function.Condition;
 import org.jetbrains.idea.maven.execution.SoutMavenConsole;
 import org.jetbrains.idea.maven.utils.*;
 

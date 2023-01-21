@@ -15,10 +15,10 @@
  */
 package org.jetbrains.idea.maven.project;
 
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.util.containers.ContainerUtil;
-import com.intellij.util.xmlb.annotations.Property;
 import consulo.annotation.DeprecationInfo;
+import consulo.util.collection.Lists;
+import consulo.util.lang.StringUtil;
+import consulo.util.xml.serializer.annotation.Property;
 
 import javax.annotation.Nonnull;
 import java.util.LinkedHashSet;
@@ -58,7 +58,7 @@ public class MavenImportingSettings implements Cloneable
 	private String dependencyTypes = "jar, test-jar, maven-plugin, ejb, ejb-client, jboss-har, jboss-sar, war, ear, bundle";
 	private Set<String> myDependencyTypesAsSet;
 
-	private List<Listener> myListeners = ContainerUtil.createLockFreeCopyOnWriteList();
+	private List<Listener> myListeners = Lists.newLockFreeCopyOnWriteList();
 
 	public enum GeneratedSourcesFolder
 	{
@@ -357,7 +357,7 @@ public class MavenImportingSettings implements Cloneable
 		try
 		{
 			MavenImportingSettings result = (MavenImportingSettings) super.clone();
-			result.myListeners = ContainerUtil.createLockFreeCopyOnWriteList();
+			result.myListeners = Lists.newLockFreeCopyOnWriteList();
 			return result;
 		}
 		catch(CloneNotSupportedException e)

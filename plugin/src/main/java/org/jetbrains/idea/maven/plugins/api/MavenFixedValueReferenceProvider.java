@@ -1,69 +1,78 @@
 package org.jetbrains.idea.maven.plugins.api;
 
-import com.intellij.openapi.util.TextRange;
-import com.intellij.psi.*;
-import com.intellij.util.ProcessingContext;
-import javax.annotation.Nonnull;
-
+import consulo.document.util.TextRange;
+import consulo.language.psi.*;
+import consulo.language.util.ProcessingContext;
 import org.jetbrains.idea.maven.dom.MavenPropertyResolver;
 import org.jetbrains.idea.maven.dom.model.MavenDomConfiguration;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.regex.Matcher;
 
 /**
  * @author Sergey Evdokimov
  */
-public class MavenFixedValueReferenceProvider implements MavenParamReferenceProvider, MavenSoftAwareReferenceProvider {
+public class MavenFixedValueReferenceProvider implements MavenParamReferenceProvider, MavenSoftAwareReferenceProvider
+{
+	private final String[] myValues;
 
-  private final String[] myValues;
+	private boolean mySoft = false;
 
-  private boolean mySoft = false;
+	public MavenFixedValueReferenceProvider(String[] values)
+	{
+		myValues = values;
+	}
 
-  public MavenFixedValueReferenceProvider(String[] values) {
-    myValues = values;
-  }
+	@Override
+	public PsiReference[] getReferencesByElement(@Nonnull PsiElement element,
+												 @Nonnull MavenDomConfiguration domCfg,
+												 @Nonnull ProcessingContext context)
+	{
+		ElementManipulator<PsiElement> manipulator = ElementManipulators.getManipulator(element);
+		TextRange range = manipulator.getRangeInElement(element);
 
-  @Override
-  public PsiReference[] getReferencesByElement(@Nonnull PsiElement element,
-                                               @Nonnull MavenDomConfiguration domCfg,
-                                               @Nonnull ProcessingContext context) {
-    ElementManipulator<PsiElement> manipulator = ElementManipulators.getManipulator(element);
-    TextRange range = manipulator.getRangeInElement(element);
+		String text = range.substring(element.getText());
+		Matcher matcher = MavenPropertyResolver.PATTERN.matcher(text);
+		if(matcher.find())
+		{
+			return PsiReference.EMPTY_ARRAY;
+		}
 
-    String text = range.substring(element.getText());
-    Matcher matcher = MavenPropertyResolver.PATTERN.matcher(text);
-    if (matcher.find()) {
-      return PsiReference.EMPTY_ARRAY;
-    }
+		return new PsiReference[]{
+				new PsiReferenceBase<>(element, mySoft)
+				{
+					@Nullable
+					@Override
+					public PsiElement resolve()
+					{
+						if(mySoft)
+						{
+							return null;
+						}
 
-    return new PsiReference[] {
-      new PsiReferenceBase<PsiElement>(element, mySoft) {
-        @javax.annotation.Nullable
-        @Override
-        public PsiElement resolve() {
-          if (mySoft) {
-            return null;
-          }
+						if(Arrays.asList(myValues).contains(getValue()))
+						{
+							return getElement();
+						}
 
-          if (Arrays.asList(myValues).contains(getValue())) {
-            return getElement();
-          }
+						return null;
+					}
 
-          return null;
-        }
+					@Nonnull
+					@Override
+					public Object[] getVariants()
+					{
+						return myValues;
+					}
+				}
+		};
+	}
 
-        @Nonnull
-        @Override
-        public Object[] getVariants() {
-          return myValues;
-        }
-      }
-    };
-  }
-
-  @Override
-  public void setSoft(boolean soft) {
-    mySoft = soft;
-  }
+	@Override
+	public void setSoft(boolean soft)
+	{
+		mySoft = soft;
+	}
 }

@@ -22,8 +22,8 @@ import javax.swing.JComponent;
 import javax.swing.JList;
 import javax.swing.JPanel;
 
-import com.intellij.ui.EnumComboBoxModel;
-import com.intellij.ui.ListCellRendererWrapper;
+import consulo.ui.ex.awt.EnumComboBoxModel;
+import consulo.ui.ex.awt.ListCellRendererWrapper;
 
 public class MavenImportingSettingsForm {
   private JPanel myPanel;

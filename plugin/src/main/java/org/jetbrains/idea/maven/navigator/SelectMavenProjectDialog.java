@@ -15,10 +15,11 @@
  */
 package org.jetbrains.idea.maven.navigator;
 
-import com.intellij.openapi.project.Project;
-import com.intellij.ui.treeStructure.NullNode;
-import com.intellij.ui.treeStructure.SimpleNode;
+import consulo.ui.ex.awt.tree.NullNode;
+import consulo.ui.ex.awt.tree.SimpleNode;
 import javax.annotation.Nonnull;
+
+import consulo.project.Project;
 import org.jetbrains.idea.maven.project.MavenProject;
 
 import javax.swing.*;

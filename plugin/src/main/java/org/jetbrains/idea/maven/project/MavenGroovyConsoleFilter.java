@@ -15,18 +15,19 @@
  */
 package org.jetbrains.idea.maven.project;
 
-import com.intellij.execution.filters.Filter;
-import com.intellij.execution.filters.OpenFileHyperlinkInfo;
-import com.intellij.openapi.editor.colors.CodeInsightColors;
-import com.intellij.openapi.editor.colors.EditorColorsManager;
-import com.intellij.openapi.editor.markup.EffectType;
-import com.intellij.openapi.editor.markup.TextAttributes;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.SystemInfo;
-import com.intellij.openapi.vfs.LocalFileSystem;
-import com.intellij.openapi.vfs.VirtualFile;
+import consulo.application.util.SystemInfo;
+import consulo.codeEditor.CodeInsightColors;
+import consulo.colorScheme.EditorColorsManager;
+import consulo.colorScheme.EffectType;
+import consulo.colorScheme.TextAttributes;
+import consulo.execution.ui.console.Filter;
+import consulo.execution.ui.console.OpenFileHyperlinkInfo;
+import consulo.project.Project;
 import consulo.ui.style.StandardColors;
+import consulo.virtualFileSystem.LocalFileSystem;
+import consulo.virtualFileSystem.VirtualFile;
 
+import javax.annotation.Nullable;
 import java.awt.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -34,7 +35,8 @@ import java.util.regex.Pattern;
 /**
  * @author Sergey Evdokimov
  */
-public class MavenGroovyConsoleFilter implements Filter {
+public class MavenGroovyConsoleFilter implements Filter
+{
 
   private static final Pattern PATTERN = Pattern.compile("\\[ERROR\\] (\\S.+\\.groovy): (-?\\d{1,5}): .+", Pattern.DOTALL);
 
@@ -44,7 +46,7 @@ public class MavenGroovyConsoleFilter implements Filter {
     myProject = project;
   }
 
-  @javax.annotation.Nullable
+  @Nullable
   @Override
   public Result applyFilter(String line, int entireLength) {
 

@@ -15,13 +15,14 @@
  */
 package org.jetbrains.idea.maven.execution;
 
-import com.intellij.execution.PsiLocation;
-import com.intellij.openapi.project.Project;
-import com.intellij.psi.PsiFile;
+import consulo.execution.action.PsiLocation;
+import consulo.language.psi.PsiFile;
+import consulo.project.Project;
 
 import java.util.List;
 
-public class MavenGoalLocation extends PsiLocation<PsiFile> {
+public class MavenGoalLocation extends PsiLocation<PsiFile>
+{
   private final List<String> myGoals;
 
   public MavenGoalLocation(Project p, PsiFile file, List<String> goals) {

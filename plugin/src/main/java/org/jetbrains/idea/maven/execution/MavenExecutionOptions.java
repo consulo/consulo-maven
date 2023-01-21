@@ -15,8 +15,8 @@
  */
 package org.jetbrains.idea.maven.execution;
 
-import org.jetbrains.idea.maven.server.MavenServerConsole;
-import org.jetbrains.idea.maven.server.MavenServerSettings;
+import consulo.maven.rt.server.common.server.MavenServerConsole;
+import consulo.maven.rt.server.common.server.MavenServerSettings;
 
 public class MavenExecutionOptions {
   public enum LoggingLevel {

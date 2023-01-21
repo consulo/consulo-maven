@@ -15,22 +15,21 @@
  */
 package org.jetbrains.idea.maven.dom.refactorings.extract;
 
-import com.intellij.lang.Language;
-import com.intellij.openapi.actionSystem.DataContext;
-import com.intellij.openapi.application.Result;
-import com.intellij.openapi.command.WriteCommandAction;
-import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.DialogWrapper;
-import com.intellij.openapi.util.Pair;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.util.PsiUtilCore;
-import com.intellij.psi.xml.XmlElement;
-import com.intellij.refactoring.RefactoringActionHandler;
-import com.intellij.refactoring.actions.BaseRefactoringAction;
-import com.intellij.util.Function;
-import com.intellij.util.xml.DomUtil;
+import consulo.application.Result;
+import consulo.codeEditor.Editor;
+import consulo.dataContext.DataContext;
+import consulo.language.Language;
+import consulo.language.editor.WriteCommandAction;
+import consulo.language.editor.refactoring.action.BaseRefactoringAction;
+import consulo.language.editor.refactoring.action.RefactoringActionHandler;
+import consulo.language.psi.PsiElement;
+import consulo.language.psi.PsiFile;
+import consulo.language.psi.PsiUtilCore;
+import consulo.project.Project;
+import consulo.ui.ex.awt.DialogWrapper;
+import consulo.util.lang.Pair;
+import consulo.xml.psi.xml.XmlElement;
+import consulo.xml.util.xml.DomUtil;
 import org.jetbrains.idea.maven.dom.DependencyConflictId;
 import org.jetbrains.idea.maven.dom.MavenDomProjectProcessorUtils;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
@@ -44,10 +43,10 @@ import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Function;
 
 public class ExtractManagedDependenciesAction extends BaseRefactoringAction
 {
-
 	public ExtractManagedDependenciesAction()
 	{
 		setInjectedContext(true);
@@ -82,7 +81,7 @@ public class ExtractManagedDependenciesAction extends BaseRefactoringAction
 
 	@Override
 	protected boolean isAvailableOnElementInEditorAndFile(@Nonnull PsiElement element, @Nonnull Editor editor, @Nonnull PsiFile file,
-			@Nonnull DataContext context)
+														  @Nonnull DataContext context)
 	{
 		if(!super.isAvailableOnElementInEditorAndFile(element, editor, file, context))
 		{
@@ -245,7 +244,7 @@ public class ExtractManagedDependenciesAction extends BaseRefactoringAction
 			if(models.size() == 1 && !hasExclusions)
 			{
 				MavenDomProjectModel model = models.iterator().next();
-				if(funOccurrences.fun(model).size() == 0)
+				if(funOccurrences.apply(model).size() == 0)
 				{
 					return new ProcessData(model, Collections.<MavenDomDependency>emptySet(), false);
 				}
@@ -258,7 +257,7 @@ public class ExtractManagedDependenciesAction extends BaseRefactoringAction
 			{
 				MavenDomProjectModel model = dialog.getSelectedProject();
 
-				return new ProcessData(model, dialog.isReplaceAllOccurrences() ? funOccurrences.fun(model) : Collections
+				return new ProcessData(model, dialog.isReplaceAllOccurrences() ? funOccurrences.apply(model) : Collections
 						.<MavenDomDependency>emptySet(), dialog.isExtractExclusions());
 			}
 
@@ -270,7 +269,7 @@ public class ExtractManagedDependenciesAction extends BaseRefactoringAction
 
 			return new Function<MavenDomProjectModel, Set<MavenDomDependency>>()
 			{
-				public Set<MavenDomDependency> fun(MavenDomProjectModel model)
+				public Set<MavenDomDependency> apply(MavenDomProjectModel model)
 				{
 					DependencyConflictId dependencyId = DependencyConflictId.create(dependency);
 					if(dependencyId == null)

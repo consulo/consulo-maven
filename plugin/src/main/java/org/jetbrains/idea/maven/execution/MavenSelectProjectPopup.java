@@ -15,16 +15,16 @@
  */
 package org.jetbrains.idea.maven.execution;
 
-import com.intellij.ide.util.treeView.NodeRenderer;
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.ui.popup.JBPopup;
-import com.intellij.openapi.ui.popup.JBPopupFactory;
-import com.intellij.openapi.ui.popup.PopupChooserBuilder;
-import com.intellij.ui.TreeSpeedSearch;
-import com.intellij.ui.treeStructure.Tree;
+import consulo.application.ApplicationManager;
+import consulo.ide.impl.ui.impl.PopupChooserBuilder;
 import consulo.ui.annotation.RequiredUIAccess;
+import consulo.ui.ex.awt.speedSearch.TreeSpeedSearch;
+import consulo.ui.ex.awt.tree.NodeRenderer;
+import consulo.ui.ex.awt.tree.Tree;
+import consulo.ui.ex.popup.JBPopup;
+import consulo.ui.ex.popup.JBPopupFactory;
 import consulo.util.lang.ref.SimpleReference;
-import icons.MavenIcons;
+import org.jetbrains.idea.maven.MavenIcons;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.utils.MavenProjectNamer;

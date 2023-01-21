@@ -15,9 +15,10 @@
  */
 package org.jetbrains.idea.maven.execution;
 
-import com.intellij.openapi.ui.DialogWrapper;
-import com.intellij.openapi.util.Pair;
-import com.intellij.util.ArrayUtil;
+import consulo.ui.ex.awt.DialogWrapper;
+import consulo.util.lang.Pair;
+import consulo.util.collection.ArrayUtil;
+
 import javax.annotation.Nullable;
 
 import javax.swing.*;
@@ -28,7 +29,8 @@ import java.awt.event.ItemListener;
 import java.util.Arrays;
 import java.util.Map;
 
-public class EditMavenPropertyDialog extends DialogWrapper {
+public class EditMavenPropertyDialog extends DialogWrapper
+{
   private JPanel contentPane;
   private JComboBox myNameBox;
   private JTextField myValueField;
@@ -85,7 +87,7 @@ public class EditMavenPropertyDialog extends DialogWrapper {
     myNameBox.setModel(new DefaultComboBoxModel(keys));
   }
 
-  @javax.annotation.Nullable
+  @Nullable
   protected JComponent createCenterPanel() {
     return contentPane;
   }

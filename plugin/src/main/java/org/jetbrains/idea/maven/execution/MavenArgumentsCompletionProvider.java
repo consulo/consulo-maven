@@ -1,16 +1,16 @@
 package org.jetbrains.idea.maven.execution;
 
-import java.util.List;
-
+import consulo.language.editor.completion.CompletionResultSet;
+import consulo.language.editor.completion.lookup.LookupElement;
+import consulo.project.Project;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
-import javax.annotation.Nonnull;
 import org.jetbrains.idea.maven.execution.cmd.CommandLineCompletionProvider;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.utils.MavenUtil;
-import com.intellij.codeInsight.completion.CompletionResultSet;
-import com.intellij.codeInsight.lookup.LookupElement;
-import com.intellij.openapi.project.Project;
+
+import javax.annotation.Nonnull;
+import java.util.List;
 
 /**
  * @author Sergey Evdokimov

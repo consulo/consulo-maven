@@ -16,8 +16,8 @@
 package org.jetbrains.idea.maven.services;
 
 import javax.annotation.Nonnull;
-import org.jetbrains.idea.maven.model.MavenArtifactInfo;
-import org.jetbrains.idea.maven.model.MavenRepositoryInfo;
+import consulo.maven.rt.server.common.model.MavenArtifactInfo;
+import consulo.maven.rt.server.common.model.MavenRepositoryInfo;
 
 import java.io.IOException;
 import java.util.List;

@@ -18,16 +18,17 @@ package org.jetbrains.idea.maven.execution;
 import java.util.Collection;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.swing.Action;
 
-import com.intellij.openapi.project.Project;
+import consulo.project.Project;
 
 /**
  * @author Sergey Evdokimov
  */
 public class MavenExecuteGoalDialog extends MavenEditGoalDialog
 {
-	public MavenExecuteGoalDialog(@Nonnull Project project, @javax.annotation.Nullable Collection<String> history)
+	public MavenExecuteGoalDialog(@Nonnull Project project, @Nullable Collection<String> history)
 	{
 		super(project, history);
 

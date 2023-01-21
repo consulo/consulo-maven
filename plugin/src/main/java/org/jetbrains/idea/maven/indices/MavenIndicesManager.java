@@ -15,29 +15,31 @@
  */
 package org.jetbrains.idea.maven.indices;
 
-import com.intellij.openapi.application.AccessToken;
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.application.ReadAction;
-import com.intellij.openapi.components.ServiceManager;
-import com.intellij.openapi.extensions.Extensions;
-import com.intellij.openapi.progress.BackgroundTaskQueue;
-import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.progress.Task;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.JDOMUtil;
-import com.intellij.openapi.util.Pair;
-import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.openapi.util.text.StringUtil;
+import consulo.annotation.component.ComponentScope;
+import consulo.annotation.component.ServiceAPI;
+import consulo.annotation.component.ServiceImpl;
+import consulo.application.ApplicationManager;
+import consulo.application.ReadAction;
+import consulo.application.progress.ProgressIndicator;
+import consulo.application.progress.Task;
 import consulo.disposer.Disposable;
+import consulo.ide.ServiceManager;
+import consulo.ide.impl.idea.openapi.progress.BackgroundTaskQueue;
+import consulo.maven.rt.server.common.model.MavenArchetype;
+import consulo.maven.rt.server.common.server.MavenServerDownloadListener;
+import consulo.project.Project;
+import consulo.util.io.FileUtil;
+import consulo.util.jdom.JDOMUtil;
+import consulo.util.lang.Pair;
+import consulo.util.lang.StringUtil;
+import jakarta.inject.Singleton;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jetbrains.annotations.TestOnly;
-import org.jetbrains.idea.maven.model.MavenArchetype;
 import org.jetbrains.idea.maven.project.MavenGeneralSettings;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.server.MavenIndexerWrapper;
-import org.jetbrains.idea.maven.server.MavenServerDownloadListener;
 import org.jetbrains.idea.maven.server.MavenServerManager;
 import org.jetbrains.idea.maven.utils.*;
 
@@ -46,6 +48,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
+@Singleton
+@ServiceAPI(ComponentScope.APPLICATION)
+@ServiceImpl
 public class MavenIndicesManager implements Disposable
 {
 	private static final String ELEMENT_ARCHETYPES = "archetypes";
@@ -61,7 +66,9 @@ public class MavenIndicesManager implements Disposable
 
 	public enum IndexUpdatingState
 	{
-		IDLE, WAITING, UPDATING
+		IDLE,
+		WAITING,
+		UPDATING
 	}
 
 	private volatile File myTestIndicesDir;
@@ -368,7 +375,7 @@ public class MavenIndicesManager implements Disposable
 		Set<MavenArchetype> result = new HashSet<MavenArchetype>(myIndexer.getArchetypes());
 		result.addAll(myUserArchetypes);
 
-		for(MavenArchetypesProvider each : Extensions.getExtensions(MavenArchetypesProvider.EP_NAME))
+		for(MavenArchetypesProvider each : MavenArchetypesProvider.EP_NAME.getExtensionList())
 		{
 			result.addAll(each.getArchetypes());
 		}

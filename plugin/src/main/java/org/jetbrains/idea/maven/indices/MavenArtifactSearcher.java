@@ -15,12 +15,12 @@
  */
 package org.jetbrains.idea.maven.indices;
 
-import com.intellij.openapi.util.Pair;
-import com.intellij.openapi.util.text.StringUtil;
+import consulo.util.lang.Pair;
+import consulo.util.lang.StringUtil;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.*;
-import org.jetbrains.idea.maven.model.MavenArtifactInfo;
-import org.jetbrains.idea.maven.server.MavenServerIndexer;
+import consulo.maven.rt.server.common.model.MavenArtifactInfo;
+import consulo.maven.rt.server.common.server.MavenServerIndexer;
 
 import java.util.*;
 

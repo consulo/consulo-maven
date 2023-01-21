@@ -16,11 +16,12 @@
 package org.jetbrains.idea.maven.vfs;
 
 import com.intellij.lang.properties.IProperty;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.SystemInfo;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.vfs.VirtualFileManager;
-import com.intellij.openapi.vfs.ex.dummy.DummyFileSystem;
+import consulo.annotation.component.ExtensionImpl;
+import consulo.project.Project;
+import consulo.application.util.SystemInfo;
+import consulo.virtualFileSystem.VirtualFileManager;
+import consulo.ide.impl.idea.openapi.vfs.ex.dummy.DummyFileSystem;
+import consulo.virtualFileSystem.VirtualFile;
 import org.jetbrains.annotations.NonNls;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -29,6 +30,7 @@ import org.jetbrains.idea.maven.dom.MavenDomUtil;
 import java.util.Map;
 import java.util.Properties;
 
+@ExtensionImpl
 public class MavenPropertiesVirtualFileSystem extends DummyFileSystem {
   @NonNls public static final String PROTOCOL = "maven-properties";
 
@@ -106,7 +108,7 @@ public class MavenPropertiesVirtualFileSystem extends DummyFileSystem {
     return MavenDomUtil.findProperty(project, getSystemPropertiesFile(), propertyName);
   }
 
-  @javax.annotation.Nullable
+  @Nullable
   public IProperty findEnvProperty(Project project, @Nonnull String propertyName) {
     return MavenDomUtil.findProperty(project, getEnvPropertiesFile(), propertyName);
   }

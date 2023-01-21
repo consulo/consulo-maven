@@ -15,18 +15,26 @@
  */
 package org.jetbrains.idea.maven.services;
 
-import com.intellij.openapi.components.*;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.util.ArrayUtil;
-import com.intellij.util.SmartList;
+import consulo.annotation.component.ComponentScope;
+import consulo.annotation.component.ServiceAPI;
+import consulo.annotation.component.ServiceImpl;
+import consulo.component.persist.PersistentStateComponent;
+import consulo.component.persist.State;
+import consulo.component.persist.Storage;
+import consulo.component.persist.StoragePathMacros;
+import consulo.ide.ServiceManager;
+import consulo.maven.rt.server.common.model.MavenArtifactInfo;
+import consulo.maven.rt.server.common.model.MavenRepositoryInfo;
+import consulo.util.collection.ArrayUtil;
+import consulo.util.collection.SmartList;
+import consulo.util.lang.StringUtil;
+import jakarta.inject.Singleton;
 import org.jdom.Element;
-import javax.annotation.Nonnull;
-import org.jetbrains.idea.maven.model.MavenArtifactInfo;
-import org.jetbrains.idea.maven.model.MavenRepositoryInfo;
 import org.jetbrains.idea.maven.services.artifactory.ArtifactoryRepositoryService;
 import org.jetbrains.idea.maven.services.nexus.NexusRepositoryService;
 import org.jetbrains.idea.maven.utils.MavenLog;
 
+import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,86 +43,115 @@ import java.util.List;
  * @author Gregory.Shrago
  */
 @State(
-  name = "MavenServices",
-  storages = {@Storage(
-    file = StoragePathMacros.APP_CONFIG + "/mavenServices.xml")})
-public class MavenRepositoryServicesManager implements PersistentStateComponent<Element> {
-  private final List<String> myUrls = new ArrayList<String>();
+		name = "MavenServices",
+		storages = {
+				@Storage(
+						file = StoragePathMacros.APP_CONFIG + "/mavenServices.xml")
+		})
+@ServiceAPI(ComponentScope.APPLICATION)
+@ServiceImpl
+@Singleton
+public class MavenRepositoryServicesManager implements PersistentStateComponent<Element>
+{
+	private final List<String> myUrls = new ArrayList<String>();
 
-  @Nonnull
-  public static MavenRepositoryServicesManager getInstance() {
-    return ServiceManager.getService(MavenRepositoryServicesManager.class);
-  }
+	@Nonnull
+	public static MavenRepositoryServicesManager getInstance()
+	{
+		return ServiceManager.getService(MavenRepositoryServicesManager.class);
+	}
 
-  @Nonnull
-  public static MavenRepositoryService[] getServices() {
-    return new MavenRepositoryService[]{new NexusRepositoryService(), new ArtifactoryRepositoryService()};
-  }
+	@Nonnull
+	public static MavenRepositoryService[] getServices()
+	{
+		return new MavenRepositoryService[]{
+				new NexusRepositoryService(),
+				new ArtifactoryRepositoryService()
+		};
+	}
 
-  public static String[] getServiceUrls() {
-    final List<String> configured = getInstance().getUrls();
-    if (!configured.isEmpty()) return ArrayUtil.toStringArray(configured);
-    return new String[]{
-      "http://oss.sonatype.org/service/local/",
-      "http://repo.jfrog.org/artifactory/api/",
-      "https://repository.jboss.org/nexus/service/local/"
-    };
-  }
+	public static String[] getServiceUrls()
+	{
+		final List<String> configured = getInstance().getUrls();
+		if(!configured.isEmpty())
+		{
+			return ArrayUtil.toStringArray(configured);
+		}
+		return new String[]{
+				"http://oss.sonatype.org/service/local/",
+				"http://repo.jfrog.org/artifactory/api/",
+				"https://repository.jboss.org/nexus/service/local/"
+		};
+	}
 
-  public List<String> getUrls() {
-    return myUrls;
-  }
+	public List<String> getUrls()
+	{
+		return myUrls;
+	}
 
-  public void setUrls(List<String> urls) {
-    myUrls.clear();
-    myUrls.addAll(urls);
-  }
+	public void setUrls(List<String> urls)
+	{
+		myUrls.clear();
+		myUrls.addAll(urls);
+	}
 
 
-  @Override
-  public Element getState() {
-    final Element element = new Element("maven-services");
-    for (String url : myUrls) {
-      final Element child = new Element("service-url");
-      child.setText(StringUtil.escapeXml(url));
-      element.addContent(child);
-    }
-    return element;
-  }
+	@Override
+	public Element getState()
+	{
+		final Element element = new Element("maven-services");
+		for(String url : myUrls)
+		{
+			final Element child = new Element("service-url");
+			child.setText(StringUtil.escapeXml(url));
+			element.addContent(child);
+		}
+		return element;
+	}
 
-  @Override
-  public void loadState(Element state) {
-    myUrls.clear();
-    for (Element element : (List<Element>)state.getChildren("service-url")) {
-      myUrls.add(StringUtil.unescapeXml(element.getTextTrim()));
-    }
-  }
+	@Override
+	public void loadState(Element state)
+	{
+		myUrls.clear();
+		for(Element element : (List<Element>) state.getChildren("service-url"))
+		{
+			myUrls.add(StringUtil.unescapeXml(element.getTextTrim()));
+		}
+	}
 
-  @Nonnull
-  public static List<MavenRepositoryInfo> getRepositories(String url) {
-    List<MavenRepositoryInfo> result = new SmartList<MavenRepositoryInfo>();
-    for (MavenRepositoryService service : getServices()) {
-      try {
-        result.addAll(service.getRepositories(url));
-      }
-      catch (IOException e) {
-        MavenLog.LOG.info(e);
-      }
-    }
-    return result;
-  }
+	@Nonnull
+	public static List<MavenRepositoryInfo> getRepositories(String url)
+	{
+		List<MavenRepositoryInfo> result = new SmartList<MavenRepositoryInfo>();
+		for(MavenRepositoryService service : getServices())
+		{
+			try
+			{
+				result.addAll(service.getRepositories(url));
+			}
+			catch(IOException e)
+			{
+				MavenLog.LOG.info(e);
+			}
+		}
+		return result;
+	}
 
-  @Nonnull
-  public static List<MavenArtifactInfo> findArtifacts(@Nonnull MavenArtifactInfo template, @Nonnull String url) {
-    List<MavenArtifactInfo> result = new SmartList<MavenArtifactInfo>();
-    for (MavenRepositoryService service : getServices()) {
-      try {
-        result.addAll(service.findArtifacts(url, template));
-      }
-      catch (IOException e) {
-        MavenLog.LOG.info(e);
-      }
-    }
-    return result;
-  }
+	@Nonnull
+	public static List<MavenArtifactInfo> findArtifacts(@Nonnull MavenArtifactInfo template, @Nonnull String url)
+	{
+		List<MavenArtifactInfo> result = new SmartList<MavenArtifactInfo>();
+		for(MavenRepositoryService service : getServices())
+		{
+			try
+			{
+				result.addAll(service.findArtifacts(url, template));
+			}
+			catch(IOException e)
+			{
+				MavenLog.LOG.info(e);
+			}
+		}
+		return result;
+	}
 }

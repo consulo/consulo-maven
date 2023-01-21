@@ -5,7 +5,7 @@
     <component>
       <role>org.apache.maven.artifact.factory.ArtifactFactory</role>
       <role-hint>ide</role-hint>
-      <implementation>org.jetbrains.idea.maven.server.embedder.CustomMaven3ArtifactFactory</implementation>
+      <implementation>consulo.maven.rt.m3.common.server.embedder.CustomMaven3ArtifactFactory</implementation>
       <description />
       <isolated-realm>false</isolated-realm>
       <requirements>
@@ -20,7 +20,7 @@
     <component>
       <role>org.apache.maven.plugin.PluginDescriptorCache</role>
       <role-hint>ide</role-hint>
-      <implementation>org.jetbrains.idea.maven.server.embedder.CustomPluginDescriptorCache</implementation>
+      <implementation>consulo.maven.rt.m3.common.server.embedder.CustomPluginDescriptorCache</implementation>
       <description />
       <isolated-realm>false</isolated-realm>
     </component>
@@ -28,7 +28,7 @@
     <component>
       <role>org.apache.maven.artifact.resolver.ArtifactResolver</role>
       <role-hint>ide</role-hint>
-      <implementation>org.jetbrains.idea.maven.server.embedder.CustomMaven32ArtifactResolver</implementation>
+      <implementation>consulo.maven.rt.m32.server.embedder.CustomMaven32ArtifactResolver</implementation>
       <description />
       <isolated-realm>false</isolated-realm>
       <requirements>
@@ -78,7 +78,7 @@
     <component>
       <role>org.apache.maven.artifact.repository.metadata.RepositoryMetadataManager</role>
       <role-hint>ide</role-hint>
-      <implementation>org.jetbrains.idea.maven.server.embedder.CustomMaven3RepositoryMetadataManager</implementation>
+      <implementation>consulo.maven.rt.m3.common.server.embedder.CustomMaven3RepositoryMetadataManager</implementation>
       <description />
       <isolated-realm>false</isolated-realm>
       <requirements>
@@ -98,7 +98,7 @@
     <component>
       <role>org.apache.maven.project.interpolation.ModelInterpolator</role>
       <role-hint>ide</role-hint>
-      <implementation>org.jetbrains.idea.maven.server.embedder.CustomMaven3ModelInterpolator</implementation>
+      <implementation>consulo.maven.rt.m3.common.server.embedder.CustomMaven3ModelInterpolator</implementation>
       <description />
       <isolated-realm>false</isolated-realm>
     </component>
@@ -106,7 +106,7 @@
     <component>
       <role>org.apache.maven.model.interpolation.ModelInterpolator</role>
       <role-hint>ide</role-hint>
-      <implementation>org.jetbrains.idea.maven.server.embedder.CustomMaven3ModelInterpolator2</implementation>
+      <implementation>consulo.maven.rt.m3.common.server.embedder.CustomMaven3ModelInterpolator2</implementation>
       <description />
       <isolated-realm>false</isolated-realm>
     </component>

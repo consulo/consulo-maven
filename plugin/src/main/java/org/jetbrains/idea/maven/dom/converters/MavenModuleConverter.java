@@ -15,23 +15,25 @@
  */
 package org.jetbrains.idea.maven.dom.converters;
 
-import com.intellij.openapi.util.TextRange;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiReference;
-import com.intellij.util.xml.ConvertContext;
+import consulo.language.psi.PsiElement;
+import consulo.language.psi.PsiReference;
+import consulo.virtualFileSystem.VirtualFile;
+import consulo.language.psi.PsiFile;
+import consulo.document.util.TextRange;
+import consulo.xml.util.xml.ConvertContext;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.idea.maven.dom.references.MavenModulePsiReference;
 
+import javax.annotation.Nullable;
+
 public class MavenModuleConverter extends MavenReferenceConverter<PsiFile> {
   @Override
-  public PsiFile fromString(@javax.annotation.Nullable @NonNls String s, ConvertContext context) {
+  public PsiFile fromString(@Nullable @NonNls String s, ConvertContext context) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public String toString(@javax.annotation.Nullable PsiFile psiFile, ConvertContext context) {
+  public String toString(@Nullable PsiFile psiFile, ConvertContext context) {
     VirtualFile file = context.getFile().getOriginalFile().getVirtualFile();
     return MavenModulePsiReference.calcRelativeModulePath(file, psiFile.getVirtualFile());
   }

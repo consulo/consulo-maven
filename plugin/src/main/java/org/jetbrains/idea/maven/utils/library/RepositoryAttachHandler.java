@@ -15,38 +15,40 @@
  */
 package org.jetbrains.idea.maven.utils.library;
 
-import com.intellij.CommonBundle;
-import com.intellij.notification.Notification;
-import com.intellij.notification.NotificationType;
-import com.intellij.notification.Notifications;
-import com.intellij.openapi.application.AccessToken;
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.application.WriteAction;
-import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.progress.ProgressManager;
-import com.intellij.openapi.progress.Task;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.roots.OrderRootType;
-import com.intellij.openapi.roots.libraries.NewLibraryConfiguration;
-import com.intellij.openapi.roots.libraries.ui.OrderRoot;
-import com.intellij.openapi.roots.ui.configuration.libraryEditor.LibraryEditor;
-import com.intellij.openapi.ui.DialogWrapper;
-import com.intellij.openapi.ui.Messages;
-import com.intellij.openapi.util.Condition;
-import com.intellij.openapi.util.Pair;
-import com.intellij.openapi.util.Ref;
-import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.openapi.vfs.VfsUtil;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.vfs.VirtualFileManager;
-import com.intellij.util.PairProcessor;
-import com.intellij.util.Processor;
-import com.intellij.util.SmartList;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import consulo.application.AccessToken;
+import consulo.application.ApplicationManager;
+import consulo.application.CommonBundle;
+import consulo.application.WriteAction;
+import consulo.application.progress.ProgressIndicator;
+import consulo.application.progress.ProgressManager;
+import consulo.application.progress.Task;
+import consulo.application.util.function.Processor;
+import consulo.content.OrderRootType;
+import consulo.content.base.BinariesOrderRootType;
+import consulo.content.base.DocumentationOrderRootType;
+import consulo.content.base.SourcesOrderRootType;
+import consulo.content.library.NewLibraryConfiguration;
+import consulo.content.library.OrderRoot;
+import consulo.content.library.ui.LibraryEditor;
+import consulo.maven.MavenNotificationGroup;
+import consulo.maven.rt.server.common.model.*;
+import consulo.project.Project;
+import consulo.project.ui.notification.Notification;
+import consulo.project.ui.notification.NotificationType;
+import consulo.project.ui.notification.Notifications;
+import consulo.ui.ex.awt.DialogWrapper;
+import consulo.ui.ex.awt.Messages;
+import consulo.util.collection.SmartList;
+import consulo.util.io.FilePermissionCopier;
+import consulo.util.io.FileUtil;
+import consulo.util.lang.Pair;
+import consulo.util.lang.function.PairProcessor;
+import consulo.util.lang.ref.Ref;
+import consulo.virtualFileSystem.VirtualFile;
+import consulo.virtualFileSystem.VirtualFileManager;
+import consulo.virtualFileSystem.util.VirtualFileUtil;
 import org.jetbrains.idea.maven.execution.SoutMavenConsole;
 import org.jetbrains.idea.maven.importing.MavenExtraArtifactType;
-import org.jetbrains.idea.maven.model.*;
 import org.jetbrains.idea.maven.project.MavenEmbeddersManager;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.server.MavenEmbedderWrapper;
@@ -56,6 +58,8 @@ import org.jetbrains.idea.maven.utils.MavenProcessCanceledException;
 import org.jetbrains.idea.maven.utils.MavenProgressIndicator;
 import org.jetbrains.idea.maven.utils.RepositoryAttachDialog;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
@@ -119,7 +123,7 @@ public class RepositoryAttachHandler {
             sb.append("</li>");
           }
           sb.append("</ol>");
-          Notifications.Bus.notify(new Notification("Repository", title, sb.toString(), NotificationType.INFORMATION), project);
+          Notifications.Bus.notify(new Notification(MavenNotificationGroup.REPOSITORY, title, sb.toString(), NotificationType.INFORMATION), project);
         }
         return true;
       }
@@ -142,23 +146,23 @@ public class RepositoryAttachHandler {
         if (copyTo != null) {
           toFile = new File(copyTo, repoFile.getName());
           if (repoFile.exists()) {
-            FileUtil.copy(repoFile, toFile);
+            FileUtil.copy(repoFile, toFile, FilePermissionCopier.BY_NIO2);
           }
         }
         // search for jar file first otherwise lib root won't be found!
-        manager.refreshAndFindFileByUrl(VfsUtil.pathToUrl(FileUtil.toSystemIndependentName(toFile.getPath())));
-        final String url = VfsUtil.getUrlForLibraryRoot(toFile);
+        manager.refreshAndFindFileByUrl(VirtualFileUtil.pathToUrl(FileUtil.toSystemIndependentName(toFile.getPath())));
+        final String url = VirtualFileUtil.getUrlForLibraryRoot(toFile);
         final VirtualFile file = manager.refreshAndFindFileByUrl(url);
         if (file != null) {
           OrderRootType rootType;
           if (MavenExtraArtifactType.DOCS.getDefaultClassifier().equals(each.getClassifier())) {
-            rootType = OrderRootType.DOCUMENTATION;
+            rootType = DocumentationOrderRootType.getInstance();
           }
           else if (MavenExtraArtifactType.SOURCES.getDefaultClassifier().equals(each.getClassifier())) {
-            rootType = OrderRootType.SOURCES;
+            rootType = SourcesOrderRootType.getInstance();
           }
           else {
-            rootType = OrderRootType.CLASSES;
+            rootType = BinariesOrderRootType.getInstance();
           }
           result.add(new OrderRoot(file, rootType));
         }
@@ -174,7 +178,7 @@ public class RepositoryAttachHandler {
   }
 
   public static void searchArtifacts(final Project project, String coord,
-                                     final PairProcessor<Collection<Pair<MavenArtifactInfo, MavenRepositoryInfo>>, Boolean> resultProcessor) {
+									 final PairProcessor<Collection<Pair<MavenArtifactInfo, MavenRepositoryInfo>>, Boolean> resultProcessor) {
     if (coord == null || coord.length() == 0) return;
     final MavenArtifactInfo template;
     if (coord.indexOf(':') == -1 && Character.isUpperCase(coord.charAt(0))) {
@@ -225,12 +229,7 @@ public class RepositoryAttachHandler {
                 public void run() {
                   proceedFlag.set(resultProcessor.process(resultList, aBoolean));
                 }
-              }, new Condition() {
-                @Override
-                public boolean value(Object o) {
-                  return !proceedFlag.get();
-                }
-              });
+              }, () -> !proceedFlag.get());
           }
         }
       }

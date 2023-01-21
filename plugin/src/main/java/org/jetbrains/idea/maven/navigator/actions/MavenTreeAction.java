@@ -15,13 +15,14 @@
  */
 package org.jetbrains.idea.maven.navigator.actions;
 
-import com.intellij.openapi.actionSystem.AnActionEvent;
+import consulo.ui.ex.action.AnActionEvent;
 import consulo.ui.annotation.RequiredUIAccess;
 import org.jetbrains.idea.maven.utils.MavenDataKeys;
 import org.jetbrains.idea.maven.utils.actions.MavenAction;
 import org.jetbrains.idea.maven.utils.actions.MavenActionUtil;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.swing.*;
 
 public abstract class MavenTreeAction extends MavenAction
@@ -32,7 +33,7 @@ public abstract class MavenTreeAction extends MavenAction
 		return super.isAvailable(e) && MavenActionUtil.isMavenizedProject(e.getDataContext()) && getTree(e) != null;
 	}
 
-	@javax.annotation.Nullable
+	@Nullable
 	protected static JTree getTree(AnActionEvent e)
 	{
 		return e.getData(MavenDataKeys.MAVEN_PROJECTS_TREE);

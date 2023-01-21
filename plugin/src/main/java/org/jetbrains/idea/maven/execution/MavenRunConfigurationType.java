@@ -15,25 +15,30 @@
  */
 package org.jetbrains.idea.maven.execution;
 
-import com.intellij.compiler.options.CompileStepBeforeRun;
-import com.intellij.compiler.options.CompileStepBeforeRunNoErrorCheck;
-import com.intellij.execution.*;
-import com.intellij.execution.configurations.ConfigurationFactory;
-import com.intellij.execution.configurations.ConfigurationType;
-import com.intellij.execution.configurations.ConfigurationTypeUtil;
-import com.intellij.execution.configurations.RunConfiguration;
-import com.intellij.execution.executors.DefaultRunExecutor;
-import com.intellij.execution.impl.DefaultJavaProgramRunner;
-import com.intellij.execution.runners.ExecutionEnvironment;
-import com.intellij.execution.runners.ProgramRunner;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.openapi.vfs.LocalFileSystem;
-import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.java.execution.impl.DefaultJavaProgramRunner;
+import consulo.annotation.component.ExtensionImpl;
+import consulo.compiler.execution.CompileStepBeforeRun;
+import consulo.compiler.execution.CompileStepBeforeRunNoErrorCheck;
+import consulo.execution.BeforeRunTask;
+import consulo.execution.RunManager;
+import consulo.execution.RunnerAndConfigurationSettings;
+import consulo.execution.configuration.ConfigurationFactory;
+import consulo.execution.configuration.ConfigurationType;
+import consulo.execution.configuration.ConfigurationTypeUtil;
+import consulo.execution.configuration.RunConfiguration;
+import consulo.execution.executor.DefaultRunExecutor;
+import consulo.execution.executor.Executor;
+import consulo.execution.runner.ExecutionEnvironment;
+import consulo.execution.runner.ProgramRunner;
+import consulo.process.ExecutionException;
+import consulo.project.Project;
 import consulo.ui.image.Image;
 import consulo.util.dataholder.Key;
-import icons.MavenIcons;
+import consulo.util.lang.StringUtil;
+import consulo.virtualFileSystem.LocalFileSystem;
+import consulo.virtualFileSystem.VirtualFile;
 import org.jetbrains.annotations.NonNls;
+import org.jetbrains.idea.maven.MavenIcons;
 import org.jetbrains.idea.maven.project.MavenGeneralSettings;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
@@ -46,6 +51,7 @@ import java.util.List;
 /**
  * @author Vladislav.Kaznacheev
  */
+@ExtensionImpl
 public class MavenRunConfigurationType implements ConfigurationType {
   private final ConfigurationFactory myFactory;
   private static final int MAX_NAME_LENGTH = 40;
@@ -54,10 +60,7 @@ public class MavenRunConfigurationType implements ConfigurationType {
     return ConfigurationTypeUtil.findConfigurationType(MavenRunConfigurationType.class);
   }
 
-  /**
-   * reflection
-   */
-  MavenRunConfigurationType() {
+  public MavenRunConfigurationType() {
     myFactory = new ConfigurationFactory(this) {
       public RunConfiguration createTemplateConfiguration(Project project) {
         return new MavenRunConfiguration(project, this, "");
@@ -154,7 +157,7 @@ public class MavenRunConfigurationType implements ConfigurationType {
     }
   }
 
-  @javax.annotation.Nullable
+  @Nullable
   private static String getMavenProjectName(final Project project, final MavenRunnerParameters runnerParameters) {
     final VirtualFile virtualFile = LocalFileSystem.getInstance().refreshAndFindFileByPath(runnerParameters.getWorkingDirPath() + "/pom.xml");
     if (virtualFile != null) {
@@ -170,15 +173,15 @@ public class MavenRunConfigurationType implements ConfigurationType {
 
 
   public static void runConfiguration(Project project,
-                                      MavenRunnerParameters params,
-                                      @Nullable ProgramRunner.Callback callback) {
+									  MavenRunnerParameters params,
+									  @Nullable ProgramRunner.Callback callback) {
     runConfiguration(project, params, null, null, callback);
   }
 
   public static void runConfiguration(Project project,
                                       @Nonnull MavenRunnerParameters params,
                                       @Nullable MavenGeneralSettings settings,
-                                      @javax.annotation.Nullable MavenRunnerSettings runnerSettings,
+                                      @Nullable MavenRunnerSettings runnerSettings,
                                       @Nullable ProgramRunner.Callback callback) {
     RunnerAndConfigurationSettings configSettings = createRunnerAndConfigurationSettings(settings,
                                                                                          runnerSettings,
@@ -197,14 +200,14 @@ public class MavenRunConfigurationType implements ConfigurationType {
     }
   }
 
-  public static RunnerAndConfigurationSettings createRunnerAndConfigurationSettings(@javax.annotation.Nullable MavenGeneralSettings generalSettings,
+  public static RunnerAndConfigurationSettings createRunnerAndConfigurationSettings(@Nullable MavenGeneralSettings generalSettings,
                                                                                     @Nullable MavenRunnerSettings runnerSettings,
                                                                                     MavenRunnerParameters params,
                                                                                     Project project) {
     MavenRunConfigurationType type = ConfigurationTypeUtil.findConfigurationType(MavenRunConfigurationType.class);
 
-    final RunnerAndConfigurationSettings settings = RunManagerEx.getInstanceEx(project)
-      .createConfiguration(generateName(project, params), type.myFactory);
+    final RunnerAndConfigurationSettings settings = RunManager.getInstance(project)
+      .createRunConfiguration(generateName(project, params), type.myFactory);
     MavenRunConfiguration runConfiguration = (MavenRunConfiguration)settings.getConfiguration();
     runConfiguration.setRunnerParameters(params);
     runConfiguration.setGeneralSettings(generalSettings);

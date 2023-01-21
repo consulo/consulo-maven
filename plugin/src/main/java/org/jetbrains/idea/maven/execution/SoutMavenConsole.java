@@ -15,43 +15,65 @@
  */
 package org.jetbrains.idea.maven.execution;
 
-import com.intellij.execution.process.ProcessAdapter;
-import com.intellij.execution.process.ProcessEvent;
-import com.intellij.execution.process.ProcessHandler;
+import consulo.process.ProcessHandler;
+import consulo.process.event.ProcessAdapter;
+import consulo.process.event.ProcessEvent;
 import consulo.util.dataholder.Key;
 import org.jetbrains.idea.maven.project.MavenConsole;
 
-public class SoutMavenConsole extends MavenConsole {
-  public SoutMavenConsole() {
-    super(MavenExecutionOptions.LoggingLevel.DEBUG, true);
-  }
+import java.util.function.BiPredicate;
 
-  public boolean canPause() {
-    return false;
-  }
+public class SoutMavenConsole extends MavenConsole
+{
+	public SoutMavenConsole()
+	{
+		super(MavenExecutionOptions.LoggingLevel.DEBUG, true);
+	}
 
-  public boolean isOutputPaused() {
-    return false;
-  }
+	@Override
+	public boolean canPause()
+	{
+		return false;
+	}
 
-  public void setOutputPaused(boolean outputPaused) {
-  }
+	@Override
+	public boolean isOutputPaused()
+	{
+		return false;
+	}
 
-  public void attachToProcess(ProcessHandler processHandler) {
-    processHandler.addProcessListener(new ProcessAdapter() {
-      @Override
-      public void onTextAvailable(ProcessEvent event, Key outputType) {
-        System.out.print(event.getText());
-      }
+	@Override
+	public void setOutputPaused(boolean outputPaused)
+	{
+	}
 
-      @Override
-      public void processTerminated(ProcessEvent event) {
-        System.out.println("PROCESS TERMINATED: " + event.getExitCode());
-      }
-    });
-  }
+	@Override
+	public void attachToProcess(ProcessHandler processHandler)
+	{
+		processHandler.addProcessListener(new ProcessAdapter()
+		{
+			@Override
+			public void onTextAvailable(ProcessEvent event, Key outputType)
+			{
+				if(isSuppressed(event.getText()))
+				{
+					return;
+				}
 
-  protected void doPrint(String text, OutputType type) {
-    System.out.print(text);
-  }
+				System.out.print(event.getText());
+			}
+
+			@Override
+			public void processTerminated(ProcessEvent event)
+			{
+				System.out.println("PROCESS TERMINATED: " + event.getExitCode());
+			}
+		});
+	}
+
+	@Override
+	protected void doPrint(String text, OutputType type)
+	{
+		System.out.print(text);
+	}
 }

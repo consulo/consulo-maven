@@ -15,11 +15,12 @@
  */
 package org.jetbrains.idea.maven.dom.generate;
 
-import com.intellij.openapi.application.Result;
-import com.intellij.openapi.command.WriteCommandAction;
-import com.intellij.openapi.editor.Editor;
-import com.intellij.util.xml.DomUtil;
-import com.intellij.util.xml.ui.actions.generate.GenerateDomElementAction;
+import consulo.application.Result;
+import consulo.codeEditor.Editor;
+import consulo.language.editor.WriteCommandAction;
+import consulo.xml.util.xml.DomUtil;
+import consulo.xml.util.xml.ui.actions.generate.GenerateDomElementAction;
+import org.jetbrains.idea.maven.MavenIcons;
 import org.jetbrains.idea.maven.dom.MavenDomBundle;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
 import org.jetbrains.idea.maven.dom.model.MavenDomParent;
@@ -50,7 +51,7 @@ public class GenerateParentAction extends GenerateDomElementAction {
         protected boolean isAvailableForModel(MavenDomProjectModel mavenModel) {
           return !DomUtil.hasXml(mavenModel.getMavenParent());
         }
-      }, icons.MavenIcons.MavenProject);
+      }, MavenIcons.MavenProject);
   }
 
   @Override

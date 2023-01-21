@@ -15,20 +15,20 @@
  */
 package org.jetbrains.idea.maven.importing;
 
-import com.intellij.openapi.module.ModifiableModuleModel;
-import com.intellij.openapi.module.Module;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.roots.ModifiableRootModel;
-import com.intellij.openapi.roots.ModuleRootModel;
-import com.intellij.openapi.roots.OrderRootType;
-import com.intellij.openapi.roots.libraries.Library;
-import com.intellij.openapi.roots.libraries.LibraryTable;
-import com.intellij.openapi.roots.libraries.LibraryTablesRegistrar;
-import com.intellij.openapi.roots.ui.configuration.ModulesProvider;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.packaging.artifacts.ArtifactModel;
-import com.intellij.packaging.artifacts.ModifiableArtifactModel;
-import com.intellij.packaging.elements.PackagingElementResolvingContext;
+import consulo.content.OrderRootType;
+import consulo.content.library.LibraryTable;
+import consulo.content.library.LibraryTablesRegistrar;
+import consulo.module.Module;
+import consulo.project.Project;
+import consulo.module.content.layer.ModifiableRootModel;
+import consulo.module.content.layer.ModuleRootModel;
+import consulo.content.library.Library;
+import consulo.module.content.layer.ModulesProvider;
+import consulo.compiler.artifact.ArtifactModel;
+import consulo.compiler.artifact.ModifiableArtifactModel;
+import consulo.compiler.artifact.element.PackagingElementResolvingContext;
+import consulo.module.ModifiableModuleModel;
+import consulo.virtualFileSystem.VirtualFile;
 
 import javax.annotation.Nonnull;
 import java.util.HashMap;
@@ -112,7 +112,7 @@ public abstract class MavenBaseModifiableModelsProvider implements MavenModifiab
 
   protected abstract ModifiableModuleModel doGetModuleModel();
 
-  protected abstract ModifiableRootModel doGetRootModel(Module module);
+  protected abstract ModifiableRootModel doGetRootModel(consulo.module.Module module);
 
   protected abstract Library.ModifiableModel doGetLibraryModel(Library library);
 
@@ -164,12 +164,12 @@ public abstract class MavenBaseModifiableModelsProvider implements MavenModifiab
   private class MavenModulesProvider implements ModulesProvider {
     @Override
 	@Nonnull
-    public Module[] getModules() {
+    public consulo.module.Module[] getModules() {
       return getModuleModel().getModules();
     }
 
     @Override
-	public Module getModule(String name) {
+	public consulo.module.Module getModule(String name) {
       return getModuleModel().findModuleByName(name);
     }
 

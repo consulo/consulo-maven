@@ -1,9 +1,9 @@
 package org.jetbrains.idea.maven.execution;
 
-import com.intellij.openapi.options.Configurable;
-import com.intellij.openapi.options.ConfigurationException;
-import com.intellij.openapi.options.SearchableConfigurable;
-import com.intellij.openapi.project.Project;
+import consulo.configurable.Configurable;
+import consulo.configurable.ConfigurationException;
+import consulo.configurable.SearchableConfigurable;
+import consulo.project.Project;
 import org.jetbrains.annotations.Nls;
 
 import javax.annotation.Nonnull;
@@ -27,7 +27,8 @@ public abstract class MavenRunnerConfigurable extends MavenRunnerPanel implement
     return !s.equals(getState());
   }
 
-  public void apply() throws ConfigurationException {
+  public void apply() throws ConfigurationException
+  {
     apply(getState());
   }
 

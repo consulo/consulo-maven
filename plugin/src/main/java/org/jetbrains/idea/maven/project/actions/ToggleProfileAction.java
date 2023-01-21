@@ -15,10 +15,10 @@
  */
 package org.jetbrains.idea.maven.project.actions;
 
-import com.intellij.openapi.actionSystem.AnActionEvent;
+import consulo.ui.ex.action.AnActionEvent;
 import consulo.ui.annotation.RequiredUIAccess;
-import org.jetbrains.idea.maven.model.MavenExplicitProfiles;
-import org.jetbrains.idea.maven.model.MavenProfileKind;
+import consulo.maven.rt.server.common.model.MavenExplicitProfiles;
+import consulo.maven.rt.server.common.model.MavenProfileKind;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.project.ProjectBundle;
 import org.jetbrains.idea.maven.utils.MavenDataKeys;

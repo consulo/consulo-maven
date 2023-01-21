@@ -15,27 +15,27 @@
  */
 package org.jetbrains.idea.maven.dom.converters;
 
-import com.intellij.codeInspection.LocalQuickFix;
-import com.intellij.codeInspection.ProblemDescriptor;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Computable;
-import com.intellij.openapi.util.RecursionManager;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.openapi.vfs.LocalFileSystem;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiManager;
-import com.intellij.util.ArrayUtil;
-import com.intellij.util.xml.*;
-import com.intellij.util.xml.impl.GenericDomValueReference;
+import consulo.language.editor.inspection.LocalQuickFix;
+import consulo.application.util.function.Computable;
+import consulo.application.util.RecursionManager;
+import consulo.util.lang.StringUtil;
+import consulo.virtualFileSystem.LocalFileSystem;
+import consulo.language.psi.PsiElement;
+import consulo.language.psi.PsiFile;
+import consulo.language.psi.PsiManager;
+import consulo.util.collection.ArrayUtil;
+import consulo.language.editor.inspection.ProblemDescriptor;
+import consulo.project.Project;
+import consulo.virtualFileSystem.VirtualFile;
+import consulo.xml.util.xml.*;
+import consulo.xml.util.xml.impl.GenericDomValueReference;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.idea.maven.dom.MavenDomBundle;
 import org.jetbrains.idea.maven.dom.MavenDomProjectProcessorUtils;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
 import org.jetbrains.idea.maven.dom.model.*;
 import org.jetbrains.idea.maven.indices.MavenProjectIndicesManager;
-import org.jetbrains.idea.maven.model.MavenId;
+import consulo.maven.rt.server.common.model.MavenId;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.utils.MavenArtifactUtil;
@@ -48,7 +48,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 public abstract class MavenArtifactCoordinatesConverter extends ResolvingConverter<String> implements MavenDomSoftAwareConverter {
-  public String fromString(@javax.annotation.Nullable @NonNls String s, ConvertContext context) {
+  public String fromString(@Nullable @NonNls String s, ConvertContext context) {
     if (s == null) return null;
 
     MavenId id = MavenArtifactCoordinatesHelper.getId(context);

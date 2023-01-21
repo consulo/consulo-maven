@@ -15,31 +15,30 @@
  */
 package org.jetbrains.idea.maven.project;
 
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.application.ReadAction;
-import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.module.Module;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.roots.ProjectFileIndex;
-import com.intellij.openapi.util.Comparing;
-import com.intellij.openapi.util.Pair;
-import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.openapi.vfs.LocalFileSystem;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.util.containers.ArrayListSet;
-import com.intellij.util.containers.ContainerUtil;
-import com.intellij.util.containers.Stack;
+import consulo.application.ApplicationManager;
+import consulo.application.ReadAction;
+import consulo.logging.Logger;
+import consulo.maven.rt.server.common.model.*;
+import consulo.maven.rt.server.common.server.NativeMavenProjectHolder;
+import consulo.module.Module;
+import consulo.module.content.ProjectFileIndex;
+import consulo.project.Project;
 import consulo.util.collection.HashingStrategy;
+import consulo.util.collection.Lists;
 import consulo.util.collection.Sets;
+import consulo.util.collection.Stack;
 import consulo.util.dataholder.Key;
+import consulo.util.io.FileUtil;
+import consulo.util.lang.Comparing;
+import consulo.util.lang.Pair;
+import consulo.virtualFileSystem.LocalFileSystem;
+import consulo.virtualFileSystem.VirtualFile;
 import org.jdom.Element;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 import org.jetbrains.annotations.TestOnly;
 import org.jetbrains.idea.maven.dom.references.MavenFilteredPropertyPsiReferenceProvider;
-import org.jetbrains.idea.maven.model.*;
 import org.jetbrains.idea.maven.server.MavenEmbedderWrapper;
-import org.jetbrains.idea.maven.server.NativeMavenProjectHolder;
 import org.jetbrains.idea.maven.utils.*;
 
 import javax.annotation.Nonnull;
@@ -80,7 +79,7 @@ public class MavenProjectsTree
 	private final Map<MavenProject, List<MavenProject>> myAggregatorToModuleMapping = new HashMap<MavenProject, List<MavenProject>>();
 	private final Map<MavenProject, MavenProject> myModuleToAggregatorMapping = new HashMap<MavenProject, MavenProject>();
 
-	private final List<Listener> myListeners = ContainerUtil.createLockFreeCopyOnWriteList();
+	private final List<Listener> myListeners = Lists.newLockFreeCopyOnWriteList();
 
 	private final MavenProjectReaderProjectLocator myProjectLocator = new MavenProjectReaderProjectLocator()
 	{
@@ -485,7 +484,7 @@ public class MavenProjectsTree
 
 	public Collection<Pair<String, MavenProfileKind>> getProfilesWithStates()
 	{
-		Collection<Pair<String, MavenProfileKind>> result = new ArrayListSet<Pair<String, MavenProfileKind>>();
+		Collection<Pair<String, MavenProfileKind>> result = new LinkedHashSet<>();
 
 		Collection<String> available = new HashSet<String>();
 		Collection<String> active = new HashSet<String>();
@@ -554,7 +553,7 @@ public class MavenProjectsTree
 		}
 
 		UpdateContext updateContext = new UpdateContext();
-		Stack<MavenProject> updateStack = new Stack<MavenProject>();
+		consulo.util.collection.Stack<MavenProject> updateStack = new Stack<MavenProject>();
 
 		for(VirtualFile each : files)
 		{
@@ -577,7 +576,7 @@ public class MavenProjectsTree
 			boolean recursuve,
 			MavenExplicitProfiles explicitProfiles,
 			UpdateContext updateContext,
-			Stack<MavenProject> updateStack,
+			consulo.util.collection.Stack<MavenProject> updateStack,
 			MavenProjectReader reader,
 			MavenGeneralSettings generalSettings,
 			MavenProgressIndicator process)
@@ -604,7 +603,7 @@ public class MavenProjectsTree
 			boolean force,
 			MavenExplicitProfiles explicitProfiles,
 			UpdateContext updateContext,
-			Stack<MavenProject> updateStack,
+			consulo.util.collection.Stack<MavenProject> updateStack,
 			MavenProjectReader reader,
 			MavenGeneralSettings generalSettings,
 			MavenProgressIndicator process)
@@ -841,7 +840,7 @@ public class MavenProjectsTree
 		}
 
 		UpdateContext updateContext = new UpdateContext();
-		Stack<MavenProject> updateStack = new Stack<MavenProject>();
+		consulo.util.collection.Stack<MavenProject> updateStack = new consulo.util.collection.Stack<MavenProject>();
 
 		Set<MavenProject> inheritorsToUpdate = new HashSet<MavenProject>();
 		for(VirtualFile each : files)

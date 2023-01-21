@@ -15,12 +15,14 @@
  */
 package org.jetbrains.idea.maven.indices;
 
-import java.util.Set;
+import consulo.annotation.component.ComponentScope;
+import consulo.annotation.component.ExtensionAPI;
+import consulo.component.extension.ExtensionPointName;
+import consulo.maven.rt.server.common.model.MavenRemoteRepository;
+import consulo.project.Project;
 
 import javax.annotation.Nonnull;
-import org.jetbrains.idea.maven.model.MavenRemoteRepository;
-import com.intellij.openapi.extensions.ExtensionPointName;
-import com.intellij.openapi.project.Project;
+import java.util.Set;
 
 /**
  * {@link MavenRepositoryProvider} defines contract for additional repositories provisioning.
@@ -28,10 +30,10 @@ import com.intellij.openapi.project.Project;
  * @author Vladislav.Soroka
  * @since 10/25/13
  */
+@ExtensionAPI(ComponentScope.APPLICATION)
 public interface MavenRepositoryProvider
 {
-
-	ExtensionPointName<MavenRepositoryProvider> EP_NAME = ExtensionPointName.create("org.jetbrains.idea.maven.repositoryProvider");
+	ExtensionPointName<MavenRepositoryProvider> EP_NAME = ExtensionPointName.create(MavenRepositoryProvider.class);
 
 	@Nonnull
 	Set<MavenRemoteRepository> getRemoteRepositories(@Nonnull Project project);

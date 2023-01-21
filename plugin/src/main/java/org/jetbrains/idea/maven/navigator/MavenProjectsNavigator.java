@@ -15,34 +15,41 @@
  */
 package org.jetbrains.idea.maven.navigator;
 
-import com.intellij.execution.RunManagerListener;
-import com.intellij.execution.RunnerAndConfigurationSettings;
-import com.intellij.ide.util.treeView.TreeState;
-import com.intellij.openapi.actionSystem.*;
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.components.*;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Pair;
-import com.intellij.openapi.util.WriteExternalException;
-import com.intellij.openapi.wm.ToolWindow;
-import com.intellij.openapi.wm.ToolWindowManager;
-import com.intellij.openapi.wm.ex.ToolWindowEx;
-import com.intellij.openapi.wm.ex.ToolWindowManagerListener;
-import com.intellij.ui.content.Content;
-import com.intellij.ui.content.ContentFactory;
-import com.intellij.ui.content.ContentManager;
-import com.intellij.ui.treeStructure.SimpleTree;
-import com.intellij.util.containers.ContainerUtil;
-import com.intellij.util.ui.JBHtmlEditorKit;
+import consulo.annotation.component.ComponentScope;
+import consulo.annotation.component.ServiceAPI;
+import consulo.annotation.component.ServiceImpl;
+import consulo.application.ApplicationManager;
+import consulo.component.persist.PersistentStateComponent;
+import consulo.component.persist.State;
+import consulo.component.persist.Storage;
+import consulo.component.persist.StoragePathMacros;
 import consulo.disposer.Disposable;
+import consulo.execution.RunnerAndConfigurationSettings;
+import consulo.execution.event.RunManagerListener;
+import consulo.ide.ServiceManager;
+import consulo.ide.impl.idea.openapi.wm.ex.ToolWindowEx;
+import consulo.maven.rt.server.common.server.NativeMavenProjectHolder;
 import consulo.platform.base.icon.PlatformIconGroup;
+import consulo.project.Project;
+import consulo.project.ui.wm.ToolWindowManager;
+import consulo.project.ui.wm.ToolWindowManagerListener;
+import consulo.ui.ex.action.*;
+import consulo.ui.ex.awt.JBHtmlEditorKit;
+import consulo.ui.ex.awt.tree.SimpleTree;
+import consulo.ui.ex.awt.tree.TreeState;
+import consulo.ui.ex.content.Content;
+import consulo.ui.ex.content.ContentFactory;
+import consulo.ui.ex.content.ContentManager;
+import consulo.ui.ex.toolWindow.ToolWindow;
+import consulo.util.collection.ContainerUtil;
+import consulo.util.lang.Pair;
+import consulo.util.xml.serializer.WriteExternalException;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import org.jdom.Element;
 import org.jetbrains.annotations.TestOnly;
 import org.jetbrains.idea.maven.execution.MavenRunner;
 import org.jetbrains.idea.maven.project.*;
-import org.jetbrains.idea.maven.server.NativeMavenProjectHolder;
 import org.jetbrains.idea.maven.tasks.MavenShortcutsManager;
 import org.jetbrains.idea.maven.tasks.MavenTasksManager;
 import org.jetbrains.idea.maven.utils.MavenLog;
@@ -59,6 +66,8 @@ import java.util.List;
 
 @Singleton
 @State(name = "MavenProjectNavigator", storages = {@Storage(StoragePathMacros.WORKSPACE_FILE)})
+@ServiceAPI(ComponentScope.PROJECT)
+@ServiceImpl
 public class MavenProjectsNavigator extends MavenSimpleProjectComponent implements PersistentStateComponent<MavenProjectsNavigatorState>, Disposable
 {
 	public static final String TOOL_WINDOW_ID = "Maven";
@@ -212,7 +221,7 @@ public class MavenProjectsNavigator extends MavenSimpleProjectComponent implemen
 
 		MavenRunner.getInstance(myProject).getSettings().addListener(() -> scheduleStructureRequest(() -> myStructure.updateGoals()));
 
-		myProject.getMessageBus().connect().subscribe(RunManagerListener.TOPIC, new RunManagerListener()
+		myProject.getMessageBus().connect().subscribe(RunManagerListener.class, new RunManagerListener()
 		{
 			private void changed()
 			{
@@ -281,7 +290,7 @@ public class MavenProjectsNavigator extends MavenSimpleProjectComponent implemen
 				wasVisible = true;
 			}
 		};
-		myProject.getMessageBus().connect(this).subscribe(ToolWindowManagerListener.TOPIC, listener);
+		myProject.getMessageBus().connect(this).subscribe(ToolWindowManagerListener.class, listener);
 
 		ActionManager actionManager = ActionManager.getInstance();
 
@@ -305,7 +314,8 @@ public class MavenProjectsNavigator extends MavenSimpleProjectComponent implemen
 				myLabel = new JEditorPane("text/html", "");
 				myLabel.setOpaque(false);
 				myLabel.setEditorKit(JBHtmlEditorKit.create());
-				String text = ProjectBundle.message("maven.navigator.nothing.to.display", MavenUtil.formatHtmlImage(PlatformIconGroup.generalAdd()), MavenUtil.formatHtmlImage(PlatformIconGroup.actionsRefresh()));
+				String text = ProjectBundle.message("maven.navigator.nothing.to.display", MavenUtil.formatHtmlImage(PlatformIconGroup.generalAdd()), MavenUtil.formatHtmlImage(PlatformIconGroup
+						.actionsRefresh()));
 				myLabel.setText(text);
 			}
 

@@ -1,15 +1,16 @@
 package consulo.maven.newProject;
 
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.roots.ContentEntry;
-import com.intellij.openapi.roots.ModifiableRootModel;
 import consulo.annotation.access.RequiredReadAction;
-import consulo.ide.newProject.NewModuleBuilder;
-import consulo.ide.newProject.NewModuleBuilderProcessor;
-import consulo.ide.newProject.NewModuleContext;
-import consulo.ide.newProject.ui.UnifiedProjectOrModuleNameStep;
+import consulo.annotation.component.ExtensionImpl;
+import consulo.ide.newModule.NewModuleBuilder;
+import consulo.ide.newModule.NewModuleBuilderProcessor;
+import consulo.ide.newModule.NewModuleContext;
+import consulo.ide.newModule.ui.UnifiedProjectOrModuleNameStep;
 import consulo.maven.icon.MavenIconGroup;
-import consulo.ui.wizard.WizardStep;
+import consulo.module.content.layer.ContentEntry;
+import consulo.module.content.layer.ModifiableRootModel;
+import consulo.project.Project;
+import consulo.ui.ex.wizard.WizardStep;
 import org.jetbrains.idea.maven.wizards.MavenModuleWizardStep;
 import org.jetbrains.idea.maven.wizards.SelectPropertiesStep;
 
@@ -20,12 +21,13 @@ import java.util.function.Consumer;
  * @author VISTALL
  * @since 2019-10-06
  */
+@ExtensionImpl
 public class MavenNewModuleBuilder implements NewModuleBuilder
 {
 	@Override
 	public void setupContext(@Nonnull NewModuleContext newModuleContext)
 	{
-		newModuleContext.get("jvm").add("From Maven", MavenIconGroup.mavenLogo(), new NewModuleBuilderProcessor<MavenNewModuleContext>()
+		newModuleContext.get("jvm").add("From Maven", MavenIconGroup.mavenlogo(), new NewModuleBuilderProcessor<MavenNewModuleContext>()
 		{
 			@Nonnull
 			@Override

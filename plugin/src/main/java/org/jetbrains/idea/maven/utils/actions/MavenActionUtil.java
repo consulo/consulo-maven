@@ -22,20 +22,21 @@ import java.util.List;
 import java.util.Set;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
-import org.jetbrains.idea.maven.model.MavenConstants;
+import consulo.language.editor.CommonDataKeys;
+import consulo.maven.rt.server.common.model.MavenConstants;
+import consulo.module.content.ProjectFileIndex;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.utils.MavenUtil;
-import com.intellij.openapi.actionSystem.CommonDataKeys;
-import com.intellij.openapi.actionSystem.DataContext;
-import com.intellij.openapi.actionSystem.LangDataKeys;
-import com.intellij.openapi.actionSystem.PlatformDataKeys;
-import com.intellij.openapi.module.Module;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.roots.ProjectFileIndex;
-import com.intellij.openapi.roots.ProjectRootManager;
-import com.intellij.openapi.vfs.VirtualFile;
+import consulo.dataContext.DataContext;
+import consulo.language.editor.LangDataKeys;
+import consulo.language.editor.PlatformDataKeys;
+import consulo.module.Module;
+import consulo.project.Project;
+import consulo.module.content.ProjectRootManager;
+import consulo.virtualFileSystem.VirtualFile;
 
 public class MavenActionUtil
 {
@@ -60,7 +61,7 @@ public class MavenActionUtil
 		return project != null && MavenProjectsManager.getInstance(project).isMavenizedProject();
 	}
 
-	@javax.annotation.Nullable
+	@Nullable
 	public static MavenProject getMavenProject(DataContext context)
 	{
 		MavenProject result;
@@ -89,7 +90,7 @@ public class MavenActionUtil
 		return null;
 	}
 
-	@javax.annotation.Nullable
+	@Nullable
 	private static Module getModule(DataContext context)
 	{
 		final Module module = context.getData(LangDataKeys.MODULE);

@@ -15,14 +15,15 @@
  */
 package org.jetbrains.idea.maven.dom.generate;
 
-import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.project.Project;
-import com.intellij.psi.PsiFile;
-import com.intellij.util.Function;
-import com.intellij.util.xml.DomElement;
-import com.intellij.util.xml.actions.generate.AbstractDomGenerateProvider;
+import consulo.codeEditor.Editor;
+import consulo.language.psi.PsiFile;
+import consulo.project.Project;
+import consulo.xml.util.xml.DomElement;
+import consulo.xml.util.xml.actions.generate.AbstractDomGenerateProvider;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
 import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
+
+import java.util.function.Function;
 
 /**
  * User: Sergey.Vasiliev
@@ -41,6 +42,6 @@ public class MavenGenerateDomElementProvider extends AbstractDomGenerateProvider
   protected DomElement getParentDomElement(final Project project, final Editor editor, final PsiFile file) {
     MavenDomProjectModel domProjectModel = MavenDomUtil.getMavenDomModel(file, MavenDomProjectModel.class);
 
-    return domProjectModel == null ? null : myParentFunction.fun(domProjectModel);
+    return domProjectModel == null ? null : myParentFunction.apply(domProjectModel);
   }
 }

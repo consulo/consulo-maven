@@ -20,20 +20,22 @@
  */
 package org.jetbrains.idea.maven.execution;
 
-import java.util.List;
+import consulo.annotation.component.ExtensionImpl;
+import consulo.execution.RunnerAndConfigurationSettings;
+import consulo.execution.action.ConfigurationContext;
+import consulo.execution.action.Location;
+import consulo.execution.action.RuntimeConfigurationProducer;
+import consulo.execution.configuration.RunConfiguration;
+import consulo.language.psi.PsiElement;
+import consulo.language.psi.PsiFile;
+import consulo.maven.rt.server.common.model.MavenExplicitProfiles;
+import consulo.virtualFileSystem.VirtualFile;
+import org.jetbrains.idea.maven.project.MavenProjectsManager;
 
 import javax.annotation.Nonnull;
-import org.jetbrains.idea.maven.model.MavenExplicitProfiles;
-import org.jetbrains.idea.maven.project.MavenProjectsManager;
-import com.intellij.execution.Location;
-import com.intellij.execution.RunnerAndConfigurationSettings;
-import com.intellij.execution.actions.ConfigurationContext;
-import com.intellij.execution.configurations.RunConfiguration;
-import com.intellij.execution.junit.RuntimeConfigurationProducer;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiFile;
+import java.util.List;
 
+@ExtensionImpl
 public class MavenConfigurationProducer extends RuntimeConfigurationProducer {
   private PsiElement myPsiElement;
 

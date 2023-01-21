@@ -15,16 +15,15 @@
  */
 package org.jetbrains.idea.maven.utils;
 
-import com.intellij.openapi.application.ReadAction;
-import com.intellij.openapi.util.JDOMUtil;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.openapi.vfs.CharsetToolkit;
-import com.intellij.openapi.vfs.VfsUtil;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.vfs.encoding.EncodingRegistry;
-import com.intellij.psi.impl.source.parsing.xml.XmlBuilder;
-import com.intellij.psi.impl.source.parsing.xml.XmlBuilderDriver;
+import consulo.application.ReadAction;
 import consulo.localize.LocalizeValue;
+import consulo.util.io.CharsetToolkit;
+import consulo.util.jdom.JDOMUtil;
+import consulo.util.lang.StringUtil;
+import consulo.virtualFileSystem.VirtualFile;
+import consulo.virtualFileSystem.encoding.EncodingRegistry;
+import consulo.xml.psi.impl.source.parsing.xml.XmlBuilder;
+import consulo.xml.psi.impl.source.parsing.xml.XmlBuilderDriver;
 import org.jdom.Element;
 import org.jdom.IllegalNameException;
 
@@ -46,7 +45,7 @@ public class MavenJDOMUtil
 
 		try
 		{
-			text = ReadAction.compute(() -> VfsUtil.loadText(file));
+			text = ReadAction.compute(() -> new String(file.contentsToByteArray(), file.getCharset()));
 		}
 		catch(IOException e)
 		{

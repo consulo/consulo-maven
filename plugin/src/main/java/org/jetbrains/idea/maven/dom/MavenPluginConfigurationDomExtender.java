@@ -15,21 +15,21 @@
  */
 package org.jetbrains.idea.maven.dom;
 
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.psi.CommonClassNames;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.codeStyle.NameUtil;
-import com.intellij.psi.xml.XmlElement;
-import com.intellij.psi.xml.XmlTag;
-import com.intellij.util.containers.ContainerUtil;
-import com.intellij.util.xml.DomElement;
-import com.intellij.util.xml.GenericDomValue;
-import com.intellij.util.xml.Required;
-import com.intellij.util.xml.XmlName;
-import com.intellij.util.xml.reflect.DomExtender;
-import com.intellij.util.xml.reflect.DomExtension;
-import com.intellij.util.xml.reflect.DomExtensionsRegistrar;
+import com.intellij.java.language.psi.CommonClassNames;
+import consulo.annotation.component.ExtensionImpl;
+import consulo.application.util.matcher.NameUtil;
+import consulo.language.psi.PsiElement;
 import consulo.util.dataholder.Key;
+import consulo.util.lang.StringUtil;
+import consulo.xml.psi.xml.XmlElement;
+import consulo.xml.psi.xml.XmlTag;
+import consulo.xml.util.xml.DomElement;
+import consulo.xml.util.xml.GenericDomValue;
+import consulo.xml.util.xml.Required;
+import consulo.xml.util.xml.XmlName;
+import consulo.xml.util.xml.reflect.DomExtender;
+import consulo.xml.util.xml.reflect.DomExtension;
+import consulo.xml.util.xml.reflect.DomExtensionsRegistrar;
 import org.jetbrains.idea.maven.dom.converters.MavenDomConvertersRegistry;
 import org.jetbrains.idea.maven.dom.converters.MavenPluginCustomParameterValueConverter;
 import org.jetbrains.idea.maven.dom.model.MavenDomConfiguration;
@@ -44,219 +44,326 @@ import javax.annotation.Nullable;
 import java.lang.annotation.Annotation;
 import java.util.*;
 
-public class MavenPluginConfigurationDomExtender extends DomExtender<MavenDomConfiguration> {
-  public static final Key<ParameterData> PLUGIN_PARAMETER_KEY = Key.create("MavenPluginConfigurationDomExtender.PLUGIN_PARAMETER_KEY");
+@ExtensionImpl
+public class MavenPluginConfigurationDomExtender extends DomExtender<MavenDomConfiguration>
+{
+	public static final Key<ParameterData> PLUGIN_PARAMETER_KEY = Key.create("MavenPluginConfigurationDomExtender.PLUGIN_PARAMETER_KEY");
 
-  private static final Set<String> COLLECTIONS_TYPE_NAMES = ContainerUtil.immutableSet("java.util.Collection", CommonClassNames.JAVA_UTIL_SET,
-                                                                          CommonClassNames.JAVA_UTIL_LIST,
-                                                                          "java.util.ArrayList", "java.util.HashSet",
-                                                                          "java.util.LinkedList");
+	private static final Set<String> COLLECTIONS_TYPE_NAMES = Set.of("java.util.Collection", CommonClassNames.JAVA_UTIL_SET,
+			CommonClassNames.JAVA_UTIL_LIST,
+			"java.util.ArrayList", "java.util.HashSet",
+			"java.util.LinkedList");
 
-  @Override
-  public void registerExtensions(@Nonnull MavenDomConfiguration config, @Nonnull DomExtensionsRegistrar r) {
-    MavenDomPluginModel pluginModel = MavenPluginDomUtil.getMavenPluginModel(config);
-    if (pluginModel == null) {
-      r.registerCustomChildrenExtension(MavenDomConfigurationParameter.class);
-      return;
-    }
+	@Nonnull
+	@Override
+	public Class<MavenDomConfiguration> getElementClass()
+	{
+		return MavenDomConfiguration.class;
+	}
 
-    boolean isInPluginManagement = isInPluginManagement(config);
+	@Override
+	public void registerExtensions(@Nonnull MavenDomConfiguration config, @Nonnull DomExtensionsRegistrar r)
+	{
+		MavenDomPluginModel pluginModel = MavenPluginDomUtil.getMavenPluginModel(config);
+		if(pluginModel == null)
+		{
+			r.registerCustomChildrenExtension(MavenDomConfigurationParameter.class);
+			return;
+		}
 
-    for (ParameterData each : collectParameters(pluginModel, config)) {
-      registerPluginParameter(isInPluginManagement, r, each);
-    }
-  }
+		boolean isInPluginManagement = isInPluginManagement(config);
 
-  private static boolean isInPluginManagement(MavenDomConfiguration pluginNode) {
-    XmlElement xmlElement = pluginNode.getXmlElement();
-    if (xmlElement == null) return false;
+		for(ParameterData each : collectParameters(pluginModel, config))
+		{
+			registerPluginParameter(isInPluginManagement, r, each);
+		}
+	}
 
-    PsiElement pluginTag = xmlElement.getParent();
-    if (pluginTag == null) return false;
+	private static boolean isInPluginManagement(MavenDomConfiguration pluginNode)
+	{
+		XmlElement xmlElement = pluginNode.getXmlElement();
+		if(xmlElement == null)
+		{
+			return false;
+		}
 
-    PsiElement pluginsTag = pluginTag.getParent();
-    if (pluginsTag == null) return false;
+		PsiElement pluginTag = xmlElement.getParent();
+		if(pluginTag == null)
+		{
+			return false;
+		}
 
-    PsiElement pluginManagementTag = pluginsTag.getParent();
+		PsiElement pluginsTag = pluginTag.getParent();
+		if(pluginsTag == null)
+		{
+			return false;
+		}
 
-    return pluginManagementTag instanceof XmlTag && "pluginManagement".equals(((XmlTag)pluginManagementTag).getName());
-  }
+		PsiElement pluginManagementTag = pluginsTag.getParent();
 
-  private static Collection<ParameterData> collectParameters(MavenDomPluginModel pluginModel, MavenDomConfiguration config) {
-    List<String> selectedGoals = null;
+		return pluginManagementTag instanceof XmlTag && "pluginManagement".equals(((XmlTag) pluginManagementTag).getName());
+	}
 
-    MavenDomPluginExecution executionElement = config.getParentOfType(MavenDomPluginExecution.class, false);
-    if (executionElement != null) {
-      selectedGoals = new ArrayList<String>();
+	private static Collection<ParameterData> collectParameters(MavenDomPluginModel pluginModel, MavenDomConfiguration config)
+	{
+		List<String> selectedGoals = null;
 
-      String id = executionElement.getId().getStringValue();
-      String defaultPrefix = "default-";
-      if (id != null && id.startsWith(defaultPrefix)) {
-        String goal = id.substring(defaultPrefix.length());
-        if (!StringUtil.isEmptyOrSpaces(goal)) selectedGoals.add(goal);
-      }
+		MavenDomPluginExecution executionElement = config.getParentOfType(MavenDomPluginExecution.class, false);
+		if(executionElement != null)
+		{
+			selectedGoals = new ArrayList<String>();
 
-      for (GenericDomValue<String> goal : executionElement.getGoals().getGoals()) {
-        selectedGoals.add(goal.getStringValue());
-      }
-    }
+			String id = executionElement.getId().getStringValue();
+			String defaultPrefix = "default-";
+			if(id != null && id.startsWith(defaultPrefix))
+			{
+				String goal = id.substring(defaultPrefix.length());
+				if(!StringUtil.isEmptyOrSpaces(goal))
+				{
+					selectedGoals.add(goal);
+				}
+			}
 
-    Map<String, ParameterData> namesWithParameters = new HashMap<String, ParameterData>();
+			for(GenericDomValue<String> goal : executionElement.getGoals().getGoals())
+			{
+				selectedGoals.add(goal.getStringValue());
+			}
+		}
 
-    for (MavenDomMojo eachMojo : pluginModel.getMojos().getMojos()) {
-      String goal = eachMojo.getGoal().getStringValue();
-      if (goal == null) continue;
+		Map<String, ParameterData> namesWithParameters = new HashMap<String, ParameterData>();
 
-      if (selectedGoals == null || selectedGoals.contains(goal)) {
-        for (MavenDomParameter eachParameter : eachMojo.getParameters().getParameters()) {
-          if (eachParameter.getEditable().getValue() == Boolean.FALSE) continue;
+		for(MavenDomMojo eachMojo : pluginModel.getMojos().getMojos())
+		{
+			String goal = eachMojo.getGoal().getStringValue();
+			if(goal == null)
+			{
+				continue;
+			}
 
-          String name = eachParameter.getName().getStringValue();
-          if (name == null) continue;
+			if(selectedGoals == null || selectedGoals.contains(goal))
+			{
+				for(MavenDomParameter eachParameter : eachMojo.getParameters().getParameters())
+				{
+					if(eachParameter.getEditable().getValue() == Boolean.FALSE)
+					{
+						continue;
+					}
 
-          ParameterData data = new ParameterData(eachParameter);
-          fillParameterData(name, data, eachMojo);
+					String name = eachParameter.getName().getStringValue();
+					if(name == null)
+					{
+						continue;
+					}
 
-          ParameterData oldParameter = namesWithParameters.get(name);
-          if (oldParameter == null || hasMorePriority(data, oldParameter, executionElement != null)) {
-            namesWithParameters.put(name, data);
-          }
-        }
-      }
-    }
+					ParameterData data = new ParameterData(eachParameter);
+					fillParameterData(name, data, eachMojo);
 
-    return namesWithParameters.values();
-  }
+					ParameterData oldParameter = namesWithParameters.get(name);
+					if(oldParameter == null || hasMorePriority(data, oldParameter, executionElement != null))
+					{
+						namesWithParameters.put(name, data);
+					}
+				}
+			}
+		}
 
-  private static boolean hasMorePriority(ParameterData d1, ParameterData d2, boolean isForExecutionSection) {
-    if (!isForExecutionSection) {
-      if (StringUtil.isEmptyOrSpaces(d1.getMojo().getPhase().getStringValue())) return false;
+		return namesWithParameters.values();
+	}
 
-      if (StringUtil.isEmptyOrSpaces(d2.getMojo().getPhase().getStringValue())) return true;
-    }
+	private static boolean hasMorePriority(ParameterData d1, ParameterData d2, boolean isForExecutionSection)
+	{
+		if(!isForExecutionSection)
+		{
+			if(StringUtil.isEmptyOrSpaces(d1.getMojo().getPhase().getStringValue()))
+			{
+				return false;
+			}
 
-    return d1.getRequiringLevel() > d2.getRequiringLevel();
-  }
-  
-  private static void fillParameterData(String name, ParameterData data, MavenDomMojo mojo) {
-    XmlTag config = mojo.getConfiguration().getXmlTag();
-    if (config == null) return;
+			if(StringUtil.isEmptyOrSpaces(d2.getMojo().getPhase().getStringValue()))
+			{
+				return true;
+			}
+		}
 
-    for (XmlTag each : config.getSubTags()) {
-      if (!name.equals(each.getName())) continue;
-      data.defaultValue = each.getAttributeValue("default-value");
-      data.expression = each.getValue().getTrimmedText();
-    }
-  }
+		return d1.getRequiringLevel() > d2.getRequiringLevel();
+	}
 
-  private static void registerPluginParameter(boolean isInPluginManagement, DomExtensionsRegistrar r, final ParameterData parameter) {
-    String paramName = parameter.parameter.getName().getStringValue();
-    String alias = parameter.parameter.getAlias().getStringValue();
+	private static void fillParameterData(String name, ParameterData data, MavenDomMojo mojo)
+	{
+		XmlTag config = mojo.getConfiguration().getXmlTag();
+		if(config == null)
+		{
+			return;
+		}
 
-    registerPluginParameter(isInPluginManagement, r, parameter, paramName);
-    if (alias != null) registerPluginParameter(isInPluginManagement, r, parameter, alias);
-  }
+		for(XmlTag each : config.getSubTags())
+		{
+			if(!name.equals(each.getName()))
+			{
+				continue;
+			}
+			data.defaultValue = each.getAttributeValue("default-value");
+			data.expression = each.getValue().getTrimmedText();
+		}
+	}
 
-  private static void registerPluginParameter(boolean isInPluginManagement, DomExtensionsRegistrar r, final ParameterData data, final String parameterName) {
-    DomExtension e = r.registerFixedNumberChildExtension(new XmlName(parameterName), MavenDomConfigurationParameter.class);
+	private static void registerPluginParameter(boolean isInPluginManagement, DomExtensionsRegistrar r, final ParameterData parameter)
+	{
+		String paramName = parameter.parameter.getName().getStringValue();
+		String alias = parameter.parameter.getAlias().getStringValue();
 
-    if (isCollection(data.parameter)) {
-      e.addExtender(new DomExtender() {
-        public void registerExtensions(@Nonnull DomElement domElement, @Nonnull DomExtensionsRegistrar registrar) {
-          for (String each : collectPossibleNameForCollectionParameter(parameterName)) {
-            DomExtension inner = registrar.registerCollectionChildrenExtension(new XmlName(each), MavenDomConfigurationParameter.class);
-            inner.setDeclaringElement(data.parameter);
-          }
-        }
-      });
-    }
-    else {
-      addValueConverter(e, data.parameter);
-      if (!isInPluginManagement) {
-        addRequiredAnnotation(e, data);
-      }
-    }
+		registerPluginParameter(isInPluginManagement, r, parameter, paramName);
+		if(alias != null)
+		{
+			registerPluginParameter(isInPluginManagement, r, parameter, alias);
+		}
+	}
 
-    e.setDeclaringElement(data.parameter);
+	private static void registerPluginParameter(boolean isInPluginManagement, DomExtensionsRegistrar r, final ParameterData data, final String parameterName)
+	{
+		DomExtension e = r.registerFixedNumberChildExtension(new XmlName(parameterName), MavenDomConfigurationParameter.class);
 
-    data.parameter.getXmlElement().putUserData(PLUGIN_PARAMETER_KEY, data);
-  }
+		if(isCollection(data.parameter))
+		{
+			e.addExtender(new DomExtender()
+			{
+				@Nonnull
+				@Override
+				public Class getElementClass()
+				{
+					return DomElement.class;
+				}
 
-  private static void addValueConverter(DomExtension e, MavenDomParameter parameter) {
-    String type = parameter.getType().getStringValue();
-    if (!StringUtil.isEmptyOrSpaces(type)) {
-      e.setConverter(new MavenPluginCustomParameterValueConverter(type), MavenDomConvertersRegistry.getInstance().isSoft(type));
-    }
-  }
+				public void registerExtensions(@Nonnull DomElement domElement, @Nonnull DomExtensionsRegistrar registrar)
+				{
+					for(String each : collectPossibleNameForCollectionParameter(parameterName))
+					{
+						DomExtension inner = registrar.registerCollectionChildrenExtension(new XmlName(each), MavenDomConfigurationParameter.class);
+						inner.setDeclaringElement(data.parameter);
+					}
+				}
+			});
+		}
+		else
+		{
+			addValueConverter(e, data.parameter);
+			if(!isInPluginManagement)
+			{
+				addRequiredAnnotation(e, data);
+			}
+		}
 
-  private static void addRequiredAnnotation(DomExtension e, final ParameterData data) {
-    if (Boolean.parseBoolean(data.parameter.getRequired().getStringValue())
-        && StringUtil.isEmptyOrSpaces(data.defaultValue)
-        && StringUtil.isEmptyOrSpaces(data.expression)) {
-      e.addCustomAnnotation(new Required(){
-        @Override
-        public boolean value() {
-          return true;
-        }
+		e.setDeclaringElement(data.parameter);
 
-        @Override
-        public boolean nonEmpty() {
-          return false;
-        }
+		data.parameter.getXmlElement().putUserData(PLUGIN_PARAMETER_KEY, data);
+	}
 
-        @Override
-        public boolean identifier() {
-          return false;
-        }
-        public Class<? extends Annotation> annotationType() {
-              return Required.class;
-        }
-      });
-    }
-  }
+	private static void addValueConverter(DomExtension e, MavenDomParameter parameter)
+	{
+		String type = parameter.getType().getStringValue();
+		if(!StringUtil.isEmptyOrSpaces(type))
+		{
+			e.setConverter(new MavenPluginCustomParameterValueConverter(type), MavenDomConvertersRegistry.getInstance().isSoft(type));
+		}
+	}
 
-  public static List<String> collectPossibleNameForCollectionParameter(String parameterName) {
-    String singularName = StringUtil.unpluralize(parameterName);
-    if (singularName == null) singularName = parameterName;
+	private static void addRequiredAnnotation(DomExtension e, final ParameterData data)
+	{
+		if(Boolean.parseBoolean(data.parameter.getRequired().getStringValue())
+				&& StringUtil.isEmptyOrSpaces(data.defaultValue)
+				&& StringUtil.isEmptyOrSpaces(data.expression))
+		{
+			e.addCustomAnnotation(new Required()
+			{
+				@Override
+				public boolean value()
+				{
+					return true;
+				}
 
-    List<String> result = new ArrayList<String>();
-    String[] parts = NameUtil.splitNameIntoWords(singularName);
-    for (int i = 0; i < parts.length; i++) {
-      result.add(StringUtil.decapitalize(StringUtil.join(parts, i, parts.length, "")));
-    }
-    return result;
-  }
+				@Override
+				public boolean nonEmpty()
+				{
+					return false;
+				}
 
-  private static boolean isCollection(MavenDomParameter parameter) {
-    String type = parameter.getType().getStringValue();
-    if (type == null) return false;
+				@Override
+				public boolean identifier()
+				{
+					return false;
+				}
 
-    return type.endsWith("[]") || COLLECTIONS_TYPE_NAMES.contains(type);
-  }
+				public Class<? extends Annotation> annotationType()
+				{
+					return Required.class;
+				}
+			});
+		}
+	}
 
-  public static class ParameterData {
-    public final MavenDomParameter parameter;
-    public @Nullable String defaultValue;
-    public @Nullable String expression;
+	public static List<String> collectPossibleNameForCollectionParameter(String parameterName)
+	{
+		String singularName = StringUtil.unpluralize(parameterName);
+		if(singularName == null)
+		{
+			singularName = parameterName;
+		}
 
-    private ParameterData(MavenDomParameter parameter) {
-      this.parameter = parameter;
-    }
-    
-    @Nonnull
-    public MavenDomMojo getMojo() {
-      return (MavenDomMojo)parameter.getParent().getParent();
-    }
+		List<String> result = new ArrayList<String>();
+		String[] parts = NameUtil.splitNameIntoWords(singularName);
+		for(int i = 0; i < parts.length; i++)
+		{
+			result.add(StringUtil.decapitalize(StringUtil.join(parts, i, parts.length, "")));
+		}
+		return result;
+	}
 
-    public int getRequiringLevel() {
-      if (!Boolean.parseBoolean(parameter.getRequired().getStringValue())) return 0;
+	private static boolean isCollection(MavenDomParameter parameter)
+	{
+		String type = parameter.getType().getStringValue();
+		if(type == null)
+		{
+			return false;
+		}
 
-      if (!StringUtil.isEmptyOrSpaces(defaultValue) || !StringUtil.isEmptyOrSpaces(expression)) {
-        return 1;
-      }
+		return type.endsWith("[]") || COLLECTIONS_TYPE_NAMES.contains(type);
+	}
 
-      return 2;
-    }
-  }
+	public static class ParameterData
+	{
+		public final MavenDomParameter parameter;
+		public
+		@Nullable
+		String defaultValue;
+		public
+		@Nullable
+		String expression;
+
+		private ParameterData(MavenDomParameter parameter)
+		{
+			this.parameter = parameter;
+		}
+
+		@Nonnull
+		public MavenDomMojo getMojo()
+		{
+			return (MavenDomMojo) parameter.getParent().getParent();
+		}
+
+		public int getRequiringLevel()
+		{
+			if(!Boolean.parseBoolean(parameter.getRequired().getStringValue()))
+			{
+				return 0;
+			}
+
+			if(!StringUtil.isEmptyOrSpaces(defaultValue) || !StringUtil.isEmptyOrSpaces(expression))
+			{
+				return 1;
+			}
+
+			return 2;
+		}
+	}
 
 }

@@ -15,16 +15,16 @@
  */
 package org.jetbrains.idea.maven.project;
 
-import com.intellij.openapi.options.ConfigurationException;
-import com.intellij.openapi.options.SearchableConfigurable;
-import com.intellij.openapi.options.UnnamedConfigurable;
-import com.intellij.openapi.project.Project;
+import consulo.configurable.ConfigurationException;
+import consulo.configurable.SearchableConfigurable;
+import consulo.configurable.UnnamedConfigurable;
+import consulo.project.Project;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NonNls;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import org.jetbrains.idea.maven.server.MavenServerManager;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
@@ -42,7 +42,7 @@ public class MavenImportingConfigurable implements SearchableConfigurable {
     myImportingSettings = MavenProjectsManager.getInstance(project).getImportingSettings();
 
     myAdditionalConfigurables = new ArrayList<UnnamedConfigurable>();
-    for (final AdditionalMavenImportingSettings additionalSettings : AdditionalMavenImportingSettings.EP_NAME.getExtensions()) {
+    for (final AdditionalMavenImportingSettings additionalSettings : AdditionalMavenImportingSettings.EP_NAME.getExtensionList()) {
       myAdditionalConfigurables.add(additionalSettings.createConfigurable(project));
     }
 

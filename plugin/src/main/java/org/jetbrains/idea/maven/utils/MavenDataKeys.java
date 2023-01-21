@@ -15,10 +15,10 @@
  */
 package org.jetbrains.idea.maven.utils;
 
-import com.intellij.execution.RunnerAndConfigurationSettings;
+import consulo.execution.RunnerAndConfigurationSettings;
 import consulo.util.dataholder.Key;
-import org.jetbrains.idea.maven.model.MavenArtifact;
-import org.jetbrains.idea.maven.model.MavenProfileKind;
+import consulo.maven.rt.server.common.model.MavenArtifact;
+import consulo.maven.rt.server.common.model.MavenProfileKind;
 
 import javax.swing.*;
 import java.util.Collection;

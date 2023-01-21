@@ -15,29 +15,35 @@
  */
 package org.jetbrains.idea.maven.utils;
 
-import javax.swing.event.HyperlinkEvent;
-
+import consulo.annotation.component.ComponentScope;
+import consulo.annotation.component.ServiceAPI;
+import consulo.annotation.component.ServiceImpl;
+import consulo.disposer.Disposable;
+import consulo.maven.MavenNotificationGroup;
+import consulo.project.Project;
+import consulo.project.ui.notification.Notification;
+import consulo.project.ui.notification.NotificationType;
+import consulo.project.ui.notification.Notifications;
+import consulo.ui.ex.awt.util.MergingUpdateQueue;
+import consulo.ui.ex.awt.util.Update;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.project.ProjectBundle;
-import com.intellij.notification.Notification;
-import com.intellij.notification.NotificationDisplayType;
-import com.intellij.notification.NotificationType;
-import com.intellij.notification.Notifications;
-import com.intellij.notification.NotificationsConfiguration;
-import com.intellij.openapi.project.Project;
-import com.intellij.util.ui.update.MergingUpdateQueue;
-import com.intellij.util.ui.update.Update;
-import consulo.disposer.Disposable;
 
+import javax.swing.event.HyperlinkEvent;
+
+@ServiceAPI(value = ComponentScope.PROJECT, lazy = false)
+@ServiceImpl
+@Singleton
 public class MavenImportNotifier extends MavenSimpleProjectComponent implements Disposable
 {
-	private static final String MAVEN_IMPORT_NOTIFICATION_GROUP = "Maven Import";
-
 	private MavenProjectsManager myMavenProjectsManager;
 	private MergingUpdateQueue myUpdatesQueue;
 
 	private Notification myNotification;
 
+	@Inject
 	public MavenImportNotifier(Project p, MavenProjectsManager mavenProjectsManager)
 	{
 		super(p);
@@ -46,10 +52,6 @@ public class MavenImportNotifier extends MavenSimpleProjectComponent implements 
 		{
 			return;
 		}
-
-		NotificationsConfiguration.getNotificationsConfiguration().register(MAVEN_IMPORT_NOTIFICATION_GROUP,
-				NotificationDisplayType.STICKY_BALLOON,
-				true);
 
 		myMavenProjectsManager = mavenProjectsManager;
 
@@ -122,7 +124,7 @@ public class MavenImportNotifier extends MavenSimpleProjectComponent implements 
 				return;
 			}
 
-			myNotification = new Notification(MAVEN_IMPORT_NOTIFICATION_GROUP,
+			myNotification = new Notification(MavenNotificationGroup.IMPORT,
 					ProjectBundle.message("maven.project.changed"),
 					"<a href='reimport'>" + ProjectBundle.message("maven.project.importChanged") + "</a> " +
 							"<a href='autoImport'>" + ProjectBundle.message("maven.project.enableAutoImport") + "</a>",
