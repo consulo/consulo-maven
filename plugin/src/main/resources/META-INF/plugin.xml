@@ -14,28 +14,8 @@
 		<tag>build.framework</tag>
 	</tags>
 
-
-
 	<extensions defaultExtensionNs="com.intellij">
-
-
-
-		<projectConfigurable instance="org.jetbrains.idea.maven.utils.MavenSettings" parentId="execution" id="MavenSettings" displayName="Maven">
-			<configurable instance="org.jetbrains.idea.maven.project.MavenImportingConfigurable" id="reference.settings.project.maven.importing"
-						  key="maven.tab.importing" bundle="ProjectBundle"/>
-			<configurable instance="org.jetbrains.idea.maven.project.MavenIgnoredFilesConfigurable"
-						  id="reference.settings.project.maven.ignored.files" key="maven.tab.ignored.files" bundle="ProjectBundle"/>
-			<configurable instance="org.jetbrains.idea.maven.utils.MavenSettings$MyMavenRunnerConfigurable"
-						  id="reference.settings.project.maven.runner" key="maven.tab.runner" bundle="RunnerBundle"/>
-			<configurable instance="org.jetbrains.idea.maven.indices.MavenRepositoriesConfigurable"
-						  id="reference.settings.project.maven.repository.indices" key="maven.repositories.title" bundle="IndicesBundle"
-						  nonDefaultProject="true"/>
-		</projectConfigurable>
-
-
 		<orderEnumerationHandlerFactory implementation="org.jetbrains.idea.maven.execution.MavenOrderEnumeratorHandler$FactoryImpl"/>
-
-
 
 	</extensions>
 
