@@ -1,71 +1,48 @@
 package org.jetbrains.idea.maven.plugins.api;
 
-import javax.annotation.Nullable;
+import consulo.maven.internal.plugin.MavenPluginDescriptorCache;
+import consulo.maven.plugin.MavenPluginDescriptor;
+import consulo.maven.rt.server.common.model.MavenId;
 import consulo.maven.rt.server.common.model.MavenPlugin;
-import consulo.util.lang.Pair;
 
-import java.util.*;
+import javax.annotation.Nullable;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Properties;
 
 /**
  * @author Sergey Evdokimov
  */
-public class MavenModelPropertiesPatcher {
+public class MavenModelPropertiesPatcher
+{
+	/*
+	 * Add properties those should be added by plugins.
+	 */
+	public static void patch(Properties modelProperties, @Nullable Collection<MavenPlugin> plugins)
+	{
+		if(plugins == null)
+		{
+			return;
+		}
 
-  private static volatile Map<String, Map<String, String[]>> ourMap;
+		Map<MavenId, MavenPluginDescriptor> descriptors = MavenPluginDescriptorCache.getDescriptors();
 
-  private static Map<String, Map<String, String[]>> getMap() {
-    Map<String, Map<String, String[]>> res = ourMap;
+		for(MavenPlugin plugin : plugins)
+		{
+			MavenPluginDescriptor descriptor = descriptors.get(new MavenId(plugin.getGroupId(), plugin.getArtifactId()));
 
-    if (res == null) {
-      res = new HashMap<String, Map<String, String[]>>();
+			if(descriptor == null)
+			{
+				continue;
+			}
 
-      for (MavenPluginDescriptor pluginDescriptor : MavenPluginDescriptor.EP_NAME.getExtensionList()) {
-        if (pluginDescriptor.properties != null && pluginDescriptor.properties.length > 0) {
-          Pair<String, String> pluginId = MavenPluginDescriptor.parsePluginId(pluginDescriptor.mavenId);
-
-          String[] properties = new String[pluginDescriptor.properties.length];
-          for (int i = 0; i < pluginDescriptor.properties.length; i++) {
-            properties[i] = pluginDescriptor.properties[i].name;
-          }
-
-          Map<String, String[]> groupMap = res.get(pluginId.second);// pluginId.second is artifactId
-          if (groupMap == null) {
-            groupMap = new HashMap<String, String[]>();
-            res.put(pluginId.second, groupMap);
-          }
-
-          groupMap.put(pluginId.first, properties); // pluginId.first is groupId
-        }
-      }
-
-      ourMap = res;
-    }
-
-    return res;
-  }
-
-  /*
-   * Add properties those should be added by plugins.
-   */
-  public static void patch(Properties modelProperties, @Nullable Collection<MavenPlugin> plugins) {
-    if (plugins == null) return;
-
-    Map<String, Map<String, String[]>> map = getMap();
-
-    for (MavenPlugin plugin : plugins) {
-      Map<String, String[]> groupMap = map.get(plugin.getArtifactId());
-      if (groupMap != null) {
-        String[] properties = groupMap.get(plugin.getGroupId());
-
-        if (properties != null) {
-          for (String property : properties) {
-            if (!modelProperties.containsKey(property)) {
-              modelProperties.setProperty(property, "");
-            }
-          }
-        }
-      }
-    }
-  }
-
+			for(String property : descriptor.getProperties())
+			{
+				if(!modelProperties.containsKey(property))
+				{
+					modelProperties.setProperty(property, "");
+				}
+			}
+		}
+	}
 }

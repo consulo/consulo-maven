@@ -14,27 +14,8 @@
 		<tag>build.framework</tag>
 	</tags>
 
-	<extensions defaultExtensionNs="com.intellij">
-		<orderEnumerationHandlerFactory implementation="org.jetbrains.idea.maven.execution.MavenOrderEnumeratorHandler$FactoryImpl"/>
-
-	</extensions>
-
 	<extensions defaultExtensionNs="org.jetbrains.idea.maven">
-		<pluginDescriptor mavenId="org.apache.maven.plugins:maven-surefire-plugin">
-			<!--<param name="additionalClasspathElements/additionalClasspathElement"-->
-				   <!--refProvider="org.jetbrains.idea.maven.plugins.api.common.MavenCommonParamReferenceProviders$DirPath"/>-->
-			<!--<param name="classpathDependencyExcludes/classpathDependencyExclude"-->
-				   <!--refProvider="org.jetbrains.idea.maven.plugins.api.common.MavenCommonParamReferenceProviders$DependencyWithoutVersion"/>-->
-			<!--<param name="forkMode" values="never, once, always, perthread" soft="true"/>-->
-			<!--<param name="junitArtifactName"-->
-				   <!--refProvider="org.jetbrains.idea.maven.plugins.api.common.MavenCommonParamReferenceProviders$DependencyWithoutVersion"/>-->
-<!--
-			<param name="reportFormat" values="brief, plain" soft="true"/>
--->
-			<!--<param name="runOrder" values="alphabetical, reversealphabetical, random, hourly, failedfirst, balanced, filesystem" soft="true"/>-->
-			<!--<param name="testNGArtifactName"-->
-				   <!--refProvider="org.jetbrains.idea.maven.plugins.api.common.MavenCommonParamReferenceProviders$DependencyWithoutVersion"/>-->
-		</pluginDescriptor>
+
 
 		<pluginDescriptor mavenId="org.apache.maven.plugins:maven-failsafe-plugin">
 			<param name="classpathDependencyExcludes/classpathDependencyExclude"
@@ -49,26 +30,8 @@
 				   refProvider="org.jetbrains.idea.maven.plugins.api.common.MavenCommonParamReferenceProviders$DependencyWithoutVersion"/>
 		</pluginDescriptor>
 
-		<pluginDescriptor mavenId="org.apache.maven.plugins:maven-ear-plugin">
-			<param name="outputDirectory" refProvider="org.jetbrains.idea.maven.plugins.api.common.MavenCommonParamReferenceProviders$DirPath"/>
-			<param name="filters/filter" refProvider="org.jetbrains.idea.maven.plugins.api.common.MavenCommonParamReferenceProviders$FilePath"/>
-			<param name="applicationXml" refProvider="org.jetbrains.idea.maven.plugins.api.common.MavenCommonParamReferenceProviders$FilePath"/>
-			<param name="encoding" refProvider="org.jetbrains.idea.maven.plugins.api.common.MavenCommonParamReferenceProviders$Encoding"/>
-		</pluginDescriptor>
 
-		<pluginDescriptor mavenId="org.apache.maven.plugins:maven-ejb-plugin">
-			<param name="filters/filter" refProvider="org.jetbrains.idea.maven.plugins.api.common.MavenCommonParamReferenceProviders$FilePath"/>
-		</pluginDescriptor>
 
-		<pluginDescriptor mavenId="org.apache.maven.plugins:maven-war-plugin">
-			<param name="outputDirectory" refProvider="org.jetbrains.idea.maven.plugins.api.common.MavenCommonParamReferenceProviders$DirPath"/>
-			<param name="filters/filter" refProvider="org.jetbrains.idea.maven.plugins.api.common.MavenCommonParamReferenceProviders$FilePath"/>
-			<param name="resourceEncoding" refProvider="org.jetbrains.idea.maven.plugins.api.common.MavenCommonParamReferenceProviders$Encoding"/>
-		</pluginDescriptor>
-
-		<pluginDescriptor mavenId="org.apache.maven.plugins:maven-acr-plugin">
-			<param name="filters/filter" refProvider="org.jetbrains.idea.maven.plugins.api.common.MavenCommonParamReferenceProviders$FilePath"/>
-		</pluginDescriptor>
 
 		<pluginDescriptor mavenId="org.apache.maven.plugins:maven-invoker-plugin">
 			<param name="extraArtifacts/extraArtifact" refProvider="org.jetbrains.idea.maven.dom.references.MavenDependencyReferenceProvider"/>
@@ -87,45 +50,7 @@
 			<param name="outputFileFormat" values="plain, xml" soft="true"/>
 		</pluginDescriptor>
 
-		<pluginDescriptor mavenId="org.apache.maven.plugins:maven-changelog-plugin">
-			<param name="connectionType" values="connection, developerConnection" soft="true"/>
-			<param name="issueIDRegexPattern" language="RegExp"/>
-			<param name="outputEncoding" refProvider="org.jetbrains.idea.maven.plugins.api.common.MavenCommonParamReferenceProviders$Encoding"/>
-			<param name="goal" refProvider="org.jetbrains.idea.maven.plugins.api.common.MavenCommonParamReferenceProviders$Goal"/>
-		</pluginDescriptor>
 
-		<pluginDescriptor mavenId="org.apache.maven.plugins:maven-rar-plugin">
-			<param name="outputDirectory" refProvider="org.jetbrains.idea.maven.plugins.api.common.MavenCommonParamReferenceProviders$DirPath"/>
-			<param name="workDirectory" refProvider="org.jetbrains.idea.maven.plugins.api.common.MavenCommonParamReferenceProviders$DirPath"/>
-			<param name="encoding" refProvider="org.jetbrains.idea.maven.plugins.api.common.MavenCommonParamReferenceProviders$Encoding"/>
-			<param name="filters/filter" refProvider="org.jetbrains.idea.maven.plugins.api.common.MavenCommonParamReferenceProviders$FilePath"/>
-		</pluginDescriptor>
-
-		<pluginDescriptor mavenId="ru.concerteza.buildnumber:maven-jgit-buildnumber-plugin">
-			<property name="git.revision"/>
-			<property name="git.buildnumber"/>
-			<property name="git.commitsCount"/>
-			<property name="git.tag"/>
-			<property name="git.branch"/>
-
-			<param name="javaScriptBuildnumberCallback" language="JavaScript" languageInjectionPrefix="function() {return a + "
-				   languageInjectionSuffix="}"/>
-		</pluginDescriptor>
-
-		<pluginDescriptor mavenId="org.codehaus.mojo:sql-maven-plugin">
-			<param name="sqlCommand" language="SQL"/>
-		</pluginDescriptor>
-
-		<pluginDescriptor mavenId="org.apache.maven.plugins:maven-compiler-plugin">
-			<param name="compilerReuseStrategy" values="reuseCreated, reuseSame, alwaysNew"/>
-			<param name="proc" values="none, both, only"/>
-			<param name="encoding" refProvider="org.jetbrains.idea.maven.plugins.api.common.MavenCommonParamReferenceProviders$Encoding"/>
-			<param name="filters/filter" refProvider="org.jetbrains.idea.maven.plugins.api.common.MavenCommonParamReferenceProviders$FilePath"/>
-		</pluginDescriptor>
-
-		<pluginDescriptor mavenId="org.apache.maven.plugins:maven-resources-plugin">
-			<param name="encoding" refProvider="org.jetbrains.idea.maven.plugins.api.common.MavenCommonParamReferenceProviders$Encoding"/>
-		</pluginDescriptor>
 	</extensions>
 
 	<actions>

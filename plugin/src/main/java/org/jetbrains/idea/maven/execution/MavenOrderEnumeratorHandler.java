@@ -12,41 +12,33 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *//*
+ */
 
 package org.jetbrains.idea.maven.execution;
 
+import consulo.annotation.component.ExtensionImpl;
 import consulo.module.Module;
+import consulo.module.content.layer.OrderEnumerationPolicy;
 import consulo.project.Project;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 
 import javax.annotation.Nonnull;
 
-public class MavenOrderEnumeratorHandler extends consulo.module.impl.internal.layer.OrderEnumerationHandler
+@ExtensionImpl
+public class MavenOrderEnumeratorHandler implements OrderEnumerationPolicy
 {
-	public static class FactoryImpl extends consulo.module.impl.internal.layer.OrderEnumerationHandler.Factory
+	@Override
+	public boolean isApplicable(@Nonnull Project project)
 	{
-		@Override
-		public boolean isApplicable(@Nonnull Project project)
-		{
-			return MavenProjectsManager.getInstance(project).isMavenizedProject();
-		}
-
-		@Override
-		public boolean isApplicable(@Nonnull Module module)
-		{
-			final MavenProjectsManager manager = MavenProjectsManager.getInstance(module.getProject());
-			return manager.isMavenizedModule(module);
-		}
-
-		@Override
-		public consulo.module.impl.internal.layer.OrderEnumerationHandler createHandler(@javax.annotation.Nullable consulo.module.Module module)
-		{
-			return INSTANCE;
-		}
+		return MavenProjectsManager.getInstance(project).isMavenizedProject();
 	}
 
-	private static final MavenOrderEnumeratorHandler INSTANCE = new MavenOrderEnumeratorHandler();
+	@Override
+	public boolean isApplicable(@Nonnull Module module)
+	{
+		final MavenProjectsManager manager = MavenProjectsManager.getInstance(module.getProject());
+		return manager.isMavenizedModule(module);
+	}
 
 	@Override
 	public boolean shouldAddRuntimeDependenciesToTestCompilationClasspath()
@@ -66,4 +58,3 @@ public class MavenOrderEnumeratorHandler extends consulo.module.impl.internal.la
 		return false;
 	}
 }
-*/

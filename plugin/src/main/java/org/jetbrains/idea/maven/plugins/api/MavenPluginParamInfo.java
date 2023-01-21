@@ -116,13 +116,16 @@ public class MavenPluginParamInfo
 			for(MavenDomGoal goal : goals.getGoals())
 			{
 				MavenPluginDescriptorParam info = descriptor.getParam(goal.getStringValue());
-				if(info != null)
+				if(info != null && !processor.test(info, domCfg))
 				{
-					if(!processor.test(info, domCfg))
-					{
-						return;
-					}
+					return;
 				}
+			}
+
+			MavenPluginDescriptorParam param = descriptor.getParam(paramTag.getName());
+			if(param != null && !processor.test(param, domCfg))
+			{
+				return;
 			}
 		}
 

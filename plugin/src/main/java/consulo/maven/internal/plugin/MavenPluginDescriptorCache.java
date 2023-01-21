@@ -37,7 +37,7 @@ public class MavenPluginDescriptorCache
 				params.put(entry.getKey(), new MavenPluginDescriptorParam(entry.getKey(), entry.getValue()));
 			}
 
-			MavenPluginDescriptor descriptor = new MavenPluginDescriptor(builder.getGroupId(), builder.getArtifactId(), params);
+			MavenPluginDescriptor descriptor = new MavenPluginDescriptor(builder.getGroupId(), builder.getArtifactId(), params, builder.getProperties());
 
 			descriptors.put(new MavenId(builder.getGroupId(), builder.getArtifactId(), null), descriptor);
 		}
