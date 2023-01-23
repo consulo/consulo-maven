@@ -4,6 +4,7 @@ import consulo.annotation.component.ExtensionImpl;
 import consulo.maven.plugin.extension.MavenPluginDescriptorBuilder;
 import consulo.maven.plugin.extension.MavenPluginDescriptorContributor;
 import consulo.maven.plugin.extension.MavenPluginDescriptorRegistrator;
+import org.jetbrains.idea.maven.dom.references.MavenDependencyReferenceProvider;
 import org.jetbrains.idea.maven.plugins.api.common.MavenCommonParamReferenceProviders;
 
 import javax.annotation.Nonnull;
@@ -100,6 +101,38 @@ public class CommonMavenPlugins implements MavenPluginDescriptorContributor
 			plugin.param("filters").ref(MavenCommonParamReferenceProviders.FilePath::new);
 			plugin.param("applicationXml").ref(MavenCommonParamReferenceProviders.FilePath::new);
 			plugin.param("encoding").ref(MavenCommonParamReferenceProviders.Encoding::new);
+		}
+
+		try (MavenPluginDescriptorBuilder plugin = registrator.plugin("org.apache.maven.plugins", "maven-checkstyle-plugin"))
+		{
+			plugin.param("sourceDirectory").ref(MavenCommonParamReferenceProviders.DirPath::new);
+			plugin.param("configLocation").ref(MavenCommonParamReferenceProviders.FilePath::new);
+			plugin.param("encoding").ref(MavenCommonParamReferenceProviders.Encoding::new);
+			plugin.param("outputFileFormat").values("plain", "xml").soft();
+		}
+
+		try (MavenPluginDescriptorBuilder plugin = registrator.plugin("org.apache.maven.plugins", "maven-invoker-plugin"))
+		{
+			plugin.param("extraArtifact").psiRef(MavenDependencyReferenceProvider::new);
+			plugin.param("extraArtifacts").psiRef(MavenDependencyReferenceProvider::new);
+			plugin.param("encoding").ref(MavenCommonParamReferenceProviders.Encoding::new);
+			plugin.param("goal").ref(MavenCommonParamReferenceProviders.Goal::new);
+			plugin.param("goals").ref(MavenCommonParamReferenceProviders.Goal::new);
+			plugin.param("invokerPropertiesFile").ref(MavenCommonParamReferenceProviders.FilePath::new);
+			plugin.param("profile").ref(MavenCommonParamReferenceProviders.Profile::new);
+			plugin.param("profiles").ref(MavenCommonParamReferenceProviders.Profile::new);
+		}
+
+		try (MavenPluginDescriptorBuilder plugin = registrator.plugin("org.apache.maven.plugins", "maven-failsafe-plugin"))
+		{
+			plugin.param("classpathDependencyExclude").psiRef(MavenCommonParamReferenceProviders.DependencyWithoutVersion::new);
+			plugin.param("classpathDependencyExcludes").psiRef(MavenCommonParamReferenceProviders.DependencyWithoutVersion::new);
+			plugin.param("encoding").ref(MavenCommonParamReferenceProviders.Encoding::new);
+			plugin.param("forkMode").values("never", "once", "always", "perthread", "none", "pertest").soft();
+			plugin.param("junitArtifactName").psiRef(MavenCommonParamReferenceProviders.DependencyWithoutVersion::new);
+			plugin.param("testNGArtifactName").psiRef(MavenCommonParamReferenceProviders.DependencyWithoutVersion::new);
+			plugin.param("reportFormat").values("brief", "plain").soft();
+			plugin.param("runOrder").values("alphabetical", "reversealphabetical", "random", "hourly", "failedfirst", "balanced", "filesystem").soft();
 		}
 	}
 }

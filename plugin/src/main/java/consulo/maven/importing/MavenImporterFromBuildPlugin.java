@@ -28,47 +28,63 @@ import javax.annotation.Nullable;
  * @since 17:11/12.07.13
  */
 @UsedInPlugin
-public abstract class MavenImporterFromBuildPlugin extends MavenImporter {
-  protected final String myPluginGroupID;
-  protected final String myPluginArtifactID;
+public abstract class MavenImporterFromBuildPlugin extends MavenImporter
+{
+	protected final String myPluginGroupID;
+	protected final String myPluginArtifactID;
 
-  public MavenImporterFromBuildPlugin(String pluginGroupID, String pluginArtifactID) {
-    myPluginGroupID = pluginGroupID;
-    myPluginArtifactID = pluginArtifactID;
-  }
+	public MavenImporterFromBuildPlugin(String pluginGroupID, String pluginArtifactID)
+	{
+		myPluginGroupID = pluginGroupID;
+		myPluginArtifactID = pluginArtifactID;
+	}
 
-  @Override
-  public boolean isApplicable(MavenProject mavenProject) {
-    return mavenProject.findPlugin(myPluginGroupID, myPluginArtifactID) != null;
-  }
+	@Override
+	public boolean isApplicable(MavenProject mavenProject)
+	{
+		return mavenProject.findPlugin(myPluginGroupID, myPluginArtifactID) != null;
+	}
 
-  @Nullable
-  protected Element getConfig(MavenProject p) {
-    return p.getPluginConfiguration(myPluginGroupID, myPluginArtifactID);
-  }
+	@Nullable
+	@Override
+	protected String getId()
+	{
+		return "build-plugin:" + myPluginGroupID + ":" + myPluginArtifactID;
+	}
 
-  @Nullable
-  protected Element getConfig(MavenProject p, String path) {
-    return MavenJDOMUtil.findChildByPath(getConfig(p), path);
-  }
+	@Nullable
+	protected Element getConfig(MavenProject p)
+	{
+		return p.getPluginConfiguration(myPluginGroupID, myPluginArtifactID);
+	}
 
-  @Nullable
-  protected String findConfigValue(MavenProject p, String path) {
-    return MavenJDOMUtil.findChildValueByPath(getConfig(p), path);
-  }
+	@Nullable
+	protected Element getConfig(MavenProject p, String path)
+	{
+		return MavenJDOMUtil.findChildByPath(getConfig(p), path);
+	}
 
-  @Nullable
-  protected String findConfigValue(MavenProject p, String path, String defaultValue) {
-    return MavenJDOMUtil.findChildValueByPath(getConfig(p), path, defaultValue);
-  }
+	@Nullable
+	protected String findConfigValue(MavenProject p, String path)
+	{
+		return MavenJDOMUtil.findChildValueByPath(getConfig(p), path);
+	}
 
-  @Nullable
-  protected Element getGoalConfig(MavenProject p, String goal) {
-    return p.getPluginGoalConfiguration(myPluginGroupID, myPluginArtifactID, goal);
-  }
+	@Nullable
+	protected String findConfigValue(MavenProject p, String path, String defaultValue)
+	{
+		return MavenJDOMUtil.findChildValueByPath(getConfig(p), path, defaultValue);
+	}
 
-  @Nullable
-  protected String findGoalConfigValue(MavenProject p, String goal, String path) {
-    return MavenJDOMUtil.findChildValueByPath(getGoalConfig(p, goal), path);
-  }
+	@Nullable
+	protected Element getGoalConfig(MavenProject p, String goal)
+	{
+		return p.getPluginGoalConfiguration(myPluginGroupID, myPluginArtifactID, goal);
+	}
+
+	@Nullable
+	protected String findGoalConfigValue(MavenProject p, String goal, String path)
+	{
+		return MavenJDOMUtil.findChildValueByPath(getGoalConfig(p, goal), path);
+	}
 }

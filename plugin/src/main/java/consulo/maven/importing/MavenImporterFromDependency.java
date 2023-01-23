@@ -16,10 +16,11 @@
 package consulo.maven.importing;
 
 import consulo.annotation.UsedInPlugin;
-import org.jetbrains.idea.maven.importing.MavenImporter;
 import consulo.maven.rt.server.common.model.MavenArtifact;
+import org.jetbrains.idea.maven.importing.MavenImporter;
 import org.jetbrains.idea.maven.project.MavenProject;
 
+import javax.annotation.Nullable;
 import java.util.List;
 
 /**
@@ -27,18 +28,28 @@ import java.util.List;
  * @since 17:14/12.07.13
  */
 @UsedInPlugin
-public abstract class MavenImporterFromDependency extends MavenImporter {
-  private final String myGroupId;
-  private final String myArtifactId;
+public abstract class MavenImporterFromDependency extends MavenImporter
+{
+	private final String myGroupId;
+	private final String myArtifactId;
 
-  public MavenImporterFromDependency(String groupId, String artifactId) {
-    myGroupId = groupId;
-    myArtifactId = artifactId;
-  }
+	public MavenImporterFromDependency(String groupId, String artifactId)
+	{
+		myGroupId = groupId;
+		myArtifactId = artifactId;
+	}
 
-  @Override
-  public boolean isApplicable(MavenProject mavenProject) {
-    final List<MavenArtifact> dependencies = mavenProject.findDependencies(myGroupId, myArtifactId);
-    return !dependencies.isEmpty();
-  }
+	@Nullable
+	@Override
+	protected String getId()
+	{
+		return "dependency:" + myGroupId + ":" + myArtifactId;
+	}
+
+	@Override
+	public boolean isApplicable(MavenProject mavenProject)
+	{
+		final List<MavenArtifact> dependencies = mavenProject.findDependencies(myGroupId, myArtifactId);
+		return !dependencies.isEmpty();
+	}
 }

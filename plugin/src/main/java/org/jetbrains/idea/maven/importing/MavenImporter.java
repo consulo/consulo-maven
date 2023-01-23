@@ -61,6 +61,12 @@ public abstract class MavenImporter
 
 	public abstract boolean isApplicable(MavenProject mavenProject);
 
+	@Nullable
+	protected String getId()
+	{
+		return null;
+	}
+
 	public void getSupportedPackagings(Collection<String> result)
 	{
 	}
