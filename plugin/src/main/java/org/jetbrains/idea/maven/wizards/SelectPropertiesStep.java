@@ -31,6 +31,7 @@ import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.utils.MavenUtil;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
@@ -50,9 +51,10 @@ public class SelectPropertiesStep implements WizardStep<MavenNewModuleContext>
 	private JPanel myPropertiesPanel;
 
 	private MavenEnvironmentForm myEnvironmentForm;
+	@Nullable
 	private MavenPropertiesPanel myMavenPropertiesPanel;
 
-	private Map<String, String> myAvailableProperties = new HashMap<String, String>();
+	private Map<String, String> mySelectedProps = Map.of();
 
 	public SelectPropertiesStep()
 	{
@@ -68,8 +70,9 @@ public class SelectPropertiesStep implements WizardStep<MavenNewModuleContext>
 
 		myEnvironmentPanel.add(myEnvironmentForm.createComponent(uiDisposable), BorderLayout.CENTER);
 
-		myMavenPropertiesPanel = new MavenPropertiesPanel(myAvailableProperties);
+		myMavenPropertiesPanel = new MavenPropertiesPanel(new HashMap<>());
 		myPropertiesPanel.add(myMavenPropertiesPanel);
+		myMavenPropertiesPanel.setDataFromMap(mySelectedProps);
 	}
 
 	@Override
@@ -93,14 +96,28 @@ public class SelectPropertiesStep implements WizardStep<MavenNewModuleContext>
 			props.put("archetypeRepository", archetype.repository);
 		}
 
-		myMavenPropertiesPanel.setDataFromMap(props);
+		if(myMavenPropertiesPanel != null)
+		{
+			myMavenPropertiesPanel.setDataFromMap(props);
+		}
+		else
+		{
+			mySelectedProps = props;
+		}
 	}
 
 	@Override
 	public void onStepLeave(@Nonnull MavenNewModuleContext context)
 	{
 		context.setEnvironmentForm(myEnvironmentForm);
-		context.setPropertiesToCreateByArtifact(myMavenPropertiesPanel.getDataAsMap());
+		if(myMavenPropertiesPanel != null)
+		{
+			context.setPropertiesToCreateByArtifact(myMavenPropertiesPanel.getDataAsMap());
+		}
+		else
+		{
+			context.setPropertiesToCreateByArtifact(mySelectedProps);
+		}
 	}
 
 	@RequiredUIAccess
