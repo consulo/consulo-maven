@@ -21,9 +21,18 @@ public class MavenJdkUtil
 	@Nonnull
 	public static LanguageLevel getDefaultRunLevel(String currentMavenVersion)
 	{
-		boolean forceUseJava7 = StringUtil.compareVersionNumbers(currentMavenVersion, "3.3.1") >= 0;
+		boolean forceUseJava8 = StringUtil.compareVersionNumbers(currentMavenVersion, "3.9.0") >= 0;
+		if(forceUseJava8)
+		{
+			return LanguageLevel.JDK_1_8;
+		}
 
-		return forceUseJava7 ? LanguageLevel.JDK_1_7 : LanguageLevel.JDK_1_5;
+		if(StringUtil.compareVersionNumbers(currentMavenVersion, "3.3.1") >= 0)
+		{
+			return LanguageLevel.JDK_1_7;
+		}
+
+		return LanguageLevel.JDK_1_5;
 	}
 
 	@Nullable
