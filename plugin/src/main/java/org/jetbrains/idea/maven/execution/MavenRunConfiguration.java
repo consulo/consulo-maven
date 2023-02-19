@@ -34,8 +34,9 @@ import consulo.java.execution.configurations.OwnJavaParameters;
 import consulo.module.Module;
 import consulo.process.ExecutionException;
 import consulo.process.ProcessHandler;
-import consulo.process.event.ProcessAdapter;
+import consulo.process.ProcessHandlerBuilder;
 import consulo.process.event.ProcessEvent;
+import consulo.process.event.ProcessListener;
 import consulo.project.Project;
 import consulo.project.ui.wm.ToolWindowId;
 import consulo.util.xml.serializer.InvalidDataException;
@@ -109,13 +110,19 @@ public class MavenRunConfiguration extends LocatableConfigurationBase implements
 				return res;
 			}
 
-			@Nonnull
 			@Override
-			protected ProcessHandler startProcess() throws ExecutionException
+			protected void buildProcessHandler(@Nonnull ProcessHandlerBuilder builder) throws ExecutionException
 			{
-				ProcessHandler result = super.startProcess();
-				// process always destroy recursive result.setShouldDestroyProcessRecursively(true);
-				result.addProcessListener(new ProcessAdapter()
+				super.buildProcessHandler(builder);
+
+				builder.shouldDestroyProcessRecursively(true);
+			}
+
+			@Override
+			protected void setupProcessHandler(@Nonnull ProcessHandler handler)
+			{
+				super.setupProcessHandler(handler);
+				handler.addProcessListener(new ProcessListener()
 				{
 					@Override
 					public void processTerminated(ProcessEvent event)
@@ -123,7 +130,6 @@ public class MavenRunConfiguration extends LocatableConfigurationBase implements
 						updateProjectsFolders();
 					}
 				});
-				return result;
 			}
 		};
 		state.setConsoleBuilder(MavenConsoleImpl.createConsoleBuilder(getProject()));
