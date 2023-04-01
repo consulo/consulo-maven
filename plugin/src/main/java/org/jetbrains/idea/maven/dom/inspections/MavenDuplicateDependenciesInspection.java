@@ -38,14 +38,15 @@ import javax.annotation.Nullable;
 import java.util.*;
 
 @ExtensionImpl
-public class MavenDuplicateDependenciesInspection extends BasicDomElementsInspection<MavenDomProjectModel> {
+public class MavenDuplicateDependenciesInspection extends BasicDomElementsInspection<MavenDomProjectModel, Object> {
   public MavenDuplicateDependenciesInspection() {
     super(MavenDomProjectModel.class);
   }
 
   @Override
   public void checkFileElement(DomFileElement<MavenDomProjectModel> domFileElement,
-                               DomElementAnnotationHolder holder) {
+                               DomElementAnnotationHolder holder,
+                               Object state) {
     MavenDomProjectModel projectModel = domFileElement.getRootElement();
 
     checkMavenProjectModel(projectModel, holder);

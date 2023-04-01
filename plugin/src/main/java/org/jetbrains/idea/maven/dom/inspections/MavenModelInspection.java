@@ -29,7 +29,7 @@ import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import javax.annotation.Nonnull;
 
 @ExtensionImpl
-public class MavenModelInspection extends BasicDomElementsInspection<MavenDomProjectModel> {
+public class MavenModelInspection extends BasicDomElementsInspection<MavenDomProjectModel, Object> {
   public MavenModelInspection() {
     super(MavenDomProjectModel.class);
   }
