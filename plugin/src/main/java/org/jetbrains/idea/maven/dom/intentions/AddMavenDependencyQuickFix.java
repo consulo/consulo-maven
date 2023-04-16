@@ -21,6 +21,7 @@ import consulo.codeEditor.Editor;
 import consulo.language.editor.WriteCommandAction;
 import consulo.language.editor.intention.IntentionAction;
 import consulo.language.editor.intention.LowPriorityAction;
+import consulo.language.editor.intention.SyntheticIntentionAction;
 import consulo.language.psi.PsiElement;
 import consulo.language.psi.PsiFile;
 import consulo.language.util.IncorrectOperationException;
@@ -38,7 +39,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.regex.Pattern;
 
-public class AddMavenDependencyQuickFix implements IntentionAction, LowPriorityAction {
+public class AddMavenDependencyQuickFix implements SyntheticIntentionAction, LowPriorityAction {
 
   private static final Pattern CLASSNAME_PATTERN = Pattern.compile("(\\p{javaJavaIdentifierStart}\\p{javaJavaIdentifierPart}*\\.)*\\p{Lu}\\p{javaJavaIdentifierPart}+");
 
@@ -51,11 +52,6 @@ public class AddMavenDependencyQuickFix implements IntentionAction, LowPriorityA
   @Nonnull
   public String getText() {
     return "Add Maven Dependency...";
-  }
-
-  @Nonnull
-  public String getFamilyName() {
-    return MavenDomBundle.message("inspection.group");
   }
 
   public boolean isAvailable(@Nonnull Project project, Editor editor, PsiFile file) {
