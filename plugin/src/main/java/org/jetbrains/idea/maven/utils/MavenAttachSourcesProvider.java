@@ -16,6 +16,7 @@
 package org.jetbrains.idea.maven.utils;
 
 import com.intellij.java.impl.codeInsight.AttachSourcesProvider;
+import consulo.annotation.component.ExtensionImpl;
 import consulo.language.psi.PsiFile;
 import consulo.maven.MavenNotificationGroup;
 import consulo.maven.rt.server.common.model.MavenArtifact;
@@ -30,6 +31,7 @@ import consulo.project.ui.notification.Notifications;
 import consulo.ui.Component;
 import consulo.ui.event.UIEvent;
 import consulo.util.concurrent.AsyncResult;
+import jakarta.inject.Inject;
 import org.jetbrains.idea.maven.importing.MavenRootModelAdapter;
 import org.jetbrains.idea.maven.project.MavenArtifactDownloader;
 import org.jetbrains.idea.maven.project.MavenProject;
@@ -40,9 +42,17 @@ import javax.annotation.Nonnull;
 import javax.swing.*;
 import java.util.*;
 
-//@ExtensionImpl
+@ExtensionImpl
 public class MavenAttachSourcesProvider implements AttachSourcesProvider
 {
+	private final Project myProject;
+
+	@Inject
+	public MavenAttachSourcesProvider(Project project)
+	{
+		myProject = project;
+	}
+
 	@Nonnull
 	public Collection<AttachSourcesAction> getActions(final List<LibraryOrderEntry> orderEntries, final PsiFile psiFile)
 	{
@@ -51,12 +61,13 @@ public class MavenAttachSourcesProvider implements AttachSourcesProvider
 		{
 			return Collections.emptyList();
 		}
+
 		if(findArtifacts(projects, orderEntries).isEmpty())
 		{
 			return Collections.emptyList();
 		}
 
-		return Collections.<AttachSourcesAction>singleton(new AttachSourcesAction()
+		return List.of(new AttachSourcesAction()
 		{
 			public String getName()
 			{
@@ -86,7 +97,7 @@ public class MavenAttachSourcesProvider implements AttachSourcesProvider
 					return AsyncResult.rejected();
 				}
 
-				final AsyncResult<MavenArtifactDownloader.DownloadResult> result = new AsyncResult<MavenArtifactDownloader.DownloadResult>();
+				final AsyncResult<MavenArtifactDownloader.DownloadResult> result = AsyncResult.undefined();
 				manager.scheduleArtifactsDownloading(mavenProjects, artifacts, true, false, result);
 
 				AsyncResult<Void> resultWrapper = AsyncResult.undefined();
@@ -108,13 +119,7 @@ public class MavenAttachSourcesProvider implements AttachSourcesProvider
 						message += "</html>";
 
 						final String finalMessage = message;
-						SwingUtilities.invokeLater(new Runnable()
-						{
-							public void run()
-							{
-								Notifications.Bus.notify(new Notification(MavenNotificationGroup.ROOT, "Cannot download sources", finalMessage, NotificationType.WARNING), psiFile.getProject());
-							}
-						});
+						myProject.getApplication().invokeLater(() -> Notifications.Bus.notify(new Notification(MavenNotificationGroup.ROOT, "Cannot download sources", finalMessage, NotificationType.WARNING), psiFile.getProject()));
 					}
 
 					if(downloadResult.resolvedSources.isEmpty())
