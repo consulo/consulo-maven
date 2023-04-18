@@ -43,7 +43,7 @@ public class MavenSettings implements SearchableConfigurable.Parent, ProjectConf
 	public static final String DISPLAY_NAME = "Maven";
 
 	private final Project myProject;
-	private final Configurable myConfigurable;
+	private final MavenGeneralConfigurable myConfigurable;
 	private final List<Configurable> myChildren;
 
 	@Inject
@@ -59,6 +59,8 @@ public class MavenSettings implements SearchableConfigurable.Parent, ProjectConf
 				return MavenProjectsManager.getInstance(myProject).getGeneralSettings();
 			}
 		};
+
+		myConfigurable.showOverrideCompilerBox();
 
 		myChildren = new ArrayList<>();
 		myChildren.add(new MavenImportingConfigurable(myProject));

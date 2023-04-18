@@ -45,6 +45,7 @@ public class MavenGeneralSettings implements Cloneable
 	private boolean printErrorStackTraces = false;
 	private boolean usePluginRegistry = false;
 	private boolean nonRecursive = false;
+	private boolean overrideBuiltinCompiler = false;
 
 	private boolean alwaysUpdateSnapshots = false;
 
@@ -431,6 +432,10 @@ public class MavenGeneralSettings implements Cloneable
 		{
 			return false;
 		}
+		if(overrideBuiltinCompiler != that.overrideBuiltinCompiler)
+		{
+			return false;
+		}
 		if(!checksumPolicy.equals(that.checksumPolicy))
 		{
 			return false;
@@ -469,6 +474,7 @@ public class MavenGeneralSettings implements Cloneable
 		result = 31 * result + (printErrorStackTraces ? 1 : 0);
 		result = 31 * result + (usePluginRegistry ? 1 : 0);
 		result = 31 * result + (nonRecursive ? 1 : 0);
+		result = 31 * result + (overrideBuiltinCompiler ? 1 : 0);
 		result = 31 * result + outputLevel.hashCode();
 		result = 31 * result + checksumPolicy.hashCode();
 		result = 31 * result + failureBehavior.hashCode();
@@ -490,6 +496,16 @@ public class MavenGeneralSettings implements Cloneable
 		{
 			throw new Error(e);
 		}
+	}
+
+	public boolean isOverrideBuiltinCompiler()
+	{
+		return overrideBuiltinCompiler;
+	}
+
+	public void setOverrideBuiltinCompiler(boolean overrideBuiltinCompiler)
+	{
+		this.overrideBuiltinCompiler = overrideBuiltinCompiler;
 	}
 
 	public void addListener(Listener l)

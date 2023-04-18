@@ -48,6 +48,7 @@ public class MavenGeneralPanel implements PanelWithAnchor
 	private JBLabel myMultiProjectBuildFailPolicyLabel;
 	private JCheckBox alwaysUpdateSnapshotsCheckBox;
 	private JTextField threadsEditor;
+	private JCheckBox myOverrideCompilerBox;
 	private final DefaultComboBoxModel outputLevelComboModel = new DefaultComboBoxModel();
 	private final DefaultComboBoxModel checksumPolicyComboModel = new DefaultComboBoxModel();
 	private final DefaultComboBoxModel failPolicyComboModel = new DefaultComboBoxModel();
@@ -56,12 +57,19 @@ public class MavenGeneralPanel implements PanelWithAnchor
 
 	public MavenGeneralPanel()
 	{
+		myOverrideCompilerBox.setVisible(false);
+
 		fillOutputLevelCombobox();
 		fillChecksumPolicyCombobox();
 		fillFailureBehaviorCombobox();
 		fillPluginUpdatePolicyCombobox();
 
 		setAnchor(myMultiProjectBuildFailPolicyLabel);
+	}
+
+	public void showOverrideCompilerBox()
+	{
+		myOverrideCompilerBox.setVisible(true);
 	}
 
 	private void fillOutputLevelCombobox()
@@ -108,6 +116,7 @@ public class MavenGeneralPanel implements PanelWithAnchor
 		data.setPluginUpdatePolicy((MavenExecutionOptions.PluginUpdatePolicy) ComboBoxUtil.getSelectedValue(pluginUpdatePolicyComboModel));
 		data.setAlwaysUpdateSnapshots(alwaysUpdateSnapshotsCheckBox.isSelected());
 		data.setThreads(threadsEditor.getText());
+		data.setOverrideBuiltinCompiler(myOverrideCompilerBox.isSelected());
 
 		data.endUpdate();
 	}
@@ -123,6 +132,7 @@ public class MavenGeneralPanel implements PanelWithAnchor
 		checkboxRecursive.setSelected(!data.isNonRecursive());
 		alwaysUpdateSnapshotsCheckBox.setSelected(data.isAlwaysUpdateSnapshots());
 		threadsEditor.setText(StringUtil.notNullize(data.getThreads()));
+		myOverrideCompilerBox.setSelected(data.isOverrideBuiltinCompiler());
 
 		ComboBoxUtil.select(outputLevelComboModel, data.getOutputLevel());
 		ComboBoxUtil.select(checksumPolicyComboModel, data.getChecksumPolicy());
