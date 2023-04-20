@@ -18,14 +18,11 @@ import java.util.Map;
  */
 public class MavenPluginDescriptorCache
 {
-	private static final ExtensionPointCacheKey<MavenPluginDescriptorContributor, Map<MavenId, MavenPluginDescriptor>> CACHE_KEY = ExtensionPointCacheKey.create
-			("MavenPluginDescriptorCache", contributors -> {
+	private static final ExtensionPointCacheKey<MavenPluginDescriptorContributor, Map<MavenId, MavenPluginDescriptor>> CACHE_KEY = ExtensionPointCacheKey.create("MavenPluginDescriptorCache", walker
+			-> {
 		MavenPluginDescriptorRegistratorImpl registrator = new MavenPluginDescriptorRegistratorImpl();
 
-		for(MavenPluginDescriptorContributor contributor : contributors)
-		{
-			contributor.register(registrator);
-		}
+		walker.walk(contributor -> contributor.register(registrator));
 
 		Map<MavenId, MavenPluginDescriptor> descriptors = new HashMap<>();
 
