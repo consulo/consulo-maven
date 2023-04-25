@@ -45,7 +45,7 @@ public class MavenGeneralSettings implements Cloneable
 	private boolean printErrorStackTraces = false;
 	private boolean usePluginRegistry = false;
 	private boolean nonRecursive = false;
-	private boolean overrideBuiltinCompiler = false;
+	private MaveOverrideCompilerPolicy overrideCompilePolicy = MaveOverrideCompilerPolicy.DISABLED;
 
 	private boolean alwaysUpdateSnapshots = false;
 
@@ -432,7 +432,7 @@ public class MavenGeneralSettings implements Cloneable
 		{
 			return false;
 		}
-		if(overrideBuiltinCompiler != that.overrideBuiltinCompiler)
+		if(overrideCompilePolicy != that.overrideCompilePolicy)
 		{
 			return false;
 		}
@@ -474,7 +474,7 @@ public class MavenGeneralSettings implements Cloneable
 		result = 31 * result + (printErrorStackTraces ? 1 : 0);
 		result = 31 * result + (usePluginRegistry ? 1 : 0);
 		result = 31 * result + (nonRecursive ? 1 : 0);
-		result = 31 * result + (overrideBuiltinCompiler ? 1 : 0);
+		result = 31 * result + overrideCompilePolicy.hashCode();
 		result = 31 * result + outputLevel.hashCode();
 		result = 31 * result + checksumPolicy.hashCode();
 		result = 31 * result + failureBehavior.hashCode();
@@ -498,14 +498,14 @@ public class MavenGeneralSettings implements Cloneable
 		}
 	}
 
-	public boolean isOverrideBuiltinCompiler()
+	public MaveOverrideCompilerPolicy getOverrideCompilePolicy()
 	{
-		return overrideBuiltinCompiler;
+		return overrideCompilePolicy;
 	}
 
-	public void setOverrideBuiltinCompiler(boolean overrideBuiltinCompiler)
+	public void setOverrideCompilePolicy(MaveOverrideCompilerPolicy overrideCompilePolicy)
 	{
-		this.overrideBuiltinCompiler = overrideBuiltinCompiler;
+		this.overrideCompilePolicy = overrideCompilePolicy;
 	}
 
 	public void addListener(Listener l)

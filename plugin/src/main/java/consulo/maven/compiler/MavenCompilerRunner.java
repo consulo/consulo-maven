@@ -14,12 +14,15 @@ import consulo.project.Project;
 import jakarta.inject.Inject;
 import org.jetbrains.idea.maven.execution.MavenRunner;
 import org.jetbrains.idea.maven.execution.MavenRunnerParameters;
+import org.jetbrains.idea.maven.project.MaveOverrideCompilerPolicy;
+import org.jetbrains.idea.maven.project.MavenGeneralSettings;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.tasks.TasksBundle;
 
 import javax.annotation.Nonnull;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * @author VISTALL
@@ -46,12 +49,27 @@ public class MavenCompilerRunner implements CompilerRunner
 	@Override
 	public boolean isAvailable(CompileContextEx compileContextEx)
 	{
-		return MavenProjectsManager.getInstance(myProject).getGeneralSettings().isOverrideBuiltinCompiler();
+		MavenGeneralSettings generalSettings = MavenProjectsManager.getInstance(myProject).getGeneralSettings();
+		return generalSettings.getOverrideCompilePolicy() != MaveOverrideCompilerPolicy.DISABLED;
 	}
 
 	@Override
 	public boolean build(CompileDriver compileDriver, CompileContextEx context, boolean isRebuild, boolean forceCompile, boolean onlyCheckStatus) throws ExitException
 	{
+		MavenGeneralSettings generalSettings = MavenProjectsManager.getInstance(myProject).getGeneralSettings();
+		List<String> goals = List.of();
+		switch(generalSettings.getOverrideCompilePolicy())
+		{
+			case DISABLED:
+				return true;
+			case BY_COMPILE:
+				goals = List.of("compile");
+				break;
+			case BY_PACKAGE:
+				goals = List.of("package");
+				break;
+		}
+
 		MavenProjectsManager mavenProjectsManager = MavenProjectsManager.getInstance(myProject);
 		final MavenExplicitProfiles explicitProfiles = mavenProjectsManager.getExplicitProfiles();
 		final MavenRunner mavenRunner = MavenRunner.getInstance(myProject);
@@ -59,7 +77,7 @@ public class MavenCompilerRunner implements CompilerRunner
 		boolean changed = false;
 		for(MavenProject mavenProject : mavenProjectsManager.getRootProjects())
 		{
-			MavenRunnerParameters params = new MavenRunnerParameters(true, mavenProject.getDirectory(), ParametersListUtil.parse("package"), explicitProfiles);
+			MavenRunnerParameters params = new MavenRunnerParameters(true, mavenProject.getDirectory(), goals, explicitProfiles);
 
 			ProgressIndicator indicator = ProgressManager.getGlobalProgressIndicator();
 
