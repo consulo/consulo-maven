@@ -15,7 +15,6 @@
  */
 package org.jetbrains.idea.maven.importing;
 
-import consulo.application.AccessToken;
 import consulo.application.WriteAction;
 import consulo.content.ContentFolderTypeProvider;
 import consulo.language.content.ProductionContentFolderTypeProvider;
@@ -56,8 +55,7 @@ public class MavenFoldersImporter
 		final MavenProjectsManager manager = MavenProjectsManager.getInstance(project);
 		final MavenImportingSettings settings = manager.getImportingSettings();
 
-		AccessToken accessToken = WriteAction.start();
-		try
+		WriteAction.runAndWait(() ->
 		{
 			List<ModifiableRootModel> rootModels = new ArrayList<ModifiableRootModel>();
 			for(Module each : ModuleManager.getInstance(project).getModules())
@@ -90,11 +88,7 @@ public class MavenFoldersImporter
 					ModifiableModelCommitter.getInstance(project).multiCommit(modelsArray, ModuleManager.getInstance(project).getModifiableModel());
 				}
 			}
-		}
-		finally
-		{
-			accessToken.finish();
-		}
+		});
 	}
 
 	public MavenFoldersImporter(MavenProject mavenProject, MavenImportingSettings settings, MavenRootModelAdapter model)
