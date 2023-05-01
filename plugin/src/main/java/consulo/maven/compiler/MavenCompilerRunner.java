@@ -3,13 +3,12 @@ package consulo.maven.compiler;
 import consulo.annotation.component.ExtensionImpl;
 import consulo.application.progress.ProgressIndicator;
 import consulo.application.progress.ProgressManager;
-import consulo.compiler.CompileContextEx;
-import consulo.compiler.CompileDriver;
-import consulo.compiler.CompilerRunner;
-import consulo.compiler.ExitException;
+import consulo.compiler.*;
+import consulo.compiler.util.ModuleCompilerUtil;
 import consulo.localize.LocalizeValue;
 import consulo.maven.rt.server.common.model.MavenExplicitProfiles;
-import consulo.process.cmd.ParametersListUtil;
+import consulo.maven.rt.server.common.model.MavenId;
+import consulo.module.Module;
 import consulo.project.Project;
 import jakarta.inject.Inject;
 import org.jetbrains.idea.maven.execution.MavenRunner;
@@ -21,6 +20,7 @@ import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.tasks.TasksBundle;
 
 import javax.annotation.Nonnull;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -57,33 +57,73 @@ public class MavenCompilerRunner implements CompilerRunner
 	public boolean build(CompileDriver compileDriver, CompileContextEx context, boolean isRebuild, boolean forceCompile, boolean onlyCheckStatus) throws ExitException
 	{
 		MavenGeneralSettings generalSettings = MavenProjectsManager.getInstance(myProject).getGeneralSettings();
-		List<String> goals = List.of();
-		switch(generalSettings.getOverrideCompilePolicy())
+		if(generalSettings.getOverrideCompilePolicy() == MaveOverrideCompilerPolicy.DISABLED)
 		{
-			case DISABLED:
-				return true;
-			case BY_COMPILE:
-				goals = List.of("compile");
-				break;
-			case BY_PACKAGE:
-				goals = List.of("package");
-				break;
+			// must be never entered due #isAvailable() check
+			return false;
 		}
 
 		MavenProjectsManager mavenProjectsManager = MavenProjectsManager.getInstance(myProject);
-		final MavenExplicitProfiles explicitProfiles = mavenProjectsManager.getExplicitProfiles();
-		final MavenRunner mavenRunner = MavenRunner.getInstance(myProject);
+		MavenExplicitProfiles explicitProfiles = mavenProjectsManager.getExplicitProfiles();
 
-		boolean changed = false;
-		for(MavenProject mavenProject : mavenProjectsManager.getRootProjects())
+		List<String> goals = new ArrayList<>();
+		switch(generalSettings.getOverrideCompilePolicy())
 		{
-			MavenRunnerParameters params = new MavenRunnerParameters(true, mavenProject.getDirectory(), goals, explicitProfiles);
-
-			ProgressIndicator indicator = ProgressManager.getGlobalProgressIndicator();
-
-			changed |= mavenRunner.runBatch(Collections.singletonList(params), null, null, TasksBundle.message("maven.tasks.executing"), indicator);
+			case BY_COMPILE:
+				goals.add("compile");
+				break;
+			case BY_PACKAGE:
+				goals.add("package");
+				break;
 		}
 
-		return changed;
+		List<Module> modules = new ArrayList<>(List.of(context.getCompileScope().getAffectedModules()));
+		ModuleCompilerUtil.sortModules(context.getProject(), modules);
+
+		goals.add("-pl");
+		StringBuilder builder = new StringBuilder();
+		int i = 0;
+		for(Module module : modules)
+		{
+			MavenProject mavenProject = mavenProjectsManager.findProject(module);
+			if(mavenProject == null)
+			{
+				continue;
+			}
+
+			MavenId mavenId = mavenProject.getMavenId();
+
+			if(i != 0)
+			{
+				builder.append(",");
+			}
+
+			builder.append(mavenId.getGroupId()).append(":").append(mavenId.getArtifactId());
+
+			i++;
+		}
+
+		goals.add(builder.toString());
+
+		// -am -amd
+		goals.add("-am");
+
+		List<MavenProject> rootProjects = mavenProjectsManager.getRootProjects();
+
+		MavenProject mavenProject = rootProjects.get(0);
+
+		MavenRunnerParameters params = new MavenRunnerParameters(true, mavenProject.getDirectory(), goals, explicitProfiles);
+		params.setResolveToWorkspace(true);
+
+		ProgressIndicator indicator = ProgressManager.getGlobalProgressIndicator();
+
+		MavenRunner mavenRunner = MavenRunner.getInstance(context.getProject());
+
+		if(!mavenRunner.runBatch(Collections.singletonList(params), null, null, TasksBundle.message("maven.tasks.executing"), indicator))
+		{
+			context.addMessage(CompilerMessageCategory.ERROR, "Compilation failed", null, -1, -1);
+		}
+
+		return true;
 	}
 }
