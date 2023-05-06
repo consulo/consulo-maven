@@ -70,7 +70,7 @@ import java.util.function.Consumer;
 
 @Singleton
 @State(name = "MavenProjectsManager", storages = @Storage(file = StoragePathMacros.PROJECT_CONFIG_DIR + "/misc.xml"))
-@ServiceAPI(value = ComponentScope.PROJECT, lazy = false)
+@ServiceAPI(value = ComponentScope.PROJECT)
 @ServiceImpl
 public class MavenProjectsManager extends MavenSimpleProjectComponent implements PersistentStateComponent<MavenProjectsManagerState>, SettingsSavingComponent, Disposable
 {
@@ -175,25 +175,14 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 		return getGeneralSettings().getEffectiveLocalRepository();
 	}
 
-	@Override
-	public void afterLoadState()
+	public void doInit()
 	{
-		if(!isNormalProject())
+		boolean wasMavenized = !myState.originalFiles.isEmpty();
+		if(!wasMavenized)
 		{
 			return;
 		}
-
-		StartupManager startupManager = StartupManager.getInstance(myProject);
-
-		startupManager.registerStartupActivity(() ->
-		{
-			boolean wasMavenized = !myState.originalFiles.isEmpty();
-			if(!wasMavenized)
-			{
-				return;
-			}
-			initMavenized();
-		});
+		initMavenized();
 	}
 
 	private void initMavenized()

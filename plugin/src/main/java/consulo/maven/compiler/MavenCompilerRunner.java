@@ -109,6 +109,11 @@ public class MavenCompilerRunner implements CompilerRunner
 		goals.add("-am");
 
 		List<MavenProject> rootProjects = mavenProjectsManager.getRootProjects();
+		if(rootProjects.isEmpty())
+		{
+			// sometimes when project was failed to import
+			return false;
+		}
 
 		MavenProject mavenProject = rootProjects.get(0);
 
