@@ -45,7 +45,7 @@ public class MavenGeneralSettings implements Cloneable
 	private boolean printErrorStackTraces = false;
 	private boolean usePluginRegistry = false;
 	private boolean nonRecursive = false;
-	private MaveOverrideCompilerPolicy overrideCompilePolicy = MaveOverrideCompilerPolicy.DISABLED;
+	private MaveOverrideCompilerPolicy overrideCompilePolicy = MaveOverrideCompilerPolicy.BY_COMPILE;
 
 	private boolean alwaysUpdateSnapshots = false;
 
