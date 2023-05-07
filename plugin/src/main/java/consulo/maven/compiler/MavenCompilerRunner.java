@@ -4,6 +4,7 @@ import consulo.annotation.component.ExtensionImpl;
 import consulo.application.progress.ProgressIndicator;
 import consulo.application.progress.ProgressManager;
 import consulo.compiler.*;
+import consulo.compiler.scope.CompileScope;
 import consulo.compiler.util.ModuleCompilerUtil;
 import consulo.localize.LocalizeValue;
 import consulo.maven.rt.server.common.model.MavenExplicitProfiles;
@@ -66,18 +67,25 @@ public class MavenCompilerRunner implements CompilerRunner
 		MavenProjectsManager mavenProjectsManager = MavenProjectsManager.getInstance(myProject);
 		MavenExplicitProfiles explicitProfiles = mavenProjectsManager.getExplicitProfiles();
 
+		CompileScope compileScope = context.getCompileScope();
 		List<String> goals = new ArrayList<>();
+		// do not allow run tests while compilation
+		goals.add("-DskipTests=true");
 		switch(generalSettings.getOverrideCompilePolicy())
 		{
 			case BY_COMPILE:
 				goals.add("compile");
+				if(compileScope.includeTestScope())
+				{
+					goals.add("test-compile");
+				}
 				break;
 			case BY_PACKAGE:
 				goals.add("package");
 				break;
 		}
 
-		List<Module> modules = new ArrayList<>(List.of(context.getCompileScope().getAffectedModules()));
+		List<Module> modules = new ArrayList<>(List.of(compileScope.getAffectedModules()));
 		ModuleCompilerUtil.sortModules(context.getProject(), modules);
 
 		goals.add("-pl");
