@@ -131,12 +131,24 @@ public class MavenFoldersImporter
 
 		for(MavenResource each : myMavenProject.getResources())
 		{
-			temp.putValue(ProductionResourceContentFolderTypeProvider.getInstance(), each.getDirectory());
+			String directory = each.getDirectory();
+			// do not allow override it
+			if(temp.containsScalarValue(directory))
+			{
+				continue;
+			}
+			temp.putValue(ProductionResourceContentFolderTypeProvider.getInstance(), directory);
 		}
 
 		for(MavenResource each : myMavenProject.getTestResources())
 		{
-			temp.putValue(TestResourceContentFolderTypeProvider.getInstance(), each.getDirectory());
+			String directory = each.getDirectory();
+			// do not allow override it
+			if(temp.containsScalarValue(directory))
+			{
+				continue;
+			}
+			temp.putValue(TestResourceContentFolderTypeProvider.getInstance(), directory);
 		}
 
 		addBuilderHelperPaths("add-source", ProductionContentFolderTypeProvider.getInstance(), temp);
