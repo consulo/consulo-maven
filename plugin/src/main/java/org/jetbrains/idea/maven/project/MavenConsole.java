@@ -25,7 +25,7 @@ import consulo.maven.rt.server.common.server.MavenServerConsole;
 import java.text.MessageFormat;
 
 public abstract class MavenConsole {
-  private static final String LINE_SEPARATOR = System.getProperty("line.separator");
+  private static final String LINE_SEPARATOR = System.lineSeparator();
 
   public enum OutputType {
     NORMAL, SYSTEM, ERROR
