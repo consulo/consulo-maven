@@ -7,9 +7,11 @@ import consulo.compiler.*;
 import consulo.compiler.scope.CompileScope;
 import consulo.compiler.util.ModuleCompilerUtil;
 import consulo.localize.LocalizeValue;
+import consulo.maven.module.extension.MavenModuleExtension;
 import consulo.maven.rt.server.common.model.MavenExplicitProfiles;
 import consulo.maven.rt.server.common.model.MavenId;
 import consulo.module.Module;
+import consulo.module.extension.ModuleExtensionHelper;
 import consulo.project.Project;
 import jakarta.inject.Inject;
 import org.jetbrains.idea.maven.execution.MavenRunner;
@@ -33,11 +35,13 @@ import java.util.List;
 public class MavenCompilerRunner implements CompilerRunner
 {
 	private final Project myProject;
+	private final ModuleExtensionHelper myModuleExtensionHelper;
 
 	@Inject
-	public MavenCompilerRunner(Project project)
+	public MavenCompilerRunner(Project project, ModuleExtensionHelper moduleExtensionHelper)
 	{
 		myProject = project;
+		myModuleExtensionHelper = moduleExtensionHelper;
 	}
 
 	@Nonnull
@@ -50,6 +54,11 @@ public class MavenCompilerRunner implements CompilerRunner
 	@Override
 	public boolean isAvailable(CompileContextEx compileContextEx)
 	{
+		if(!myModuleExtensionHelper.hasModuleExtension(MavenModuleExtension.class))
+		{
+			return false;
+		}
+
 		MavenGeneralSettings generalSettings = MavenProjectsManager.getInstance(myProject).getGeneralSettings();
 		return generalSettings.getOverrideCompilePolicy() != MaveOverrideCompilerPolicy.DISABLED;
 	}
