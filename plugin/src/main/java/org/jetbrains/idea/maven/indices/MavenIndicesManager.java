@@ -18,13 +18,14 @@ package org.jetbrains.idea.maven.indices;
 import consulo.annotation.component.ComponentScope;
 import consulo.annotation.component.ServiceAPI;
 import consulo.annotation.component.ServiceImpl;
+import consulo.application.Application;
 import consulo.application.ApplicationManager;
 import consulo.application.ReadAction;
 import consulo.application.progress.ProgressIndicator;
 import consulo.application.progress.Task;
+import consulo.application.util.BackgroundTaskQueue;
 import consulo.disposer.Disposable;
 import consulo.ide.ServiceManager;
-import consulo.ide.impl.idea.openapi.progress.BackgroundTaskQueue;
 import consulo.maven.rt.server.common.model.MavenArchetype;
 import consulo.maven.rt.server.common.server.MavenServerDownloadListener;
 import consulo.project.Project;
@@ -32,6 +33,7 @@ import consulo.util.io.FileUtil;
 import consulo.util.jdom.JDOMUtil;
 import consulo.util.lang.Pair;
 import consulo.util.lang.StringUtil;
+import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -79,13 +81,19 @@ public class MavenIndicesManager implements Disposable
 	private final Object myUpdatingIndicesLock = new Object();
 	private final List<MavenIndex> myWaitingIndices = new ArrayList<MavenIndex>();
 	private volatile MavenIndex myUpdatingIndex;
-	private final BackgroundTaskQueue myUpdatingQueue = new BackgroundTaskQueue(null, IndicesBundle.message("maven.indices.updating"));
+	private final BackgroundTaskQueue myUpdatingQueue;
 
 	private volatile List<MavenArchetype> myUserArchetypes = new ArrayList<MavenArchetype>();
 
 	public static MavenIndicesManager getInstance()
 	{
 		return ServiceManager.getService(MavenIndicesManager.class);
+	}
+
+	@Inject
+	public MavenIndicesManager(Application application)
+	{
+		myUpdatingQueue = new BackgroundTaskQueue(application, null, IndicesBundle.message("maven.indices.updating"));
 	}
 
 	@TestOnly
