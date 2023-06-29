@@ -21,6 +21,7 @@ import consulo.disposer.Disposable;
 import consulo.ide.IdeBundle;
 import consulo.language.editor.refactoring.RefactoringBundle;
 import consulo.maven.importProvider.MavenImportModuleContext;
+import consulo.platform.base.icon.PlatformIconGroup;
 import consulo.ui.Component;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.action.*;
@@ -70,7 +71,7 @@ public abstract class SelectImportedProjectsStep implements WizardStep<MavenImpo
 		panel.add(fileChooser, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_NORTH, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW,
 				GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null));
 
-		final AnAction selectAllAction = new AnAction(RefactoringBundle.message("select.all.button"))
+		final AnAction selectAllAction = new AnAction(RefactoringBundle.message("select.all.button"), null, PlatformIconGroup.actionsSelectall())
 		{
 			@RequiredUIAccess
 			@Override
@@ -78,8 +79,14 @@ public abstract class SelectImportedProjectsStep implements WizardStep<MavenImpo
 			{
 				fileChooser.setAllElementsMarked(true);
 			}
+
+			@Override
+			public boolean displayTextInToolbar()
+			{
+				return true;
+			}
 		};
-		final AnAction unselectAllAction = new AnAction(RefactoringBundle.message("unselect.all.button"))
+		final AnAction unselectAllAction = new AnAction(RefactoringBundle.message("unselect.all.button"), null, PlatformIconGroup.actionsUnselectall())
 		{
 			@RequiredUIAccess
 			@Override
@@ -87,8 +94,16 @@ public abstract class SelectImportedProjectsStep implements WizardStep<MavenImpo
 			{
 				fileChooser.setAllElementsMarked(false);
 			}
+
+			@Override
+			public boolean displayTextInToolbar()
+			{
+				return true;
+			}
 		};
-		final JComponent actionToolbar = ActionManager.getInstance().createButtonToolbar(ActionPlaces.UNKNOWN, new DefaultActionGroup(selectAllAction, unselectAllAction));
+		ActionToolbar toolbar = ActionManager.getInstance().createActionToolbar(ActionPlaces.UNKNOWN, new DefaultActionGroup(selectAllAction, unselectAllAction), true);
+		toolbar.setTargetComponent(panel);
+		final JComponent actionToolbar = toolbar.getComponent();
 		panel.add(actionToolbar, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_NORTH, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints
 				.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK, null, null, null));
 	}
