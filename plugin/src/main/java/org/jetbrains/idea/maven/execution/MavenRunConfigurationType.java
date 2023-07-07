@@ -30,6 +30,8 @@ import consulo.execution.executor.DefaultRunExecutor;
 import consulo.execution.executor.Executor;
 import consulo.execution.runner.ExecutionEnvironment;
 import consulo.execution.runner.ProgramRunner;
+import consulo.localize.LocalizeValue;
+import consulo.maven.icon.MavenIconGroup;
 import consulo.process.ExecutionException;
 import consulo.project.Project;
 import consulo.ui.image.Image;
@@ -38,7 +40,7 @@ import consulo.util.lang.StringUtil;
 import consulo.virtualFileSystem.LocalFileSystem;
 import consulo.virtualFileSystem.VirtualFile;
 import org.jetbrains.annotations.NonNls;
-import org.jetbrains.idea.maven.MavenIcons;
+import org.jetbrains.idea.maven.localize.MavenRunnerLocalize;
 import org.jetbrains.idea.maven.project.MavenGeneralSettings;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
@@ -102,16 +104,16 @@ public class MavenRunConfigurationType implements ConfigurationType {
     };
   }
 
-  public String getDisplayName() {
-    return RunnerBundle.message("maven.run.configuration.name");
+  public LocalizeValue getDisplayName() {
+    return MavenRunnerLocalize.mavenRunConfigurationName();
   }
 
-  public String getConfigurationTypeDescription() {
-    return RunnerBundle.message("maven.run.configuration.description");
+  public LocalizeValue getConfigurationTypeDescription() {
+    return MavenRunnerLocalize.mavenRunConfigurationDescription();
   }
 
   public Image getIcon() {
-    return MavenIcons.MavenLogo;
+    return MavenIconGroup.mavenlogo();
   }
 
   public ConfigurationFactory[] getConfigurationFactories() {

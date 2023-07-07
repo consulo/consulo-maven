@@ -1,0 +1,64 @@
+maven.execution.aborted:
+  text: Maven execution aborted by user
+maven.execution.finished:
+  text: Maven execution finished
+maven.execution.terminated.abnormally:
+  text: Maven execution terminated abnormally (exit code {0})
+external.executor.caption:
+  text: Executing external Maven
+external.startup.failed:
+  text: 'Cannot start Maven: {0}'
+external.maven.home.no.default:
+  text: No valid Maven installation found. Either set the home directory in the configuration dialog or set the M2_HOME environment variable on your system.
+external.maven.home.no.default.with.fix:
+  text: No valid Maven installation found. Either set the home directory in the <a href="#">configuration dialog</a> or set the M2_HOME environment variable on your system.
+external.maven.home.does.not.exist:
+  text: Specified Maven home directory ({0}) does not exist
+external.maven.home.does.not.exist.with.fix:
+  text: Specified Maven home directory ({0}) does not exist. <a href="#">Configure Maven home</a>
+external.maven.home.invalid:
+  text: '{0} is not a valid Maven home directory'
+external.maven.home.invalid.with.fix:
+  text: '{0} is not a valid Maven home directory. <a href="#">Configure Maven home</a>'
+embedded.executor.caption:
+  text: Executing Maven - using embedded Maven
+embedded.cannot.create:
+  text: Cannot create Maven Embedder
+embedded.build.failed:
+  text: BUILD FAILED
+output.pause.resume:
+  text: Pause/Resume Output
+output.resume:
+  text: Resume Output
+output.pause:
+  text: Pause Output
+error.general:
+  text: Maven 2 Integration plugin error
+maven.tab.runner:
+  text: Runner
+maven.select.maven.home.directory:
+  text: Select Maven home directory
+maven.running:
+  text: Running
+maven.java.home.env:
+  text: Use JAVA_HOME
+maven.java.home.undefined:
+  text: JAVA_HOME environment variable not defined
+maven.java.home.invalid:
+  text: JAVA_HOME environment vairable does not point to valid JRE ({0})
+maven.java.not.found:
+  text: Cannot find JRE ''{0}''
+maven.java.not.resolved:
+  text: JRE is not resolved for current maven distribution
+maven.java.not.found.default.config:
+  text: Cannot find JRE ''{0}''. You can specify JRE to run maven goals in Settings -> Maven -> Runner
+maven.run.configuration.name:
+  text: Maven
+maven.run.configuration.description:
+  text: Maven build
+maven.select.maven.project.file:
+  text: Select Maven project file
+maven.runner.parameters.title:
+  text: Parameters
+maven.run.configuration.error.file.not.found:
+  text: pom.xml not found in the specified working directory.
