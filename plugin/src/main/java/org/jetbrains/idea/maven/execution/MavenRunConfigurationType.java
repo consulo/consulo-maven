@@ -64,6 +64,13 @@ public class MavenRunConfigurationType implements ConfigurationType {
 
   public MavenRunConfigurationType() {
     myFactory = new ConfigurationFactory(this) {
+      @Nonnull
+      @Override
+      public String getId() {
+        // return not localized string - do not break compability 
+        return "Maven";
+      }
+
       public RunConfiguration createTemplateConfiguration(Project project) {
         return new MavenRunConfiguration(project, this, "");
       }
