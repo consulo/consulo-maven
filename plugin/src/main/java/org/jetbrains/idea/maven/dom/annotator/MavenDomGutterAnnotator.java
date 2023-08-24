@@ -16,13 +16,15 @@
 
 package org.jetbrains.idea.maven.dom.annotator;
 
-import consulo.application.AllIcons;
 import consulo.language.editor.annotation.AnnotationHolder;
 import consulo.language.editor.annotation.Annotator;
 import consulo.language.editor.ui.PsiElementListCellRenderer;
 import consulo.language.editor.ui.navigation.NavigationGutterIconBuilder;
 import consulo.language.psi.PsiElement;
+import consulo.maven.icon.MavenIconGroup;
+import consulo.platform.base.icon.PlatformIconGroup;
 import consulo.project.Project;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.image.Image;
 import consulo.util.collection.ContainerUtil;
 import consulo.util.lang.StringUtil;
@@ -30,7 +32,6 @@ import consulo.xml.codeInsight.navigation.DomNavigationGutterIconBuilder;
 import consulo.xml.psi.xml.XmlTag;
 import consulo.xml.util.xml.DomElement;
 import consulo.xml.util.xml.DomManager;
-import org.jetbrains.idea.maven.MavenIcons;
 import org.jetbrains.idea.maven.dom.MavenDomBundle;
 import org.jetbrains.idea.maven.dom.MavenDomProjectProcessorUtils;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
@@ -58,7 +59,7 @@ public class MavenDomGutterAnnotator implements Annotator
 		if(children.size() > 0)
 		{
 			final DomNavigationGutterIconBuilder<MavenDomDependency> iconBuilder =
-					DomNavigationGutterIconBuilder.create(AllIcons.General.OverridenMethod, DependencyConverter.INSTANCE);
+					DomNavigationGutterIconBuilder.create(PlatformIconGroup.gutterOverridenmethod(), DependencyConverter.INSTANCE);
 			iconBuilder.
 					setTargets(children).
 					setPopupTitle(MavenDomBundle.message("navigate.parent.dependency.title")).
@@ -81,7 +82,7 @@ public class MavenDomGutterAnnotator implements Annotator
 		{
 
 			final DomNavigationGutterIconBuilder<MavenDomDependency> iconBuilder =
-					DomNavigationGutterIconBuilder.create(AllIcons.General.OverridingMethod, DependencyConverter.INSTANCE);
+					DomNavigationGutterIconBuilder.create(PlatformIconGroup.gutterOverridingmethod(), DependencyConverter.INSTANCE);
 			iconBuilder.
 					setTargets(children).
 					setTooltipText(MavenDomBundle.message("overriden.dependency.title")).
@@ -101,6 +102,7 @@ public class MavenDomGutterAnnotator implements Annotator
 		return Collections.emptyList();
 	}
 
+	@Override
 	public void annotate(@Nonnull PsiElement psiElement, @Nonnull AnnotationHolder holder)
 	{
 		if(psiElement instanceof XmlTag)
@@ -164,7 +166,7 @@ public class MavenDomGutterAnnotator implements Annotator
 		if(managingPlugin != null)
 		{
 			DomNavigationGutterIconBuilder<MavenDomPlugin> iconBuilder =
-					DomNavigationGutterIconBuilder.create(AllIcons.General.OverridingMethod, PluginConverter.INSTANCE);
+					DomNavigationGutterIconBuilder.create(PlatformIconGroup.gutterOverridingmethod(), PluginConverter.INSTANCE);
 
 			iconBuilder.
 					setTargets(Collections.singletonList(managingPlugin)).
@@ -186,7 +188,7 @@ public class MavenDomGutterAnnotator implements Annotator
 		if(children.size() > 0)
 		{
 			DomNavigationGutterIconBuilder<MavenDomPlugin> iconBuilder =
-					DomNavigationGutterIconBuilder.create(AllIcons.General.OverridenMethod, PluginConverter.INSTANCE);
+					DomNavigationGutterIconBuilder.create(PlatformIconGroup.gutterOverridenmethod(), PluginConverter.INSTANCE);
 
 			iconBuilder.
 					setTargets(children).
@@ -204,7 +206,7 @@ public class MavenDomGutterAnnotator implements Annotator
 
 		if(parent != null)
 		{
-			NavigationGutterIconBuilder.create(MavenIcons.ParentProject, MavenProjectConverter.INSTANCE).
+			NavigationGutterIconBuilder.create(MavenIconGroup.parentproject(), MavenProjectConverter.INSTANCE).
 					setTargets(parent).
 					setTooltipText(MavenDomBundle.message("parent.pom.title")).
 					install(holder, mavenDomParent.getXmlElement());
@@ -220,7 +222,7 @@ public class MavenDomGutterAnnotator implements Annotator
 
 			if(children.size() > 0)
 			{
-				NavigationGutterIconBuilder.create(MavenIcons.ChildrenProjects, MavenProjectConverter.INSTANCE).
+				NavigationGutterIconBuilder.create(MavenIconGroup.childrenprojects(), MavenProjectConverter.INSTANCE).
 						setTargets(children).
 						setCellRenderer(MyListCellRenderer.INSTANCE).
 						setPopupTitle(MavenDomBundle.message("navigate.children.poms.title")).
@@ -240,6 +242,7 @@ public class MavenDomGutterAnnotator implements Annotator
 		public static final MyListCellRenderer INSTANCE = new MyListCellRenderer();
 
 		@Override
+		@RequiredUIAccess
 		public String getElementText(XmlTag tag)
 		{
 			DomElement domElement = DomManager.getDomManager(tag.getProject()).getDomElement(tag);
@@ -274,7 +277,7 @@ public class MavenDomGutterAnnotator implements Annotator
 		@Override
 		protected Image getIcon(PsiElement element)
 		{
-			return MavenIcons.MavenProject;
+			return MavenIconGroup.mavenlogo();
 		}
 
 		@Override
@@ -288,6 +291,7 @@ public class MavenDomGutterAnnotator implements Annotator
 	{
 		public static final DependencyConverter INSTANCE = new DependencyConverter();
 
+		@Override
 		@Nonnull
 		public Collection<? extends PsiElement> apply(final MavenDomDependency pointer)
 		{
@@ -299,6 +303,7 @@ public class MavenDomGutterAnnotator implements Annotator
 	{
 		public static final PluginConverter INSTANCE = new PluginConverter();
 
+		@Override
 		@Nonnull
 		public Collection<? extends PsiElement> apply(final MavenDomPlugin pointer)
 		{
@@ -310,6 +315,7 @@ public class MavenDomGutterAnnotator implements Annotator
 	{
 		public static final MavenProjectConverter INSTANCE = new MavenProjectConverter();
 
+		@Override
 		@Nonnull
 		public Collection<? extends PsiElement> apply(final MavenDomProjectModel pointer)
 		{
