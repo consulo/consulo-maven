@@ -15,6 +15,7 @@
  */
 package org.jetbrains.idea.maven.navigator.actions;
 
+import consulo.content.bundle.Sdk;
 import consulo.ide.setting.ShowSettingsUtil;
 import consulo.maven.MavenNotificationGroup;
 import consulo.process.cmd.ParametersList;
@@ -27,6 +28,7 @@ import consulo.language.editor.CommonDataKeys;
 import consulo.ui.ex.action.DumbAwareAction;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.action.AnActionEvent;
+import consulo.util.lang.Pair;
 import consulo.util.lang.StringUtil;
 import org.jetbrains.idea.maven.execution.*;
 import org.jetbrains.idea.maven.project.MavenGeneralSettings;
@@ -99,7 +101,7 @@ public class MavenExecuteGoalAction extends DumbAwareAction
 
 		MavenProjectsManager projectsManager = MavenProjectsManager.getInstance(project);
 
-		File mavenHome = MavenUtil.resolveMavenHomeDirectory(projectsManager.getGeneralSettings().getMavenBundleName());
+		Pair<File, Sdk> mavenHome = MavenUtil.resolveMavenHome(projectsManager.getGeneralSettings().getMavenBundleName());
 		if(mavenHome == null)
 		{
 			Notification notification = new Notification(MavenNotificationGroup.ROOT, "Failed to execute goal", RunnerBundle.message("external.maven.home.no.default.with.fix"),
@@ -119,7 +121,7 @@ public class MavenExecuteGoalAction extends DumbAwareAction
 		MavenRunnerParameters parameters = new MavenRunnerParameters(true, workDirectory, Arrays.asList(ParametersList.parse(goals)), Collections.<String>emptyList());
 
 		MavenGeneralSettings generalSettings = new MavenGeneralSettings();
-		generalSettings.setMavenBundleName(mavenHome.getPath());
+		generalSettings.setMavenBundleName(mavenHome.getSecond().getName());
 
 		MavenRunnerSettings runnerSettings = MavenRunner.getInstance(project).getSettings().clone();
 		runnerSettings.setMavenProperties(new LinkedHashMap<String, String>());

@@ -21,7 +21,6 @@ import consulo.application.progress.ProgressIndicator;
 import consulo.application.progress.ProgressManager;
 import consulo.application.progress.Task;
 import consulo.application.util.Semaphore;
-import consulo.application.util.SystemInfo;
 import consulo.application.util.concurrent.AppExecutorUtil;
 import consulo.codeEditor.Editor;
 import consulo.component.ProcessCanceledException;
@@ -619,7 +618,7 @@ public class MavenUtil
 	}
 
 	@Nullable
-	public static File resolveMavenHomeDirectory(@Nullable String mavenBundleName)
+	public static Pair<File, Sdk> resolveMavenHome(@Nullable String mavenBundleName)
 	{
 		if(!StringUtil.isEmptyOrSpaces(mavenBundleName))
 		{
@@ -629,152 +628,33 @@ public class MavenUtil
 				String homePath = sdk.getHomePath();
 				if(homePath != null)
 				{
-					return new File(homePath);
+					return Pair.create(new File(homePath), sdk);
 				}
 			}
 
 			return null;
 		}
 
-		String m2home = System.getenv(ENV_M2_HOME);
-		if(!StringUtil.isEmptyOrSpaces(m2home))
+		List<Sdk> sdks = new ArrayList<>(SdkTable.getInstance().getSdksOfType(MavenBundleType.getInstance()));
+		sdks.sort((o1, o2) -> StringUtil.compareVersionNumbers(o1.getVersionString(), o2.getVersionString()));
+
+		Sdk sdk = ContainerUtil.getLastItem(sdks);
+		if(sdk != null)
 		{
-			final File homeFromEnv = new File(m2home);
-			if(isValidMavenHome(homeFromEnv))
+			String homePath = sdk.getHomePath();
+			if(homePath != null)
 			{
-				return homeFromEnv;
+				return Pair.create(new File(homePath), sdk);
 			}
 		}
-
-		String mavenHome = System.getenv("MAVEN_HOME");
-		if(!StringUtil.isEmptyOrSpaces(mavenHome))
-		{
-			final File mavenHomeFile = new File(mavenHome);
-			if(isValidMavenHome(mavenHomeFile))
-			{
-				return mavenHomeFile;
-			}
-		}
-
-		String userHome = SystemProperties.getUserHome();
-		if(!StringUtil.isEmptyOrSpaces(userHome))
-		{
-			final File underUserHome = new File(userHome, M2_DIR);
-			if(isValidMavenHome(underUserHome))
-			{
-				return underUserHome;
-			}
-		}
-
-		if(SystemInfo.isMac)
-		{
-			File home = fromBrew();
-			if(home != null)
-			{
-				return home;
-			}
-
-			if((home = fromMacSystemJavaTools()) != null)
-			{
-				return home;
-			}
-		}
-		else if(SystemInfo.isLinux)
-		{
-			File home = new File("/usr/share/maven");
-			if(isValidMavenHome(home))
-			{
-				return home;
-			}
-
-			home = new File("/usr/share/maven2");
-			if(isValidMavenHome(home))
-			{
-				return home;
-			}
-		}
-
-		List<Sdk> sdks = SdkTable.getInstance().getSdksOfType(MavenBundleType.getInstance());
-
-		Sdk target = null;
-		for(Sdk sdk : sdks)
-		{
-			if(!sdk.isPredefined())
-			{
-				continue;
-			}
-
-			if(target == null)
-			{
-				target = sdk;
-			}
-
-			if(StringUtil.compareVersionNumbers(target.getHomePath(), sdk.getVersionString()) > 0)
-			{
-				target = sdk;
-			}
-		}
-
-		return target == null ? null : new File(target.getHomePath());
-	}
-
-	@Nullable
-	private static File fromMacSystemJavaTools()
-	{
-		final File symlinkDir = new File("/usr/share/maven");
-		if(isValidMavenHome(symlinkDir))
-		{
-			return symlinkDir;
-		}
-
-		// well, try to search
-		final File dir = new File("/usr/share/java");
-		final String[] list = dir.list();
-		if(list == null || list.length == 0)
-		{
-			return null;
-		}
-
-		String home = null;
-		final String prefix = "maven-";
-		final int versionIndex = prefix.length();
-		for(String path : list)
-		{
-			if(path.startsWith(prefix) && (home == null || StringUtil.compareVersionNumbers(path.substring(versionIndex), home.substring(versionIndex)) > 0))
-			{
-				home = path;
-			}
-		}
-
-		if(home != null)
-		{
-			File file = new File(dir, home);
-			if(isValidMavenHome(file))
-			{
-				return file;
-			}
-		}
-
 		return null;
 	}
 
 	@Nullable
-	private static File fromBrew()
+	public static File resolveMavenHomeDirectory(@Nullable String mavenBundleName)
 	{
-		final File brewDir = new File("/usr/local/Cellar/maven");
-		final String[] list = brewDir.list();
-		if(list == null || list.length == 0)
-		{
-			return null;
-		}
-
-		if(list.length > 1)
-		{
-			Arrays.sort(list, (o1, o2) -> StringUtil.compareVersionNumbers(o2, o1));
-		}
-
-		final File file = new File(brewDir, list[0] + "/libexec");
-		return isValidMavenHome(file) ? file : null;
+		Pair<File, Sdk> pair = resolveMavenHome(mavenBundleName);
+		return pair != null ? pair.getKey() : null;
 	}
 
 	public static boolean isValidMavenHome(File home)
