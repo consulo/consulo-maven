@@ -8,6 +8,7 @@ import consulo.content.bundle.Sdk;
 import consulo.content.bundle.SdkModificator;
 import consulo.content.bundle.SdkType;
 import consulo.logging.Logger;
+import consulo.platform.Platform;
 import consulo.ui.image.Image;
 import consulo.util.lang.StringUtil;
 import consulo.util.lang.SystemProperties;
@@ -42,6 +43,13 @@ public class MavenBundleType extends SdkType
 	public MavenBundleType()
 	{
 		super("MVN_BUNDLE");
+	}
+
+	@Nonnull
+	@Override
+	public Set<String> getEnviromentVariables(@Nonnull Platform platform)
+	{
+		return Set.of(MavenUtil.ENV_M2_HOME);
 	}
 
 	@Nonnull
