@@ -26,6 +26,7 @@ import consulo.component.persist.StoragePathMacros;
 import consulo.disposer.Disposable;
 import consulo.execution.RunnerAndConfigurationSettings;
 import consulo.execution.event.RunManagerListener;
+import consulo.execution.event.RunManagerListenerEvent;
 import consulo.ide.ServiceManager;
 import consulo.ide.impl.idea.openapi.wm.ex.ToolWindowEx;
 import consulo.maven.rt.server.common.server.NativeMavenProjectHolder;
@@ -229,25 +230,25 @@ public class MavenProjectsNavigator extends MavenSimpleProjectComponent implemen
 			}
 
 			@Override
-			public void runConfigurationAdded(@Nonnull RunnerAndConfigurationSettings settings)
+			public void runConfigurationAdded(@Nonnull RunManagerListenerEvent event)
 			{
 				changed();
 			}
 
 			@Override
-			public void runConfigurationRemoved(@Nonnull RunnerAndConfigurationSettings settings)
+			public void runConfigurationRemoved(@Nonnull RunManagerListenerEvent event)
 			{
 				changed();
 			}
 
 			@Override
-			public void runConfigurationChanged(@Nonnull RunnerAndConfigurationSettings settings)
+			public void runConfigurationChanged(@Nonnull RunManagerListenerEvent event)
 			{
 				changed();
 			}
 
 			@Override
-			public void beforeRunTasksChanged()
+			public void beforeRunTasksChanged(RunManagerListenerEvent event)
 			{
 				scheduleStructureRequest(() -> myStructure.updateGoals());
 			}
