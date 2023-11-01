@@ -56,6 +56,7 @@ import org.apache.maven.project.path.DefaultPathTranslator;
 import org.apache.maven.project.path.PathTranslator;
 import org.apache.maven.project.validation.ModelValidationResult;
 import org.apache.maven.repository.RepositorySystem;
+import org.apache.maven.session.scope.internal.SessionScope;
 import org.apache.maven.settings.Settings;
 import org.apache.maven.settings.building.*;
 import org.apache.maven.shared.dependency.tree.DependencyNode;
@@ -668,41 +669,44 @@ public class Maven32ServerEmbedderImpl extends Maven3ServerEmbedder
 		return MavenEffectivePomDumper.evaluateEffectivePom(this, file, activeProfiles, inactiveProfiles);
 	}
 
+	@Override
 	public void executeWithMavenSession(MavenExecutionRequest request, Runnable runnable)
 	{
 		DefaultMaven maven = (DefaultMaven) getComponent(Maven.class);
-		RepositorySystemSession repositorySession = maven.newRepositorySession(request);
+		SessionScope sessionScope = getComponent(SessionScope.class);
+		sessionScope.enter();
 
-		request.getProjectBuildingRequest().setRepositorySession(repositorySession);
-
-		MavenSession mavenSession = new MavenSession(myContainer, repositorySession, request, new DefaultMavenExecutionResult());
-		LegacySupport legacySupport = getComponent(LegacySupport.class);
-
-		MavenSession oldSession = legacySupport.getSession();
-
-		legacySupport.setSession(mavenSession);
-
-		/** adapted from {@link DefaultMaven#doExecute(MavenExecutionRequest)} */
 		try
 		{
-			for(AbstractMavenLifecycleParticipant listener : getLifecycleParticipants(Collections.<MavenProject>emptyList()))
+			MavenSession mavenSession = createMavenSession(request, maven);
+			sessionScope.seed(MavenSession.class, mavenSession);
+			LegacySupport legacySupport = getComponent(LegacySupport.class);
+			MavenSession oldSession = legacySupport.getSession();
+			legacySupport.setSession(mavenSession);
+
+			notifyAfterSessionStart(mavenSession);
+			// adapted from {@link DefaultMaven#doExecute(MavenExecutionRequest)}
+			try
 			{
-				listener.afterSessionStart(mavenSession);
+				runnable.run();
 			}
-		}
-		catch(MavenExecutionException e)
-		{
-			throw new RuntimeException(e);
-		}
-
-		try
-		{
-			runnable.run();
+			finally
+			{
+				legacySupport.setSession(oldSession);
+			}
 		}
 		finally
 		{
-			legacySupport.setSession(oldSession);
+			sessionScope.exit();
 		}
+	}
+
+	@Nonnull
+	private MavenSession createMavenSession(MavenExecutionRequest request, DefaultMaven maven)
+	{
+		RepositorySystemSession repositorySession = maven.newRepositorySession(request);
+		request.getProjectBuildingRequest().setRepositorySession(repositorySession);
+		return new MavenSession(myContainer, repositorySession, request, new DefaultMavenExecutionResult());
 	}
 
 	@Nonnull
@@ -912,7 +916,8 @@ public class Maven32ServerEmbedderImpl extends Maven3ServerEmbedder
 	/**
 	 * adapted from {@link DefaultMaven#getLifecycleParticipants(Collection)}
 	 */
-	private Collection<AbstractMavenLifecycleParticipant> getLifecycleParticipants(Collection<MavenProject> projects)
+	@Override
+	public Collection<AbstractMavenLifecycleParticipant> getLifecycleParticipants(Collection<MavenProject> projects)
 	{
 		Collection<AbstractMavenLifecycleParticipant> lifecycleListeners = new LinkedHashSet<AbstractMavenLifecycleParticipant>();
 

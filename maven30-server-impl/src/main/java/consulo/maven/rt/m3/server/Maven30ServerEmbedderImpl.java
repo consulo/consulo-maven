@@ -751,7 +751,7 @@ public class Maven30ServerEmbedderImpl extends Maven3ServerEmbedder
   /**
    * adapted from {@link DefaultMaven#getLifecycleParticipants(Collection)}
    */
-  private Collection<AbstractMavenLifecycleParticipant> getLifecycleParticipants(Collection<MavenProject> projects) {
+  public Collection<AbstractMavenLifecycleParticipant> getLifecycleParticipants(Collection<MavenProject> projects) {
     Collection<AbstractMavenLifecycleParticipant> lifecycleListeners = new LinkedHashSet<AbstractMavenLifecycleParticipant>();
 
     ClassLoader originalClassLoader = Thread.currentThread().getContextClassLoader();

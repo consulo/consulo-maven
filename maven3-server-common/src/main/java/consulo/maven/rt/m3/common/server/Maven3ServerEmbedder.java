@@ -15,6 +15,12 @@
  */
 package consulo.maven.rt.m3.common.server;
 
+import consulo.maven.rt.server.common.model.MavenRemoteRepository;
+import consulo.maven.rt.server.common.server.MavenRemoteObject;
+import consulo.maven.rt.server.common.server.MavenServerEmbedder;
+import consulo.maven.rt.server.common.server.MavenServerSettings;
+import org.apache.maven.AbstractMavenLifecycleParticipant;
+import org.apache.maven.MavenExecutionException;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.DefaultArtifact;
 import org.apache.maven.artifact.handler.DefaultArtifactHandler;
@@ -22,16 +28,15 @@ import org.apache.maven.artifact.metadata.ArtifactMetadataSource;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.versioning.ArtifactVersion;
 import org.apache.maven.execution.MavenExecutionRequest;
-import consulo.maven.rt.server.common.model.MavenRemoteRepository;
-import consulo.maven.rt.server.common.server.MavenRemoteObject;
-import consulo.maven.rt.server.common.server.MavenServerEmbedder;
-import consulo.maven.rt.server.common.server.MavenServerSettings;
+import org.apache.maven.execution.MavenSession;
+import org.apache.maven.project.MavenProject;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.File;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -88,6 +93,23 @@ public abstract class Maven3ServerEmbedder extends MavenRemoteObject implements 
 
 	@SuppressWarnings({"unchecked"})
 	public abstract <T> T getComponent(Class<T> clazz);
+
+	protected void notifyAfterSessionStart(MavenSession mavenSession)
+	{
+		try
+		{
+			for(AbstractMavenLifecycleParticipant listener : getLifecycleParticipants(Collections.<MavenProject>emptyList()))
+			{
+				listener.afterSessionStart(mavenSession);
+			}
+		}
+		catch(MavenExecutionException e)
+		{
+			throw new RuntimeException(e);
+		}
+	}
+
+	public abstract Collection<AbstractMavenLifecycleParticipant> getLifecycleParticipants(Collection<MavenProject> projects);
 
 	public abstract void executeWithMavenSession(MavenExecutionRequest request, Runnable runnable);
 
