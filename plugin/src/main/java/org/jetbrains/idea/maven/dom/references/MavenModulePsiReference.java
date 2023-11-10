@@ -49,6 +49,7 @@ public class MavenModulePsiReference extends MavenPsiReference implements LocalQ
 
   public PsiElement resolve() {
     VirtualFile baseDir = myPsiFile.getVirtualFile().getParent();
+    if(baseDir == null) return null;
     String relPath = FileUtil.toSystemIndependentName(myText + "/" + MavenConstants.POM_XML);
     VirtualFile file = baseDir.findFileByRelativePath(relPath);
 
