@@ -28,7 +28,6 @@ import consulo.execution.RunnerAndConfigurationSettings;
 import consulo.execution.event.RunManagerListener;
 import consulo.execution.event.RunManagerListenerEvent;
 import consulo.ide.ServiceManager;
-import consulo.ide.impl.idea.openapi.wm.ex.ToolWindowEx;
 import consulo.maven.rt.server.common.server.NativeMavenProjectHolder;
 import consulo.platform.base.icon.PlatformIconGroup;
 import consulo.project.Project;
@@ -255,7 +254,7 @@ public class MavenProjectsNavigator extends MavenSimpleProjectComponent implemen
 		});
 	}
 
-	public void initToolWindow(ToolWindowEx toolWindow)
+	public void initToolWindow(ToolWindow toolWindow)
 	{
 		initTree();
 		JPanel panel = new MavenProjectsNavigatorPanel(myProject, myTree);

@@ -2,13 +2,13 @@ package consulo.maven.toolWindow;
 
 import consulo.annotation.component.ExtensionImpl;
 import consulo.application.dumb.DumbAware;
-import consulo.ide.impl.idea.openapi.wm.ex.ToolWindowEx;
 import consulo.localize.LocalizeValue;
 import consulo.maven.icon.MavenIconGroup;
 import consulo.maven.module.extension.MavenModuleExtension;
 import consulo.module.extension.ModuleExtensionHelper;
 import consulo.project.Project;
 import consulo.project.ui.wm.ToolWindowFactory;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.toolWindow.ToolWindow;
 import consulo.ui.ex.toolWindow.ToolWindowAnchor;
 import consulo.ui.image.Image;
@@ -30,12 +30,13 @@ public class MavenToolWindowFactory implements ToolWindowFactory, DumbAware
 		return "Maven";
 	}
 
+	@RequiredUIAccess
 	@Override
 	public void createToolWindowContent(@Nonnull Project project, @Nonnull ToolWindow toolWindow)
 	{
 		MavenProjectsNavigator navigator = MavenProjectsNavigator.getInstance(project);
 
-		navigator.initToolWindow((ToolWindowEx) toolWindow);
+		navigator.initToolWindow(toolWindow);
 	}
 
 	@Nonnull

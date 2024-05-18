@@ -26,7 +26,6 @@ import consulo.content.bundle.Sdk;
 import consulo.content.bundle.SdkTable;
 import consulo.execution.RunManager;
 import consulo.ide.impl.idea.execution.impl.EditConfigurationsDialog;
-import consulo.ide.impl.idea.execution.impl.RunManagerImpl;
 import consulo.ide.impl.idea.util.PathUtil;
 import consulo.ide.setting.ShowSettingsUtil;
 import consulo.java.execution.configurations.OwnJavaParameters;
@@ -417,7 +416,7 @@ public class MavenExternalParameters
 			Project runCfgProject = runConfiguration.getProject();
 			if(runCfgProject != null)
 			{
-				if(((RunManagerImpl) RunManager.getInstance(runCfgProject)).getSettings(runConfiguration) != null)
+				if(RunManager.getInstance(runCfgProject).findSettings(runConfiguration) != null)
 				{
 					return new RunConfigurationOpenerExecutionException(textWithFix, runConfiguration);
 				}

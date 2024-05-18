@@ -24,6 +24,7 @@ import consulo.fileChooser.FileChooserDescriptorFactory;
 import consulo.fileChooser.FileChooserDialog;
 import consulo.maven.rt.server.common.model.MavenArtifactInfo;
 import consulo.maven.rt.server.common.model.MavenRepositoryInfo;
+import consulo.platform.base.icon.PlatformIconGroup;
 import consulo.project.Project;
 import consulo.project.ProjectBundle;
 import consulo.project.ProjectPropertiesComponent;
@@ -90,7 +91,7 @@ public class RepositoryAttachDialog extends DialogWrapper
     myInfoLabel.setPreferredSize(
       new Dimension(myInfoLabel.getFontMetrics(myInfoLabel.getFont()).stringWidth("Showing: 1000"), myInfoLabel.getPreferredSize().height));
 
-    myComboComponent.setButtonIcon(AllIcons.Actions.Menu_find);
+    myComboComponent.setButtonIcon(PlatformIconGroup.actionsSearch());
     myComboComponent.getButton().addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
