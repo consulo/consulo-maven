@@ -24,6 +24,7 @@ import consulo.content.ContentFolderTypeProvider;
 import consulo.content.OrderRootType;
 import consulo.content.base.*;
 import consulo.content.library.Library;
+import consulo.content.library.LibraryProperties;
 import consulo.java.impl.module.extension.JavaMutableModuleExtensionImpl;
 import consulo.language.content.*;
 import consulo.maven.rt.server.common.model.MavenArtifact;
@@ -45,6 +46,7 @@ import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.utils.Path;
 import org.jetbrains.idea.maven.utils.Url;
+import org.jetbrains.idea.maven.utils.library.RepositoryLibraryProperties;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -398,6 +400,11 @@ public class MavenRootModelAdapter
 		if(library == null)
 		{
 			library = provider.createLibrary(libraryName);
+			LibraryProperties properties = library.getProperties();
+			if(properties instanceof RepositoryLibraryProperties repositoryLibraryProperties)
+			{
+				repositoryLibraryProperties.setMavenId(artifact.getMavenId().toString());
+			}
 		}
 		Library.ModifiableModel libraryModel = provider.getLibraryModel(library);
 
