@@ -31,6 +31,7 @@ import consulo.module.content.layer.ModifiableRootModel;
 import consulo.project.Project;
 import consulo.project.content.library.ProjectLibraryTable;
 import consulo.ui.ModalityState;
+import org.jetbrains.idea.maven.utils.library.RepositoryLibraryType;
 
 import javax.annotation.Nonnull;
 import java.util.Collection;
@@ -69,21 +70,25 @@ public class MavenDefaultModifiableModelsProvider extends MavenBaseModifiableMod
 		return myLibrariesModel;
 	}
 
+	@Override
 	public Library[] getAllLibraries()
 	{
 		return myLibrariesModel.getLibraries();
 	}
 
+	@Override
 	public Library getLibraryByName(String name)
 	{
 		return myLibrariesModel.getLibraryByName(name);
 	}
 
+	@Override
 	public Library createLibrary(String name)
 	{
-		return myLibrariesModel.createLibrary(name);
+		return myLibrariesModel.createLibrary(name, RepositoryLibraryType.getInstance().getKind());
 	}
 
+	@Override
 	public void removeLibrary(Library library)
 	{
 		myLibrariesModel.removeLibrary(library);
@@ -95,10 +100,12 @@ public class MavenDefaultModifiableModelsProvider extends MavenBaseModifiableMod
 		return library.getModifiableModel();
 	}
 
+	@Override
 	public void commit()
 	{
 		ProjectRootManager.getInstance(myProject).mergeRootsChangesDuring(new Runnable()
 		{
+			@Override
 			public void run()
 			{
 				processExternalArtifactDependencies();
@@ -124,6 +131,7 @@ public class MavenDefaultModifiableModelsProvider extends MavenBaseModifiableMod
 		});
 	}
 
+	@Override
 	public void dispose()
 	{
 		for(ModifiableRootModel each : myRootModels.values())
@@ -137,6 +145,7 @@ public class MavenDefaultModifiableModelsProvider extends MavenBaseModifiableMod
 		}
 	}
 
+	@Override
 	public ModalityState getModalityStateForQuestionDialogs()
 	{
 		return Application.get().getNoneModalityState();

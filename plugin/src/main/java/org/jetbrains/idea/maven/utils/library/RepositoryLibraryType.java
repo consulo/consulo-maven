@@ -21,10 +21,10 @@ import consulo.content.library.NewLibraryConfiguration;
 import consulo.content.library.PersistentLibraryKind;
 import consulo.content.library.ui.LibraryEditorComponent;
 import consulo.content.library.ui.LibraryPropertiesEditor;
+import consulo.maven.icon.MavenIconGroup;
 import consulo.project.Project;
 import consulo.ui.image.Image;
 import consulo.virtualFileSystem.VirtualFile;
-import org.jetbrains.idea.maven.MavenIcons;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -86,6 +86,6 @@ public class RepositoryLibraryType extends LibraryType<RepositoryLibraryProperti
 	@Override
 	public Image getIcon()
 	{
-		return MavenIcons.MavenLogo;
+		return MavenIconGroup.mavenlogotransparent();
 	}
 }

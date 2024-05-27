@@ -28,6 +28,7 @@ import consulo.module.Module;
 import consulo.module.content.layer.ModifiableRootModel;
 import consulo.project.Project;
 import consulo.ui.ModalityState;
+import org.jetbrains.idea.maven.utils.library.RepositoryLibraryType;
 
 public class MavenUIModifiableModelsProvider extends MavenBaseModifiableModelsProvider
 {
@@ -89,7 +90,7 @@ public class MavenUIModifiableModelsProvider extends MavenBaseModifiableModelsPr
 	@Override
 	public Library createLibrary(String name)
 	{
-		return myLibrariesModel.createLibrary(name);
+		return myLibrariesModel.createLibrary(name, RepositoryLibraryType.getInstance().getKind());
 	}
 
 	@Override
