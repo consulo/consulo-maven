@@ -1,10 +1,10 @@
 package consulo.maven.util;
 
 import com.intellij.java.language.LanguageLevel;
-import com.intellij.java.language.projectRoots.JavaSdk;
 import com.intellij.java.language.projectRoots.JavaSdkVersion;
 import consulo.content.bundle.Sdk;
 import consulo.content.bundle.SdkTable;
+import consulo.java.language.bundle.JavaSdkTypeUtil;
 import consulo.util.collection.ContainerUtil;
 import consulo.util.lang.StringUtil;
 
@@ -39,13 +39,12 @@ public class MavenJdkUtil
 	public static Sdk findSdkOfLevel(@Nonnull LanguageLevel languageLevel, @Nullable String runtimeJdkName)
 	{
 		SdkTable sdkTable = SdkTable.getInstance();
-		JavaSdk javaSdk = JavaSdk.getInstance();
 		if(runtimeJdkName != null)
 		{
 			Sdk sdk = sdkTable.findSdk(runtimeJdkName);
 			if(sdk != null)
 			{
-				JavaSdkVersion version = javaSdk.getVersion(sdk);
+				JavaSdkVersion version = JavaSdkTypeUtil.getVersion(sdk);
 				if(version != null && version.getMaxLanguageLevel().isAtLeast(languageLevel))
 				{
 					return sdk;
@@ -53,17 +52,17 @@ public class MavenJdkUtil
 			}
 		}
 
-		List<Sdk> list = sdkTable.getSdksOfType(javaSdk);
+		List<Sdk> list = JavaSdkTypeUtil.getAllJavaSdks();
 		ContainerUtil.weightSort(list, sdk ->
 		{
-			JavaSdkVersion version = javaSdk.getVersion(sdk);
+			JavaSdkVersion version = JavaSdkTypeUtil.getVersion(sdk);
 			int ordinal = version == null ? 0 : version.ordinal();
 			return sdk.isPredefined() ? ordinal * 100 : ordinal;
 		});
 
 		for(Sdk sdk : list)
 		{
-			JavaSdkVersion version = javaSdk.getVersion(sdk);
+			JavaSdkVersion version = JavaSdkTypeUtil.getVersion(sdk);
 			if(version == null)
 			{
 				continue;
