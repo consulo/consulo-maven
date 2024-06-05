@@ -9,6 +9,7 @@
 	<depends>consulo.java</depends>
 	<depends>com.intellij.properties</depends>
 	<category>Build</category>
+	<localize>org.jetbrains.idea.maven.MavenLocalize</localize>
 
 	<tags>
 		<tag>build.framework</tag>
