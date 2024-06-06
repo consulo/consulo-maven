@@ -1888,7 +1888,7 @@ public class MavenProjectsStructure extends SimpleTreeStructure
 		@Override
 		public void handleDoubleClickOrEnter(SimpleTree tree, InputEvent inputEvent)
 		{
-			ProgramRunnerUtil.executeConfiguration(myProject, mySettings, DefaultRunExecutor.getRunExecutorInstance());
+			ProgramRunnerUtil.executeConfiguration(mySettings, DefaultRunExecutor.getRunExecutorInstance());
 		}
 	}
 }
