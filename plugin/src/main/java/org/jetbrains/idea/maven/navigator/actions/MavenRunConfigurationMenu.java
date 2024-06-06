@@ -88,7 +88,7 @@ public class MavenRunConfigurationMenu extends DefaultActionGroup implements Dum
 		{
 			if(myEnabled)
 			{
-				ProgramRunnerUtil.executeConfiguration(myProject, mySettings, myExecutor);
+				ProgramRunnerUtil.executeConfiguration(mySettings, myExecutor);
 			}
 		}
 
