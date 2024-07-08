@@ -15,6 +15,7 @@
  */
 package org.jetbrains.idea.maven.dom.converters;
 
+import consulo.localize.LocalizeValue;
 import consulo.util.lang.StringUtil;
 import consulo.xml.util.xml.ConvertContext;
 import consulo.xml.util.xml.ResolvingConverter;
@@ -52,8 +53,9 @@ public abstract class MavenConstantListConverter extends ResolvingConverter<Stri
 
   protected abstract Collection<String> getValues(@Nonnull ConvertContext context);
 
+  @Nonnull
   @Override
-  public String getErrorMessage(@Nullable String s, ConvertContext context) {
-    return "<html>Specified value is not acceptable here.<br>Acceptable values: " + StringUtil.join(getValues(context), ", ") + "</html>";
+  public LocalizeValue buildUnresolvedMessage(@Nullable String s, ConvertContext context) {
+    return LocalizeValue.localizeTODO("<html>Specified value is not acceptable here.<br>Acceptable values: " + StringUtil.join(getValues(context), ", ") + "</html>");
   }
 }

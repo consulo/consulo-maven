@@ -18,6 +18,7 @@ package org.jetbrains.idea.maven.dom.converters;
 import consulo.language.editor.inspection.LocalQuickFix;
 import consulo.application.util.function.Computable;
 import consulo.application.util.RecursionManager;
+import consulo.localize.LocalizeValue;
 import consulo.util.lang.StringUtil;
 import consulo.virtualFileSystem.LocalFileSystem;
 import consulo.language.psi.PsiElement;
@@ -88,9 +89,10 @@ public abstract class MavenArtifactCoordinatesConverter extends ResolvingConvert
     return context.getFile().getProject();
   }
 
+  @Nonnull
   @Override
-  public String getErrorMessage(@Nullable String s, ConvertContext context) {
-    return selectStrategy(context).getContextName() + " '''" + MavenArtifactCoordinatesHelper.getId(context) + "''' not found";
+  public LocalizeValue buildUnresolvedMessage(@Nullable String s, ConvertContext context) {
+    return LocalizeValue.localizeTODO(selectStrategy(context).getContextName() + " '''" + MavenArtifactCoordinatesHelper.getId(context) + "''' not found");
   }
 
   @Override
