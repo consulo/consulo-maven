@@ -43,11 +43,9 @@
 
 	<modules>
 		<module>artifact-resolver-common</module>
-		<module>artifact-resolver-m2</module>
 		<module>artifact-resolver-m3</module>
 		<module>artifact-resolver-m31</module>
 		<module>maven-server-api</module>
-		<module>maven2-server-impl</module>
 		<module>maven3-server-common</module>
 		<module>maven30-server-impl</module>
 		<module>maven32-server-impl</module>

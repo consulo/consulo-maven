@@ -58,35 +58,6 @@
 						<version>${build.number}</version>
 						<copies>
 							<copy>
-								<artifact>javax.activation:activation:1.1</artifact>
-								<path>lib/maven2-server-lib/</path>
-							</copy>
-							<copy>
-								<artifact>org.apache.maven.shared:maven-dependency-tree:1.2</artifact>
-								<path>lib/maven2-server-lib/</path>
-							</copy>
-							<copy>
-								<artifact>org.sonatype.nexus:nexus-indexer:1.2.3</artifact>
-								<path>lib/maven2-server-lib/</path>
-							</copy>
-							<copy>
-								<artifact>org.apache.maven.mercury:mercury-artifact:1.0-alpha-6</artifact>
-								<path>lib/maven2-server-lib/</path>
-							</copy>
-							<copy>
-								<artifact>org.codehaus.plexus:plexus-utils:1.5.5</artifact>
-								<path>lib/maven2-server-lib/</path>
-							</copy>
-							<copy>
-								<artifact>org.apache.maven.archetype:archetype-common:2.0</artifact>
-								<path>lib/maven2-server-lib/</path>
-							</copy>
-							<copy>
-								<artifact>commons-beanutils:commons-beanutils:1.7.0</artifact>
-								<path>lib/maven2-server-lib/</path>
-							</copy>
-
-							<copy>
 								<artifact>org.apache.maven.shared:maven-dependency-tree:2.0</artifact>
 								<path>lib/maven3-server-lib/</path>
 							</copy>
@@ -153,17 +124,7 @@
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
-			<artifactId>org.jetbrains.idea.maven-maven2.server.impl</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>${project.groupId}</groupId>
 			<artifactId>org.jetbrains.idea.maven-artifact.resolver.common</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>org.jetbrains.idea.maven-artifact.resolver.m2</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>

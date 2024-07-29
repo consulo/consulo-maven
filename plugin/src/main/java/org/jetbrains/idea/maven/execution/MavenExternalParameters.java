@@ -48,7 +48,6 @@ import org.jetbrains.idea.maven.artifactResolver.common.MavenModuleMap;
 import org.jetbrains.idea.maven.project.MavenGeneralSettings;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
-import org.jetbrains.idea.maven.rt.m2.MavenArtifactResolvedM2RtMarker;
 import org.jetbrains.idea.maven.rt.m3.MavenArtifactResolvedM3RtMarker;
 import org.jetbrains.idea.maven.rt.m31.MavenArtifactResolvedM31RtMarker;
 import org.jetbrains.idea.maven.utils.MavenSettings;
@@ -218,19 +217,14 @@ public class MavenExternalParameters
 
 	private static List<String> getArtifactResolverJars(@Nullable String mavenVersion) throws IOException
 	{
-		Class marker;
+		Class marker = MavenArtifactResolvedM3RtMarker.class;
 
-		if(mavenVersion != null && mavenVersion.compareTo("3.1.0") >= 0)
+		if (mavenVersion != null)
 		{
-			marker = MavenArtifactResolvedM31RtMarker.class;
-		}
-		else if(mavenVersion != null && mavenVersion.compareTo("3.0.0") >= 0)
-		{
-			marker = MavenArtifactResolvedM3RtMarker.class;
-		}
-		else
-		{
-			marker = MavenArtifactResolvedM2RtMarker.class;
+			if (StringUtil.compareVersionNumbers(mavenVersion, "3.1") >= 0)
+			{
+				marker = MavenArtifactResolvedM31RtMarker.class;
+			}
 		}
 
 		List<String> classpath = new ArrayList<>(2);

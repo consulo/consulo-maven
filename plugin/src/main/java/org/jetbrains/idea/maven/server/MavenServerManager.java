@@ -34,12 +34,9 @@ import consulo.execution.executor.Executor;
 import consulo.execution.runner.ProgramRunner;
 import consulo.ide.ServiceManager;
 import consulo.ide.impl.idea.execution.rmi.RemoteProcessSupport;
-import consulo.ide.impl.idea.openapi.application.PathManager;
-import consulo.ide.impl.idea.util.PathUtil;
 import consulo.java.execution.OwnSimpleJavaParameters;
 import consulo.java.execution.projectRoots.OwnJdkUtil;
 import consulo.maven.bundle.MavenBundleType;
-import consulo.maven.rt.m2.server.MavenServer2MarkerRt;
 import consulo.maven.rt.m3.common.MavenServer3CommonMarkerRt;
 import consulo.maven.rt.m3.server.MavenServer30MarkerRt;
 import consulo.maven.rt.m32.server.MavenServer32MarkerRt;
@@ -91,13 +88,10 @@ import java.util.*;
 @ServiceImpl
 public class MavenServerManager extends RemoteObjectWrapper<MavenServer> implements PersistentStateComponent<MavenServerManager.State>
 {
-	private static final String MAIN_CLASS_V2 = "consulo.maven.rt.m2.server.RemoteMavenServer";
 	private static final String MAIN_CLASS_V3 = "consulo.maven.rt.m3.server.RemoteMavenServer";
 	private static final String MAIN_CLASS_V32 = "consulo.maven.rt.m32.server.RemoteMavenServer";
 
 	private static final String DEFAULT_VM_OPTIONS = "-Xmx512m";
-
-	private static final String FORCE_MAVEN2_OPTION = "-Didea.force.maven2";
 
 	private final RemoteProcessSupport<Object, MavenServer, Object> mySupport;
 
@@ -270,7 +264,6 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
 
 				boolean xmxSet = false;
 
-				boolean forceMaven2 = false;
 				if(myState.vmOptions != null)
 				{
 					ParametersList mavenOptsList = new ParametersList();
@@ -282,16 +275,12 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
 						{
 							xmxSet = true;
 						}
-						if(param.equals(FORCE_MAVEN2_OPTION))
-						{
-							forceMaven2 = true;
-						}
 
 						params.getVMParametersList().add(param);
 					}
 				}
 
-				final String currentMavenVersion = forceMaven2 ? "2.2.1" : getCurrentMavenVersion();
+				final String currentMavenVersion = getCurrentMavenVersion();
 
 				final Sdk jdk = getSdkForRun(MavenJdkUtil.getDefaultRunLevel(currentMavenVersion));
 				if(jdk == null)
@@ -306,11 +295,11 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
 
 				classPath.add(ClassPathUtil.getJarPathForClass(RemoteServer.class)); // consulo-util-rmi
 				classPath.add(ClassPathUtil.getJarPathForClass(Document.class)); // jdom
-				ContainerUtil.addIfNotNull(classPath, PathUtil.getJarPathForClass(Query.class));
+				ContainerUtil.addIfNotNull(classPath, ClassPathUtil.getJarPathForClass(Query.class));
 				params.getClassPath().addAll(classPath);
 
-				SimpleReference<String> mainClassRef = new SimpleReference<>(MAIN_CLASS_V2);
-				params.getClassPath().addAllFiles(collectClassPathAndLibsFolder(forceMaven2, mainClassRef));
+				SimpleReference<String> mainClassRef = new SimpleReference<>(MAIN_CLASS_V3);
+				params.getClassPath().addAllFiles(collectClassPathAndLibsFolder(mainClassRef));
 				params.setMainClass(mainClassRef.get());
 
 				String embedderXmx = System.getProperty("idea.maven.embedder.xmx");
@@ -416,18 +405,12 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
 		return null;
 	}
 
-	@Nullable
-	private static File findMaven2BundlePath()
-	{
-		Sdk maven2Bundle = findMaven2Bundle();
-		return maven2Bundle == null ? null : new File(maven2Bundle.getHomePath());
-	}
 
 	@Nonnull
-	public List<File> collectClassPathAndLibsFolder(boolean forceMaven2, SimpleReference<String> mainClassRef)
+	public List<File> collectClassPathAndLibsFolder(SimpleReference<String> mainClassRef)
 	{
-		final String currentMavenVersion = forceMaven2 ? "2.2.1" : getCurrentMavenVersion();
-		File mavenHome = forceMaven2 ? findMaven2BundlePath() : getCurrentMavenHomeFile();
+		final String currentMavenVersion = getCurrentMavenVersion();
+		File mavenHome = getCurrentMavenHomeFile();
 
 		File pluginPath = PluginManager.getPluginPath(getClass());
 		File libDir = new File(pluginPath, "lib");
@@ -436,30 +419,19 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
 
 		addJarFromClass(classpath, MavenServerApiMarkerRt.class);
 
-		if(forceMaven2 || (currentMavenVersion != null && StringUtil.compareVersionNumbers(currentMavenVersion, "3") < 0))
-		{
-			mainClassRef.set(MAIN_CLASS_V2);
+		addJarFromClass(classpath, MavenServer3CommonMarkerRt.class);
 
-			addJarFromClass(classpath, MavenServer2MarkerRt.class);
-			addDir(classpath, new File(libDir, "maven2-server-lib"));
+		addDir(classpath, new File(libDir, "maven3-server-lib"));
+
+		if (currentMavenVersion == null || StringUtil.compareVersionNumbers(currentMavenVersion, "3.1") < 0) {
+			mainClassRef.set(MAIN_CLASS_V3);
+
+			addJarFromClass(classpath, MavenServer30MarkerRt.class);
 		}
-		else
-		{
-			addJarFromClass(classpath, MavenServer3CommonMarkerRt.class);
-			addDir(classpath, new File(libDir, "maven3-server-lib"));
+		else {
+			mainClassRef.set(MAIN_CLASS_V32);
 
-			if(currentMavenVersion == null || StringUtil.compareVersionNumbers(currentMavenVersion, "3.1") < 0)
-			{
-				mainClassRef.set(MAIN_CLASS_V3);
-
-				addJarFromClass(classpath, MavenServer30MarkerRt.class);
-			}
-			else
-			{
-				mainClassRef.set(MAIN_CLASS_V32);
-
-				addJarFromClass(classpath, MavenServer32MarkerRt.class);
-			}
+			addJarFromClass(classpath, MavenServer32MarkerRt.class);
 		}
 
 		addMavenLibs(classpath, mavenHome);

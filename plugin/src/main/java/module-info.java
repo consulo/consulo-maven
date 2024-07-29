@@ -29,12 +29,10 @@ open module org.jetbrains.idea.maven
 	requires org.jetbrains.idea.maven.artifact.resolver.common;
 	requires org.jetbrains.idea.maven.server.common;
 	requires org.jetbrains.idea.maven.artifact.resolver.m31;
-	requires org.jetbrains.idea.maven.artifact.resolver.m2;
 	requires org.jetbrains.idea.maven.artifact.resolver.m3;
 	requires org.jetbrains.idea.maven.server.m3.common;
 	requires org.jetbrains.idea.maven.server.m30;
 	requires org.jetbrains.idea.maven.server.m32;
-	requires org.jetbrains.idea.maven.server.m2;
 
 	// TODO remove in future
 	requires consulo.ide.impl;
