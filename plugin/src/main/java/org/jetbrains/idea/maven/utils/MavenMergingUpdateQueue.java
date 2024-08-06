@@ -16,21 +16,17 @@
 package org.jetbrains.idea.maven.utils;
 
 import consulo.application.ApplicationManager;
-import consulo.application.ReadAction;
 import consulo.codeEditor.EditorFactory;
 import consulo.codeEditor.event.CaretAdapter;
 import consulo.codeEditor.event.CaretEvent;
 import consulo.codeEditor.event.EditorEventMulticaster;
-import consulo.component.messagebus.MessageBusConnection;
 import consulo.disposer.Disposable;
 import consulo.document.event.DocumentAdapter;
 import consulo.document.event.DocumentEvent;
 import consulo.logging.Logger;
 import consulo.module.content.layer.event.ModuleRootEvent;
 import consulo.module.content.layer.event.ModuleRootListener;
-import consulo.project.DumbService;
 import consulo.project.Project;
-import consulo.project.event.DumbModeListener;
 import consulo.ui.UIAccess;
 import consulo.ui.event.ModalityStateListener;
 import consulo.ui.ex.awt.util.MergingUpdateQueue;
@@ -129,33 +125,6 @@ public class MavenMergingUpdateQueue extends MergingUpdateQueue
 		});
 	}
 
-	public void makeDumbAware(final Project project)
-	{
-		MessageBusConnection connection = project.getMessageBus().connect(this);
-		connection.subscribe(DumbModeListener.class, new DumbModeListener()
-		{
-			@Override
-			public void enteredDumbMode()
-			{
-				suspend();
-			}
-
-			@Override
-			public void exitDumbMode()
-			{
-				resume();
-			}
-		});
-
-		ReadAction.run(() ->
-		{
-			if(DumbService.getInstance(project).isDumb())
-			{
-				suspend();
-			}
-		});
-	}
-
 	public void makeModalAware(Project project)
 	{
 		MavenUtil.invokeLater(project, new Runnable()
@@ -205,7 +174,7 @@ public class MavenMergingUpdateQueue extends MergingUpdateQueue
 			if(c < 0)
 			{
 				mySuspendCounter.set(0);
-				LOG.error("Invalid suspend counter state", new Exception());
+				LOG.warn("Invalid suspend counter state", new Exception());
 			}
 
 			super.resume();

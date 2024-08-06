@@ -320,7 +320,6 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 		myImportingQueue.setPassThrough(false);
 
 		myImportingQueue.makeUserAware(myProject);
-		myImportingQueue.makeDumbAware(myProject);
 		myImportingQueue.makeModalAware(myProject);
 	}
 
