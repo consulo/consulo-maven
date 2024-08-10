@@ -137,6 +137,12 @@ public class Maven32ServerEmbedderImpl extends Maven3ServerEmbedder {
         myConsoleWrapper = new Maven3ServerConsoleLogger();
         myConsoleWrapper.setThreshold(settings.getLoggingLevel());
 
+        try {
+            Maven3Sl4jLoggerWrapper.setCurrentWrapper(myConsoleWrapper);
+        }
+        catch (Exception ignored) {
+        }
+
         ClassWorld classWorld = new ClassWorld("plexus.core", Thread.currentThread().getContextClassLoader());
         MavenCli cli = new MavenCli(classWorld) {
             @Override

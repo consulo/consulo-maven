@@ -83,6 +83,7 @@ import java.io.File;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
+import java.util.function.Predicate;
 
 @State(name = "MavenVersion", storages = @Storage("mavenVersion.xml"))
 @Singleton
@@ -378,7 +379,7 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
 
         addJarFromClass(classpath, MavenServer3CommonMarkerRt.class);
 
-        addDir(classpath, new File(libDir, "maven3-server-lib"));
+        addDir(classpath, new File(libDir, "maven3-server-lib"), f -> true);
 
         if (currentMavenVersion == null || StringUtil.compareVersionNumbers(currentMavenVersion, "3.1") < 0) {
             mainClassRef.set(MAIN_CLASS_V3);
@@ -404,7 +405,7 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
     }
 
     private static void addMavenLibs(List<File> classpath, File mavenHome) {
-        addDir(classpath, new File(mavenHome, "lib"));
+        addDir(classpath, new File(mavenHome, "lib"), f -> !f.getName().contains("maven-slf4j-provider"));
         File bootFolder = new File(mavenHome, "boot");
         File[] classworldsJars = bootFolder.listFiles((dir, name) -> StringUtil.contains(name, "classworlds"));
         if (classworldsJars != null) {
@@ -412,14 +413,14 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
         }
     }
 
-    private static void addDir(List<File> classpath, File dir) {
+    private static void addDir(List<File> classpath, File dir, Predicate<File> filter) {
         File[] files = dir.listFiles();
         if (files == null) {
             return;
         }
 
         for (File jar : files) {
-            if (jar.isFile() && jar.getName().endsWith(".jar")) {
+            if (jar.isFile() && jar.getName().endsWith(".jar") && filter.test(jar)) {
                 classpath.add(jar);
             }
         }
