@@ -25,7 +25,10 @@ import consulo.maven.rt.server.common.server.MavenServerConsole;
 import consulo.process.ExecutionException;
 import consulo.process.ProcessHandler;
 import consulo.process.ProcessHandlerBuilder;
+import consulo.process.event.ProcessEvent;
+import consulo.process.event.ProcessListener;
 import consulo.project.Project;
+import consulo.util.dataholder.Key;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.idea.maven.project.MavenConsole;
 import org.jetbrains.idea.maven.project.MavenGeneralSettings;
@@ -33,101 +36,90 @@ import org.jetbrains.idea.maven.project.MavenGeneralSettings;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class MavenExternalExecutor extends MavenExecutor
-{
-	private ProcessHandler myProcessHandler;
+public class MavenExternalExecutor extends MavenExecutor {
+    private ProcessHandler myProcessHandler;
 
-	@NonNls
-	private static final String PHASE_INFO_REGEXP = "\\[INFO\\] \\[.*:.*\\]";
-	@NonNls
-	private static final int INFO_PREFIX_SIZE = "[INFO] ".length();
+    @NonNls
+    private static final String PHASE_INFO_REGEXP = "\\[INFO\\] \\[.*:.*\\]";
+    @NonNls
+    private static final int INFO_PREFIX_SIZE = "[INFO] ".length();
 
-	private OwnJavaParameters myJavaParameters;
-	private ExecutionException myParameterCreationError;
+    private OwnJavaParameters myJavaParameters;
+    private ExecutionException myParameterCreationError;
 
-	public MavenExternalExecutor(Project project,
-								 @Nonnull MavenRunnerParameters parameters,
-								 @Nullable MavenGeneralSettings coreSettings,
-								 @Nullable MavenRunnerSettings runnerSettings,
-								 @Nonnull MavenConsole console)
-	{
-		super(parameters, RunnerBundle.message("external.executor.caption"), console);
+    public MavenExternalExecutor(Project project,
+                                 @Nonnull MavenRunnerParameters parameters,
+                                 @Nullable MavenGeneralSettings coreSettings,
+                                 @Nullable MavenRunnerSettings runnerSettings,
+                                 @Nonnull MavenConsole console) {
+        super(parameters, RunnerBundle.message("external.executor.caption"), console);
 
-		try
-		{
-			myJavaParameters = MavenExternalParameters.createJavaParameters(project, myParameters, coreSettings, runnerSettings);
-		}
-		catch(ExecutionException e)
-		{
-			myParameterCreationError = e;
-		}
-	}
+        try {
+            myJavaParameters = MavenExternalParameters.createJavaParameters(project, myParameters, coreSettings, runnerSettings);
+        }
+        catch (ExecutionException e) {
+            myParameterCreationError = e;
+        }
+    }
 
-	public boolean execute(final ProgressIndicator indicator)
-	{
-		displayProgress();
+    public boolean execute(final ProgressIndicator indicator) {
+        displayProgress();
 
-		try
-		{
-			if(myParameterCreationError != null)
-			{
-				throw myParameterCreationError;
-			}
+        try {
+            if (myParameterCreationError != null) {
+                throw myParameterCreationError;
+            }
 
-			myProcessHandler = ProcessHandlerBuilder.create(myJavaParameters.toCommandLine()).build();
-			myConsole.attachToProcess(myProcessHandler);
-		}
-		catch(ExecutionException e)
-		{
-			myConsole.systemMessage(MavenServerConsole.LEVEL_FATAL, RunnerBundle.message("external.startup.failed", e.getMessage()), null);
-			return false;
-		}
+            myProcessHandler = ProcessHandlerBuilder.create(myJavaParameters.toCommandLine()).build();
+            myProcessHandler.addProcessListener(new ProcessListener() {
+                @Override
+                public void onTextAvailable(ProcessEvent event, Key outputType) {
+                    updateProgress(indicator, event.getText());
+                }
+            });
+            myConsole.attachToProcess(myProcessHandler);
+        }
+        catch (ExecutionException e) {
+            myConsole.systemMessage(MavenServerConsole.LEVEL_FATAL, RunnerBundle.message("external.startup.failed", e.getMessage()), null);
+            return false;
+        }
 
-		start();
-		readProcessOutput();
-		stop();
+        start();
+        readProcessOutput();
+        stop();
 
-		return printExitSummary();
-	}
+        return printExitSummary();
+    }
 
-	void stop()
-	{
-		if(myProcessHandler != null)
-		{
-			myProcessHandler.destroyProcess();
-			myProcessHandler.waitFor();
-			setExitCode(myProcessHandler.getExitCode());
-		}
-		super.stop();
-	}
+    @Override
+    void stop() {
+        if (myProcessHandler != null) {
+            myProcessHandler.destroyProcess();
+            myProcessHandler.waitFor();
+            setExitCode(myProcessHandler.getExitCode());
+        }
+        super.stop();
+    }
 
-	private void readProcessOutput()
-	{
-		myProcessHandler.startNotify();
-		myProcessHandler.waitFor();
-	}
+    private void readProcessOutput() {
+        myProcessHandler.startNotify();
+        myProcessHandler.waitFor();
+    }
 
-	private void updateProgress(@Nullable final ProgressIndicator indicator, final String text)
-	{
-		if(indicator != null)
-		{
-			if(indicator.isCanceled())
-			{
-				if(!isCancelled())
-				{
-					ApplicationManager.getApplication().invokeLater(new Runnable()
-					{
-						public void run()
-						{
-							cancel();
-						}
-					});
-				}
-			}
-			if(text.matches(PHASE_INFO_REGEXP))
-			{
-				indicator.setText2(text.substring(INFO_PREFIX_SIZE));
-			}
-		}
-	}
+    private void updateProgress(@Nullable final ProgressIndicator indicator, final String text) {
+        if (indicator != null) {
+            if (indicator.isCanceled()) {
+                if (!isCancelled()) {
+                    ApplicationManager.getApplication().invokeLater(new Runnable() {
+                        public void run() {
+                            cancel();
+                        }
+                    });
+                }
+            }
+            if (text.matches(PHASE_INFO_REGEXP)) {
+                indicator.setText2(text.substring(INFO_PREFIX_SIZE));
+            }
+        }
+    }
 }
