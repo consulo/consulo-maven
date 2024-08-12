@@ -16,18 +16,20 @@
 package org.jetbrains.idea.maven.dom.converters;
 
 import consulo.xml.util.xml.ConvertContext;
+
 import javax.annotation.Nonnull;
+
 import org.jetbrains.idea.maven.project.MavenProject;
 
 import java.util.Collection;
 
 public class MavenPackagingConverter extends MavenProjectConstantListConverter {
-  public MavenPackagingConverter() {
-    super(false);
-  }
+    public MavenPackagingConverter() {
+        super(false);
+    }
 
-  @Override
-  protected Collection<String> getValues(@Nonnull ConvertContext context, @Nonnull MavenProject project) {
-    return project.getSupportedPackagings();
-  }
+    @Override
+    protected Collection<String> getValues(@Nonnull ConvertContext context, @Nonnull MavenProject project) {
+        return project.getSupportedPackagings();
+    }
 }

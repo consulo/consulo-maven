@@ -14,38 +14,32 @@ import java.util.Set;
 @ServiceAPI(ComponentScope.APPLICATION)
 @ServiceImpl
 @Singleton
-public class MavenDomConvertersRegistry
-{
-	protected GenericDomValueConvertersRegistry myConvertersRegistry;
+public class MavenDomConvertersRegistry {
+    protected GenericDomValueConvertersRegistry myConvertersRegistry;
 
-	private final Set<String> mySoftConverterTypes = Set.of(File.class.getCanonicalName());
+    private final Set<String> mySoftConverterTypes = Set.of(File.class.getCanonicalName());
 
-	public static MavenDomConvertersRegistry getInstance()
-	{
-		return ServiceManager.getService(MavenDomConvertersRegistry.class);
-	}
+    public static MavenDomConvertersRegistry getInstance() {
+        return ServiceManager.getService(MavenDomConvertersRegistry.class);
+    }
 
-	public MavenDomConvertersRegistry()
-	{
-		myConvertersRegistry = new GenericDomValueConvertersRegistry();
+    public MavenDomConvertersRegistry() {
+        myConvertersRegistry = new GenericDomValueConvertersRegistry();
 
-		initConverters();
-	}
+        initConverters();
+    }
 
-	private void initConverters()
-	{
-		myConvertersRegistry.registerDefaultConverters();
+    private void initConverters() {
+        myConvertersRegistry.registerDefaultConverters();
 
-		myConvertersRegistry.registerConverter(new MavenPathReferenceConverter(), File.class);
-	}
+        myConvertersRegistry.registerConverter(new MavenPathReferenceConverter(), File.class);
+    }
 
-	public GenericDomValueConvertersRegistry getConvertersRegistry()
-	{
-		return myConvertersRegistry;
-	}
+    public GenericDomValueConvertersRegistry getConvertersRegistry() {
+        return myConvertersRegistry;
+    }
 
-	public boolean isSoft(String type)
-	{
-		return mySoftConverterTypes.contains(type);
-	}
+    public boolean isSoft(String type) {
+        return mySoftConverterTypes.contains(type);
+    }
 }

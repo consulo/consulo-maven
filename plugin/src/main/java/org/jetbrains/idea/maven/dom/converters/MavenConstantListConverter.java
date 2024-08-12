@@ -20,42 +20,48 @@ import consulo.util.lang.StringUtil;
 import consulo.xml.util.xml.ConvertContext;
 import consulo.xml.util.xml.ResolvingConverter;
 import org.jetbrains.annotations.NonNls;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import java.util.Collection;
 
 public abstract class MavenConstantListConverter extends ResolvingConverter<String> {
-  private boolean myStrict;
+    private boolean myStrict;
 
-  protected MavenConstantListConverter() {
-    this(true);
-  }
+    protected MavenConstantListConverter() {
+        this(true);
+    }
 
-  protected MavenConstantListConverter(boolean strict) {
-    myStrict = strict;
-  }
+    protected MavenConstantListConverter(boolean strict) {
+        myStrict = strict;
+    }
 
-  @Override
-  public String fromString(@Nullable @NonNls String s, ConvertContext context) {
-    if (!myStrict) return s;
-    return getValues(context).contains(s) ? s : null;
-  }
+    @Override
+    public String fromString(@Nullable @NonNls String s, ConvertContext context) {
+        if (!myStrict) {
+            return s;
+        }
+        return getValues(context).contains(s) ? s : null;
+    }
 
-  public String toString(@Nullable String s, ConvertContext context) {
-    return s;
-  }
+    public String toString(@Nullable String s, ConvertContext context) {
+        return s;
+    }
 
-  @Nonnull
-  public Collection<String> getVariants(ConvertContext context) {
-    return getValues(context);
-  }
+    @Nonnull
+    public Collection<String> getVariants(ConvertContext context) {
+        return getValues(context);
+    }
 
-  protected abstract Collection<String> getValues(@Nonnull ConvertContext context);
+    protected abstract Collection<String> getValues(@Nonnull ConvertContext context);
 
-  @Nonnull
-  @Override
-  public LocalizeValue buildUnresolvedMessage(@Nullable String s, ConvertContext context) {
-    return LocalizeValue.localizeTODO("<html>Specified value is not acceptable here.<br>Acceptable values: " + StringUtil.join(getValues(context), ", ") + "</html>");
-  }
+    @Nonnull
+    @Override
+    public LocalizeValue buildUnresolvedMessage(@Nullable String s, ConvertContext context) {
+        return LocalizeValue.localizeTODO(
+            "<html>Specified value is not acceptable here.<br>Acceptable values: " +
+                StringUtil.join(getValues(context), ", ") + "</html>"
+        );
+    }
 }

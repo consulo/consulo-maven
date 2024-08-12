@@ -15,27 +15,31 @@
  */
 package org.jetbrains.idea.maven.dom.converters;
 
-import consulo.xml.util.xml.ConvertContext;
-import javax.annotation.Nonnull;
-import org.jetbrains.idea.maven.dom.model.MavenDomDependencyManagement;
 import consulo.maven.rt.server.common.model.MavenConstants;
+import consulo.xml.util.xml.ConvertContext;
+
+import javax.annotation.Nonnull;
+
+import org.jetbrains.idea.maven.dom.model.MavenDomDependencyManagement;
 import org.jetbrains.idea.maven.project.MavenProject;
 
 import java.util.Collection;
 import java.util.Set;
 
 public class MavenDependencyScopeConverter extends MavenProjectConstantListConverter {
-  public MavenDependencyScopeConverter() {
-    super(false);
-  }
+    public MavenDependencyScopeConverter() {
+        super(false);
+    }
 
-  @Override
-  protected Collection<String> getValues(@Nonnull ConvertContext context, @Nonnull MavenProject project) {
-    Set<String> scopes = project.getSupportedDependencyScopes();
+    @Override
+    protected Collection<String> getValues(@Nonnull ConvertContext context, @Nonnull MavenProject project) {
+        Set<String> scopes = project.getSupportedDependencyScopes();
 
-    boolean isDependencyManagement = context.getInvocationElement().getParentOfType(MavenDomDependencyManagement.class, false) != null;
-    if (isDependencyManagement) scopes.add(MavenConstants.SCOPE_IMPORT);
+        boolean isDependencyManagement = context.getInvocationElement().getParentOfType(MavenDomDependencyManagement.class, false) != null;
+        if (isDependencyManagement) {
+            scopes.add(MavenConstants.SCOPE_IMPORT);
+        }
 
-    return scopes;
-  }
+        return scopes;
+    }
 }

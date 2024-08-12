@@ -20,11 +20,11 @@ import consulo.util.xml.serializer.annotation.AbstractCollection;
 import consulo.util.xml.serializer.annotation.Tag;
 
 public class RepositoriesBean {
-  @Tag("repositories")
-  @AbstractCollection(surroundWithTag = false)
-  public RepositoryBeanInfo[] myRepositories;
+    @Tag("repositories")
+    @AbstractCollection(surroundWithTag = false)
+    public RepositoryBeanInfo[] myRepositories;
 
-  public RepositoryBeanInfo[] getRepositories() {
-    return myRepositories;
-  }
+    public RepositoryBeanInfo[] getRepositories() {
+        return myRepositories;
+    }
 }

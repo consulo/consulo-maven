@@ -36,52 +36,44 @@ import java.util.Set;
 @ServiceAPI(ComponentScope.APPLICATION)
 @ServiceImpl
 @Singleton
-public class MavenRepositoriesProvider
-{
-	public static MavenRepositoriesProvider getInstance()
-	{
-		return ServiceManager.getService(MavenRepositoriesProvider.class);
-	}
+public class MavenRepositoriesProvider {
+    public static MavenRepositoriesProvider getInstance() {
+        return ServiceManager.getService(MavenRepositoriesProvider.class);
+    }
 
-	final Map<String, RepositoryBeanInfo> myRepositoriesMap = new HashMap<String, RepositoryBeanInfo>();
+    final Map<String, RepositoryBeanInfo> myRepositoriesMap = new HashMap<>();
 
-	public MavenRepositoriesProvider()
-	{
-		final RepositoriesBean repositoriesBean =
-				XmlSerializer.deserialize(MavenRepositoriesProvider.class.getResource("repositories.xml"), RepositoriesBean.class);
+    public MavenRepositoriesProvider() {
+        final RepositoriesBean repositoriesBean =
+            XmlSerializer.deserialize(MavenRepositoriesProvider.class.getResource("repositories.xml"), RepositoriesBean.class);
 
-		assert repositoriesBean != null;
-		RepositoryBeanInfo[] repositories = repositoriesBean.getRepositories();
-		assert repositories != null;
+        assert repositoriesBean != null;
+        RepositoryBeanInfo[] repositories = repositoriesBean.getRepositories();
+        assert repositories != null;
 
-		for(RepositoryBeanInfo repository : repositories)
-		{
-			registerRepository(repository.getId(), repository);
-		}
-	}
+        for (RepositoryBeanInfo repository : repositories) {
+            registerRepository(repository.getId(), repository);
+        }
+    }
 
-	public void registerRepository(@Nonnull String id, RepositoryBeanInfo info)
-	{
-		myRepositoriesMap.put(id, info);
-	}
+    public void registerRepository(@Nonnull String id, RepositoryBeanInfo info) {
+        myRepositoriesMap.put(id, info);
+    }
 
-	@Nonnull
-	public Set<String> getRepositoryIds()
-	{
-		return myRepositoriesMap.keySet();
-	}
+    @Nonnull
+    public Set<String> getRepositoryIds() {
+        return myRepositoriesMap.keySet();
+    }
 
-	@Nullable
-	public String getRepositoryName(@Nullable String id)
-	{
-		RepositoryBeanInfo pair = myRepositoriesMap.get(id);
-		return pair != null ? pair.getName() : null;
-	}
+    @Nullable
+    public String getRepositoryName(@Nullable String id) {
+        RepositoryBeanInfo pair = myRepositoriesMap.get(id);
+        return pair != null ? pair.getName() : null;
+    }
 
-	@Nullable
-	public String getRepositoryUrl(@Nullable String id)
-	{
-		RepositoryBeanInfo pair = myRepositoriesMap.get(id);
-		return pair != null ? pair.getUrl() : null;
-	}
+    @Nullable
+    public String getRepositoryUrl(@Nullable String id) {
+        RepositoryBeanInfo pair = myRepositoriesMap.get(id);
+        return pair != null ? pair.getUrl() : null;
+    }
 }

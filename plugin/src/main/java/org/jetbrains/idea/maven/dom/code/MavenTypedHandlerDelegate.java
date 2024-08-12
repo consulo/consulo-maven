@@ -24,65 +24,52 @@ import consulo.project.Project;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
 
 @ExtensionImpl
-public class MavenTypedHandlerDelegate extends TypedHandlerDelegate
-{
-	@Override
-	public Result charTyped(char c, Project project, Editor editor, PsiFile file)
-	{
-		if(!CodeInsightSettings.getInstance().AUTOINSERT_PAIR_BRACKET)
-		{
-			return Result.CONTINUE;
-		}
+public class MavenTypedHandlerDelegate extends TypedHandlerDelegate {
+    @Override
+    public Result charTyped(char c, Project project, Editor editor, PsiFile file) {
+        if (!CodeInsightSettings.getInstance().AUTOINSERT_PAIR_BRACKET) {
+            return Result.CONTINUE;
+        }
 
-		if(c != '{')
-		{
-			return Result.CONTINUE;
-		}
-		if(!shouldProcess(file))
-		{
-			return Result.CONTINUE;
-		}
+        if (c != '{') {
+            return Result.CONTINUE;
+        }
+        if (!shouldProcess(file)) {
+            return Result.CONTINUE;
+        }
 
-		int offset = editor.getCaretModel().getOffset();
-		if(shouldCloseBrace(editor, offset, c))
-		{
-			editor.getDocument().insertString(offset, "}");
-			return Result.STOP;
-		}
-		return Result.CONTINUE;
-	}
+        int offset = editor.getCaretModel().getOffset();
+        if (shouldCloseBrace(editor, offset, c)) {
+            editor.getDocument().insertString(offset, "}");
+            return Result.STOP;
+        }
+        return Result.CONTINUE;
+    }
 
-	private boolean shouldCloseBrace(Editor editor, int offset, char c)
-	{
-		CharSequence text = editor.getDocument().getCharsSequence();
+    private boolean shouldCloseBrace(Editor editor, int offset, char c) {
+        CharSequence text = editor.getDocument().getCharsSequence();
 
-		if(offset < 2)
-		{
-			return false;
-		}
-		if(c != '{' || text.charAt(offset - 2) != '$')
-		{
-			return false;
-		}
+        if (offset < 2) {
+            return false;
+        }
+        if (c != '{' || text.charAt(offset - 2) != '$') {
+            return false;
+        }
 
-		if(offset < text.length())
-		{
-			char next = text.charAt(offset);
-			if(next == '}')
-			{
-				return false;
-			}
-			if(Character.isLetterOrDigit(next))
-			{
-				return false;
-			}
-		}
+        if (offset < text.length()) {
+            char next = text.charAt(offset);
+            if (next == '}') {
+                return false;
+            }
+            if (Character.isLetterOrDigit(next)) {
+                return false;
+            }
+        }
 
-		return true;
-	}
+        return true;
+    }
 
-	public static boolean shouldProcess(PsiFile file)
-	{
-		return MavenDomUtil.isMavenFile(file) || MavenDomUtil.isFilteredResourceFile(file);
-	}
+    public static boolean shouldProcess(PsiFile file) {
+        return MavenDomUtil.isMavenFile(file) || MavenDomUtil.isFilteredResourceFile(file);
+    }
 }

@@ -27,18 +27,18 @@ import org.jetbrains.idea.maven.dom.references.MavenModulePsiReference;
 import javax.annotation.Nullable;
 
 public class MavenModuleConverter extends MavenReferenceConverter<PsiFile> {
-  @Override
-  public PsiFile fromString(@Nullable @NonNls String s, ConvertContext context) {
-    throw new UnsupportedOperationException();
-  }
+    @Override
+    public PsiFile fromString(@Nullable @NonNls String s, ConvertContext context) {
+        throw new UnsupportedOperationException();
+    }
 
-  @Override
-  public String toString(@Nullable PsiFile psiFile, ConvertContext context) {
-    VirtualFile file = context.getFile().getOriginalFile().getVirtualFile();
-    return MavenModulePsiReference.calcRelativeModulePath(file, psiFile.getVirtualFile());
-  }
+    @Override
+    public String toString(@Nullable PsiFile psiFile, ConvertContext context) {
+        VirtualFile file = context.getFile().getOriginalFile().getVirtualFile();
+        return MavenModulePsiReference.calcRelativeModulePath(file, psiFile.getVirtualFile());
+    }
 
-  protected PsiReference createReference(PsiElement element, String text, TextRange range) {
-    return new MavenModulePsiReference(element, text, range);
-  }
+    protected PsiReference createReference(PsiElement element, String text, TextRange range) {
+        return new MavenModulePsiReference(element, text, range);
+    }
 }

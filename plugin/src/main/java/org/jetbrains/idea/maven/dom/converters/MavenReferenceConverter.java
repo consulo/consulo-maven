@@ -23,16 +23,16 @@ import consulo.xml.util.xml.ConvertContext;
 import consulo.xml.util.xml.Converter;
 import consulo.xml.util.xml.CustomReferenceConverter;
 import consulo.xml.util.xml.GenericDomValue;
+
 import javax.annotation.Nonnull;
 
 public abstract class MavenReferenceConverter<T> extends Converter<T> implements CustomReferenceConverter<T> {
-  @Nonnull
-  public PsiReference[] createReferences(GenericDomValue value, PsiElement element, ConvertContext context) {
-    String text = value.getStringValue();
-    TextRange range = ElementManipulators.getValueTextRange(element);
-    return new PsiReference[]{createReference(element, text, range)};
-  }
+    @Nonnull
+    public PsiReference[] createReferences(GenericDomValue value, PsiElement element, ConvertContext context) {
+        String text = value.getStringValue();
+        TextRange range = ElementManipulators.getValueTextRange(element);
+        return new PsiReference[]{createReference(element, text, range)};
+    }
 
-  protected abstract PsiReference createReference(PsiElement element, String text, TextRange range
-  );
+    protected abstract PsiReference createReference(PsiElement element, String text, TextRange range);
 }

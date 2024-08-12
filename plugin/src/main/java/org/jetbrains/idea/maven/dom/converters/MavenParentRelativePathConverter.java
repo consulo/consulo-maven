@@ -15,117 +15,126 @@
  */
 package org.jetbrains.idea.maven.dom.converters;
 
+import consulo.language.editor.inspection.LocalQuickFix;
 import consulo.language.editor.inspection.ProblemDescriptor;
 import consulo.language.psi.PsiElement;
-import consulo.language.psi.PsiReference;
-import consulo.project.Project;
-import consulo.util.lang.StringUtil;
-import consulo.util.lang.function.Condition;
-import consulo.virtualFileSystem.VirtualFile;
 import consulo.language.psi.PsiFile;
-import consulo.language.psi.PsiFileSystemItem;
+import consulo.language.psi.PsiReference;
+import consulo.maven.rt.server.common.model.MavenConstants;
+import consulo.maven.rt.server.common.model.MavenId;
+import consulo.project.Project;
 import consulo.util.collection.ArrayUtil;
-import consulo.language.editor.inspection.LocalQuickFix;
+import consulo.util.lang.StringUtil;
+import consulo.virtualFileSystem.VirtualFile;
 import consulo.xml.util.xml.*;
 import org.jetbrains.annotations.NonNls;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import org.jetbrains.idea.maven.dom.MavenDomBundle;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
 import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
 import org.jetbrains.idea.maven.dom.references.MavenPathReferenceConverter;
-import consulo.maven.rt.server.common.model.MavenConstants;
-import consulo.maven.rt.server.common.model.MavenId;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 public class MavenParentRelativePathConverter extends ResolvingConverter<PsiFile> implements CustomReferenceConverter {
-  @Override
-  public PsiFile fromString(@Nullable @NonNls String s, ConvertContext context) {
-    if (StringUtil.isEmptyOrSpaces(s)) return null;
+    @Override
+    public PsiFile fromString(@Nullable @NonNls String s, ConvertContext context) {
+        if (StringUtil.isEmptyOrSpaces(s)) {
+            return null;
+        }
 
-    VirtualFile contextFile = context.getFile().getVirtualFile();
-    if (contextFile == null) return null;
+        VirtualFile contextFile = context.getFile().getVirtualFile();
+        if (contextFile == null) {
+            return null;
+        }
 
-    VirtualFile parent = contextFile.getParent();
-    VirtualFile f = parent == null ? null : parent.findFileByRelativePath(s);
-    if (f == null) return null;
+        VirtualFile parent = contextFile.getParent();
+        VirtualFile f = parent == null ? null : parent.findFileByRelativePath(s);
+        if (f == null) {
+            return null;
+        }
 
-    if (f.isDirectory()) f = f.findChild(MavenConstants.POM_XML);
-    if (f == null) return null;
+        if (f.isDirectory()) {
+            f = f.findChild(MavenConstants.POM_XML);
+        }
+        if (f == null) {
+            return null;
+        }
 
-    return context.getPsiManager().findFile(f);
-  }
-
-  @Override
-  public String toString(@Nullable PsiFile f, ConvertContext context) {
-    if (f == null) return null;
-    VirtualFile currentFile = context.getFile().getOriginalFile().getVirtualFile();
-    if (currentFile == null) return null;
-
-    return MavenDomUtil.calcRelativePath(currentFile.getParent(), f.getVirtualFile());
-  }
-
-  @Nonnull
-  @Override
-  public Collection<PsiFile> getVariants(ConvertContext context) {
-    List<PsiFile> result = new ArrayList<PsiFile>();
-    PsiFile currentFile = context.getFile().getOriginalFile();
-    for (DomFileElement<MavenDomProjectModel> each : MavenDomUtil.collectProjectModels(context.getFile().getProject())) {
-      PsiFile file = each.getOriginalFile();
-      if (file == currentFile) continue;
-      result.add(file);
+        return context.getPsiManager().findFile(f);
     }
-    return result;
-  }
 
-  @Override
-  public LocalQuickFix[] getQuickFixes(ConvertContext context) {
-    return ArrayUtil.append(super.getQuickFixes(context), new RelativePathFix(context));
-  }
+    @Override
+    public String toString(@Nullable PsiFile f, ConvertContext context) {
+        if (f == null) {
+            return null;
+        }
+        VirtualFile currentFile = context.getFile().getOriginalFile().getVirtualFile();
+        if (currentFile == null) {
+            return null;
+        }
 
-  private static class RelativePathFix implements LocalQuickFix
-  {
-    private final ConvertContext myContext;
-
-    public RelativePathFix(ConvertContext context) {
-      myContext = context;
+        return MavenDomUtil.calcRelativePath(currentFile.getParent(), f.getVirtualFile());
     }
 
     @Nonnull
-    public String getName() {
-      return MavenDomBundle.message("fix.parent.path");
+    @Override
+    public Collection<PsiFile> getVariants(ConvertContext context) {
+        List<PsiFile> result = new ArrayList<>();
+        PsiFile currentFile = context.getFile().getOriginalFile();
+        for (DomFileElement<MavenDomProjectModel> each : MavenDomUtil.collectProjectModels(context.getFile().getProject())) {
+            PsiFile file = each.getOriginalFile();
+            if (file == currentFile) {
+                continue;
+            }
+            result.add(file);
+        }
+        return result;
+    }
+
+    @Override
+    public LocalQuickFix[] getQuickFixes(ConvertContext context) {
+        return ArrayUtil.append(super.getQuickFixes(context), new RelativePathFix(context));
+    }
+
+    private static class RelativePathFix implements LocalQuickFix {
+        private final ConvertContext myContext;
+
+        public RelativePathFix(ConvertContext context) {
+            myContext = context;
+        }
+
+        @Nonnull
+        public String getName() {
+            return MavenDomBundle.message("fix.parent.path");
+        }
+
+        @Nonnull
+        public String getFamilyName() {
+            return MavenDomBundle.message("inspection.group");
+        }
+
+        public void applyFix(@Nonnull Project project, @Nonnull ProblemDescriptor descriptor) {
+            GenericDomValue el = (GenericDomValue)myContext.getInvocationElement();
+            MavenId id = MavenArtifactCoordinatesHelper.getId(myContext);
+
+            MavenProjectsManager manager = MavenProjectsManager.getInstance(project);
+            MavenProject parentFile = manager.findProject(id);
+            if (parentFile != null) {
+                VirtualFile currentFile = myContext.getFile().getVirtualFile();
+                el.setStringValue(MavenDomUtil.calcRelativePath(currentFile.getParent(), parentFile.getFile()));
+            }
+        }
     }
 
     @Nonnull
-    public String getFamilyName() {
-      return MavenDomBundle.message("inspection.group");
+    public PsiReference[] createReferences(final GenericDomValue genericDomValue, final PsiElement element, final ConvertContext context) {
+        return new MavenPathReferenceConverter(item -> item.isDirectory() || item.getName().equals("pom.xml"))
+            .createReferences(genericDomValue, element, context);
     }
-
-    public void applyFix(@Nonnull Project project, @Nonnull ProblemDescriptor descriptor) {
-      GenericDomValue el = (GenericDomValue)myContext.getInvocationElement();
-      MavenId id = MavenArtifactCoordinatesHelper.getId(myContext);
-
-      MavenProjectsManager manager = MavenProjectsManager.getInstance(project);
-      MavenProject parentFile = manager.findProject(id);
-      if (parentFile != null) {
-        VirtualFile currentFile = myContext.getFile().getVirtualFile();
-        el.setStringValue(MavenDomUtil.calcRelativePath(currentFile.getParent(), parentFile.getFile()));
-      }
-    }
-  }
-
-  @Nonnull
-  public PsiReference[] createReferences(final GenericDomValue genericDomValue, final PsiElement element, final ConvertContext context) {
-    return new MavenPathReferenceConverter(new Condition<PsiFileSystemItem>() {
-      @Override
-      public boolean value(PsiFileSystemItem item) {
-        return item.isDirectory() || item.getName().equals("pom.xml");
-      }
-    }).createReferences(genericDomValue, element, context);
-  }
 }

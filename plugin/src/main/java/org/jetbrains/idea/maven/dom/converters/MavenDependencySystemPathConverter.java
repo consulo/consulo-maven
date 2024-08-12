@@ -22,8 +22,10 @@ import consulo.language.psi.*;
 import consulo.util.lang.function.Condition;
 import consulo.virtualFileSystem.VirtualFile;
 import org.jetbrains.annotations.NonNls;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+
 import org.jetbrains.idea.maven.dom.references.MavenPathReferenceConverter;
 import consulo.virtualFileSystem.LocalFileSystem;
 import consulo.xml.util.xml.ConvertContext;
@@ -31,51 +33,41 @@ import consulo.xml.util.xml.CustomReferenceConverter;
 import consulo.xml.util.xml.GenericDomValue;
 import consulo.xml.util.xml.ResolvingConverter;
 
-public class MavenDependencySystemPathConverter extends ResolvingConverter<PsiFile> implements CustomReferenceConverter
-{
-	@Override
-	public PsiFile fromString(@Nullable @NonNls String s, ConvertContext context)
-	{
-		if(s == null)
-		{
-			return null;
-		}
-		VirtualFile f = LocalFileSystem.getInstance().findFileByPath(s);
-		if(f == null)
-		{
-			return null;
-		}
-		return context.getPsiManager().findFile(f);
-	}
+public class MavenDependencySystemPathConverter extends ResolvingConverter<PsiFile> implements CustomReferenceConverter {
+    @Override
+    public PsiFile fromString(@Nullable @NonNls String s, ConvertContext context) {
+        if (s == null) {
+            return null;
+        }
+        VirtualFile f = LocalFileSystem.getInstance().findFileByPath(s);
+        if (f == null) {
+            return null;
+        }
+        return context.getPsiManager().findFile(f);
+    }
 
-	@Override
-	public String toString(@Nullable PsiFile file, ConvertContext context)
-	{
-		if(file == null)
-		{
-			return null;
-		}
-		return file.getVirtualFile().getPath();
-	}
+    @Override
+    public String toString(@Nullable PsiFile file, ConvertContext context) {
+        if (file == null) {
+            return null;
+        }
+        return file.getVirtualFile().getPath();
+    }
 
-	@Override
-	@Nonnull
-	public Collection<PsiFile> getVariants(ConvertContext context)
-	{
-		return Collections.emptyList();
-	}
+    @Override
+    @Nonnull
+    public Collection<PsiFile> getVariants(ConvertContext context) {
+        return Collections.emptyList();
+    }
 
-	@Override
-	@Nonnull
-	public PsiReference[] createReferences(final GenericDomValue genericDomValue, final PsiElement element, final ConvertContext context)
-	{
-		return MavenPathReferenceConverter.createReferences(genericDomValue, element, new Condition<PsiFileSystemItem>()
-		{
-			@Override
-			public boolean value(PsiFileSystemItem item)
-			{
-				return (item instanceof PsiDirectory) || item.getName().endsWith(".jar");
-			}
-		}, true);
-	}
+    @Override
+    @Nonnull
+    public PsiReference[] createReferences(final GenericDomValue genericDomValue, final PsiElement element, final ConvertContext context) {
+        return MavenPathReferenceConverter.createReferences(
+            genericDomValue,
+            element,
+            item -> (item instanceof PsiDirectory) || item.getName().endsWith(".jar"),
+            true
+        );
+    }
 }
