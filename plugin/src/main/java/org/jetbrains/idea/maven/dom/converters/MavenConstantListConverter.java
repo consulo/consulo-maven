@@ -19,11 +19,9 @@ import consulo.localize.LocalizeValue;
 import consulo.util.lang.StringUtil;
 import consulo.xml.util.xml.ConvertContext;
 import consulo.xml.util.xml.ResolvingConverter;
-import org.jetbrains.annotations.NonNls;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
 import java.util.Collection;
 
 public abstract class MavenConstantListConverter extends ResolvingConverter<String> {
@@ -38,18 +36,20 @@ public abstract class MavenConstantListConverter extends ResolvingConverter<Stri
     }
 
     @Override
-    public String fromString(@Nullable @NonNls String s, ConvertContext context) {
+    public String fromString(@Nullable String s, ConvertContext context) {
         if (!myStrict) {
             return s;
         }
         return getValues(context).contains(s) ? s : null;
     }
 
+    @Override
     public String toString(@Nullable String s, ConvertContext context) {
         return s;
     }
 
     @Nonnull
+    @Override
     public Collection<String> getVariants(ConvertContext context) {
         return getValues(context);
     }

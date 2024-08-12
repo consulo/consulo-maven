@@ -28,6 +28,7 @@ import javax.annotation.Nonnull;
 
 public abstract class MavenReferenceConverter<T> extends Converter<T> implements CustomReferenceConverter<T> {
     @Nonnull
+    @Override
     public PsiReference[] createReferences(GenericDomValue value, PsiElement element, ConvertContext context) {
         String text = value.getStringValue();
         TextRange range = ElementManipulators.getValueTextRange(element);

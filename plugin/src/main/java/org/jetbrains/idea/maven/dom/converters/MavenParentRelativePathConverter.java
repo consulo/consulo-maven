@@ -15,6 +15,7 @@
  */
 package org.jetbrains.idea.maven.dom.converters;
 
+import consulo.annotation.access.RequiredReadAction;
 import consulo.language.editor.inspection.LocalQuickFix;
 import consulo.language.editor.inspection.ProblemDescriptor;
 import consulo.language.psi.PsiElement;
@@ -27,11 +28,10 @@ import consulo.util.collection.ArrayUtil;
 import consulo.util.lang.StringUtil;
 import consulo.virtualFileSystem.VirtualFile;
 import consulo.xml.util.xml.*;
-import org.jetbrains.annotations.NonNls;
-import org.jetbrains.idea.maven.dom.MavenDomBundle;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
 import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
 import org.jetbrains.idea.maven.dom.references.MavenPathReferenceConverter;
+import org.jetbrains.idea.maven.localize.MavenDomLocalize;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 
@@ -43,7 +43,8 @@ import java.util.List;
 
 public class MavenParentRelativePathConverter extends ResolvingConverter<PsiFile> implements CustomReferenceConverter {
     @Override
-    public PsiFile fromString(@Nullable @NonNls String s, ConvertContext context) {
+    @RequiredReadAction
+    public PsiFile fromString(@Nullable String s, ConvertContext context) {
         if (StringUtil.isEmptyOrSpaces(s)) {
             return null;
         }
@@ -110,15 +111,18 @@ public class MavenParentRelativePathConverter extends ResolvingConverter<PsiFile
         }
 
         @Nonnull
+        @Override
         public String getName() {
-            return MavenDomBundle.message("fix.parent.path");
+            return MavenDomLocalize.fixParentPath().get();
         }
 
         @Nonnull
+        @Override
         public String getFamilyName() {
-            return MavenDomBundle.message("inspection.group");
+            return MavenDomLocalize.inspectionGroup().get();
         }
 
+        @Override
         public void applyFix(@Nonnull Project project, @Nonnull ProblemDescriptor descriptor) {
             GenericDomValue el = (GenericDomValue)myContext.getInvocationElement();
             MavenId id = MavenArtifactCoordinatesHelper.getId(myContext);
@@ -133,6 +137,7 @@ public class MavenParentRelativePathConverter extends ResolvingConverter<PsiFile
     }
 
     @Nonnull
+    @Override
     public PsiReference[] createReferences(final GenericDomValue genericDomValue, final PsiElement element, final ConvertContext context) {
         return new MavenPathReferenceConverter(item -> item.isDirectory() || item.getName().equals("pom.xml"))
             .createReferences(genericDomValue, element, context);

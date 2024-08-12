@@ -17,6 +17,7 @@ package org.jetbrains.idea.maven.dom.converters.repositories;
 
 import consulo.language.psi.PsiElement;
 import consulo.language.psi.PsiReference;
+import consulo.maven.icon.MavenIconGroup;
 import consulo.module.Module;
 import consulo.document.util.TextRange;
 import consulo.util.lang.StringUtil;
@@ -31,7 +32,6 @@ import org.jetbrains.annotations.NonNls;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import org.jetbrains.idea.maven.MavenIcons;
 import org.jetbrains.idea.maven.dom.converters.MavenUrlConverter;
 import org.jetbrains.idea.maven.dom.model.MavenDomRepositoryBase;
 import org.jetbrains.idea.maven.dom.references.MavenUrlPsiReference;
@@ -45,6 +45,7 @@ import java.util.Collections;
 public abstract class MavenRepositoryConverter extends ResolvingConverter<String> {
     public static class Id extends MavenRepositoryConverter {
         @Nonnull
+        @Override
         public Collection<String> getVariants(final ConvertContext context) {
             consulo.module.Module module = context.getModule();
             if (module != null) {
@@ -56,13 +57,14 @@ public abstract class MavenRepositoryConverter extends ResolvingConverter<String
         @Override
         public LookupElement createLookupElement(String s) {
             return LookupElementBuilder.create(s)
-                .withIcon(MavenIcons.MavenPlugin)
+                .withIcon(MavenIconGroup.mavenplugin())
                 .withTailText(" (" + MavenRepositoriesProvider.getInstance().getRepositoryUrl(s) + ")", true);
         }
     }
 
     public static class Name extends MavenRepositoryConverter {
         @Nonnull
+        @Override
         public Collection<String> getVariants(final ConvertContext context) {
             Module module = context.getModule();
 
@@ -111,7 +113,8 @@ public abstract class MavenRepositoryConverter extends ResolvingConverter<String
         return null;
     }
 
-    public String fromString(@Nullable @NonNls final String s, final ConvertContext context) {
+    @Override
+    public String fromString(@Nullable final String s, final ConvertContext context) {
         return s;
     }
 

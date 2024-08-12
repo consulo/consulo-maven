@@ -21,12 +21,14 @@ import consulo.language.editor.CodeInsightSettings;
 import consulo.language.editor.action.TypedHandlerDelegate;
 import consulo.language.psi.PsiFile;
 import consulo.project.Project;
+import jakarta.annotation.Nonnull;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
 
 @ExtensionImpl
 public class MavenTypedHandlerDelegate extends TypedHandlerDelegate {
+    @Nonnull
     @Override
-    public Result charTyped(char c, Project project, Editor editor, PsiFile file) {
+    public Result charTyped(char c, @Nonnull Project project, @Nonnull Editor editor, @Nonnull PsiFile file) {
         if (!CodeInsightSettings.getInstance().AUTOINSERT_PAIR_BRACKET) {
             return Result.CONTINUE;
         }

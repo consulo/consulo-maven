@@ -4,7 +4,7 @@ import com.intellij.java.impl.util.xml.converters.values.GenericDomValueConverte
 import consulo.annotation.component.ComponentScope;
 import consulo.annotation.component.ServiceAPI;
 import consulo.annotation.component.ServiceImpl;
-import consulo.ide.ServiceManager;
+import consulo.application.Application;
 import jakarta.inject.Singleton;
 import org.jetbrains.idea.maven.dom.references.MavenPathReferenceConverter;
 
@@ -20,7 +20,7 @@ public class MavenDomConvertersRegistry {
     private final Set<String> mySoftConverterTypes = Set.of(File.class.getCanonicalName());
 
     public static MavenDomConvertersRegistry getInstance() {
-        return ServiceManager.getService(MavenDomConvertersRegistry.class);
+        return Application.get().getInstance(MavenDomConvertersRegistry.class);
     }
 
     public MavenDomConvertersRegistry() {

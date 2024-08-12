@@ -15,27 +15,28 @@
  */
 package org.jetbrains.idea.maven.dom.converters;
 
-import java.util.Collection;
-import java.util.Collections;
-
-import consulo.language.psi.*;
-import consulo.util.lang.function.Condition;
-import consulo.virtualFileSystem.VirtualFile;
-import org.jetbrains.annotations.NonNls;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
-import org.jetbrains.idea.maven.dom.references.MavenPathReferenceConverter;
+import consulo.annotation.access.RequiredReadAction;
+import consulo.language.psi.PsiDirectory;
+import consulo.language.psi.PsiElement;
+import consulo.language.psi.PsiFile;
+import consulo.language.psi.PsiReference;
 import consulo.virtualFileSystem.LocalFileSystem;
+import consulo.virtualFileSystem.VirtualFile;
 import consulo.xml.util.xml.ConvertContext;
 import consulo.xml.util.xml.CustomReferenceConverter;
 import consulo.xml.util.xml.GenericDomValue;
 import consulo.xml.util.xml.ResolvingConverter;
+import org.jetbrains.idea.maven.dom.references.MavenPathReferenceConverter;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.Collection;
+import java.util.Collections;
 
 public class MavenDependencySystemPathConverter extends ResolvingConverter<PsiFile> implements CustomReferenceConverter {
     @Override
-    public PsiFile fromString(@Nullable @NonNls String s, ConvertContext context) {
+    @RequiredReadAction
+    public PsiFile fromString(@Nullable String s, ConvertContext context) {
         if (s == null) {
             return null;
         }
@@ -60,8 +61,9 @@ public class MavenDependencySystemPathConverter extends ResolvingConverter<PsiFi
         return Collections.emptyList();
     }
 
-    @Override
     @Nonnull
+    @Override
+    @RequiredReadAction
     public PsiReference[] createReferences(final GenericDomValue genericDomValue, final PsiElement element, final ConvertContext context) {
         return MavenPathReferenceConverter.createReferences(
             genericDomValue,

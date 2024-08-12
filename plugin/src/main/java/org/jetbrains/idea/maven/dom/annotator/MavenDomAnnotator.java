@@ -28,16 +28,17 @@ import consulo.xml.util.xml.DomElement;
 import consulo.xml.util.xml.DomUtil;
 import consulo.xml.util.xml.highlighting.DomElementAnnotationHolder;
 import consulo.xml.util.xml.highlighting.DomElementsAnnotator;
-import org.jetbrains.idea.maven.dom.MavenDomBundle;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
 import org.jetbrains.idea.maven.dom.model.MavenDomParent;
 import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
+import org.jetbrains.idea.maven.localize.MavenDomLocalize;
 import org.jetbrains.idea.maven.project.MavenProject;
 
 import javax.annotation.Nonnull;
 import java.util.Arrays;
 
 public class MavenDomAnnotator implements DomElementsAnnotator {
+    @Override
     public void annotate(DomElement element, DomElementAnnotationHolder holder) {
         if (element instanceof MavenDomProjectModel domProjectModel) {
             addProblems(
@@ -90,15 +91,18 @@ public class MavenDomAnnotator implements DomElementsAnnotator {
         }
 
         @Nonnull
+        @Override
         public String getName() {
-            return MavenDomBundle.message("fix.open.file", myFile.getName());
+            return MavenDomLocalize.fixOpenFile(myFile.getName()).get();
         }
 
         @Nonnull
+        @Override
         public String getFamilyName() {
-            return MavenDomBundle.message("inspection.group");
+            return MavenDomLocalize.inspectionGroup().get();
         }
 
+        @Override
         public void applyFix(@Nonnull Project project, @Nonnull ProblemDescriptor descriptor) {
             OpenFileDescriptorFactory.getInstance(project).builder(myFile).build().navigate(true);
         }

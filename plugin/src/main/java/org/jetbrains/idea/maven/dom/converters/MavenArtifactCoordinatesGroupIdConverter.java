@@ -12,10 +12,7 @@ import java.util.Set;
 public class MavenArtifactCoordinatesGroupIdConverter extends MavenArtifactCoordinatesConverter implements MavenSmartConverter<String> {
     @Override
     protected boolean doIsValid(MavenId id, MavenProjectIndicesManager manager, ConvertContext context) {
-        if (StringUtil.isEmpty(id.getGroupId())) {
-            return false;
-        }
-        return manager.hasGroupId(id.getGroupId());
+        return !StringUtil.isEmpty(id.getGroupId()) && manager.hasGroupId(id.getGroupId());
     }
 
     @Override

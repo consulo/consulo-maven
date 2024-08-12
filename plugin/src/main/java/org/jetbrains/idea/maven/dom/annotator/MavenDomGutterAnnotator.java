@@ -32,10 +32,10 @@ import consulo.xml.codeInsight.navigation.DomNavigationGutterIconBuilder;
 import consulo.xml.psi.xml.XmlTag;
 import consulo.xml.util.xml.DomElement;
 import consulo.xml.util.xml.DomManager;
-import org.jetbrains.idea.maven.dom.MavenDomBundle;
 import org.jetbrains.idea.maven.dom.MavenDomProjectProcessorUtils;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
 import org.jetbrains.idea.maven.dom.model.*;
+import org.jetbrains.idea.maven.localize.MavenDomLocalize;
 import org.jetbrains.idea.maven.project.MavenProject;
 
 import javax.annotation.Nonnull;
@@ -56,12 +56,12 @@ public class MavenDomGutterAnnotator implements Annotator {
         if (children.size() > 0) {
             final DomNavigationGutterIconBuilder<MavenDomDependency> iconBuilder =
                 DomNavigationGutterIconBuilder.create(PlatformIconGroup.gutterOverridenmethod(), DependencyConverter.INSTANCE);
-            iconBuilder.
-                setTargets(children).
-                setPopupTitle(MavenDomBundle.message("navigate.parent.dependency.title")).
-                setCellRenderer(MyListCellRenderer.INSTANCE).
-                setTooltipText(MavenDomBundle.message("overriding.dependency.title")).
-                install(holder, dependency.getXmlTag());
+            iconBuilder
+                .setTargets(children)
+                .setPopupTitle(MavenDomLocalize.navigateParentDependencyTitle().get())
+                .setCellRenderer(MyListCellRenderer.INSTANCE)
+                .setTooltipText(MavenDomLocalize.overridingDependencyTitle().get())
+                .install(holder, dependency.getXmlTag());
         }
     }
 
@@ -76,10 +76,10 @@ public class MavenDomGutterAnnotator implements Annotator {
 
             final DomNavigationGutterIconBuilder<MavenDomDependency> iconBuilder =
                 DomNavigationGutterIconBuilder.create(PlatformIconGroup.gutterOverridingmethod(), DependencyConverter.INSTANCE);
-            iconBuilder.
-                setTargets(children).
-                setTooltipText(MavenDomBundle.message("overriden.dependency.title")).
-                install(holder, tag);
+            iconBuilder
+                .setTargets(children)
+                .setTooltipText(MavenDomLocalize.overridenDependencyTitle().get())
+                .install(holder, tag);
         }
     }
 
@@ -95,14 +95,13 @@ public class MavenDomGutterAnnotator implements Annotator {
 
     @Override
     public void annotate(@Nonnull PsiElement psiElement, @Nonnull AnnotationHolder holder) {
-        if (psiElement instanceof XmlTag) {
-            final DomElement element = DomManager.getDomManager(psiElement.getProject()).getDomElement((XmlTag)psiElement);
-            if (element instanceof MavenDomDependency) {
+        if (psiElement instanceof XmlTag tag) {
+            final DomElement element = DomManager.getDomManager(psiElement.getProject()).getDomElement(tag);
+            if (element instanceof MavenDomDependency dependency) {
                 if (element.getParentOfType(MavenDomPlugin.class, true) != null) {
                     return;
                 }
 
-                MavenDomDependency dependency = (MavenDomDependency)element;
                 if (isDependencyManagementSection(dependency)) {
                     annotateDependencyUsages(dependency, holder);
                 }
@@ -147,7 +146,7 @@ public class MavenDomGutterAnnotator implements Annotator {
 
             iconBuilder
                 .setTargets(Collections.singletonList(managingPlugin))
-                .setTooltipText(MavenDomBundle.message("overriden.plugin.title"))
+                .setTooltipText(MavenDomLocalize.overridenPluginTitle().get())
                 .install(holder, xmlTag);
         }
     }
@@ -166,9 +165,9 @@ public class MavenDomGutterAnnotator implements Annotator {
 
             iconBuilder
                 .setTargets(children)
-                .setPopupTitle(MavenDomBundle.message("navigate.parent.plugin.title"))
+                .setPopupTitle(MavenDomLocalize.navigateParentPluginTitle().get())
                 .setCellRenderer(MyListCellRenderer.INSTANCE)
-                .setTooltipText(MavenDomBundle.message("overriding.plugin.title"))
+                .setTooltipText(MavenDomLocalize.overridingPluginTitle().get())
                 .install(holder, xmlTag);
         }
     }
@@ -180,7 +179,7 @@ public class MavenDomGutterAnnotator implements Annotator {
         if (parent != null) {
             NavigationGutterIconBuilder.create(MavenIconGroup.parentproject(), MavenProjectConverter.INSTANCE)
                 .setTargets(parent)
-                .setTooltipText(MavenDomBundle.message("parent.pom.title"))
+                .setTooltipText(MavenDomLocalize.parentPomTitle().get())
                 .install(holder, mavenDomParent.getXmlElement());
         }
     }
@@ -194,8 +193,8 @@ public class MavenDomGutterAnnotator implements Annotator {
                 NavigationGutterIconBuilder.create(MavenIconGroup.childrenprojects(), MavenProjectConverter.INSTANCE)
                     .setTargets(children)
                     .setCellRenderer(MyListCellRenderer.INSTANCE)
-                    .setPopupTitle(MavenDomBundle.message("navigate.children.poms.title"))
-                    .setTooltipText(MavenDomBundle.message("children.poms.title"))
+                    .setPopupTitle(MavenDomLocalize.navigateChildrenPomsTitle().get())
+                    .setTooltipText(MavenDomLocalize.childrenPomsTitle().get())
                     .install(holder, model.getXmlElement());
             }
         }

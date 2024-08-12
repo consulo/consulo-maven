@@ -16,18 +16,16 @@
 package org.jetbrains.idea.maven.dom.converters;
 
 import consulo.document.util.TextRange;
-import consulo.language.psi.PsiReference;
 import consulo.language.psi.PsiElement;
+import consulo.language.psi.PsiReference;
 import consulo.xml.util.xml.ConvertContext;
-import org.jetbrains.annotations.NonNls;
+import org.jetbrains.idea.maven.dom.references.MavenUrlPsiReference;
 
 import javax.annotation.Nullable;
 
-import org.jetbrains.idea.maven.dom.references.MavenUrlPsiReference;
-
 public class MavenUrlConverter extends MavenReferenceConverter<String> {
     @Override
-    public String fromString(@Nullable @NonNls String s, ConvertContext context) {
+    public String fromString(@Nullable String s, ConvertContext context) {
         return s;
     }
 
@@ -36,6 +34,7 @@ public class MavenUrlConverter extends MavenReferenceConverter<String> {
         return text;
     }
 
+    @Override
     protected PsiReference createReference(PsiElement element, String text, TextRange range) {
         return new MavenUrlPsiReference(element, text, range);
     }

@@ -19,15 +19,12 @@ import consulo.language.psi.PsiElement;
 import consulo.xml.util.xml.ConvertContext;
 import consulo.xml.util.xml.DomElement;
 import consulo.xml.util.xml.ResolvingConverter;
-import org.jetbrains.annotations.NonNls;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 import org.jetbrains.idea.maven.dom.MavenPluginDomUtil;
 import org.jetbrains.idea.maven.dom.plugin.MavenDomMojo;
 import org.jetbrains.idea.maven.dom.plugin.MavenDomPluginModel;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -35,22 +32,24 @@ import java.util.List;
 
 public class MavenPluginGoalConverter extends ResolvingConverter<String> implements MavenDomSoftAwareConverter {
     @Override
-    public String fromString(@Nullable @NonNls String s, ConvertContext context) {
+    public String fromString(@Nullable String s, ConvertContext context) {
         return getVariants(context).contains(s) ? s : null;
     }
 
+    @Override
     public String toString(@Nullable String s, ConvertContext context) {
         return s;
     }
 
     @Nonnull
+    @Override
     public Collection<String> getVariants(ConvertContext context) {
         MavenDomPluginModel model = MavenPluginDomUtil.getMavenPluginModel(context.getInvocationElement());
         if (model == null) {
             return Collections.emptyList();
         }
 
-        List<String> result = new ArrayList<String>();
+        List<String> result = new ArrayList<>();
         for (MavenDomMojo each : model.getMojos().getMojos()) {
             String goal = each.getGoal().getStringValue();
             if (goal != null) {

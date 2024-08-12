@@ -16,11 +16,9 @@
 package org.jetbrains.idea.maven.dom.converters;
 
 import consulo.xml.util.xml.ConvertContext;
-import org.jetbrains.annotations.NonNls;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -30,13 +28,14 @@ public class MavenRepositoryUpdatePolicyConverter extends MavenConstantListConve
     private static final List<String> VALUES = Arrays.asList("always", "daily", INTERVAL, "never");
 
     @Override
-    public String fromString(@Nullable @NonNls String s, ConvertContext context) {
+    public String fromString(@Nullable String s, ConvertContext context) {
         if (s != null && s.startsWith(INTERVAL)) {
             return s;
         }
         return super.fromString(s, context);
     }
 
+    @Override
     protected Collection<String> getValues(@Nonnull ConvertContext context) {
         return VALUES;
     }

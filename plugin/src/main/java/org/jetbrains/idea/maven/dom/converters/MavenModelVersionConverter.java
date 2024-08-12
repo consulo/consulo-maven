@@ -29,10 +29,12 @@ public class MavenModelVersionConverter extends MavenConstantListConverter {
     private static final String VERSION = "4.0.0";
     private static final List<String> VALUES = Collections.singletonList(VERSION);
 
+    @Override
     protected Collection<String> getValues(@Nonnull ConvertContext context) {
         return VALUES;
     }
 
+    @Nonnull
     @Override
     public LocalizeValue buildUnresolvedMessage(@Nullable String s, ConvertContext context) {
         return LocalizeValue.localizeTODO("Unsupported model version. Only version " + VERSION + " is supported.");

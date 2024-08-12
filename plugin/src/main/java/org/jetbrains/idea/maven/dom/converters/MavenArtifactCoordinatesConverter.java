@@ -15,6 +15,7 @@
  */
 package org.jetbrains.idea.maven.dom.converters;
 
+import consulo.annotation.access.RequiredReadAction;
 import consulo.application.util.RecursionManager;
 import consulo.language.editor.inspection.LocalQuickFix;
 import consulo.language.editor.inspection.ProblemDescriptor;
@@ -36,6 +37,7 @@ import org.jetbrains.idea.maven.dom.MavenDomProjectProcessorUtils;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
 import org.jetbrains.idea.maven.dom.model.*;
 import org.jetbrains.idea.maven.indices.MavenProjectIndicesManager;
+import org.jetbrains.idea.maven.localize.MavenDomLocalize;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.utils.MavenArtifactUtil;
@@ -48,7 +50,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 public abstract class MavenArtifactCoordinatesConverter extends ResolvingConverter<String> implements MavenDomSoftAwareConverter {
-    public String fromString(@Nullable @NonNls String s, ConvertContext context) {
+    @Override
+    public String fromString(@Nullable String s, ConvertContext context) {
         if (s == null) {
             return null;
         }
@@ -61,11 +64,13 @@ public abstract class MavenArtifactCoordinatesConverter extends ResolvingConvert
 
     protected abstract boolean doIsValid(MavenId id, MavenProjectIndicesManager manager, ConvertContext context);
 
+    @Override
     public String toString(@Nullable String s, ConvertContext context) {
         return s;
     }
 
     @Nonnull
+    @Override
     public Collection<String> getVariants(ConvertContext context) {
         MavenProjectIndicesManager manager = MavenProjectIndicesManager.getInstance(getProject(context));
         MavenId id = MavenArtifactCoordinatesHelper.getId(context);
@@ -93,7 +98,9 @@ public abstract class MavenArtifactCoordinatesConverter extends ResolvingConvert
     @Nonnull
     @Override
     public LocalizeValue buildUnresolvedMessage(@Nullable String s, ConvertContext context) {
-        return LocalizeValue.localizeTODO(selectStrategy(context).getContextName() + " '''" + MavenArtifactCoordinatesHelper.getId(context) + "''' not found");
+        return LocalizeValue.localizeTODO(
+            selectStrategy(context).getContextName() + " '''" + MavenArtifactCoordinatesHelper.getId(context) + "''' not found"
+        );
     }
 
     @Override
@@ -101,6 +108,7 @@ public abstract class MavenArtifactCoordinatesConverter extends ResolvingConvert
         return ArrayUtil.append(super.getQuickFixes(context), new MyUpdateIndicesFix());
     }
 
+    @Override
     public boolean isSoft(@Nonnull DomElement element) {
         DomElement dependencyOrPluginElement = element.getParent();
         if (dependencyOrPluginElement instanceof MavenDomDependency) {
@@ -155,15 +163,18 @@ public abstract class MavenArtifactCoordinatesConverter extends ResolvingConvert
 
     private static class MyUpdateIndicesFix implements LocalQuickFix {
         @Nonnull
+        @Override
         public String getFamilyName() {
-            return MavenDomBundle.message("inspection.group");
+            return MavenDomLocalize.inspectionGroup().get();
         }
 
         @Nonnull
+        @Override
         public String getName() {
-            return MavenDomBundle.message("fix.update.indices");
+            return MavenDomLocalize.fixUpdateIndices().get();
         }
 
+        @Override
         public void applyFix(@Nonnull Project project, @Nonnull ProblemDescriptor descriptor) {
             MavenProjectIndicesManager.getInstance(project).scheduleUpdateAll();
         }
@@ -204,11 +215,13 @@ public abstract class MavenArtifactCoordinatesConverter extends ResolvingConvert
             return null;
         }
 
+        @RequiredReadAction
         private PsiFile resolveInProjects(MavenId id, MavenProjectsManager projectsManager, PsiManager psiManager) {
             MavenProject project = projectsManager.findProject(id);
             return project == null ? null : psiManager.findFile(project.getFile());
         }
 
+        @RequiredReadAction
         private PsiFile resolveInLocalRepository(MavenId id, MavenProjectsManager projectsManager, PsiManager psiManager) {
             File file = makeLocalRepositoryFile(id, projectsManager.getLocalRepository());
             if (file == null) {
@@ -345,6 +358,7 @@ public abstract class MavenArtifactCoordinatesConverter extends ResolvingConvert
             return myPlugin ? "Plugin" : "Build Extension";
         }
 
+        @Override
         public boolean isValid(MavenId id, MavenProjectIndicesManager manager, ConvertContext context) {
             if (StringUtil.isEmpty(id.getGroupId())) {
                 for (String each : MavenArtifactUtil.DEFAULT_GROUPS) {

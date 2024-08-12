@@ -61,6 +61,7 @@ public class MavenPhaseConverter extends MavenConstantListConverter {
         "none"
     );
 
+    @Override
     protected Collection<String> getValues(@Nonnull ConvertContext context) {
         return VALUES;
     }
