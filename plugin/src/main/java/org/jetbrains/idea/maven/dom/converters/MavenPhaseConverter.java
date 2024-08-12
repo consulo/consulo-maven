@@ -16,6 +16,7 @@
 package org.jetbrains.idea.maven.dom.converters;
 
 import consulo.xml.util.xml.ConvertContext;
+
 import javax.annotation.Nonnull;
 
 import java.util.Arrays;
@@ -23,42 +24,45 @@ import java.util.Collection;
 import java.util.List;
 
 public class MavenPhaseConverter extends MavenConstantListConverter {
-  private static final List<String> VALUES = Arrays.asList("pre-clean",
-                                                           "clean",
-                                                           "post-clean",
+    private static final List<String> VALUES = Arrays.asList(
+        "pre-clean",
+        "clean",
+        "post-clean",
 
-                                                           "validate",
-                                                           "initialize",
-                                                           "generate-sources",
-                                                           "process-sources",
-                                                           "generate-resources",
-                                                           "process-resources",
-                                                           "compile",
-                                                           "process-classes",
-                                                           "generate-test-sources",
-                                                           "process-test-sources",
-                                                           "generate-test-resources",
-                                                           "process-test-resources",
-                                                           "test-compile",
-                                                           "process-test-classes",
-                                                           "test",
-                                                           "prepare-package",
-                                                           "package",
-                                                           "pre-integration-test",
-                                                           "integration-test",
-                                                           "post-integration-test",
-                                                           "verify",
-                                                           "install",
-                                                           "deploy",
+        "validate",
+        "initialize",
+        "generate-sources",
+        "process-sources",
+        "generate-resources",
+        "process-resources",
+        "compile",
+        "process-classes",
+        "generate-test-sources",
+        "process-test-sources",
+        "generate-test-resources",
+        "process-test-resources",
+        "test-compile",
+        "process-test-classes",
+        "test",
+        "prepare-package",
+        "package",
+        "pre-integration-test",
+        "integration-test",
+        "post-integration-test",
+        "verify",
+        "install",
+        "deploy",
 
-                                                           "pre-site",
-                                                           "site",
-                                                           "post-site",
-                                                           "site-deploy",
+        "pre-site",
+        "site",
+        "post-site",
+        "site-deploy",
 
-                                                           "none");
+        "none"
+    );
 
-  protected Collection<String> getValues(@Nonnull ConvertContext context) {
-    return VALUES;
-  }
+    @Override
+    protected Collection<String> getValues(@Nonnull ConvertContext context) {
+        return VALUES;
+    }
 }

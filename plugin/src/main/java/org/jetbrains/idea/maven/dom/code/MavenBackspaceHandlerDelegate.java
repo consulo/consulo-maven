@@ -21,32 +21,26 @@ import consulo.language.editor.action.BackspaceHandlerDelegate;
 import consulo.language.psi.PsiFile;
 
 @ExtensionImpl
-public class MavenBackspaceHandlerDelegate extends BackspaceHandlerDelegate
-{
-	@Override
-	public void beforeCharDeleted(char c, PsiFile file, Editor editor)
-	{
-	}
+public class MavenBackspaceHandlerDelegate extends BackspaceHandlerDelegate {
+    @Override
+    public void beforeCharDeleted(char c, PsiFile file, Editor editor) {
+    }
 
-	@Override
-	public boolean charDeleted(char c, PsiFile file, Editor editor)
-	{
-		if(c != '{')
-		{
-			return false;
-		}
-		if(!MavenTypedHandlerDelegate.shouldProcess(file))
-		{
-			return false;
-		}
+    @Override
+    public boolean charDeleted(char c, PsiFile file, Editor editor) {
+        if (c != '{') {
+            return false;
+        }
+        if (!MavenTypedHandlerDelegate.shouldProcess(file)) {
+            return false;
+        }
 
-		int offset = editor.getCaretModel().getOffset();
-		CharSequence text = editor.getDocument().getCharsSequence();
-		if(offset < text.length() && text.charAt(offset) == '}')
-		{
-			editor.getDocument().deleteString(offset, offset + 1);
-			return true;
-		}
-		return false;
-	}
+        int offset = editor.getCaretModel().getOffset();
+        CharSequence text = editor.getDocument().getCharsSequence();
+        if (offset < text.length() && text.charAt(offset) == '}') {
+            editor.getDocument().deleteString(offset, offset + 1);
+            return true;
+        }
+        return false;
+    }
 }

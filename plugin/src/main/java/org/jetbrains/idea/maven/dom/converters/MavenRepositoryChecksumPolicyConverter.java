@@ -16,6 +16,7 @@
 package org.jetbrains.idea.maven.dom.converters;
 
 import consulo.xml.util.xml.ConvertContext;
+
 import javax.annotation.Nonnull;
 
 import java.util.Arrays;
@@ -23,9 +24,10 @@ import java.util.Collection;
 import java.util.List;
 
 public class MavenRepositoryChecksumPolicyConverter extends MavenConstantListConverter {
-  private static final List<String> VALUES = Arrays.asList("ignore", "fail", "warn");
+    private static final List<String> VALUES = Arrays.asList("ignore", "fail", "warn");
 
-  protected Collection<String> getValues(@Nonnull ConvertContext context) {
-    return VALUES;
-  }
+    @Override
+    protected Collection<String> getValues(@Nonnull ConvertContext context) {
+        return VALUES;
+    }
 }

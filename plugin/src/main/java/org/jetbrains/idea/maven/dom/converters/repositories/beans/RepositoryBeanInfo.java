@@ -23,24 +23,24 @@ import consulo.util.xml.serializer.annotation.Tag;
  */
 @Tag("repository")
 public class RepositoryBeanInfo {
-  @Attribute("id")
-  public String myId;
+    @Attribute("id")
+    public String myId;
 
-  @Attribute("name")
-  public String myName;
+    @Attribute("name")
+    public String myName;
 
-  @Attribute("url")
-  public String myUrl;
+    @Attribute("url")
+    public String myUrl;
 
-  public String getId() {
-    return myId;
-  }
+    public String getId() {
+        return myId;
+    }
 
-  public String getName() {
-    return myName;
-  }
+    public String getName() {
+        return myName;
+    }
 
-  public String getUrl() {
-    return myUrl;
-  }
+    public String getUrl() {
+        return myUrl;
+    }
 }

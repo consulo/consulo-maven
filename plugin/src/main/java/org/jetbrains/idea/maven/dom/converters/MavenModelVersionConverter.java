@@ -17,6 +17,7 @@ package org.jetbrains.idea.maven.dom.converters;
 
 import consulo.localize.LocalizeValue;
 import consulo.xml.util.xml.ConvertContext;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -25,15 +26,17 @@ import java.util.Collections;
 import java.util.List;
 
 public class MavenModelVersionConverter extends MavenConstantListConverter {
-  private static final String VERSION = "4.0.0";
-  private static final List<String> VALUES = Collections.singletonList(VERSION);
+    private static final String VERSION = "4.0.0";
+    private static final List<String> VALUES = Collections.singletonList(VERSION);
 
-  protected Collection<String> getValues(@Nonnull ConvertContext context) {
-    return VALUES;
-  }
+    @Override
+    protected Collection<String> getValues(@Nonnull ConvertContext context) {
+        return VALUES;
+    }
 
-  @Override
-  public LocalizeValue buildUnresolvedMessage(@Nullable String s, ConvertContext context) {
-    return LocalizeValue.localizeTODO("Unsupported model version. Only version " + VERSION + " is supported.");
-  }
+    @Nonnull
+    @Override
+    public LocalizeValue buildUnresolvedMessage(@Nullable String s, ConvertContext context) {
+        return LocalizeValue.localizeTODO("Unsupported model version. Only version " + VERSION + " is supported.");
+    }
 }

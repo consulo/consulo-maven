@@ -15,30 +15,30 @@
  */
 package org.jetbrains.idea.maven.dom.converters;
 
+import consulo.document.util.TextRange;
 import consulo.language.psi.PsiElement;
+import consulo.language.psi.PsiFile;
 import consulo.language.psi.PsiReference;
 import consulo.virtualFileSystem.VirtualFile;
-import consulo.language.psi.PsiFile;
-import consulo.document.util.TextRange;
 import consulo.xml.util.xml.ConvertContext;
-import org.jetbrains.annotations.NonNls;
 import org.jetbrains.idea.maven.dom.references.MavenModulePsiReference;
 
 import javax.annotation.Nullable;
 
 public class MavenModuleConverter extends MavenReferenceConverter<PsiFile> {
-  @Override
-  public PsiFile fromString(@Nullable @NonNls String s, ConvertContext context) {
-    throw new UnsupportedOperationException();
-  }
+    @Override
+    public PsiFile fromString(@Nullable String s, ConvertContext context) {
+        throw new UnsupportedOperationException();
+    }
 
-  @Override
-  public String toString(@Nullable PsiFile psiFile, ConvertContext context) {
-    VirtualFile file = context.getFile().getOriginalFile().getVirtualFile();
-    return MavenModulePsiReference.calcRelativeModulePath(file, psiFile.getVirtualFile());
-  }
+    @Override
+    public String toString(@Nullable PsiFile psiFile, ConvertContext context) {
+        VirtualFile file = context.getFile().getOriginalFile().getVirtualFile();
+        return MavenModulePsiReference.calcRelativeModulePath(file, psiFile.getVirtualFile());
+    }
 
-  protected PsiReference createReference(PsiElement element, String text, TextRange range) {
-    return new MavenModulePsiReference(element, text, range);
-  }
+    @Override
+    protected PsiReference createReference(PsiElement element, String text, TextRange range) {
+        return new MavenModulePsiReference(element, text, range);
+    }
 }

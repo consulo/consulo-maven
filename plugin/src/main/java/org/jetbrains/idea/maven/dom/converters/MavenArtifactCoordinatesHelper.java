@@ -16,28 +16,32 @@
 package org.jetbrains.idea.maven.dom.converters;
 
 import consulo.xml.util.xml.ConvertContext;
+
 import javax.annotation.Nullable;
+
 import org.jetbrains.idea.maven.dom.model.MavenDomArtifactCoordinates;
 import org.jetbrains.idea.maven.dom.model.MavenDomShortArtifactCoordinates;
 import consulo.maven.rt.server.common.model.MavenId;
 
 public class MavenArtifactCoordinatesHelper {
-  public static MavenId getId(ConvertContext context) {
-    return getId(getCoordinates(context));
-  }
-
-  @Nullable
-  public static MavenDomShortArtifactCoordinates getCoordinates(ConvertContext context) {
-    return (MavenDomShortArtifactCoordinates)context.getInvocationElement().getParent();
-  }
-
-  public static MavenId getId(MavenDomShortArtifactCoordinates coords) {
-    String version = "";
-    if (coords instanceof MavenDomArtifactCoordinates) {
-      version = ((MavenDomArtifactCoordinates)coords).getVersion().getStringValue();
+    public static MavenId getId(ConvertContext context) {
+        return getId(getCoordinates(context));
     }
-    return new MavenId(coords.getGroupId().getStringValue(),
-                       coords.getArtifactId().getStringValue(),
-                       version);
-  }
+
+    @Nullable
+    public static MavenDomShortArtifactCoordinates getCoordinates(ConvertContext context) {
+        return (MavenDomShortArtifactCoordinates)context.getInvocationElement().getParent();
+    }
+
+    public static MavenId getId(MavenDomShortArtifactCoordinates coords) {
+        String version = "";
+        if (coords instanceof MavenDomArtifactCoordinates domArtifactCoordinates) {
+            version = domArtifactCoordinates.getVersion().getStringValue();
+        }
+        return new MavenId(
+            coords.getGroupId().getStringValue(),
+            coords.getArtifactId().getStringValue(),
+            version
+        );
+    }
 }

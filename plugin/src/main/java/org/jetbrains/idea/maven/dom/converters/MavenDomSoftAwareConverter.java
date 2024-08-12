@@ -22,8 +22,6 @@ import consulo.xml.util.xml.DomElement;
 /**
  * @author Sergey Evdokimov
  */
-public interface  MavenDomSoftAwareConverter {
-
-  boolean isSoft(@Nonnull DomElement element);
-
+public interface MavenDomSoftAwareConverter {
+    boolean isSoft(@Nonnull DomElement element);
 }

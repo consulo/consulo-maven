@@ -16,6 +16,7 @@
 package org.jetbrains.idea.maven.dom.converters;
 
 import consulo.xml.util.xml.ConvertContext;
+
 import javax.annotation.Nonnull;
 
 import java.util.Arrays;
@@ -25,8 +26,8 @@ import java.util.Collection;
  * @author Sergey Evdokimov
  */
 public class MavenCombineChildConverter extends MavenConstantListConverter {
-  @Override
-  protected Collection<String> getValues(@Nonnull ConvertContext context) {
-    return Arrays.asList("append", "override");
-  }
+    @Override
+    protected Collection<String> getValues(@Nonnull ConvertContext context) {
+        return Arrays.asList("append", "override");
+    }
 }

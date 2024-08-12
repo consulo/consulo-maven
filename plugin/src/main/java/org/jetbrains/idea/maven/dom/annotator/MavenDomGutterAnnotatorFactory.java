@@ -14,19 +14,16 @@ import javax.annotation.Nullable;
  * @since 21/01/2023
  */
 @ExtensionImpl
-public class MavenDomGutterAnnotatorFactory implements AnnotatorFactory
-{
-	@Nullable
-	@Override
-	public Annotator createAnnotator()
-	{
-		return new MavenDomGutterAnnotator();
-	}
+public class MavenDomGutterAnnotatorFactory implements AnnotatorFactory {
+    @Nullable
+    @Override
+    public Annotator createAnnotator() {
+        return new MavenDomGutterAnnotator();
+    }
 
-	@Nonnull
-	@Override
-	public Language getLanguage()
-	{
-		return XMLLanguage.INSTANCE;
-	}
+    @Nonnull
+    @Override
+    public Language getLanguage() {
+        return XMLLanguage.INSTANCE;
+    }
 }
