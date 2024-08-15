@@ -105,9 +105,6 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
     private State myState = new State();
 
     static class State {
-        @Deprecated
-        @Attribute(value = "version", converter = UseMavenConverter.class)
-        public boolean useMaven2;
         @Attribute
         public String vmOptions = DEFAULT_VM_OPTIONS;
         @Attribute
@@ -350,20 +347,6 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
         return getMavenVersion(myState.mavenBundleName);
     }
 
-    @Nullable
-    private static Sdk findMaven2Bundle() {
-        List<Sdk> sdksOfType = SdkTable.getInstance().getSdksOfType(MavenBundleType.getInstance());
-        for (Sdk sdk : sdksOfType) {
-            if (sdk.isPredefined()) {
-                Version version = Version.parseVersion(StringUtil.notNullize(sdk.getVersionString()));
-                if (version != null && version.major == 2) {
-                    return sdk;
-                }
-            }
-        }
-        return null;
-    }
-
 
     @Nonnull
     public List<File> collectClassPathAndLibsFolder(SimpleReference<String> mainClassRef) {
@@ -517,40 +500,6 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
         }
         catch (RemoteException e) {
             throw new RuntimeException(e);
-        }
-    }
-
-    private static class UseMavenConverter extends Converter<Boolean> {
-        @Nullable
-        @Override
-        public Boolean fromString(@Nonnull String value) {
-            return "2.x".equals(value);
-        }
-
-        @Nonnull
-        @Override
-        public String toString(@Nonnull Boolean value) {
-            return value ? "2.x" : "3.x";
-        }
-    }
-
-    public boolean isUsedMaven2ForProjectImport() {
-        //noinspection deprecation
-        return myState.useMaven2;
-    }
-
-    public boolean isUseMaven2() {
-        final String version = getCurrentMavenVersion();
-        return StringUtil.compareVersionNumbers(version, "3") < 0 && StringUtil.compareVersionNumbers(version, "2") >= 0;
-    }
-
-    @TestOnly
-    public void setUseMaven2(boolean useMaven2) {
-        Sdk maven2Bundle = findMaven2Bundle();
-        String newBundleName = useMaven2 ? maven2Bundle == null ? null : maven2Bundle.getName() : null;
-        if (!StringUtil.equals(myState.mavenBundleName, newBundleName)) {
-            myState.mavenBundleName = newBundleName;
-            shutdown(false);
         }
     }
 
