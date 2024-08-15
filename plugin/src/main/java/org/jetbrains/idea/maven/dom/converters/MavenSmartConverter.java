@@ -20,5 +20,5 @@ import consulo.xml.util.xml.ConvertContext;
 import java.util.Collection;
 
 public interface MavenSmartConverter<T> {
-  Collection<T> getSmartVariants(ConvertContext convertContext);
+    Collection<T> getSmartVariants(ConvertContext convertContext);
 }

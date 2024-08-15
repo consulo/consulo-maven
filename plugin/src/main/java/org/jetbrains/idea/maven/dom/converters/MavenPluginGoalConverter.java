@@ -19,55 +19,64 @@ import consulo.language.psi.PsiElement;
 import consulo.xml.util.xml.ConvertContext;
 import consulo.xml.util.xml.DomElement;
 import consulo.xml.util.xml.ResolvingConverter;
-import org.jetbrains.annotations.NonNls;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import org.jetbrains.idea.maven.dom.MavenPluginDomUtil;
 import org.jetbrains.idea.maven.dom.plugin.MavenDomMojo;
 import org.jetbrains.idea.maven.dom.plugin.MavenDomPluginModel;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
 public class MavenPluginGoalConverter extends ResolvingConverter<String> implements MavenDomSoftAwareConverter {
-  @Override
-  public String fromString(@Nullable @NonNls String s, ConvertContext context) {
-    return getVariants(context).contains(s) ? s : null;
-  }
-
-  public String toString(@Nullable String s, ConvertContext context) {
-    return s;
-  }
-
-  @Nonnull
-  public Collection<String> getVariants(ConvertContext context) {
-    MavenDomPluginModel model = MavenPluginDomUtil.getMavenPluginModel(context.getInvocationElement());
-    if (model == null) return Collections.emptyList();
-
-    List<String> result = new ArrayList<String>();
-    for (MavenDomMojo each : model.getMojos().getMojos()) {
-      String goal = each.getGoal().getStringValue();
-      if (goal != null) result.add(goal);
+    @Override
+    public String fromString(@Nullable String s, ConvertContext context) {
+        return getVariants(context).contains(s) ? s : null;
     }
-    return result;
-  }
 
-  @Override
-  public PsiElement resolve(String text, ConvertContext context) {
-    MavenDomPluginModel model = MavenPluginDomUtil.getMavenPluginModel(context.getInvocationElement());
-    if (model == null) return null;
-
-    for (MavenDomMojo each : model.getMojos().getMojos()) {
-      String goal = each.getGoal().getStringValue();
-      if (text.equals(goal)) return each.getXmlElement();
+    @Override
+    public String toString(@Nullable String s, ConvertContext context) {
+        return s;
     }
-    return super.resolve(text, context);
-  }
 
-  @Override
-  public boolean isSoft(@Nonnull DomElement element) {
-    return MavenPluginDomUtil.getMavenPluginModel(element) == null;
-  }
+    @Nonnull
+    @Override
+    public Collection<String> getVariants(ConvertContext context) {
+        MavenDomPluginModel model = MavenPluginDomUtil.getMavenPluginModel(context.getInvocationElement());
+        if (model == null) {
+            return Collections.emptyList();
+        }
+
+        List<String> result = new ArrayList<>();
+        for (MavenDomMojo each : model.getMojos().getMojos()) {
+            String goal = each.getGoal().getStringValue();
+            if (goal != null) {
+                result.add(goal);
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public PsiElement resolve(String text, ConvertContext context) {
+        MavenDomPluginModel model = MavenPluginDomUtil.getMavenPluginModel(context.getInvocationElement());
+        if (model == null) {
+            return null;
+        }
+
+        for (MavenDomMojo each : model.getMojos().getMojos()) {
+            String goal = each.getGoal().getStringValue();
+            if (text.equals(goal)) {
+                return each.getXmlElement();
+            }
+        }
+        return super.resolve(text, context);
+    }
+
+    @Override
+    public boolean isSoft(@Nonnull DomElement element) {
+        return MavenPluginDomUtil.getMavenPluginModel(element) == null;
+    }
 }

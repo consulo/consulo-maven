@@ -17,7 +17,9 @@ package org.jetbrains.idea.maven.dom.converters;
 
 import consulo.xml.util.xml.ConvertContext;
 import consulo.xml.util.xml.DomElement;
+
 import javax.annotation.Nonnull;
+
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
 import org.jetbrains.idea.maven.project.MavenProject;
 
@@ -25,21 +27,24 @@ import java.util.Collection;
 import java.util.Collections;
 
 public abstract class MavenProjectConstantListConverter extends MavenConstantListConverter {
-  protected MavenProjectConstantListConverter() {
-  }
+    protected MavenProjectConstantListConverter() {
+    }
 
-  protected MavenProjectConstantListConverter(boolean strict) {
-    super(strict);
-  }
+    protected MavenProjectConstantListConverter(boolean strict) {
+        super(strict);
+    }
 
-  protected Collection<String> getValues(@Nonnull ConvertContext context) {
-    DomElement element = context.getInvocationElement();
+    @Override
+    protected Collection<String> getValues(@Nonnull ConvertContext context) {
+        DomElement element = context.getInvocationElement();
 
-    MavenProject project = MavenDomUtil.findContainingProject(element);
-    if (project == null) return Collections.emptyList();
+        MavenProject project = MavenDomUtil.findContainingProject(element);
+        if (project == null) {
+            return Collections.emptyList();
+        }
 
-    return getValues(context, project);
-  }
+        return getValues(context, project);
+    }
 
-  protected abstract Collection<String> getValues(@Nonnull ConvertContext context, @Nonnull MavenProject project);
+    protected abstract Collection<String> getValues(@Nonnull ConvertContext context, @Nonnull MavenProject project);
 }

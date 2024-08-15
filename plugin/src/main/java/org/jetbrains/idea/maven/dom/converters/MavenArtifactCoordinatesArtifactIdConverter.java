@@ -24,15 +24,19 @@ import java.util.Collections;
 import java.util.Set;
 
 public class MavenArtifactCoordinatesArtifactIdConverter extends MavenArtifactCoordinatesConverter {
-  @Override
-  protected boolean doIsValid(MavenId id, MavenProjectIndicesManager manager, ConvertContext context) {
-    if (StringUtil.isEmpty(id.getGroupId()) || StringUtil.isEmpty(id.getArtifactId())) return false;
-    return manager.hasArtifactId(id.getGroupId(), id.getArtifactId());
-  }
+    @Override
+    protected boolean doIsValid(MavenId id, MavenProjectIndicesManager manager, ConvertContext context) {
+        if (StringUtil.isEmpty(id.getGroupId()) || StringUtil.isEmpty(id.getArtifactId())) {
+            return false;
+        }
+        return manager.hasArtifactId(id.getGroupId(), id.getArtifactId());
+    }
 
-  @Override
-  protected Set<String> doGetVariants(MavenId id, MavenProjectIndicesManager manager) {
-    if (StringUtil.isEmptyOrSpaces(id.getGroupId())) return Collections.emptySet();
-    return manager.getArtifactIds(id.getGroupId());
-  }
+    @Override
+    protected Set<String> doGetVariants(MavenId id, MavenProjectIndicesManager manager) {
+        if (StringUtil.isEmptyOrSpaces(id.getGroupId())) {
+            return Collections.emptySet();
+        }
+        return manager.getArtifactIds(id.getGroupId());
+    }
 }

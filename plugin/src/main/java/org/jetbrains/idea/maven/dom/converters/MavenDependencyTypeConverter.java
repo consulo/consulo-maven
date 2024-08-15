@@ -27,24 +27,21 @@ import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.project.SupportedRequestType;
 import consulo.xml.util.xml.ConvertContext;
 
-public class MavenDependencyTypeConverter extends MavenProjectConstantListConverter
-{
-	public MavenDependencyTypeConverter()
-	{
-		super(false);
-	}
+public class MavenDependencyTypeConverter extends MavenProjectConstantListConverter {
+    public MavenDependencyTypeConverter() {
+        super(false);
+    }
 
-	@Override
-	protected Collection<String> getValues(@Nonnull ConvertContext context, @Nonnull MavenProject project)
-	{
-		Set<String> res = new LinkedHashSet<String>();
+    @Override
+    protected Collection<String> getValues(@Nonnull ConvertContext context, @Nonnull MavenProject project) {
+        Set<String> res = new LinkedHashSet<>();
 
-		res.addAll(MavenProjectsManager.getInstance(context.getProject()).getImportingSettings().getDependencyTypesAsSet());
+        res.addAll(MavenProjectsManager.getInstance(context.getProject()).getImportingSettings().getDependencyTypesAsSet());
 
-		res.add(MavenConstants.TYPE_POM);
+        res.add(MavenConstants.TYPE_POM);
 
-		res.addAll(project.getDependencyTypesFromImporters(SupportedRequestType.FOR_COMPLETION));
+        res.addAll(project.getDependencyTypesFromImporters(SupportedRequestType.FOR_COMPLETION));
 
-		return res;
-	}
+        return res;
+    }
 }

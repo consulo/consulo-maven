@@ -16,6 +16,7 @@
 package org.jetbrains.idea.maven.dom.converters;
 
 import consulo.xml.util.xml.ConvertContext;
+
 import javax.annotation.Nonnull;
 
 import java.util.Arrays;
@@ -23,13 +24,14 @@ import java.util.Collection;
 import java.util.List;
 
 public class MavenRepositoryLayoutConverter extends MavenConstantListConverter {
-  private static final List<String> VALUES = Arrays.asList("default", "legacy", "p2");
+    private static final List<String> VALUES = Arrays.asList("default", "legacy", "p2");
 
-  public MavenRepositoryLayoutConverter() {
-    super(false);
-  }
+    public MavenRepositoryLayoutConverter() {
+        super(false);
+    }
 
-  protected Collection<String> getValues(@Nonnull ConvertContext context) {
-    return VALUES;
-  }
+    @Override
+    protected Collection<String> getValues(@Nonnull ConvertContext context) {
+        return VALUES;
+    }
 }

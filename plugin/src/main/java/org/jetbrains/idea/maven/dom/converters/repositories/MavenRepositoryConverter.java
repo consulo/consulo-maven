@@ -17,6 +17,7 @@ package org.jetbrains.idea.maven.dom.converters.repositories;
 
 import consulo.language.psi.PsiElement;
 import consulo.language.psi.PsiReference;
+import consulo.maven.icon.MavenIconGroup;
 import consulo.module.Module;
 import consulo.document.util.TextRange;
 import consulo.util.lang.StringUtil;
@@ -27,10 +28,10 @@ import consulo.xml.util.xml.ConvertContext;
 import consulo.xml.util.xml.GenericDomValue;
 import consulo.xml.util.xml.ResolvingConverter;
 import org.jetbrains.annotations.NonNls;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import org.jetbrains.idea.maven.MavenIcons;
 import org.jetbrains.idea.maven.dom.converters.MavenUrlConverter;
 import org.jetbrains.idea.maven.dom.model.MavenDomRepositoryBase;
 import org.jetbrains.idea.maven.dom.references.MavenUrlPsiReference;
@@ -42,76 +43,83 @@ import java.util.Collections;
  * @author Serega.Vasiliev
  */
 public abstract class MavenRepositoryConverter extends ResolvingConverter<String> {
-
-  public static class Id extends MavenRepositoryConverter {
-    @Nonnull
-    public Collection<String> getVariants(final ConvertContext context) {
-      consulo.module.Module module = context.getModule();
-      if (module != null) {
-        return MavenRepositoriesProvider.getInstance().getRepositoryIds();
-      }
-      return Collections.emptySet();
-    }
-
-    @Override
-    public LookupElement createLookupElement(String s) {
-      return LookupElementBuilder.create(s)
-        .withIcon(MavenIcons.MavenPlugin)
-        .withTailText(" (" + MavenRepositoriesProvider.getInstance().getRepositoryUrl(s) + ")", true);
-    }
-  }
-
-  public static class Name extends MavenRepositoryConverter {
-    @Nonnull
-    public Collection<String> getVariants(final ConvertContext context) {
-      Module module = context.getModule();
-
-      if (module != null) {
-        String name = MavenRepositoriesProvider.getInstance().getRepositoryName(getRepositoryId(context));
-        if (!StringUtil.isEmptyOrSpaces(name)) return Collections.singleton(name);
-      }
-      return Collections.emptySet();
-    }
-  }
-
-  public static class Url extends MavenUrlConverter {
-
-    @Nonnull
-    @Override
-    public PsiReference[] createReferences(GenericDomValue value, final PsiElement element, final ConvertContext context) {
-      String text = value.getStringValue();
-      TextRange range = ElementManipulators.getValueTextRange(element);
-      return new PsiReference[]{new MavenUrlPsiReference(element, text, range) {
-
+    public static class Id extends MavenRepositoryConverter {
         @Nonnull
         @Override
-        public Object[] getVariants() {
-          consulo.module.Module module = context.getModule();
-
-          if (module != null) {
-            String name = MavenRepositoriesProvider.getInstance().getRepositoryUrl(getRepositoryId(context));
-            if (!StringUtil.isEmptyOrSpaces(name)) return new Object[]{name};
-          }
-          return super.getVariants();
+        public Collection<String> getVariants(final ConvertContext context) {
+            consulo.module.Module module = context.getModule();
+            if (module != null) {
+                return MavenRepositoriesProvider.getInstance().getRepositoryIds();
+            }
+            return Collections.emptySet();
         }
-      }};
+
+        @Override
+        public LookupElement createLookupElement(String s) {
+            return LookupElementBuilder.create(s)
+                .withIcon(MavenIconGroup.mavenplugin())
+                .withTailText(" (" + MavenRepositoriesProvider.getInstance().getRepositoryUrl(s) + ")", true);
+        }
     }
-  }
 
-  @Nullable
-  private static String getRepositoryId(ConvertContext context) {
-    MavenDomRepositoryBase repository = context.getInvocationElement().getParentOfType(MavenDomRepositoryBase.class, false);
-    if (repository != null) return repository.getId().getStringValue();
+    public static class Name extends MavenRepositoryConverter {
+        @Nonnull
+        @Override
+        public Collection<String> getVariants(final ConvertContext context) {
+            Module module = context.getModule();
 
-    return null;
-  }
+            if (module != null) {
+                String name = MavenRepositoriesProvider.getInstance().getRepositoryName(getRepositoryId(context));
+                if (!StringUtil.isEmptyOrSpaces(name)) {
+                    return Collections.singleton(name);
+                }
+            }
+            return Collections.emptySet();
+        }
+    }
 
-  public String fromString(@Nullable @NonNls final String s, final ConvertContext context) {
-    return s;
-  }
+    public static class Url extends MavenUrlConverter {
+        @Nonnull
+        @Override
+        public PsiReference[] createReferences(GenericDomValue value, final PsiElement element, final ConvertContext context) {
+            String text = value.getStringValue();
+            TextRange range = ElementManipulators.getValueTextRange(element);
+            return new PsiReference[]{new MavenUrlPsiReference(element, text, range) {
 
-  @Override
-  public String toString(@Nullable String s, ConvertContext convertContext) {
-    return s;
-  }
+                @Nonnull
+                @Override
+                public Object[] getVariants() {
+                    consulo.module.Module module = context.getModule();
+
+                    if (module != null) {
+                        String name = MavenRepositoriesProvider.getInstance().getRepositoryUrl(getRepositoryId(context));
+                        if (!StringUtil.isEmptyOrSpaces(name)) {
+                            return new Object[]{name};
+                        }
+                    }
+                    return super.getVariants();
+                }
+            }};
+        }
+    }
+
+    @Nullable
+    private static String getRepositoryId(ConvertContext context) {
+        MavenDomRepositoryBase repository = context.getInvocationElement().getParentOfType(MavenDomRepositoryBase.class, false);
+        if (repository != null) {
+            return repository.getId().getStringValue();
+        }
+
+        return null;
+    }
+
+    @Override
+    public String fromString(@Nullable final String s, final ConvertContext context) {
+        return s;
+    }
+
+    @Override
+    public String toString(@Nullable String s, ConvertContext convertContext) {
+        return s;
+    }
 }

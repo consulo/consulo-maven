@@ -28,24 +28,23 @@ import consulo.xml.util.xml.WrappingConverter;
 import javax.annotation.Nonnull;
 
 public class MavenPluginCustomParameterValueConverter extends WrappingConverter {
-  private final String myType;
+    private final String myType;
 
-  public MavenPluginCustomParameterValueConverter(@Nonnull String type) {
-    myType = PsiTypesUtil.boxIfPossible(type);
-  }
-
-
-  @Override
-  public Converter getConverter(@Nonnull GenericDomValue domElement) {
-    Project project = domElement.getManager().getProject();
-
-    JavaPsiFacade psiFacade = JavaPsiFacade.getInstance(project);
-    PsiClass psiClass = psiFacade.findClass(myType, GlobalSearchScope.allScope(project));
-    if (psiClass != null) {
-      GenericDomValueConvertersRegistry convertersRegistry = MavenDomConvertersRegistry.getInstance().getConvertersRegistry();
-      return convertersRegistry.getConverter(domElement, psiFacade.getElementFactory().createType(psiClass));
+    public MavenPluginCustomParameterValueConverter(@Nonnull String type) {
+        myType = PsiTypesUtil.boxIfPossible(type);
     }
 
-    return null;
-  }
+    @Override
+    public Converter getConverter(@Nonnull GenericDomValue domElement) {
+        Project project = domElement.getManager().getProject();
+
+        JavaPsiFacade psiFacade = JavaPsiFacade.getInstance(project);
+        PsiClass psiClass = psiFacade.findClass(myType, GlobalSearchScope.allScope(project));
+        if (psiClass != null) {
+            GenericDomValueConvertersRegistry convertersRegistry = MavenDomConvertersRegistry.getInstance().getConvertersRegistry();
+            return convertersRegistry.getConverter(domElement, psiFacade.getElementFactory().createType(psiClass));
+        }
+
+        return null;
+    }
 }
