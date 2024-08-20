@@ -14,28 +14,24 @@ import java.util.function.Consumer;
  * @since 23/01/2023
  */
 @ExtensionImpl
-public class MavenImporterExtensionPreview implements ExtensionPreviewRecorder<MavenImporter>
-{
-	private final Application myApplication;
+public class MavenImporterExtensionPreview implements ExtensionPreviewRecorder<MavenImporter> {
+    private final Application myApplication;
 
-	@Inject
-	public MavenImporterExtensionPreview(Application application)
-	{
-		myApplication = application;
-	}
+    @Inject
+    public MavenImporterExtensionPreview(Application application) {
+        myApplication = application;
+    }
 
-	@Override
-	public void analyze(@Nonnull Consumer<ExtensionPreview<MavenImporter>> consumer)
-	{
-		myApplication.getExtensionPoint(MavenImporter.class).forEachExtensionSafe(mavenImporter ->
-		{
-			String id = mavenImporter.getId();
-			if(id == null)
-			{
-				return;
-			}
+    @Override
+    public void analyze(@Nonnull Consumer<ExtensionPreview> consumer) {
+        myApplication.getExtensionPoint(MavenImporter.class).forEachExtensionSafe(mavenImporter ->
+        {
+            String id = mavenImporter.getId();
+            if (id == null) {
+                return;
+            }
 
-			consumer.accept(new ExtensionPreview<>(MavenImporter.class, id, mavenImporter));
-		});
-	}
+            consumer.accept(ExtensionPreview.of(MavenImporter.class, id, mavenImporter));
+        });
+    }
 }
