@@ -1,2 +1,4 @@
+maven.name:
+  text: Maven
 group.Maven.DownloadAllGroupPopup.text:
   text: Download Sources and/or Documentation

@@ -15,42 +15,43 @@
  */
 package org.jetbrains.idea.maven.utils;
 
+import consulo.annotation.access.RequiredReadAction;
 import consulo.annotation.component.ExtensionImpl;
-import consulo.language.editor.template.context.TemplateContextType;
+import consulo.language.editor.template.context.BaseTemplateContextType;
+import consulo.language.editor.template.context.TemplateActionContext;
 import consulo.language.psi.PsiElement;
 import consulo.language.psi.PsiFile;
 import consulo.language.psi.util.PsiTreeUtil;
 import consulo.xml.psi.xml.XmlText;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
+import org.jetbrains.idea.maven.localize.MavenLocalize;
 
 import javax.annotation.Nonnull;
 
 @ExtensionImpl
-public class MavenLiveTemplateContextType extends TemplateContextType
-{
-	public MavenLiveTemplateContextType()
-	{
-		super("MAVEN", "Maven");
-	}
+public class MavenLiveTemplateContextType extends BaseTemplateContextType {
+    public MavenLiveTemplateContextType() {
+        super("MAVEN", MavenLocalize.mavenName());
+    }
 
-	public boolean isInContext(@Nonnull final PsiFile file, final int offset)
-	{
-		if(!MavenDomUtil.isMavenFile(file))
-		{
-			return false;
-		}
+    @Override
+    @RequiredReadAction
+    public boolean isInContext(@Nonnull TemplateActionContext context) {
+        PsiFile file = context.getFile();
+        int offset = context.getStartOffset();
+        if (!MavenDomUtil.isMavenFile(file)) {
+            return false;
+        }
 
-		PsiElement element = file.findElementAt(offset);
-		if(element == null)
-		{
-			return false;
-		}
+        PsiElement element = file.findElementAt(offset);
+        if (element == null) {
+            return false;
+        }
 
-		if(PsiTreeUtil.getParentOfType(element, XmlText.class) == null)
-		{
-			return false;
-		}
+        if (PsiTreeUtil.getParentOfType(element, XmlText.class) == null) {
+            return false;
+        }
 
-		return true;
-	}
+        return true;
+    }
 }
