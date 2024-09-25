@@ -16,54 +16,74 @@
 package org.jetbrains.idea.maven.project;
 
 import consulo.configurable.SearchableConfigurable;
+import consulo.disposer.Disposable;
 import consulo.ui.annotation.RequiredUIAccess;
-import org.jetbrains.annotations.NonNls;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.swing.*;
 
 /**
  * @author Sergey Evdokimov
  */
-public abstract class MavenGeneralConfigurable extends MavenGeneralPanel implements SearchableConfigurable
-{
-	protected abstract MavenGeneralSettings getState();
+public abstract class MavenGeneralConfigurable implements SearchableConfigurable {
+    private MavenGeneralPanel myMavenGeneralPanel;
 
-	@RequiredUIAccess
-	@Override
-	public boolean isModified()
-	{
-		MavenGeneralSettings formData = new MavenGeneralSettings();
-		setData(formData);
-		return !formData.equals(getState());
-	}
+    protected abstract MavenGeneralSettings getState();
 
-	@RequiredUIAccess
-	@Override
-	public void apply()
-	{
-		setData(getState());
-	}
+    @RequiredUIAccess
+    @Nullable
+    @Override
+    public JComponent createComponent(@Nonnull Disposable parentDisposable) {
+        if (myMavenGeneralPanel == null) {
+            myMavenGeneralPanel = createGeneralPanel();
+        }
+        return myMavenGeneralPanel.createComponent(parentDisposable);
+    }
 
-	@RequiredUIAccess
-	@Override
-	public void reset()
-	{
-		getData(getState());
-	}
+    protected MavenGeneralPanel createGeneralPanel() {
+        return new MavenGeneralPanel();
+    }
 
-	@Override
-	@Nullable
-	@NonNls
-	public String getHelpTopic()
-	{
-		return "reference.settings.dialog.project.maven";
-	}
+    @RequiredUIAccess
+    @Override
+    public boolean isModified() {
+        if (myMavenGeneralPanel == null) {
+            return false;
+        }
 
-	@Override
-	@Nonnull
-	public String getId()
-	{
-		return getHelpTopic();
-	}
+        MavenGeneralSettings formData = new MavenGeneralSettings();
+        myMavenGeneralPanel.setData(formData);
+        return !formData.equals(getState());
+    }
+
+    @RequiredUIAccess
+    @Override
+    public void apply() {
+        myMavenGeneralPanel.setData(getState());
+    }
+
+    @RequiredUIAccess
+    @Override
+    public void reset() {
+        myMavenGeneralPanel.getData(getState());
+    }
+
+    @RequiredUIAccess
+    @Override
+    public void disposeUIResources() {
+        myMavenGeneralPanel = null;
+    }
+
+    @Override
+    @Nullable
+    public String getHelpTopic() {
+        return "reference.settings.dialog.project.maven";
+    }
+
+    @Override
+    @Nonnull
+    public String getId() {
+        return getHelpTopic();
+    }
 }

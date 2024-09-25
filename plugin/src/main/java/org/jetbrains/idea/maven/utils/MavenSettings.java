@@ -24,7 +24,6 @@ import consulo.disposer.Disposable;
 import consulo.project.Project;
 import consulo.ui.annotation.RequiredUIAccess;
 import jakarta.inject.Inject;
-import org.jetbrains.annotations.Nls;
 import org.jetbrains.idea.maven.execution.MavenRunner;
 import org.jetbrains.idea.maven.execution.MavenRunnerConfigurable;
 import org.jetbrains.idea.maven.execution.MavenRunnerSettings;
@@ -38,135 +37,121 @@ import java.util.ArrayList;
 import java.util.List;
 
 @ExtensionImpl
-public class MavenSettings implements SearchableConfigurable.Parent, ProjectConfigurable
-{
-	public static final String DISPLAY_NAME = "Maven";
+public class MavenSettings implements SearchableConfigurable.Parent, ProjectConfigurable {
+    public static final String DISPLAY_NAME = "Maven";
 
-	private final Project myProject;
-	private final MavenGeneralConfigurable myConfigurable;
-	private final List<Configurable> myChildren;
+    private final Project myProject;
+    private final MavenGeneralConfigurable myConfigurable;
+    private final List<Configurable> myChildren;
 
-	@Inject
-	public MavenSettings(@Nonnull Project project)
-	{
-		myProject = project;
+    @Inject
+    public MavenSettings(@Nonnull Project project) {
+        myProject = project;
 
-		myConfigurable = new MavenGeneralConfigurable()
-		{
-			@Override
-			protected MavenGeneralSettings getState()
-			{
-				return MavenProjectsManager.getInstance(myProject).getGeneralSettings();
-			}
-		};
+        myConfigurable = new MavenGeneralConfigurable() {
+            @Override
+            protected MavenGeneralSettings getState() {
+                return MavenProjectsManager.getInstance(myProject).getGeneralSettings();
+            }
 
-		myConfigurable.showOverrideCompilerBox();
+            @Override
+            protected MavenGeneralPanel createGeneralPanel() {
+                MavenGeneralPanel panel = super.createGeneralPanel();
+                panel.showOverrideCompilerBox();
+                return panel;
+            }
+        };
 
-		myChildren = new ArrayList<>();
-		myChildren.add(new MavenImportingConfigurable(myProject));
-		myChildren.add(new MavenIgnoredFilesConfigurable(myProject));
+        myChildren = new ArrayList<>();
+        myChildren.add(new MavenImportingConfigurable(myProject));
+        myChildren.add(new MavenIgnoredFilesConfigurable(myProject));
 
-		myChildren.add(new MyMavenRunnerConfigurable(project));
+        myChildren.add(new MyMavenRunnerConfigurable(project));
 
-		//myChildren.add(new MavenTestRunningConfigurable(project));
+        //myChildren.add(new MavenTestRunningConfigurable(project));
 
-		if(!myProject.isDefault())
-		{
-			myChildren.add(new MavenRepositoriesConfigurable(myProject));
-		}
-	}
+        if (!myProject.isDefault()) {
+            myChildren.add(new MavenRepositoriesConfigurable(myProject));
+        }
+    }
 
-	@Nullable
-	@Override
-	public String getParentId()
-	{
-		return "execution";
-	}
+    @Nullable
+    @Override
+    public String getParentId() {
+        return "execution";
+    }
 
-	@Override
-	public boolean hasOwnContent()
-	{
-		return true;
-	}
+    @Override
+    public boolean hasOwnContent() {
+        return true;
+    }
 
-	@Override
-	public boolean isVisible()
-	{
-		return true;
-	}
+    @Override
+    public boolean isVisible() {
+        return true;
+    }
 
-	@RequiredUIAccess
-	@Override
-	public JComponent createComponent(@Nonnull Disposable uiDisposable)
-	{
-		return myConfigurable.createComponent(uiDisposable);
-	}
+    @RequiredUIAccess
+    @Override
+    public JComponent createComponent(@Nonnull Disposable uiDisposable) {
+        return myConfigurable.createComponent(uiDisposable);
+    }
 
-	@RequiredUIAccess
-	@Override
-	public boolean isModified()
-	{
-		return myConfigurable.isModified();
-	}
+    @RequiredUIAccess
+    @Override
+    public boolean isModified() {
+        return myConfigurable.isModified();
+    }
 
-	@RequiredUIAccess
-	@Override
-	public void apply() throws ConfigurationException
-	{
-		myConfigurable.apply();
-	}
+    @RequiredUIAccess
+    @Override
+    public void apply() throws ConfigurationException {
+        myConfigurable.apply();
+    }
 
-	@RequiredUIAccess
-	@Override
-	public void reset()
-	{
-		myConfigurable.reset();
-	}
+    @RequiredUIAccess
+    @Override
+    public void reset() {
+        myConfigurable.reset();
+    }
 
-	@RequiredUIAccess
-	@Override
-	public void disposeUIResources()
-	{
-		myConfigurable.disposeUIResources();
-	}
+    @RequiredUIAccess
+    @Override
+    public void disposeUIResources() {
+        myConfigurable.disposeUIResources();
+    }
 
-	@Override
-	public Configurable[] getConfigurables()
-	{
-		return myChildren.toArray(new Configurable[myChildren.size()]);
-	}
+    @Nonnull
+    @Override
+    public Configurable[] getConfigurables() {
+        return myChildren.toArray(new Configurable[myChildren.size()]);
+    }
 
-	@Override
-	@Nonnull
-	public String getId()
-	{
-		return "MavenSettings";
-	}
+    @Override
+    @Nonnull
+    public String getId() {
+        return "MavenSettings";
+    }
 
-	@Override
-	@Nls
-	public String getDisplayName()
-	{
-		return DISPLAY_NAME;
-	}
+    @Nonnull
+    @Override
+    public String getDisplayName() {
+        return DISPLAY_NAME;
+    }
 
-	@Override
-	public String getHelpTopic()
-	{
-		return myConfigurable.getHelpTopic();
-	}
+    @Override
+    public String getHelpTopic() {
+        return myConfigurable.getHelpTopic();
+    }
 
-	public static class MyMavenRunnerConfigurable extends MavenRunnerConfigurable
-	{
-		public MyMavenRunnerConfigurable(Project project)
-		{
-			super(project, false);
-		}
+    public static class MyMavenRunnerConfigurable extends MavenRunnerConfigurable {
+        public MyMavenRunnerConfigurable(Project project) {
+            super(project, false);
+        }
 
-		@Override
-		protected MavenRunnerSettings getState()
-		{
-			return MavenRunner.getInstance(myProject).getState();
-		}
-	}
+        @Override
+        protected MavenRunnerSettings getState() {
+            return MavenRunner.getInstance(myProject).getState();
+        }
+    }
 }
