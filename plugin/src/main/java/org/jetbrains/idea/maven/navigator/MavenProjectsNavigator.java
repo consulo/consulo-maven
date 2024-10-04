@@ -68,400 +68,346 @@ import java.util.List;
 @State(name = "MavenProjectNavigator", storages = {@Storage(StoragePathMacros.WORKSPACE_FILE)})
 @ServiceAPI(ComponentScope.PROJECT)
 @ServiceImpl
-public class MavenProjectsNavigator extends MavenSimpleProjectComponent implements PersistentStateComponent<MavenProjectsNavigatorState>, Disposable
-{
-	public static final String TOOL_WINDOW_ID = "Maven";
+public class MavenProjectsNavigator extends MavenSimpleProjectComponent implements PersistentStateComponent<MavenProjectsNavigatorState>, Disposable {
+    public static final String TOOL_WINDOW_ID = "Maven";
 
-	private MavenProjectsNavigatorState myState = new MavenProjectsNavigatorState();
+    private MavenProjectsNavigatorState myState = new MavenProjectsNavigatorState();
 
-	private MavenProjectsManager myProjectsManager;
-	private MavenTasksManager myTasksManager;
-	private MavenShortcutsManager myShortcutsManager;
+    private MavenProjectsManager myProjectsManager;
+    private MavenTasksManager myTasksManager;
+    private MavenShortcutsManager myShortcutsManager;
 
-	private SimpleTree myTree;
-	private MavenProjectsStructure myStructure;
+    private SimpleTree myTree;
+    private MavenProjectsStructure myStructure;
 
-	@Nonnull
-	public static MavenProjectsNavigator getInstance(Project project)
-	{
-		return ServiceManager.getService(project, MavenProjectsNavigator.class);
-	}
+    @Nonnull
+    public static MavenProjectsNavigator getInstance(Project project) {
+        return ServiceManager.getService(project, MavenProjectsNavigator.class);
+    }
 
-	@Inject
-	public MavenProjectsNavigator(Project project, MavenProjectsManager projectsManager, MavenTasksManager tasksManager, MavenShortcutsManager shortcutsManager)
-	{
-		super(project);
-		myProjectsManager = projectsManager;
-		myTasksManager = tasksManager;
-		myShortcutsManager = shortcutsManager;
+    @Inject
+    public MavenProjectsNavigator(
+        Project project,
+        MavenProjectsManager projectsManager,
+        MavenTasksManager tasksManager,
+        MavenShortcutsManager shortcutsManager
+    ) {
+        super(project);
+        myProjectsManager = projectsManager;
+        myTasksManager = tasksManager;
+        myShortcutsManager = shortcutsManager;
 
-		if(!project.isDefault())
-		{
-			listenForProjectsChanges();
-		}
-	}
+        if (!project.isDefault()) {
+            listenForProjectsChanges();
+        }
+    }
 
-	@Override
-	public MavenProjectsNavigatorState getState()
-	{
-		ApplicationManager.getApplication().assertIsDispatchThread();
-		if(myStructure != null)
-		{
-			try
-			{
-				myState.treeState = new Element("root");
-				TreeState.createOn(myTree).writeExternal(myState.treeState);
-			}
-			catch(WriteExternalException e)
-			{
-				MavenLog.LOG.warn(e);
-			}
-		}
-		return myState;
-	}
+    @Override
+    public MavenProjectsNavigatorState getState() {
+        ApplicationManager.getApplication().assertIsDispatchThread();
+        if (myStructure != null) {
+            try {
+                myState.treeState = new Element("root");
+                TreeState.createOn(myTree).writeExternal(myState.treeState);
+            }
+            catch (WriteExternalException e) {
+                MavenLog.LOG.warn(e);
+            }
+        }
+        return myState;
+    }
 
-	@Override
-	public void loadState(MavenProjectsNavigatorState state)
-	{
-		myState = state;
-		scheduleStructureUpdate();
-	}
+    @Override
+    public void loadState(MavenProjectsNavigatorState state) {
+        myState = state;
+        scheduleStructureUpdate();
+    }
 
-	public boolean getGroupModules()
-	{
-		return myState.groupStructurally;
-	}
+    public boolean getGroupModules() {
+        return myState.groupStructurally;
+    }
 
-	public void setGroupModules(boolean value)
-	{
-		if(myState.groupStructurally != value)
-		{
-			myState.groupStructurally = value;
-			scheduleStructureUpdate();
-		}
-	}
+    public void setGroupModules(boolean value) {
+        if (myState.groupStructurally != value) {
+            myState.groupStructurally = value;
+            scheduleStructureUpdate();
+        }
+    }
 
-	public boolean getShowIgnored()
-	{
-		return myState.showIgnored;
-	}
+    public boolean getShowIgnored() {
+        return myState.showIgnored;
+    }
 
-	public void setShowIgnored(boolean value)
-	{
-		if(myState.showIgnored != value)
-		{
-			myState.showIgnored = value;
-			scheduleStructureUpdate();
-		}
-	}
+    public void setShowIgnored(boolean value) {
+        if (myState.showIgnored != value) {
+            myState.showIgnored = value;
+            scheduleStructureUpdate();
+        }
+    }
 
-	public boolean getShowBasicPhasesOnly()
-	{
-		return myState.showBasicPhasesOnly;
-	}
+    public boolean getShowBasicPhasesOnly() {
+        return myState.showBasicPhasesOnly;
+    }
 
-	public void setShowBasicPhasesOnly(boolean value)
-	{
-		if(myState.showBasicPhasesOnly != value)
-		{
-			myState.showBasicPhasesOnly = value;
-			scheduleStructureUpdate();
-		}
-	}
+    public void setShowBasicPhasesOnly(boolean value) {
+        if (myState.showBasicPhasesOnly != value) {
+            myState.showBasicPhasesOnly = value;
+            scheduleStructureUpdate();
+        }
+    }
 
-	public boolean getAlwaysShowArtifactId()
-	{
-		return myState.alwaysShowArtifactId;
-	}
+    public boolean getAlwaysShowArtifactId() {
+        return myState.alwaysShowArtifactId;
+    }
 
-	public void setAlwaysShowArtifactId(boolean value)
-	{
-		if(myState.alwaysShowArtifactId != value)
-		{
-			myState.alwaysShowArtifactId = value;
-			scheduleStructureUpdate();
-		}
-	}
+    public void setAlwaysShowArtifactId(boolean value) {
+        if (myState.alwaysShowArtifactId != value) {
+            myState.alwaysShowArtifactId = value;
+            scheduleStructureUpdate();
+        }
+    }
 
-	public boolean getShowVersions()
-	{
-		return myState.showVersions;
-	}
+    public boolean getShowVersions() {
+        return myState.showVersions;
+    }
 
-	public void setShowVersions(boolean value)
-	{
-		if(myState.showVersions != value)
-		{
-			myState.showVersions = value;
-			scheduleStructureUpdate();
-		}
-	}
+    public void setShowVersions(boolean value) {
+        if (myState.showVersions != value) {
+            myState.showVersions = value;
+            scheduleStructureUpdate();
+        }
+    }
 
-	@TestOnly
-	public void initForTests()
-	{
-		initTree();
-		initStructure();
-	}
+    @TestOnly
+    public void initForTests() {
+        initTree();
+        initStructure();
+    }
 
 
-	@Override
-	public void dispose()
-	{
-		myProjectsManager = null;
-	}
+    @Override
+    public void dispose() {
+        myProjectsManager = null;
+    }
 
-	private void listenForProjectsChanges()
-	{
-		myProjectsManager.addProjectsTreeListener(new MyProjectsListener());
+    private void listenForProjectsChanges() {
+        myProjectsManager.addProjectsTreeListener(new MyProjectsListener());
 
-		myShortcutsManager.addListener(() -> scheduleStructureRequest(() -> myStructure.updateGoals()));
+        myShortcutsManager.addListener(() -> scheduleStructureRequest(() -> myStructure.updateGoals()));
 
-		myTasksManager.addListener(() -> scheduleStructureRequest(() -> myStructure.updateGoals()));
+        myTasksManager.addListener(() -> scheduleStructureRequest(() -> myStructure.updateGoals()));
 
-		MavenRunner.getInstance(myProject).getSettings().addListener(() -> scheduleStructureRequest(() -> myStructure.updateGoals()));
+        MavenRunner.getInstance(myProject).getSettings().addListener(() -> scheduleStructureRequest(() -> myStructure.updateGoals()));
 
-		myProject.getMessageBus().connect().subscribe(RunManagerListener.class, new RunManagerListener()
-		{
-			private void changed()
-			{
-				scheduleStructureRequest(() -> myStructure.updateRunConfigurations());
-			}
+        myProject.getMessageBus().connect().subscribe(RunManagerListener.class, new RunManagerListener() {
+            private void changed() {
+                scheduleStructureRequest(() -> myStructure.updateRunConfigurations());
+            }
 
-			@Override
-			public void runConfigurationAdded(@Nonnull RunManagerListenerEvent event)
-			{
-				changed();
-			}
+            @Override
+            public void runConfigurationAdded(@Nonnull RunManagerListenerEvent event) {
+                changed();
+            }
 
-			@Override
-			public void runConfigurationRemoved(@Nonnull RunManagerListenerEvent event)
-			{
-				changed();
-			}
+            @Override
+            public void runConfigurationRemoved(@Nonnull RunManagerListenerEvent event) {
+                changed();
+            }
 
-			@Override
-			public void runConfigurationChanged(@Nonnull RunManagerListenerEvent event)
-			{
-				changed();
-			}
+            @Override
+            public void runConfigurationChanged(@Nonnull RunManagerListenerEvent event) {
+                changed();
+            }
 
-			@Override
-			public void beforeRunTasksChanged(RunManagerListenerEvent event)
-			{
-				scheduleStructureRequest(() -> myStructure.updateGoals());
-			}
-		});
-	}
+            @Override
+            public void beforeRunTasksChanged(RunManagerListenerEvent event) {
+                scheduleStructureRequest(() -> myStructure.updateGoals());
+            }
+        });
+    }
 
-	public void initToolWindow(ToolWindow toolWindow)
-	{
-		initTree();
-		JPanel panel = new MavenProjectsNavigatorPanel(myProject, myTree);
+    public void initToolWindow(ToolWindow toolWindow) {
+        initTree();
+        JPanel panel = new MavenProjectsNavigatorPanel(myProject, myTree);
 
-		AnAction removeAction = EmptyAction.wrap(ActionManager.getInstance().getAction("Maven.RemoveRunConfiguration"));
-		removeAction.registerCustomShortcutSet(CommonShortcuts.getDelete(), myTree, myProject);
-		AnAction editSource = EmptyAction.wrap(ActionManager.getInstance().getAction("Maven.EditRunConfiguration"));
-		editSource.registerCustomShortcutSet(CommonShortcuts.getEditSource(), myTree, myProject);
+        AnAction removeAction = EmptyAction.wrap(ActionManager.getInstance().getAction("Maven.RemoveRunConfiguration"));
+        removeAction.registerCustomShortcutSet(CommonShortcuts.getDelete(), myTree, myProject);
+        AnAction editSource = EmptyAction.wrap(ActionManager.getInstance().getAction("Maven.EditRunConfiguration"));
+        editSource.registerCustomShortcutSet(CommonShortcuts.getEditSource(), myTree, myProject);
 
-		final ContentFactory contentFactory = ContentFactory.getInstance();
-		final Content content = contentFactory.createContent(panel, "", false);
-		ContentManager contentManager = toolWindow.getContentManager();
-		contentManager.addContent(content);
-		contentManager.setSelectedContent(content, false);
+        final ContentFactory contentFactory = ContentFactory.getInstance();
+        final Content content = contentFactory.createContent(panel, "", false);
+        ContentManager contentManager = toolWindow.getContentManager();
+        contentManager.addContent(content);
+        contentManager.setSelectedContent(content, false);
 
-		final ToolWindowManagerListener listener = new ToolWindowManagerListener()
-		{
-			boolean wasVisible = false;
+        final ToolWindowManagerListener listener = new ToolWindowManagerListener() {
+            boolean wasVisible = false;
 
-			@Override
-			public void stateChanged(ToolWindowManager toolWindowManager)
-			{
-				if(toolWindow.isDisposed())
-				{
-					return;
-				}
-				boolean visible = toolWindow.isVisible();
-				if(!visible || wasVisible)
-				{
-					return;
-				}
-				scheduleStructureUpdate();
-				wasVisible = true;
-			}
-		};
-		myProject.getMessageBus().connect(this).subscribe(ToolWindowManagerListener.class, listener);
+            @Override
+            public void stateChanged(ToolWindowManager toolWindowManager) {
+                if (toolWindow.isDisposed()) {
+                    return;
+                }
+                boolean visible = toolWindow.isVisible();
+                if (!visible || wasVisible) {
+                    return;
+                }
+                scheduleStructureUpdate();
+                wasVisible = true;
+            }
+        };
+        myProject.getMessageBus().connect(this).subscribe(ToolWindowManagerListener.class, listener);
 
-		ActionManager actionManager = ActionManager.getInstance();
+        ActionManager actionManager = ActionManager.getInstance();
 
-		ActionGroup.Builder group = ActionGroup.newImmutableBuilder();
-		group.add(actionManager.getAction("Maven.GroupProjects"));
-		group.add(actionManager.getAction("Maven.ShowIgnored"));
-		group.add(actionManager.getAction("Maven.ShowBasicPhasesOnly"));
-		group.add(actionManager.getAction("Maven.AlwaysShowArtifactId"));
-		group.add(actionManager.getAction("Maven.ShowVersions"));
+        ActionGroup.Builder group = ActionGroup.newImmutableBuilder();
+        group.add(actionManager.getAction("Maven.GroupProjects"));
+        group.add(actionManager.getAction("Maven.ShowIgnored"));
+        group.add(actionManager.getAction("Maven.ShowBasicPhasesOnly"));
+        group.add(actionManager.getAction("Maven.AlwaysShowArtifactId"));
+        group.add(actionManager.getAction("Maven.ShowVersions"));
 
-		toolWindow.setAdditionalGearActions(group.build());
-	}
+        toolWindow.setAdditionalGearActions(group.build());
+    }
 
-	private void initTree()
-	{
-		myTree = new SimpleTree()
-		{
-			private final JEditorPane myLabel;
+    private void initTree() {
+        myTree = new SimpleTree() {
+            private final JEditorPane myLabel;
 
-			{
-				myLabel = new JEditorPane("text/html", "");
-				myLabel.setOpaque(false);
-				myLabel.setEditorKit(JBHtmlEditorKit.create());
-				String text = ProjectBundle.message("maven.navigator.nothing.to.display", MavenUtil.formatHtmlImage(PlatformIconGroup.generalAdd()), MavenUtil.formatHtmlImage(PlatformIconGroup
-						.actionsRefresh()));
-				myLabel.setText(text);
-			}
+            {
+                myLabel = new JEditorPane("text/html", "");
+                myLabel.setOpaque(false);
+                myLabel.setEditorKit(JBHtmlEditorKit.create());
+                String text = ProjectBundle.message("maven.navigator.nothing.to.display",
+                    MavenUtil.formatHtmlImage(PlatformIconGroup.generalAdd()),
+                    MavenUtil.formatHtmlImage(PlatformIconGroup
+                        .actionsRefresh())
+                );
+                myLabel.setText(text);
+            }
 
-			@Override
-			protected void paintComponent(Graphics g)
-			{
-				super.paintComponent(g);
-				if(myProjectsManager.hasProjects())
-				{
-					return;
-				}
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                if (myProjectsManager.hasProjects()) {
+                    return;
+                }
 
-				myLabel.setFont(getFont());
-				myLabel.setBackground(getBackground());
-				myLabel.setForeground(getForeground());
-				Rectangle bounds = getBounds();
-				Dimension size = myLabel.getPreferredSize();
-				myLabel.setBounds(0, 0, size.width, size.height);
+                myLabel.setFont(getFont());
+                myLabel.setBackground(getBackground());
+                myLabel.setForeground(getForeground());
+                Rectangle bounds = getBounds();
+                Dimension size = myLabel.getPreferredSize();
+                myLabel.setBounds(0, 0, size.width, size.height);
 
-				int x = (bounds.width - size.width) / 2;
-				Graphics g2 = g.create(bounds.x + x, bounds.y + 20, bounds.width, bounds.height);
-				try
-				{
-					myLabel.paint(g2);
-				}
-				finally
-				{
-					g2.dispose();
-				}
-			}
-		};
-		myTree.getEmptyText().clear();
+                int x = (bounds.width - size.width) / 2;
+                Graphics g2 = g.create(bounds.x + x, bounds.y + 20, bounds.width, bounds.height);
+                try {
+                    myLabel.paint(g2);
+                }
+                finally {
+                    g2.dispose();
+                }
+            }
+        };
+        myTree.getEmptyText().clear();
 
-		myTree.getSelectionModel().setSelectionMode(TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
-	}
+        myTree.getSelectionModel().setSelectionMode(TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
+    }
 
-	@TestOnly
-	public MavenProjectsStructure getStructureForTests()
-	{
-		return myStructure;
-	}
+    @TestOnly
+    public MavenProjectsStructure getStructureForTests() {
+        return myStructure;
+    }
 
-	public void selectInTree(final MavenProject project)
-	{
-		scheduleStructureRequest(() -> myStructure.select(project));
-	}
+    public void selectInTree(final MavenProject project) {
+        scheduleStructureRequest(() -> myStructure.select(project));
+    }
 
-	private void scheduleStructureRequest(final Runnable r)
-	{
-		if(isUnitTestMode())
-		{
-			if(myStructure != null)
-			{
-				r.run();
-			}
-			return;
-		}
+    private void scheduleStructureRequest(final Runnable r) {
+        if (isUnitTestMode()) {
+            if (myStructure != null) {
+                r.run();
+            }
+            return;
+        }
 
-		ToolWindow toolWindow = getToolWindow();
-		if(toolWindow == null)
-		{
-			return;
-		}
-		MavenUtil.invokeLater(myProject, () ->
-		{
-			if(!toolWindow.isVisible())
-			{
-				return;
-			}
+        ToolWindow toolWindow = getToolWindow();
+        if (toolWindow == null) {
+            return;
+        }
+        MavenUtil.invokeLater(myProject, () ->
+        {
+            if (!toolWindow.isVisible()) {
+                return;
+            }
 
-			boolean shouldCreate = myStructure == null;
-			if(shouldCreate)
-			{
-				initStructure();
-			}
+            boolean shouldCreate = myStructure == null;
+            if (shouldCreate) {
+                initStructure();
+            }
 
-			r.run();
+            r.run();
 
-			if(shouldCreate)
-			{
-				TreeState.createFrom(myState.treeState).applyTo(myTree);
-			}
-		});
-	}
+            if (shouldCreate) {
+                TreeState.createFrom(myState.treeState).applyTo(myTree);
+            }
+        });
+    }
 
-	@Nullable
-	public ToolWindow getToolWindow()
-	{
-		if(myProject.isDisposedOrDisposeInProgress())
-		{
-			return null;
-		}
-		return ToolWindowManager.getInstance(myProject).getToolWindow(TOOL_WINDOW_ID);
-	}
+    @Nullable
+    public ToolWindow getToolWindow() {
+        if (myProject.isDisposedOrDisposeInProgress()) {
+            return null;
+        }
+        return ToolWindowManager.getInstance(myProject).getToolWindow(TOOL_WINDOW_ID);
+    }
 
-	private void initStructure()
-	{
-		myStructure = new MavenProjectsStructure(myProject, myProjectsManager, myTasksManager, myShortcutsManager, this, myTree);
-	}
+    private void initStructure() {
+        myStructure = new MavenProjectsStructure(myProject, myProjectsManager, myTasksManager, myShortcutsManager, this, myTree);
+    }
 
-	private void scheduleStructureUpdate()
-	{
-		scheduleStructureRequest(() -> myStructure.update());
-	}
+    private void scheduleStructureUpdate() {
+        scheduleStructureRequest(() -> myStructure.update());
+    }
 
-	private class MyProjectsListener implements MavenProjectsManager.Listener, MavenProjectsTree.Listener
-	{
-		@Override
-		public void activated()
-		{
-			scheduleStructureUpdate();
-		}
+    private class MyProjectsListener implements MavenProjectsManager.Listener, MavenProjectsTree.Listener {
+        @Override
+        public void activated() {
+            scheduleStructureUpdate();
+        }
 
-		@Override
-		public void projectsIgnoredStateChanged(final List<MavenProject> ignored, final List<MavenProject> unignored, boolean fromImport)
-		{
-			scheduleStructureRequest(() -> myStructure.updateIgnored(ContainerUtil.concat(ignored, unignored)));
-		}
+        @Override
+        public void projectsIgnoredStateChanged(final List<MavenProject> ignored, final List<MavenProject> unignored, boolean fromImport) {
+            scheduleStructureRequest(() -> myStructure.updateIgnored(ContainerUtil.concat(ignored, unignored)));
+        }
 
-		@Override
-		public void profilesChanged()
-		{
-			scheduleStructureRequest(() -> myStructure.updateProfiles());
-		}
+        @Override
+        public void profilesChanged() {
+            scheduleStructureRequest(() -> myStructure.updateProfiles());
+        }
 
-		@Override
-		public void projectsUpdated(List<Pair<MavenProject, MavenProjectChanges>> updated, List<MavenProject> deleted)
-		{
-			scheduleUpdateProjects(MavenUtil.collectFirsts(updated), deleted);
-		}
+        @Override
+        public void projectsUpdated(List<Pair<MavenProject, MavenProjectChanges>> updated, List<MavenProject> deleted) {
+            scheduleUpdateProjects(MavenUtil.collectFirsts(updated), deleted);
+        }
 
-		@Override
-		public void projectResolved(Pair<MavenProject, MavenProjectChanges> projectWithChanges, NativeMavenProjectHolder nativeMavenProject)
-		{
-			scheduleUpdateProjects(Collections.singletonList(projectWithChanges.first), Collections.emptyList());
-		}
+        @Override
+        public void projectResolved(
+            Pair<MavenProject, MavenProjectChanges> projectWithChanges,
+            NativeMavenProjectHolder nativeMavenProject
+        ) {
+            scheduleUpdateProjects(Collections.singletonList(projectWithChanges.first), Collections.emptyList());
+        }
 
-		@Override
-		public void pluginsResolved(MavenProject project)
-		{
-			scheduleUpdateProjects(Collections.singletonList(project), Collections.emptyList());
-		}
+        @Override
+        public void pluginsResolved(MavenProject project) {
+            scheduleUpdateProjects(Collections.singletonList(project), Collections.emptyList());
+        }
 
-		private void scheduleUpdateProjects(final List<MavenProject> projects, final List<MavenProject> deleted)
-		{
-			scheduleStructureRequest(() -> myStructure.updateProjects(projects, deleted));
-		}
-	}
+        private void scheduleUpdateProjects(final List<MavenProject> projects, final List<MavenProject> deleted) {
+            scheduleStructureRequest(() -> myStructure.updateProjects(projects, deleted));
+        }
+    }
 }

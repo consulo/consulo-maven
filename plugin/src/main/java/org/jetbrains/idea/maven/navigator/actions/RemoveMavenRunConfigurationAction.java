@@ -29,32 +29,28 @@ import javax.annotation.Nonnull;
 /**
  * @author Sergey Evdokimov
  */
-public class RemoveMavenRunConfigurationAction extends AnAction
-{
-	@RequiredUIAccess
-	@Override
-	public void actionPerformed(@Nonnull AnActionEvent e)
-	{
-		Project project = e.getData(Project.KEY);
-		RunnerAndConfigurationSettings settings = e.getData(MavenDataKeys.RUN_CONFIGURATION);
+public class RemoveMavenRunConfigurationAction extends AnAction {
+    @RequiredUIAccess
+    @Override
+    public void actionPerformed(@Nonnull AnActionEvent e) {
+        Project project = e.getData(Project.KEY);
+        RunnerAndConfigurationSettings settings = e.getData(MavenDataKeys.RUN_CONFIGURATION);
 
-		assert settings != null && project != null;
+        assert settings != null && project != null;
 
-		int res = Messages.showYesNoDialog(project, "Delete \"" + settings.getName() + "\"?", "Confirmation", Messages.getQuestionIcon());
-		if(res == Messages.YES)
-		{
-			RunManager.getInstance(project).removeConfiguration(settings);
-		}
-	}
+        int res = Messages.showYesNoDialog(project, "Delete \"" + settings.getName() + "\"?", "Confirmation", Messages.getQuestionIcon());
+        if (res == Messages.YES) {
+            RunManager.getInstance(project).removeConfiguration(settings);
+        }
+    }
 
-	@RequiredUIAccess
-	@Override
-	public void update(@Nonnull AnActionEvent e)
-	{
-		Project project = e.getData(Project.KEY);
-		RunnerAndConfigurationSettings settings = e.getData(MavenDataKeys.RUN_CONFIGURATION);
+    @RequiredUIAccess
+    @Override
+    public void update(@Nonnull AnActionEvent e) {
+        Project project = e.getData(Project.KEY);
+        RunnerAndConfigurationSettings settings = e.getData(MavenDataKeys.RUN_CONFIGURATION);
 
-		boolean enabled = settings != null && project != null;
-		e.getPresentation().setEnabledAndVisible(enabled);
-	}
+        boolean enabled = settings != null && project != null;
+        e.getPresentation().setEnabledAndVisible(enabled);
+    }
 }

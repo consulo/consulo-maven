@@ -19,17 +19,14 @@ import javax.annotation.Nonnull;
 
 import org.jetbrains.idea.maven.navigator.MavenProjectsNavigator;
 
-public class ShowVersionsAction extends MavenProjectsNavigatorAction
-{
-	@Override
-	public boolean isSelected(@Nonnull MavenProjectsNavigator navigator)
-	{
-		return navigator.getShowVersions();
-	}
+public class ShowVersionsAction extends MavenProjectsNavigatorAction {
+    @Override
+    public boolean isSelected(@Nonnull MavenProjectsNavigator navigator) {
+        return navigator.getShowVersions();
+    }
 
-	@Override
-	public void setSelected(@Nonnull MavenProjectsNavigator navigator, boolean value)
-	{
-		navigator.setShowVersions(value);
-	}
+    @Override
+    public void setSelected(@Nonnull MavenProjectsNavigator navigator, boolean value) {
+        navigator.setShowVersions(value);
+    }
 }

@@ -26,58 +26,42 @@ import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 
 @ExtensionImpl
-public class SelectInMavenNavigatorTarget implements SelectInTarget
-{
-	public boolean canSelect(SelectInContext context)
-	{
-		return getMavenProject(context) != null;
-	}
+public class SelectInMavenNavigatorTarget implements SelectInTarget {
+    public boolean canSelect(SelectInContext context) {
+        return getMavenProject(context) != null;
+    }
 
-	public void selectIn(final SelectInContext context, boolean requestFocus)
-	{
-		Runnable r = new Runnable()
-		{
-			public void run()
-			{
-				MavenProjectsNavigator.getInstance(context.getProject()).selectInTree(getMavenProject(context));
-			}
-		};
-		if(requestFocus)
-		{
-			ToolWindowManager.getInstance(context.getProject()).getToolWindow(getToolWindowId()).activate(r);
-		}
-		else
-		{
-			r.run();
-		}
-	}
+    public void selectIn(final SelectInContext context, boolean requestFocus) {
+        Runnable r = () -> MavenProjectsNavigator.getInstance(context.getProject()).selectInTree(getMavenProject(context));
+        if (requestFocus) {
+            ToolWindowManager.getInstance(context.getProject()).getToolWindow(getToolWindowId()).activate(r);
+        }
+        else {
+            r.run();
+        }
+    }
 
-	private MavenProject getMavenProject(SelectInContext context)
-	{
-		VirtualFile file = context.getVirtualFile();
-		MavenProjectsManager manager = MavenProjectsManager.getInstance(context.getProject());
-		Module module = ProjectRootManager.getInstance(context.getProject()).getFileIndex().getModuleForFile(file);
-		return module == null ? null : manager.findProject(module);
-	}
+    private MavenProject getMavenProject(SelectInContext context) {
+        VirtualFile file = context.getVirtualFile();
+        MavenProjectsManager manager = MavenProjectsManager.getInstance(context.getProject());
+        Module module = ProjectRootManager.getInstance(context.getProject()).getFileIndex().getModuleForFile(file);
+        return module == null ? null : manager.findProject(module);
+    }
 
-	public String getToolWindowId()
-	{
-		return MavenProjectsNavigator.TOOL_WINDOW_ID;
-	}
+    public String getToolWindowId() {
+        return MavenProjectsNavigator.TOOL_WINDOW_ID;
+    }
 
-	@Override
-	public String toString()
-	{
-		return MavenProjectsNavigator.TOOL_WINDOW_ID;
-	}
+    @Override
+    public String toString() {
+        return MavenProjectsNavigator.TOOL_WINDOW_ID;
+    }
 
-	public String getMinorViewId()
-	{
-		return null;
-	}
+    public String getMinorViewId() {
+        return null;
+    }
 
-	public float getWeight()
-	{
-		return 20;
-	}
+    public float getWeight() {
+        return 20;
+    }
 }

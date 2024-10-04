@@ -34,69 +34,63 @@ import javax.annotation.Nonnull;
 /**
  * @author Sergey Evdokimov
  */
-public class MavenRunConfigurationMenu extends DefaultActionGroup implements DumbAware
-{
-	@Override
-	public void update(AnActionEvent e)
-	{
-		for(AnAction action : getChildActionsOrStubs())
-		{
-			if(action instanceof ExecuteMavenRunConfigurationAction)
-			{
-				remove(action);
-			}
-		}
+public class MavenRunConfigurationMenu extends DefaultActionGroup implements DumbAware {
+    @Override
+    public void update(AnActionEvent e) {
+        for (AnAction action : getChildActionsOrStubs()) {
+            if (action instanceof ExecuteMavenRunConfigurationAction) {
+                remove(action);
+            }
+        }
 
-		final Project project = e.getData(Project.KEY);
+        final Project project = e.getData(Project.KEY);
 
-		final RunnerAndConfigurationSettings settings = e.getData(MavenDataKeys.RUN_CONFIGURATION);
+        final RunnerAndConfigurationSettings settings = e.getData(MavenDataKeys.RUN_CONFIGURATION);
 
-		if(settings == null || project == null)
-		{
-			return;
-		}
+        if (settings == null || project == null) {
+            return;
+        }
 
-		Executor[] executors = ExecutorRegistry.getInstance().getRegisteredExecutors();
-		for(int i = executors.length; --i >= 0; )
-		{
-			final ProgramRunner runner = RunnerRegistry.getInstance().getRunner(executors[i].getId(), settings.getConfiguration());
-			AnAction action = new ExecuteMavenRunConfigurationAction(executors[i], runner != null, project, settings);
-			addAction(action, Constraints.FIRST);
-		}
+        Executor[] executors = ExecutorRegistry.getInstance().getRegisteredExecutors();
+        for (int i = executors.length; --i >= 0; ) {
+            final ProgramRunner runner = RunnerRegistry.getInstance().getRunner(executors[i].getId(), settings.getConfiguration());
+            AnAction action = new ExecuteMavenRunConfigurationAction(executors[i], runner != null, project, settings);
+            addAction(action, Constraints.FIRST);
+        }
 
-		super.update(e);
-	}
+        super.update(e);
+    }
 
-	private static class ExecuteMavenRunConfigurationAction extends AnAction
-	{
-		private final Executor myExecutor;
-		private final boolean myEnabled;
-		private final Project myProject;
-		private final RunnerAndConfigurationSettings mySettings;
+    private static class ExecuteMavenRunConfigurationAction extends AnAction {
+        private final Executor myExecutor;
+        private final boolean myEnabled;
+        private final Project myProject;
+        private final RunnerAndConfigurationSettings mySettings;
 
-		public ExecuteMavenRunConfigurationAction(Executor executor, boolean enabled, Project project, RunnerAndConfigurationSettings settings)
-		{
-			super(executor.getActionName(), null, executor.getIcon());
-			myExecutor = executor;
-			myEnabled = enabled;
-			myProject = project;
-			mySettings = settings;
-		}
+        public ExecuteMavenRunConfigurationAction(
+            Executor executor,
+            boolean enabled,
+            Project project,
+            RunnerAndConfigurationSettings settings
+        ) {
+            super(executor.getActionName(), null, executor.getIcon());
+            myExecutor = executor;
+            myEnabled = enabled;
+            myProject = project;
+            mySettings = settings;
+        }
 
-		@Override
-		public void actionPerformed(@Nonnull AnActionEvent event)
-		{
-			if(myEnabled)
-			{
-				ProgramRunnerUtil.executeConfiguration(mySettings, myExecutor);
-			}
-		}
+        @Override
+        public void actionPerformed(@Nonnull AnActionEvent event) {
+            if (myEnabled) {
+                ProgramRunnerUtil.executeConfiguration(mySettings, myExecutor);
+            }
+        }
 
-		@Override
-		public void update(@Nonnull AnActionEvent e)
-		{
-			super.update(e);
-			e.getPresentation().setEnabled(myEnabled);
-		}
-	}
+        @Override
+        public void update(@Nonnull AnActionEvent e) {
+            super.update(e);
+            e.getPresentation().setEnabled(myEnabled);
+        }
+    }
 }

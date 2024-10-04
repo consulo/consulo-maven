@@ -21,21 +21,21 @@ import org.jetbrains.idea.maven.utils.actions.MavenActionUtil;
 import org.jetbrains.idea.maven.utils.actions.MavenToggleAction;
 
 public abstract class MavenProjectsNavigatorAction extends MavenToggleAction {
-  @Override
-  protected boolean doIsSelected(AnActionEvent e) {
-    return isSelected(getNavigator(e));
-  }
+    @Override
+    protected boolean doIsSelected(AnActionEvent e) {
+        return isSelected(getNavigator(e));
+    }
 
-  @Override
-  public void setSelected(AnActionEvent e, boolean state) {
-    setSelected(getNavigator(e), state);
-  }
+    @Override
+    public void setSelected(AnActionEvent e, boolean state) {
+        setSelected(getNavigator(e), state);
+    }
 
-  private MavenProjectsNavigator getNavigator(AnActionEvent e) {
-    return MavenProjectsNavigator.getInstance(MavenActionUtil.getProject(e.getDataContext()));
-  }
+    private MavenProjectsNavigator getNavigator(AnActionEvent e) {
+        return MavenProjectsNavigator.getInstance(MavenActionUtil.getProject(e.getDataContext()));
+    }
 
-  protected abstract boolean isSelected(MavenProjectsNavigator navigator);
+    protected abstract boolean isSelected(MavenProjectsNavigator navigator);
 
-  protected abstract void setSelected(MavenProjectsNavigator navigator, boolean value);
+    protected abstract void setSelected(MavenProjectsNavigator navigator, boolean value);
 }
