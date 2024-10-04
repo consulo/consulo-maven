@@ -10,7 +10,6 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
 import javax.annotation.Nonnull;
-import java.util.Collection;
 
 /**
  * @author Sergey Evdokimov

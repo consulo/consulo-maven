@@ -32,13 +32,13 @@ import java.util.*;
 public class MavenRunnerParameters implements Cloneable {
     private boolean isPomExecution;
     private Path myWorkingDirPath;
-    private final List<String> myGoals = new ArrayList<String>();
+    private final List<String> myGoals = new ArrayList<>();
 
     private boolean myResolveToWorkspace;
 
-    private final Map<String, Boolean> myProfilesMap = new LinkedHashMap<String, Boolean>();
+    private final Map<String, Boolean> myProfilesMap = new LinkedHashMap<>();
 
-    private final Collection<String> myEnabledProfilesForXmlSerializer = new TreeSet<String>();
+    private final Collection<String> myEnabledProfilesForXmlSerializer = new TreeSet<>();
 
     public MavenRunnerParameters() {
         this(true, "", null, null, null);
@@ -216,10 +216,12 @@ public class MavenRunnerParameters implements Cloneable {
         myResolveToWorkspace = resolveToWorkspace;
     }
 
+    @Override
     public MavenRunnerParameters clone() {
         return new MavenRunnerParameters(this);
     }
 
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -242,13 +244,10 @@ public class MavenRunnerParameters implements Cloneable {
         if (myWorkingDirPath != null ? !myWorkingDirPath.equals(that.myWorkingDirPath) : that.myWorkingDirPath != null) {
             return false;
         }
-        if (!myProfilesMap.equals(that.myProfilesMap)) {
-            return false;
-        }
-
-        return true;
+        return myProfilesMap.equals(that.myProfilesMap);
     }
 
+    @Override
     public int hashCode() {
         int result;
         result = isPomExecution ? 1 : 0;

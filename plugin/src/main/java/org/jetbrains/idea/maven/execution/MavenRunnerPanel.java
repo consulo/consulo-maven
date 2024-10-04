@@ -26,6 +26,7 @@ import consulo.execution.ui.awt.RawCommandLineEditor;
 import consulo.ide.setting.ShowSettingsUtil;
 import consulo.module.ui.awt.SdkComboBox;
 import consulo.project.Project;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.awt.IdeBorderFactory;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
@@ -55,6 +56,7 @@ public class MavenRunnerPanel {
         myRunConfigurationMode = isRunConfiguration;
     }
 
+    @RequiredUIAccess
     public JComponent createComponent(@Nonnull Disposable uiDiposable) {
         JPanel panel = new JPanel(new GridBagLayout());
 
@@ -145,6 +147,7 @@ public class MavenRunnerPanel {
         return panel;
     }
 
+    @SuppressWarnings("unchecked")
     private void collectProperties() {
         MavenProjectsManager s = MavenProjectsManager.getInstance(myProject);
         Map<String, String> result = new LinkedHashMap<>();

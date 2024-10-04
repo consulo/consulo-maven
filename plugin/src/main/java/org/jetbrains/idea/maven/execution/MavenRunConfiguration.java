@@ -16,8 +16,8 @@
 package org.jetbrains.idea.maven.execution;
 
 import com.intellij.java.execution.configurations.JavaCommandLineState;
+import consulo.annotation.access.RequiredReadAction;
 import consulo.execution.DefaultExecutionResult;
-import consulo.execution.ExecutionBundle;
 import consulo.execution.ExecutionResult;
 import consulo.execution.configuration.ConfigurationFactory;
 import consulo.execution.configuration.LocatableConfigurationBase;
@@ -27,6 +27,7 @@ import consulo.execution.configuration.log.ui.LogConfigurationPanel;
 import consulo.execution.configuration.ui.SettingsEditor;
 import consulo.execution.configuration.ui.SettingsEditorGroup;
 import consulo.execution.executor.Executor;
+import consulo.execution.localize.ExecutionLocalize;
 import consulo.execution.runner.ExecutionEnvironment;
 import consulo.execution.runner.ProgramRunner;
 import consulo.java.debugger.impl.GenericDebugRunnerConfiguration;
@@ -39,10 +40,12 @@ import consulo.process.event.ProcessEvent;
 import consulo.process.event.ProcessListener;
 import consulo.project.Project;
 import consulo.project.ui.wm.ToolWindowId;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.util.xml.serializer.InvalidDataException;
 import consulo.util.xml.serializer.WriteExternalException;
 import consulo.util.xml.serializer.XmlSerializer;
 import org.jdom.Element;
+import org.jetbrains.idea.maven.localize.MavenRunnerLocalize;
 import org.jetbrains.idea.maven.project.*;
 
 import javax.annotation.Nonnull;
@@ -65,16 +68,18 @@ public class MavenRunConfiguration extends LocatableConfigurationBase implements
 
     @Nonnull
     @Override
+    @RequiredUIAccess
     public SettingsEditor<? extends RunConfiguration> getConfigurationEditor() {
-        SettingsEditorGroup<MavenRunConfiguration> group = new SettingsEditorGroup<MavenRunConfiguration>();
+        SettingsEditorGroup<MavenRunConfiguration> group = new SettingsEditorGroup<>();
 
-        group.addEditor(RunnerBundle.message("maven.runner.parameters.title"), new MavenRunnerParametersSettingEditor(getProject()));
+        group.addEditor(MavenRunnerLocalize.mavenRunnerParametersTitle().get(), new MavenRunnerParametersSettingEditor(getProject()));
         group.addEditor(ProjectBundle.message("maven.tab.general"), new MavenGeneralSettingsEditor(getProject()));
-        group.addEditor(RunnerBundle.message("maven.tab.runner"), new MavenRunnerSettingsEditor(getProject()));
-        group.addEditor(ExecutionBundle.message("logs.tab.title"), new LogConfigurationPanel<>());
+        group.addEditor(MavenRunnerLocalize.mavenTabRunner().get(), new MavenRunnerSettingsEditor(getProject()));
+        group.addEditor(ExecutionLocalize.logsTabTitle().get(), new LogConfigurationPanel<>());
         return group;
     }
 
+    @RequiredReadAction
     public OwnJavaParameters createJavaParameters(@Nullable Project project) throws ExecutionException {
         return MavenExternalParameters.createJavaParameters(
             project,
@@ -89,6 +94,7 @@ public class MavenRunConfiguration extends LocatableConfigurationBase implements
     public RunProfileState getState(@Nonnull final Executor executor, @Nonnull final ExecutionEnvironment env) throws ExecutionException {
         JavaCommandLineState state = new JavaCommandLineState(env) {
             @Override
+            @RequiredReadAction
             protected OwnJavaParameters createJavaParameters() throws ExecutionException {
                 return MavenRunConfiguration.this.createJavaParameters(env.getProject());
             }

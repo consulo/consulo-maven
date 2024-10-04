@@ -18,6 +18,7 @@ package org.jetbrains.idea.maven.execution;
 import consulo.configurable.ConfigurationException;
 import consulo.execution.configuration.ui.SettingsEditor;
 import consulo.project.Project;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.util.lang.Pair;
 import org.jetbrains.idea.maven.project.MavenDisablePanelCheckbox;
 
@@ -68,6 +69,7 @@ public class MavenRunnerSettingsEditor extends SettingsEditor<MavenRunConfigurat
 
     @Nonnull
     @Override
+    @RequiredUIAccess
     protected JComponent createEditor() {
         Pair<JPanel, JCheckBox> pair =
             MavenDisablePanelCheckbox.createPanel(myPanel.createComponent(this), "Use project settings");

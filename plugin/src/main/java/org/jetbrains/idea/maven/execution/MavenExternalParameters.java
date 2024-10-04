@@ -20,7 +20,7 @@ package org.jetbrains.idea.maven.execution;
 
 import com.intellij.java.language.LanguageLevel;
 import consulo.annotation.access.RequiredReadAction;
-import consulo.application.ApplicationManager;
+import consulo.application.Application;
 import consulo.container.boot.ContainerPathManager;
 import consulo.content.bundle.Sdk;
 import consulo.content.bundle.SdkTable;
@@ -29,6 +29,7 @@ import consulo.ide.impl.idea.execution.impl.EditConfigurationsDialog;
 import consulo.ide.impl.idea.util.PathUtil;
 import consulo.ide.setting.ShowSettingsUtil;
 import consulo.java.execution.configurations.OwnJavaParameters;
+import consulo.localize.LocalizeValue;
 import consulo.logging.Logger;
 import consulo.maven.rt.server.common.server.MavenServerUtil;
 import consulo.maven.util.MavenJdkUtil;
@@ -39,12 +40,13 @@ import consulo.process.cmd.ParametersList;
 import consulo.project.Project;
 import consulo.project.ui.notification.Notification;
 import consulo.project.ui.notification.event.NotificationListener;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.util.io.FileUtil;
 import consulo.util.lang.StringUtil;
 import consulo.virtualFileSystem.encoding.EncodingManager;
 import consulo.virtualFileSystem.encoding.EncodingProjectManager;
-import org.jetbrains.annotations.NonNls;
 import org.jetbrains.idea.maven.artifactResolver.common.MavenModuleMap;
+import org.jetbrains.idea.maven.localize.MavenRunnerLocalize;
 import org.jetbrains.idea.maven.project.MavenGeneralSettings;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
@@ -68,7 +70,6 @@ public class MavenExternalParameters {
 
     public static final String MAVEN_LAUNCHER_CLASS = "org.codehaus.classworlds.Launcher";
 
-    @NonNls
     private static final String MAVEN_OPTS = "MAVEN_OPTS";
 
     @Deprecated // Use createJavaParameters(Project,MavenRunnerParameters, MavenGeneralSettings,MavenRunnerSettings,MavenRunConfiguration)
@@ -109,7 +110,7 @@ public class MavenExternalParameters {
     ) throws ExecutionException {
         final OwnJavaParameters params = new OwnJavaParameters();
 
-        ApplicationManager.getApplication().assertReadAccessAllowed();
+        Application.get().assertReadAccessAllowed();
 
         if (coreSettings == null) {
             coreSettings = project == null ? new MavenGeneralSettings() : MavenProjectsManager.getInstance(project).getGeneralSettings();
@@ -225,8 +226,9 @@ public class MavenExternalParameters {
         return classpath;
     }
 
+    @RequiredReadAction
     private static File dumpModulesPaths(@Nonnull Project project) throws IOException {
-        ApplicationManager.getApplication().assertReadAccessAllowed();
+        project.getApplication().assertReadAccessAllowed();
 
         Properties res = new Properties();
 
@@ -276,11 +278,8 @@ public class MavenExternalParameters {
     }
 
     @Nullable
-    private static Sdk getJdk(
-        MavenRunnerSettings runnerSettings,
-        LanguageLevel languageLevel,
-        boolean isGlobalRunnerSettings
-    ) throws ExecutionException {
+    private static Sdk getJdk(MavenRunnerSettings runnerSettings, LanguageLevel languageLevel, boolean isGlobalRunnerSettings)
+        throws ExecutionException {
         String name = runnerSettings.getJreName();
 
         if (name != null) {
@@ -292,7 +291,7 @@ public class MavenExternalParameters {
             return sdk;
         }
 
-        throw new ExecutionException(RunnerBundle.message("maven.java.not.resolved"));
+        throw new ExecutionException(MavenRunnerLocalize.mavenJavaNotResolved().get());
     }
 
     public static void addVMParameters(ParametersList parametersList, String mavenHome, MavenRunnerSettings runnerSettings) {
@@ -329,7 +328,7 @@ public class MavenExternalParameters {
         addOption(parametersList, "P", encodeProfiles(parameters.getProfilesMap()));
     }
 
-    private static void addOption(ParametersList cmdList, @NonNls String key, @NonNls String value) {
+    private static void addOption(ParametersList cmdList, String key, String value) {
         if (!StringUtil.isEmptyOrSpaces(value)) {
             cmdList.add("-" + key);
             cmdList.add(value);
@@ -358,8 +357,8 @@ public class MavenExternalParameters {
 
         if (file == null) {
             throw createExecutionException(
-                RunnerBundle.message("external.maven.home.no.default"),
-                RunnerBundle.message("external.maven.home.no.default.with.fix"),
+                MavenRunnerLocalize.externalMavenHomeNoDefault(),
+                MavenRunnerLocalize.externalMavenHomeNoDefaultWithFix(),
                 coreSettings,
                 project,
                 runConfiguration
@@ -368,8 +367,8 @@ public class MavenExternalParameters {
 
         if (!file.exists()) {
             throw createExecutionException(
-                RunnerBundle.message("external.maven.home.does.not.exist", file.getPath()),
-                RunnerBundle.message("external.maven.home.does.not.exist.with.fix", file.getPath()),
+                MavenRunnerLocalize.externalMavenHomeDoesNotExist(file.getPath()),
+                MavenRunnerLocalize.externalMavenHomeDoesNotExistWithFix(file.getPath()),
                 coreSettings,
                 project,
                 runConfiguration
@@ -378,8 +377,8 @@ public class MavenExternalParameters {
 
         if (!MavenUtil.isValidMavenHome(file)) {
             throw createExecutionException(
-                RunnerBundle.message("external.maven.home.invalid", file.getPath()),
-                RunnerBundle.message("external.maven.home.invalid.with.fix", file.getPath()),
+                MavenRunnerLocalize.externalMavenHomeInvalid(file.getPath()),
+                MavenRunnerLocalize.externalMavenHomeInvalidWithFix(file.getPath()),
                 coreSettings,
                 project,
                 runConfiguration
@@ -395,8 +394,8 @@ public class MavenExternalParameters {
     }
 
     private static ExecutionException createExecutionException(
-        String text,
-        String textWithFix,
+        LocalizeValue text,
+        LocalizeValue textWithFix,
         @Nonnull MavenGeneralSettings coreSettings,
         @Nullable Project project,
         @Nullable MavenRunConfiguration runConfiguration
@@ -404,28 +403,28 @@ public class MavenExternalParameters {
         Project notNullProject = project;
         if (notNullProject == null) {
             if (runConfiguration == null) {
-                return new ExecutionException(text);
+                return new ExecutionException(text.get());
             }
             notNullProject = runConfiguration.getProject();
             if (notNullProject == null) {
-                return new ExecutionException(text);
+                return new ExecutionException(text.get());
             }
         }
 
         if (coreSettings == MavenProjectsManager.getInstance(notNullProject).getGeneralSettings()) {
-            return new ProjectSettingsOpenerExecutionException(textWithFix, notNullProject);
+            return new ProjectSettingsOpenerExecutionException(textWithFix.get(), notNullProject);
         }
 
         if (runConfiguration != null) {
             Project runCfgProject = runConfiguration.getProject();
             if (runCfgProject != null) {
                 if (RunManager.getInstance(runCfgProject).findSettings(runConfiguration) != null) {
-                    return new RunConfigurationOpenerExecutionException(textWithFix, runConfiguration);
+                    return new RunConfigurationOpenerExecutionException(textWithFix.get(), runConfiguration);
                 }
             }
         }
 
-        return new ExecutionException(text);
+        return new ExecutionException(text.get());
     }
 
     @SuppressWarnings({"HardCodedStringLiteral"})
@@ -522,13 +521,13 @@ public class MavenExternalParameters {
         }
 
         @Override
+        @RequiredUIAccess
         protected void hyperlinkClicked() {
             ShowSettingsUtil.getInstance().showSettingsDialog(myProject, MavenSettings.DISPLAY_NAME);
         }
     }
 
     private static class ProjectJdkSettingsOpenerExecutionException extends WithHyperlinkExecutionException {
-
         private final Project myProject;
 
         public ProjectJdkSettingsOpenerExecutionException(final String s, Project project) {
@@ -537,6 +536,7 @@ public class MavenExternalParameters {
         }
 
         @Override
+        @RequiredUIAccess
         protected void hyperlinkClicked() {
             ShowSettingsUtil.getInstance().showProjectStructureDialog(myProject);
         }
@@ -552,6 +552,7 @@ public class MavenExternalParameters {
         }
 
         @Override
+        @RequiredUIAccess
         protected void hyperlinkClicked() {
             Project project = myRunConfiguration.getProject();
             EditConfigurationsDialog dialog = new EditConfigurationsDialog(project);
@@ -574,6 +575,7 @@ public class MavenExternalParameters {
         }
 
         @Override
+        @RequiredUIAccess
         public final void hyperlinkUpdate(@Nonnull Notification notification, @Nonnull HyperlinkEvent event) {
             hyperlinkUpdate(event);
         }

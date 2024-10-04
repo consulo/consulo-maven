@@ -39,7 +39,6 @@ import consulo.util.dataholder.Key;
 import consulo.util.lang.StringUtil;
 import consulo.virtualFileSystem.LocalFileSystem;
 import consulo.virtualFileSystem.VirtualFile;
-import org.jetbrains.annotations.NonNls;
 import org.jetbrains.idea.maven.localize.MavenRunnerLocalize;
 import org.jetbrains.idea.maven.project.MavenGeneralSettings;
 import org.jetbrains.idea.maven.project.MavenProject;
@@ -71,10 +70,12 @@ public class MavenRunConfigurationType implements ConfigurationType {
                 return "Maven";
             }
 
+            @Override
             public RunConfiguration createTemplateConfiguration(Project project) {
                 return new MavenRunConfiguration(project, this, "");
             }
 
+            @Override
             public RunConfiguration createTemplateConfiguration(Project project, RunManager runManager) {
                 return new MavenRunConfiguration(project, this, "");
             }
@@ -115,24 +116,30 @@ public class MavenRunConfigurationType implements ConfigurationType {
         };
     }
 
+    @Nonnull
+    @Override
     public LocalizeValue getDisplayName() {
         return MavenRunnerLocalize.mavenRunConfigurationName();
     }
 
+    @Nonnull
+    @Override
     public LocalizeValue getConfigurationTypeDescription() {
         return MavenRunnerLocalize.mavenRunConfigurationDescription();
     }
 
+    @Override
     public Image getIcon() {
         return MavenIconGroup.mavenlogo();
     }
 
+    @Override
     public ConfigurationFactory[] getConfigurationFactories() {
         return new ConfigurationFactory[]{myFactory};
     }
 
-    @NonNls
     @Nonnull
+    @Override
     public String getId() {
         return "MavenRunConfiguration";
     }

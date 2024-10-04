@@ -15,10 +15,11 @@
  */
 package org.jetbrains.idea.maven.execution;
 
+import consulo.annotation.access.RequiredReadAction;
 import consulo.application.AllIcons;
-import consulo.application.ApplicationManager;
-import consulo.execution.ExecutionBundle;
+import consulo.application.Application;
 import consulo.execution.RunCanceledByUserException;
+import consulo.execution.localize.ExecutionLocalize;
 import consulo.execution.runner.ExecutionEnvironment;
 import consulo.execution.runner.ExecutionEnvironmentBuilder;
 import consulo.execution.runner.ProgramRunner;
@@ -30,6 +31,7 @@ import consulo.process.ProcessOutputTypes;
 import consulo.process.event.ProcessAdapter;
 import consulo.process.event.ProcessEvent;
 import consulo.project.Project;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.action.AnAction;
 import consulo.ui.ex.action.AnActionEvent;
 import consulo.ui.ex.awt.Messages;
@@ -75,7 +77,7 @@ public class MavenResumeAction extends AnAction {
 
     private int myBuildingProjectIndex = 0;
 
-    private final List<String> myMavenProjectNames = new ArrayList<String>();
+    private final List<String> myMavenProjectNames = new ArrayList<>();
 
     private String myResumeFromModuleName;
 
@@ -259,6 +261,7 @@ public class MavenResumeAction extends AnAction {
         return candidate;
     }
 
+    @RequiredReadAction
     public static boolean isApplicable(
         @Nullable Project project,
         OwnJavaParameters javaParameters,
@@ -287,7 +290,7 @@ public class MavenResumeAction extends AnAction {
     }
 
     private static void log(String message) {
-        if (ApplicationManager.getApplication().isInternal()) {
+        if (Application.get().isInternal()) {
             LOG.error(message, new Exception());
         }
         else {
@@ -296,7 +299,8 @@ public class MavenResumeAction extends AnAction {
     }
 
     @Override
-    public void update(AnActionEvent e) {
+    @RequiredUIAccess
+    public void update(@Nonnull AnActionEvent e) {
         if (myResumeFromModuleName != null && myResumeModuleId != null) {
             e.getPresentation().setEnabled(true);
             e.getPresentation().setText("Resume build from \"" + myResumeFromModuleName + "\"");
@@ -304,6 +308,7 @@ public class MavenResumeAction extends AnAction {
     }
 
     @Override
+    @RequiredUIAccess
     public void actionPerformed(AnActionEvent e) {
         Project project = myEnvironment.getProject();
         try {
@@ -325,7 +330,7 @@ public class MavenResumeAction extends AnAction {
         catch (RunCanceledByUserException ignore) {
         }
         catch (ExecutionException e1) {
-            Messages.showErrorDialog(project, e1.getMessage(), ExecutionBundle.message("restart.error.message.title"));
+            Messages.showErrorDialog(project, e1.getMessage(), ExecutionLocalize.restartErrorMessageTitle().get());
         }
     }
 }

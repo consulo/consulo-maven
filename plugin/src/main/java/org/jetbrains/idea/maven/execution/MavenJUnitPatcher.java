@@ -19,6 +19,7 @@ import com.intellij.java.execution.JavaTestPatcher;
 import consulo.annotation.component.ExtensionImpl;
 import consulo.java.execution.configurations.OwnJavaParameters;
 import consulo.module.Module;
+import jakarta.annotation.Nonnull;
 import org.jdom.Element;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
 import org.jetbrains.idea.maven.dom.MavenPropertyResolver;
@@ -36,7 +37,7 @@ import java.util.List;
 @ExtensionImpl
 public class MavenJUnitPatcher implements JavaTestPatcher {
     @Override
-    public void patchJavaParameters(@Nullable Module module, OwnJavaParameters javaParameters) {
+    public void patchJavaParameters(@Nullable Module module, @Nonnull OwnJavaParameters javaParameters) {
         if (module == null) {
             return;
         }
@@ -51,7 +52,8 @@ public class MavenJUnitPatcher implements JavaTestPatcher {
             return;
         }
 
-        List<String> paths = MavenJDOMUtil.findChildrenValuesByPath(config, "additionalClasspathElements", "additionalClasspathElement");
+        List<String> paths =
+            MavenJDOMUtil.findChildrenValuesByPath(config, "additionalClasspathElements", "additionalClasspathElement");
 
         if (paths.size() > 0) {
             MavenDomProjectModel domModel = MavenDomUtil.getMavenDomProjectModel(module.getProject(), mavenProject.getFile());

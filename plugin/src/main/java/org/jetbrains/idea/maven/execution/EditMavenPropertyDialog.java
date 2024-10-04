@@ -15,8 +15,10 @@
  */
 package org.jetbrains.idea.maven.execution;
 
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.awt.DialogWrapper;
 import consulo.util.collection.ArrayUtil;
+import consulo.util.lang.Couple;
 import consulo.util.lang.Pair;
 
 import javax.annotation.Nullable;
@@ -87,16 +89,18 @@ public class EditMavenPropertyDialog extends DialogWrapper {
     }
 
     @Nullable
+    @Override
     protected JComponent createCenterPanel() {
         return contentPane;
     }
 
     @Override
+    @RequiredUIAccess
     public JComponent getPreferredFocusedComponent() {
         return myNameBox;
     }
 
     public Pair<String, String> getValue() {
-        return new Pair<String, String>((String)myNameBox.getEditor().getItem(), myValueField.getText());
+        return Couple.of((String)myNameBox.getEditor().getItem(), myValueField.getText());
     }
 }

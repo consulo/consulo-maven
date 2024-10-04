@@ -15,10 +15,11 @@
  */
 package org.jetbrains.idea.maven.execution;
 
+import consulo.annotation.access.RequiredReadAction;
 import consulo.annotation.component.ComponentScope;
 import consulo.annotation.component.ServiceAPI;
 import consulo.annotation.component.ServiceImpl;
-import consulo.application.ApplicationManager;
+import consulo.application.Application;
 import consulo.application.ReadAction;
 import consulo.application.progress.ProgressIndicator;
 import consulo.application.progress.ProgressManager;
@@ -67,14 +68,17 @@ public class MavenRunner implements PersistentStateComponent<MavenRunnerSettings
         return mySettings;
     }
 
+    @Override
     public MavenRunnerSettings getState() {
         return mySettings;
     }
 
+    @Override
     public void loadState(MavenRunnerSettings settings) {
         mySettings = settings;
     }
 
+    @RequiredReadAction
     public void run(final MavenRunnerParameters parameters, final MavenRunnerSettings settings, final Runnable onComplete) {
         FileDocumentManager.getInstance().saveAllDocuments();
 
@@ -83,6 +87,7 @@ public class MavenRunner implements PersistentStateComponent<MavenRunnerSettings
             final MavenExecutor[] executor = new MavenExecutor[]{createExecutor(parameters, null, settings, console)};
 
             ProgressManager.getInstance().run(new Task.Backgroundable(myProject, executor[0].getCaption(), true) {
+                @Override
                 public void run(@Nonnull ProgressIndicator indicator) {
                     try {
                         try {
@@ -102,14 +107,17 @@ public class MavenRunner implements PersistentStateComponent<MavenRunnerSettings
                 }
 
                 @Nullable
+                @Override
                 public NotificationInfo getNotificationInfo() {
                     return new NotificationInfo("Maven", "Maven Task Finished", "");
                 }
 
+                @Override
                 public boolean shouldStartInBackground() {
                     return settings.isRunMavenInBackground();
                 }
 
+                @Override
                 public void processSentToBackground() {
                     settings.setRunMavenInBackground(true);
                 }
@@ -133,7 +141,7 @@ public class MavenRunner implements PersistentStateComponent<MavenRunnerSettings
         @Nullable final String action,
         @Nullable ProgressIndicator indicator
     ) {
-        LOG.assertTrue(!ApplicationManager.getApplication().isReadAccessAllowed());
+        LOG.assertTrue(!Application.get().isReadAccessAllowed());
 
         if (commands.isEmpty()) {
             return true;
@@ -186,12 +194,13 @@ public class MavenRunner implements PersistentStateComponent<MavenRunnerSettings
     }
 
     private MavenConsole createConsole() {
-        if (ApplicationManager.getApplication().isUnitTestMode()) {
+        if (Application.get().isUnitTestMode()) {
             return new SoutMavenConsole();
         }
         return new MavenConsoleImpl("Maven Goal", myProject);
     }
 
+    @RequiredReadAction
     private MavenExecutor createExecutor(
         MavenRunnerParameters taskParameters,
         @Nullable MavenGeneralSettings coreSettings,

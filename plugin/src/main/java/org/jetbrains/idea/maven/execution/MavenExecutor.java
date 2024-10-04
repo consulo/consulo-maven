@@ -23,6 +23,7 @@ import consulo.application.progress.ProgressManager;
 
 import javax.annotation.Nullable;
 
+import org.jetbrains.idea.maven.localize.MavenRunnerLocalize;
 import org.jetbrains.idea.maven.project.MavenConsole;
 import consulo.maven.rt.server.common.server.MavenServerConsole;
 
@@ -87,7 +88,7 @@ public abstract class MavenExecutor {
         if (indicator != null) {
             indicator.setText(MessageFormat.format(
                 "{0} {1}",
-                myAction != null ? myAction : RunnerBundle.message("maven.running"),
+                myAction != null ? myAction : MavenRunnerLocalize.mavenRunning().get(),
                 myParameters.getWorkingDirPath()
             ));
             indicator.setText2(myParameters.getGoals().toString());
@@ -96,17 +97,17 @@ public abstract class MavenExecutor {
 
     protected boolean printExitSummary() {
         if (isCancelled()) {
-            myConsole.systemMessage(MavenServerConsole.LEVEL_INFO, RunnerBundle.message("maven.execution.aborted"), null);
+            myConsole.systemMessage(MavenServerConsole.LEVEL_INFO, MavenRunnerLocalize.mavenExecutionAborted().get(), null);
             return false;
         }
         else if (exitCode == 0) {
-            myConsole.systemMessage(MavenServerConsole.LEVEL_INFO, RunnerBundle.message("maven.execution.finished"), null);
+            myConsole.systemMessage(MavenServerConsole.LEVEL_INFO, MavenRunnerLocalize.mavenExecutionFinished().get(), null);
             return true;
         }
         else {
             myConsole.systemMessage(
                 MavenServerConsole.LEVEL_ERROR,
-                RunnerBundle.message("maven.execution.terminated.abnormally", exitCode),
+                MavenRunnerLocalize.mavenExecutionTerminatedAbnormally(exitCode).get(),
                 null
             );
             return false;

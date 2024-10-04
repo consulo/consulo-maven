@@ -25,9 +25,7 @@ import consulo.execution.RunnerAndConfigurationSettings;
 import consulo.execution.action.ConfigurationContext;
 import consulo.execution.action.Location;
 import consulo.execution.action.RuntimeConfigurationProducer;
-import consulo.execution.configuration.RunConfiguration;
 import consulo.language.psi.PsiElement;
-import consulo.language.psi.PsiFile;
 import consulo.maven.rt.server.common.model.MavenExplicitProfiles;
 import consulo.virtualFileSystem.VirtualFile;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
@@ -65,12 +63,10 @@ public class MavenConfigurationProducer extends RuntimeConfigurationProducer {
         @Nonnull List<RunnerAndConfigurationSettings> existingConfigurations,
         ConfigurationContext context
     ) {
-
         final MavenRunnerParameters runnerParameters = createBuildParameters(location);
         for (RunnerAndConfigurationSettings existingConfiguration : existingConfigurations) {
-            final RunConfiguration configuration = existingConfiguration.getConfiguration();
-            if (configuration instanceof MavenRunConfiguration &&
-                ((MavenRunConfiguration)configuration).getRunnerParameters().equals(runnerParameters)) {
+            if (existingConfiguration.getConfiguration() instanceof MavenRunConfiguration mavenRunConfiguration
+                && mavenRunConfiguration.getRunnerParameters().equals(runnerParameters)) {
                 return existingConfiguration;
             }
         }
@@ -78,18 +74,18 @@ public class MavenConfigurationProducer extends RuntimeConfigurationProducer {
     }
 
     private static MavenRunnerParameters createBuildParameters(Location l) {
-        if (!(l instanceof MavenGoalLocation)) {
-            return null;
+        if (l instanceof MavenGoalLocation mavenGoalLocation) {
+            VirtualFile f = mavenGoalLocation.getPsiElement().getVirtualFile();
+            List<String> goals = mavenGoalLocation.getGoals();
+            MavenExplicitProfiles profiles = MavenProjectsManager.getInstance(l.getProject()).getExplicitProfiles();
+
+            return new MavenRunnerParameters(true, f.getParent().getPath(), goals, profiles);
         }
-
-        VirtualFile f = ((PsiFile)l.getPsiElement()).getVirtualFile();
-        List<String> goals = ((MavenGoalLocation)l).getGoals();
-        MavenExplicitProfiles profiles = MavenProjectsManager.getInstance(l.getProject()).getExplicitProfiles();
-
-        return new MavenRunnerParameters(true, f.getParent().getPath(), goals, profiles);
+        return null;
     }
 
+    @Override
     public int compareTo(Object o) {
-        return PREFERED;  //To change body of implemented methods use File | Settings | File Templates.
+        return PREFERED;
     }
 }

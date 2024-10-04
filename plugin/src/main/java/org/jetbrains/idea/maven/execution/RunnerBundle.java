@@ -15,14 +15,20 @@
  */
 package org.jetbrains.idea.maven.execution;
 
+import consulo.annotation.DeprecationInfo;
+import consulo.annotation.internal.MigratedExtensionsTo;
 import consulo.application.CommonBundle;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.PropertyKey;
+import org.jetbrains.idea.maven.localize.MavenRunnerLocalize;
 
 import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
 import java.util.ResourceBundle;
 
+@Deprecated
+@DeprecationInfo("Use MavenRunnerLocalize")
+@MigratedExtensionsTo(MavenRunnerLocalize.class)
 public class RunnerBundle {
     private static Reference<ResourceBundle> ourBundle;
 

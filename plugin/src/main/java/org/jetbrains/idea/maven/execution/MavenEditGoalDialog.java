@@ -24,10 +24,12 @@ import consulo.language.editor.ui.awt.StringComboboxEditor;
 import consulo.language.plain.PlainTextFileType;
 import consulo.maven.rt.server.common.model.MavenConstants;
 import consulo.project.Project;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.awt.*;
 import consulo.ui.ex.awtUnsafe.TargetAWT;
 import consulo.util.collection.ArrayUtil;
 import consulo.virtualFileSystem.VirtualFile;
+import org.jetbrains.idea.maven.localize.MavenRunnerLocalize;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 
@@ -48,7 +50,7 @@ public class MavenEditGoalDialog extends DialogWrapper {
 
     private JPanel goalsPanel;
     private JLabel goalsLabel;
-    private ComboBox goalsComboBox;
+    private ComboBox<String> goalsComboBox;
     private EditorTextField goalsEditor;
 
     public MavenEditGoalDialog(@Nonnull Project project) {
@@ -75,7 +77,7 @@ public class MavenEditGoalDialog extends DialogWrapper {
             goalsLabel.setLabelFor(goalsEditor);
         }
         else {
-            goalsComboBox = new ComboBox(ArrayUtil.toStringArray(myHistory));
+            goalsComboBox = new ComboBox<>(ArrayUtil.toStringArray(myHistory));
             goalComponent = goalsComboBox;
 
             goalsLabel.setLabelFor(goalsComboBox);
@@ -108,16 +110,14 @@ public class MavenEditGoalDialog extends DialogWrapper {
         );
 
         workDirectoryField.addBrowseFolderListener(
-            RunnerBundle.message("maven.select.maven.project.file"),
+            MavenRunnerLocalize.mavenSelectMavenProjectFile().get(),
             "",
             myProject,
             new FileChooserDescriptor(false, true, false, false, false, false) {
                 @Override
+                @RequiredUIAccess
                 public boolean isFileSelectable(VirtualFile file) {
-                    if (!super.isFileSelectable(file)) {
-                        return false;
-                    }
-                    return file.findChild(MavenConstants.POM_XML) != null;
+                    return super.isFileSelectable(file) && file.findChild(MavenConstants.POM_XML) != null;
                 }
             }
         );
@@ -125,6 +125,7 @@ public class MavenEditGoalDialog extends DialogWrapper {
 
     @Nullable
     @Override
+    @RequiredUIAccess
     protected ValidationInfo doValidate() {
         if (workDirectoryField.getText().trim().isEmpty()) {
             return new ValidationInfo("Working directory is empty", workDirectoryField);
@@ -164,10 +165,13 @@ public class MavenEditGoalDialog extends DialogWrapper {
         workDirectoryField.setText(mavenProject == null ? "" : mavenProject.getDirectory());
     }
 
+    @Override
     protected JComponent createCenterPanel() {
         return contentPane;
     }
 
+    @Override
+    @RequiredUIAccess
     public JComponent getPreferredFocusedComponent() {
         return goalsComboBox;
     }

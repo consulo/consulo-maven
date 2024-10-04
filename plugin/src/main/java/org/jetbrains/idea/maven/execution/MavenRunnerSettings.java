@@ -126,6 +126,7 @@ public class MavenRunnerSettings implements Cloneable {
         void skipTestsChanged();
     }
 
+    @Override
     public boolean equals(final Object o) {
         if (this == o) {
             return true;
@@ -154,13 +155,10 @@ public class MavenRunnerSettings implements Cloneable {
         if (!environmentProperties.equals(that.environmentProperties)) {
             return false;
         }
-        if (passParentEnv != that.passParentEnv) {
-            return false;
-        }
-
-        return true;
+        return passParentEnv == that.passParentEnv;
     }
 
+    @Override
     public int hashCode() {
         int result;
         result = (runMavenInBackground ? 1 : 0);

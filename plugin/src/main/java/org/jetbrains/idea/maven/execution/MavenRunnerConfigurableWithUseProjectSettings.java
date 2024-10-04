@@ -38,6 +38,7 @@ public abstract class MavenRunnerConfigurableWithUseProjectSettings extends Mave
     public abstract void setState(@Nullable MavenRunnerSettings state);
 
     @Override
+    @RequiredUIAccess
     public boolean isModified() {
         if (myUseProjectSettings.isSelected()) {
             return getState() != null;
@@ -48,6 +49,7 @@ public abstract class MavenRunnerConfigurableWithUseProjectSettings extends Mave
     }
 
     @Override
+    @RequiredUIAccess
     public void apply() {
         if (myUseProjectSettings.isSelected()) {
             setState(null);
@@ -66,6 +68,7 @@ public abstract class MavenRunnerConfigurableWithUseProjectSettings extends Mave
     }
 
     @Override
+    @RequiredUIAccess
     public void reset() {
         MavenRunnerSettings state = getState();
         myUseProjectSettings.setSelected(state == null);

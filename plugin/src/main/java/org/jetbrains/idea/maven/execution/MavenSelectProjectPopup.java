@@ -15,8 +15,9 @@
  */
 package org.jetbrains.idea.maven.execution;
 
-import consulo.application.ApplicationManager;
+import consulo.application.Application;
 import consulo.ide.impl.ui.impl.PopupChooserBuilder;
+import consulo.maven.icon.MavenIconGroup;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.awt.speedSearch.TreeSpeedSearch;
 import consulo.ui.ex.awt.tree.NodeRenderer;
@@ -24,7 +25,6 @@ import consulo.ui.ex.awt.tree.Tree;
 import consulo.ui.ex.popup.JBPopup;
 import consulo.ui.ex.popup.JBPopupFactory;
 import consulo.util.lang.ref.SimpleReference;
-import org.jetbrains.idea.maven.MavenIcons;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.utils.MavenProjectNamer;
@@ -59,7 +59,7 @@ public class MavenSelectProjectPopup {
                 workingDirectoryField.setText(project.getDirectory());
 
                 if (focusAfterSelection != null) {
-                    ApplicationManager.getApplication().invokeLater(() -> {
+                    Application.get().invokeLater(() -> {
                         if (workingDirectoryField.hasFocus()) {
                             focusAfterSelection.requestFocus();
                         }
@@ -115,7 +115,7 @@ public class MavenSelectProjectPopup {
                 if (value instanceof DefaultMutableTreeNode) {
                     MavenProject mavenProject = (MavenProject)((DefaultMutableTreeNode)value).getUserObject();
                     value = projectsNameMap.get(mavenProject);
-                    setIcon(MavenIcons.MavenProject);
+                    setIcon(MavenIconGroup.mavenlogo());
                 }
 
                 super.customizeCellRenderer(tree, value, selected, expanded, leaf, row, hasFocus);

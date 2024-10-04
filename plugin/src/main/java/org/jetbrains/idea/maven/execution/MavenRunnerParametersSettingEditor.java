@@ -23,11 +23,13 @@ public class MavenRunnerParametersSettingEditor extends SettingsEditor<MavenRunC
     }
 
     @Override
+    @RequiredUIAccess
     protected void resetEditorFrom(MavenRunConfiguration runConfiguration) {
         myPanel.getData(runConfiguration.getRunnerParameters());
     }
 
     @Override
+    @RequiredUIAccess
     protected void applyEditorTo(MavenRunConfiguration runConfiguration) throws ConfigurationException {
         myPanel.setData(runConfiguration.getRunnerParameters());
     }

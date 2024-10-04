@@ -15,7 +15,9 @@
  */
 package org.jetbrains.idea.maven.execution;
 
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.awt.AddEditRemovePanel;
+import consulo.util.lang.Couple;
 import consulo.util.lang.Pair;
 
 import javax.annotation.Nonnull;
@@ -50,6 +52,7 @@ public class MavenPropertiesPanel extends AddEditRemovePanel<Pair<String, String
     }
 
     @Nullable
+    @RequiredUIAccess
     private Pair<String, String> doAddOrEdit(@Nullable Pair<String, String> o) {
         EditMavenPropertyDialog d = new EditMavenPropertyDialog(o, myAvailableProperties);
         d.show();
@@ -70,20 +73,23 @@ public class MavenPropertiesPanel extends AddEditRemovePanel<Pair<String, String
     public void setDataFromMap(Map<String, String> map) {
         List<Pair<String, String>> result = new ArrayList<>();
         for (Map.Entry<String, String> e : map.entrySet()) {
-            result.add(new Pair<String, String>(e.getKey(), e.getValue()));
+            result.add(Couple.of(e.getKey(), e.getValue()));
         }
         setData(result);
     }
 
     private static class MyPropertiesTableModel extends AddEditRemovePanel.TableModel<Pair<String, String>> {
+        @Override
         public int getColumnCount() {
             return 2;
         }
 
+        @Override
         public String getColumnName(int c) {
             return c == 0 ? "Name" : "Value";
         }
 
+        @Override
         public Object getField(Pair<String, String> o, int c) {
             return c == 0 ? o.getFirst() : o.getSecond();
         }

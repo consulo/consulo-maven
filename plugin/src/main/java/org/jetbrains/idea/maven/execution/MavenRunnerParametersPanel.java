@@ -37,6 +37,7 @@ import consulo.ui.ex.awt.UIUtil;
 import consulo.ui.ex.awtUnsafe.TargetAWT;
 import consulo.virtualFileSystem.VirtualFile;
 import org.jetbrains.idea.maven.execution.cmd.ParametersListLexer;
+import org.jetbrains.idea.maven.localize.MavenRunnerLocalize;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 
 import javax.annotation.Nonnull;
@@ -60,24 +61,21 @@ public class MavenRunnerParametersPanel {
     @RequiredUIAccess
     public MavenRunnerParametersPanel(@Nonnull final Project project) {
         FileChooserTextBoxBuilder workDirBuilder = FileChooserTextBoxBuilder.create(project);
-        workDirBuilder.dialogTitle(RunnerBundle.message("maven.select.maven.project.file"));
+        workDirBuilder.dialogTitle(MavenRunnerLocalize.mavenSelectMavenProjectFile());
         workDirBuilder.fileChooserDescriptor(new FileChooserDescriptor(false, true, false, false, false, false) {
-            @RequiredUIAccess
             @Override
+            @RequiredUIAccess
             public boolean isFileSelectable(VirtualFile file) {
-                if (!super.isFileSelectable(file)) {
-                    return false;
-                }
-                return file.findChild(MavenConstants.POM_XML) != null;
+                return super.isFileSelectable(file) && file.findChild(MavenConstants.POM_XML) != null;
             }
         });
 
         myWorkingDirectory = workDirBuilder.build();
 
         JComponent workTextField = (JComponent)TargetAWT.to(myWorkingDirectory.getComponent());
-        if (workTextField instanceof JTextField) {
+        if (workTextField instanceof JTextField jTextField) {
             // TODO [VISTALL] dirty hack with old UI form builder which change filling by cols option
-            ((JTextField)workTextField).setColumns(0);
+            jTextField.setColumns(0);
         }
         myFormBuilder.addLabeledComponent("Working directory", workTextField);
 
@@ -134,16 +132,16 @@ public class MavenRunnerParametersPanel {
 
         myFormBuilder.addComponent(myResolveToWorkspaceCheckBox);
 
-        myWorkingDirectory.getComponent()
-            .addFirstExtension(new TextBoxWithExtensions.Extension(false,
-                MavenIconGroup.mavenlogotransparent(),
-                MavenIconGroup.mavenlogo(),
-                clickEvent -> {
-                    MavenSelectProjectPopup.buildPopup(MavenProjectsManager.getInstance(project), mavenProject -> {
-                        myWorkingDirectory.setValue(mavenProject.getDirectory());
-                    }).show(new RelativePoint(MouseInfo.getPointerInfo().getLocation()));
-                }
-            ));
+        myWorkingDirectory.getComponent().addFirstExtension(new TextBoxWithExtensions.Extension(
+            false,
+            MavenIconGroup.mavenlogotransparent(),
+            MavenIconGroup.mavenlogo(),
+            clickEvent -> MavenSelectProjectPopup.buildPopup(
+                    MavenProjectsManager.getInstance(project),
+                    mavenProject -> myWorkingDirectory.setValue(mavenProject.getDirectory())
+                )
+                .show(new RelativePoint(MouseInfo.getPointerInfo().getLocation()))
+        ));
     }
 
     @Nonnull
@@ -155,9 +153,10 @@ public class MavenRunnerParametersPanel {
     }
 
     public String getDisplayName() {
-        return RunnerBundle.message("maven.runner.parameters.title");
+        return MavenRunnerLocalize.mavenRunnerParametersTitle().get();
     }
 
+    @RequiredUIAccess
     protected void setData(final MavenRunnerParameters data) {
         data.setWorkingDirPath(myWorkingDirectory.getValue());
         data.setGoals(ParametersListUtil.parse(myGoalsEditor.getText()));
@@ -183,6 +182,7 @@ public class MavenRunnerParametersPanel {
         data.setProfilesMap(profilesMap);
     }
 
+    @RequiredUIAccess
     protected void getData(final MavenRunnerParameters data) {
         myWorkingDirectory.setValue(data.getWorkingDirPath());
         myGoalsEditor.setText(ParametersList.join(data.getGoals()));
