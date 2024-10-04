@@ -18,13 +18,12 @@ package org.jetbrains.idea.maven.navigator;
 import consulo.annotation.component.ComponentScope;
 import consulo.annotation.component.ServiceAPI;
 import consulo.annotation.component.ServiceImpl;
-import consulo.application.ApplicationManager;
+import consulo.application.Application;
 import consulo.component.persist.PersistentStateComponent;
 import consulo.component.persist.State;
 import consulo.component.persist.Storage;
 import consulo.component.persist.StoragePathMacros;
 import consulo.disposer.Disposable;
-import consulo.execution.RunnerAndConfigurationSettings;
 import consulo.execution.event.RunManagerListener;
 import consulo.execution.event.RunManagerListenerEvent;
 import consulo.ide.ServiceManager;
@@ -104,7 +103,7 @@ public class MavenProjectsNavigator extends MavenSimpleProjectComponent implemen
 
     @Override
     public MavenProjectsNavigatorState getState() {
-        ApplicationManager.getApplication().assertIsDispatchThread();
+        Application.get().assertIsDispatchThread();
         if (myStructure != null) {
             try {
                 myState.treeState = new Element("root");

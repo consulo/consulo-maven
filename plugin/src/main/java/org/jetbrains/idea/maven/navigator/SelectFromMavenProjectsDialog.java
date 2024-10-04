@@ -28,7 +28,6 @@ import javax.annotation.Nullable;
 import javax.swing.*;
 import javax.swing.tree.TreeSelectionModel;
 import java.awt.*;
-import java.util.function.Predicate;
 
 public class SelectFromMavenProjectsDialog extends DialogWrapper {
     private final Project myProject;
@@ -94,6 +93,7 @@ public class SelectFromMavenProjectsDialog extends DialogWrapper {
     }
 
     @Nullable
+    @Override
     protected JComponent createCenterPanel() {
         final JScrollPane pane = ScrollPaneFactory.createScrollPane(myTree);
         pane.setPreferredSize(new Dimension(320, 400));

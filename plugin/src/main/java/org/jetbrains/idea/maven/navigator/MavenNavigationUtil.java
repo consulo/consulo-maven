@@ -15,6 +15,7 @@
  */
 package org.jetbrains.idea.maven.navigator;
 
+import consulo.annotation.access.RequiredReadAction;
 import consulo.language.psi.PsiFile;
 import consulo.language.psi.PsiManager;
 import consulo.maven.rt.server.common.model.MavenArtifact;
@@ -50,16 +51,18 @@ public class MavenNavigationUtil {
     }
 
     @Nullable
+    @RequiredReadAction
     public static Navigatable createNavigatableForPom(final Project project, final VirtualFile file) {
         if (file == null || !file.isValid()) {
             return null;
         }
         final PsiFile result = PsiManager.getInstance(project).findFile(file);
         return result == null ? null : new NavigatableAdapter() {
+            @Override
             public void navigate(boolean requestFocus) {
                 int offset = 0;
-                if (result instanceof XmlFile) {
-                    final XmlDocument xml = ((XmlFile)result).getDocument();
+                if (result instanceof XmlFile xmlFile) {
+                    final XmlDocument xml = xmlFile.getDocument();
                     if (xml != null) {
                         final XmlTag rootTag = xml.getRootTag();
                         if (rootTag != null) {
@@ -78,6 +81,7 @@ public class MavenNavigationUtil {
     @Nullable
     public static Navigatable createNavigatableForDependency(final Project project, final VirtualFile file, final MavenArtifact artifact) {
         return new NavigatableAdapter() {
+            @Override
             public void navigate(boolean requestFocus) {
                 if (!file.isValid()) {
                     return;
@@ -152,7 +156,7 @@ public class MavenNavigationUtil {
     @Nullable
     public static MavenDomDependency findDependency(@Nonnull MavenDomProjectModel projectDom, @Nonnull final MavenArtifact artifact) {
         MavenDomProjectProcessorUtils.SearchProcessor<MavenDomDependency, MavenDomDependencies> processor =
-            new MavenDomProjectProcessorUtils.SearchProcessor<MavenDomDependency, MavenDomDependencies>() {
+            new MavenDomProjectProcessorUtils.SearchProcessor<>() {
                 @Nullable
                 @Override
                 protected MavenDomDependency find(MavenDomDependencies element) {

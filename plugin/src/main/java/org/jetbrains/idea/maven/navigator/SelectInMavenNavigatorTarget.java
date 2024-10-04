@@ -21,16 +21,20 @@ import consulo.module.content.ProjectRootManager;
 import consulo.project.ui.view.SelectInContext;
 import consulo.project.ui.view.SelectInTarget;
 import consulo.project.ui.wm.ToolWindowManager;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.virtualFileSystem.VirtualFile;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 
 @ExtensionImpl
 public class SelectInMavenNavigatorTarget implements SelectInTarget {
+    @Override
     public boolean canSelect(SelectInContext context) {
         return getMavenProject(context) != null;
     }
 
+    @Override
+    @RequiredUIAccess
     public void selectIn(final SelectInContext context, boolean requestFocus) {
         Runnable r = () -> MavenProjectsNavigator.getInstance(context.getProject()).selectInTree(getMavenProject(context));
         if (requestFocus) {
@@ -48,6 +52,7 @@ public class SelectInMavenNavigatorTarget implements SelectInTarget {
         return module == null ? null : manager.findProject(module);
     }
 
+    @Override
     public String getToolWindowId() {
         return MavenProjectsNavigator.TOOL_WINDOW_ID;
     }
@@ -57,10 +62,12 @@ public class SelectInMavenNavigatorTarget implements SelectInTarget {
         return MavenProjectsNavigator.TOOL_WINDOW_ID;
     }
 
+    @Override
     public String getMinorViewId() {
         return null;
     }
 
+    @Override
     public float getWeight() {
         return 20;
     }

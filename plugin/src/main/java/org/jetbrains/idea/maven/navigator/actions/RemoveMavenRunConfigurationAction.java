@@ -22,6 +22,7 @@ import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.action.AnAction;
 import consulo.ui.ex.action.AnActionEvent;
 import consulo.ui.ex.awt.Messages;
+import consulo.ui.ex.awt.UIUtil;
 import org.jetbrains.idea.maven.utils.MavenDataKeys;
 
 import javax.annotation.Nonnull;
@@ -38,7 +39,7 @@ public class RemoveMavenRunConfigurationAction extends AnAction {
 
         assert settings != null && project != null;
 
-        int res = Messages.showYesNoDialog(project, "Delete \"" + settings.getName() + "\"?", "Confirmation", Messages.getQuestionIcon());
+        int res = Messages.showYesNoDialog(project, "Delete \"" + settings.getName() + "\"?", "Confirmation", UIUtil.getQuestionIcon());
         if (res == Messages.YES) {
             RunManager.getInstance(project).removeConfiguration(settings);
         }

@@ -23,6 +23,7 @@ import consulo.execution.executor.Executor;
 import consulo.execution.executor.ExecutorRegistry;
 import consulo.execution.runner.ProgramRunner;
 import consulo.project.Project;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.action.AnAction;
 import consulo.ui.ex.action.AnActionEvent;
 import consulo.ui.ex.action.Constraints;
@@ -36,7 +37,8 @@ import javax.annotation.Nonnull;
  */
 public class MavenRunConfigurationMenu extends DefaultActionGroup implements DumbAware {
     @Override
-    public void update(AnActionEvent e) {
+    @RequiredUIAccess
+    public void update(@Nonnull AnActionEvent e) {
         for (AnAction action : getChildActionsOrStubs()) {
             if (action instanceof ExecuteMavenRunConfigurationAction) {
                 remove(action);
@@ -81,6 +83,7 @@ public class MavenRunConfigurationMenu extends DefaultActionGroup implements Dum
         }
 
         @Override
+        @RequiredUIAccess
         public void actionPerformed(@Nonnull AnActionEvent event) {
             if (myEnabled) {
                 ProgramRunnerUtil.executeConfiguration(mySettings, myExecutor);
@@ -88,6 +91,7 @@ public class MavenRunConfigurationMenu extends DefaultActionGroup implements Dum
         }
 
         @Override
+        @RequiredUIAccess
         public void update(@Nonnull AnActionEvent e) {
             super.update(e);
             e.getPresentation().setEnabled(myEnabled);

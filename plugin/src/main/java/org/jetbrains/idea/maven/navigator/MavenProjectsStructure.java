@@ -15,6 +15,7 @@
  */
 package org.jetbrains.idea.maven.navigator;
 
+import consulo.annotation.access.RequiredReadAction;
 import consulo.application.AllIcons;
 import consulo.disposer.Disposer;
 import consulo.execution.ProgramRunnerUtil;
@@ -148,6 +149,7 @@ public class MavenProjectsStructure extends SimpleTreeStructure {
         });
     }
 
+    @Nonnull
     @Override
     public RootNode getRootElement() {
         return myRoot;
@@ -509,13 +511,11 @@ public class MavenProjectsStructure extends SimpleTreeStructure {
         }
 
         @Nullable
-        @NonNls
         String getActionId() {
             return null;
         }
 
         @Nullable
-        @NonNls
         String getMenuId() {
             return null;
         }
@@ -526,6 +526,7 @@ public class MavenProjectsStructure extends SimpleTreeStructure {
         }
 
         @Nullable
+        @RequiredReadAction
         public Navigatable getNavigatable() {
             return MavenNavigationUtil.createNavigatableForPom(getProject(), getVirtualFile());
         }
@@ -1472,6 +1473,7 @@ public class MavenProjectsStructure extends SimpleTreeStructure {
         }
 
         @Override
+        @RequiredReadAction
         public Navigatable getNavigatable() {
             final MavenArtifactNode parent = myArtifactNode.getParent();
             final VirtualFile file;

@@ -17,7 +17,6 @@ package org.jetbrains.idea.maven.navigator.actions;
 
 import consulo.content.bundle.Sdk;
 import consulo.ide.setting.ShowSettingsUtil;
-import consulo.language.editor.CommonDataKeys;
 import consulo.maven.MavenNotificationGroup;
 import consulo.process.cmd.ParametersList;
 import consulo.project.Project;
@@ -31,6 +30,7 @@ import consulo.ui.ex.action.DumbAwareAction;
 import consulo.util.lang.Pair;
 import consulo.util.lang.StringUtil;
 import org.jetbrains.idea.maven.execution.*;
+import org.jetbrains.idea.maven.localize.MavenRunnerLocalize;
 import org.jetbrains.idea.maven.project.MavenGeneralSettings;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
@@ -52,7 +52,7 @@ public class MavenExecuteGoalAction extends DumbAwareAction {
     @RequiredUIAccess
     @Override
     public void actionPerformed(@Nonnull final AnActionEvent e) {
-        final Project project = e.getRequiredData(CommonDataKeys.PROJECT);
+        final Project project = e.getRequiredData(Project.KEY);
 
         ExecuteMavenGoalHistoryService historyService = ExecuteMavenGoalHistoryService.getInstance(project);
 
@@ -97,10 +97,11 @@ public class MavenExecuteGoalAction extends DumbAwareAction {
         if (mavenHome == null) {
             Notification notification = new Notification(MavenNotificationGroup.ROOT,
                 "Failed to execute goal",
-                RunnerBundle.message("external.maven.home.no.default.with.fix"),
+                MavenRunnerLocalize.externalMavenHomeNoDefaultWithFix().get(),
                 NotificationType.ERROR,
                 new NotificationListener.Adapter() {
                     @Override
+                    @RequiredUIAccess
                     protected void hyperlinkActivated(@Nonnull Notification notification, @Nonnull HyperlinkEvent e) {
                         ShowSettingsUtil.getInstance().showSettingsDialog(project, MavenSettings.DISPLAY_NAME);
                     }

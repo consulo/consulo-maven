@@ -16,6 +16,7 @@
 package org.jetbrains.idea.maven.navigator.actions;
 
 import consulo.ui.ex.action.AnActionEvent;
+import jakarta.annotation.Nonnull;
 import org.jetbrains.idea.maven.navigator.MavenProjectsNavigator;
 import org.jetbrains.idea.maven.utils.actions.MavenActionUtil;
 import org.jetbrains.idea.maven.utils.actions.MavenToggleAction;
@@ -27,7 +28,7 @@ public abstract class MavenProjectsNavigatorAction extends MavenToggleAction {
     }
 
     @Override
-    public void setSelected(AnActionEvent e, boolean state) {
+    public void setSelected(@Nonnull AnActionEvent e, boolean state) {
         setSelected(getNavigator(e), state);
     }
 
