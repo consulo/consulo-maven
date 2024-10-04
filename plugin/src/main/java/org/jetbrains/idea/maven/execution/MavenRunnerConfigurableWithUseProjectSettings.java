@@ -29,63 +29,63 @@ import javax.swing.*;
  * @author Sergey Evdokimov
  */
 public abstract class MavenRunnerConfigurableWithUseProjectSettings extends MavenRunnerConfigurable {
+    private JCheckBox myUseProjectSettings;
 
-  private JCheckBox myUseProjectSettings;
-
-  public MavenRunnerConfigurableWithUseProjectSettings(@Nonnull Project project) {
-    super(project, true);
-  }
-
-  public abstract void setState(@Nullable MavenRunnerSettings state);
-
-  @Override
-  public boolean isModified() {
-    if (myUseProjectSettings.isSelected()) {
-      return getState() != null;
+    public MavenRunnerConfigurableWithUseProjectSettings(@Nonnull Project project) {
+        super(project, true);
     }
-    else {
-      return getState() == null || super.isModified();
-    }
-  }
 
-  @Override
-  public void apply() {
-    if (myUseProjectSettings.isSelected()) {
-      setState(null);
-    }
-    else {
-      MavenRunnerSettings state = getState();
-      if (state != null) {
-        apply(state);
-      }
-      else {
-        MavenRunnerSettings settings = MavenRunner.getInstance(myProject).getSettings().clone();
-        apply(settings);
-        setState(settings);
-      }
-    }
-  }
+    public abstract void setState(@Nullable MavenRunnerSettings state);
 
-  @Override
-  public void reset() {
-    MavenRunnerSettings state = getState();
-    myUseProjectSettings.setSelected(state == null);
-
-    if (state == null) {
-      MavenRunnerSettings settings = MavenRunner.getInstance(myProject).getSettings();
-      reset(settings);
+    @Override
+    public boolean isModified() {
+        if (myUseProjectSettings.isSelected()) {
+            return getState() != null;
+        }
+        else {
+            return getState() == null || super.isModified();
+        }
     }
-    else {
-      reset(state);
+
+    @Override
+    public void apply() {
+        if (myUseProjectSettings.isSelected()) {
+            setState(null);
+        }
+        else {
+            MavenRunnerSettings state = getState();
+            if (state != null) {
+                apply(state);
+            }
+            else {
+                MavenRunnerSettings settings = MavenRunner.getInstance(myProject).getSettings().clone();
+                apply(settings);
+                setState(settings);
+            }
+        }
     }
-  }
 
-  @RequiredUIAccess
-  @Override
-  public JComponent createComponent(@Nonnull Disposable uiDisposable) {
-    Pair<JPanel,JCheckBox> pair = MavenDisablePanelCheckbox.createPanel(super.createComponent(uiDisposable), "Use project settings");
+    @Override
+    public void reset() {
+        MavenRunnerSettings state = getState();
+        myUseProjectSettings.setSelected(state == null);
 
-    myUseProjectSettings = pair.second;
-    return pair.first;
-  }
+        if (state == null) {
+            MavenRunnerSettings settings = MavenRunner.getInstance(myProject).getSettings();
+            reset(settings);
+        }
+        else {
+            reset(state);
+        }
+    }
+
+    @RequiredUIAccess
+    @Override
+    public JComponent createComponent(@Nonnull Disposable uiDisposable) {
+        Pair<JPanel, JCheckBox> pair =
+            MavenDisablePanelCheckbox.createPanel(super.createComponent(uiDisposable), "Use project settings");
+
+        myUseProjectSettings = pair.second;
+        return pair.first;
+    }
 }

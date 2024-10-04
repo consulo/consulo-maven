@@ -14,49 +14,47 @@ import javax.annotation.Nullable;
  */
 public abstract class MavenRunnerConfigurable extends MavenRunnerPanel implements SearchableConfigurable, Configurable.NoScroll {
 
-  public MavenRunnerConfigurable(@Nonnull Project p, boolean isRunConfiguration) {
-    super(p, isRunConfiguration);
-  }
+    public MavenRunnerConfigurable(@Nonnull Project p, boolean isRunConfiguration) {
+        super(p, isRunConfiguration);
+    }
 
-  @Nullable
-  protected abstract MavenRunnerSettings getState();
+    @Nullable
+    protected abstract MavenRunnerSettings getState();
 
-  public boolean isModified() {
-    MavenRunnerSettings s = new MavenRunnerSettings();
-    apply(s);
-    return !s.equals(getState());
-  }
+    public boolean isModified() {
+        MavenRunnerSettings s = new MavenRunnerSettings();
+        apply(s);
+        return !s.equals(getState());
+    }
 
-  public void apply() throws ConfigurationException
-  {
-    apply(getState());
-  }
+    public void apply() throws ConfigurationException {
+        apply(getState());
+    }
 
-  public void reset() {
-    reset(getState());
-  }
+    public void reset() {
+        reset(getState());
+    }
 
-  @Nls
-  public String getDisplayName() {
-    return RunnerBundle.message("maven.tab.runner");
-  }
+    @Nls
+    public String getDisplayName() {
+        return RunnerBundle.message("maven.tab.runner");
+    }
 
-  @Nullable
-  public String getHelpTopic() {
-    return "reference.settings.project.maven.runner";
-  }
+    @Nullable
+    public String getHelpTopic() {
+        return "reference.settings.project.maven.runner";
+    }
 
-  @Nonnull
-  public String getId() {
-    //noinspection ConstantConditions
-    return getHelpTopic();
-  }
+    @Nonnull
+    public String getId() {
+        //noinspection ConstantConditions
+        return getHelpTopic();
+    }
 
-  public Runnable enableSearch(String option) {
-    return null;
-  }
+    public Runnable enableSearch(String option) {
+        return null;
+    }
 
-  public void disposeUIResources() {
-
-  }
+    public void disposeUIResources() {
+    }
 }

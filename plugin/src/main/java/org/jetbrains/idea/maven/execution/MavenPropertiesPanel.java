@@ -26,66 +26,66 @@ import java.util.*;
 import java.util.List;
 
 /**
-* @author Sergey Evdokimov
-*/
-public class MavenPropertiesPanel extends AddEditRemovePanel<Pair<String, String>>
-{
-  private Map<String, String> myAvailableProperties;
+ * @author Sergey Evdokimov
+ */
+public class MavenPropertiesPanel extends AddEditRemovePanel<Pair<String, String>> {
+    private Map<String, String> myAvailableProperties;
 
-  public MavenPropertiesPanel(Map<String, String> availableProperties) {
-    super(new MyPropertiesTableModel(), new ArrayList<Pair<String, String>>(), null);
-    setPreferredSize(new Dimension(100, 100));
-    myAvailableProperties = availableProperties;
-  }
-
-  protected Pair<String, String> addItem() {
-    return doAddOrEdit(null);
-  }
-
-  protected boolean removeItem(Pair<String, String> o) {
-    return true;
-  }
-
-  protected Pair<String, String> editItem(@Nonnull Pair<String, String> o) {
-    return doAddOrEdit(o);
-  }
-
-  @Nullable
-  private Pair<String, String> doAddOrEdit(@Nullable Pair<String, String> o) {
-    EditMavenPropertyDialog d = new EditMavenPropertyDialog(o, myAvailableProperties);
-    d.show();
-    if (!d.isOK()) return null;
-    return d.getValue();
-  }
-
-  public Map<String, String> getDataAsMap() {
-    Map<String, String> result = new LinkedHashMap<String, String>();
-    for (Pair<String, String> p : getData()) {
-      result.put(p.getFirst(), p.getSecond());
-    }
-    return result;
-  }
-
-  public void setDataFromMap(Map<String, String> map) {
-    List<Pair<String, String>> result = new ArrayList<Pair<String, String>>();
-    for (Map.Entry<String, String> e : map.entrySet()) {
-      result.add(new Pair<String, String>(e.getKey(), e.getValue()));
-    }
-    setData(result);
-  }
-
-  private static class MyPropertiesTableModel extends AddEditRemovePanel.TableModel<Pair<String, String>> {
-    public int getColumnCount() {
-      return 2;
+    public MavenPropertiesPanel(Map<String, String> availableProperties) {
+        super(new MyPropertiesTableModel(), new ArrayList<>(), null);
+        setPreferredSize(new Dimension(100, 100));
+        myAvailableProperties = availableProperties;
     }
 
-    public String getColumnName(int c) {
-      return c == 0 ? "Name" : "Value";
+    protected Pair<String, String> addItem() {
+        return doAddOrEdit(null);
     }
 
-    public Object getField(Pair<String, String> o, int c) {
-      return c == 0 ? o.getFirst() : o.getSecond();
+    protected boolean removeItem(Pair<String, String> o) {
+        return true;
     }
-  }
 
+    protected Pair<String, String> editItem(@Nonnull Pair<String, String> o) {
+        return doAddOrEdit(o);
+    }
+
+    @Nullable
+    private Pair<String, String> doAddOrEdit(@Nullable Pair<String, String> o) {
+        EditMavenPropertyDialog d = new EditMavenPropertyDialog(o, myAvailableProperties);
+        d.show();
+        if (!d.isOK()) {
+            return null;
+        }
+        return d.getValue();
+    }
+
+    public Map<String, String> getDataAsMap() {
+        Map<String, String> result = new LinkedHashMap<>();
+        for (Pair<String, String> p : getData()) {
+            result.put(p.getFirst(), p.getSecond());
+        }
+        return result;
+    }
+
+    public void setDataFromMap(Map<String, String> map) {
+        List<Pair<String, String>> result = new ArrayList<>();
+        for (Map.Entry<String, String> e : map.entrySet()) {
+            result.add(new Pair<String, String>(e.getKey(), e.getValue()));
+        }
+        setData(result);
+    }
+
+    private static class MyPropertiesTableModel extends AddEditRemovePanel.TableModel<Pair<String, String>> {
+        public int getColumnCount() {
+            return 2;
+        }
+
+        public String getColumnName(int c) {
+            return c == 0 ? "Name" : "Value";
+        }
+
+        public Object getField(Pair<String, String> o, int c) {
+            return c == 0 ? o.getFirst() : o.getSecond();
+        }
+    }
 }

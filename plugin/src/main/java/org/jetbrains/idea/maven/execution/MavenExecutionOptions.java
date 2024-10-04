@@ -19,98 +19,101 @@ import consulo.maven.rt.server.common.server.MavenServerConsole;
 import consulo.maven.rt.server.common.server.MavenServerSettings;
 
 public class MavenExecutionOptions {
-  public enum LoggingLevel {
-    DEBUG("Debug", MavenServerConsole.LEVEL_DEBUG),
-    INFO("Info", MavenServerConsole.LEVEL_INFO),
-    WARN("Warn", MavenServerConsole.LEVEL_WARN),
-    ERROR("Error", MavenServerConsole.LEVEL_ERROR),
-    FATAL("Fatal", MavenServerConsole.LEVEL_FATAL),
-    DISABLED("Disabled", MavenServerConsole.LEVEL_DISABLED);
+    public enum LoggingLevel {
+        DEBUG("Debug", MavenServerConsole.LEVEL_DEBUG),
+        INFO("Info", MavenServerConsole.LEVEL_INFO),
+        WARN("Warn", MavenServerConsole.LEVEL_WARN),
+        ERROR("Error", MavenServerConsole.LEVEL_ERROR),
+        FATAL("Fatal", MavenServerConsole.LEVEL_FATAL),
+        DISABLED("Disabled", MavenServerConsole.LEVEL_DISABLED);
 
-    private final String myDisplayString;
-    private final int myLevel;
+        private final String myDisplayString;
+        private final int myLevel;
 
-    LoggingLevel(String displayString, int level) {
-      myDisplayString = displayString;
-      myLevel = level;
+        LoggingLevel(String displayString, int level) {
+            myDisplayString = displayString;
+            myLevel = level;
+        }
+
+        public String getDisplayString() {
+            return myDisplayString;
+        }
+
+        public int getLevel() {
+            return myLevel;
+        }
     }
 
-    public String getDisplayString() {
-      return myDisplayString;
+    public enum FailureMode {
+        NOT_SET("Default", ""),
+        FAST("Fail Fast", "--fail-fast"),
+        AT_END("Fail At End", "--fail-at-end"),
+        NEVER("Never Fail", "--fail-never");
+
+        private final String myDisplayString;
+        private final String myCommandLineOption;
+
+        FailureMode(String displayString, String commandLineOption) {
+            myDisplayString = displayString;
+            myCommandLineOption = commandLineOption;
+        }
+
+        public String getDisplayString() {
+            return myDisplayString;
+        }
+
+        public String getCommandLineOption() {
+            return myCommandLineOption;
+        }
     }
 
-    public int getLevel() {
-      return myLevel;
-    }
-  }
+    public enum ChecksumPolicy {
+        NOT_SET("No Global Policy", ""),
+        FAIL("Fail", "--strict-checksums"),
+        WARN("Warn", "--lax-checksums");
 
-  public enum FailureMode {
-    NOT_SET("Default", ""), FAST("Fail Fast", "--fail-fast"), AT_END("Fail At End", "--fail-at-end"), NEVER("Never Fail", "--fail-never");
+        private final String myDisplayString;
+        private final String myCommandLineOption;
 
-    private final String myDisplayString;
-    private final String myCommandLineOption;
+        ChecksumPolicy(String displayString, String commandLineOption) {
+            myDisplayString = displayString;
+            myCommandLineOption = commandLineOption;
+        }
 
-    FailureMode(String displayString, String commandLineOption) {
-      myDisplayString = displayString;
-      myCommandLineOption = commandLineOption;
-    }
+        public String getDisplayString() {
+            return myDisplayString;
+        }
 
-    public String getDisplayString() {
-      return myDisplayString;
-    }
-
-    public String getCommandLineOption() {
-      return myCommandLineOption;
-    }
-  }
-
-  public enum ChecksumPolicy {
-    NOT_SET("No Global Policy", ""),
-    FAIL("Fail", "--strict-checksums"),
-    WARN("Warn", "--lax-checksums");
-
-    private final String myDisplayString;
-    private final String myCommandLineOption;
-
-    ChecksumPolicy(String displayString, String commandLineOption) {
-      myDisplayString = displayString;
-      myCommandLineOption = commandLineOption;
+        public String getCommandLineOption() {
+            return myCommandLineOption;
+        }
     }
 
-    public String getDisplayString() {
-      return myDisplayString;
+    public enum PluginUpdatePolicy {
+        UPDATE("Check For Updates", "--check-plugin-updates", MavenServerSettings.UpdatePolicy.ALWAYS_UPDATE),
+        DO_NOT_UPDATE("Do Not Update", "--no-plugin-updates", MavenServerSettings.UpdatePolicy.DO_NOT_UPDATE),
+        DEFAULT("Default", "", MavenServerSettings.UpdatePolicy.DO_NOT_UPDATE);
+
+        private final String myDisplayString;
+        private final String myCommandLineOption;
+        private final MavenServerSettings.UpdatePolicy myServerPolicy;
+
+        PluginUpdatePolicy(String displayString, String commandLineOption, MavenServerSettings.UpdatePolicy policy) {
+            myDisplayString = displayString;
+            myCommandLineOption = commandLineOption;
+            myServerPolicy = policy;
+        }
+
+        public String getDisplayString() {
+            return myDisplayString;
+        }
+
+        public String getCommandLineOption() {
+            return myCommandLineOption;
+        }
+
+        public MavenServerSettings.UpdatePolicy getServerPolicy() {
+            return myServerPolicy;
+        }
     }
-
-    public String getCommandLineOption() {
-      return myCommandLineOption;
-    }
-  }
-
-  public enum PluginUpdatePolicy {
-    UPDATE("Check For Updates", "--check-plugin-updates", MavenServerSettings.UpdatePolicy.ALWAYS_UPDATE),
-    DO_NOT_UPDATE("Do Not Update", "--no-plugin-updates", MavenServerSettings.UpdatePolicy.DO_NOT_UPDATE),
-    DEFAULT("Default", "", MavenServerSettings.UpdatePolicy.DO_NOT_UPDATE);
-
-    private final String myDisplayString;
-    private final String myCommandLineOption;
-    private final MavenServerSettings.UpdatePolicy myServerPolicy;
-
-    PluginUpdatePolicy(String displayString, String commandLineOption, MavenServerSettings.UpdatePolicy policy) {
-      myDisplayString = displayString;
-      myCommandLineOption = commandLineOption;
-      myServerPolicy = policy;
-    }
-
-    public String getDisplayString() {
-      return myDisplayString;
-    }
-
-    public String getCommandLineOption() {
-      return myCommandLineOption;
-    }
-
-    public MavenServerSettings.UpdatePolicy getServerPolicy() {
-      return myServerPolicy;
-    }
-  }
 }

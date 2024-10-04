@@ -28,51 +28,51 @@ import javax.swing.*;
  * @author Sergey Evdokimov
  */
 public class MavenRunnerSettingsEditor extends SettingsEditor<MavenRunConfiguration> {
+    private final MavenRunnerPanel myPanel;
 
-  private final MavenRunnerPanel myPanel;
+    private JCheckBox myUseProjectSettings;
 
-  private JCheckBox myUseProjectSettings;
-
-  public MavenRunnerSettingsEditor(@Nonnull Project project) {
-    myPanel = new MavenRunnerPanel(project, true);
-  }
-
-  @Override
-  protected void resetEditorFrom(MavenRunConfiguration runConfiguration) {
-    myUseProjectSettings.setSelected(runConfiguration.getRunnerSettings() == null);
-
-    if (runConfiguration.getRunnerSettings() == null) {
-      MavenRunnerSettings settings = MavenRunner.getInstance(myPanel.getProject()).getSettings();
-      myPanel.reset(settings);
+    public MavenRunnerSettingsEditor(@Nonnull Project project) {
+        myPanel = new MavenRunnerPanel(project, true);
     }
-    else {
-      myPanel.reset(runConfiguration.getRunnerSettings());
-    }
-  }
 
-  @Override
-  protected void applyEditorTo(MavenRunConfiguration runConfiguration) throws ConfigurationException {
-    if (myUseProjectSettings.isSelected()) {
-      runConfiguration.setRunnerSettings(null);
-    }
-    else {
-      if (runConfiguration.getRunnerSettings() != null) {
-        myPanel.apply(runConfiguration.getRunnerSettings());
-      }
-      else {
-        MavenRunnerSettings settings = MavenRunner.getInstance(myPanel.getProject()).getSettings().clone();
-        myPanel.apply(settings);
-        runConfiguration.setRunnerSettings(settings);
-      }
-    }
-  }
+    @Override
+    protected void resetEditorFrom(MavenRunConfiguration runConfiguration) {
+        myUseProjectSettings.setSelected(runConfiguration.getRunnerSettings() == null);
 
-  @Nonnull
-  @Override
-  protected JComponent createEditor() {
-    Pair<JPanel,JCheckBox> pair = MavenDisablePanelCheckbox.createPanel(myPanel.createComponent(this), "Use project settings");
+        if (runConfiguration.getRunnerSettings() == null) {
+            MavenRunnerSettings settings = MavenRunner.getInstance(myPanel.getProject()).getSettings();
+            myPanel.reset(settings);
+        }
+        else {
+            myPanel.reset(runConfiguration.getRunnerSettings());
+        }
+    }
 
-    myUseProjectSettings = pair.second;
-    return pair.first;
-  }
+    @Override
+    protected void applyEditorTo(MavenRunConfiguration runConfiguration) throws ConfigurationException {
+        if (myUseProjectSettings.isSelected()) {
+            runConfiguration.setRunnerSettings(null);
+        }
+        else {
+            if (runConfiguration.getRunnerSettings() != null) {
+                myPanel.apply(runConfiguration.getRunnerSettings());
+            }
+            else {
+                MavenRunnerSettings settings = MavenRunner.getInstance(myPanel.getProject()).getSettings().clone();
+                myPanel.apply(settings);
+                runConfiguration.setRunnerSettings(settings);
+            }
+        }
+    }
+
+    @Nonnull
+    @Override
+    protected JComponent createEditor() {
+        Pair<JPanel, JCheckBox> pair =
+            MavenDisablePanelCheckbox.createPanel(myPanel.createComponent(this), "Use project settings");
+
+        myUseProjectSettings = pair.second;
+        return pair.first;
+    }
 }

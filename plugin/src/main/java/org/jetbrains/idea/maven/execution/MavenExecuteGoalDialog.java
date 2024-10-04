@@ -26,21 +26,18 @@ import consulo.project.Project;
 /**
  * @author Sergey Evdokimov
  */
-public class MavenExecuteGoalDialog extends MavenEditGoalDialog
-{
-	public MavenExecuteGoalDialog(@Nonnull Project project, @Nullable Collection<String> history)
-	{
-		super(project, history);
+public class MavenExecuteGoalDialog extends MavenEditGoalDialog {
+    public MavenExecuteGoalDialog(@Nonnull Project project, @Nullable Collection<String> history) {
+        super(project, history);
 
-		setTitle("Execute Maven Goal");
-	}
+        setTitle("Execute Maven Goal");
+    }
 
-	@Nonnull
-	@Override
-	protected Action getOKAction()
-	{
-		Action action = super.getOKAction();
-		action.putValue(Action.NAME, "&Execute");
-		return action;
-	}
+    @Nonnull
+    @Override
+    protected Action getOKAction() {
+        Action action = super.getOKAction();
+        action.putValue(Action.NAME, "&Execute");
+        return action;
+    }
 }

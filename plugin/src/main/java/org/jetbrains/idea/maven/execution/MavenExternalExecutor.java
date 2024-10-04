@@ -47,11 +47,13 @@ public class MavenExternalExecutor extends MavenExecutor {
     private OwnJavaParameters myJavaParameters;
     private ExecutionException myParameterCreationError;
 
-    public MavenExternalExecutor(Project project,
-                                 @Nonnull MavenRunnerParameters parameters,
-                                 @Nullable MavenGeneralSettings coreSettings,
-                                 @Nullable MavenRunnerSettings runnerSettings,
-                                 @Nonnull MavenConsole console) {
+    public MavenExternalExecutor(
+        Project project,
+        @Nonnull MavenRunnerParameters parameters,
+        @Nullable MavenGeneralSettings coreSettings,
+        @Nullable MavenRunnerSettings runnerSettings,
+        @Nonnull MavenConsole console
+    ) {
         super(parameters, RunnerBundle.message("external.executor.caption"), console);
 
         try {
@@ -80,7 +82,11 @@ public class MavenExternalExecutor extends MavenExecutor {
             myConsole.attachToProcess(myProcessHandler);
         }
         catch (ExecutionException e) {
-            myConsole.systemMessage(MavenServerConsole.LEVEL_FATAL, RunnerBundle.message("external.startup.failed", e.getMessage()), null);
+            myConsole.systemMessage(
+                MavenServerConsole.LEVEL_FATAL,
+                RunnerBundle.message("external.startup.failed", e.getMessage()),
+                null
+            );
             return false;
         }
 

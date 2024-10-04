@@ -16,88 +16,87 @@
 package org.jetbrains.idea.maven.execution;
 
 import consulo.ui.ex.awt.DialogWrapper;
-import consulo.util.lang.Pair;
 import consulo.util.collection.ArrayUtil;
+import consulo.util.lang.Pair;
 
 import javax.annotation.Nullable;
-
 import javax.swing.*;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.util.Arrays;
 import java.util.Map;
 
-public class EditMavenPropertyDialog extends DialogWrapper
-{
-  private JPanel contentPane;
-  private JComboBox myNameBox;
-  private JTextField myValueField;
-  private final Map<String, String> myAvailableProperties;
+public class EditMavenPropertyDialog extends DialogWrapper {
+    private JPanel contentPane;
+    private JComboBox myNameBox;
+    private JTextField myValueField;
+    private final Map<String, String> myAvailableProperties;
 
-  public EditMavenPropertyDialog(@Nullable Pair<String, String> value, Map<String, String> availableProperties) {
-    super(false);
-    setTitle(value == null ? "Add Maven Property" : "Edit Maven Property");
+    public EditMavenPropertyDialog(@Nullable Pair<String, String> value, Map<String, String> availableProperties) {
+        super(false);
+        setTitle(value == null ? "Add Maven Property" : "Edit Maven Property");
 
-    myAvailableProperties = availableProperties;
+        myAvailableProperties = availableProperties;
 
-    installFocusListeners();
-    fillAvailableProperties();
+        installFocusListeners();
+        fillAvailableProperties();
 
-    if (value != null) {
-      myNameBox.getEditor().setItem(value.getFirst());
-      myValueField.setText(value.getSecond());
+        if (value != null) {
+            myNameBox.getEditor().setItem(value.getFirst());
+            myValueField.setText(value.getSecond());
+        }
+
+        installPropertySelectionListener();
+
+        init();
     }
 
-    installPropertySelectionListener();
+    private void installFocusListeners() {
+        myNameBox.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                myNameBox.getEditor().selectAll();
+            }
+        });
+        myValueField.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                myValueField.selectAll();
+            }
+        });
+    }
 
-    init();
-  }
+    private void installPropertySelectionListener() {
+        myNameBox.addItemListener(e -> {
+            if (e.getStateChange() != ItemEvent.SELECTED) {
+                return;
+            }
+            String key = (String)e.getItem();
+            String value = myAvailableProperties.get(key);
+            if (value != null) {
+                myValueField.setText(value);
+            }
+        });
+    }
 
-  private void installFocusListeners() {
-    myNameBox.addFocusListener(new FocusAdapter() {
-      @Override
-      public void focusGained(FocusEvent e) {
-        myNameBox.getEditor().selectAll();
-      }
-    });
-    myValueField.addFocusListener(new FocusAdapter() {
-      @Override
-      public void focusGained(FocusEvent e) {
-        myValueField.selectAll();
-      }
-    });
-  }
+    private void fillAvailableProperties() {
+        String[] keys = ArrayUtil.toStringArray(myAvailableProperties.keySet());
+        Arrays.sort(keys);
+        myNameBox.setModel(new DefaultComboBoxModel(keys));
+    }
 
-  private void installPropertySelectionListener() {
-    myNameBox.addItemListener(new ItemListener() {
-      public void itemStateChanged(ItemEvent e) {
-        if (e.getStateChange() != ItemEvent.SELECTED) return;
-        String key = (String)e.getItem();
-        String value = myAvailableProperties.get(key);
-        if (value != null) myValueField.setText(value);
-      }
-    });
-  }
+    @Nullable
+    protected JComponent createCenterPanel() {
+        return contentPane;
+    }
 
-  private void fillAvailableProperties() {
-    String[] keys = ArrayUtil.toStringArray(myAvailableProperties.keySet());
-    Arrays.sort(keys);
-    myNameBox.setModel(new DefaultComboBoxModel(keys));
-  }
+    @Override
+    public JComponent getPreferredFocusedComponent() {
+        return myNameBox;
+    }
 
-  @Nullable
-  protected JComponent createCenterPanel() {
-    return contentPane;
-  }
-
-  @Override
-  public JComponent getPreferredFocusedComponent() {
-    return myNameBox;
-  }
-
-  public Pair<String, String> getValue() {
-    return new Pair<String, String>((String)myNameBox.getEditor().getItem(), myValueField.getText());
-  }
+    public Pair<String, String> getValue() {
+        return new Pair<String, String>((String)myNameBox.getEditor().getItem(), myValueField.getText());
+    }
 }
