@@ -35,131 +35,137 @@ import java.util.List;
 /**
  * @author Ralf Quebbemann (ralfq@codehaus.org)
  */
-public class MavenGeneralPanel implements PanelWithAnchor
-{
-	private JCheckBox checkboxWorkOffline;
-	private JPanel panel;
-	private JComboBox outputLevelCombo;
-	private JCheckBox checkboxProduceExceptionErrorMessages;
-	private JComboBox checksumPolicyCombo;
-	private JComboBox failPolicyCombo;
-	private JComboBox pluginUpdatePolicyCombo;
-	private JCheckBox checkboxUsePluginRegistry;
-	private JCheckBox checkboxRecursive;
-	private MavenEnvironmentForm mavenPathsForm;
-	private JBLabel myMultiProjectBuildFailPolicyLabel;
-	private JCheckBox alwaysUpdateSnapshotsCheckBox;
-	private JTextField threadsEditor;
-	private JComboBox<MaveOverrideCompilerPolicy> myOverrideBuiltInCompilerBox;
-	private final DefaultComboBoxModel outputLevelComboModel = new DefaultComboBoxModel();
-	private final DefaultComboBoxModel checksumPolicyComboModel = new DefaultComboBoxModel();
-	private final DefaultComboBoxModel failPolicyComboModel = new DefaultComboBoxModel();
-	private final DefaultComboBoxModel pluginUpdatePolicyComboModel = new DefaultComboBoxModel();
-	private JComponent anchor;
+public class MavenGeneralPanel implements PanelWithAnchor {
+    private JCheckBox checkboxWorkOffline;
+    private JPanel panel;
+    private JComboBox outputLevelCombo;
+    private JCheckBox checkboxProduceExceptionErrorMessages;
+    private JComboBox checksumPolicyCombo;
+    private JComboBox failPolicyCombo;
+    private JComboBox pluginUpdatePolicyCombo;
+    private JCheckBox checkboxUsePluginRegistry;
+    private JCheckBox checkboxRecursive;
+    private MavenEnvironmentForm mavenPathsForm;
+    private JBLabel myMultiProjectBuildFailPolicyLabel;
+    private JCheckBox alwaysUpdateSnapshotsCheckBox;
+    private JTextField threadsEditor;
+    private JComboBox<MaveOverrideCompilerPolicy> myOverrideBuiltInCompilerBox;
+    private final DefaultComboBoxModel outputLevelComboModel = new DefaultComboBoxModel();
+    private final DefaultComboBoxModel checksumPolicyComboModel = new DefaultComboBoxModel();
+    private final DefaultComboBoxModel failPolicyComboModel = new DefaultComboBoxModel();
+    private final DefaultComboBoxModel pluginUpdatePolicyComboModel = new DefaultComboBoxModel();
+    private JComponent anchor;
 
-	public MavenGeneralPanel()
-	{
-		myOverrideBuiltInCompilerBox.setModel(new CollectionComboBoxModel<>(List.of(MaveOverrideCompilerPolicy.values())));
-		myOverrideBuiltInCompilerBox.setVisible(false);
+    public MavenGeneralPanel() {
+        myOverrideBuiltInCompilerBox.setModel(new CollectionComboBoxModel<>(List.of(MaveOverrideCompilerPolicy.values())));
+        myOverrideBuiltInCompilerBox.setVisible(false);
 
-		fillOutputLevelCombobox();
-		fillChecksumPolicyCombobox();
-		fillFailureBehaviorCombobox();
-		fillPluginUpdatePolicyCombobox();
+        fillOutputLevelCombobox();
+        fillChecksumPolicyCombobox();
+        fillFailureBehaviorCombobox();
+        fillPluginUpdatePolicyCombobox();
 
-		setAnchor(myMultiProjectBuildFailPolicyLabel);
-	}
+        setAnchor(myMultiProjectBuildFailPolicyLabel);
+    }
 
-	public void showOverrideCompilerBox()
-	{
-		myOverrideBuiltInCompilerBox.setVisible(true);
-	}
+    public void showOverrideCompilerBox() {
+        myOverrideBuiltInCompilerBox.setVisible(true);
+    }
 
-	private void fillOutputLevelCombobox()
-	{
-		ComboBoxUtil.setModel(outputLevelCombo, outputLevelComboModel, Arrays.asList(MavenExecutionOptions.LoggingLevel.values()), each -> Pair.create(each.getDisplayString(), each));
-	}
+    private void fillOutputLevelCombobox() {
+        ComboBoxUtil.setModel(
+            outputLevelCombo,
+            outputLevelComboModel,
+            Arrays.asList(MavenExecutionOptions.LoggingLevel.values()),
+            each -> Pair.create(each.getDisplayString(), each)
+        );
+    }
 
-	private void fillFailureBehaviorCombobox()
-	{
-		ComboBoxUtil.setModel(failPolicyCombo, failPolicyComboModel, Arrays.asList(MavenExecutionOptions.FailureMode.values()), each -> Pair.create(each.getDisplayString(), each));
-	}
+    private void fillFailureBehaviorCombobox() {
+        ComboBoxUtil.setModel(
+            failPolicyCombo,
+            failPolicyComboModel,
+            Arrays.asList(MavenExecutionOptions.FailureMode.values()),
+            each -> Pair.create(each.getDisplayString(), each)
+        );
+    }
 
-	private void fillChecksumPolicyCombobox()
-	{
-		ComboBoxUtil.setModel(checksumPolicyCombo, checksumPolicyComboModel, Arrays.asList(MavenExecutionOptions.ChecksumPolicy.values()), each -> Pair.create(each.getDisplayString(), each));
-	}
+    private void fillChecksumPolicyCombobox() {
+        ComboBoxUtil.setModel(
+            checksumPolicyCombo,
+            checksumPolicyComboModel,
+            Arrays.asList(MavenExecutionOptions.ChecksumPolicy.values()),
+            each -> Pair.create(each.getDisplayString(), each)
+        );
+    }
 
-	private void fillPluginUpdatePolicyCombobox()
-	{
-		ComboBoxUtil.setModel(pluginUpdatePolicyCombo, pluginUpdatePolicyComboModel, Arrays.asList(MavenExecutionOptions.PluginUpdatePolicy.values()), each -> Pair.create(each.getDisplayString(),
-				each));
-	}
+    private void fillPluginUpdatePolicyCombobox() {
+        ComboBoxUtil.setModel(
+            pluginUpdatePolicyCombo,
+            pluginUpdatePolicyComboModel,
+            Arrays.asList(MavenExecutionOptions.PluginUpdatePolicy.values()),
+            each -> Pair.create(each.getDisplayString(), each)
+        );
+    }
 
-	public JComponent createComponent(@Nonnull Disposable uiDisposable)
-	{
-		mavenPathsForm.createComponent(uiDisposable); // have to initialize all listeners
-		return panel;
-	}
+    public JComponent createComponent(@Nonnull Disposable uiDisposable) {
+        mavenPathsForm.createComponent(uiDisposable); // have to initialize all listeners
+        return panel;
+    }
 
-	protected void setData(MavenGeneralSettings data)
-	{
-		data.beginUpdate();
+    protected void setData(MavenGeneralSettings data) {
+        data.beginUpdate();
 
-		data.setWorkOffline(checkboxWorkOffline.isSelected());
-		mavenPathsForm.setData(data);
+        data.setWorkOffline(checkboxWorkOffline.isSelected());
+        mavenPathsForm.setData(data);
 
-		data.setPrintErrorStackTraces(checkboxProduceExceptionErrorMessages.isSelected());
-		data.setUsePluginRegistry(checkboxUsePluginRegistry.isSelected());
-		data.setNonRecursive(!checkboxRecursive.isSelected());
+        data.setPrintErrorStackTraces(checkboxProduceExceptionErrorMessages.isSelected());
+        data.setUsePluginRegistry(checkboxUsePluginRegistry.isSelected());
+        data.setNonRecursive(!checkboxRecursive.isSelected());
 
-		data.setOutputLevel((MavenExecutionOptions.LoggingLevel) ComboBoxUtil.getSelectedValue(outputLevelComboModel));
-		data.setChecksumPolicy((MavenExecutionOptions.ChecksumPolicy) ComboBoxUtil.getSelectedValue(checksumPolicyComboModel));
-		data.setFailureBehavior((MavenExecutionOptions.FailureMode) ComboBoxUtil.getSelectedValue(failPolicyComboModel));
-		data.setPluginUpdatePolicy((MavenExecutionOptions.PluginUpdatePolicy) ComboBoxUtil.getSelectedValue(pluginUpdatePolicyComboModel));
-		data.setAlwaysUpdateSnapshots(alwaysUpdateSnapshotsCheckBox.isSelected());
-		data.setThreads(threadsEditor.getText());
-		data.setOverrideCompilePolicy((MaveOverrideCompilerPolicy) myOverrideBuiltInCompilerBox.getSelectedItem());
+        data.setOutputLevel((MavenExecutionOptions.LoggingLevel)ComboBoxUtil.getSelectedValue(outputLevelComboModel));
+        data.setChecksumPolicy((MavenExecutionOptions.ChecksumPolicy)ComboBoxUtil.getSelectedValue(checksumPolicyComboModel));
+        data.setFailureBehavior((MavenExecutionOptions.FailureMode)ComboBoxUtil.getSelectedValue(failPolicyComboModel));
+        data.setPluginUpdatePolicy((MavenExecutionOptions.PluginUpdatePolicy)ComboBoxUtil.getSelectedValue(pluginUpdatePolicyComboModel));
+        data.setAlwaysUpdateSnapshots(alwaysUpdateSnapshotsCheckBox.isSelected());
+        data.setThreads(threadsEditor.getText());
+        data.setOverrideCompilePolicy((MaveOverrideCompilerPolicy)myOverrideBuiltInCompilerBox.getSelectedItem());
 
-		data.endUpdate();
-	}
+        data.endUpdate();
+    }
 
-	protected void getData(MavenGeneralSettings data)
-	{
-		checkboxWorkOffline.setSelected(data.isWorkOffline());
+    protected void getData(MavenGeneralSettings data) {
+        checkboxWorkOffline.setSelected(data.isWorkOffline());
 
-		mavenPathsForm.getData(data);
+        mavenPathsForm.getData(data);
 
-		checkboxProduceExceptionErrorMessages.setSelected(data.isPrintErrorStackTraces());
-		checkboxUsePluginRegistry.setSelected(data.isUsePluginRegistry());
-		checkboxRecursive.setSelected(!data.isNonRecursive());
-		alwaysUpdateSnapshotsCheckBox.setSelected(data.isAlwaysUpdateSnapshots());
-		threadsEditor.setText(StringUtil.notNullize(data.getThreads()));
-		myOverrideBuiltInCompilerBox.setSelectedItem(data.getOverrideCompilePolicy());
+        checkboxProduceExceptionErrorMessages.setSelected(data.isPrintErrorStackTraces());
+        checkboxUsePluginRegistry.setSelected(data.isUsePluginRegistry());
+        checkboxRecursive.setSelected(!data.isNonRecursive());
+        alwaysUpdateSnapshotsCheckBox.setSelected(data.isAlwaysUpdateSnapshots());
+        threadsEditor.setText(StringUtil.notNullize(data.getThreads()));
+        myOverrideBuiltInCompilerBox.setSelectedItem(data.getOverrideCompilePolicy());
 
-		ComboBoxUtil.select(outputLevelComboModel, data.getOutputLevel());
-		ComboBoxUtil.select(checksumPolicyComboModel, data.getChecksumPolicy());
-		ComboBoxUtil.select(failPolicyComboModel, data.getFailureBehavior());
-		ComboBoxUtil.select(pluginUpdatePolicyComboModel, data.getPluginUpdatePolicy());
-	}
+        ComboBoxUtil.select(outputLevelComboModel, data.getOutputLevel());
+        ComboBoxUtil.select(checksumPolicyComboModel, data.getChecksumPolicy());
+        ComboBoxUtil.select(failPolicyComboModel, data.getFailureBehavior());
+        ComboBoxUtil.select(pluginUpdatePolicyComboModel, data.getPluginUpdatePolicy());
+    }
 
-	@Nls
-	public String getDisplayName()
-	{
-		return ProjectBundle.message("maven.tab.general");
-	}
+    @Nls
+    public String getDisplayName() {
+        return ProjectBundle.message("maven.tab.general");
+    }
 
-	@Override
-	public JComponent getAnchor()
-	{
-		return anchor;
-	}
+    @Override
+    public JComponent getAnchor() {
+        return anchor;
+    }
 
-	@Override
-	public void setAnchor(JComponent anchor)
-	{
-		this.anchor = anchor;
-		myMultiProjectBuildFailPolicyLabel.setAnchor(anchor);
-		mavenPathsForm.setAnchor(anchor);
-	}
+    @Override
+    public void setAnchor(JComponent anchor) {
+        this.anchor = anchor;
+        myMultiProjectBuildFailPolicyLabel.setAnchor(anchor);
+        mavenPathsForm.setAnchor(anchor);
+    }
 }

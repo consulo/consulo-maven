@@ -22,7 +22,7 @@ import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import java.util.List;
 
 public class UpdateFoldersForProjectAction extends MavenProjectsAction {
-  protected void perform(MavenProjectsManager manager, List<MavenProject> mavenProjects, AnActionEvent e) {
-    manager.scheduleFoldersResolve(mavenProjects);
-  }
+    protected void perform(MavenProjectsManager manager, List<MavenProject> mavenProjects, AnActionEvent e) {
+        manager.scheduleFoldersResolve(mavenProjects);
+    }
 }

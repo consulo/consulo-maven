@@ -35,57 +35,65 @@ import java.util.regex.Pattern;
 /**
  * @author Sergey Evdokimov
  */
-public class MavenGroovyConsoleFilter implements Filter
-{
+public class MavenGroovyConsoleFilter implements Filter {
+    private static final Pattern PATTERN = Pattern.compile("\\[ERROR\\] (\\S.+\\.groovy): (-?\\d{1,5}): .+", Pattern.DOTALL);
 
-  private static final Pattern PATTERN = Pattern.compile("\\[ERROR\\] (\\S.+\\.groovy): (-?\\d{1,5}): .+", Pattern.DOTALL);
+    private final Project myProject;
 
-  private final Project myProject;
-
-  public MavenGroovyConsoleFilter(Project project) {
-    myProject = project;
-  }
-
-  @Nullable
-  @Override
-  public Result applyFilter(String line, int entireLength) {
-
-    // Example of gmaven error line:
-    // [ERROR] /home/user/ideaProjects/simpleMaven/src/main/groovy/com/A.groovy: 17: [Static type checking] - Cannot assign value of type java.lang.String to variable of type int
-
-    if (!line.startsWith("[ERROR] ") || !line.contains(".groovy: ")) return null;
-
-    Matcher matcher = PATTERN.matcher(line);
-    if (!matcher.matches()) return null;
-
-    String path = matcher.group(1);
-
-    VirtualFile file = LocalFileSystem.getInstance().findFileByPath(path);
-    if (file == null) {
-      if (SystemInfo.isWindows && path.matches("/[A-Z]:/.+")) {
-        file = LocalFileSystem.getInstance().findFileByPath(path.substring(1));
-      }
-      if (file == null) return null;
+    public MavenGroovyConsoleFilter(Project project) {
+        myProject = project;
     }
 
-    int lineNumber = Integer.parseInt(matcher.group(2)) - 1;
-    if (lineNumber < 0) {
-      lineNumber = -1;
+    @Nullable
+    @Override
+    public Result applyFilter(String line, int entireLength) {
+        // Example of gmaven error line:
+        // [ERROR] /home/user/ideaProjects/simpleMaven/src/main/groovy/com/A.groovy: 17:
+        // [Static type checking] - Cannot assign value of type java.lang.String to variable of type int
+
+        if (!line.startsWith("[ERROR] ") || !line.contains(".groovy: ")) {
+            return null;
+        }
+
+        Matcher matcher = PATTERN.matcher(line);
+        if (!matcher.matches()) {
+            return null;
+        }
+
+        String path = matcher.group(1);
+
+        VirtualFile file = LocalFileSystem.getInstance().findFileByPath(path);
+        if (file == null) {
+            if (SystemInfo.isWindows && path.matches("/[A-Z]:/.+")) {
+                file = LocalFileSystem.getInstance().findFileByPath(path.substring(1));
+            }
+            if (file == null) {
+                return null;
+            }
+        }
+
+        int lineNumber = Integer.parseInt(matcher.group(2)) - 1;
+        if (lineNumber < 0) {
+            lineNumber = -1;
+        }
+
+        TextAttributes attr = createCompilationErrorAttr();
+
+        return new Result(
+            entireLength - line.length() + matcher.start(1),
+            entireLength - line.length() + matcher.end(1),
+            new OpenFileHyperlinkInfo(myProject, file, lineNumber), attr
+        );
     }
 
-    TextAttributes attr = createCompilationErrorAttr();
-
-    return new Result(entireLength - line.length() + matcher.start(1), entireLength - line.length() + matcher.end(1),
-                      new OpenFileHyperlinkInfo(myProject, file, lineNumber), attr);
-  }
-
-  private static TextAttributes createCompilationErrorAttr() {
-    TextAttributes attr = EditorColorsManager.getInstance().getGlobalScheme().getAttributes(CodeInsightColors.HYPERLINK_ATTRIBUTES).clone();
-    attr.setForegroundColor(StandardColors.RED);
-    attr.setEffectColor(StandardColors.RED);
-    attr.setEffectType(EffectType.LINE_UNDERSCORE);
-    attr.setFontType(Font.PLAIN);
-    return attr;
-  }
+    private static TextAttributes createCompilationErrorAttr() {
+        TextAttributes attr =
+            EditorColorsManager.getInstance().getGlobalScheme().getAttributes(CodeInsightColors.HYPERLINK_ATTRIBUTES).clone();
+        attr.setForegroundColor(StandardColors.RED);
+        attr.setEffectColor(StandardColors.RED);
+        attr.setEffectType(EffectType.LINE_UNDERSCORE);
+        attr.setFontType(Font.PLAIN);
+        return attr;
+    }
 
 }

@@ -20,18 +20,18 @@ import org.jetbrains.idea.maven.utils.MavenProcessCanceledException;
 import org.jetbrains.idea.maven.utils.MavenProgressIndicator;
 
 public class MavenProjectsProcessorEmptyTask extends MavenProjectsProcessorBasicTask {
-  public MavenProjectsProcessorEmptyTask(MavenProject project) {
-    super(project, null);
-  }
+    public MavenProjectsProcessorEmptyTask(MavenProject project) {
+        super(project, null);
+    }
 
-  public void perform(Project project, MavenEmbeddersManager embeddersManager, MavenConsole console, MavenProgressIndicator indicator)
-    throws MavenProcessCanceledException {
-    throw new UnsupportedOperationException();
-  }
+    public void perform(Project project, MavenEmbeddersManager embeddersManager, MavenConsole console, MavenProgressIndicator indicator)
+        throws MavenProcessCanceledException {
+        throw new UnsupportedOperationException();
+    }
 
-  @Override
-  public boolean equals(Object o) {
-    return o instanceof MavenProjectsProcessorBasicTask
-           && myMavenProject.equals(((MavenProjectsProcessorBasicTask)o).myMavenProject);
-  }
+    @Override
+    public boolean equals(Object o) {
+        return o instanceof MavenProjectsProcessorBasicTask
+            && myMavenProject.equals(((MavenProjectsProcessorBasicTask)o).myMavenProject);
+    }
 }

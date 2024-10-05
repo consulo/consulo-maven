@@ -21,17 +21,19 @@ import org.jetbrains.idea.maven.utils.MavenProcessCanceledException;
 import org.jetbrains.idea.maven.utils.MavenProgressIndicator;
 
 public class MavenProjectsProcessorPluginsResolvingTask extends MavenProjectsProcessorBasicTask {
-  private final NativeMavenProjectHolder myNativeMavenProject;
+    private final NativeMavenProjectHolder myNativeMavenProject;
 
-  public MavenProjectsProcessorPluginsResolvingTask(MavenProject project,
-                                                    NativeMavenProjectHolder nativeMavenProject,
-                                                    MavenProjectsTree tree) {
-    super(project, tree);
-    myNativeMavenProject = nativeMavenProject;
-  }
+    public MavenProjectsProcessorPluginsResolvingTask(
+        MavenProject project,
+        NativeMavenProjectHolder nativeMavenProject,
+        MavenProjectsTree tree
+    ) {
+        super(project, tree);
+        myNativeMavenProject = nativeMavenProject;
+    }
 
-  public void perform(Project project, MavenEmbeddersManager embeddersManager, MavenConsole console, MavenProgressIndicator indicator)
-    throws MavenProcessCanceledException {
-    myTree.resolvePlugins(myMavenProject, myNativeMavenProject, embeddersManager, console, indicator);
-  }
+    public void perform(Project project, MavenEmbeddersManager embeddersManager, MavenConsole console, MavenProgressIndicator indicator)
+        throws MavenProcessCanceledException {
+        myTree.resolvePlugins(myMavenProject, myNativeMavenProject, embeddersManager, console, indicator);
+    }
 }

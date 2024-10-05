@@ -20,13 +20,13 @@ import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.utils.actions.MavenActionUtil;
 
 public class ReimportAction extends MavenProjectsManagerAction {
-  @Override
-  protected boolean isAvailable(AnActionEvent e) {
-    return MavenActionUtil.hasProject(e.getDataContext());
-  }
+    @Override
+    protected boolean isAvailable(AnActionEvent e) {
+        return MavenActionUtil.hasProject(e.getDataContext());
+    }
 
-  @Override
-  protected void perform(MavenProjectsManager manager) {
-    manager.forceUpdateAllProjectsOrFindAllAvailablePomFiles();
-  }
+    @Override
+    protected void perform(MavenProjectsManager manager) {
+        manager.forceUpdateAllProjectsOrFindAllAvailablePomFiles();
+    }
 }

@@ -28,28 +28,32 @@ import org.jetbrains.idea.maven.utils.actions.MavenActionUtil;
 import java.util.Arrays;
 
 public class AddManagedFilesAction extends MavenAction {
-  @Override
-  public void actionPerformed(AnActionEvent e) {
-    final MavenProjectsManager manager = MavenActionUtil.getProjectsManager(e.getDataContext());
-    FileChooserDescriptor singlePomSelection = new FileChooserDescriptor(true, false, false, false, false, true) {
-      @Override
-      public boolean isFileSelectable(VirtualFile file) {
-        return super.isFileSelectable(file) && !manager.isManagedFile(file);
-      }
+    @Override
+    public void actionPerformed(AnActionEvent e) {
+        final MavenProjectsManager manager = MavenActionUtil.getProjectsManager(e.getDataContext());
+        FileChooserDescriptor singlePomSelection = new FileChooserDescriptor(true, false, false, false, false, true) {
+            @Override
+            public boolean isFileSelectable(VirtualFile file) {
+                return super.isFileSelectable(file) && !manager.isManagedFile(file);
+            }
 
-      @Override
-      public boolean isFileVisible(VirtualFile file, boolean showHiddenFiles) {
-        if (!file.isDirectory() && !MavenActionUtil.isMavenProjectFile(file)) return false;
-        return super.isFileVisible(file, showHiddenFiles);
-      }
-    };
+            @Override
+            public boolean isFileVisible(VirtualFile file, boolean showHiddenFiles) {
+                if (!file.isDirectory() && !MavenActionUtil.isMavenProjectFile(file)) {
+                    return false;
+                }
+                return super.isFileVisible(file, showHiddenFiles);
+            }
+        };
 
-    Project project = MavenActionUtil.getProject(e.getDataContext());
-    VirtualFile fileToSelect = e.getData(PlatformDataKeys.VIRTUAL_FILE);
+        Project project = MavenActionUtil.getProject(e.getDataContext());
+        VirtualFile fileToSelect = e.getData(PlatformDataKeys.VIRTUAL_FILE);
 
-    VirtualFile[] files = IdeaFileChooser.chooseFiles(singlePomSelection, project, fileToSelect);
-    if (files.length == 0) return;
+        VirtualFile[] files = IdeaFileChooser.chooseFiles(singlePomSelection, project, fileToSelect);
+        if (files.length == 0) {
+            return;
+        }
 
-    manager.addManagedFiles(Arrays.asList(files));
-  }
+        manager.addManagedFiles(Arrays.asList(files));
+    }
 }

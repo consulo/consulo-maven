@@ -5,6 +5,5 @@ import consulo.util.dataholder.UserDataHolderBase;
 /**
  * @author Eugene.Kudelevsky
  */
-public class ResolveContext extends UserDataHolderBase
-{
+public class ResolveContext extends UserDataHolderBase {
 }

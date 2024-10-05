@@ -23,12 +23,12 @@ import org.jetbrains.idea.maven.utils.actions.MavenAction;
 import org.jetbrains.idea.maven.utils.actions.MavenActionUtil;
 
 public class EditSettingsAction extends MavenAction {
-  @Override
-  public void actionPerformed(AnActionEvent e) {
-    showSettingsFor(MavenActionUtil.getProject(e.getDataContext()));
-  }
+    @Override
+    public void actionPerformed(AnActionEvent e) {
+        showSettingsFor(MavenActionUtil.getProject(e.getDataContext()));
+    }
 
-  protected static void showSettingsFor(Project project) {
-    ShowSettingsUtil.getInstance().showSettingsDialog(project, MavenSettings.DISPLAY_NAME);
-  }
+    protected static void showSettingsFor(Project project) {
+        ShowSettingsUtil.getInstance().showSettingsDialog(project, MavenSettings.DISPLAY_NAME);
+    }
 }

@@ -30,161 +30,133 @@ import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.Set;
 
-public class ToggleProfileAction extends MavenAction
-{
-	public void update(AnActionEvent e)
-	{
-		super.update(e);
-		if(!isAvailable(e))
-		{
-			return;
-		}
+public class ToggleProfileAction extends MavenAction {
+    public void update(AnActionEvent e) {
+        super.update(e);
+        if (!isAvailable(e)) {
+            return;
+        }
 
-		MavenProfileKind targetState = getTargetState(e);
-		if(targetState == null)
-		{
-			return;
-		}
-		String text;
-		switch(targetState)
-		{
-			case NONE:
-				text = ProjectBundle.message("maven.profile.deactivate");
-				break;
-			case EXPLICIT:
-				text = ProjectBundle.message("maven.profile.activate");
-				break;
-			case IMPLICIT:
-			default:
-				text = ProjectBundle.message("maven.profile.default");
-				break;
-		}
-		e.getPresentation().setText(text);
-	}
+        MavenProfileKind targetState = getTargetState(e);
+        if (targetState == null) {
+            return;
+        }
+        String text;
+        switch (targetState) {
+            case NONE:
+                text = ProjectBundle.message("maven.profile.deactivate");
+                break;
+            case EXPLICIT:
+                text = ProjectBundle.message("maven.profile.activate");
+                break;
+            case IMPLICIT:
+            default:
+                text = ProjectBundle.message("maven.profile.default");
+                break;
+        }
+        e.getPresentation().setText(text);
+    }
 
-	@Override
-	protected boolean isAvailable(AnActionEvent e)
-	{
-		if(!super.isAvailable(e))
-		{
-			return false;
-		}
+    @Override
+    protected boolean isAvailable(AnActionEvent e) {
+        if (!super.isAvailable(e)) {
+            return false;
+        }
 
-		return getTargetState(e) != null;
-	}
+        return getTargetState(e) != null;
+    }
 
-	@Nullable
-	private static MavenProfileKind getTargetState(AnActionEvent e)
-	{
-		Map<String, MavenProfileKind> selectedProfiles = e.getData(MavenDataKeys.MAVEN_PROFILES);
-		if(selectedProfiles == null || selectedProfiles.isEmpty())
-		{
-			return null;
-		}
+    @Nullable
+    private static MavenProfileKind getTargetState(AnActionEvent e) {
+        Map<String, MavenProfileKind> selectedProfiles = e.getData(MavenDataKeys.MAVEN_PROFILES);
+        if (selectedProfiles == null || selectedProfiles.isEmpty()) {
+            return null;
+        }
 
-		MavenProjectsManager projectsManager = MavenActionUtil.getProjectsManager(e.getDataContext());
-		if(projectsManager == null)
-		{
-			return null;
-		}
-		return getTargetState(projectsManager, selectedProfiles);
-	}
+        MavenProjectsManager projectsManager = MavenActionUtil.getProjectsManager(e.getDataContext());
+        if (projectsManager == null) {
+            return null;
+        }
+        return getTargetState(projectsManager, selectedProfiles);
+    }
 
-	@Nullable
-	private static MavenProfileKind getTargetState(@Nonnull MavenProjectsManager projectsManager, Map<String, MavenProfileKind> profiles)
-	{
-		MavenExplicitProfiles explicitProfiles = projectsManager.getExplicitProfiles();
-		MavenProfileKind targetState = null;
-		// all profiles should target to the same state
-		for(Map.Entry<String, MavenProfileKind> profile : profiles.entrySet())
-		{
-			MavenProfileKind profileTargetState = getTargetState(profile, explicitProfiles);
-			if(targetState == null)
-			{
-				targetState = profileTargetState;
-			}
-			else if(!targetState.equals(profileTargetState))
-			{
-				targetState = null;
-				break;
-			}
-		}
-		return targetState;
-	}
+    @Nullable
+    private static MavenProfileKind getTargetState(@Nonnull MavenProjectsManager projectsManager, Map<String, MavenProfileKind> profiles) {
+        MavenExplicitProfiles explicitProfiles = projectsManager.getExplicitProfiles();
+        MavenProfileKind targetState = null;
+        // all profiles should target to the same state
+        for (Map.Entry<String, MavenProfileKind> profile : profiles.entrySet()) {
+            MavenProfileKind profileTargetState = getTargetState(profile, explicitProfiles);
+            if (targetState == null) {
+                targetState = profileTargetState;
+            }
+            else if (!targetState.equals(profileTargetState)) {
+                targetState = null;
+                break;
+            }
+        }
+        return targetState;
+    }
 
-	private static MavenProfileKind getTargetState(Map.Entry<String, MavenProfileKind> profile, MavenExplicitProfiles explicitProfiles)
-	{
-		MavenProfileKind targetState;
-		if(explicitProfiles.getDisabledProfiles().contains(profile.getKey()))
-		{
-			// explicitly disabled -> explicitly enabled
-			targetState = MavenProfileKind.EXPLICIT;
-		}
-		else if(explicitProfiles.getEnabledProfiles().contains(profile.getKey()))
-		{
-			// explicitly enabled -> default
-			targetState = MavenProfileKind.IMPLICIT;
-		}
-		else
-		{
-			// default
-			if(MavenProfileKind.NONE.equals(profile.getValue()))
-			{
-				// default inactive -> explicitly enabled
-				targetState = MavenProfileKind.EXPLICIT;
-			}
-			else
-			{
-				// default active -> explicitly disabled
-				targetState = MavenProfileKind.NONE;
-			}
-		}
-		return targetState;
-	}
+    private static MavenProfileKind getTargetState(Map.Entry<String, MavenProfileKind> profile, MavenExplicitProfiles explicitProfiles) {
+        MavenProfileKind targetState;
+        if (explicitProfiles.getDisabledProfiles().contains(profile.getKey())) {
+            // explicitly disabled -> explicitly enabled
+            targetState = MavenProfileKind.EXPLICIT;
+        }
+        else if (explicitProfiles.getEnabledProfiles().contains(profile.getKey())) {
+            // explicitly enabled -> default
+            targetState = MavenProfileKind.IMPLICIT;
+        }
+        else if (MavenProfileKind.NONE.equals(profile.getValue())) { // default
+            // default inactive -> explicitly enabled
+            targetState = MavenProfileKind.EXPLICIT;
+        }
+        else {
+            // default active -> explicitly disabled
+            targetState = MavenProfileKind.NONE;
+        }
+        return targetState;
+    }
 
-	@RequiredUIAccess
-	@Override
-	public void actionPerformed(@Nonnull AnActionEvent e)
-	{
-		MavenProjectsManager manager = MavenActionUtil.getProjectsManager(e.getDataContext());
-		if(manager == null)
-		{
-			return;
-		}
-		Map<String, MavenProfileKind> selectedProfiles = e.getData(MavenDataKeys.MAVEN_PROFILES);
-		if(selectedProfiles == null)
-		{
-			return;
-		}
+    @RequiredUIAccess
+    @Override
+    public void actionPerformed(@Nonnull AnActionEvent e) {
+        MavenProjectsManager manager = MavenActionUtil.getProjectsManager(e.getDataContext());
+        if (manager == null) {
+            return;
+        }
+        Map<String, MavenProfileKind> selectedProfiles = e.getData(MavenDataKeys.MAVEN_PROFILES);
+        if (selectedProfiles == null) {
+            return;
+        }
 
-		Set<String> selectedProfileIds = selectedProfiles.keySet();
+        Set<String> selectedProfileIds = selectedProfiles.keySet();
 
-		MavenProfileKind targetState = getTargetState(manager, selectedProfiles);
-		if(targetState == null)
-		{
-			return;
-		}
+        MavenProfileKind targetState = getTargetState(manager, selectedProfiles);
+        if (targetState == null) {
+            return;
+        }
 
-		MavenExplicitProfiles newExplicitProfiles = manager.getExplicitProfiles().clone();
-		switch(targetState)
-		{
-			case NONE:
-				// disable explicitly
-				newExplicitProfiles.getEnabledProfiles().removeAll(selectedProfileIds);
-				newExplicitProfiles.getDisabledProfiles().addAll(selectedProfileIds);
-				break;
-			case EXPLICIT:
-				// enable explicitly
-				newExplicitProfiles.getDisabledProfiles().removeAll(selectedProfileIds);
-				newExplicitProfiles.getEnabledProfiles().addAll(selectedProfileIds);
-				break;
-			case IMPLICIT:
-			default:
-				// reset to default state
-				newExplicitProfiles.getEnabledProfiles().removeAll(selectedProfileIds);
-				newExplicitProfiles.getDisabledProfiles().removeAll(selectedProfileIds);
-				break;
-		}
-		manager.setExplicitProfiles(newExplicitProfiles);
-	}
+        MavenExplicitProfiles newExplicitProfiles = manager.getExplicitProfiles().clone();
+        switch (targetState) {
+            case NONE:
+                // disable explicitly
+                newExplicitProfiles.getEnabledProfiles().removeAll(selectedProfileIds);
+                newExplicitProfiles.getDisabledProfiles().addAll(selectedProfileIds);
+                break;
+            case EXPLICIT:
+                // enable explicitly
+                newExplicitProfiles.getDisabledProfiles().removeAll(selectedProfileIds);
+                newExplicitProfiles.getEnabledProfiles().addAll(selectedProfileIds);
+                break;
+            case IMPLICIT:
+            default:
+                // reset to default state
+                newExplicitProfiles.getEnabledProfiles().removeAll(selectedProfileIds);
+                newExplicitProfiles.getDisabledProfiles().removeAll(selectedProfileIds);
+                break;
+        }
+        manager.setExplicitProfiles(newExplicitProfiles);
+    }
 }

@@ -26,30 +26,30 @@ import java.util.Collections;
 import java.util.List;
 
 public class DownloadSelectedSourcesAndDocsAction extends MavenProjectsAction {
-  private boolean mySources;
-  private boolean myDocs;
+    private boolean mySources;
+    private boolean myDocs;
 
-  @SuppressWarnings({"UnusedDeclaration"})
-  public DownloadSelectedSourcesAndDocsAction() {
-    this(true, true);
-  }
+    @SuppressWarnings({"UnusedDeclaration"})
+    public DownloadSelectedSourcesAndDocsAction() {
+        this(true, true);
+    }
 
-  public DownloadSelectedSourcesAndDocsAction(boolean sources, boolean docs) {
-    mySources = sources;
-    myDocs = docs;
-  }
+    public DownloadSelectedSourcesAndDocsAction(boolean sources, boolean docs) {
+        mySources = sources;
+        myDocs = docs;
+    }
 
-  @Override
-  protected boolean isAvailable(AnActionEvent e) {
-    return super.isAvailable(e) && !getDependencies(e).isEmpty();
-  }
+    @Override
+    protected boolean isAvailable(AnActionEvent e) {
+        return super.isAvailable(e) && !getDependencies(e).isEmpty();
+    }
 
-  private Collection<MavenArtifact> getDependencies(AnActionEvent e) {
-    Collection<MavenArtifact> result = e.getData(MavenDataKeys.MAVEN_DEPENDENCIES);
-    return result == null ? Collections.<MavenArtifact>emptyList() : result;
-  }
+    private Collection<MavenArtifact> getDependencies(AnActionEvent e) {
+        Collection<MavenArtifact> result = e.getData(MavenDataKeys.MAVEN_DEPENDENCIES);
+        return result == null ? Collections.<MavenArtifact>emptyList() : result;
+    }
 
-  protected void perform(MavenProjectsManager manager, List<MavenProject> mavenProjects, AnActionEvent e) {
-    manager.scheduleArtifactsDownloading(mavenProjects, getDependencies(e), mySources, myDocs, null);
-  }
+    protected void perform(MavenProjectsManager manager, List<MavenProject> mavenProjects, AnActionEvent e) {
+        manager.scheduleArtifactsDownloading(mavenProjects, getDependencies(e), mySources, myDocs, null);
+    }
 }

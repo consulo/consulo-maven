@@ -24,20 +24,20 @@ import consulo.virtualFileSystem.VirtualFile;
 import javax.annotation.Nonnull;
 
 public class MavenDefaultModelsProvider implements MavenModelsProvider {
-  private final Project myProject;
+    private final Project myProject;
 
-  public MavenDefaultModelsProvider(Project project) {
-    myProject = project;
-  }
+    public MavenDefaultModelsProvider(Project project) {
+        myProject = project;
+    }
 
-  @Override
-  @Nonnull
-  public Module[] getModules() {
-    return ModuleManager.getInstance(myProject).getModules();
-  }
+    @Override
+    @Nonnull
+    public Module[] getModules() {
+        return ModuleManager.getInstance(myProject).getModules();
+    }
 
-  @Override
-  public VirtualFile[] getContentRoots(Module module) {
-    return ModuleRootManager.getInstance(module).getContentRoots();
-  }
+    @Override
+    public VirtualFile[] getContentRoots(Module module) {
+        return ModuleRootManager.getInstance(module).getContentRoots();
+    }
 }

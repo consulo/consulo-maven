@@ -7,10 +7,8 @@ import consulo.configurable.UnnamedConfigurable;
 import consulo.project.Project;
 
 @ExtensionAPI(ComponentScope.APPLICATION)
-public interface AdditionalMavenImportingSettings
-{
+public interface AdditionalMavenImportingSettings {
+    ExtensionPointName<AdditionalMavenImportingSettings> EP_NAME = ExtensionPointName.create(AdditionalMavenImportingSettings.class);
 
-	ExtensionPointName<AdditionalMavenImportingSettings> EP_NAME = ExtensionPointName.create(AdditionalMavenImportingSettings.class);
-
-	UnnamedConfigurable createConfigurable(Project project);
+    UnnamedConfigurable createConfigurable(Project project);
 }

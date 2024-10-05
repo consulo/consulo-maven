@@ -26,56 +26,57 @@ import javax.annotation.Nullable;
 /**
  * @author Konstantin Bulenkov
  */
-public class MavenModificationTracker implements ModificationTracker
-{
-  private long myCounter = 0;
+public class MavenModificationTracker implements ModificationTracker {
+    private long myCounter = 0;
 
-  public MavenModificationTracker(MavenProjectsManager manager) {
-    manager.addProjectsTreeListener(new MavenProjectsTree.Listener() {
-      @Override
-      public void profilesChanged() {
-        inc();
-      }
+    public MavenModificationTracker(MavenProjectsManager manager) {
+        manager.addProjectsTreeListener(new MavenProjectsTree.Listener() {
+            @Override
+            public void profilesChanged() {
+                inc();
+            }
 
-      @Override
-      public void projectsIgnoredStateChanged(List<MavenProject> ignored, List<MavenProject> unignored, boolean fromImport) {
-        inc();
-      }
+            @Override
+            public void projectsIgnoredStateChanged(List<MavenProject> ignored, List<MavenProject> unignored, boolean fromImport) {
+                inc();
+            }
 
-      @Override
-      public void projectsUpdated(List<Pair<MavenProject, MavenProjectChanges>> updated, List<MavenProject> deleted) {
-        inc();
-      }
+            @Override
+            public void projectsUpdated(List<Pair<MavenProject, MavenProjectChanges>> updated, List<MavenProject> deleted) {
+                inc();
+            }
 
-      @Override
-      public void projectResolved(Pair<MavenProject, MavenProjectChanges> projectWithChanges,
-                                  @Nullable NativeMavenProjectHolder nativeMavenProject) {
-        inc();
-      }
+            @Override
+            public void projectResolved(
+                Pair<MavenProject, MavenProjectChanges> projectWithChanges,
+                @Nullable NativeMavenProjectHolder nativeMavenProject
+            ) {
+                inc();
+            }
 
-      @Override
-      public void pluginsResolved(MavenProject project) {
-        inc();
-      }
+            @Override
+            public void pluginsResolved(MavenProject project) {
+                inc();
+            }
 
-      @Override
-      public void foldersResolved(Pair<MavenProject, MavenProjectChanges> projectWithChanges) {
-        inc();
-      }
+            @Override
+            public void foldersResolved(Pair<MavenProject, MavenProjectChanges> projectWithChanges) {
+                inc();
+            }
 
-      @Override
-      public void artifactsDownloaded(MavenProject project) {
-        inc();
-      }
-    });
-  }
+            @Override
+            public void artifactsDownloaded(MavenProject project) {
+                inc();
+            }
+        });
+    }
 
-  private void inc() {
-    myCounter++;
-  }
+    private void inc() {
+        myCounter++;
+    }
 
-  @Override
-  public long getModificationCount() {
-    return myCounter;
-  }
+    @Override
+    public long getModificationCount() {
+        return myCounter;
+    }
 }

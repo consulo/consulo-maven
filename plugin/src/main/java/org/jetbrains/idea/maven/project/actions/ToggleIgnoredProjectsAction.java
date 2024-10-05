@@ -28,72 +28,80 @@ import org.jetbrains.idea.maven.utils.actions.MavenActionUtil;
 import java.util.List;
 
 public class ToggleIgnoredProjectsAction extends MavenAction {
-  @Override
-  public void update(AnActionEvent e) {
-    super.update(e);
-    if (!isAvailable(e)) return;
+    @Override
+    public void update(AnActionEvent e) {
+        super.update(e);
+        if (!isAvailable(e)) {
+            return;
+        }
 
-    final DataContext context = e.getDataContext();
-    MavenProjectsManager projectsManager = MavenActionUtil.getProjectsManager(context);
-    List<MavenProject> projects = MavenActionUtil.getMavenProjects(context);
+        final DataContext context = e.getDataContext();
+        MavenProjectsManager projectsManager = MavenActionUtil.getProjectsManager(context);
+        List<MavenProject> projects = MavenActionUtil.getMavenProjects(context);
 
-    if (isIgnoredInSettings(projectsManager, projects)) {
-      e.getPresentation().setText(ProjectBundle.message("maven.ignore.edit"));
-    }
-    else if (isIgnored(projectsManager, projects)) {
-      e.getPresentation().setText(ProjectBundle.message("maven.unignore"));
-    }
-    else {
-      e.getPresentation().setText(ProjectBundle.message("maven.ignore"));
-    }
-  }
-
-  @Override
-  protected boolean isAvailable(AnActionEvent e) {
-    if (!super.isAvailable(e)) return false;
-
-    final DataContext context = e.getDataContext();
-    MavenProjectsManager projectsManager = MavenActionUtil.getProjectsManager(context);
-    List<MavenProject> projects = MavenActionUtil.getMavenProjects(context);
-
-    if (projects == null || projects.isEmpty()) return false;
-
-    int ignoredStatesCount = 0;
-    int ignoredCount = 0;
-
-    for (MavenProject each : projects) {
-      if (projectsManager.getIgnoredState(each)) {
-        ignoredStatesCount++;
-      }
-      if (projectsManager.isIgnored(each)) {
-        ignoredCount++;
-      }
+        if (isIgnoredInSettings(projectsManager, projects)) {
+            e.getPresentation().setText(ProjectBundle.message("maven.ignore.edit"));
+        }
+        else if (isIgnored(projectsManager, projects)) {
+            e.getPresentation().setText(ProjectBundle.message("maven.unignore"));
+        }
+        else {
+            e.getPresentation().setText(ProjectBundle.message("maven.ignore"));
+        }
     }
 
-    return (ignoredCount == 0 || ignoredCount == projects.size()) &&
-           (ignoredStatesCount == 0 || ignoredStatesCount == projects.size());
-  }
+    @Override
+    protected boolean isAvailable(AnActionEvent e) {
+        if (!super.isAvailable(e)) {
+            return false;
+        }
 
-  private boolean isIgnored(MavenProjectsManager projectsManager, List<MavenProject> projects) {
-    return projectsManager.getIgnoredState(projects.get(0));
-  }
+        final DataContext context = e.getDataContext();
+        MavenProjectsManager projectsManager = MavenActionUtil.getProjectsManager(context);
+        List<MavenProject> projects = MavenActionUtil.getMavenProjects(context);
 
-  private boolean isIgnoredInSettings(MavenProjectsManager projectsManager, List<MavenProject> projects) {
-    return projectsManager.isIgnored(projects.get(0)) && !isIgnored(projectsManager, projects);
-  }
+        if (projects == null || projects.isEmpty()) {
+            return false;
+        }
 
-  @Override
-  public void actionPerformed(AnActionEvent e) {
-    final DataContext context = e.getDataContext();
-    MavenProjectsManager projectsManager = MavenActionUtil.getProjectsManager(context);
-    List<MavenProject> projects = MavenActionUtil.getMavenProjects(context);
+        int ignoredStatesCount = 0;
+        int ignoredCount = 0;
 
-    if (isIgnoredInSettings(projectsManager, projects)) {
-      ShowSettingsUtil.getInstance()
-        .editConfigurable(MavenActionUtil.getProject(context), new MavenIgnoredFilesConfigurable(MavenActionUtil.getProject(context)));
+        for (MavenProject each : projects) {
+            if (projectsManager.getIgnoredState(each)) {
+                ignoredStatesCount++;
+            }
+            if (projectsManager.isIgnored(each)) {
+                ignoredCount++;
+            }
+        }
+
+        return (ignoredCount == 0 || ignoredCount == projects.size())
+            && (ignoredStatesCount == 0 || ignoredStatesCount == projects.size());
     }
-    else {
-      projectsManager.setIgnoredState(projects, !isIgnored(projectsManager, projects));
+
+    private boolean isIgnored(MavenProjectsManager projectsManager, List<MavenProject> projects) {
+        return projectsManager.getIgnoredState(projects.get(0));
     }
-  }
+
+    private boolean isIgnoredInSettings(MavenProjectsManager projectsManager, List<MavenProject> projects) {
+        return projectsManager.isIgnored(projects.get(0)) && !isIgnored(projectsManager, projects);
+    }
+
+    @Override
+    public void actionPerformed(AnActionEvent e) {
+        final DataContext context = e.getDataContext();
+        MavenProjectsManager projectsManager = MavenActionUtil.getProjectsManager(context);
+        List<MavenProject> projects = MavenActionUtil.getMavenProjects(context);
+
+        if (isIgnoredInSettings(projectsManager, projects)) {
+            ShowSettingsUtil.getInstance().editConfigurable(
+                MavenActionUtil.getProject(context),
+                new MavenIgnoredFilesConfigurable(MavenActionUtil.getProject(context))
+            );
+        }
+        else {
+            projectsManager.setIgnoredState(projects, !isIgnored(projectsManager, projects));
+        }
+    }
 }

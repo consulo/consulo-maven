@@ -35,76 +35,77 @@ import java.util.Collection;
 import java.util.Comparator;
 
 public class MavenIgnoredFilesConfigurable implements SearchableConfigurable, Configurable.NoScroll {
-  private static final char SEPARATOR = ',';
+    private static final char SEPARATOR = ',';
 
-  private final MavenProjectsManager myManager;
+    private final MavenProjectsManager myManager;
 
-  private Collection<String> myOriginallyIgnoredFilesPaths;
-  private String myOriginallyIgnoredFilesPatterns;
+    private Collection<String> myOriginallyIgnoredFilesPaths;
+    private String myOriginallyIgnoredFilesPatterns;
 
-  private JPanel myMainPanel;
-  private ElementsChooser<String> myIgnoredFilesPathsChooser;
-  private JTextArea myIgnoredFilesPattersEditor;
+    private JPanel myMainPanel;
+    private ElementsChooser<String> myIgnoredFilesPathsChooser;
+    private JTextArea myIgnoredFilesPattersEditor;
 
-  public MavenIgnoredFilesConfigurable(Project project) {
-    myManager = MavenProjectsManager.getInstance(project);
-  }
+    public MavenIgnoredFilesConfigurable(Project project) {
+        myManager = MavenProjectsManager.getInstance(project);
+    }
 
-  private void createUIComponents() {
-    myIgnoredFilesPathsChooser = new ElementsChooser<String>(true);
-    myIgnoredFilesPathsChooser.getEmptyText().setText(ProjectBundle.message("maven.ingored.no.file"));
-  }
+    private void createUIComponents() {
+        myIgnoredFilesPathsChooser = new ElementsChooser<String>(true);
+        myIgnoredFilesPathsChooser.getEmptyText().setText(ProjectBundle.message("maven.ingored.no.file"));
+    }
 
-  public JComponent createComponent(@Nonnull Disposable uiDisposable) {
-    return myMainPanel;
-  }
+    public JComponent createComponent(@Nonnull Disposable uiDisposable) {
+        return myMainPanel;
+    }
 
-  public void disposeUIResources() {
-  }
+    public void disposeUIResources() {
+    }
 
-  public boolean isModified() {
-    return !MavenUtil.equalAsSets(myOriginallyIgnoredFilesPaths, myIgnoredFilesPathsChooser.getMarkedElements()) ||
-           !myOriginallyIgnoredFilesPatterns.equals(myIgnoredFilesPattersEditor.getText());
-  }
+    public boolean isModified() {
+        return !MavenUtil.equalAsSets(myOriginallyIgnoredFilesPaths, myIgnoredFilesPathsChooser.getMarkedElements()) ||
+            !myOriginallyIgnoredFilesPatterns.equals(myIgnoredFilesPattersEditor.getText());
+    }
 
-  public void apply() throws ConfigurationException
-  {
-    myManager.setIgnoredFilesPaths(myIgnoredFilesPathsChooser.getMarkedElements());
-    myManager.setIgnoredFilesPatterns(Strings.tokenize(myIgnoredFilesPattersEditor.getText(), Strings.WHITESPACE + SEPARATOR));
-  }
+    public void apply() throws ConfigurationException {
+        myManager.setIgnoredFilesPaths(myIgnoredFilesPathsChooser.getMarkedElements());
+        myManager.setIgnoredFilesPatterns(Strings.tokenize(myIgnoredFilesPattersEditor.getText(), Strings.WHITESPACE + SEPARATOR));
+    }
 
-  public void reset() {
-    myOriginallyIgnoredFilesPaths = myManager.getIgnoredFilesPaths();
-    myOriginallyIgnoredFilesPatterns = Strings.detokenize(myManager.getIgnoredFilesPatterns(), SEPARATOR);
+    public void reset() {
+        myOriginallyIgnoredFilesPaths = myManager.getIgnoredFilesPaths();
+        myOriginallyIgnoredFilesPatterns = Strings.detokenize(myManager.getIgnoredFilesPatterns(), SEPARATOR);
 
-    MavenUIUtil.setElements(myIgnoredFilesPathsChooser,
-                            MavenUtil.collectPaths(myManager.getProjectsFiles()),
-                            myOriginallyIgnoredFilesPaths,
-                            new Comparator<String>() {
-                              public int compare(String o1, String o2) {
-                                return FileUtil.comparePaths(o1, o2);
-                              }
-                            });
-    myIgnoredFilesPattersEditor.setText(myOriginallyIgnoredFilesPatterns);
-  }
+        MavenUIUtil.setElements(
+            myIgnoredFilesPathsChooser,
+            MavenUtil.collectPaths(myManager.getProjectsFiles()),
+            myOriginallyIgnoredFilesPaths,
+            new Comparator<String>() {
+                public int compare(String o1, String o2) {
+                    return FileUtil.comparePaths(o1, o2);
+                }
+            }
+        );
+        myIgnoredFilesPattersEditor.setText(myOriginallyIgnoredFilesPatterns);
+    }
 
-  @Nls
-  public String getDisplayName() {
-    return ProjectBundle.message("maven.tab.ignored.files");
-  }
+    @Nls
+    public String getDisplayName() {
+        return ProjectBundle.message("maven.tab.ignored.files");
+    }
 
-  @Nullable
-  @NonNls
-  public String getHelpTopic() {
-    return "reference.settings.project.maven.ignored.files";
-  }
+    @Nullable
+    @NonNls
+    public String getHelpTopic() {
+        return "reference.settings.project.maven.ignored.files";
+    }
 
-  @Nonnull
-  public String getId() {
-    return getHelpTopic();
-  }
+    @Nonnull
+    public String getId() {
+        return getHelpTopic();
+    }
 
-  public Runnable enableSearch(String option) {
-    return null;
-  }
+    public Runnable enableSearch(String option) {
+        return null;
+    }
 }

@@ -21,13 +21,13 @@ import org.jetbrains.idea.maven.utils.actions.MavenActionUtil;
 import org.jetbrains.idea.maven.utils.actions.MavenToggleAction;
 
 public class ToggleSkipTestsAction extends MavenToggleAction {
-  @Override
-  protected boolean doIsSelected(AnActionEvent e) {
-    return MavenRunner.getInstance(MavenActionUtil.getProject(e.getDataContext())).getState().isSkipTests();
-  }
+    @Override
+    protected boolean doIsSelected(AnActionEvent e) {
+        return MavenRunner.getInstance(MavenActionUtil.getProject(e.getDataContext())).getState().isSkipTests();
+    }
 
-  @Override
-  public void setSelected(AnActionEvent e, boolean state) {
-    MavenRunner.getInstance(MavenActionUtil.getProject(e.getDataContext())).getState().setSkipTests(state);
-  }
+    @Override
+    public void setSelected(AnActionEvent e, boolean state) {
+        MavenRunner.getInstance(MavenActionUtil.getProject(e.getDataContext())).getState().setSkipTests(state);
+    }
 }

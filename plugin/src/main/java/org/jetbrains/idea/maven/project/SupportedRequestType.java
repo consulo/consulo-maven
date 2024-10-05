@@ -16,5 +16,6 @@
 package org.jetbrains.idea.maven.project;
 
 public enum SupportedRequestType {
-  FOR_COMPLETION, FOR_IMPORT
+    FOR_COMPLETION,
+    FOR_IMPORT
 }

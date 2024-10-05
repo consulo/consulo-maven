@@ -25,16 +25,16 @@ import org.jetbrains.idea.maven.utils.actions.MavenActionUtil;
 import java.util.List;
 
 public abstract class MavenProjectsAction extends MavenAction {
-  @Override
-  protected boolean isAvailable(AnActionEvent e) {
-    return super.isAvailable(e) && !MavenActionUtil.getMavenProjects(e.getDataContext()).isEmpty();
-  }
+    @Override
+    protected boolean isAvailable(AnActionEvent e) {
+        return super.isAvailable(e) && !MavenActionUtil.getMavenProjects(e.getDataContext()).isEmpty();
+    }
 
-  @Override
-  public void actionPerformed(AnActionEvent e) {
-    final DataContext context = e.getDataContext();
-    perform(MavenActionUtil.getProjectsManager(context), MavenActionUtil.getMavenProjects(context), e);
-  }
+    @Override
+    public void actionPerformed(AnActionEvent e) {
+        final DataContext context = e.getDataContext();
+        perform(MavenActionUtil.getProjectsManager(context), MavenActionUtil.getMavenProjects(context), e);
+    }
 
-  protected abstract void perform(MavenProjectsManager manager, List<MavenProject> mavenProjects, AnActionEvent e);
+    protected abstract void perform(MavenProjectsManager manager, List<MavenProject> mavenProjects, AnActionEvent e);
 }
