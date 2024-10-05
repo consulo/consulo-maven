@@ -50,6 +50,7 @@ public class MavenCompilerTask implements Comparable {
         return myProjectPath + ":" + myGoal;
     }
 
+    @Override
     public int compareTo(Object o) {
         return toString().compareTo(o.toString());
     }
@@ -68,11 +69,7 @@ public class MavenCompilerTask implements Comparable {
         if (myGoal != null ? !myGoal.equals(task.myGoal) : task.myGoal != null) {
             return false;
         }
-        if (myProjectPath != null ? !myProjectPath.equals(task.myProjectPath) : task.myProjectPath != null) {
-            return false;
-        }
-
-        return true;
+        return myProjectPath != null ? myProjectPath.equals(task.myProjectPath) : task.myProjectPath == null;
     }
 
     @Override

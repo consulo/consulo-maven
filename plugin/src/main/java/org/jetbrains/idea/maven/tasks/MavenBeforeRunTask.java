@@ -45,10 +45,9 @@ public class MavenBeforeRunTask extends BeforeRunTask<MavenBeforeRunTask> {
     }
 
     public boolean isFor(MavenProject project, String goal) {
-        if (myProjectPath == null || myGoal == null) {
-            return false;
-        }
-        return FileUtil.pathsEqual(project.getPath(), myProjectPath) && goal.equals(myGoal);
+        return !(myProjectPath == null || myGoal == null)
+            && FileUtil.pathsEqual(project.getPath(), myProjectPath)
+            && goal.equals(myGoal);
     }
 
     @Override
@@ -69,6 +68,7 @@ public class MavenBeforeRunTask extends BeforeRunTask<MavenBeforeRunTask> {
         myGoal = element.getAttributeValue("goal");
     }
 
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -85,13 +85,10 @@ public class MavenBeforeRunTask extends BeforeRunTask<MavenBeforeRunTask> {
         if (myGoal != null ? !myGoal.equals(that.myGoal) : that.myGoal != null) {
             return false;
         }
-        if (myProjectPath != null ? !myProjectPath.equals(that.myProjectPath) : that.myProjectPath != null) {
-            return false;
-        }
-
-        return true;
+        return myProjectPath != null ? myProjectPath.equals(that.myProjectPath) : that.myProjectPath == null;
     }
 
+    @Override
     public int hashCode() {
         int result = super.hashCode();
         result = 31 * result + (myProjectPath != null ? myProjectPath.hashCode() : 0);

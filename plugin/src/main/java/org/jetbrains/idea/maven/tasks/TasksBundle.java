@@ -15,14 +15,20 @@
  */
 package org.jetbrains.idea.maven.tasks;
 
+import consulo.annotation.DeprecationInfo;
+import consulo.annotation.internal.MigratedExtensionsTo;
 import consulo.application.CommonBundle;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.PropertyKey;
+import org.jetbrains.idea.maven.localize.MavenTasksLocalize;
 
 import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
 import java.util.ResourceBundle;
 
+@Deprecated
+@DeprecationInfo("Use MavenTasksLocalize")
+@MigratedExtensionsTo(MavenTasksLocalize.class)
 public class TasksBundle {
     private static Reference<ResourceBundle> ourBundle;
 

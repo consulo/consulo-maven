@@ -23,7 +23,7 @@ import consulo.document.FileDocumentManager;
 import consulo.execution.BeforeRunTaskProvider;
 import consulo.execution.configuration.RunConfiguration;
 import consulo.execution.runner.ExecutionEnvironment;
-import consulo.language.editor.CommonDataKeys;
+import consulo.maven.icon.MavenIconGroup;
 import consulo.maven.rt.server.common.model.MavenExplicitProfiles;
 import consulo.process.cmd.ParametersListUtil;
 import consulo.project.Project;
@@ -36,10 +36,10 @@ import consulo.util.lang.StringUtil;
 import consulo.virtualFileSystem.LocalFileSystem;
 import consulo.virtualFileSystem.VirtualFile;
 import jakarta.inject.Inject;
-import org.jetbrains.idea.maven.MavenIcons;
 import org.jetbrains.idea.maven.execution.MavenEditGoalDialog;
 import org.jetbrains.idea.maven.execution.MavenRunner;
 import org.jetbrains.idea.maven.execution.MavenRunnerParameters;
+import org.jetbrains.idea.maven.localize.MavenTasksLocalize;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 
@@ -68,12 +68,12 @@ public class MavenBeforeRunTasksProvider extends BeforeRunTaskProvider<MavenBefo
     @Nonnull
     @Override
     public String getName() {
-        return TasksBundle.message("maven.tasks.before.run.empty");
+        return MavenTasksLocalize.mavenTasksBeforeRunEmpty().get();
     }
 
     @Override
     public Image getIcon() {
-        return MavenIcons.MavenLogo;
+        return MavenIconGroup.mavenlogo();
     }
 
     @Nonnull
@@ -81,11 +81,11 @@ public class MavenBeforeRunTasksProvider extends BeforeRunTaskProvider<MavenBefo
     public String getDescription(MavenBeforeRunTask task) {
         MavenProject mavenProject = getMavenProject(task);
         if (mavenProject == null) {
-            return TasksBundle.message("maven.tasks.before.run.empty");
+            return MavenTasksLocalize.mavenTasksBeforeRunEmpty().get();
         }
 
         String desc = mavenProject.getDisplayName() + ": " + StringUtil.notNullize(task.getGoal()).trim();
-        return TasksBundle.message("maven.tasks.before.run", desc);
+        return MavenTasksLocalize.mavenTasksBeforeRun(desc).get();
     }
 
     @Nullable
@@ -119,7 +119,7 @@ public class MavenBeforeRunTasksProvider extends BeforeRunTaskProvider<MavenBefo
     public AsyncResult<Void> configureTask(RunConfiguration runConfiguration, MavenBeforeRunTask task) {
         MavenEditGoalDialog dialog = new MavenEditGoalDialog(myProject, Arrays.asList("aaa", "adasdas"));
 
-        dialog.setTitle(TasksBundle.message("maven.tasks.select.goal.title"));
+        dialog.setTitle(MavenTasksLocalize.mavenTasksSelectGoalTitle());
 
         if (task.getGoal() == null) {
             // just created empty task.
@@ -168,7 +168,7 @@ public class MavenBeforeRunTasksProvider extends BeforeRunTaskProvider<MavenBefo
     ) {
         AsyncResult<Void> result = AsyncResult.undefined();
         uiAccess.give(() -> {
-            final Project project = context.getData(CommonDataKeys.PROJECT);
+            final Project project = context.getData(Project.KEY);
             final MavenProject mavenProject = getMavenProject(task);
 
             if (project == null || project.isDisposed() || mavenProject == null) {
@@ -181,7 +181,7 @@ public class MavenBeforeRunTasksProvider extends BeforeRunTaskProvider<MavenBefo
             final MavenExplicitProfiles explicitProfiles = MavenProjectsManager.getInstance(project).getExplicitProfiles();
             final MavenRunner mavenRunner = MavenRunner.getInstance(project);
 
-            new Task.Backgroundable(project, TasksBundle.message("maven.tasks.executing"), true) {
+            new Task.Backgroundable(project, MavenTasksLocalize.mavenTasksExecuting().get(), true) {
                 @Override
                 public void run(@Nonnull ProgressIndicator indicator) {
                     boolean value = false;
@@ -192,10 +192,11 @@ public class MavenBeforeRunTasksProvider extends BeforeRunTaskProvider<MavenBefo
                             explicitProfiles
                         );
 
-                        value = mavenRunner.runBatch(Collections.singletonList(params),
+                        value = mavenRunner.runBatch(
+                            Collections.singletonList(params),
                             null,
                             null,
-                            TasksBundle.message("maven.tasks.executing"),
+                            MavenTasksLocalize.mavenTasksExecuting().get(),
                             indicator
                         );
                     }

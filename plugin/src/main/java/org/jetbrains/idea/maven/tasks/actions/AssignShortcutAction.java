@@ -20,6 +20,7 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import consulo.dataContext.DataContext;
+import consulo.ui.annotation.RequiredUIAccess;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.tasks.MavenShortcutsManager;
 import org.jetbrains.idea.maven.utils.MavenDataKeys;
@@ -37,12 +38,11 @@ public class AssignShortcutAction extends MavenAction {
 
     private static boolean isIgnoredProject(DataContext context) {
         final MavenProject project = MavenActionUtil.getMavenProject(context);
-        if (project == null) {
-            return false;
-        }
-        return MavenActionUtil.getProjectsManager(context).isIgnored(project);
+        return project != null && MavenActionUtil.getProjectsManager(context).isIgnored(project);
     }
 
+    @Override
+    @RequiredUIAccess
     public void actionPerformed(AnActionEvent e) {
         final DataContext context = e.getDataContext();
         String actionId = getGoalActionId(context);

@@ -32,6 +32,7 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import org.jetbrains.idea.maven.execution.MavenRunner;
 import org.jetbrains.idea.maven.execution.MavenRunnerParameters;
+import org.jetbrains.idea.maven.localize.MavenTasksLocalize;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.utils.MavenSimpleProjectComponent;
@@ -108,7 +109,13 @@ public class MavenTasksManager extends MavenSimpleProjectComponent implements Pe
                 ));
             }
         }
-        return myRunner.runBatch(parametersList, null, null, TasksBundle.message("maven.tasks.executing"), context.getProgressIndicator());
+        return myRunner.runBatch(
+            parametersList,
+            null,
+            null,
+            MavenTasksLocalize.mavenTasksExecuting().get(),
+            context.getProgressIndicator()
+        );
     }
 
     public synchronized boolean isBeforeCompileTask(MavenCompilerTask task) {
@@ -152,16 +159,16 @@ public class MavenTasksManager extends MavenSimpleProjectComponent implements Pe
         MavenCompilerTask compilerTask = new MavenCompilerTask(project.getPath(), goal);
         synchronized (this) {
             if (myState.beforeCompileTasks.contains(compilerTask)) {
-                result.add(TasksBundle.message("maven.tasks.goal.before.compile"));
+                result.add(MavenTasksLocalize.mavenTasksGoalBeforeCompile().get());
             }
             if (myState.afterCompileTasks.contains(compilerTask)) {
-                result.add(TasksBundle.message("maven.tasks.goal.after.compile"));
+                result.add(MavenTasksLocalize.mavenTasksGoalAfterCompile().get());
             }
         }
         RunManager runManager = RunManager.getInstance(myProject);
         for (MavenBeforeRunTask each : runManager.getBeforeRunTasks(MavenBeforeRunTasksProvider.ID)) {
             if (each.isFor(project, goal)) {
-                result.add(TasksBundle.message("maven.tasks.goal.before.run"));
+                result.add(MavenTasksLocalize.mavenTasksGoalBeforeRun().get());
                 break;
             }
         }

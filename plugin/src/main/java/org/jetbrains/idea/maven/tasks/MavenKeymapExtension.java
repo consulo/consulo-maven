@@ -16,12 +16,14 @@
 package org.jetbrains.idea.maven.tasks;
 
 import consulo.annotation.component.ExtensionImpl;
+import consulo.application.AllIcons;
 import consulo.component.ComponentManager;
 import consulo.dataContext.DataContext;
 import consulo.maven.rt.server.common.model.MavenConstants;
 import consulo.maven.rt.server.common.model.MavenPlugin;
 import consulo.platform.base.icon.PlatformIconGroup;
 import consulo.project.Project;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.action.ActionManager;
 import consulo.ui.ex.action.AnAction;
 import consulo.ui.ex.action.AnActionEvent;
@@ -29,11 +31,12 @@ import consulo.ui.ex.action.Presentation;
 import consulo.ui.ex.keymap.KeymapExtension;
 import consulo.ui.ex.keymap.KeymapGroup;
 import consulo.ui.ex.keymap.KeymapGroupFactory;
+import consulo.util.lang.Couple;
 import consulo.util.lang.Pair;
 import org.jetbrains.annotations.TestOnly;
-import org.jetbrains.idea.maven.MavenIcons;
 import org.jetbrains.idea.maven.execution.MavenRunConfigurationType;
 import org.jetbrains.idea.maven.execution.MavenRunnerParameters;
+import org.jetbrains.idea.maven.localize.MavenTasksLocalize;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.utils.MavenArtifactUtil;
 import org.jetbrains.idea.maven.utils.MavenPluginInfo;
@@ -49,16 +52,12 @@ public class MavenKeymapExtension implements KeymapExtension {
     @Override
     public KeymapGroup createGroup(Predicate<AnAction> condition, ComponentManager project) {
         KeymapGroup result =
-            KeymapGroupFactory.getInstance().createGroup(TasksBundle.message("maven.tasks.action.group.name"), MavenIcons.PhasesClosed);
+            KeymapGroupFactory.getInstance().createGroup(MavenTasksLocalize.mavenTasksActionGroupName().get(), AllIcons.Nodes.ConfigFolder);
         if (project == null) {
             return result;
         }
 
-        Comparator<MavenProject> projectComparator = new Comparator<MavenProject>() {
-            public int compare(MavenProject o1, MavenProject o2) {
-                return o1.getDisplayName().compareToIgnoreCase(o2.getDisplayName());
-            }
-        };
+        Comparator<MavenProject> projectComparator = (o1, o2) -> o1.getDisplayName().compareToIgnoreCase(o2.getDisplayName());
         Map<MavenProject, Set<Pair<String, String>>> projectToActionsMapping = new TreeMap<>(projectComparator);
 
         ActionManager actionManager = ActionManager.getInstance();
@@ -77,21 +76,19 @@ public class MavenKeymapExtension implements KeymapExtension {
             Set<Pair<String, String>> actions = projectToActionsMapping.get(mavenProject);
             if (actions == null) {
                 final List<String> projectGoals = collectGoals(mavenProject);
-                actions = new TreeSet<>(new Comparator<Pair<String, String>>() {
-                    public int compare(Pair<String, String> o1, Pair<String, String> o2) {
-                        String goal1 = o1.getFirst();
-                        String goal2 = o2.getFirst();
-                        int index1 = projectGoals.indexOf(goal1);
-                        int index2 = projectGoals.indexOf(goal2);
-                        if (index1 == index2) {
-                            return goal1.compareToIgnoreCase(goal2);
-                        }
-                        return (index1 < index2 ? -1 : 1);
+                actions = new TreeSet<>((Comparator<Pair<String, String>>)(o1, o2) -> {
+                    String goal1 = o1.getFirst();
+                    String goal2 = o2.getFirst();
+                    int index1 = projectGoals.indexOf(goal1);
+                    int index2 = projectGoals.indexOf(goal2);
+                    if (index1 == index2) {
+                        return goal1.compareToIgnoreCase(goal2);
                     }
+                    return (index1 < index2 ? -1 : 1);
                 });
                 projectToActionsMapping.put(mavenProject, actions);
             }
-            actions.add(Pair.create(mavenAction.getGoal(), eachId));
+            actions.add(Couple.of(mavenAction.getGoal(), eachId));
         }
 
         for (Map.Entry<MavenProject, Set<Pair<String, String>>> each : projectToActionsMapping.entrySet()) {
@@ -100,7 +97,7 @@ public class MavenKeymapExtension implements KeymapExtension {
             if (goalsToActionIds.isEmpty()) {
                 continue;
             }
-            KeymapGroup group = KeymapGroupFactory.getInstance().createGroup(mavenProject.getDisplayName(), MavenIcons.PhasesClosed);
+            KeymapGroup group = KeymapGroupFactory.getInstance().createGroup(mavenProject.getDisplayName(), AllIcons.Nodes.ConfigFolder);
             result.addGroup(group);
             for (Pair<String, String> eachGoalToActionId : goalsToActionIds) {
                 group.addActionId(eachGoalToActionId.getSecond());
@@ -191,6 +188,8 @@ public class MavenKeymapExtension implements KeymapExtension {
             template.setIcon(PlatformIconGroup.nodesTask());
         }
 
+        @Override
+        @RequiredUIAccess
         public void actionPerformed(AnActionEvent e) {
             final DataContext context = e.getDataContext();
             MavenRunnerParameters params = new MavenRunnerParameters(
@@ -210,6 +209,7 @@ public class MavenKeymapExtension implements KeymapExtension {
             return myGoal;
         }
 
+        @Override
         public String toString() {
             return myMavenProject + ":" + myGoal;
         }

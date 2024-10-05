@@ -21,14 +21,17 @@ import org.jetbrains.idea.maven.tasks.MavenTasksManager;
 import java.util.List;
 
 public class ToggleBeforeCompileTasksAction extends ToggleCompilerTasksAction {
+    @Override
     protected boolean hasTask(MavenTasksManager manager, MavenCompilerTask task) {
         return manager.isBeforeCompileTask(task);
     }
 
+    @Override
     protected void addTasks(MavenTasksManager manager, List<MavenCompilerTask> tasks) {
         manager.addBeforeCompileTasks(tasks);
     }
 
+    @Override
     protected void removeTasks(MavenTasksManager manager, List<MavenCompilerTask> tasks) {
         manager.removeBeforeCompileTasks(tasks);
     }

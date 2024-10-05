@@ -17,6 +17,7 @@ package org.jetbrains.idea.maven.tasks.actions;
 
 import consulo.dataContext.DataContext;
 import consulo.execution.RunManager;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.action.AnActionEvent;
 import consulo.util.lang.Pair;
 import org.jetbrains.idea.maven.project.MavenProject;
@@ -50,6 +51,7 @@ public class ToggleBeforeRunTaskAction extends MavenToggleAction {
     }
 
     @Override
+    @RequiredUIAccess
     public void setSelected(final AnActionEvent e, boolean state) {
         final DataContext context = e.getDataContext();
         final Pair<MavenProject, String> desc = getTaskDesc(context);

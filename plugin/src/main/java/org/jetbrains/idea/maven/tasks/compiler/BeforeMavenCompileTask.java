@@ -5,7 +5,7 @@ import consulo.compiler.BeforeCompileTask;
 
 /**
  * @author VISTALL
- * @since 21/01/2023
+ * @since 2023-01-21
  */
 @ExtensionImpl
 public class BeforeMavenCompileTask extends MavenCompileTask implements BeforeCompileTask {

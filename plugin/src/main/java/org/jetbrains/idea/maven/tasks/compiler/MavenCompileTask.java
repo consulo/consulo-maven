@@ -6,7 +6,7 @@ import consulo.compiler.CompileTask;
 
 /**
  * @author VISTALL
- * @since 09-May-17
+ * @since 2017-05-09
  */
 public class MavenCompileTask implements CompileTask {
     private final boolean myBefore;

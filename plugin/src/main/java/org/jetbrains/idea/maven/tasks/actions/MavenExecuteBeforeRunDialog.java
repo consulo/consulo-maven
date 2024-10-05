@@ -18,10 +18,10 @@ package org.jetbrains.idea.maven.tasks.actions;
 import consulo.ide.impl.idea.execution.impl.BaseExecuteBeforeRunDialog;
 import consulo.project.Project;
 import consulo.util.dataholder.Key;
+import org.jetbrains.idea.maven.localize.MavenTasksLocalize;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.tasks.MavenBeforeRunTask;
 import org.jetbrains.idea.maven.tasks.MavenBeforeRunTasksProvider;
-import org.jetbrains.idea.maven.tasks.TasksBundle;
 
 public class MavenExecuteBeforeRunDialog extends BaseExecuteBeforeRunDialog<MavenBeforeRunTask> {
     private final MavenProject myMavenProject;
@@ -36,7 +36,7 @@ public class MavenExecuteBeforeRunDialog extends BaseExecuteBeforeRunDialog<Mave
 
     @Override
     protected String getTargetDisplayString() {
-        return TasksBundle.message("maven.tasks.goal");
+        return MavenTasksLocalize.mavenTasksGoal().get();
     }
 
     @Override
