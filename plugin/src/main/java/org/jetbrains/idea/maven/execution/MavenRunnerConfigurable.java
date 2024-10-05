@@ -4,7 +4,8 @@ import consulo.configurable.Configurable;
 import consulo.configurable.ConfigurationException;
 import consulo.configurable.SearchableConfigurable;
 import consulo.project.Project;
-import org.jetbrains.annotations.Nls;
+import consulo.ui.annotation.RequiredUIAccess;
+import org.jetbrains.idea.maven.localize.MavenRunnerLocalize;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -14,49 +15,58 @@ import javax.annotation.Nullable;
  */
 public abstract class MavenRunnerConfigurable extends MavenRunnerPanel implements SearchableConfigurable, Configurable.NoScroll {
 
-  public MavenRunnerConfigurable(@Nonnull Project p, boolean isRunConfiguration) {
-    super(p, isRunConfiguration);
-  }
+    public MavenRunnerConfigurable(@Nonnull Project p, boolean isRunConfiguration) {
+        super(p, isRunConfiguration);
+    }
 
-  @Nullable
-  protected abstract MavenRunnerSettings getState();
+    @Nullable
+    protected abstract MavenRunnerSettings getState();
 
-  public boolean isModified() {
-    MavenRunnerSettings s = new MavenRunnerSettings();
-    apply(s);
-    return !s.equals(getState());
-  }
+    @Override
+    @RequiredUIAccess
+    public boolean isModified() {
+        MavenRunnerSettings s = new MavenRunnerSettings();
+        apply(s);
+        return !s.equals(getState());
+    }
 
-  public void apply() throws ConfigurationException
-  {
-    apply(getState());
-  }
+    @Override
+    @RequiredUIAccess
+    public void apply() throws ConfigurationException {
+        apply(getState());
+    }
 
-  public void reset() {
-    reset(getState());
-  }
+    @Override
+    @RequiredUIAccess
+    public void reset() {
+        reset(getState());
+    }
 
-  @Nls
-  public String getDisplayName() {
-    return RunnerBundle.message("maven.tab.runner");
-  }
+    @Override
+    public String getDisplayName() {
+        return MavenRunnerLocalize.mavenTabRunner().get();
+    }
 
-  @Nullable
-  public String getHelpTopic() {
-    return "reference.settings.project.maven.runner";
-  }
+    @Nullable
+    @Override
+    public String getHelpTopic() {
+        return "reference.settings.project.maven.runner";
+    }
 
-  @Nonnull
-  public String getId() {
-    //noinspection ConstantConditions
-    return getHelpTopic();
-  }
+    @Nonnull
+    @Override
+    public String getId() {
+        //noinspection ConstantConditions
+        return getHelpTopic();
+    }
 
-  public Runnable enableSearch(String option) {
-    return null;
-  }
+    @Override
+    public Runnable enableSearch(String option) {
+        return null;
+    }
 
-  public void disposeUIResources() {
-
-  }
+    @Override
+    @RequiredUIAccess
+    public void disposeUIResources() {
+    }
 }

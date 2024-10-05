@@ -22,6 +22,7 @@ import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.action.AnAction;
 import consulo.ui.ex.action.AnActionEvent;
 import consulo.ui.ex.awt.Messages;
+import consulo.ui.ex.awt.UIUtil;
 import org.jetbrains.idea.maven.utils.MavenDataKeys;
 
 import javax.annotation.Nonnull;
@@ -29,32 +30,28 @@ import javax.annotation.Nonnull;
 /**
  * @author Sergey Evdokimov
  */
-public class RemoveMavenRunConfigurationAction extends AnAction
-{
-	@RequiredUIAccess
-	@Override
-	public void actionPerformed(@Nonnull AnActionEvent e)
-	{
-		Project project = e.getData(Project.KEY);
-		RunnerAndConfigurationSettings settings = e.getData(MavenDataKeys.RUN_CONFIGURATION);
+public class RemoveMavenRunConfigurationAction extends AnAction {
+    @RequiredUIAccess
+    @Override
+    public void actionPerformed(@Nonnull AnActionEvent e) {
+        Project project = e.getData(Project.KEY);
+        RunnerAndConfigurationSettings settings = e.getData(MavenDataKeys.RUN_CONFIGURATION);
 
-		assert settings != null && project != null;
+        assert settings != null && project != null;
 
-		int res = Messages.showYesNoDialog(project, "Delete \"" + settings.getName() + "\"?", "Confirmation", Messages.getQuestionIcon());
-		if(res == Messages.YES)
-		{
-			RunManager.getInstance(project).removeConfiguration(settings);
-		}
-	}
+        int res = Messages.showYesNoDialog(project, "Delete \"" + settings.getName() + "\"?", "Confirmation", UIUtil.getQuestionIcon());
+        if (res == Messages.YES) {
+            RunManager.getInstance(project).removeConfiguration(settings);
+        }
+    }
 
-	@RequiredUIAccess
-	@Override
-	public void update(@Nonnull AnActionEvent e)
-	{
-		Project project = e.getData(Project.KEY);
-		RunnerAndConfigurationSettings settings = e.getData(MavenDataKeys.RUN_CONFIGURATION);
+    @RequiredUIAccess
+    @Override
+    public void update(@Nonnull AnActionEvent e) {
+        Project project = e.getData(Project.KEY);
+        RunnerAndConfigurationSettings settings = e.getData(MavenDataKeys.RUN_CONFIGURATION);
 
-		boolean enabled = settings != null && project != null;
-		e.getPresentation().setEnabledAndVisible(enabled);
-	}
+        boolean enabled = settings != null && project != null;
+        e.getPresentation().setEnabledAndVisible(enabled);
+    }
 }

@@ -40,92 +40,78 @@ import java.util.List;
 @State(name = "mavenExecuteGoalHistory", storages = @Storage(file = StoragePathMacros.WORKSPACE_FILE))
 @ServiceAPI(ComponentScope.PROJECT)
 @ServiceImpl
-public class ExecuteMavenGoalHistoryService implements PersistentStateComponent<String[]>
-{
-	@Nonnull
-	public static ExecuteMavenGoalHistoryService getInstance(@Nonnull Project project)
-	{
-		return ServiceManager.getService(project, ExecuteMavenGoalHistoryService.class);
-	}
+public class ExecuteMavenGoalHistoryService implements PersistentStateComponent<String[]> {
+    @Nonnull
+    public static ExecuteMavenGoalHistoryService getInstance(@Nonnull Project project) {
+        return ServiceManager.getService(project, ExecuteMavenGoalHistoryService.class);
+    }
 
-	private static final int MAX_HISTORY_LENGTH = 20;
+    private static final int MAX_HISTORY_LENGTH = 20;
 
-	private final LinkedList<String> myHistory = new LinkedList<String>();
+    private final LinkedList<String> myHistory = new LinkedList<>();
 
-	private String myWorkDirectory = "";
+    private String myWorkDirectory = "";
 
-	private String myCanceledCommand;
+    private String myCanceledCommand;
 
-	@Nullable
-	public String getCanceledCommand()
-	{
-		return myCanceledCommand;
-	}
+    @Nullable
+    public String getCanceledCommand() {
+        return myCanceledCommand;
+    }
 
-	public void setCanceledCommand(@Nullable String canceledCommand)
-	{
-		myCanceledCommand = canceledCommand;
-	}
+    public void setCanceledCommand(@Nullable String canceledCommand) {
+        myCanceledCommand = canceledCommand;
+    }
 
-	public void addCommand(@Nonnull String command, @Nonnull String projectPath)
-	{
-		myWorkDirectory = projectPath.trim();
+    public void addCommand(@Nonnull String command, @Nonnull String projectPath) {
+        myWorkDirectory = projectPath.trim();
 
-		command = command.trim();
+        command = command.trim();
 
-		if(command.length() == 0)
-		{
-			return;
-		}
+        if (command.length() == 0) {
+            return;
+        }
 
-		myHistory.remove(command);
-		myHistory.addFirst(command);
+        myHistory.remove(command);
+        myHistory.addFirst(command);
 
-		while(myHistory.size() > MAX_HISTORY_LENGTH)
-		{
-			myHistory.removeLast();
-		}
-	}
+        while (myHistory.size() > MAX_HISTORY_LENGTH) {
+            myHistory.removeLast();
+        }
+    }
 
-	public List<String> getHistory()
-	{
-		return new ArrayList<String>(myHistory);
-	}
+    public List<String> getHistory() {
+        return new ArrayList<>(myHistory);
+    }
 
-	@Nonnull
-	public String getWorkDirectory()
-	{
-		return myWorkDirectory;
-	}
+    @Nonnull
+    public String getWorkDirectory() {
+        return myWorkDirectory;
+    }
 
-	@Nullable
-	@Override
-	public String[] getState()
-	{
-		String[] res = new String[myHistory.size() + 1];
-		res[0] = myWorkDirectory;
+    @Nullable
+    @Override
+    public String[] getState() {
+        String[] res = new String[myHistory.size() + 1];
+        res[0] = myWorkDirectory;
 
-		int i = 1;
-		for(String goal : myHistory)
-		{
-			res[i++] = goal;
-		}
+        int i = 1;
+        for (String goal : myHistory) {
+            res[i++] = goal;
+        }
 
-		return res;
-	}
+        return res;
+    }
 
-	@Override
-	public void loadState(String[] state)
-	{
-		if(state.length == 0)
-		{
-			myWorkDirectory = "";
-			myHistory.clear();
-		}
-		else
-		{
-			myWorkDirectory = state[0];
-			myHistory.addAll(Arrays.asList(state).subList(1, state.length));
-		}
-	}
+    @Override
+    public void loadState(String[] state) {
+        if (state.length == 0) {
+            myWorkDirectory = "";
+            myHistory.clear();
+        }
+        else {
+            myWorkDirectory = state[0];
+            myHistory.addAll(Arrays.asList(state).subList(1, state.length));
+        }
+    }
 }

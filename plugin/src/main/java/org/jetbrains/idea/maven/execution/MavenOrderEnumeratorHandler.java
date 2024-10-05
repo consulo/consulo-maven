@@ -25,36 +25,30 @@ import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import javax.annotation.Nonnull;
 
 @ExtensionImpl
-public class MavenOrderEnumeratorHandler implements OrderEnumerationPolicy
-{
-	@Override
-	public boolean isApplicable(@Nonnull Project project)
-	{
-		return MavenProjectsManager.getInstance(project).isMavenizedProject();
-	}
+public class MavenOrderEnumeratorHandler implements OrderEnumerationPolicy {
+    @Override
+    public boolean isApplicable(@Nonnull Project project) {
+        return MavenProjectsManager.getInstance(project).isMavenizedProject();
+    }
 
-	@Override
-	public boolean isApplicable(@Nonnull Module module)
-	{
-		final MavenProjectsManager manager = MavenProjectsManager.getInstance(module.getProject());
-		return manager.isMavenizedModule(module);
-	}
+    @Override
+    public boolean isApplicable(@Nonnull Module module) {
+        final MavenProjectsManager manager = MavenProjectsManager.getInstance(module.getProject());
+        return manager.isMavenizedModule(module);
+    }
 
-	@Override
-	public boolean shouldAddRuntimeDependenciesToTestCompilationClasspath()
-	{
-		return true;
-	}
+    @Override
+    public boolean shouldAddRuntimeDependenciesToTestCompilationClasspath() {
+        return true;
+    }
 
-	@Override
-	public boolean shouldIncludeTestsFromDependentModulesToTestClasspath()
-	{
-		return false;
-	}
+    @Override
+    public boolean shouldIncludeTestsFromDependentModulesToTestClasspath() {
+        return false;
+    }
 
-	@Override
-	public boolean shouldProcessDependenciesRecursively()
-	{
-		return false;
-	}
+    @Override
+    public boolean shouldProcessDependenciesRecursively() {
+        return false;
+    }
 }

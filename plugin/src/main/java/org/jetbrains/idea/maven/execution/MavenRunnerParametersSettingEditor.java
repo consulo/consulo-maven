@@ -13,46 +13,41 @@ import javax.swing.*;
 /**
  * @author Sergey Evdokimov
  */
-public class MavenRunnerParametersSettingEditor extends SettingsEditor<MavenRunConfiguration>
-{
-	private final MavenRunnerParametersPanel myPanel;
-	private BorderLayoutPanel myVerticalPanel;
+public class MavenRunnerParametersSettingEditor extends SettingsEditor<MavenRunConfiguration> {
+    private final MavenRunnerParametersPanel myPanel;
+    private BorderLayoutPanel myVerticalPanel;
 
-	@RequiredUIAccess
-	public MavenRunnerParametersSettingEditor(@Nonnull Project project)
-	{
-		myPanel = new MavenRunnerParametersPanel(project);
-	}
+    @RequiredUIAccess
+    public MavenRunnerParametersSettingEditor(@Nonnull Project project) {
+        myPanel = new MavenRunnerParametersPanel(project);
+    }
 
-	@Override
-	protected void resetEditorFrom(MavenRunConfiguration runConfiguration)
-	{
-		myPanel.getData(runConfiguration.getRunnerParameters());
-	}
+    @Override
+    @RequiredUIAccess
+    protected void resetEditorFrom(MavenRunConfiguration runConfiguration) {
+        myPanel.getData(runConfiguration.getRunnerParameters());
+    }
 
-	@Override
-	protected void applyEditorTo(MavenRunConfiguration runConfiguration) throws ConfigurationException
-	{
-		myPanel.setData(runConfiguration.getRunnerParameters());
-	}
+    @Override
+    @RequiredUIAccess
+    protected void applyEditorTo(MavenRunConfiguration runConfiguration) throws ConfigurationException {
+        myPanel.setData(runConfiguration.getRunnerParameters());
+    }
 
-	@Nonnull
-	@Override
-	protected JComponent createEditor()
-	{
-		if(myVerticalPanel != null)
-		{
-			return myVerticalPanel;
-		}
-		myVerticalPanel = new BorderLayoutPanel();
-		myVerticalPanel.setBorder(JBUI.Borders.empty(5, 0, 0, 0));
-		myVerticalPanel.addToTop(myPanel.createComponent());
-		return myVerticalPanel;
-	}
+    @Nonnull
+    @Override
+    protected JComponent createEditor() {
+        if (myVerticalPanel != null) {
+            return myVerticalPanel;
+        }
+        myVerticalPanel = new BorderLayoutPanel();
+        myVerticalPanel.setBorder(JBUI.Borders.empty(5, 0, 0, 0));
+        myVerticalPanel.addToTop(myPanel.createComponent());
+        return myVerticalPanel;
+    }
 
-	@Override
-	protected void disposeEditor()
-	{
-		myPanel.disposeUIResources();
-	}
+    @Override
+    protected void disposeEditor() {
+        myPanel.disposeUIResources();
+    }
 }

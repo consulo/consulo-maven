@@ -24,13 +24,13 @@ import consulo.project.ui.notification.Notification;
 import consulo.project.ui.notification.NotificationType;
 import consulo.project.ui.notification.Notifications;
 import consulo.project.ui.notification.event.NotificationListener;
-import consulo.language.editor.CommonDataKeys;
-import consulo.ui.ex.action.DumbAwareAction;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.action.AnActionEvent;
+import consulo.ui.ex.action.DumbAwareAction;
 import consulo.util.lang.Pair;
 import consulo.util.lang.StringUtil;
 import org.jetbrains.idea.maven.execution.*;
+import org.jetbrains.idea.maven.localize.MavenRunnerLocalize;
 import org.jetbrains.idea.maven.project.MavenGeneralSettings;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
@@ -48,96 +48,89 @@ import java.util.List;
 /**
  * @author Sergey Evdokimov
  */
-public class MavenExecuteGoalAction extends DumbAwareAction
-{
-	@RequiredUIAccess
-	@Override
-	public void actionPerformed(@Nonnull final AnActionEvent e)
-	{
-		final Project project = e.getRequiredData(CommonDataKeys.PROJECT);
+public class MavenExecuteGoalAction extends DumbAwareAction {
+    @RequiredUIAccess
+    @Override
+    public void actionPerformed(@Nonnull final AnActionEvent e) {
+        final Project project = e.getRequiredData(Project.KEY);
 
-		ExecuteMavenGoalHistoryService historyService = ExecuteMavenGoalHistoryService.getInstance(project);
+        ExecuteMavenGoalHistoryService historyService = ExecuteMavenGoalHistoryService.getInstance(project);
 
-		MavenExecuteGoalDialog dialog = new MavenExecuteGoalDialog(project, historyService.getHistory());
+        MavenExecuteGoalDialog dialog = new MavenExecuteGoalDialog(project, historyService.getHistory());
 
-		String lastWorkingDirectory = historyService.getWorkDirectory();
-		if(lastWorkingDirectory.length() == 0)
-		{
-			lastWorkingDirectory = obtainAppropriateWorkingDirectory(project);
-		}
+        String lastWorkingDirectory = historyService.getWorkDirectory();
+        if (lastWorkingDirectory.length() == 0) {
+            lastWorkingDirectory = obtainAppropriateWorkingDirectory(project);
+        }
 
-		dialog.setWorkDirectory(lastWorkingDirectory);
+        dialog.setWorkDirectory(lastWorkingDirectory);
 
-		if(StringUtil.isEmptyOrSpaces(historyService.getCanceledCommand()))
-		{
-			if(historyService.getHistory().size() > 0)
-			{
-				dialog.setGoals(historyService.getHistory().get(0));
-			}
-		}
-		else
-		{
-			dialog.setGoals(historyService.getCanceledCommand());
-		}
+        if (StringUtil.isEmptyOrSpaces(historyService.getCanceledCommand())) {
+            if (historyService.getHistory().size() > 0) {
+                dialog.setGoals(historyService.getHistory().get(0));
+            }
+        }
+        else {
+            dialog.setGoals(historyService.getCanceledCommand());
+        }
 
-		if(!dialog.showAndGet())
-		{
-			historyService.setCanceledCommand(dialog.getGoals());
-			return;
-		}
+        if (!dialog.showAndGet()) {
+            historyService.setCanceledCommand(dialog.getGoals());
+            return;
+        }
 
-		historyService.setCanceledCommand(null);
+        historyService.setCanceledCommand(null);
 
-		String goals = dialog.getGoals();
-		goals = goals.trim();
-		if(goals.startsWith("mvn "))
-		{
-			goals = goals.substring("mvn ".length()).trim();
-		}
+        String goals = dialog.getGoals();
+        goals = goals.trim();
+        if (goals.startsWith("mvn ")) {
+            goals = goals.substring("mvn ".length()).trim();
+        }
 
-		String workDirectory = dialog.getWorkDirectory();
+        String workDirectory = dialog.getWorkDirectory();
 
-		historyService.addCommand(goals, workDirectory);
+        historyService.addCommand(goals, workDirectory);
 
-		MavenProjectsManager projectsManager = MavenProjectsManager.getInstance(project);
+        MavenProjectsManager projectsManager = MavenProjectsManager.getInstance(project);
 
-		Pair<File, Sdk> mavenHome = MavenUtil.resolveMavenHome(projectsManager.getGeneralSettings().getMavenBundleName());
-		if(mavenHome == null)
-		{
-			Notification notification = new Notification(MavenNotificationGroup.ROOT, "Failed to execute goal", RunnerBundle.message("external.maven.home.no.default.with.fix"),
-					NotificationType.ERROR, new NotificationListener.Adapter()
-			{
-				@Override
-				protected void hyperlinkActivated(@Nonnull Notification notification, @Nonnull HyperlinkEvent e)
-				{
-					ShowSettingsUtil.getInstance().showSettingsDialog(project, MavenSettings.DISPLAY_NAME);
-				}
-			});
+        Pair<File, Sdk> mavenHome = MavenUtil.resolveMavenHome(projectsManager.getGeneralSettings().getMavenBundleName());
+        if (mavenHome == null) {
+            Notification notification = new Notification(MavenNotificationGroup.ROOT,
+                "Failed to execute goal",
+                MavenRunnerLocalize.externalMavenHomeNoDefaultWithFix().get(),
+                NotificationType.ERROR,
+                new NotificationListener.Adapter() {
+                    @Override
+                    @RequiredUIAccess
+                    protected void hyperlinkActivated(@Nonnull Notification notification, @Nonnull HyperlinkEvent e) {
+                        ShowSettingsUtil.getInstance().showSettingsDialog(project, MavenSettings.DISPLAY_NAME);
+                    }
+                }
+            );
 
-			Notifications.Bus.notify(notification, project);
-			return;
-		}
+            Notifications.Bus.notify(notification, project);
+            return;
+        }
 
-		MavenRunnerParameters parameters = new MavenRunnerParameters(true, workDirectory, Arrays.asList(ParametersList.parse(goals)), Collections.<String>emptyList());
+        MavenRunnerParameters parameters =
+            new MavenRunnerParameters(true, workDirectory, Arrays.asList(ParametersList.parse(goals)), Collections.<String>emptyList());
 
-		MavenGeneralSettings generalSettings = new MavenGeneralSettings();
-		generalSettings.setMavenBundleName(mavenHome.getSecond().getName());
+        MavenGeneralSettings generalSettings = new MavenGeneralSettings();
+        generalSettings.setMavenBundleName(mavenHome.getSecond().getName());
 
-		MavenRunnerSettings runnerSettings = MavenRunner.getInstance(project).getSettings().clone();
-		runnerSettings.setMavenProperties(new LinkedHashMap<String, String>());
-		runnerSettings.setSkipTests(false);
+        MavenRunnerSettings runnerSettings = MavenRunner.getInstance(project).getSettings().clone();
+        runnerSettings.setMavenProperties(new LinkedHashMap<>());
+        runnerSettings.setSkipTests(false);
 
-		MavenRunConfigurationType.runConfiguration(project, parameters, generalSettings, runnerSettings, null);
-	}
+        MavenRunConfigurationType.runConfiguration(project, parameters, generalSettings, runnerSettings, null);
+    }
 
-	private static String obtainAppropriateWorkingDirectory(@Nonnull Project project)
-	{
-		List<MavenProject> rootProjects = MavenProjectsManager.getInstance(project).getRootProjects();
-		if(rootProjects.isEmpty())
-		{
-			return "";
-		}
+    private static String obtainAppropriateWorkingDirectory(@Nonnull Project project) {
+        List<MavenProject> rootProjects = MavenProjectsManager.getInstance(project).getRootProjects();
+        if (rootProjects.isEmpty()) {
+            return "";
+        }
 
-		return rootProjects.get(0).getDirectory();
-	}
+        return rootProjects.get(0).getDirectory();
+    }
 }

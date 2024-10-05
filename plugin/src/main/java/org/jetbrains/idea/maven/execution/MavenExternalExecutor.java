@@ -18,7 +18,8 @@
 
 package org.jetbrains.idea.maven.execution;
 
-import consulo.application.ApplicationManager;
+import consulo.annotation.access.RequiredReadAction;
+import consulo.application.Application;
 import consulo.application.progress.ProgressIndicator;
 import consulo.java.execution.configurations.OwnJavaParameters;
 import consulo.maven.rt.server.common.server.MavenServerConsole;
@@ -29,7 +30,7 @@ import consulo.process.event.ProcessEvent;
 import consulo.process.event.ProcessListener;
 import consulo.project.Project;
 import consulo.util.dataholder.Key;
-import org.jetbrains.annotations.NonNls;
+import org.jetbrains.idea.maven.localize.MavenRunnerLocalize;
 import org.jetbrains.idea.maven.project.MavenConsole;
 import org.jetbrains.idea.maven.project.MavenGeneralSettings;
 
@@ -39,20 +40,21 @@ import javax.annotation.Nullable;
 public class MavenExternalExecutor extends MavenExecutor {
     private ProcessHandler myProcessHandler;
 
-    @NonNls
     private static final String PHASE_INFO_REGEXP = "\\[INFO\\] \\[.*:.*\\]";
-    @NonNls
     private static final int INFO_PREFIX_SIZE = "[INFO] ".length();
 
     private OwnJavaParameters myJavaParameters;
     private ExecutionException myParameterCreationError;
 
-    public MavenExternalExecutor(Project project,
-                                 @Nonnull MavenRunnerParameters parameters,
-                                 @Nullable MavenGeneralSettings coreSettings,
-                                 @Nullable MavenRunnerSettings runnerSettings,
-                                 @Nonnull MavenConsole console) {
-        super(parameters, RunnerBundle.message("external.executor.caption"), console);
+    @RequiredReadAction
+    public MavenExternalExecutor(
+        Project project,
+        @Nonnull MavenRunnerParameters parameters,
+        @Nullable MavenGeneralSettings coreSettings,
+        @Nullable MavenRunnerSettings runnerSettings,
+        @Nonnull MavenConsole console
+    ) {
+        super(parameters, MavenRunnerLocalize.externalExecutorCaption().get(), console);
 
         try {
             myJavaParameters = MavenExternalParameters.createJavaParameters(project, myParameters, coreSettings, runnerSettings);
@@ -62,6 +64,7 @@ public class MavenExternalExecutor extends MavenExecutor {
         }
     }
 
+    @Override
     public boolean execute(final ProgressIndicator indicator) {
         displayProgress();
 
@@ -80,7 +83,11 @@ public class MavenExternalExecutor extends MavenExecutor {
             myConsole.attachToProcess(myProcessHandler);
         }
         catch (ExecutionException e) {
-            myConsole.systemMessage(MavenServerConsole.LEVEL_FATAL, RunnerBundle.message("external.startup.failed", e.getMessage()), null);
+            myConsole.systemMessage(
+                MavenServerConsole.LEVEL_FATAL,
+                MavenRunnerLocalize.externalStartupFailed(e.getMessage()).get(),
+                null
+            );
             return false;
         }
 
@@ -108,14 +115,8 @@ public class MavenExternalExecutor extends MavenExecutor {
 
     private void updateProgress(@Nullable final ProgressIndicator indicator, final String text) {
         if (indicator != null) {
-            if (indicator.isCanceled()) {
-                if (!isCancelled()) {
-                    ApplicationManager.getApplication().invokeLater(new Runnable() {
-                        public void run() {
-                            cancel();
-                        }
-                    });
-                }
+            if (indicator.isCanceled() && !isCancelled()) {
+                Application.get().invokeLater(this::cancel);
             }
             if (text.matches(PHASE_INFO_REGEXP)) {
                 indicator.setText2(text.substring(INFO_PREFIX_SIZE));

@@ -24,10 +24,12 @@ import consulo.language.editor.ui.awt.StringComboboxEditor;
 import consulo.language.plain.PlainTextFileType;
 import consulo.maven.rt.server.common.model.MavenConstants;
 import consulo.project.Project;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.awt.*;
 import consulo.ui.ex.awtUnsafe.TargetAWT;
 import consulo.util.collection.ArrayUtil;
 import consulo.virtualFileSystem.VirtualFile;
+import org.jetbrains.idea.maven.localize.MavenRunnerLocalize;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 
@@ -36,151 +38,141 @@ import javax.annotation.Nullable;
 import javax.swing.*;
 import java.util.Collection;
 
-public class MavenEditGoalDialog extends DialogWrapper
-{
-	private final Project myProject;
-	@Nullable
-	private final Collection<String> myHistory;
+public class MavenEditGoalDialog extends DialogWrapper {
+    private final Project myProject;
+    @Nullable
+    private final Collection<String> myHistory;
 
-	private JPanel contentPane;
+    private JPanel contentPane;
 
-	private FixedSizeButton showProjectTreeButton;
-	private TextFieldWithBrowseButton workDirectoryField;
+    private FixedSizeButton showProjectTreeButton;
+    private TextFieldWithBrowseButton workDirectoryField;
 
-	private JPanel goalsPanel;
-	private JLabel goalsLabel;
-	private ComboBox goalsComboBox;
-	private EditorTextField goalsEditor;
+    private JPanel goalsPanel;
+    private JLabel goalsLabel;
+    private ComboBox<String> goalsComboBox;
+    private EditorTextField goalsEditor;
 
-	public MavenEditGoalDialog(@Nonnull Project project)
-	{
-		this(project, null);
-	}
+    public MavenEditGoalDialog(@Nonnull Project project) {
+        this(project, null);
+    }
 
-	public MavenEditGoalDialog(@Nonnull Project project, @Nullable Collection<String> history)
-	{
-		super(project, true);
-		myProject = project;
-		myHistory = history;
+    public MavenEditGoalDialog(@Nonnull Project project, @Nullable Collection<String> history) {
+        super(project, true);
+        myProject = project;
+        myHistory = history;
 
-		setTitle("Edit Maven Goal");
-		setUpDialog();
-		setModal(true);
-		init();
-	}
+        setTitle("Edit Maven Goal");
+        setUpDialog();
+        setModal(true);
+        init();
+    }
 
-	private void setUpDialog()
-	{
-		JComponent goalComponent;
-		if(myHistory == null)
-		{
-			goalsEditor = new EditorTextField("", myProject, PlainTextFileType.INSTANCE);
-			goalComponent = goalsEditor;
+    private void setUpDialog() {
+        JComponent goalComponent;
+        if (myHistory == null) {
+            goalsEditor = new EditorTextField("", myProject, PlainTextFileType.INSTANCE);
+            goalComponent = goalsEditor;
 
-			goalsLabel.setLabelFor(goalsEditor);
-		}
-		else
-		{
-			goalsComboBox = new ComboBox(ArrayUtil.toStringArray(myHistory));
-			goalComponent = goalsComboBox;
+            goalsLabel.setLabelFor(goalsEditor);
+        }
+        else {
+            goalsComboBox = new ComboBox<>(ArrayUtil.toStringArray(myHistory));
+            goalComponent = goalsComboBox;
 
-			goalsLabel.setLabelFor(goalsComboBox);
+            goalsLabel.setLabelFor(goalsComboBox);
 
-			goalsComboBox.setLightWeightPopupEnabled(false);
+            goalsComboBox.setLightWeightPopupEnabled(false);
 
-			EditorComboBoxEditor editor = new StringComboboxEditor(myProject, PlainTextFileType.INSTANCE, goalsComboBox);
-			goalsComboBox.setRenderer(new EditorComboBoxRenderer(editor));
+            EditorComboBoxEditor editor = new StringComboboxEditor(myProject, PlainTextFileType.INSTANCE, goalsComboBox);
+            goalsComboBox.setRenderer(new EditorComboBoxRenderer(editor));
 
-			goalsComboBox.setEditable(true);
-			goalsComboBox.setEditor(editor);
-			goalsComboBox.setFocusable(true);
+            goalsComboBox.setEditable(true);
+            goalsComboBox.setEditor(editor);
+            goalsComboBox.setFocusable(true);
 
-			goalsEditor = editor.getEditorComponent();
-		}
+            goalsEditor = editor.getEditorComponent();
+        }
 
-		goalsPanel.add(goalComponent);
+        goalsPanel.add(goalComponent);
 
-		new MavenArgumentsCompletionProvider(myProject).apply(goalsEditor);
+        new MavenArgumentsCompletionProvider(myProject).apply(goalsEditor);
 
 
-		MavenProjectsManager projectsManager = MavenProjectsManager.getInstance(myProject);
+        MavenProjectsManager projectsManager = MavenProjectsManager.getInstance(myProject);
 
-		showProjectTreeButton.setIcon(TargetAWT.to(AllIcons.Actions.Module));
-		MavenSelectProjectPopup.attachToWorkingDirectoryField(projectsManager, workDirectoryField.getTextField(), showProjectTreeButton, goalsComboBox != null ? goalsComboBox : goalsEditor);
+        showProjectTreeButton.setIcon(TargetAWT.to(AllIcons.Actions.Module));
+        MavenSelectProjectPopup.attachToWorkingDirectoryField(
+            projectsManager,
+            workDirectoryField.getTextField(),
+            showProjectTreeButton,
+            goalsComboBox != null ? goalsComboBox : goalsEditor
+        );
 
-		workDirectoryField.addBrowseFolderListener(RunnerBundle.message("maven.select.maven.project.file"), "", myProject, new FileChooserDescriptor(false, true, false, false, false, false)
-		{
-			@Override
-			public boolean isFileSelectable(VirtualFile file)
-			{
-				if(!super.isFileSelectable(file))
-				{
-					return false;
-				}
-				return file.findChild(MavenConstants.POM_XML) != null;
-			}
-		});
-	}
+        workDirectoryField.addBrowseFolderListener(
+            MavenRunnerLocalize.mavenSelectMavenProjectFile().get(),
+            "",
+            myProject,
+            new FileChooserDescriptor(false, true, false, false, false, false) {
+                @Override
+                @RequiredUIAccess
+                public boolean isFileSelectable(VirtualFile file) {
+                    return super.isFileSelectable(file) && file.findChild(MavenConstants.POM_XML) != null;
+                }
+            }
+        );
+    }
 
-	@Nullable
-	@Override
-	protected ValidationInfo doValidate()
-	{
-		if(workDirectoryField.getText().trim().isEmpty())
-		{
-			return new ValidationInfo("Working directory is empty", workDirectoryField);
-		}
+    @Nullable
+    @Override
+    @RequiredUIAccess
+    protected ValidationInfo doValidate() {
+        if (workDirectoryField.getText().trim().isEmpty()) {
+            return new ValidationInfo("Working directory is empty", workDirectoryField);
+        }
 
-		return null;
-	}
+        return null;
+    }
 
-	@Nonnull
-	public String getGoals()
-	{
-		if(goalsComboBox != null)
-		{
-			return (String) goalsComboBox.getEditor().getItem();
-		}
-		else
-		{
-			return goalsEditor.getText();
-		}
-	}
+    @Nonnull
+    public String getGoals() {
+        if (goalsComboBox != null) {
+            return (String)goalsComboBox.getEditor().getItem();
+        }
+        else {
+            return goalsEditor.getText();
+        }
+    }
 
-	public void setGoals(@Nonnull String goals)
-	{
-		if(goalsComboBox != null)
-		{
-			goalsComboBox.setSelectedItem(goals);
-		}
+    public void setGoals(@Nonnull String goals) {
+        if (goalsComboBox != null) {
+            goalsComboBox.setSelectedItem(goals);
+        }
 
-		goalsEditor.setText(goals);
-	}
+        goalsEditor.setText(goals);
+    }
 
-	@Nonnull
-	public String getWorkDirectory()
-	{
-		return workDirectoryField.getText();
-	}
+    @Nonnull
+    public String getWorkDirectory() {
+        return workDirectoryField.getText();
+    }
 
-	public void setWorkDirectory(@Nonnull String path)
-	{
-		workDirectoryField.setText(path);
-	}
+    public void setWorkDirectory(@Nonnull String path) {
+        workDirectoryField.setText(path);
+    }
 
-	public void setSelectedMavenProject(@Nullable MavenProject mavenProject)
-	{
-		workDirectoryField.setText(mavenProject == null ? "" : mavenProject.getDirectory());
-	}
+    public void setSelectedMavenProject(@Nullable MavenProject mavenProject) {
+        workDirectoryField.setText(mavenProject == null ? "" : mavenProject.getDirectory());
+    }
 
-	protected JComponent createCenterPanel()
-	{
-		return contentPane;
-	}
+    @Override
+    protected JComponent createCenterPanel() {
+        return contentPane;
+    }
 
-	public JComponent getPreferredFocusedComponent()
-	{
-		return goalsComboBox;
-	}
-
+    @Override
+    @RequiredUIAccess
+    public JComponent getPreferredFocusedComponent() {
+        return goalsComboBox;
+    }
 }

@@ -37,6 +37,7 @@ import consulo.ui.ex.awt.UIUtil;
 import consulo.ui.ex.awtUnsafe.TargetAWT;
 import consulo.virtualFileSystem.VirtualFile;
 import org.jetbrains.idea.maven.execution.cmd.ParametersListLexer;
+import org.jetbrains.idea.maven.localize.MavenRunnerLocalize;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 
 import javax.annotation.Nonnull;
@@ -49,168 +50,156 @@ import java.util.Map;
 /**
  * @author Vladislav.Kaznacheev
  */
-public class MavenRunnerParametersPanel
-{
-	private EditorTextField myGoalsEditor;
-	private EditorTextField myProfilesEditor;
-	private JCheckBox myResolveToWorkspaceCheckBox;
+public class MavenRunnerParametersPanel {
+    private EditorTextField myGoalsEditor;
+    private EditorTextField myProfilesEditor;
+    private JCheckBox myResolveToWorkspaceCheckBox;
 
-	private FileChooserTextBoxBuilder.Controller myWorkingDirectory;
-	private FormBuilder myFormBuilder = FormBuilder.createFormBuilder();
+    private FileChooserTextBoxBuilder.Controller myWorkingDirectory;
+    private FormBuilder myFormBuilder = FormBuilder.createFormBuilder();
 
-	@RequiredUIAccess
-	public MavenRunnerParametersPanel(@Nonnull final Project project)
-	{
-		FileChooserTextBoxBuilder workDirBuilder = FileChooserTextBoxBuilder.create(project);
-		workDirBuilder.dialogTitle(RunnerBundle.message("maven.select.maven.project.file"));
-		workDirBuilder.fileChooserDescriptor(new FileChooserDescriptor(false, true, false, false, false, false)
-		{
-			@RequiredUIAccess
-			@Override
-			public boolean isFileSelectable(VirtualFile file)
-			{
-				if(!super.isFileSelectable(file))
-				{
-					return false;
-				}
-				return file.findChild(MavenConstants.POM_XML) != null;
-			}
-		});
+    @RequiredUIAccess
+    public MavenRunnerParametersPanel(@Nonnull final Project project) {
+        FileChooserTextBoxBuilder workDirBuilder = FileChooserTextBoxBuilder.create(project);
+        workDirBuilder.dialogTitle(MavenRunnerLocalize.mavenSelectMavenProjectFile());
+        workDirBuilder.fileChooserDescriptor(new FileChooserDescriptor(false, true, false, false, false, false) {
+            @Override
+            @RequiredUIAccess
+            public boolean isFileSelectable(VirtualFile file) {
+                return super.isFileSelectable(file) && file.findChild(MavenConstants.POM_XML) != null;
+            }
+        });
 
-		myWorkingDirectory = workDirBuilder.build();
+        myWorkingDirectory = workDirBuilder.build();
 
-		JComponent workTextField = (JComponent) TargetAWT.to(myWorkingDirectory.getComponent());
-		if(workTextField instanceof JTextField)
-		{
-			// TODO [VISTALL] dirty hack with old UI form builder which change filling by cols option
-			((JTextField) workTextField).setColumns(0);
-		}
-		myFormBuilder.addLabeledComponent("Working directory", workTextField);
+        JComponent workTextField = (JComponent)TargetAWT.to(myWorkingDirectory.getComponent());
+        if (workTextField instanceof JTextField jTextField) {
+            // TODO [VISTALL] dirty hack with old UI form builder which change filling by cols option
+            jTextField.setColumns(0);
+        }
+        myFormBuilder.addLabeledComponent("Working directory", workTextField);
 
-		if(!project.isDefault())
-		{
-			TextFieldCompletionProvider profilesCompletionProvider = new TextFieldCompletionProvider(true)
-			{
-				@Override
-				public final void addCompletionVariants(@Nonnull String text, int offset, @Nonnull String prefix, @Nonnull CompletionResultSet result)
-				{
-					MavenProjectsManager manager = MavenProjectsManager.getInstance(project);
-					for(String profile : manager.getAvailableProfiles())
-					{
-						result.addElement(LookupElementBuilder.create(ParametersListUtil.join(profile)));
-					}
-				}
+        if (!project.isDefault()) {
+            TextFieldCompletionProvider profilesCompletionProvider = new TextFieldCompletionProvider(true) {
+                @Override
+                public final void addCompletionVariants(
+                    @Nonnull String text,
+                    int offset,
+                    @Nonnull String prefix,
+                    @Nonnull CompletionResultSet result
+                ) {
+                    MavenProjectsManager manager = MavenProjectsManager.getInstance(project);
+                    for (String profile : manager.getAvailableProfiles()) {
+                        result.addElement(LookupElementBuilder.create(ParametersListUtil.join(profile)));
+                    }
+                }
 
-				@Nonnull
-				@Override
-				public String getPrefix(@Nonnull String currentTextPrefix)
-				{
-					ParametersListLexer lexer = new ParametersListLexer(currentTextPrefix);
-					while(lexer.nextToken())
-					{
-						if(lexer.getTokenEnd() == currentTextPrefix.length())
-						{
-							String prefix = lexer.getCurrentToken();
-							if(prefix.startsWith("-") || prefix.startsWith("!"))
-							{
-								prefix = prefix.substring(1);
-							}
-							return prefix;
-						}
-					}
+                @Nonnull
+                @Override
+                public String getPrefix(@Nonnull String currentTextPrefix) {
+                    ParametersListLexer lexer = new ParametersListLexer(currentTextPrefix);
+                    while (lexer.nextToken()) {
+                        if (lexer.getTokenEnd() == currentTextPrefix.length()) {
+                            String prefix = lexer.getCurrentToken();
+                            if (prefix.startsWith("-") || prefix.startsWith("!")) {
+                                prefix = prefix.substring(1);
+                            }
+                            return prefix;
+                        }
+                    }
 
-					return "";
-				}
-			};
+                    return "";
+                }
+            };
 
-			myGoalsEditor = new MavenArgumentsCompletionProvider(project).createEditor(project);
-			myFormBuilder.addLabeledComponent("Command line", myGoalsEditor);
+            myGoalsEditor = new MavenArgumentsCompletionProvider(project).createEditor(project);
+            myFormBuilder.addLabeledComponent("Command line", myGoalsEditor);
 
-			myProfilesEditor = profilesCompletionProvider.createEditor(project);
-			myFormBuilder.addLabeledComponent("Profiles (separated with space)", myProfilesEditor);
-			JLabel label = new JBLabel("add prefix '-' to disable profile, e.g. '-test'");
-			label.setFont(UIUtil.getLabelFont(UIUtil.FontSize.SMALL));
-			label.setForeground(JBColor.GRAY);
+            myProfilesEditor = profilesCompletionProvider.createEditor(project);
+            myFormBuilder.addLabeledComponent("Profiles (separated with space)", myProfilesEditor);
+            JLabel label = new JBLabel("add prefix '-' to disable profile, e.g. '-test'");
+            label.setFont(UIUtil.getLabelFont(UIUtil.FontSize.SMALL));
+            label.setForeground(JBColor.GRAY);
 
-			myFormBuilder.addComponentToRightColumn(label);
-		}
+            myFormBuilder.addComponentToRightColumn(label);
+        }
 
-		myResolveToWorkspaceCheckBox = new JBCheckBox("Resolve Workspace artifacts");
-		myResolveToWorkspaceCheckBox.setToolTipText("In case of multi-project workspace, dependencies will be looked for in the workspace first, and only after that in local repository.");
+        myResolveToWorkspaceCheckBox = new JBCheckBox("Resolve Workspace artifacts");
+        myResolveToWorkspaceCheckBox.setToolTipText(
+            "In case of multi-project workspace, dependencies will be looked for in the workspace first, " +
+                "and only after that in local repository."
+        );
 
-		myFormBuilder.addComponent(myResolveToWorkspaceCheckBox);
+        myFormBuilder.addComponent(myResolveToWorkspaceCheckBox);
 
-		myWorkingDirectory.getComponent().addFirstExtension(new TextBoxWithExtensions.Extension(false, MavenIconGroup.mavenlogotransparent(), MavenIconGroup.mavenlogo(), clickEvent -> {
-			MavenSelectProjectPopup.buildPopup(MavenProjectsManager.getInstance(project), mavenProject -> {
-				myWorkingDirectory.setValue(mavenProject.getDirectory());
-			}).show(new RelativePoint(MouseInfo.getPointerInfo().getLocation()));
-		}));
-	}
+        myWorkingDirectory.getComponent().addFirstExtension(new TextBoxWithExtensions.Extension(
+            false,
+            MavenIconGroup.mavenlogotransparent(),
+            MavenIconGroup.mavenlogo(),
+            clickEvent -> MavenSelectProjectPopup.buildPopup(
+                    MavenProjectsManager.getInstance(project),
+                    mavenProject -> myWorkingDirectory.setValue(mavenProject.getDirectory())
+                )
+                .show(new RelativePoint(MouseInfo.getPointerInfo().getLocation()))
+        ));
+    }
 
-	@Nonnull
-	public JComponent createComponent()
-	{
-		return myFormBuilder.getPanel();
-	}
+    @Nonnull
+    public JComponent createComponent() {
+        return myFormBuilder.getPanel();
+    }
 
-	public void disposeUIResources()
-	{
-	}
+    public void disposeUIResources() {
+    }
 
-	public String getDisplayName()
-	{
-		return RunnerBundle.message("maven.runner.parameters.title");
-	}
+    public String getDisplayName() {
+        return MavenRunnerLocalize.mavenRunnerParametersTitle().get();
+    }
 
-	protected void setData(final MavenRunnerParameters data)
-	{
-		data.setWorkingDirPath(myWorkingDirectory.getValue());
-		data.setGoals(ParametersListUtil.parse(myGoalsEditor.getText()));
-		data.setResolveToWorkspace(myResolveToWorkspaceCheckBox.isSelected());
+    @RequiredUIAccess
+    protected void setData(final MavenRunnerParameters data) {
+        data.setWorkingDirPath(myWorkingDirectory.getValue());
+        data.setGoals(ParametersListUtil.parse(myGoalsEditor.getText()));
+        data.setResolveToWorkspace(myResolveToWorkspaceCheckBox.isSelected());
 
-		Map<String, Boolean> profilesMap = new LinkedHashMap<>();
+        Map<String, Boolean> profilesMap = new LinkedHashMap<>();
 
-		List<String> profiles = ParametersListUtil.parse(myProfilesEditor.getText());
+        List<String> profiles = ParametersListUtil.parse(myProfilesEditor.getText());
 
-		for(String profile : profiles)
-		{
-			Boolean isEnabled = true;
-			if(profile.startsWith("-") || profile.startsWith("!"))
-			{
-				profile = profile.substring(1);
-				if(profile.isEmpty())
-				{
-					continue;
-				}
+        for (String profile : profiles) {
+            Boolean isEnabled = true;
+            if (profile.startsWith("-") || profile.startsWith("!")) {
+                profile = profile.substring(1);
+                if (profile.isEmpty()) {
+                    continue;
+                }
 
-				isEnabled = false;
-			}
+                isEnabled = false;
+            }
 
-			profilesMap.put(profile, isEnabled);
-		}
-		data.setProfilesMap(profilesMap);
-	}
+            profilesMap.put(profile, isEnabled);
+        }
+        data.setProfilesMap(profilesMap);
+    }
 
-	protected void getData(final MavenRunnerParameters data)
-	{
-		myWorkingDirectory.setValue(data.getWorkingDirPath());
-		myGoalsEditor.setText(ParametersList.join(data.getGoals()));
-		myResolveToWorkspaceCheckBox.setSelected(data.isResolveToWorkspace());
+    @RequiredUIAccess
+    protected void getData(final MavenRunnerParameters data) {
+        myWorkingDirectory.setValue(data.getWorkingDirPath());
+        myGoalsEditor.setText(ParametersList.join(data.getGoals()));
+        myResolveToWorkspaceCheckBox.setSelected(data.isResolveToWorkspace());
 
-		ParametersList parametersList = new ParametersList();
+        ParametersList parametersList = new ParametersList();
 
-		for(Map.Entry<String, Boolean> entry : data.getProfilesMap().entrySet())
-		{
-			String profileName = entry.getKey();
+        for (Map.Entry<String, Boolean> entry : data.getProfilesMap().entrySet()) {
+            String profileName = entry.getKey();
 
-			if(!entry.getValue())
-			{
-				profileName = '-' + profileName;
-			}
+            if (!entry.getValue()) {
+                profileName = '-' + profileName;
+            }
 
-			parametersList.add(profileName);
-		}
+            parametersList.add(profileName);
+        }
 
-		myProfilesEditor.setText(parametersList.getParametersString());
-	}
+        myProfilesEditor.setText(parametersList.getParametersString());
+    }
 }

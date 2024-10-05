@@ -28,75 +28,79 @@ import javax.annotation.Nullable;
 import javax.swing.*;
 import javax.swing.tree.TreeSelectionModel;
 import java.awt.*;
-import java.util.function.Predicate;
 
 public class SelectFromMavenProjectsDialog extends DialogWrapper {
-  private final Project myProject;
-  private final SimpleTree myTree;
-  private final NodeSelector mySelector;
+    private final Project myProject;
+    private final SimpleTree myTree;
+    private final NodeSelector mySelector;
 
-  public SelectFromMavenProjectsDialog(Project project,
-                                       String title,
-                                       final Class<? extends MavenProjectsStructure.MavenSimpleNode> nodeClass,
-                                       NodeSelector selector) {
-    super(project, false);
-    myProject = project;
-    mySelector = selector;
-    setTitle(title);
+    public SelectFromMavenProjectsDialog(
+        Project project,
+        String title,
+        final Class<? extends MavenProjectsStructure.MavenSimpleNode> nodeClass,
+        NodeSelector selector
+    ) {
+        super(project, false);
+        myProject = project;
+        mySelector = selector;
+        setTitle(title);
 
-    myTree = new SimpleTree();
-    myTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+        myTree = new SimpleTree();
+        myTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 
-    MavenProjectsStructure treeStructure = new MavenProjectsStructure(myProject,
-                                                                      MavenProjectsManager.getInstance(myProject),
-                                                                      MavenTasksManager.getInstance(myProject),
-                                                                      MavenShortcutsManager.getInstance(myProject),
-                                                                      MavenProjectsNavigator.getInstance(myProject),
-                                                                      myTree) {
-      @Override
-      protected Class<? extends MavenSimpleNode>[] getVisibleNodesClasses() {
-        return new Class[]{nodeClass};
-      }
+        MavenProjectsStructure treeStructure = new MavenProjectsStructure(
+            myProject,
+            MavenProjectsManager.getInstance(myProject),
+            MavenTasksManager.getInstance(myProject),
+            MavenShortcutsManager.getInstance(myProject),
+            MavenProjectsNavigator.getInstance(myProject),
+            myTree
+        ) {
+            @Override
+            protected Class<? extends MavenSimpleNode>[] getVisibleNodesClasses() {
+                return new Class[]{nodeClass};
+            }
 
-      @Override
-      protected boolean showDescriptions() {
-        return false;
-      }
+            @Override
+            protected boolean showDescriptions() {
+                return false;
+            }
 
-      @Override
-      protected boolean showOnlyBasicPhases() {
-        return false;
-      }
-    };
-    treeStructure.update();
+            @Override
+            protected boolean showOnlyBasicPhases() {
+                return false;
+            }
+        };
+        treeStructure.update();
 
-    final SimpleNode[] selection = new SimpleNode[]{null};
-    treeStructure.accept(new Predicate<SimpleNode>() {
-      public boolean test(SimpleNode each) {
-        if (!mySelector.shouldSelect(each)) return false;
-        selection[0] = each;
-        return true;
-      }
-    });
-    if (selection[0] != null) {
-      treeStructure.select(selection[0]);
+        final SimpleNode[] selection = new SimpleNode[]{null};
+        treeStructure.accept(each -> {
+            if (!mySelector.shouldSelect(each)) {
+                return false;
+            }
+            selection[0] = each;
+            return true;
+        });
+        if (selection[0] != null) {
+            treeStructure.select(selection[0]);
+        }
+
+        init();
     }
 
-    init();
-  }
+    protected SimpleNode getSelectedNode() {
+        return myTree.getNodeFor(myTree.getSelectionPath());
+    }
 
-  protected SimpleNode getSelectedNode() {
-    return myTree.getNodeFor(myTree.getSelectionPath());
-  }
+    @Nullable
+    @Override
+    protected JComponent createCenterPanel() {
+        final JScrollPane pane = ScrollPaneFactory.createScrollPane(myTree);
+        pane.setPreferredSize(new Dimension(320, 400));
+        return pane;
+    }
 
-  @Nullable
-  protected JComponent createCenterPanel() {
-    final JScrollPane pane = ScrollPaneFactory.createScrollPane(myTree);
-    pane.setPreferredSize(new Dimension(320, 400));
-    return pane;
-  }
-
-  protected interface NodeSelector {
-    boolean shouldSelect(SimpleNode node);
-  }
+    protected interface NodeSelector {
+        boolean shouldSelect(SimpleNode node);
+    }
 }

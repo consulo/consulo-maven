@@ -18,15 +18,14 @@ package org.jetbrains.idea.maven.navigator;
 import consulo.util.xml.serializer.annotation.Tag;
 import org.jdom.Element;
 
-public class MavenProjectsNavigatorState
-{
-	public boolean groupStructurally = false;
-	public boolean showIgnored = true;
-	public boolean showBasicPhasesOnly = true;
+public class MavenProjectsNavigatorState {
+    public boolean groupStructurally = false;
+    public boolean showIgnored = true;
+    public boolean showBasicPhasesOnly = true;
 
-	public boolean alwaysShowArtifactId = false;
-	public boolean showVersions = false;
+    public boolean alwaysShowArtifactId = false;
+    public boolean showVersions = false;
 
-	@Tag("treeState")
-	public Element treeState;
+    @Tag("treeState")
+    public Element treeState;
 }

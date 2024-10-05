@@ -4,68 +4,67 @@ package org.jetbrains.idea.maven.execution.cmd;
  * @author Sergey Evdokimov
  */
 public class ParametersListLexer {
+    private final String myText;
 
-  private final String myText;
+    private int myTokenStart = -1;
 
-  private int myTokenStart = -1;
+    private int index = 0;
 
-  private int index = 0;
-
-  public ParametersListLexer(String text) {
-    myText = text;
-  }
-
-  public int getTokenStart() {
-    assert myTokenStart >= 0;
-    return myTokenStart;
-  }
-
-  public int getTokenEnd() {
-    assert myTokenStart >= 0;
-    return index;
-  }
-
-  public String getCurrentToken() {
-    return myText.substring(myTokenStart, index);
-  }
-
-  public boolean nextToken() {
-    int i = index;
-
-    while (i < myText.length() && Character.isWhitespace(myText.charAt(i))) {
-      i++;
+    public ParametersListLexer(String text) {
+        myText = text;
     }
 
-    if (i == myText.length()) {
-      return false;
+    public int getTokenStart() {
+        assert myTokenStart >= 0;
+        return myTokenStart;
     }
 
-    myTokenStart = i;
+    public int getTokenEnd() {
+        assert myTokenStart >= 0;
+        return index;
+    }
 
-    boolean isInQuote = false;
+    public String getCurrentToken() {
+        return myText.substring(myTokenStart, index);
+    }
 
-    do {
-      char a = myText.charAt(i);
+    public boolean nextToken() {
+        int i = index;
 
-      if (!isInQuote && Character.isWhitespace(a)) {
-        break;
-      }
+        while (i < myText.length() && Character.isWhitespace(myText.charAt(i))) {
+            i++;
+        }
 
-      if (a == '\\' && i + 1 < myText.length() && myText.charAt(i + 1) == '"') {
-        i += 2;
-      }
-      else if (a == '"') {
-        i++;
-        isInQuote = !isInQuote;
-      }
-      else {
-        i++;
-      }
+        if (i == myText.length()) {
+            return false;
+        }
 
-    } while (i < myText.length());
+        myTokenStart = i;
 
-    index = i;
+        boolean isInQuote = false;
 
-    return true;
-  }
+        do {
+            char a = myText.charAt(i);
+
+            if (!isInQuote && Character.isWhitespace(a)) {
+                break;
+            }
+
+            if (a == '\\' && i + 1 < myText.length() && myText.charAt(i + 1) == '"') {
+                i += 2;
+            }
+            else if (a == '"') {
+                i++;
+                isInQuote = !isInQuote;
+            }
+            else {
+                i++;
+            }
+        }
+        while (i < myText.length());
+
+        index = i;
+
+        return true;
+    }
 }

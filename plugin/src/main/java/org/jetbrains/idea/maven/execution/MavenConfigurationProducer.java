@@ -25,9 +25,7 @@ import consulo.execution.RunnerAndConfigurationSettings;
 import consulo.execution.action.ConfigurationContext;
 import consulo.execution.action.Location;
 import consulo.execution.action.RuntimeConfigurationProducer;
-import consulo.execution.configuration.RunConfiguration;
 import consulo.language.psi.PsiElement;
-import consulo.language.psi.PsiFile;
 import consulo.maven.rt.server.common.model.MavenExplicitProfiles;
 import consulo.virtualFileSystem.VirtualFile;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
@@ -37,53 +35,57 @@ import java.util.List;
 
 @ExtensionImpl
 public class MavenConfigurationProducer extends RuntimeConfigurationProducer {
-  private PsiElement myPsiElement;
+    private PsiElement myPsiElement;
 
-  public MavenConfigurationProducer() {
-    super(MavenRunConfigurationType.getInstance());
-  }
-
-  @Override
-  public PsiElement getSourceElement() {
-    return myPsiElement;
-  }
-
-  @Override
-  protected RunnerAndConfigurationSettings createConfigurationByElement(Location location, ConfigurationContext context) {
-    myPsiElement = location.getPsiElement();
-    final MavenRunnerParameters params = createBuildParameters(location);
-    if (params == null) return null;
-
-    return MavenRunConfigurationType.createRunnerAndConfigurationSettings(null, null, params, location.getProject());
-  }
-
-  @Override
-  protected RunnerAndConfigurationSettings findExistingByElement(Location location,
-                                                                 @Nonnull List<RunnerAndConfigurationSettings> existingConfigurations,
-                                                                 ConfigurationContext context) {
-
-    final MavenRunnerParameters runnerParameters = createBuildParameters(location);
-    for (RunnerAndConfigurationSettings existingConfiguration : existingConfigurations) {
-      final RunConfiguration configuration = existingConfiguration.getConfiguration();
-      if (configuration instanceof MavenRunConfiguration &&
-          ((MavenRunConfiguration)configuration).getRunnerParameters().equals(runnerParameters)) {
-        return existingConfiguration;
-      }
+    public MavenConfigurationProducer() {
+        super(MavenRunConfigurationType.getInstance());
     }
-    return null;
-  }
 
-  private static MavenRunnerParameters createBuildParameters(Location l) {
-    if (!(l instanceof MavenGoalLocation)) return null;
+    @Override
+    public PsiElement getSourceElement() {
+        return myPsiElement;
+    }
 
-    VirtualFile f = ((PsiFile)l.getPsiElement()).getVirtualFile();
-    List<String> goals = ((MavenGoalLocation)l).getGoals();
-	  MavenExplicitProfiles profiles = MavenProjectsManager.getInstance(l.getProject()).getExplicitProfiles();
+    @Override
+    protected RunnerAndConfigurationSettings createConfigurationByElement(Location location, ConfigurationContext context) {
+        myPsiElement = location.getPsiElement();
+        final MavenRunnerParameters params = createBuildParameters(location);
+        if (params == null) {
+            return null;
+        }
 
-    return new MavenRunnerParameters(true, f.getParent().getPath(), goals, profiles);
-  }
+        return MavenRunConfigurationType.createRunnerAndConfigurationSettings(null, null, params, location.getProject());
+    }
 
-  public int compareTo(Object o) {
-    return PREFERED;  //To change body of implemented methods use File | Settings | File Templates.
-  }
+    @Override
+    protected RunnerAndConfigurationSettings findExistingByElement(
+        Location location,
+        @Nonnull List<RunnerAndConfigurationSettings> existingConfigurations,
+        ConfigurationContext context
+    ) {
+        final MavenRunnerParameters runnerParameters = createBuildParameters(location);
+        for (RunnerAndConfigurationSettings existingConfiguration : existingConfigurations) {
+            if (existingConfiguration.getConfiguration() instanceof MavenRunConfiguration mavenRunConfiguration
+                && mavenRunConfiguration.getRunnerParameters().equals(runnerParameters)) {
+                return existingConfiguration;
+            }
+        }
+        return null;
+    }
+
+    private static MavenRunnerParameters createBuildParameters(Location l) {
+        if (l instanceof MavenGoalLocation mavenGoalLocation) {
+            VirtualFile f = mavenGoalLocation.getPsiElement().getVirtualFile();
+            List<String> goals = mavenGoalLocation.getGoals();
+            MavenExplicitProfiles profiles = MavenProjectsManager.getInstance(l.getProject()).getExplicitProfiles();
+
+            return new MavenRunnerParameters(true, f.getParent().getPath(), goals, profiles);
+        }
+        return null;
+    }
+
+    @Override
+    public int compareTo(Object o) {
+        return PREFERED;
+    }
 }

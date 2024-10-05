@@ -28,25 +28,21 @@ import java.util.LinkedList;
  */
 @State(
     name = "mvcRunTargetHistory",
-    storages = @Storage(
-      file = StoragePathMacros.APP_CONFIG + "/other.xml"
-    )
+    storages = @Storage(file = StoragePathMacros.APP_CONFIG + "/other.xml")
 )
-public class RunMavenGoalHistoryService implements PersistentStateComponent<String[]>
-{
+public class RunMavenGoalHistoryService implements PersistentStateComponent<String[]> {
+    private static final int MAX_HISTORY_LENGTH = 20;
 
-  private static final int MAX_HISTORY_LENGTH = 20;
+    private final LinkedList<String> myHistory = new LinkedList<>();
 
-  private final LinkedList<String> myHistory = new LinkedList<String>();
+    @Nullable
+    @Override
+    public String[] getState() {
+        return new String[0];  //To change body of implemented methods use File | Settings | File Templates.
+    }
 
-  @Nullable
-  @Override
-  public String[] getState() {
-    return new String[0];  //To change body of implemented methods use File | Settings | File Templates.
-  }
-
-  @Override
-  public void loadState(String[] state) {
-    //To change body of implemented methods use File | Settings | File Templates.
-  }
+    @Override
+    public void loadState(String[] state) {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
 }
