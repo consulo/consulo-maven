@@ -26,78 +26,69 @@ import org.jetbrains.idea.maven.project.MavenProjectsManager;
 
 import javax.annotation.Nonnull;
 
-public abstract class MavenPsiReference implements PsiReference
-{
-	protected final
-	@Nonnull
-	Project myProject;
-	protected final
-	@Nonnull
-	MavenProjectsManager myProjectsManager;
+public abstract class MavenPsiReference implements PsiReference {
+    protected final
+    @Nonnull
+    Project myProject;
+    protected final
+    @Nonnull
+    MavenProjectsManager myProjectsManager;
 
-	protected final
-	@Nonnull
-	PsiFile myPsiFile;
-	protected final
-	@Nonnull
-	VirtualFile myVirtualFile;
+    protected final
+    @Nonnull
+    PsiFile myPsiFile;
+    protected final
+    @Nonnull
+    VirtualFile myVirtualFile;
 
-	protected final
-	@Nonnull
-	PsiElement myElement;
-	protected final
-	@Nonnull
-	String myText;
-	protected final
-	@Nonnull
-	TextRange myRange;
+    protected final
+    @Nonnull
+    PsiElement myElement;
+    protected final
+    @Nonnull
+    String myText;
+    protected final
+    @Nonnull
+    TextRange myRange;
 
-	public MavenPsiReference(@Nonnull PsiElement element, @Nonnull String text, @Nonnull TextRange range)
-	{
-		myProject = element.getProject();
-		myProjectsManager = MavenProjectsManager.getInstance(myProject);
+    public MavenPsiReference(@Nonnull PsiElement element, @Nonnull String text, @Nonnull TextRange range) {
+        myProject = element.getProject();
+        myProjectsManager = MavenProjectsManager.getInstance(myProject);
 
-		myPsiFile = element.getContainingFile().getOriginalFile();
-		myVirtualFile = myPsiFile.getVirtualFile();
+        myPsiFile = element.getContainingFile().getOriginalFile();
+        myVirtualFile = myPsiFile.getVirtualFile();
 
-		myElement = element;
-		myText = text;
-		myRange = range;
-	}
+        myElement = element;
+        myText = text;
+        myRange = range;
+    }
 
-	public PsiElement getElement()
-	{
-		return myElement;
-	}
+    public PsiElement getElement() {
+        return myElement;
+    }
 
-	@Nonnull
-	public String getCanonicalText()
-	{
-		return myText;
-	}
+    @Nonnull
+    public String getCanonicalText() {
+        return myText;
+    }
 
-	public TextRange getRangeInElement()
-	{
-		return myRange;
-	}
+    public TextRange getRangeInElement() {
+        return myRange;
+    }
 
-	public boolean isReferenceTo(PsiElement element)
-	{
-		return getElement().getManager().areElementsEquivalent(element, resolve());
-	}
+    public boolean isReferenceTo(PsiElement element) {
+        return getElement().getManager().areElementsEquivalent(element, resolve());
+    }
 
-	public PsiElement handleElementRename(String newElementName) throws IncorrectOperationException
-	{
-		return null;
-	}
+    public PsiElement handleElementRename(String newElementName) throws IncorrectOperationException {
+        return null;
+    }
 
-	public PsiElement bindToElement(@Nonnull PsiElement element) throws IncorrectOperationException
-	{
-		return null;
-	}
+    public PsiElement bindToElement(@Nonnull PsiElement element) throws IncorrectOperationException {
+        return null;
+    }
 
-	public boolean isSoft()
-	{
-		return true;
-	}
+    public boolean isSoft() {
+        return true;
+    }
 }

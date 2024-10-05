@@ -34,86 +34,71 @@ import java.util.List;
  * @author Sergey Evdokimov
  */
 @ExtensionImpl
-public class MavenPomXmlDocumentationProvider implements LanguageDocumentationProvider
-{
-	private final DocumentationProvider myDelegate = new XmlDocumentationProvider()
-	{
-		@Override
-		protected String generateDoc(String str, String name, String typeName, String version)
-		{
-			if(str != null)
-			{
-				str = StringUtil.unescapeXml(str);
-			}
+public class MavenPomXmlDocumentationProvider implements LanguageDocumentationProvider {
+    private final DocumentationProvider myDelegate = new XmlDocumentationProvider() {
+        @Override
+        protected String generateDoc(String str, String name, String typeName, String version) {
+            if (str != null) {
+                str = StringUtil.unescapeXml(str);
+            }
 
-			return super.generateDoc(str, name, typeName, version);
-		}
-	};
+            return super.generateDoc(str, name, typeName, version);
+        }
+    };
 
 
-	private static boolean isFromPomXml(PsiElement element)
-	{
-		if(element == null)
-		{
-			return false;
-		}
+    private static boolean isFromPomXml(PsiElement element) {
+        if (element == null) {
+            return false;
+        }
 
-		PsiFile containingFile = element.getContainingFile();
-		return containingFile != null && containingFile.getName().equals("maven-4.0.0.xsd");
-	}
+        PsiFile containingFile = element.getContainingFile();
+        return containingFile != null && containingFile.getName().equals("maven-4.0.0.xsd");
+    }
 
-	@Nullable
-	@Override
-	public String getQuickNavigateInfo(PsiElement element, PsiElement originalElement)
-	{
-		if(!isFromPomXml(element))
-		{
-			return null;
-		}
+    @Nullable
+    @Override
+    public String getQuickNavigateInfo(PsiElement element, PsiElement originalElement) {
+        if (!isFromPomXml(element)) {
+            return null;
+        }
 
-		return myDelegate.getQuickNavigateInfo(element, originalElement);
-	}
+        return myDelegate.getQuickNavigateInfo(element, originalElement);
+    }
 
-	@Nullable
-	@Override
-	public List<String> getUrlFor(PsiElement element, PsiElement originalElement)
-	{
-		if(!isFromPomXml(element))
-		{
-			return null;
-		}
+    @Nullable
+    @Override
+    public List<String> getUrlFor(PsiElement element, PsiElement originalElement) {
+        if (!isFromPomXml(element)) {
+            return null;
+        }
 
-		return myDelegate.getUrlFor(element, originalElement);
-	}
+        return myDelegate.getUrlFor(element, originalElement);
+    }
 
-	@Nullable
-	@Override
-	public String generateDoc(PsiElement element, @Nullable PsiElement originalElement)
-	{
-		if(!isFromPomXml(element))
-		{
-			return null;
-		}
+    @Nullable
+    @Override
+    public String generateDoc(PsiElement element, @Nullable PsiElement originalElement) {
+        if (!isFromPomXml(element)) {
+            return null;
+        }
 
-		return myDelegate.generateDoc(element, originalElement);
-	}
+        return myDelegate.generateDoc(element, originalElement);
+    }
 
-	@Nullable
-	@Override
-	public PsiElement getDocumentationElementForLookupItem(PsiManager psiManager, Object object, PsiElement element)
-	{
-		if(!isFromPomXml(element))
-		{
-			return null;
-		}
+    @Nullable
+    @Override
+    public PsiElement getDocumentationElementForLookupItem(PsiManager psiManager, Object object, PsiElement element) {
+        if (!isFromPomXml(element)) {
+            return null;
+        }
 
-		return myDelegate.getDocumentationElementForLookupItem(psiManager, object, element);
-	}
+        return myDelegate.getDocumentationElementForLookupItem(psiManager, object, element);
+    }
 
-	@Nonnull
-	@Override
-	public Language getLanguage()
-	{
-		return XMLLanguage.INSTANCE;
-	}
+    @Nonnull
+    @Override
+    public Language getLanguage() {
+        return XMLLanguage.INSTANCE;
+    }
 }

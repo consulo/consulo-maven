@@ -40,68 +40,77 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 public class AddMavenDependencyQuickFix implements SyntheticIntentionAction, LowPriorityAction {
+    private static final Pattern CLASSNAME_PATTERN =
+        Pattern.compile("(\\p{javaJavaIdentifierStart}\\p{javaJavaIdentifierPart}*\\.)*\\p{Lu}\\p{javaJavaIdentifierPart}+");
 
-  private static final Pattern CLASSNAME_PATTERN = Pattern.compile("(\\p{javaJavaIdentifierStart}\\p{javaJavaIdentifierPart}*\\.)*\\p{Lu}\\p{javaJavaIdentifierPart}+");
+    private final PsiJavaCodeReferenceElement myRef;
 
-  private final PsiJavaCodeReferenceElement myRef;
-
-  public AddMavenDependencyQuickFix(PsiJavaCodeReferenceElement ref) {
-    myRef = ref;
-  }
-
-  @Nonnull
-  public String getText() {
-    return "Add Maven Dependency...";
-  }
-
-  public boolean isAvailable(@Nonnull Project project, Editor editor, PsiFile file) {
-    return myRef.isValid() && MavenDomUtil.findContainingProject(file) != null && looksLikeClassName(getReferenceText());
-  }
-
-  private static boolean looksLikeClassName(@Nullable String text) {
-    if (text == null) return false;
-    //if (true) return true;
-    return CLASSNAME_PATTERN.matcher(text).matches();
-  }
-
-  public void invoke(@Nonnull final Project project, Editor editor, final PsiFile file) throws IncorrectOperationException
-  {
-    if (!myRef.isValid()) return;
-
-    MavenProject mavenProject = MavenDomUtil.findContainingProject(file);
-    if (mavenProject == null) return;
-
-    final List<MavenId> ids = MavenArtifactSearchDialog.searchForClass(project, getReferenceText());
-    if (ids.isEmpty()) return;
-
-    final MavenDomProjectModel model = MavenDomUtil.getMavenDomProjectModel(project, mavenProject.getFile());
-    if (model == null) return;
-
-    new WriteCommandAction(project, "Add Maven Dependency", DomUtil.getFile(model)) {
-      @Override
-      protected void run(Result result) throws Throwable {
-        for (MavenId each : ids) {
-          MavenDomUtil.createDomDependency(model, null, each);
-        }
-      }
-    }.execute();
-  }
-
-  public String getReferenceText() {
-    PsiJavaCodeReferenceElement result = myRef;
-    while (true) {
-      PsiElement parent = result.getParent();
-      if (!(parent instanceof PsiJavaCodeReferenceElement)) {
-        break;
-      }
-
-      result = (PsiJavaCodeReferenceElement)parent;
+    public AddMavenDependencyQuickFix(PsiJavaCodeReferenceElement ref) {
+        myRef = ref;
     }
 
-    return result.getQualifiedName();
-  }
+    @Nonnull
+    public String getText() {
+        return "Add Maven Dependency...";
+    }
 
-  public boolean startInWriteAction() {
-    return false;
-  }
+    public boolean isAvailable(@Nonnull Project project, Editor editor, PsiFile file) {
+        return myRef.isValid() && MavenDomUtil.findContainingProject(file) != null && looksLikeClassName(getReferenceText());
+    }
+
+    private static boolean looksLikeClassName(@Nullable String text) {
+        if (text == null) {
+            return false;
+        }
+        //if (true) return true;
+        return CLASSNAME_PATTERN.matcher(text).matches();
+    }
+
+    public void invoke(@Nonnull final Project project, Editor editor, final PsiFile file) throws IncorrectOperationException {
+        if (!myRef.isValid()) {
+            return;
+        }
+
+        MavenProject mavenProject = MavenDomUtil.findContainingProject(file);
+        if (mavenProject == null) {
+            return;
+        }
+
+        final List<MavenId> ids = MavenArtifactSearchDialog.searchForClass(project, getReferenceText());
+        if (ids.isEmpty()) {
+            return;
+        }
+
+        final MavenDomProjectModel model = MavenDomUtil.getMavenDomProjectModel(project, mavenProject.getFile());
+        if (model == null) {
+            return;
+        }
+
+        new WriteCommandAction(project, "Add Maven Dependency", DomUtil.getFile(model)) {
+            @Override
+            protected void run(Result result) throws Throwable {
+                for (MavenId each : ids) {
+                    MavenDomUtil.createDomDependency(model, null, each);
+                }
+            }
+        }.execute();
+    }
+
+    public String getReferenceText() {
+        PsiJavaCodeReferenceElement result = myRef;
+        while (true) {
+            PsiElement parent = result.getParent();
+            if (!(parent instanceof PsiJavaCodeReferenceElement)) {
+                break;
+            }
+
+            result = (PsiJavaCodeReferenceElement)parent;
+        }
+
+        return result.getQualifiedName();
+    }
+
+    public boolean startInWriteAction() {
+        return false;
+    }
 }

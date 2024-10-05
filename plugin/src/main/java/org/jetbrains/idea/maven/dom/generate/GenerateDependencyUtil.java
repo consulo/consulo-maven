@@ -40,118 +40,102 @@ import java.util.List;
 /**
  * @author Serega.Vasiliev
  */
-public class GenerateDependencyUtil
-{
-	private GenerateDependencyUtil()
-	{
-	}
+public class GenerateDependencyUtil {
+    private GenerateDependencyUtil() {
+    }
 
-	@Nonnull
-	public static List<MavenDomDependency> chooseDependencies(Collection<MavenDomDependency> candidates, final Project project)
-	{
-		List<MavenDomDependency> dependencies = new ArrayList<MavenDomDependency>();
+    @Nonnull
+    public static List<MavenDomDependency> chooseDependencies(Collection<MavenDomDependency> candidates, final Project project) {
+        List<MavenDomDependency> dependencies = new ArrayList<>();
 
-		MavenDomProjectModelMember[] memberCandidates =
-				ContainerUtil.map2Array(candidates, MavenDomProjectModelMember.class, dependency -> new MavenDomProjectModelMember(dependency));
-		MemberChooser<MavenDomProjectModelMember> chooser =
-				new MemberChooser<MavenDomProjectModelMember>(memberCandidates, true, true, project)
-				{
-					protected ShowContainersAction getShowContainersAction()
-					{
-						return new ShowContainersAction(MavenDomLocalize.chooserShowProjectFiles(), MavenIcons.MavenProject);
-					}
+        MavenDomProjectModelMember[] memberCandidates =
+            ContainerUtil.map2Array(candidates, MavenDomProjectModelMember.class, dependency -> new MavenDomProjectModelMember(dependency));
+        MemberChooser<MavenDomProjectModelMember> chooser =
+            new MemberChooser<>(memberCandidates, true, true, project) {
+                protected ShowContainersAction getShowContainersAction() {
+                    return new ShowContainersAction(MavenDomLocalize.chooserShowProjectFiles(), MavenIcons.MavenProject);
+                }
 
-					protected String getAllContainersNodeName()
-					{
-						return MavenDomBundle.message("all.dependencies");
-					}
-				};
+                protected String getAllContainersNodeName() {
+                    return MavenDomBundle.message("all.dependencies");
+                }
+            };
 
-		chooser.setTitle(MavenDomBundle.message("dependencies.chooser.title"));
-		chooser.setCopyJavadocVisible(false);
-		chooser.show();
+        chooser.setTitle(MavenDomBundle.message("dependencies.chooser.title"));
+        chooser.setCopyJavadocVisible(false);
+        chooser.show();
 
-		if(chooser.getExitCode() == MemberChooser.OK_EXIT_CODE)
-		{
-			final MavenDomProjectModelMember[] members = chooser.getSelectedElements(new MavenDomProjectModelMember[0]);
-			if(members != null)
-			{
-				dependencies.addAll(ContainerUtil.mapNotNull(members, mavenDomProjectModelMember -> mavenDomProjectModelMember.getDependency()));
-			}
-		}
+        if (chooser.getExitCode() == MemberChooser.OK_EXIT_CODE) {
+            final MavenDomProjectModelMember[] members = chooser.getSelectedElements(new MavenDomProjectModelMember[0]);
+            if (members != null) {
+                dependencies.addAll(ContainerUtil.mapNotNull(
+                    members,
+                    mavenDomProjectModelMember -> mavenDomProjectModelMember.getDependency()
+                ));
+            }
+        }
 
-		return dependencies;
-	}
+        return dependencies;
+    }
 
-	private static class MavenDomProjectModelMember extends MemberChooserObjectBase implements ClassMember
-	{
-		private final MavenDomDependency myDependency;
+    private static class MavenDomProjectModelMember extends MemberChooserObjectBase implements ClassMember {
+        private final MavenDomDependency myDependency;
 
-		public MavenDomProjectModelMember(final MavenDomDependency dependency)
-		{
-			super(dependency.toString(), AllIcons.Nodes.PpLib);
-			myDependency = dependency;
-		}
+        public MavenDomProjectModelMember(final MavenDomDependency dependency) {
+            super(dependency.toString(), AllIcons.Nodes.PpLib);
+            myDependency = dependency;
+        }
 
-		@Override
-		public String getText()
-		{
-			StringBuffer sb = new StringBuffer();
+        @Override
+        public String getText() {
+            StringBuffer sb = new StringBuffer();
 
-			append(sb, myDependency.getGroupId().getStringValue());
-			append(sb, myDependency.getArtifactId().getStringValue());
-			append(sb, myDependency.getVersion().getStringValue());
+            append(sb, myDependency.getGroupId().getStringValue());
+            append(sb, myDependency.getArtifactId().getStringValue());
+            append(sb, myDependency.getVersion().getStringValue());
 
-			return sb.toString();
-		}
+            return sb.toString();
+        }
 
-		private static void append(StringBuffer sb, String str)
-		{
-			if(!StringUtil.isEmptyOrSpaces(str))
-			{
-				if(sb.length() > 0)
-				{
-					sb.append(": ");
-				}
-				sb.append(str);
-			}
-		}
+        private static void append(StringBuffer sb, String str) {
+            if (!StringUtil.isEmptyOrSpaces(str)) {
+                if (sb.length() > 0) {
+                    sb.append(": ");
+                }
+                sb.append(str);
+            }
+        }
 
-		public MemberChooserObject getParentNodeDelegate()
-		{
-			MavenDomDependency dependency = getDependency();
+        public MemberChooserObject getParentNodeDelegate() {
+            MavenDomDependency dependency = getDependency();
 
-			return new MavenDomProjectModelFileMemberChooserObjectBase(dependency.getXmlTag().getContainingFile(),
-					getProjectName(dependency));
-		}
+            return new MavenDomProjectModelFileMemberChooserObjectBase(
+                dependency.getXmlTag().getContainingFile(),
+                getProjectName(dependency)
+            );
+        }
 
-		@Nullable
-		private static String getProjectName(@Nullable MavenDomDependency dependency)
-		{
-			if(dependency != null)
-			{
-				MavenDomProjectModel model = dependency.getParentOfType(MavenDomProjectModel.class, false);
-				if(model != null)
-				{
-					String name = model.getName().getStringValue();
-					return StringUtil.isEmptyOrSpaces(name) ? model.getArtifactId().getStringValue() : name;
-				}
-			}
-			return null;
-		}
+        @Nullable
+        private static String getProjectName(@Nullable MavenDomDependency dependency) {
+            if (dependency != null) {
+                MavenDomProjectModel model = dependency.getParentOfType(MavenDomProjectModel.class, false);
+                if (model != null) {
+                    String name = model.getName().getStringValue();
+                    return StringUtil.isEmptyOrSpaces(name) ? model.getArtifactId().getStringValue() : name;
+                }
+            }
+            return null;
+        }
 
-		public MavenDomDependency getDependency()
-		{
-			return myDependency;
-		}
+        public MavenDomDependency getDependency() {
+            return myDependency;
+        }
 
-		private static class MavenDomProjectModelFileMemberChooserObjectBase extends PsiElementMemberChooserObject
-		{
+        private static class MavenDomProjectModelFileMemberChooserObjectBase extends PsiElementMemberChooserObject {
 
-			public MavenDomProjectModelFileMemberChooserObjectBase(@Nonnull final PsiFile psiFile, @Nullable String projectName)
-			{
-				super(psiFile, StringUtil.isEmptyOrSpaces(projectName) ? psiFile.getName() : projectName, MavenIcons.MavenProject);
-			}
-		}
-	}
+            public MavenDomProjectModelFileMemberChooserObjectBase(@Nonnull final PsiFile psiFile, @Nullable String projectName) {
+                super(psiFile, StringUtil.isEmptyOrSpaces(projectName) ? psiFile.getName() : projectName, MavenIcons.MavenProject);
+            }
+        }
+    }
 }

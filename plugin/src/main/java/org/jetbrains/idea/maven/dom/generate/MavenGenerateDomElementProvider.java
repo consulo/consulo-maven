@@ -29,19 +29,21 @@ import java.util.function.Function;
  * User: Sergey.Vasiliev
  */
 public class MavenGenerateDomElementProvider extends AbstractDomGenerateProvider {
-  private final Function<MavenDomProjectModel, DomElement> myParentFunction;
+    private final Function<MavenDomProjectModel, DomElement> myParentFunction;
 
-  public MavenGenerateDomElementProvider(final String description,
-                                         final Class<? extends DomElement> childElementClass,
-                                         String mappingId,
-                                         Function<MavenDomProjectModel, DomElement> parentFunction) {
-    super(description, childElementClass, mappingId);
-    myParentFunction = parentFunction;
-  }
+    public MavenGenerateDomElementProvider(
+        final String description,
+        final Class<? extends DomElement> childElementClass,
+        String mappingId,
+        Function<MavenDomProjectModel, DomElement> parentFunction
+    ) {
+        super(description, childElementClass, mappingId);
+        myParentFunction = parentFunction;
+    }
 
-  protected DomElement getParentDomElement(final Project project, final Editor editor, final PsiFile file) {
-    MavenDomProjectModel domProjectModel = MavenDomUtil.getMavenDomModel(file, MavenDomProjectModel.class);
+    protected DomElement getParentDomElement(final Project project, final Editor editor, final PsiFile file) {
+        MavenDomProjectModel domProjectModel = MavenDomUtil.getMavenDomModel(file, MavenDomProjectModel.class);
 
-    return domProjectModel == null ? null : myParentFunction.apply(domProjectModel);
-  }
+        return domProjectModel == null ? null : myParentFunction.apply(domProjectModel);
+    }
 }

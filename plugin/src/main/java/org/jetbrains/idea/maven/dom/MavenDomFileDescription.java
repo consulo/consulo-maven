@@ -23,17 +23,17 @@ import org.jetbrains.idea.maven.dom.annotator.MavenDomAnnotator;
 import javax.annotation.Nonnull;
 
 public abstract class MavenDomFileDescription<T> extends DomFileDescription<T> {
-  public MavenDomFileDescription(Class<T> rootElementClass, String rootTagName) {
-    super(rootElementClass, rootTagName);
-  }
+    public MavenDomFileDescription(Class<T> rootElementClass, String rootTagName) {
+        super(rootElementClass, rootTagName);
+    }
 
-  @Override
-  public boolean isMyFile(@Nonnull XmlFile file) {
-    return MavenDomUtil.isMavenFile(file) && super.isMyFile(file);
-  }
+    @Override
+    public boolean isMyFile(@Nonnull XmlFile file) {
+        return MavenDomUtil.isMavenFile(file) && super.isMyFile(file);
+    }
 
-  @Override
-  public DomElementsAnnotator createAnnotator() {
-    return new MavenDomAnnotator();
-  }
+    @Override
+    public DomElementsAnnotator createAnnotator() {
+        return new MavenDomAnnotator();
+    }
 }

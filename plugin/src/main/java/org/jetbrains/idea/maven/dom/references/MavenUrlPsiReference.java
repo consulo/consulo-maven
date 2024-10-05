@@ -23,30 +23,30 @@ import consulo.language.impl.psi.FakePsiElement;
 import consulo.language.psi.PsiElement;
 
 public class MavenUrlPsiReference extends MavenPsiReference {
-  public MavenUrlPsiReference(PsiElement element, String text, TextRange range) {
-    super(element, text, range);
-  }
+    public MavenUrlPsiReference(PsiElement element, String text, TextRange range) {
+        super(element, text, range);
+    }
 
-  public PsiElement resolve() {
-    return new FakePsiElement() {
-      public PsiElement getParent() {
-        return myElement;
-      }
+    public PsiElement resolve() {
+        return new FakePsiElement() {
+            public PsiElement getParent() {
+                return myElement;
+            }
 
-      @Override
-      public String getName() {
-        return myText;
-      }
+            @Override
+            public String getName() {
+                return myText;
+            }
 
-      @Override
-      public void navigate(boolean requestFocus) {
-        BrowserUtil.launchBrowser(myText);
-      }
-    };
-  }
+            @Override
+            public void navigate(boolean requestFocus) {
+                BrowserUtil.launchBrowser(myText);
+            }
+        };
+    }
 
-  @Nonnull
-  public Object[] getVariants() {
-    return EMPTY_ARRAY;
-  }
+    @Nonnull
+    public Object[] getVariants() {
+        return EMPTY_ARRAY;
+    }
 }

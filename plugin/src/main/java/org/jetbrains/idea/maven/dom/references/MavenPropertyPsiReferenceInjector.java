@@ -31,29 +31,24 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 @ExtensionImpl
-public class MavenPropertyPsiReferenceInjector implements DomReferenceInjector
-{
-	@Override
-	public String resolveString(@Nullable String unresolvedText, @Nonnull ConvertContext context)
-	{
-		if(StringUtil.isEmptyOrSpaces(unresolvedText))
-		{
-			return unresolvedText;
-		}
-		MavenDomProjectModel model = (MavenDomProjectModel) DomUtil.getFileElement(context.getInvocationElement()).getRootElement();
-		return MavenPropertyResolver.resolve(unresolvedText, model);
-	}
+public class MavenPropertyPsiReferenceInjector implements DomReferenceInjector {
+    @Override
+    public String resolveString(@Nullable String unresolvedText, @Nonnull ConvertContext context) {
+        if (StringUtil.isEmptyOrSpaces(unresolvedText)) {
+            return unresolvedText;
+        }
+        MavenDomProjectModel model = (MavenDomProjectModel)DomUtil.getFileElement(context.getInvocationElement()).getRootElement();
+        return MavenPropertyResolver.resolve(unresolvedText, model);
+    }
 
-	@Override
-	@Nonnull
-	public PsiReference[] inject(@Nullable String unresolvedText, @Nonnull PsiElement element, @Nonnull ConvertContext context)
-	{
-		return MavenPropertyPsiReferenceProvider.getReferences(element, true);
-	}
+    @Override
+    @Nonnull
+    public PsiReference[] inject(@Nullable String unresolvedText, @Nonnull PsiElement element, @Nonnull ConvertContext context) {
+        return MavenPropertyPsiReferenceProvider.getReferences(element, true);
+    }
 
-	@Override
-	public boolean isAvaliable(DomFileDescription<?> fileDescription)
-	{
-		return fileDescription instanceof MavenDomProjectModelDescription;
-	}
+    @Override
+    public boolean isAvaliable(DomFileDescription<?> fileDescription) {
+        return fileDescription instanceof MavenDomProjectModelDescription;
+    }
 }

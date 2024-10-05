@@ -46,65 +46,75 @@ import java.util.function.Supplier;
 @ExtensionImpl
 @IntentionMetaData(ignoreId = "maven.choose.file.intention", categories = {"Java", "Maven"}, fileExtensions = "xml")
 public class ChooseFileIntentionAction implements IntentionAction {
-  private Supplier<VirtualFile[]> myFileChooser = null;
+    private Supplier<VirtualFile[]> myFileChooser = null;
 
-  @Nonnull
-  public String getText() {
-    return MavenDomBundle.message("intention.choose.file");
-  }
-
-  public boolean startInWriteAction() {
-    return false;
-  }
-
-  public boolean isAvailable(@Nonnull Project project, Editor editor, PsiFile file) {
-    if (!MavenDomUtil.isMavenFile(file)) return false;
-    MavenDomDependency dep = getDependency(file, editor);
-    return dep != null && "system".equals(dep.getScope().getStringValue());
-  }
-
-  public void invoke(@Nonnull Project project, Editor editor, PsiFile file) throws IncorrectOperationException {
-    final MavenDomDependency dep = getDependency(file, editor);
-
-    final VirtualFile[] files;
-    if (myFileChooser == null) {
-      final FileChooserDescriptor descriptor = new FileChooserDescriptor(true, false, true, true, false, false);
-      final PsiFile currentValue = dep != null ? dep.getSystemPath().getValue() : null;
-      final VirtualFile toSelect = currentValue == null ? null : currentValue.getVirtualFile();
-      files = IdeaFileChooser.chooseFiles(descriptor, project, toSelect);
+    @Nonnull
+    public String getText() {
+        return MavenDomBundle.message("intention.choose.file");
     }
-    else {
-      files = myFileChooser.get();
+
+    public boolean startInWriteAction() {
+        return false;
     }
-    if (files == null || files.length == 0) return;
 
-    final PsiFile selectedFile = PsiManager.getInstance(project).findFile(files[0]);
-    if (selectedFile == null) return;
-
-    if (dep != null) {
-      new WriteCommandAction(project) {
-        protected void run(Result result) throws Throwable {
-          dep.getSystemPath().setValue(selectedFile);
+    public boolean isAvailable(@Nonnull Project project, Editor editor, PsiFile file) {
+        if (!MavenDomUtil.isMavenFile(file)) {
+            return false;
         }
-      }.execute();
+        MavenDomDependency dep = getDependency(file, editor);
+        return dep != null && "system".equals(dep.getScope().getStringValue());
     }
-  }
 
-  @TestOnly
-  public void setFileChooser(@Nullable final Supplier<VirtualFile[]> fileChooser) {
-    myFileChooser = fileChooser;
-  }
+    public void invoke(@Nonnull Project project, Editor editor, PsiFile file) throws IncorrectOperationException {
+        final MavenDomDependency dep = getDependency(file, editor);
 
-  @Nullable
-  private static MavenDomDependency getDependency(PsiFile file, Editor editor) {
-    PsiElement el = PsiUtilCore.getElementAtOffset(file, editor.getCaretModel().getOffset());
+        final VirtualFile[] files;
+        if (myFileChooser == null) {
+            final FileChooserDescriptor descriptor = new FileChooserDescriptor(true, false, true, true, false, false);
+            final PsiFile currentValue = dep != null ? dep.getSystemPath().getValue() : null;
+            final VirtualFile toSelect = currentValue == null ? null : currentValue.getVirtualFile();
+            files = IdeaFileChooser.chooseFiles(descriptor, project, toSelect);
+        }
+        else {
+            files = myFileChooser.get();
+        }
+        if (files == null || files.length == 0) {
+            return;
+        }
 
-    XmlTag tag = PsiTreeUtil.getParentOfType(el, XmlTag.class, false);
-    if (tag == null) return null;
+        final PsiFile selectedFile = PsiManager.getInstance(project).findFile(files[0]);
+        if (selectedFile == null) {
+            return;
+        }
 
-    DomElement dom = DomManager.getDomManager(el.getProject()).getDomElement(tag);
-    if (dom == null) return null;
+        if (dep != null) {
+            new WriteCommandAction(project) {
+                protected void run(Result result) throws Throwable {
+                    dep.getSystemPath().setValue(selectedFile);
+                }
+            }.execute();
+        }
+    }
 
-    return dom.getParentOfType(MavenDomDependency.class, false);
-  }
+    @TestOnly
+    public void setFileChooser(@Nullable final Supplier<VirtualFile[]> fileChooser) {
+        myFileChooser = fileChooser;
+    }
+
+    @Nullable
+    private static MavenDomDependency getDependency(PsiFile file, Editor editor) {
+        PsiElement el = PsiUtilCore.getElementAtOffset(file, editor.getCaretModel().getOffset());
+
+        XmlTag tag = PsiTreeUtil.getParentOfType(el, XmlTag.class, false);
+        if (tag == null) {
+            return null;
+        }
+
+        DomElement dom = DomManager.getDomManager(el.getProject()).getDomElement(tag);
+        if (dom == null) {
+            return null;
+        }
+
+        return dom.getParentOfType(MavenDomDependency.class, false);
+    }
 }

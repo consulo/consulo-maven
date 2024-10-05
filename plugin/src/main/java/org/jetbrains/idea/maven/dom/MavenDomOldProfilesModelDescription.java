@@ -20,7 +20,7 @@ import org.jetbrains.idea.maven.dom.model.MavenDomOldProfilesModel;
 
 @ExtensionImpl
 public class MavenDomOldProfilesModelDescription extends MavenDomFileDescription<MavenDomOldProfilesModel> {
-  public MavenDomOldProfilesModelDescription() {
-    super(MavenDomOldProfilesModel.class, "profiles");
-  }
+    public MavenDomOldProfilesModelDescription() {
+        super(MavenDomOldProfilesModel.class, "profiles");
+    }
 }

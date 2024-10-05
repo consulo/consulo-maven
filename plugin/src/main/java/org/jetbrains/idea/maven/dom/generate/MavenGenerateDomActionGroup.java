@@ -28,31 +28,42 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.function.Function;
 
-public class MavenGenerateDomActionGroup extends DefaultActionGroup
-{
-	public MavenGenerateDomActionGroup()
-	{
-		add(new GenerateDependencyAction());
-		add(new GenerateManagedDependencyAction());
+public class MavenGenerateDomActionGroup extends DefaultActionGroup {
+    public MavenGenerateDomActionGroup() {
+        add(new GenerateDependencyAction());
+        add(new GenerateManagedDependencyAction());
 
-		addSeparator();
-		add(createAction(MavenDomBundle.message("generate.dependency.template"), MavenDomDependency.class, "maven-dependency",
-				mavenDomProjectModel -> mavenDomProjectModel.getDependencies()));
-		add(createAction(MavenDomBundle.message("generate.plugin.template"), MavenDomPlugin.class, "maven-plugin",
-				mavenDomProjectModel -> mavenDomProjectModel.getBuild().getPlugins()));
+        addSeparator();
+        add(createAction(
+            MavenDomBundle.message("generate.dependency.template"),
+            MavenDomDependency.class,
+            "maven-dependency",
+            mavenDomProjectModel -> mavenDomProjectModel.getDependencies()
+        ));
+        add(createAction(
+            MavenDomBundle.message("generate.plugin.template"),
+            MavenDomPlugin.class,
+            "maven-plugin",
+            mavenDomProjectModel -> mavenDomProjectModel.getBuild().getPlugins()
+        ));
 
-		add(createAction(MavenDomBundle.message("generate.repository.template"), MavenDomRepository.class, "maven-repository",
-				mavenDomProjectModel -> mavenDomProjectModel.getRepositories()));
+        add(createAction(
+            MavenDomBundle.message("generate.repository.template"),
+            MavenDomRepository.class,
+            "maven-repository",
+            mavenDomProjectModel -> mavenDomProjectModel.getRepositories()
+        ));
 
-		addSeparator();
-		add(new GenerateParentAction());
-	}
+        addSeparator();
+        add(new GenerateParentAction());
+    }
 
-	private static MavenGenerateTemplateAction createAction(String actionDescription,
-															final Class<? extends DomElement> aClass,
-															@NonNls @Nullable String mappingId,
-															@Nonnull Function<MavenDomProjectModel, DomElement> parentFunction)
-	{
-		return new MavenGenerateTemplateAction(actionDescription, aClass, mappingId, parentFunction);
-	}
+    private static MavenGenerateTemplateAction createAction(
+        String actionDescription,
+        final Class<? extends DomElement> aClass,
+        @NonNls @Nullable String mappingId,
+        @Nonnull Function<MavenDomProjectModel, DomElement> parentFunction
+    ) {
+        return new MavenGenerateTemplateAction(actionDescription, aClass, mappingId, parentFunction);
+    }
 }

@@ -15,34 +15,42 @@
  */
 package org.jetbrains.idea.maven.dom;
 
+import consulo.annotation.DeprecationInfo;
+import consulo.annotation.internal.MigratedExtensionsTo;
 import consulo.application.CommonBundle;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.PropertyKey;
+import org.jetbrains.idea.maven.localize.MavenDomLocalize;
 
 import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
 import java.util.ResourceBundle;
 
+@Deprecated
+@DeprecationInfo("Use MavenDomLocalize")
+@MigratedExtensionsTo(MavenDomLocalize.class)
 public class MavenDomBundle {
-  private static Reference<ResourceBundle> ourBundle;
+    private static Reference<ResourceBundle> ourBundle;
 
-  @NonNls
-  private static final String BUNDLE = "MavenDomBundle";
+    @NonNls
+    private static final String BUNDLE = "MavenDomBundle";
 
-  private MavenDomBundle() {
-  }
-
-  public static String message(@PropertyKey(resourceBundle = BUNDLE) String key, Object... params) {
-    return CommonBundle.message(getBundle(), key, params);
-  }
-
-  private static ResourceBundle getBundle() {
-    ResourceBundle bundle = null;
-    if (ourBundle != null) bundle = ourBundle.get();
-    if (bundle == null) {
-      bundle = ResourceBundle.getBundle(BUNDLE);
-      ourBundle = new SoftReference<ResourceBundle>(bundle);
+    private MavenDomBundle() {
     }
-    return bundle;
-  }
+
+    public static String message(@PropertyKey(resourceBundle = BUNDLE) String key, Object... params) {
+        return CommonBundle.message(getBundle(), key, params);
+    }
+
+    private static ResourceBundle getBundle() {
+        ResourceBundle bundle = null;
+        if (ourBundle != null) {
+            bundle = ourBundle.get();
+        }
+        if (bundle == null) {
+            bundle = ResourceBundle.getBundle(BUNDLE);
+            ourBundle = new SoftReference<>(bundle);
+        }
+        return bundle;
+    }
 }

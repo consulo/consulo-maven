@@ -30,44 +30,51 @@ import java.util.List;
 import java.util.Set;
 
 public class MavenFilteredPropertyPsiReference extends MavenPropertyPsiReference {
-  public MavenFilteredPropertyPsiReference(MavenProject mavenProject, PsiElement element, String text, TextRange range) {
-    super(mavenProject, element, text, range, true);
-  }
-
-  @Override
-  protected PsiElement doResolve() {
-    PsiElement result = super.doResolve();
-    if (result != null) return result;
-
-    for (String each : myMavenProject.getFilters()) {
-      VirtualFile file = LocalFileSystem.getInstance().findFileByPath(each);
-      if (file == null) continue;
-      IProperty property = MavenDomUtil.findProperty(myProject, file, myText);
-      if (property != null) return property.getPsiElement();
+    public MavenFilteredPropertyPsiReference(MavenProject mavenProject, PsiElement element, String text, TextRange range) {
+        super(mavenProject, element, text, range, true);
     }
 
-    return null;
-  }
+    @Override
+    protected PsiElement doResolve() {
+        PsiElement result = super.doResolve();
+        if (result != null) {
+            return result;
+        }
 
-  @Override
-  protected void collectVariants(List<Object> result, Set<String> variants) {
-    super.collectVariants(result, variants);
+        for (String each : myMavenProject.getFilters()) {
+            VirtualFile file = LocalFileSystem.getInstance().findFileByPath(each);
+            if (file == null) {
+                continue;
+            }
+            IProperty property = MavenDomUtil.findProperty(myProject, file, myText);
+            if (property != null) {
+                return property.getPsiElement();
+            }
+        }
 
-    for (String each : myMavenProject.getFilters()) {
-      VirtualFile file = LocalFileSystem.getInstance().findFileByPath(each);
-      if (file == null) continue;
-      collectPropertiesFileVariants(MavenDomUtil.getPropertiesFile(myProject, file), null, result, variants);
+        return null;
     }
-  }
 
-  @Override
-  public PsiElement handleElementRename(String newElementName) throws IncorrectOperationException
-  {
-    String newText = myRange.replace(myElement.getText(), newElementName);
-    PsiFile psiFile = myElement.getContainingFile();
-    String newFileText = myElement.getTextRange().replace(psiFile.getText(), newText);
-    PsiFile f = PsiFileFactory.getInstance(myProject).createFileFromText("__" + psiFile.getName(), psiFile.getLanguage(), newFileText);
-    PsiElement el = f.findElementAt(myElement.getTextOffset());
-    return myElement.replace(el);
-  }
+    @Override
+    protected void collectVariants(List<Object> result, Set<String> variants) {
+        super.collectVariants(result, variants);
+
+        for (String each : myMavenProject.getFilters()) {
+            VirtualFile file = LocalFileSystem.getInstance().findFileByPath(each);
+            if (file == null) {
+                continue;
+            }
+            collectPropertiesFileVariants(MavenDomUtil.getPropertiesFile(myProject, file), null, result, variants);
+        }
+    }
+
+    @Override
+    public PsiElement handleElementRename(String newElementName) throws IncorrectOperationException {
+        String newText = myRange.replace(myElement.getText(), newElementName);
+        PsiFile psiFile = myElement.getContainingFile();
+        String newFileText = myElement.getTextRange().replace(psiFile.getText(), newText);
+        PsiFile f = PsiFileFactory.getInstance(myProject).createFileFromText("__" + psiFile.getName(), psiFile.getLanguage(), newFileText);
+        PsiElement el = f.findElementAt(myElement.getTextOffset());
+        return myElement.replace(el);
+    }
 }

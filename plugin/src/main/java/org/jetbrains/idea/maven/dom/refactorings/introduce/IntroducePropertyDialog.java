@@ -47,224 +47,237 @@ import java.util.function.Function;
 
 public class IntroducePropertyDialog extends DialogWrapper {
 
-  private final Project myProject;
-  private final XmlElement myContext;
-  private final MavenDomProjectModel myMavenDomProjectModel;
+    private final Project myProject;
+    private final XmlElement myContext;
+    private final MavenDomProjectModel myMavenDomProjectModel;
 
-  private final String mySelectedString;
-  private NameSuggestionsField myNameField;
-  private NameSuggestionsField.DataChanged myNameChangedListener;
+    private final String mySelectedString;
+    private NameSuggestionsField myNameField;
+    private NameSuggestionsField.DataChanged myNameChangedListener;
 
-  private JComboBox myMavenProjectsComboBox;
-  private JPanel myMainPanel;
-  private JPanel myFieldNamePanel;
+    private JComboBox myMavenProjectsComboBox;
+    private JPanel myMainPanel;
+    private JPanel myFieldNamePanel;
 
-  public IntroducePropertyDialog(@Nonnull Project project,
-                                 @Nonnull XmlElement context,
-                                 @Nonnull MavenDomProjectModel mavenDomProjectModel,
-                                 @Nonnull String selectedString) {
-    super(project, true);
-    myProject = project;
-    myContext = context;
-    myMavenDomProjectModel = mavenDomProjectModel;
+    public IntroducePropertyDialog(
+        @Nonnull Project project,
+        @Nonnull XmlElement context,
+        @Nonnull MavenDomProjectModel mavenDomProjectModel,
+        @Nonnull String selectedString
+    ) {
+        super(project, true);
+        myProject = project;
+        myContext = context;
+        myMavenDomProjectModel = mavenDomProjectModel;
 
-    mySelectedString = selectedString;
+        mySelectedString = selectedString;
 
-    setTitle(MavenDomBundle.message("refactoring.introduce.property"));
-    init();
-  }
-
-  protected void dispose() {
-    myNameField.removeDataChangedListener(myNameChangedListener);
-
-    super.dispose();
-  }
-
-  @Nonnull
-  protected Action[] createActions() {
-    return new Action[]{getOKAction(), getCancelAction()};
-  }
-
-  protected void init() {
-    super.init();
-    updateOkStatus();
-  }
-
-  public String getEnteredName() {
-    return myNameField.getEnteredName().trim();
-  }
-
-  @Nonnull
-  public MavenDomProjectModel getSelectedProject() {
-    MavenDomProjectModel selectedItem =
-      (MavenDomProjectModel)ComboBoxUtil.getSelectedValue((DefaultComboBoxModel)myMavenProjectsComboBox.getModel());
-
-    return selectedItem == null ? myMavenDomProjectModel : selectedItem;
-  }
-
-  private String[] getSuggestions() {
-    return getSuggestions(1);
-  }
-
-  private String[] getSuggestions(int level) {
-    Collection<String> result = new HashSet<String>();
-
-    String value = mySelectedString.trim();
-    boolean addUnqualifiedForm = true;
-
-    XmlTag parent = PsiTreeUtil.getParentOfType(myContext, XmlTag.class, false);
-
-    DomElement domParent = DomUtil.getDomElement(parent);
-    if (domParent != null) {
-      DomElement domSuperParent = domParent.getParent();
-      DomFileElement<DomElement> domFile = DomUtil.getFileElement(domParent);
-      if (domSuperParent != null && domFile != null && domFile.getRootElement() == domSuperParent) {
-        value = domSuperParent.getXmlElementName();
-        addUnqualifiedForm = false;
-      }
-      else {
-        MavenDomShortArtifactCoordinates coordinates = DomUtil.getParentOfType(domParent, MavenDomShortArtifactCoordinates.class, false);
-        if (coordinates != null && !(coordinates instanceof MavenDomProjectModel) && domParent != coordinates.getArtifactId()) {
-          String artifactId = coordinates.getArtifactId().getStringValue();
-          if (!StringUtil.isEmptyOrSpaces(artifactId)) {
-            value = artifactId;
-            addUnqualifiedForm = false;
-          }
-        }
-      }
+        setTitle(MavenDomBundle.message("refactoring.introduce.property"));
+        init();
     }
 
-    while (true) {
-      String newValue = value.replaceAll("  ", " ");
-      if (newValue.equals(value)) break;
-      value = newValue;
+    protected void dispose() {
+        myNameField.removeDataChangedListener(myNameChangedListener);
+
+        super.dispose();
     }
 
-    value = value.replaceAll(" ", ".");
-    List<String> parts = StringUtil.split(value, ".");
-    String shortValue = parts.get(parts.size() - 1);
-
-    if (addUnqualifiedForm) {
-      result.add(value);
-      result.add(shortValue);
+    @Nonnull
+    protected Action[] createActions() {
+        return new Action[]{getOKAction(), getCancelAction()};
     }
 
-    String suffix = "";
-    while (parent != null && level != 0) {
-      suffix = parent.getName() + suffix;
-      result.add(suffix);
-      result.add(value + "." + suffix);
-      result.add(shortValue + "." + suffix);
-      suffix = "." + suffix;
-      parent = parent.getParentTag();
-      level--;
-    }
-
-    result = new ArrayList<String>(result);
-    Collections.sort((List)result, CodeStyleSettingsManager.getSettings(myProject).PREFER_LONGER_NAMES ?
-                                   StringLenComparator.getDescendingInstance() : StringLenComparator.getInstance());
-    return ArrayUtil.toStringArray(result);
-  }
-
-  private static String joinWords(@Nonnull String s, @Nonnull String delimiter) {
-    return joinWords(StringUtil.split(s, delimiter));
-  }
-
-  private static String joinWords(@Nonnull List<String> stringList) {
-    StringBuffer sb = new StringBuffer();
-    for (int i = 0; i < stringList.size(); i++) {
-      String word = stringList.get(i);
-      if (!StringUtil.isEmptyOrSpaces(word)) {
-        sb.append(i == 0 ? StringUtil.decapitalize(word.trim()) : StringUtil.capitalize(word.trim()));
-      }
-    }
-    return sb.toString();
-  }
-
-  protected JComponent createCenterPanel() {
-    myFieldNamePanel.setLayout(new BorderLayout());
-
-    myNameField = new NameSuggestionsField(myProject);
-    myNameChangedListener = new NameSuggestionsField.DataChanged() {
-      public void dataChanged() {
+    protected void init() {
+        super.init();
         updateOkStatus();
-      }
-    };
-    myNameField.addDataChangedListener(myNameChangedListener);
-    myNameField.setSuggestions(getSuggestions());
+    }
 
-    myFieldNamePanel.add(myNameField, BorderLayout.CENTER);
+    public String getEnteredName() {
+        return myNameField.getEnteredName().trim();
+    }
 
-    List<MavenDomProjectModel> projects = getProjects();
+    @Nonnull
+    public MavenDomProjectModel getSelectedProject() {
+        MavenDomProjectModel selectedItem =
+            (MavenDomProjectModel)ComboBoxUtil.getSelectedValue((DefaultComboBoxModel)myMavenProjectsComboBox.getModel());
 
-    ComboBoxUtil
-      .setModel(myMavenProjectsComboBox, new DefaultComboBoxModel(), projects, new Function<MavenDomProjectModel, Pair<String, ?>>() {
-        public Pair<String, ?> apply(MavenDomProjectModel model) {
-          String projectName = model.getName().getStringValue();
-          MavenProject mavenProject = MavenDomUtil.findProject(model);
-          if (mavenProject != null) {
-            projectName = mavenProject.getDisplayName();
-          }
-          if (StringUtil.isEmptyOrSpaces(projectName)) {
-            projectName = "pom.xml";
-          }
-          return Pair.create(projectName, model);
+        return selectedItem == null ? myMavenDomProjectModel : selectedItem;
+    }
+
+    private String[] getSuggestions() {
+        return getSuggestions(1);
+    }
+
+    private String[] getSuggestions(int level) {
+        Collection<String> result = new HashSet<String>();
+
+        String value = mySelectedString.trim();
+        boolean addUnqualifiedForm = true;
+
+        XmlTag parent = PsiTreeUtil.getParentOfType(myContext, XmlTag.class, false);
+
+        DomElement domParent = DomUtil.getDomElement(parent);
+        if (domParent != null) {
+            DomElement domSuperParent = domParent.getParent();
+            DomFileElement<DomElement> domFile = DomUtil.getFileElement(domParent);
+            if (domSuperParent != null && domFile != null && domFile.getRootElement() == domSuperParent) {
+                value = domSuperParent.getXmlElementName();
+                addUnqualifiedForm = false;
+            }
+            else {
+                MavenDomShortArtifactCoordinates coordinates =
+                    DomUtil.getParentOfType(domParent, MavenDomShortArtifactCoordinates.class, false);
+                if (coordinates != null && !(coordinates instanceof MavenDomProjectModel) && domParent != coordinates.getArtifactId()) {
+                    String artifactId = coordinates.getArtifactId().getStringValue();
+                    if (!StringUtil.isEmptyOrSpaces(artifactId)) {
+                        value = artifactId;
+                        addUnqualifiedForm = false;
+                    }
+                }
+            }
         }
-      });
 
-    myMavenProjectsComboBox.setSelectedItem(myMavenDomProjectModel);
+        while (true) {
+            String newValue = value.replaceAll("  ", " ");
+            if (newValue.equals(value)) {
+                break;
+            }
+            value = newValue;
+        }
 
-    return myMainPanel;
-  }
+        value = value.replaceAll(" ", ".");
+        List<String> parts = StringUtil.split(value, ".");
+        String shortValue = parts.get(parts.size() - 1);
 
+        if (addUnqualifiedForm) {
+            result.add(value);
+            result.add(shortValue);
+        }
 
-  private List<MavenDomProjectModel> getProjects() {
-    List<MavenDomProjectModel> projects = new ArrayList<MavenDomProjectModel>();
+        String suffix = "";
+        while (parent != null && level != 0) {
+            suffix = parent.getName() + suffix;
+            result.add(suffix);
+            result.add(value + "." + suffix);
+            result.add(shortValue + "." + suffix);
+            suffix = "." + suffix;
+            parent = parent.getParentTag();
+            level--;
+        }
 
-    projects.add(myMavenDomProjectModel);
-    projects.addAll(MavenDomProjectProcessorUtils.collectParentProjects(myMavenDomProjectModel));
-
-    return projects;
-  }
-
-  private void updateOkStatus() {
-    String text = getEnteredName();
-
-    setOKActionEnabled(!StringUtil.isEmptyOrSpaces(text) && !isContainWrongSymbols(text) && !isPropertyExist(text));
-  }
-
-  private static boolean isContainWrongSymbols(@Nonnull String text) {
-    return text.length() == 0 || Character.isDigit(text.charAt(0)) || StringUtil.containsAnyChar(text, "\t ;*'\"\\/,()^&<>={}[]");
-  }
-
-  private boolean isPropertyExist(@Nonnull String text) {
-    MavenDomProjectModel project = getSelectedProject();
-
-    if (isPropertyExist(text, project)) return true;
-
-    for (MavenDomProjectModel child : MavenDomProjectProcessorUtils.getChildrenProjects(project)) {
-      if (isPropertyExist(text, child)) return true;
+        result = new ArrayList<>(result);
+        Collections.sort((List)result, CodeStyleSettingsManager.getSettings(myProject).PREFER_LONGER_NAMES ?
+            StringLenComparator.getDescendingInstance() : StringLenComparator.getInstance());
+        return ArrayUtil.toStringArray(result);
     }
 
-    for (MavenDomProjectModel parent : MavenDomProjectProcessorUtils.collectParentProjects(project)) {
-      if (isPropertyExist(text, parent)) return true;
+    private static String joinWords(@Nonnull String s, @Nonnull String delimiter) {
+        return joinWords(StringUtil.split(s, delimiter));
     }
-    return false;
-  }
 
-  private static boolean isPropertyExist(String propertyName, MavenDomProjectModel project) {
-    MavenDomProperties props = project.getProperties();
-
-    XmlTag propsTag = props.getXmlTag();
-    if (propsTag != null) {
-      for (XmlTag each : propsTag.getSubTags()) {
-        if (propertyName.equals(each.getName())) return true;
-      }
+    private static String joinWords(@Nonnull List<String> stringList) {
+        StringBuffer sb = new StringBuffer();
+        for (int i = 0; i < stringList.size(); i++) {
+            String word = stringList.get(i);
+            if (!StringUtil.isEmptyOrSpaces(word)) {
+                sb.append(i == 0 ? StringUtil.decapitalize(word.trim()) : StringUtil.capitalize(word.trim()));
+            }
+        }
+        return sb.toString();
     }
-    return false;
-  }
 
-  public JComponent getPreferredFocusedComponent() {
-    return myNameField.getFocusableComponent();
-  }
+    protected JComponent createCenterPanel() {
+        myFieldNamePanel.setLayout(new BorderLayout());
+
+        myNameField = new NameSuggestionsField(myProject);
+        myNameChangedListener = new NameSuggestionsField.DataChanged() {
+            public void dataChanged() {
+                updateOkStatus();
+            }
+        };
+        myNameField.addDataChangedListener(myNameChangedListener);
+        myNameField.setSuggestions(getSuggestions());
+
+        myFieldNamePanel.add(myNameField, BorderLayout.CENTER);
+
+        List<MavenDomProjectModel> projects = getProjects();
+
+        ComboBoxUtil
+            .setModel(myMavenProjectsComboBox, new DefaultComboBoxModel(), projects, new Function<MavenDomProjectModel, Pair<String, ?>>() {
+                public Pair<String, ?> apply(MavenDomProjectModel model) {
+                    String projectName = model.getName().getStringValue();
+                    MavenProject mavenProject = MavenDomUtil.findProject(model);
+                    if (mavenProject != null) {
+                        projectName = mavenProject.getDisplayName();
+                    }
+                    if (StringUtil.isEmptyOrSpaces(projectName)) {
+                        projectName = "pom.xml";
+                    }
+                    return Pair.create(projectName, model);
+                }
+            });
+
+        myMavenProjectsComboBox.setSelectedItem(myMavenDomProjectModel);
+
+        return myMainPanel;
+    }
+
+
+    private List<MavenDomProjectModel> getProjects() {
+        List<MavenDomProjectModel> projects = new ArrayList<>();
+
+        projects.add(myMavenDomProjectModel);
+        projects.addAll(MavenDomProjectProcessorUtils.collectParentProjects(myMavenDomProjectModel));
+
+        return projects;
+    }
+
+    private void updateOkStatus() {
+        String text = getEnteredName();
+
+        setOKActionEnabled(!StringUtil.isEmptyOrSpaces(text) && !isContainWrongSymbols(text) && !isPropertyExist(text));
+    }
+
+    private static boolean isContainWrongSymbols(@Nonnull String text) {
+        return text.length() == 0 || Character.isDigit(text.charAt(0)) || StringUtil.containsAnyChar(text, "\t ;*'\"\\/,()^&<>={}[]");
+    }
+
+    private boolean isPropertyExist(@Nonnull String text) {
+        MavenDomProjectModel project = getSelectedProject();
+
+        if (isPropertyExist(text, project)) {
+            return true;
+        }
+
+        for (MavenDomProjectModel child : MavenDomProjectProcessorUtils.getChildrenProjects(project)) {
+            if (isPropertyExist(text, child)) {
+                return true;
+            }
+        }
+
+        for (MavenDomProjectModel parent : MavenDomProjectProcessorUtils.collectParentProjects(project)) {
+            if (isPropertyExist(text, parent)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean isPropertyExist(String propertyName, MavenDomProjectModel project) {
+        MavenDomProperties props = project.getProperties();
+
+        XmlTag propsTag = props.getXmlTag();
+        if (propsTag != null) {
+            for (XmlTag each : propsTag.getSubTags()) {
+                if (propertyName.equals(each.getName())) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public JComponent getPreferredFocusedComponent() {
+        return myNameField.getFocusableComponent();
+    }
 }

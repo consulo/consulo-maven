@@ -30,47 +30,47 @@ import javax.annotation.Nonnull;
 
 @ExtensionImpl
 public class MavenModelInspection extends BasicDomElementsInspection<MavenDomProjectModel, Object> {
-  public MavenModelInspection() {
-    super(MavenDomProjectModel.class);
-  }
-
-  @Nonnull
-  public String getGroupDisplayName() {
-    return MavenDomBundle.message("inspection.group");
-  }
-
-  @Nonnull
-  public String getDisplayName() {
-    return MavenDomBundle.message("inspection.name");
-  }
-
-  @Nonnull
-  public String getShortName() {
-    return "MavenModelInspection";
-  }
-
-  private static boolean isElementInsideManagedFile(GenericDomValue value) {
-    VirtualFile virtualFile = DomUtil.getFile(value).getVirtualFile();
-    if (virtualFile == null) {
-      return false;
+    public MavenModelInspection() {
+        super(MavenDomProjectModel.class);
     }
 
-    MavenProjectsManager projectsManager = MavenProjectsManager.getInstance(value.getManager().getProject());
-
-    return projectsManager.findProject(virtualFile) != null;
-  }
-
-  @Override
-  protected boolean shouldCheckResolveProblems(GenericDomValue value) {
-    if (!isElementInsideManagedFile(value)) {
-      return false;
+    @Nonnull
+    public String getGroupDisplayName() {
+        return MavenDomBundle.message("inspection.group");
     }
 
-    Converter converter = value.getConverter();
-    if (converter instanceof MavenDomSoftAwareConverter) {
-      return !((MavenDomSoftAwareConverter)converter).isSoft(value);
+    @Nonnull
+    public String getDisplayName() {
+        return MavenDomBundle.message("inspection.name");
     }
 
-    return true;
-  }
+    @Nonnull
+    public String getShortName() {
+        return "MavenModelInspection";
+    }
+
+    private static boolean isElementInsideManagedFile(GenericDomValue value) {
+        VirtualFile virtualFile = DomUtil.getFile(value).getVirtualFile();
+        if (virtualFile == null) {
+            return false;
+        }
+
+        MavenProjectsManager projectsManager = MavenProjectsManager.getInstance(value.getManager().getProject());
+
+        return projectsManager.findProject(virtualFile) != null;
+    }
+
+    @Override
+    protected boolean shouldCheckResolveProblems(GenericDomValue value) {
+        if (!isElementInsideManagedFile(value)) {
+            return false;
+        }
+
+        Converter converter = value.getConverter();
+        if (converter instanceof MavenDomSoftAwareConverter) {
+            return !((MavenDomSoftAwareConverter)converter).isSoft(value);
+        }
+
+        return true;
+    }
 }
