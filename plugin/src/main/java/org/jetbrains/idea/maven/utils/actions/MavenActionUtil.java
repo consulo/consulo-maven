@@ -38,138 +38,114 @@ import consulo.project.Project;
 import consulo.module.content.ProjectRootManager;
 import consulo.virtualFileSystem.VirtualFile;
 
-public class MavenActionUtil
-{
-	private MavenActionUtil()
-	{
-	}
+public class MavenActionUtil {
+    private MavenActionUtil() {
+    }
 
-	public static boolean hasProject(DataContext context)
-	{
-		return context.getData(CommonDataKeys.PROJECT) != null;
-	}
+    public static boolean hasProject(DataContext context) {
+        return context.getData(CommonDataKeys.PROJECT) != null;
+    }
 
-	@Nonnull
-	public static Project getProject(DataContext context)
-	{
-		return context.getData(CommonDataKeys.PROJECT);
-	}
+    @Nonnull
+    public static Project getProject(DataContext context) {
+        return context.getData(CommonDataKeys.PROJECT);
+    }
 
-	public static boolean isMavenizedProject(DataContext context)
-	{
-		Project project = context.getData(CommonDataKeys.PROJECT);
-		return project != null && MavenProjectsManager.getInstance(project).isMavenizedProject();
-	}
+    public static boolean isMavenizedProject(DataContext context) {
+        Project project = context.getData(CommonDataKeys.PROJECT);
+        return project != null && MavenProjectsManager.getInstance(project).isMavenizedProject();
+    }
 
-	@Nullable
-	public static MavenProject getMavenProject(DataContext context)
-	{
-		MavenProject result;
-		final MavenProjectsManager manager = getProjectsManager(context);
+    @Nullable
+    public static MavenProject getMavenProject(DataContext context) {
+        MavenProject result;
+        final MavenProjectsManager manager = getProjectsManager(context);
 
-		final VirtualFile file = context.getData(PlatformDataKeys.VIRTUAL_FILE);
-		if(file != null)
-		{
-			result = manager.findProject(file);
-			if(result != null)
-			{
-				return result;
-			}
-		}
+        final VirtualFile file = context.getData(PlatformDataKeys.VIRTUAL_FILE);
+        if (file != null) {
+            result = manager.findProject(file);
+            if (result != null) {
+                return result;
+            }
+        }
 
-		Module module = getModule(context);
-		if(module != null)
-		{
-			result = manager.findProject(module);
-			if(result != null)
-			{
-				return result;
-			}
-		}
+        Module module = getModule(context);
+        if (module != null) {
+            result = manager.findProject(module);
+            if (result != null) {
+                return result;
+            }
+        }
 
-		return null;
-	}
+        return null;
+    }
 
-	@Nullable
-	private static Module getModule(DataContext context)
-	{
-		final Module module = context.getData(LangDataKeys.MODULE);
-		return module != null ? module : context.getData(LangDataKeys.MODULE_CONTEXT);
-	}
+    @Nullable
+    private static Module getModule(DataContext context) {
+        final Module module = context.getData(LangDataKeys.MODULE);
+        return module != null ? module : context.getData(LangDataKeys.MODULE_CONTEXT);
+    }
 
-	@Nonnull
-	public static MavenProjectsManager getProjectsManager(DataContext context)
-	{
-		return MavenProjectsManager.getInstance(getProject(context));
-	}
+    @Nonnull
+    public static MavenProjectsManager getProjectsManager(DataContext context) {
+        return MavenProjectsManager.getInstance(getProject(context));
+    }
 
-	public static boolean isMavenProjectFile(VirtualFile file)
-	{
-		return file != null && !file.isDirectory() && MavenConstants.POM_XML.equals(file.getName());
-	}
+    public static boolean isMavenProjectFile(VirtualFile file) {
+        return file != null && !file.isDirectory() && MavenConstants.POM_XML.equals(file.getName());
+    }
 
-	public static List<MavenProject> getMavenProjects(DataContext context)
-	{
-		Project project = context.getData(CommonDataKeys.PROJECT);
-		if(project == null)
-		{
-			return Collections.emptyList();
-		}
+    public static List<MavenProject> getMavenProjects(DataContext context) {
+        Project project = context.getData(CommonDataKeys.PROJECT);
+        if (project == null) {
+            return Collections.emptyList();
+        }
 
-		VirtualFile[] virtualFiles = context.getData(PlatformDataKeys.VIRTUAL_FILE_ARRAY);
-		if(virtualFiles == null || virtualFiles.length == 0)
-		{
-			return Collections.emptyList();
-		}
+        VirtualFile[] virtualFiles = context.getData(PlatformDataKeys.VIRTUAL_FILE_ARRAY);
+        if (virtualFiles == null || virtualFiles.length == 0) {
+            return Collections.emptyList();
+        }
 
-		MavenProjectsManager projectsManager = MavenProjectsManager.getInstance(project);
-		if(!projectsManager.isMavenizedProject())
-		{
-			return Collections.emptyList();
-		}
+        MavenProjectsManager projectsManager = MavenProjectsManager.getInstance(project);
+        if (!projectsManager.isMavenizedProject()) {
+            return Collections.emptyList();
+        }
 
-		Set<MavenProject> res = new LinkedHashSet<MavenProject>();
+        Set<MavenProject> res = new LinkedHashSet<>();
 
-		ProjectFileIndex fileIndex = ProjectRootManager.getInstance(project).getFileIndex();
+        ProjectFileIndex fileIndex = ProjectRootManager.getInstance(project).getFileIndex();
 
-		for(VirtualFile file : virtualFiles)
-		{
-			MavenProject mavenProject;
+        for (VirtualFile file : virtualFiles) {
+            MavenProject mavenProject;
 
-			if(file.isDirectory())
-			{
-				VirtualFile contentRoot = fileIndex.getContentRootForFile(file);
-				if(!file.equals(contentRoot))
-				{
-					return Collections.emptyList();
-				}
+            if (file.isDirectory()) {
+                VirtualFile contentRoot = fileIndex.getContentRootForFile(file);
+                if (!file.equals(contentRoot)) {
+                    return Collections.emptyList();
+                }
 
-				Module module = fileIndex.getModuleForFile(file);
-				if(module == null || !projectsManager.isMavenizedModule(module))
-				{
-					return Collections.emptyList();
-				}
+                Module module = fileIndex.getModuleForFile(file);
+                if (module == null || !projectsManager.isMavenizedModule(module)) {
+                    return Collections.emptyList();
+                }
 
-				mavenProject = projectsManager.findProject(module);
-			}
-			else
-			{
-				mavenProject = projectsManager.findProject(file);
-			}
+                mavenProject = projectsManager.findProject(module);
+            }
+            else {
+                mavenProject = projectsManager.findProject(file);
+            }
 
-			if(mavenProject == null)
-			{
-				return Collections.emptyList();
-			}
+            if (mavenProject == null) {
+                return Collections.emptyList();
+            }
 
-			res.add(mavenProject);
-		}
+            res.add(mavenProject);
+        }
 
-		return new ArrayList<MavenProject>(res);
-	}
+        return new ArrayList<>(res);
+    }
 
-	public static List<VirtualFile> getMavenProjectsFiles(DataContext context)
-	{
-		return MavenUtil.collectFiles(getMavenProjects(context));
-	}
+    public static List<VirtualFile> getMavenProjectsFiles(DataContext context) {
+        return MavenUtil.collectFiles(getMavenProjects(context));
+    }
 }

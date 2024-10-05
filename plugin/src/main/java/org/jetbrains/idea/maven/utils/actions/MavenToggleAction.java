@@ -20,20 +20,22 @@ import consulo.ui.ex.action.ToggleAction;
 import consulo.application.dumb.DumbAware;
 
 public abstract class MavenToggleAction extends ToggleAction implements DumbAware {
-  @Override
-  public void update(AnActionEvent e) {
-    super.update(e);
-    e.getPresentation().setEnabled(isAvailable(e));
-  }
+    @Override
+    public void update(AnActionEvent e) {
+        super.update(e);
+        e.getPresentation().setEnabled(isAvailable(e));
+    }
 
-  protected boolean isAvailable(AnActionEvent e) {
-    return MavenActionUtil.hasProject(e.getDataContext());
-  }
+    protected boolean isAvailable(AnActionEvent e) {
+        return MavenActionUtil.hasProject(e.getDataContext());
+    }
 
-  public final boolean isSelected(AnActionEvent e) {
-    if (!isAvailable(e)) return false;
-    return doIsSelected(e);
-  }
+    public final boolean isSelected(AnActionEvent e) {
+        if (!isAvailable(e)) {
+            return false;
+        }
+        return doIsSelected(e);
+    }
 
-  protected abstract boolean doIsSelected(AnActionEvent e);
+    protected abstract boolean doIsSelected(AnActionEvent e);
 }

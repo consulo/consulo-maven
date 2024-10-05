@@ -36,118 +36,105 @@ import javax.swing.event.HyperlinkEvent;
 @ServiceAPI(value = ComponentScope.PROJECT, lazy = false)
 @ServiceImpl
 @Singleton
-public class MavenImportNotifier extends MavenSimpleProjectComponent implements Disposable
-{
-	private MavenProjectsManager myMavenProjectsManager;
-	private MergingUpdateQueue myUpdatesQueue;
+public class MavenImportNotifier extends MavenSimpleProjectComponent implements Disposable {
+    private MavenProjectsManager myMavenProjectsManager;
+    private MergingUpdateQueue myUpdatesQueue;
 
-	private Notification myNotification;
+    private Notification myNotification;
 
-	@Inject
-	public MavenImportNotifier(Project p, MavenProjectsManager mavenProjectsManager)
-	{
-		super(p);
+    @Inject
+    public MavenImportNotifier(Project p, MavenProjectsManager mavenProjectsManager) {
+        super(p);
 
-		if(!isNormalProject())
-		{
-			return;
-		}
+        if (!isNormalProject()) {
+            return;
+        }
 
-		myMavenProjectsManager = mavenProjectsManager;
+        myMavenProjectsManager = mavenProjectsManager;
 
-		myUpdatesQueue = new MergingUpdateQueue("MavenImportNotifier", 500, false, MergingUpdateQueue.ANY_COMPONENT, myProject);
+        myUpdatesQueue = new MergingUpdateQueue(
+            "MavenImportNotifier",
+            500,
+            false,
+            MergingUpdateQueue.ANY_COMPONENT,
+            myProject
+        );
 
-		myMavenProjectsManager.addManagerListener(new MavenProjectsManager.Listener()
-		{
-			@Override
-			public void activated()
-			{
-				init();
-			}
+        myMavenProjectsManager.addManagerListener(new MavenProjectsManager.Listener() {
+            @Override
+            public void activated() {
+                init();
+            }
 
-			@Override
-			public void projectsScheduled()
-			{
-				scheduleUpdate(false);
-			}
+            @Override
+            public void projectsScheduled() {
+                scheduleUpdate(false);
+            }
 
-			@Override
-			public void importAndResolveScheduled()
-			{
-				scheduleUpdate(true);
-			}
-		});
-	}
+            @Override
+            public void importAndResolveScheduled() {
+                scheduleUpdate(true);
+            }
+        });
+    }
 
-	private void init()
-	{
-		myUpdatesQueue.activate();
-	}
+    private void init() {
+        myUpdatesQueue.activate();
+    }
 
-	@Override
-	public void dispose()
-	{
-		if(myNotification != null)
-		{
-			myNotification.expire();
-		}
-	}
+    @Override
+    public void dispose() {
+        if (myNotification != null) {
+            myNotification.expire();
+        }
+    }
 
-	private void scheduleUpdate(final boolean close)
-	{
-		myUpdatesQueue.queue(new Update(myUpdatesQueue)
-		{
-			@Override
-			public void run()
-			{
-				doUpdateNotifications(close);
-			}
-		});
-	}
+    private void scheduleUpdate(final boolean close) {
+        myUpdatesQueue.queue(new Update(myUpdatesQueue) {
+            @Override
+            public void run() {
+                doUpdateNotifications(close);
+            }
+        });
+    }
 
-	private void doUpdateNotifications(boolean close)
-	{
-		if(close)
-		{
-			if(myNotification == null)
-			{
-				return;
-			}
+    private void doUpdateNotifications(boolean close) {
+        if (close) {
+            if (myNotification == null) {
+                return;
+            }
 
-			myNotification.expire();
-			myNotification = null;
-		}
-		else
-		{
-			if(myNotification != null && !myNotification.isExpired())
-			{
-				return;
-			}
+            myNotification.expire();
+            myNotification = null;
+        }
+        else {
+            if (myNotification != null && !myNotification.isExpired()) {
+                return;
+            }
 
-			myNotification = new Notification(MavenNotificationGroup.IMPORT,
-					ProjectBundle.message("maven.project.changed"),
-					"<a href='reimport'>" + ProjectBundle.message("maven.project.importChanged") + "</a> " +
-							"<a href='autoImport'>" + ProjectBundle.message("maven.project.enableAutoImport") + "</a>",
-					NotificationType.INFORMATION, (notification, event) ->
-			{
-				if(event.getEventType() != HyperlinkEvent.EventType.ACTIVATED)
-				{
-					return;
-				}
+            myNotification = new Notification(
+                MavenNotificationGroup.IMPORT,
+                ProjectBundle.message("maven.project.changed"),
+                "<a href='reimport'>" + ProjectBundle.message("maven.project.importChanged") + "</a> " +
+                    "<a href='autoImport'>" + ProjectBundle.message("maven.project.enableAutoImport") + "</a>",
+                NotificationType.INFORMATION,
+                (notification, event) -> {
+                    if (event.getEventType() != HyperlinkEvent.EventType.ACTIVATED) {
+                        return;
+                    }
 
-				if(event.getDescription().equals("reimport"))
-				{
-					myMavenProjectsManager.scheduleImportAndResolve();
-				}
-				if(event.getDescription().equals("autoImport"))
-				{
-					myMavenProjectsManager.getImportingSettings().setImportAutomatically(true);
-				}
-				notification.expire();
-				myNotification = null;
-			});
+                    if (event.getDescription().equals("reimport")) {
+                        myMavenProjectsManager.scheduleImportAndResolve();
+                    }
+                    if (event.getDescription().equals("autoImport")) {
+                        myMavenProjectsManager.getImportingSettings().setImportAutomatically(true);
+                    }
+                    notification.expire();
+                    myNotification = null;
+                }
+            );
 
-			Notifications.Bus.notify(myNotification, myProject);
-		}
-	}
+            Notifications.Bus.notify(myNotification, myProject);
+        }
+    }
 }

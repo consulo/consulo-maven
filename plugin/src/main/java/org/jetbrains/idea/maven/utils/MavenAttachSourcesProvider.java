@@ -109,7 +109,14 @@ public class MavenAttachSourcesProvider implements AttachSourcesProvider {
                         message += "</html>";
 
                         final String finalMessage = message;
-                        myProject.getApplication().invokeLater(() -> Notifications.Bus.notify(new Notification(MavenNotificationGroup.ROOT, "Cannot download sources", finalMessage, NotificationType.WARNING), psiFile.getProject()));
+                        myProject.getApplication().invokeLater(() -> Notifications.Bus.notify(
+                            new Notification(MavenNotificationGroup.ROOT,
+                                "Cannot download sources",
+                                finalMessage,
+                                NotificationType.WARNING
+                            ),
+                            psiFile.getProject()
+                        ));
                     }
 
                     if (downloadResult.resolvedSources.isEmpty()) {

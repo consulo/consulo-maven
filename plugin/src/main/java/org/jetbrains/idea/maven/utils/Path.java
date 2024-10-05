@@ -22,35 +22,35 @@ import consulo.virtualFileSystem.util.VirtualFileUtil;
 import javax.annotation.Nonnull;
 
 public class Path {
-  private final String path;
+    private final String path;
 
-  public Path(@Nonnull String path) {
-    path = PathUtil.getCanonicalPath(path);
-    path = FileUtil.toSystemIndependentName(path);
-    this.path = path;
-  }
+    public Path(@Nonnull String path) {
+        path = PathUtil.getCanonicalPath(path);
+        path = FileUtil.toSystemIndependentName(path);
+        this.path = path;
+    }
 
-  @Nonnull
-  public String getPath() {
-    return path;
-  }
+    @Nonnull
+    public String getPath() {
+        return path;
+    }
 
-  public Url toUrl() {
-    return new Url(VirtualFileUtil.pathToUrl(path));
-  }
+    public Url toUrl() {
+        return new Url(VirtualFileUtil.pathToUrl(path));
+    }
 
-  @Override
-  public String toString() {
-    return path;
-  }
+    @Override
+    public String toString() {
+        return path;
+    }
 
-  @Override
-  public int hashCode() {
-    return path.hashCode();
-  }
+    @Override
+    public int hashCode() {
+        return path.hashCode();
+    }
 
-  @Override
-  public boolean equals(final Object o) {
-    return (o instanceof Path) && path.equals(((Path)o).path);
-  }
+    @Override
+    public boolean equals(final Object o) {
+        return (o instanceof Path) && path.equals(((Path)o).path);
+    }
 }

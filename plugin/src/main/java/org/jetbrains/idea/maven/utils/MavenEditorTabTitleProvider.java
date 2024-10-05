@@ -24,22 +24,18 @@ import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 
 @ExtensionImpl
-public class MavenEditorTabTitleProvider implements EditorTabTitleProvider
-{
-	public String getEditorTabTitle(Project project, VirtualFile file)
-	{
-		MavenProjectsManager projectsManager = MavenProjectsManager.getInstance(project);
-		if(!projectsManager.isMavenizedProject())
-		{
-			return null;
-		}
+public class MavenEditorTabTitleProvider implements EditorTabTitleProvider {
+    public String getEditorTabTitle(Project project, VirtualFile file) {
+        MavenProjectsManager projectsManager = MavenProjectsManager.getInstance(project);
+        if (!projectsManager.isMavenizedProject()) {
+            return null;
+        }
 
-		MavenProject mavenProject = projectsManager.findProject(file);
-		if(mavenProject == null)
-		{
-			return null;
-		}
+        MavenProject mavenProject = projectsManager.findProject(file);
+        if (mavenProject == null) {
+            return null;
+        }
 
-		return file.getName() + " (" + mavenProject.getMavenId().getArtifactId() + ")";
-	}
+        return file.getName() + " (" + mavenProject.getMavenId().getArtifactId() + ")";
+    }
 }

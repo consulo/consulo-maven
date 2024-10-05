@@ -18,37 +18,30 @@ package org.jetbrains.idea.maven.utils;
 import consulo.application.ApplicationManager;
 import consulo.project.Project;
 
-public abstract class MavenSimpleProjectComponent
-{
-	protected final Project myProject;
+public abstract class MavenSimpleProjectComponent {
+    protected final Project myProject;
 
-	protected MavenSimpleProjectComponent(Project project)
-	{
-		myProject = project;
-	}
+    protected MavenSimpleProjectComponent(Project project) {
+        myProject = project;
+    }
 
-	protected boolean isNormalProject()
-	{
-		return !isUnitTestMode() && !isHeadless() && !isDefault();
-	}
+    protected boolean isNormalProject() {
+        return !isUnitTestMode() && !isHeadless() && !isDefault();
+    }
 
-	protected boolean isNoBackgroundMode()
-	{
-		return MavenUtil.isNoBackgroundMode();
-	}
+    protected boolean isNoBackgroundMode() {
+        return MavenUtil.isNoBackgroundMode();
+    }
 
-	protected boolean isUnitTestMode()
-	{
-		return ApplicationManager.getApplication().isUnitTestMode();
-	}
+    protected boolean isUnitTestMode() {
+        return ApplicationManager.getApplication().isUnitTestMode();
+    }
 
-	protected boolean isHeadless()
-	{
-		return ApplicationManager.getApplication().isHeadlessEnvironment();
-	}
+    protected boolean isHeadless() {
+        return ApplicationManager.getApplication().isHeadlessEnvironment();
+    }
 
-	protected boolean isDefault()
-	{
-		return myProject.isDefault();
-	}
+    protected boolean isDefault() {
+        return myProject.isDefault();
+    }
 }

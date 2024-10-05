@@ -36,119 +36,128 @@ import java.util.List;
 import java.util.TreeSet;
 
 public class MavenUIUtil {
-  public static void executeAction(final String actionId, final InputEvent e) {
-    final ActionManager actionManager = ActionManager.getInstance();
-    final AnAction action = actionManager.getAction(actionId);
-    if (action != null) {
-      final Presentation presentation = new Presentation();
-      final AnActionEvent event =
-        new AnActionEvent(e, DataManager.getInstance().getDataContext(e.getComponent()), "", presentation, actionManager, 0);
-      action.update(event);
-      if (presentation.isEnabled()) {
-        action.actionPerformed(event);
-      }
-    }
-  }
-
-  public static <E> void setElements(ElementsChooser<E> chooser, Collection<E> all, Collection<E> selected, Comparator<E> comparator) {
-    List<E> selection = chooser.getSelectedElements();
-    chooser.clear();
-    Collection<E> sorted = new TreeSet<E>(comparator);
-    sorted.addAll(all);
-    for (E element : sorted) {
-      chooser.addElement(element, selected.contains(element));
-    }
-    chooser.selectElements(selection);
-  }
-
-  public static void installCheckboxRenderer(final SimpleTree tree, final CheckboxHandler handler) {
-    final JCheckBox checkbox = new JCheckBox();
-
-    final JPanel panel = new JPanel(new BorderLayout());
-    panel.add(checkbox, BorderLayout.WEST);
-
-    final TreeCellRenderer baseRenderer = tree.getCellRenderer();
-    tree.setCellRenderer(new TreeCellRenderer() {
-      public Component getTreeCellRendererComponent(final JTree tree,
-                                                    final Object value,
-                                                    final boolean selected,
-                                                    final boolean expanded,
-                                                    final boolean leaf,
-                                                    final int row,
-                                                    final boolean hasFocus) {
-        final Component baseComponent = baseRenderer.getTreeCellRendererComponent(tree, value, selected, expanded, leaf, row, hasFocus);
-
-        final Object userObject = ((DefaultMutableTreeNode)value).getUserObject();
-        if (!handler.isVisible(userObject)) {
-          return baseComponent;
-        }
-
-        final Color foreground = selected ? UIUtil.getTreeSelectionForeground() : UIUtil.getTreeTextForeground();
-
-        Color background = selected ? UIUtil.getTreeSelectionBackground(hasFocus) : UIUtil.getTreeTextBackground();
-
-        panel.add(baseComponent, BorderLayout.CENTER);
-        panel.setBackground(background);
-        panel.setForeground(foreground);
-
-        CheckBoxState state = handler.getState(userObject);
-        checkbox.setSelected(state != CheckBoxState.UNCHECKED);
-        checkbox.setEnabled(state != CheckBoxState.PARTIAL);
-        checkbox.setBackground(background);
-        checkbox.setForeground(foreground);
-
-        return panel;
-      }
-    });
-
-    tree.addMouseListener(new MouseAdapter() {
-      public void mousePressed(MouseEvent e) {
-        int row = tree.getRowForLocation(e.getX(), e.getY());
-        if (row >= 0) {
-          TreePath path = tree.getPathForRow(row);
-          if (!isCheckboxEnabledFor(path, handler)) return;
-
-          Rectangle checkBounds = checkbox.getBounds();
-          checkBounds.setLocation(tree.getRowBounds(row).getLocation());
-          if (checkBounds.contains(e.getPoint())) {
-            handler.toggle(path, e);
-            e.consume();
-            tree.setSelectionRow(row);
-          }
-        }
-      }
-    });
-
-    tree.addKeyListener(new KeyAdapter() {
-      public void keyPressed(KeyEvent e) {
-        if (e.getKeyCode() == KeyEvent.VK_SPACE) {
-          TreePath[] treePaths = tree.getSelectionPaths();
-          if (treePaths != null) {
-            for (TreePath treePath : treePaths) {
-              if (!isCheckboxEnabledFor(treePath, handler)) continue;
-              handler.toggle(treePath, e);
+    public static void executeAction(final String actionId, final InputEvent e) {
+        final ActionManager actionManager = ActionManager.getInstance();
+        final AnAction action = actionManager.getAction(actionId);
+        if (action != null) {
+            final Presentation presentation = new Presentation();
+            final AnActionEvent event =
+                new AnActionEvent(e, DataManager.getInstance().getDataContext(e.getComponent()), "", presentation, actionManager, 0);
+            action.update(event);
+            if (presentation.isEnabled()) {
+                action.actionPerformed(event);
             }
-            e.consume();
-          }
         }
-      }
-    });
-  }
+    }
 
-  private static boolean isCheckboxEnabledFor(TreePath path, CheckboxHandler handler) {
-    Object userObject = ((DefaultMutableTreeNode)path.getLastPathComponent()).getUserObject();
-    return handler.isVisible(userObject);
-  }
+    public static <E> void setElements(ElementsChooser<E> chooser, Collection<E> all, Collection<E> selected, Comparator<E> comparator) {
+        List<E> selection = chooser.getSelectedElements();
+        chooser.clear();
+        Collection<E> sorted = new TreeSet<E>(comparator);
+        sorted.addAll(all);
+        for (E element : sorted) {
+            chooser.addElement(element, selected.contains(element));
+        }
+        chooser.selectElements(selection);
+    }
 
-  public interface CheckboxHandler {
-    void toggle(TreePath treePath, final InputEvent e);
+    public static void installCheckboxRenderer(final SimpleTree tree, final CheckboxHandler handler) {
+        final JCheckBox checkbox = new JCheckBox();
 
-    boolean isVisible(Object userObject);
+        final JPanel panel = new JPanel(new BorderLayout());
+        panel.add(checkbox, BorderLayout.WEST);
 
-    CheckBoxState getState(Object userObject);
-  }
+        final TreeCellRenderer baseRenderer = tree.getCellRenderer();
+        tree.setCellRenderer(new TreeCellRenderer() {
+            public Component getTreeCellRendererComponent(
+                final JTree tree,
+                final Object value,
+                final boolean selected,
+                final boolean expanded,
+                final boolean leaf,
+                final int row,
+                final boolean hasFocus
+            ) {
+                final Component baseComponent =
+                    baseRenderer.getTreeCellRendererComponent(tree, value, selected, expanded, leaf, row, hasFocus);
 
-  public enum CheckBoxState {
-    CHECKED, UNCHECKED, PARTIAL
-  }
+                final Object userObject = ((DefaultMutableTreeNode)value).getUserObject();
+                if (!handler.isVisible(userObject)) {
+                    return baseComponent;
+                }
+
+                final Color foreground = selected ? UIUtil.getTreeSelectionForeground() : UIUtil.getTreeTextForeground();
+
+                Color background = selected ? UIUtil.getTreeSelectionBackground(hasFocus) : UIUtil.getTreeTextBackground();
+
+                panel.add(baseComponent, BorderLayout.CENTER);
+                panel.setBackground(background);
+                panel.setForeground(foreground);
+
+                CheckBoxState state = handler.getState(userObject);
+                checkbox.setSelected(state != CheckBoxState.UNCHECKED);
+                checkbox.setEnabled(state != CheckBoxState.PARTIAL);
+                checkbox.setBackground(background);
+                checkbox.setForeground(foreground);
+
+                return panel;
+            }
+        });
+
+        tree.addMouseListener(new MouseAdapter() {
+            public void mousePressed(MouseEvent e) {
+                int row = tree.getRowForLocation(e.getX(), e.getY());
+                if (row >= 0) {
+                    TreePath path = tree.getPathForRow(row);
+                    if (!isCheckboxEnabledFor(path, handler)) {
+                        return;
+                    }
+
+                    Rectangle checkBounds = checkbox.getBounds();
+                    checkBounds.setLocation(tree.getRowBounds(row).getLocation());
+                    if (checkBounds.contains(e.getPoint())) {
+                        handler.toggle(path, e);
+                        e.consume();
+                        tree.setSelectionRow(row);
+                    }
+                }
+            }
+        });
+
+        tree.addKeyListener(new KeyAdapter() {
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_SPACE) {
+                    TreePath[] treePaths = tree.getSelectionPaths();
+                    if (treePaths != null) {
+                        for (TreePath treePath : treePaths) {
+                            if (!isCheckboxEnabledFor(treePath, handler)) {
+                                continue;
+                            }
+                            handler.toggle(treePath, e);
+                        }
+                        e.consume();
+                    }
+                }
+            }
+        });
+    }
+
+    private static boolean isCheckboxEnabledFor(TreePath path, CheckboxHandler handler) {
+        Object userObject = ((DefaultMutableTreeNode)path.getLastPathComponent()).getUserObject();
+        return handler.isVisible(userObject);
+    }
+
+    public interface CheckboxHandler {
+        void toggle(TreePath treePath, final InputEvent e);
+
+        boolean isVisible(Object userObject);
+
+        CheckBoxState getState(Object userObject);
+    }
+
+    public enum CheckBoxState {
+        CHECKED,
+        UNCHECKED,
+        PARTIAL
+    }
 }

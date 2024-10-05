@@ -28,32 +28,26 @@ import java.io.File;
 @Singleton
 @ServiceAPI(value = ComponentScope.APPLICATION, lazy = false)
 @ServiceImpl
-public class MavenEnvironmentRegistrar
-{
-	private static final String MAVEN_REPOSITORY = "MAVEN_REPOSITORY";
+public class MavenEnvironmentRegistrar {
+    private static final String MAVEN_REPOSITORY = "MAVEN_REPOSITORY";
 
-	@Inject
-	public MavenEnvironmentRegistrar(PathMacros macros)
-	{
-		registerPathVariable(macros);
-	}
+    @Inject
+    public MavenEnvironmentRegistrar(PathMacros macros) {
+        registerPathVariable(macros);
+    }
 
-	private void registerPathVariable(PathMacros macros)
-	{
-		File repository = MavenUtil.resolveLocalRepository(null, null, null);
+    private void registerPathVariable(PathMacros macros) {
+        File repository = MavenUtil.resolveLocalRepository(null, null, null);
 
-		for(String each : macros.getAllMacroNames())
-		{
-			String path = macros.getValue(each);
-			if(path == null)
-			{
-				continue;
-			}
-			if(new File(path).equals(repository))
-			{
-				return;
-			}
-		}
-		macros.setMacro(MAVEN_REPOSITORY, repository.getPath());
-	}
+        for (String each : macros.getAllMacroNames()) {
+            String path = macros.getValue(each);
+            if (path == null) {
+                continue;
+            }
+            if (new File(path).equals(repository)) {
+                return;
+            }
+        }
+        macros.setMacro(MAVEN_REPOSITORY, repository.getPath());
+    }
 }

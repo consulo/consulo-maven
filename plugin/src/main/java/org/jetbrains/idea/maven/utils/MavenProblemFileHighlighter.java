@@ -23,30 +23,25 @@ import consulo.virtualFileSystem.VirtualFile;
 import javax.annotation.Nonnull;
 
 @ExtensionImpl
-public class MavenProblemFileHighlighter implements WolfFileProblemFilter
-{
-	@Override
-	public boolean isToBeHighlighted(@Nonnull VirtualFile file)
-	{
-		String fileName = file.getName();
+public class MavenProblemFileHighlighter implements WolfFileProblemFilter {
+    @Override
+    public boolean isToBeHighlighted(@Nonnull VirtualFile file) {
+        String fileName = file.getName();
 
-		// MavenDomUtil.isProjectFile(PsiFile)
-		if(fileName.equals(MavenConstants.POM_XML) || fileName.endsWith(".pom") || fileName.equals(MavenConstants.SUPER_POM_XML))
-		{
-			return true;
-		}
+        // MavenDomUtil.isProjectFile(PsiFile)
+        if (fileName.equals(MavenConstants.POM_XML) || fileName.endsWith(".pom") || fileName.equals(MavenConstants.SUPER_POM_XML)) {
+            return true;
+        }
 
-		// MavenDomUtil.isProfilesFile(PsiFile)
-		if(fileName.equals(MavenConstants.PROFILES_XML))
-		{
-			return true;
-		}
+        // MavenDomUtil.isProfilesFile(PsiFile)
+        if (fileName.equals(MavenConstants.PROFILES_XML)) {
+            return true;
+        }
 
-		if(fileName.equals(MavenConstants.SETTINGS_XML))
-		{
-			return true;
-		}
+        if (fileName.equals(MavenConstants.SETTINGS_XML)) {
+            return true;
+        }
 
-		return false;
-	}
+        return false;
+    }
 }

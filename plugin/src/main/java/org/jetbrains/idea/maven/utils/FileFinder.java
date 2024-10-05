@@ -24,58 +24,49 @@ import consulo.virtualFileSystem.util.VirtualFileVisitor;
 import javax.annotation.Nonnull;
 import java.util.List;
 
-public class FileFinder
-{
-	public static List<VirtualFile> findPomFiles(VirtualFile[] roots,
-												 final boolean lookForNested,
-												 final MavenProgressIndicator indicator,
-												 final List<VirtualFile> result) throws MavenProcessCanceledException
-	{
-		for(VirtualFile f : roots)
-		{
-			VirtualFileUtil.visitChildrenRecursively(f, new VirtualFileVisitor()
-			{
-				@Override
-				public boolean visitFile(@Nonnull VirtualFile f)
-				{
-					try
-					{
-						indicator.checkCanceled();
-						indicator.setText2(f.getPath());
+public class FileFinder {
+    public static List<VirtualFile> findPomFiles(
+        VirtualFile[] roots,
+        final boolean lookForNested,
+        final MavenProgressIndicator indicator,
+        final List<VirtualFile> result
+    ) throws MavenProcessCanceledException {
+        for (VirtualFile f : roots) {
+            VirtualFileUtil.visitChildrenRecursively(
+                f,
+                new VirtualFileVisitor() {
+                    @Override
+                    public boolean visitFile(@Nonnull VirtualFile f) {
+                        try {
+                            indicator.checkCanceled();
+                            indicator.setText2(f.getPath());
 
-						if(f.isDirectory())
-						{
-							if(lookForNested)
-							{
-								f.refresh(false, false);
-							}
-							else
-							{
-								return false;
-							}
-						}
-						else
-						{
-							if(f.getName().equalsIgnoreCase(MavenConstants.POM_XML))
-							{
-								result.add(f);
-							}
-						}
-					}
-					catch(InvalidVirtualFileAccessException e)
-					{
-						// we are accessing VFS without read action here so such exception may occasionally occur
-						MavenLog.LOG.info(e);
-					}
-					catch(MavenProcessCanceledException e)
-					{
-						throw new VisitorException(e);
-					}
-					return true;
-				}
-			}, MavenProcessCanceledException.class);
-		}
+                            if (f.isDirectory()) {
+                                if (lookForNested) {
+                                    f.refresh(false, false);
+                                }
+                                else {
+                                    return false;
+                                }
+                            }
+                            else if (f.getName().equalsIgnoreCase(MavenConstants.POM_XML)) {
+                                result.add(f);
+                            }
+                        }
+                        catch (InvalidVirtualFileAccessException e) {
+                            // we are accessing VFS without read action here so such exception may occasionally occur
+                            MavenLog.LOG.info(e);
+                        }
+                        catch (MavenProcessCanceledException e) {
+                            throw new VisitorException(e);
+                        }
+                        return true;
+                    }
+                },
+                MavenProcessCanceledException.class
+            );
+        }
 
-		return result;
-	}
+        return result;
+    }
 }

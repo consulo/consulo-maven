@@ -21,19 +21,19 @@ import consulo.ui.ex.action.Presentation;
 import consulo.application.dumb.DumbAware;
 
 public abstract class MavenAction extends AnAction implements DumbAware {
-  @Override
-  public void update(AnActionEvent e) {
-    super.update(e);
-    Presentation p = e.getPresentation();
-    p.setEnabled(isAvailable(e));
-    p.setVisible(isVisible(e));
-  }
+    @Override
+    public void update(AnActionEvent e) {
+        super.update(e);
+        Presentation p = e.getPresentation();
+        p.setEnabled(isAvailable(e));
+        p.setVisible(isVisible(e));
+    }
 
-  protected boolean isAvailable(AnActionEvent e) {
-    return MavenActionUtil.hasProject(e.getDataContext());
-  }
+    protected boolean isAvailable(AnActionEvent e) {
+        return MavenActionUtil.hasProject(e.getDataContext());
+    }
 
-  protected boolean isVisible(AnActionEvent e) {
-    return true;
-  }
+    protected boolean isVisible(AnActionEvent e) {
+        return true;
+    }
 }

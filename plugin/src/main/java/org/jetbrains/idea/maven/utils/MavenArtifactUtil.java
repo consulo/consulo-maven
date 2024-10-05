@@ -31,196 +31,163 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 @SuppressWarnings({"UtilityClassWithoutPrivateConstructor"})
-public class MavenArtifactUtil
-{
-	public static final String[] DEFAULT_GROUPS = new String[]{
-			"org.apache.maven.plugins",
-			"org.codehaus.mojo"
-	};
-	public static final String MAVEN_PLUGIN_DESCRIPTOR = "META-INF/maven/plugin.xml";
+public class MavenArtifactUtil {
+    public static final String[] DEFAULT_GROUPS = new String[]{
+        "org.apache.maven.plugins",
+        "org.codehaus.mojo"
+    };
+    public static final String MAVEN_PLUGIN_DESCRIPTOR = "META-INF/maven/plugin.xml";
 
-	private static final Map<File, MavenPluginInfo> ourPluginInfoCache = Collections.synchronizedMap(new HashMap<File, MavenPluginInfo>());
+    private static final Map<File, MavenPluginInfo> ourPluginInfoCache = Collections.synchronizedMap(new HashMap<File, MavenPluginInfo>());
 
-	@Nullable
-	public static MavenPluginInfo readPluginInfo(File localRepository, MavenId mavenId)
-	{
-		File file = getArtifactFile(localRepository, mavenId.getGroupId(), mavenId.getArtifactId(), mavenId.getVersion(), "jar");
+    @Nullable
+    public static MavenPluginInfo readPluginInfo(File localRepository, MavenId mavenId) {
+        File file = getArtifactFile(localRepository, mavenId.getGroupId(), mavenId.getArtifactId(), mavenId.getVersion(), "jar");
 
-		MavenPluginInfo result = ourPluginInfoCache.get(file);
-		if(result == null)
-		{
-			result = createPluginDocument(file);
-			ourPluginInfoCache.put(file, result);
-		}
-		return result;
-	}
+        MavenPluginInfo result = ourPluginInfoCache.get(file);
+        if (result == null) {
+            result = createPluginDocument(file);
+            ourPluginInfoCache.put(file, result);
+        }
+        return result;
+    }
 
-	public static boolean hasArtifactFile(File localRepository, MavenId id)
-	{
-		return hasArtifactFile(localRepository, id, "jar");
-	}
+    public static boolean hasArtifactFile(File localRepository, MavenId id) {
+        return hasArtifactFile(localRepository, id, "jar");
+    }
 
-	public static boolean hasArtifactFile(File localRepository, MavenId id, String type)
-	{
-		return getArtifactFile(localRepository, id, type).exists();
-	}
+    public static boolean hasArtifactFile(File localRepository, MavenId id, String type) {
+        return getArtifactFile(localRepository, id, type).exists();
+    }
 
-	@Nonnull
-	public static File getArtifactFile(File localRepository, MavenId id, String type)
-	{
-		return getArtifactFile(localRepository, id.getGroupId(), id.getArtifactId(), id.getVersion(), type);
-	}
+    @Nonnull
+    public static File getArtifactFile(File localRepository, MavenId id, String type) {
+        return getArtifactFile(localRepository, id.getGroupId(), id.getArtifactId(), id.getVersion(), type);
+    }
 
-	@Nonnull
-	public static File getArtifactFile(File localRepository, MavenId id)
-	{
-		return getArtifactFile(localRepository, id.getGroupId(), id.getArtifactId(), id.getVersion(), "pom");
-	}
+    @Nonnull
+    public static File getArtifactFile(File localRepository, MavenId id) {
+        return getArtifactFile(localRepository, id.getGroupId(), id.getArtifactId(), id.getVersion(), "pom");
+    }
 
-	public static boolean isPluginIdEquals(@Nullable String groupId1, @Nullable String artifactId1, @Nullable String groupId2, @Nullable String artifactId2)
-	{
-		if(artifactId1 == null)
-		{
-			return false;
-		}
+    public static boolean isPluginIdEquals(
+        @Nullable String groupId1,
+        @Nullable String artifactId1,
+        @Nullable String groupId2,
+        @Nullable String artifactId2
+    ) {
+        if (artifactId1 == null) {
+            return false;
+        }
 
-		if(!artifactId1.equals(artifactId2))
-		{
-			return false;
-		}
+        if (!artifactId1.equals(artifactId2)) {
+            return false;
+        }
 
-		if(groupId1 != null)
-		{
-			for(String group : DEFAULT_GROUPS)
-			{
-				if(groupId1.equals(group))
-				{
-					groupId1 = null;
-					break;
-				}
-			}
-		}
+        if (groupId1 != null) {
+            for (String group : DEFAULT_GROUPS) {
+                if (groupId1.equals(group)) {
+                    groupId1 = null;
+                    break;
+                }
+            }
+        }
 
-		if(groupId2 != null)
-		{
-			for(String group : DEFAULT_GROUPS)
-			{
-				if(groupId2.equals(group))
-				{
-					groupId2 = null;
-					break;
-				}
-			}
-		}
+        if (groupId2 != null) {
+            for (String group : DEFAULT_GROUPS) {
+                if (groupId2.equals(group)) {
+                    groupId2 = null;
+                    break;
+                }
+            }
+        }
 
-		return Comparing.equal(groupId1, groupId2);
-	}
+        return Comparing.equal(groupId1, groupId2);
+    }
 
-	@Nonnull
-	public static File getArtifactFile(File localRepository, String groupId, String artifactId, String version, String type)
-	{
-		File dir = null;
-		if(StringUtil.isEmpty(groupId))
-		{
-			for(String each : DEFAULT_GROUPS)
-			{
-				dir = getArtifactDirectory(localRepository, each, artifactId);
-				if(dir.exists())
-				{
-					break;
-				}
-			}
-		}
-		else
-		{
-			dir = getArtifactDirectory(localRepository, groupId, artifactId);
-		}
+    @Nonnull
+    public static File getArtifactFile(File localRepository, String groupId, String artifactId, String version, String type) {
+        File dir = null;
+        if (StringUtil.isEmpty(groupId)) {
+            for (String each : DEFAULT_GROUPS) {
+                dir = getArtifactDirectory(localRepository, each, artifactId);
+                if (dir.exists()) {
+                    break;
+                }
+            }
+        }
+        else {
+            dir = getArtifactDirectory(localRepository, groupId, artifactId);
+        }
 
-		if(StringUtil.isEmpty(version))
-		{
-			version = resolveVersion(dir);
-		}
-		return new File(dir, version + File.separator + artifactId + "-" + version + "." + type);
-	}
+        if (StringUtil.isEmpty(version)) {
+            version = resolveVersion(dir);
+        }
+        return new File(dir, version + File.separator + artifactId + "-" + version + "." + type);
+    }
 
-	private static File getArtifactDirectory(File localRepository, String groupId, String artifactId)
-	{
-		String relativePath = StringUtil.replace(groupId, ".", File.separator) + File.separator + artifactId;
-		return new File(localRepository, relativePath);
-	}
+    private static File getArtifactDirectory(File localRepository, String groupId, String artifactId) {
+        String relativePath = StringUtil.replace(groupId, ".", File.separator) + File.separator + artifactId;
+        return new File(localRepository, relativePath);
+    }
 
-	private static String resolveVersion(File pluginDir)
-	{
-		List<String> versions = new ArrayList<>();
+    private static String resolveVersion(File pluginDir) {
+        List<String> versions = new ArrayList<>();
 
-		File[] children;
-		try
-		{
-			children = pluginDir.listFiles();
-			if(children == null)
-			{
-				return "";
-			}
-		}
-		catch(Exception e)
-		{
-			MavenLog.LOG.warn(e);
-			return "";
-		}
+        File[] children;
+        try {
+            children = pluginDir.listFiles();
+            if (children == null) {
+                return "";
+            }
+        }
+        catch (Exception e) {
+            MavenLog.LOG.warn(e);
+            return "";
+        }
 
-		for(File version : children)
-		{
-			if(version.isDirectory())
-			{
-				versions.add(version.getName());
-			}
-		}
+        for (File version : children) {
+            if (version.isDirectory()) {
+                versions.add(version.getName());
+            }
+        }
 
-		if(versions.isEmpty())
-		{
-			return "";
-		}
+        if (versions.isEmpty()) {
+            return "";
+        }
 
-		Collections.sort(versions);
-		return versions.get(versions.size() - 1);
-	}
+        Collections.sort(versions);
+        return versions.get(versions.size() - 1);
+    }
 
-	@Nullable
-	private static MavenPluginInfo createPluginDocument(File file)
-	{
-		try
-		{
-			if(!file.exists())
-			{
-				return null;
-			}
+    @Nullable
+    private static MavenPluginInfo createPluginDocument(File file) {
+        try {
+            if (!file.exists()) {
+                return null;
+            }
 
-			ZipFile jar = new ZipFile(file);
-			try
-			{
-				ZipEntry entry = jar.getEntry(MAVEN_PLUGIN_DESCRIPTOR);
+            ZipFile jar = new ZipFile(file);
+            try {
+                ZipEntry entry = jar.getEntry(MAVEN_PLUGIN_DESCRIPTOR);
 
-				if(entry == null)
-				{
-					MavenLog.LOG.info(IndicesBundle.message("repository.plugin.corrupt", file));
-					return null;
-				}
+                if (entry == null) {
+                    MavenLog.LOG.info(IndicesBundle.message("repository.plugin.corrupt", file));
+                    return null;
+                }
 
-				try (InputStream is = jar.getInputStream(entry))
-				{
-					byte[] bytes = StreamUtil.loadFromStream(is);
-					return new MavenPluginInfo(bytes);
-				}
-			}
-			finally
-			{
-				jar.close();
-			}
-		}
-		catch(IOException e)
-		{
-			MavenLog.LOG.info(e);
-			return null;
-		}
-	}
+                try (InputStream is = jar.getInputStream(entry)) {
+                    byte[] bytes = StreamUtil.loadFromStream(is);
+                    return new MavenPluginInfo(bytes);
+                }
+            }
+            finally {
+                jar.close();
+            }
+        }
+        catch (IOException e) {
+            MavenLog.LOG.info(e);
+            return null;
+        }
+    }
 }

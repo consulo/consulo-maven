@@ -31,28 +31,30 @@ import java.util.List;
 
 @ExtensionImpl
 public class MavenGotoFileContributor implements GotoFileContributor {
-  @Nonnull
-  public String[] getNames(Project project, boolean includeNonProjectItems) {
-    List<String> result = new ArrayList<String>();
+    @Nonnull
+    public String[] getNames(Project project, boolean includeNonProjectItems) {
+        List<String> result = new ArrayList<>();
 
-    for (MavenProject each : MavenProjectsManager.getInstance(project).getProjects()) {
-      result.add(each.getMavenId().getArtifactId());
+        for (MavenProject each : MavenProjectsManager.getInstance(project).getProjects()) {
+            result.add(each.getMavenId().getArtifactId());
+        }
+
+        return ArrayUtil.toStringArray(result);
     }
 
-    return ArrayUtil.toStringArray(result);
-  }
+    @Nonnull
+    public NavigationItem[] getItemsByName(String name, String pattern, Project project, boolean includeNonProjectItems) {
+        List<NavigationItem> result = new ArrayList<>();
 
-  @Nonnull
-  public NavigationItem[] getItemsByName(String name, String pattern, Project project, boolean includeNonProjectItems) {
-    List<NavigationItem> result = new ArrayList<NavigationItem>();
+        for (final MavenProject each : MavenProjectsManager.getInstance(project).getProjects()) {
+            if (name.equals(each.getMavenId().getArtifactId())) {
+                PsiFile psiFile = PsiManager.getInstance(project).findFile(each.getFile());
+                if (psiFile != null) {
+                    result.add(psiFile);
+                }
+            }
+        }
 
-    for (final MavenProject each : MavenProjectsManager.getInstance(project).getProjects()) {
-      if (name.equals(each.getMavenId().getArtifactId())) {
-        PsiFile psiFile = PsiManager.getInstance(project).findFile(each.getFile());
-        if (psiFile != null) result.add(psiFile);
-      }
+        return result.toArray(new NavigationItem[result.size()]);
     }
-
-    return result.toArray(new NavigationItem[result.size()]);
-  }
 }
