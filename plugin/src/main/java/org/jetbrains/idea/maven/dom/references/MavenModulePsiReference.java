@@ -15,6 +15,7 @@
  */
 package org.jetbrains.idea.maven.dom.references;
 
+import consulo.annotation.access.RequiredReadAction;
 import consulo.document.util.TextRange;
 import consulo.ide.impl.idea.util.PathUtil;
 import consulo.language.editor.completion.lookup.LookupElementBuilder;
@@ -32,9 +33,9 @@ import consulo.util.lang.Comparing;
 import consulo.virtualFileSystem.VirtualFile;
 import consulo.virtualFileSystem.util.VirtualFileUtil;
 import consulo.xml.util.xml.DomFileElement;
-import org.jetbrains.idea.maven.dom.MavenDomBundle;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
 import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
+import org.jetbrains.idea.maven.localize.MavenDomLocalize;
 import org.jetbrains.idea.maven.utils.MavenUtil;
 
 import javax.annotation.Nonnull;
@@ -47,6 +48,8 @@ public class MavenModulePsiReference extends MavenPsiReference implements LocalQ
         super(element, text, range);
     }
 
+    @Override
+    @RequiredReadAction
     public PsiElement resolve() {
         VirtualFile baseDir = myPsiFile.getVirtualFile().getParent();
         if (baseDir == null) {
@@ -63,10 +66,12 @@ public class MavenModulePsiReference extends MavenPsiReference implements LocalQ
     }
 
     @Nonnull
+    @Override
+    @RequiredReadAction
     public Object[] getVariants() {
         List<DomFileElement<MavenDomProjectModel>> files = MavenDomUtil.collectProjectModels(getProject());
 
-        List<Object> result = new ArrayList<Object>();
+        List<Object> result = new ArrayList<>();
 
         for (DomFileElement<MavenDomProjectModel> eachDomFile : files) {
             VirtualFile eachVFile = eachDomFile.getOriginalFile().getVirtualFile();
@@ -96,6 +101,7 @@ public class MavenModulePsiReference extends MavenPsiReference implements LocalQ
         return result.substring(0, to);
     }
 
+    @RequiredReadAction
     private PsiFile getPsiFile(VirtualFile file) {
         return PsiManager.getInstance(getProject()).findFile(file);
     }
@@ -104,6 +110,7 @@ public class MavenModulePsiReference extends MavenPsiReference implements LocalQ
         return myPsiFile.getProject();
     }
 
+    @Override
     public LocalQuickFix[] getQuickFixes() {
         if (myText.length() == 0 || resolve() != null) {
             return LocalQuickFix.EMPTY_ARRAY;
@@ -119,17 +126,20 @@ public class MavenModulePsiReference extends MavenPsiReference implements LocalQ
         }
 
         @Nonnull
+        @Override
         public String getName() {
             return myWithParent
-                ? MavenDomBundle.message("fix.create.module.with.parent")
-                : MavenDomBundle.message("fix.create.module");
+                ? MavenDomLocalize.fixCreateModuleWithParent().get()
+                : MavenDomLocalize.fixCreateModule().get();
         }
 
         @Nonnull
+        @Override
         public String getFamilyName() {
-            return MavenDomBundle.message("inspection.group");
+            return MavenDomLocalize.inspectionGroup().get();
         }
 
+        @Override
         public void applyFix(@Nonnull Project project, @Nonnull ProblemDescriptor d) {
             try {
                 VirtualFile modulePom = createModulePom();

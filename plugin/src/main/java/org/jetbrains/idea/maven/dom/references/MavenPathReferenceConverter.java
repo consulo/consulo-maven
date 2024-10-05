@@ -1,6 +1,7 @@
 // Copyright 2000-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.idea.maven.dom.references;
 
+import consulo.annotation.access.RequiredReadAction;
 import consulo.document.util.TextRange;
 import consulo.ide.impl.idea.openapi.vfs.VfsUtil;
 import consulo.language.psi.*;
@@ -39,6 +40,7 @@ public class MavenPathReferenceConverter extends PathReferenceConverter {
         myCondition = condition;
     }
 
+    @RequiredReadAction
     public static PsiReference[] createReferences(
         final DomElement genericDomValue,
         PsiElement element,
@@ -47,10 +49,12 @@ public class MavenPathReferenceConverter extends PathReferenceConverter {
         return createReferences(genericDomValue, element, fileFilter, false);
     }
 
+    @RequiredReadAction
     public static PsiReference[] createReferences(
         final DomElement genericDomValue,
         PsiElement element,
-        @Nonnull final Condition<PsiFileSystemItem> fileFilter, boolean isAbsolutePath
+        @Nonnull final Condition<PsiFileSystemItem> fileFilter,
+        boolean isAbsolutePath
     ) {
         TextRange range = ElementManipulators.getValueTextRange(element);
         String text = range.substring(element.getText());
@@ -73,6 +77,7 @@ public class MavenPathReferenceConverter extends PathReferenceConverter {
                 @Override
                 public FileReference createFileReference(TextRange range, int index, String text) {
                     return new FileReference(this, range, index, text) {
+                        @RequiredReadAction
                         @Override
                         protected void innerResolveInContext(
                             @Nonnull String text,
@@ -82,8 +87,8 @@ public class MavenPathReferenceConverter extends PathReferenceConverter {
                         ) {
                             if (model == null) {
                                 DomElement rootElement = DomUtil.getFileElement(genericDomValue).getRootElement();
-                                if (rootElement instanceof MavenDomProjectModel) {
-                                    model = (MavenDomProjectModel)rootElement;
+                                if (rootElement instanceof MavenDomProjectModel domProjectModel) {
+                                    model = domProjectModel;
                                 }
                             }
 
@@ -185,6 +190,7 @@ public class MavenPathReferenceConverter extends PathReferenceConverter {
 
     @Nonnull
     @Override
+    @RequiredReadAction
     public PsiReference[] createReferences(final GenericDomValue genericDomValue, PsiElement element, ConvertContext context) {
         return createReferences(genericDomValue, element, myCondition);
     }

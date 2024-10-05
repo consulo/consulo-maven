@@ -22,6 +22,7 @@ import consulo.xml.psi.xml.XmlTag;
 
 @ExtensionImpl
 public class MavenDomElementDescriptorProvider implements XmlElementDescriptorProvider {
+    @Override
     public XmlElementDescriptor getDescriptor(XmlTag tag) {
         return MavenDomElementDescriptorHolder.getInstance(tag.getProject()).getDescriptor(tag);
     }

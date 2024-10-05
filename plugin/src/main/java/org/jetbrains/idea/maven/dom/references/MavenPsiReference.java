@@ -15,6 +15,8 @@
  */
 package org.jetbrains.idea.maven.dom.references;
 
+import consulo.annotation.access.RequiredReadAction;
+import consulo.annotation.access.RequiredWriteAction;
 import consulo.document.util.TextRange;
 import consulo.language.psi.PsiElement;
 import consulo.language.psi.PsiFile;
@@ -63,31 +65,46 @@ public abstract class MavenPsiReference implements PsiReference {
         myRange = range;
     }
 
+    @Override
+    @RequiredReadAction
     public PsiElement getElement() {
         return myElement;
     }
 
     @Nonnull
+    @Override
+    @RequiredReadAction
     public String getCanonicalText() {
         return myText;
     }
 
+    @Nonnull
+    @Override
+    @RequiredReadAction
     public TextRange getRangeInElement() {
         return myRange;
     }
 
+    @Override
+    @RequiredReadAction
     public boolean isReferenceTo(PsiElement element) {
         return getElement().getManager().areElementsEquivalent(element, resolve());
     }
 
+    @Override
+    @RequiredWriteAction
     public PsiElement handleElementRename(String newElementName) throws IncorrectOperationException {
         return null;
     }
 
+    @Override
+    @RequiredWriteAction
     public PsiElement bindToElement(@Nonnull PsiElement element) throws IncorrectOperationException {
         return null;
     }
 
+    @Override
+    @RequiredReadAction
     public boolean isSoft() {
         return true;
     }

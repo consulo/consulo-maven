@@ -42,8 +42,8 @@ public class MavenTargetUtil {
         }
 
         PsiElement target = TargetElementUtil.findTargetElement(editor, Set.of(TargetElementUtilExtender.REFERENCED_ELEMENT_ACCEPTED));
-        if (target instanceof MavenPsiElementWrapper) {
-            return ((MavenPsiElementWrapper)target).getWrappee();
+        if (target instanceof MavenPsiElementWrapper wrapper) {
+            return wrapper.getWrappee();
         }
 
         if (target == null || isSchema(target)) {
@@ -61,6 +61,6 @@ public class MavenTargetUtil {
     }
 
     private static boolean isSchema(PsiElement element) {
-        return element instanceof XmlTag && XmlUtil.XML_SCHEMA_URI.equals(((XmlTag)element).getNamespace());
+        return element instanceof XmlTag tag && XmlUtil.XML_SCHEMA_URI.equals(tag.getNamespace());
     }
 }

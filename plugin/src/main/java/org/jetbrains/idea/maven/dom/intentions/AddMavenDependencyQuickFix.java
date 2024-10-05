@@ -19,7 +19,6 @@ import com.intellij.java.language.psi.PsiJavaCodeReferenceElement;
 import consulo.application.Result;
 import consulo.codeEditor.Editor;
 import consulo.language.editor.WriteCommandAction;
-import consulo.language.editor.intention.IntentionAction;
 import consulo.language.editor.intention.LowPriorityAction;
 import consulo.language.editor.intention.SyntheticIntentionAction;
 import consulo.language.psi.PsiElement;
@@ -28,7 +27,6 @@ import consulo.language.util.IncorrectOperationException;
 import consulo.maven.rt.server.common.model.MavenId;
 import consulo.project.Project;
 import consulo.xml.util.xml.DomUtil;
-import org.jetbrains.idea.maven.dom.MavenDomBundle;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
 import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
 import org.jetbrains.idea.maven.indices.MavenArtifactSearchDialog;
@@ -50,10 +48,12 @@ public class AddMavenDependencyQuickFix implements SyntheticIntentionAction, Low
     }
 
     @Nonnull
+    @Override
     public String getText() {
         return "Add Maven Dependency...";
     }
 
+    @Override
     public boolean isAvailable(@Nonnull Project project, Editor editor, PsiFile file) {
         return myRef.isValid() && MavenDomUtil.findContainingProject(file) != null && looksLikeClassName(getReferenceText());
     }
@@ -66,6 +66,7 @@ public class AddMavenDependencyQuickFix implements SyntheticIntentionAction, Low
         return CLASSNAME_PATTERN.matcher(text).matches();
     }
 
+    @Override
     public void invoke(@Nonnull final Project project, Editor editor, final PsiFile file) throws IncorrectOperationException {
         if (!myRef.isValid()) {
             return;
@@ -99,17 +100,16 @@ public class AddMavenDependencyQuickFix implements SyntheticIntentionAction, Low
     public String getReferenceText() {
         PsiJavaCodeReferenceElement result = myRef;
         while (true) {
-            PsiElement parent = result.getParent();
-            if (!(parent instanceof PsiJavaCodeReferenceElement)) {
+            if (!(result.getParent() instanceof PsiJavaCodeReferenceElement javaCodeReferenceElement)) {
                 break;
             }
-
-            result = (PsiJavaCodeReferenceElement)parent;
+            result = javaCodeReferenceElement;
         }
 
         return result.getQualifiedName();
     }
 
+    @Override
     public boolean startInWriteAction() {
         return false;
     }

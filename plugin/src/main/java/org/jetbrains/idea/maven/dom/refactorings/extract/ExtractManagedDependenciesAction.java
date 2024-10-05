@@ -15,6 +15,7 @@
  */
 package org.jetbrains.idea.maven.dom.refactorings.extract;
 
+import consulo.annotation.access.RequiredReadAction;
 import consulo.application.Result;
 import consulo.codeEditor.Editor;
 import consulo.dataContext.DataContext;
@@ -50,10 +51,12 @@ public class ExtractManagedDependenciesAction extends BaseRefactoringAction {
         setInjectedContext(true);
     }
 
+    @Override
     protected boolean isAvailableInEditorOnly() {
         return true;
     }
 
+    @Override
     protected boolean isEnabledOnElements(@Nonnull PsiElement[] elements) {
         return false;
     }
@@ -63,26 +66,29 @@ public class ExtractManagedDependenciesAction extends BaseRefactoringAction {
         return true;
     }
 
+    @Override
     protected RefactoringActionHandler getHandler(@Nonnull DataContext dataContext) {
         return new MyRefactoringActionHandler();
     }
 
     @Override
+    @RequiredReadAction
     protected boolean isAvailableForFile(PsiFile file) {
         return MavenDomUtil.isMavenFile(file);
     }
 
     @Override
+    @RequiredReadAction
     protected boolean isAvailableOnElementInEditorAndFile(
-        @Nonnull PsiElement element, @Nonnull Editor editor, @Nonnull PsiFile file,
+        @Nonnull PsiElement element,
+        @Nonnull Editor editor,
+        @Nonnull PsiFile file,
         @Nonnull DataContext context
     ) {
-        if (!super.isAvailableOnElementInEditorAndFile(element, editor, file, context)) {
-            return false;
-        }
-        return findDependencyAndParent(file, editor) != null;
+        return super.isAvailableOnElementInEditorAndFile(element, editor, file, context) && findDependencyAndParent(file, editor) != null;
     }
 
+    @RequiredReadAction
     private static Pair<MavenDomDependency, Set<MavenDomProjectModel>> findDependencyAndParent(PsiFile file, Editor editor) {
         final MavenDomDependency dependency = DomUtil.findDomElement(
             file.findElementAt(editor.getCaretModel().getOffset()),

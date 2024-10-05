@@ -17,6 +17,8 @@ package org.jetbrains.idea.maven.dom;
 
 import com.intellij.lang.properties.IProperty;
 import com.intellij.lang.properties.psi.PropertiesFile;
+import consulo.annotation.access.RequiredReadAction;
+import consulo.annotation.access.RequiredWriteAction;
 import consulo.codeEditor.Editor;
 import consulo.language.psi.PsiElement;
 import consulo.language.psi.PsiFile;
@@ -76,10 +78,12 @@ public class MavenDomUtil {
         "activeProfiles"
     );
 
+    @RequiredReadAction
     public static boolean isMavenFile(PsiFile file) {
         return isProjectFile(file) || isProfilesFile(file) || isSettingsFile(file);
     }
 
+    @RequiredReadAction
     public static boolean isProjectFile(PsiFile file) {
         if (!(file instanceof XmlFile)) {
             return false;
@@ -91,14 +95,12 @@ public class MavenDomUtil {
             || name.equals(MavenConstants.SUPER_POM_XML);
     }
 
+    @RequiredReadAction
     public static boolean isProfilesFile(PsiFile file) {
-        if (!(file instanceof XmlFile)) {
-            return false;
-        }
-
-        return MavenConstants.PROFILES_XML.equals(file.getName());
+        return file instanceof XmlFile && MavenConstants.PROFILES_XML.equals(file.getName());
     }
 
+    @RequiredReadAction
     public static boolean isSettingsFile(PsiFile file) {
         if (!(file instanceof XmlFile)) {
             return false;
@@ -122,8 +124,8 @@ public class MavenDomUtil {
         boolean hasTag = false;
 
         for (PsiElement e = rootTag.getFirstChild(); e != null; e = e.getNextSibling()) {
-            if (e instanceof XmlTag) {
-                if (SUBTAGS_IN_SETTINGS_FILE.contains(((XmlTag)e).getName())) {
+            if (e instanceof XmlTag tag) {
+                if (SUBTAGS_IN_SETTINGS_FILE.contains(tag.getName())) {
                     return true;
                 }
                 hasTag = true;
@@ -133,6 +135,7 @@ public class MavenDomUtil {
         return !hasTag;
     }
 
+    @RequiredReadAction
     public static boolean isMavenFile(PsiElement element) {
         return isMavenFile(element.getContainingFile());
     }
@@ -162,10 +165,7 @@ public class MavenDomUtil {
 
     public static boolean isMavenProperty(PsiElement target) {
         XmlTag tag = PsiTreeUtil.getParentOfType(target, XmlTag.class, false);
-        if (tag == null) {
-            return false;
-        }
-        return DomUtil.findDomElement(tag, MavenDomProperties.class) != null;
+        return tag != null && DomUtil.findDomElement(tag, MavenDomProperties.class) != null;
     }
 
     public static String calcRelativePath(VirtualFile parent, VirtualFile child) {
@@ -177,6 +177,7 @@ public class MavenDomUtil {
         return FileUtil.toSystemIndependentName(result);
     }
 
+    @RequiredWriteAction
     public static MavenDomParent updateMavenParent(MavenDomProjectModel mavenModel, MavenProject parentProject) {
         MavenDomParent result = mavenModel.getMavenParent();
 
@@ -195,6 +196,7 @@ public class MavenDomUtil {
         return result;
     }
 
+    @SuppressWarnings("unchecked")
     public static <T> T getImmediateParent(ConvertContext context, Class<T> clazz) {
         DomElement parentElement = context.getInvocationElement().getParent();
         return clazz.isInstance(parentElement) ? (T)parentElement : null;
@@ -253,11 +255,13 @@ public class MavenDomUtil {
     }
 
     @Nullable
+    @RequiredReadAction
     public static MavenDomProjectModel getMavenDomProjectModel(@Nonnull Project project, @Nonnull VirtualFile file) {
         return getMavenDomModel(project, file, MavenDomProjectModel.class);
     }
 
     @Nullable
+    @RequiredReadAction
     public static MavenDomProfiles getMavenDomProfilesModel(@Nonnull Project project, @Nonnull VirtualFile file) {
         MavenDomProfilesModel model = getMavenDomModel(project, file, MavenDomProfilesModel.class);
         if (model != null) {
@@ -267,6 +271,7 @@ public class MavenDomUtil {
     }
 
     @Nullable
+    @RequiredReadAction
     public static <T extends MavenDomElement> T getMavenDomModel(
         @Nonnull Project project,
         @Nonnull VirtualFile file,
@@ -290,10 +295,7 @@ public class MavenDomUtil {
 
     @Nullable
     private static <T extends MavenDomElement> DomFileElement<T> getMavenDomFile(@Nonnull PsiFile file, @Nonnull Class<T> clazz) {
-        if (!(file instanceof XmlFile)) {
-            return null;
-        }
-        return DomManager.getDomManager(file.getProject()).getFileElement((XmlFile)file, clazz);
+        return file instanceof XmlFile xmlFile ? DomManager.getDomManager(file.getProject()).getFileElement(xmlFile, clazz) : null;
     }
 
     @Nullable
@@ -360,6 +362,7 @@ public class MavenDomUtil {
     }
 
     @Nullable
+    @RequiredReadAction
     public static PropertiesFile getPropertiesFile(@Nonnull Project project, @Nonnull VirtualFile file) {
         PsiFile psiFile = PsiManager.getInstance(project).findFile(file);
         if (!(psiFile instanceof PropertiesFile)) {
@@ -369,12 +372,14 @@ public class MavenDomUtil {
     }
 
     @Nullable
+    @RequiredReadAction
     public static IProperty findProperty(@Nonnull Project project, @Nonnull VirtualFile file, @Nonnull String propName) {
         PropertiesFile propertiesFile = getPropertiesFile(project, file);
         return propertiesFile == null ? null : propertiesFile.findPropertyByKey(propName);
     }
 
     @Nullable
+    @RequiredReadAction
     public static PsiElement findPropertyValue(@Nonnull Project project, @Nonnull VirtualFile file, @Nonnull String propName) {
         IProperty prop = findProperty(project, file, propName);
         return prop == null ? null : prop.getPsiElement().getFirstChild().getNextSibling().getNextSibling();
@@ -482,26 +487,28 @@ public class MavenDomUtil {
     }
 
     @Nonnull
+    @RequiredReadAction
     public static MavenDomDependency createDomDependency(@Nonnull MavenDomProjectModel model, @Nullable Editor editor) {
         return createDomDependency(model.getDependencies(), editor);
     }
 
     @Nonnull
+    @RequiredReadAction
     public static MavenDomDependency createDomDependency(@Nonnull MavenDomDependencies dependencies, @Nullable Editor editor) {
         int index = getCollectionIndex(dependencies, editor);
         if (index >= 0) {
             DomCollectionChildDescription childDescription = dependencies.getGenericInfo().getCollectionChildDescription("dependency");
             if (childDescription != null) {
                 DomElement element = childDescription.addValue(dependencies, index);
-                if (element instanceof MavenDomDependency) {
-                    return (MavenDomDependency)element;
+                if (element instanceof MavenDomDependency domDependency) {
+                    return domDependency;
                 }
             }
         }
         return dependencies.addDependency();
     }
 
-
+    @RequiredReadAction
     public static int getCollectionIndex(@Nonnull final MavenDomDependencies dependencies, @Nullable final Editor editor) {
         if (editor != null) {
             int offset = editor.getCaretModel().getOffset();

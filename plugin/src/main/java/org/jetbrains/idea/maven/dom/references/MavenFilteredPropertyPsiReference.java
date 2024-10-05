@@ -16,6 +16,8 @@
 package org.jetbrains.idea.maven.dom.references;
 
 import com.intellij.lang.properties.IProperty;
+import consulo.annotation.access.RequiredReadAction;
+import consulo.annotation.access.RequiredWriteAction;
 import consulo.document.util.TextRange;
 import consulo.language.psi.PsiElement;
 import consulo.language.psi.PsiFile;
@@ -35,6 +37,7 @@ public class MavenFilteredPropertyPsiReference extends MavenPropertyPsiReference
     }
 
     @Override
+    @RequiredReadAction
     protected PsiElement doResolve() {
         PsiElement result = super.doResolve();
         if (result != null) {
@@ -56,6 +59,7 @@ public class MavenFilteredPropertyPsiReference extends MavenPropertyPsiReference
     }
 
     @Override
+    @RequiredReadAction
     protected void collectVariants(List<Object> result, Set<String> variants) {
         super.collectVariants(result, variants);
 
@@ -69,6 +73,7 @@ public class MavenFilteredPropertyPsiReference extends MavenPropertyPsiReference
     }
 
     @Override
+    @RequiredWriteAction
     public PsiElement handleElementRename(String newElementName) throws IncorrectOperationException {
         String newText = myRange.replace(myElement.getText(), newElementName);
         PsiFile psiFile = myElement.getContainingFile();

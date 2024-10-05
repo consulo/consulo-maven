@@ -19,17 +19,18 @@ import com.google.common.base.Predicates;
 import com.google.common.collect.Maps;
 import consulo.application.AllIcons;
 import consulo.application.Result;
+import consulo.application.util.function.Processor;
 import consulo.codeEditor.Editor;
 import consulo.language.editor.WriteCommandAction;
-import consulo.application.util.function.Processor;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.util.lang.StringUtil;
 import consulo.xml.util.xml.ui.actions.generate.GenerateDomElementAction;
 import org.jetbrains.idea.maven.dom.DependencyConflictId;
-import org.jetbrains.idea.maven.dom.MavenDomBundle;
 import org.jetbrains.idea.maven.dom.MavenDomProjectProcessorUtils;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
 import org.jetbrains.idea.maven.dom.model.MavenDomDependency;
 import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
+import org.jetbrains.idea.maven.localize.MavenDomLocalize;
 
 import javax.annotation.Nonnull;
 import java.util.*;
@@ -46,10 +47,11 @@ public class GenerateManagedDependencyAction extends GenerateDomElementAction {
 
     private static class MavenOverridingDependencyGenerateProvider extends MavenGenerateProvider<MavenDomDependency> {
         public MavenOverridingDependencyGenerateProvider() {
-            super(MavenDomBundle.message("generate.managed.dependency"), MavenDomDependency.class);
+            super(MavenDomLocalize.generateManagedDependency().get(), MavenDomDependency.class);
         }
 
         @Override
+        @RequiredUIAccess
         protected MavenDomDependency doGenerate(@Nonnull final MavenDomProjectModel mavenModel, final Editor editor) {
             Set<DependencyConflictId> existingDependencies = collectExistingDependencies(mavenModel);
             Map<DependencyConflictId, MavenDomDependency> managingDependencies = collectManagingDependencies(mavenModel);
@@ -59,10 +61,8 @@ public class GenerateManagedDependencyAction extends GenerateDomElementAction {
                 Predicates.not(Predicates.in(existingDependencies))
             );
 
-            final List<MavenDomDependency> dependenciesToOverride = GenerateDependencyUtil.chooseDependencies(
-                unexistManagingDeps.values(),
-                mavenModel.getManager().getProject()
-            );
+            final List<MavenDomDependency> dependenciesToOverride =
+                GenerateDependencyUtil.chooseDependencies(unexistManagingDeps.values(), mavenModel.getManager().getProject());
 
             if (!dependenciesToOverride.isEmpty()) {
                 return new WriteCommandAction<MavenDomDependency>(editor.getProject(), mavenModel.getXmlTag().getContainingFile()) {
@@ -94,7 +94,7 @@ public class GenerateManagedDependencyAction extends GenerateDomElementAction {
     }
 
     private static Set<DependencyConflictId> collectExistingDependencies(@Nonnull final MavenDomProjectModel model) {
-        final Set<DependencyConflictId> existingDependencies = new HashSet<DependencyConflictId>();
+        final Set<DependencyConflictId> existingDependencies = new HashSet<>();
         for (MavenDomDependency dependency : model.getDependencies().getDependencies()) {
             DependencyConflictId id = DependencyConflictId.create(dependency);
             if (id != null) {
@@ -107,17 +107,15 @@ public class GenerateManagedDependencyAction extends GenerateDomElementAction {
 
     @Nonnull
     public static Map<DependencyConflictId, MavenDomDependency> collectManagingDependencies(@Nonnull final MavenDomProjectModel model) {
-        final Map<DependencyConflictId, MavenDomDependency> dependencies = new HashMap<DependencyConflictId, MavenDomDependency>();
+        final Map<DependencyConflictId, MavenDomDependency> dependencies = new HashMap<>();
 
-        Processor<MavenDomDependency> collectProcessor = new Processor<MavenDomDependency>() {
-            public boolean process(MavenDomDependency dependency) {
-                DependencyConflictId id = DependencyConflictId.create(dependency);
-                if (id != null && !dependencies.containsKey(id)) {
-                    dependencies.put(id, dependency);
-                }
-
-                return false;
+        Processor<MavenDomDependency> collectProcessor = dependency -> {
+            DependencyConflictId id = DependencyConflictId.create(dependency);
+            if (id != null && !dependencies.containsKey(id)) {
+                dependencies.put(id, dependency);
             }
+
+            return false;
         };
 
         MavenDomProjectProcessorUtils.processDependenciesInDependencyManagement(model, collectProcessor, model.getManager().getProject());

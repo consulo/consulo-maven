@@ -15,6 +15,7 @@
  */
 package org.jetbrains.idea.maven.dom;
 
+import consulo.annotation.access.RequiredReadAction;
 import consulo.language.psi.PsiFile;
 import consulo.maven.rt.server.common.model.MavenId;
 import consulo.maven.rt.server.common.model.MavenPlugin;
@@ -55,6 +56,7 @@ public class MavenPluginDomUtil {
     }
 
     @Nullable
+    @RequiredReadAction
     public static MavenDomPluginModel getMavenPluginModel(DomElement element) {
         Project project = element.getManager().getProject();
 
@@ -82,6 +84,7 @@ public class MavenPluginDomUtil {
     }
 
     @Nullable
+    @RequiredReadAction
     public static MavenDomPluginModel getMavenPluginModel(Project project, String groupId, String artifactId, String version) {
         VirtualFile pluginXmlFile = getPluginXmlFile(project, groupId, artifactId, version);
         if (pluginXmlFile == null) {
@@ -93,11 +96,7 @@ public class MavenPluginDomUtil {
 
     public static boolean isPlugin(@Nonnull MavenDomConfiguration configuration, @Nullable String groupId, @Nonnull String artifactId) {
         MavenDomPlugin domPlugin = configuration.getParentOfType(MavenDomPlugin.class, true);
-        if (domPlugin == null) {
-            return false;
-        }
-
-        return isPlugin(domPlugin, groupId, artifactId);
+        return domPlugin != null && isPlugin(domPlugin, groupId, artifactId);
     }
 
     public static boolean isPlugin(@Nonnull MavenDomPlugin plugin, @Nullable String groupId, @Nonnull String artifactId) {

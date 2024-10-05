@@ -95,14 +95,7 @@ public class DependencyConflictId {
         if (classifier != null ? !classifier.equals(id.classifier) : id.classifier != null) {
             return false;
         }
-        if (!groupId.equals(id.groupId)) {
-            return false;
-        }
-        if (!type.equals(id.type)) {
-            return false;
-        }
-
-        return true;
+        return groupId.equals(id.groupId) && type.equals(id.type);
     }
 
     @Override

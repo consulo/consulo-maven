@@ -46,14 +46,17 @@ public class MavenVersionComparable implements Comparable<MavenVersionComparable
             this.value = new BigInteger(str);
         }
 
+        @Override
         public int getType() {
             return INTEGER_ITEM;
         }
 
+        @Override
         public boolean isNull() {
             return BigInteger_ZERO.equals(value);
         }
 
+        @Override
         public int compareTo(Item item) {
             if (item == null) {
                 return BigInteger_ZERO.equals(value) ? 0 : 1; // 1.0 == 1, 1.1 > 1
@@ -74,6 +77,7 @@ public class MavenVersionComparable implements Comparable<MavenVersionComparable
             }
         }
 
+        @Override
         public String toString() {
             return value.toString();
         }
@@ -122,10 +126,12 @@ public class MavenVersionComparable implements Comparable<MavenVersionComparable
             this.value = ALIASES.getProperty(value, value);
         }
 
+        @Override
         public int getType() {
             return STRING_ITEM;
         }
 
+        @Override
         public boolean isNull() {
             return (comparableQualifier(value).compareTo(RELEASE_VERSION_INDEX) == 0);
         }
@@ -149,6 +155,7 @@ public class MavenVersionComparable implements Comparable<MavenVersionComparable
             return i == -1 ? _QUALIFIERS.size() + "-" + qualifier : String.valueOf(i);
         }
 
+        @Override
         public int compareTo(Item item) {
             if (item == null) {
                 // 1-rc < 1, 1-ga > 1
@@ -169,6 +176,7 @@ public class MavenVersionComparable implements Comparable<MavenVersionComparable
             }
         }
 
+        @Override
         public String toString() {
             return value;
         }
@@ -178,13 +186,13 @@ public class MavenVersionComparable implements Comparable<MavenVersionComparable
      * Represents a version list item. This class is used both for the global item list and for sub-lists (which start
      * with '-(number)' in the version specification).
      */
-    private static class ListItem
-        extends ArrayList<Item>
-        implements Item {
+    private static class ListItem extends ArrayList<Item> implements Item {
+        @Override
         public int getType() {
             return LIST_ITEM;
         }
 
+        @Override
         public boolean isNull() {
             return (size() == 0);
         }
@@ -201,6 +209,7 @@ public class MavenVersionComparable implements Comparable<MavenVersionComparable
             }
         }
 
+        @Override
         public int compareTo(Item item) {
             if (item == null) {
                 if (size() == 0) {
@@ -239,6 +248,7 @@ public class MavenVersionComparable implements Comparable<MavenVersionComparable
             }
         }
 
+        @Override
         public String toString() {
             StringBuilder buffer = new StringBuilder("(");
             for (Iterator<Item> iter = iterator(); iter.hasNext(); ) {
@@ -339,18 +349,22 @@ public class MavenVersionComparable implements Comparable<MavenVersionComparable
         return isDigit ? new IntegerItem(buf) : new StringItem(buf, false);
     }
 
+    @Override
     public int compareTo(MavenVersionComparable o) {
         return items.compareTo(o.items);
     }
 
+    @Override
     public String toString() {
         return value;
     }
 
+    @Override
     public boolean equals(Object o) {
-        return (o instanceof MavenVersionComparable) && canonical.equals(((MavenVersionComparable)o).canonical);
+        return o instanceof MavenVersionComparable versionComparable && canonical.equals(versionComparable.canonical);
     }
 
+    @Override
     public int hashCode() {
         return canonical.hashCode();
     }

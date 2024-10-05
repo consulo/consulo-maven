@@ -15,6 +15,7 @@
  */
 package org.jetbrains.idea.maven.dom.references;
 
+import consulo.annotation.access.RequiredReadAction;
 import consulo.document.util.TextRange;
 import consulo.language.psi.ElementManipulators;
 import consulo.language.psi.PsiElement;
@@ -44,27 +45,25 @@ public class MavenPropertyPsiReferenceProvider extends PsiReferenceProvider {
 
     @Nonnull
     @Override
+    @RequiredReadAction
     public PsiReference[] getReferencesByElement(@Nonnull PsiElement element, @Nonnull ProcessingContext context) {
         return getReferences(element, SOFT_DEFAULT);
     }
 
     private static boolean isElementCanContainReference(PsiElement element) {
-        if (element instanceof XmlTag) {
-            if ("delimiter".equals(((XmlTag)element).getName())) {
-                XmlTag delimitersTag = ((XmlTag)element).getParentTag();
-                if (delimitersTag != null && "delimiters".equals(delimitersTag.getName())) {
-                    XmlTag configurationTag = delimitersTag.getParentTag();
-                    if (configurationTag != null && "configuration".equals(configurationTag.getName())) {
-                        DomElement configurationDom =
-                            DomManager.getDomManager(configurationTag.getProject()).getDomElement(configurationTag);
-                        if (configurationDom != null && configurationDom instanceof MavenDomConfiguration) {
-                            if (MavenPluginDomUtil.isPlugin(
-                                (MavenDomConfiguration)configurationDom,
-                                "org.apache.maven.plugins",
-                                "maven-resources-plugin"
-                            )) {
-                                return false;
-                            }
+        if (element instanceof XmlTag tag && "delimiter".equals(tag.getName())) {
+            XmlTag delimitersTag = tag.getParentTag();
+            if (delimitersTag != null && "delimiters".equals(delimitersTag.getName())) {
+                XmlTag configurationTag = delimitersTag.getParentTag();
+                if (configurationTag != null && "configuration".equals(configurationTag.getName())) {
+                    DomElement configurationDom = DomManager.getDomManager(configurationTag.getProject()).getDomElement(configurationTag);
+                    if (configurationDom != null && configurationDom instanceof MavenDomConfiguration mavenDomConfiguration) {
+                        if (MavenPluginDomUtil.isPlugin(
+                            mavenDomConfiguration,
+                            "org.apache.maven.plugins",
+                            "maven-resources-plugin"
+                        )) {
+                            return false;
                         }
                     }
                 }
@@ -85,6 +84,7 @@ public class MavenPropertyPsiReferenceProvider extends PsiReferenceProvider {
         return manager.findProject(virtualFile);
     }
 
+    @RequiredReadAction
     public static PsiReference[] getReferences(PsiElement element, boolean isSoft) {
         TextRange textRange = ElementManipulators.getValueTextRange(element);
         if (textRange.isEmpty()) {

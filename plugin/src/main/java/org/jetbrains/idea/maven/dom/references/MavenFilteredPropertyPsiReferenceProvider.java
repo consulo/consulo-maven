@@ -15,6 +15,7 @@
  */
 package org.jetbrains.idea.maven.dom.references;
 
+import consulo.annotation.access.RequiredReadAction;
 import consulo.document.util.TextRange;
 import consulo.language.psi.PsiElement;
 import consulo.language.psi.PsiReference;
@@ -101,20 +102,18 @@ public class MavenFilteredPropertyPsiReferenceProvider extends PsiReferenceProvi
         pattern.append(Pattern.quote(prefix)).append("(.+?)").append(Pattern.quote(suffix));
     }
 
+    @RequiredReadAction
     private static boolean shouldAddReference(@Nonnull PsiElement element) {
         if (element.getFirstChild() == element.getLastChild()) {
             return true; // Add to all leaf elements
         }
 
-        if (element instanceof XmlAttribute) {
-            return true;
-        }
-
-        return false; // Don't add references to all element to avoid performance problem.
+        return element instanceof XmlAttribute;
     }
 
     @Nonnull
     @Override
+    @RequiredReadAction
     public PsiReference[] getReferencesByElement(@Nonnull PsiElement element, @Nonnull ProcessingContext context) {
         if (!shouldAddReference(element)) {
             // Add reference to element with one child or leaf element only to avoid performance problem.

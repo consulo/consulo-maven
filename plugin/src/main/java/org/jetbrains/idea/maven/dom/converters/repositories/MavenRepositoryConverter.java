@@ -15,6 +15,7 @@
  */
 package org.jetbrains.idea.maven.dom.converters.repositories;
 
+import consulo.annotation.access.RequiredReadAction;
 import consulo.language.psi.PsiElement;
 import consulo.language.psi.PsiReference;
 import consulo.maven.icon.MavenIconGroup;
@@ -27,7 +28,6 @@ import consulo.language.editor.completion.lookup.LookupElementBuilder;
 import consulo.xml.util.xml.ConvertContext;
 import consulo.xml.util.xml.GenericDomValue;
 import consulo.xml.util.xml.ResolvingConverter;
-import org.jetbrains.annotations.NonNls;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -88,6 +88,7 @@ public abstract class MavenRepositoryConverter extends ResolvingConverter<String
 
                 @Nonnull
                 @Override
+                @RequiredReadAction
                 public Object[] getVariants() {
                     consulo.module.Module module = context.getModule();
 

@@ -17,13 +17,12 @@ package org.jetbrains.idea.maven.dom.inspections;
 
 import consulo.annotation.component.ExtensionImpl;
 import consulo.virtualFileSystem.VirtualFile;
-import consulo.xml.util.xml.Converter;
 import consulo.xml.util.xml.DomUtil;
 import consulo.xml.util.xml.GenericDomValue;
 import consulo.xml.util.xml.highlighting.BasicDomElementsInspection;
-import org.jetbrains.idea.maven.dom.MavenDomBundle;
 import org.jetbrains.idea.maven.dom.converters.MavenDomSoftAwareConverter;
 import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
+import org.jetbrains.idea.maven.localize.MavenDomLocalize;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 
 import javax.annotation.Nonnull;
@@ -35,16 +34,19 @@ public class MavenModelInspection extends BasicDomElementsInspection<MavenDomPro
     }
 
     @Nonnull
+    @Override
     public String getGroupDisplayName() {
-        return MavenDomBundle.message("inspection.group");
+        return MavenDomLocalize.inspectionGroup().get();
     }
 
     @Nonnull
+    @Override
     public String getDisplayName() {
-        return MavenDomBundle.message("inspection.name");
+        return MavenDomLocalize.inspectionName().get();
     }
 
     @Nonnull
+    @Override
     public String getShortName() {
         return "MavenModelInspection";
     }
@@ -62,15 +64,7 @@ public class MavenModelInspection extends BasicDomElementsInspection<MavenDomPro
 
     @Override
     protected boolean shouldCheckResolveProblems(GenericDomValue value) {
-        if (!isElementInsideManagedFile(value)) {
-            return false;
-        }
-
-        Converter converter = value.getConverter();
-        if (converter instanceof MavenDomSoftAwareConverter) {
-            return !((MavenDomSoftAwareConverter)converter).isSoft(value);
-        }
-
-        return true;
+        return isElementInsideManagedFile(value)
+            && !(value.getConverter() instanceof MavenDomSoftAwareConverter domSoftAwareConverter && domSoftAwareConverter.isSoft(value));
     }
 }

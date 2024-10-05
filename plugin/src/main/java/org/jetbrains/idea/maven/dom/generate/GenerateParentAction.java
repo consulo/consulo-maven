@@ -15,16 +15,18 @@
  */
 package org.jetbrains.idea.maven.dom.generate;
 
+import consulo.annotation.access.RequiredWriteAction;
 import consulo.application.Result;
 import consulo.codeEditor.Editor;
 import consulo.language.editor.WriteCommandAction;
+import consulo.maven.icon.MavenIconGroup;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.xml.util.xml.DomUtil;
 import consulo.xml.util.xml.ui.actions.generate.GenerateDomElementAction;
-import org.jetbrains.idea.maven.MavenIcons;
-import org.jetbrains.idea.maven.dom.MavenDomBundle;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
 import org.jetbrains.idea.maven.dom.model.MavenDomParent;
 import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
+import org.jetbrains.idea.maven.localize.MavenDomLocalize;
 import org.jetbrains.idea.maven.navigator.SelectMavenProjectDialog;
 import org.jetbrains.idea.maven.project.MavenProject;
 
@@ -32,30 +34,37 @@ import javax.annotation.Nonnull;
 
 public class GenerateParentAction extends GenerateDomElementAction {
     public GenerateParentAction() {
-        super(new MavenGenerateProvider<>(MavenDomBundle.message("generate.parent"), MavenDomParent.class) {
-            protected MavenDomParent doGenerate(@Nonnull final MavenDomProjectModel mavenModel, Editor editor) {
-                SelectMavenProjectDialog d = new SelectMavenProjectDialog(editor.getProject(), null);
-                d.show();
-                if (!d.isOK()) {
-                    return null;
-                }
-                final MavenProject parentProject = d.getResult();
-                if (parentProject == null) {
-                    return null;
-                }
-
-                return new WriteCommandAction<MavenDomParent>(editor.getProject(), getDescription()) {
-                    protected void run(Result result) throws Throwable {
-                        result.setResult(MavenDomUtil.updateMavenParent(mavenModel, parentProject));
+        super(
+            new MavenGenerateProvider<>(MavenDomLocalize.generateParent().get(), MavenDomParent.class) {
+                @Override
+                @RequiredUIAccess
+                protected MavenDomParent doGenerate(@Nonnull final MavenDomProjectModel mavenModel, Editor editor) {
+                    SelectMavenProjectDialog d = new SelectMavenProjectDialog(editor.getProject(), null);
+                    d.show();
+                    if (!d.isOK()) {
+                        return null;
                     }
-                }.execute().getResultObject();
-            }
+                    final MavenProject parentProject = d.getResult();
+                    if (parentProject == null) {
+                        return null;
+                    }
 
-            @Override
-            protected boolean isAvailableForModel(MavenDomProjectModel mavenModel) {
-                return !DomUtil.hasXml(mavenModel.getMavenParent());
-            }
-        }, MavenIcons.MavenProject);
+                    return new WriteCommandAction<MavenDomParent>(editor.getProject(), getDescription()) {
+                        @Override
+                        @RequiredWriteAction
+                        protected void run(Result<MavenDomParent> result) throws Throwable {
+                            result.setResult(MavenDomUtil.updateMavenParent(mavenModel, parentProject));
+                        }
+                    }.execute().getResultObject();
+                }
+
+                @Override
+                protected boolean isAvailableForModel(MavenDomProjectModel mavenModel) {
+                    return !DomUtil.hasXml(mavenModel.getMavenParent());
+                }
+            },
+            MavenIconGroup.mavenlogo()
+        );
     }
 
     @Override

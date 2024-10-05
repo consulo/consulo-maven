@@ -20,11 +20,14 @@ import consulo.codeEditor.Editor;
 import consulo.ide.impl.find.PsiElement2UsageTargetAdapter;
 import consulo.language.psi.PsiElement;
 import consulo.language.psi.PsiFile;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.usage.UsageTarget;
 import consulo.usage.UsageTargetProvider;
 
 @ExtensionImpl
 public class MavenUsageTargetProvider implements UsageTargetProvider {
+    @Override
+    @RequiredUIAccess
     public UsageTarget[] getTargets(Editor editor, PsiFile file) {
         PsiElement target = MavenTargetUtil.getFindTarget(editor, file);
         if (target == null) {
@@ -33,6 +36,7 @@ public class MavenUsageTargetProvider implements UsageTargetProvider {
         return new UsageTarget[]{new PsiElement2UsageTargetAdapter(target)};
     }
 
+    @Override
     public UsageTarget[] getTargets(PsiElement psiElement) {
         return UsageTarget.EMPTY_ARRAY;
     }

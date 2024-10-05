@@ -15,6 +15,7 @@
  */
 package org.jetbrains.idea.maven.dom.generate;
 
+import consulo.annotation.access.RequiredReadAction;
 import consulo.application.AllIcons;
 import consulo.ide.impl.idea.ide.util.MemberChooser;
 import consulo.language.editor.generation.ClassMember;
@@ -22,11 +23,11 @@ import consulo.language.editor.generation.MemberChooserObject;
 import consulo.language.editor.generation.MemberChooserObjectBase;
 import consulo.language.editor.generation.PsiElementMemberChooserObject;
 import consulo.language.psi.PsiFile;
+import consulo.maven.icon.MavenIconGroup;
 import consulo.project.Project;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.util.collection.ContainerUtil;
 import consulo.util.lang.StringUtil;
-import org.jetbrains.idea.maven.MavenIcons;
-import org.jetbrains.idea.maven.dom.MavenDomBundle;
 import org.jetbrains.idea.maven.dom.model.MavenDomDependency;
 import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
 import org.jetbrains.idea.maven.localize.MavenDomLocalize;
@@ -45,33 +46,33 @@ public class GenerateDependencyUtil {
     }
 
     @Nonnull
+    @RequiredUIAccess
     public static List<MavenDomDependency> chooseDependencies(Collection<MavenDomDependency> candidates, final Project project) {
         List<MavenDomDependency> dependencies = new ArrayList<>();
 
         MavenDomProjectModelMember[] memberCandidates =
-            ContainerUtil.map2Array(candidates, MavenDomProjectModelMember.class, dependency -> new MavenDomProjectModelMember(dependency));
+            ContainerUtil.map2Array(candidates, MavenDomProjectModelMember.class, MavenDomProjectModelMember::new);
         MemberChooser<MavenDomProjectModelMember> chooser =
             new MemberChooser<>(memberCandidates, true, true, project) {
+                @Override
                 protected ShowContainersAction getShowContainersAction() {
-                    return new ShowContainersAction(MavenDomLocalize.chooserShowProjectFiles(), MavenIcons.MavenProject);
+                    return new ShowContainersAction(MavenDomLocalize.chooserShowProjectFiles(), MavenIconGroup.mavenlogo());
                 }
 
+                @Override
                 protected String getAllContainersNodeName() {
-                    return MavenDomBundle.message("all.dependencies");
+                    return MavenDomLocalize.allDependencies().get();
                 }
             };
 
-        chooser.setTitle(MavenDomBundle.message("dependencies.chooser.title"));
+        chooser.setTitle(MavenDomLocalize.dependenciesChooserTitle());
         chooser.setCopyJavadocVisible(false);
         chooser.show();
 
         if (chooser.getExitCode() == MemberChooser.OK_EXIT_CODE) {
             final MavenDomProjectModelMember[] members = chooser.getSelectedElements(new MavenDomProjectModelMember[0]);
             if (members != null) {
-                dependencies.addAll(ContainerUtil.mapNotNull(
-                    members,
-                    mavenDomProjectModelMember -> mavenDomProjectModelMember.getDependency()
-                ));
+                dependencies.addAll(ContainerUtil.mapNotNull(members, MavenDomProjectModelMember::getDependency));
             }
         }
 
@@ -106,6 +107,8 @@ public class GenerateDependencyUtil {
             }
         }
 
+        @Override
+        @RequiredReadAction
         public MemberChooserObject getParentNodeDelegate() {
             MavenDomDependency dependency = getDependency();
 
@@ -132,9 +135,9 @@ public class GenerateDependencyUtil {
         }
 
         private static class MavenDomProjectModelFileMemberChooserObjectBase extends PsiElementMemberChooserObject {
-
+            @RequiredReadAction
             public MavenDomProjectModelFileMemberChooserObjectBase(@Nonnull final PsiFile psiFile, @Nullable String projectName) {
-                super(psiFile, StringUtil.isEmptyOrSpaces(projectName) ? psiFile.getName() : projectName, MavenIcons.MavenProject);
+                super(psiFile, StringUtil.isEmptyOrSpaces(projectName) ? psiFile.getName() : projectName, MavenIconGroup.mavenlogo());
             }
         }
     }

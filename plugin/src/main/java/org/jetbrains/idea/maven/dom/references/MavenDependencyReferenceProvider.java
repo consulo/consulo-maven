@@ -1,5 +1,6 @@
 package org.jetbrains.idea.maven.dom.references;
 
+import consulo.annotation.access.RequiredReadAction;
 import consulo.document.util.TextRange;
 import consulo.language.psi.*;
 import consulo.language.util.ProcessingContext;
@@ -23,6 +24,7 @@ public class MavenDependencyReferenceProvider extends PsiReferenceProvider imple
 
     @Nonnull
     @Override
+    @RequiredReadAction
     public PsiReference[] getReferencesByElement(@Nonnull PsiElement element, @Nonnull ProcessingContext context) {
         ElementManipulator<PsiElement> manipulator = ElementManipulators.getManipulator(element);
         TextRange range = manipulator.getRangeInElement(element);
@@ -99,12 +101,14 @@ public class MavenDependencyReferenceProvider extends PsiReferenceProvider imple
 
         @Nullable
         @Override
+        @RequiredReadAction
         public PsiElement resolve() {
             return null;
         }
 
         @Nonnull
         @Override
+        @RequiredReadAction
         public Object[] getVariants() {
             return MavenProjectIndicesManager.getInstance(getElement().getProject()).getGroupIds().toArray();
         }
@@ -113,19 +117,21 @@ public class MavenDependencyReferenceProvider extends PsiReferenceProvider imple
     public static class ArtifactReference extends PsiReferenceBase<PsiElement> {
         private final String myGroupId;
 
-        public ArtifactReference(@Nonnull String groupId, @Nonnull PsiElement element, @Nonnull TextRange range, @Nonnull boolean soft) {
+        public ArtifactReference(@Nonnull String groupId, @Nonnull PsiElement element, @Nonnull TextRange range, boolean soft) {
             super(element, range, soft);
             myGroupId = groupId;
         }
 
         @Nullable
         @Override
+        @RequiredReadAction
         public PsiElement resolve() {
             return null;
         }
 
         @Nonnull
         @Override
+        @RequiredReadAction
         public Object[] getVariants() {
             if (StringUtil.isEmptyOrSpaces(myGroupId)) {
                 return ArrayUtil.EMPTY_OBJECT_ARRAY;
@@ -145,7 +151,7 @@ public class MavenDependencyReferenceProvider extends PsiReferenceProvider imple
             @Nonnull String artifactId,
             @Nonnull PsiElement element,
             @Nonnull TextRange range,
-            @Nonnull boolean soft
+            boolean soft
         ) {
             super(element, range, soft);
             myGroupId = groupId;
@@ -154,12 +160,14 @@ public class MavenDependencyReferenceProvider extends PsiReferenceProvider imple
 
         @Nullable
         @Override
+        @RequiredReadAction
         public PsiElement resolve() {
             return null;
         }
 
         @Nonnull
         @Override
+        @RequiredReadAction
         public Object[] getVariants() {
             if (StringUtil.isEmptyOrSpaces(myGroupId) || StringUtil.isEmptyOrSpaces(myArtifactId)) {
                 return ArrayUtil.EMPTY_OBJECT_ARRAY;

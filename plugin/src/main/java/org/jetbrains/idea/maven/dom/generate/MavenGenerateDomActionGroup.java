@@ -17,12 +17,8 @@ package org.jetbrains.idea.maven.dom.generate;
 
 import consulo.ui.ex.action.DefaultActionGroup;
 import consulo.xml.util.xml.DomElement;
-import org.jetbrains.annotations.NonNls;
-import org.jetbrains.idea.maven.dom.MavenDomBundle;
-import org.jetbrains.idea.maven.dom.model.MavenDomDependency;
-import org.jetbrains.idea.maven.dom.model.MavenDomPlugin;
-import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
-import org.jetbrains.idea.maven.dom.model.MavenDomRepository;
+import org.jetbrains.idea.maven.dom.model.*;
+import org.jetbrains.idea.maven.localize.MavenDomLocalize;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -30,38 +26,38 @@ import java.util.function.Function;
 
 public class MavenGenerateDomActionGroup extends DefaultActionGroup {
     public MavenGenerateDomActionGroup() {
-        add(new GenerateDependencyAction());
-        add(new GenerateManagedDependencyAction());
+        addAction(new GenerateDependencyAction());
+        addAction(new GenerateManagedDependencyAction());
 
         addSeparator();
-        add(createAction(
-            MavenDomBundle.message("generate.dependency.template"),
+        addAction(createAction(
+            MavenDomLocalize.generateDependencyTemplate().get(),
             MavenDomDependency.class,
             "maven-dependency",
-            mavenDomProjectModel -> mavenDomProjectModel.getDependencies()
+            MavenDomProjectModelBase::getDependencies
         ));
-        add(createAction(
-            MavenDomBundle.message("generate.plugin.template"),
+        addAction(createAction(
+            MavenDomLocalize.generatePluginTemplate().get(),
             MavenDomPlugin.class,
             "maven-plugin",
             mavenDomProjectModel -> mavenDomProjectModel.getBuild().getPlugins()
         ));
 
-        add(createAction(
-            MavenDomBundle.message("generate.repository.template"),
+        addAction(createAction(
+            MavenDomLocalize.generateRepositoryTemplate().get(),
             MavenDomRepository.class,
             "maven-repository",
-            mavenDomProjectModel -> mavenDomProjectModel.getRepositories()
+            MavenDomProjectModelBase::getRepositories
         ));
 
         addSeparator();
-        add(new GenerateParentAction());
+        addAction(new GenerateParentAction());
     }
 
     private static MavenGenerateTemplateAction createAction(
         String actionDescription,
         final Class<? extends DomElement> aClass,
-        @NonNls @Nullable String mappingId,
+        @Nullable String mappingId,
         @Nonnull Function<MavenDomProjectModel, DomElement> parentFunction
     ) {
         return new MavenGenerateTemplateAction(actionDescription, aClass, mappingId, parentFunction);

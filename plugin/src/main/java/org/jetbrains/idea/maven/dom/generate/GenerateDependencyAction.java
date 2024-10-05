@@ -15,6 +15,7 @@
  */
 package org.jetbrains.idea.maven.dom.generate;
 
+import consulo.annotation.access.RequiredReadAction;
 import consulo.application.AllIcons;
 import consulo.application.Result;
 import consulo.codeEditor.Editor;
@@ -28,12 +29,12 @@ import consulo.xml.psi.xml.XmlFile;
 import consulo.xml.util.xml.DomUtil;
 import consulo.xml.util.xml.ui.actions.generate.GenerateDomElementAction;
 import org.jetbrains.idea.maven.dom.DependencyConflictId;
-import org.jetbrains.idea.maven.dom.MavenDomBundle;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
 import org.jetbrains.idea.maven.dom.model.MavenDomDependency;
 import org.jetbrains.idea.maven.dom.model.MavenDomDependencyManagement;
 import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
 import org.jetbrains.idea.maven.indices.MavenArtifactSearchDialog;
+import org.jetbrains.idea.maven.localize.MavenDomLocalize;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -42,7 +43,7 @@ import java.util.Map;
 
 public class GenerateDependencyAction extends GenerateDomElementAction {
     public GenerateDependencyAction() {
-        super(new MavenGenerateProvider<>(MavenDomBundle.message("generate.dependency"), MavenDomDependency.class) {
+        super(new MavenGenerateProvider<>(MavenDomLocalize.generateDependency().get(), MavenDomDependency.class) {
             @Nullable
             @Override
             protected MavenDomDependency doGenerate(@Nonnull final MavenDomProjectModel mavenModel, final Editor editor) {
@@ -61,18 +62,12 @@ public class GenerateDependencyAction extends GenerateDomElementAction {
                 XmlFile psiFile = DomUtil.getFile(mavenModel);
                 return new WriteCommandAction<MavenDomDependency>(psiFile.getProject(), "Generate Dependency", psiFile) {
                     @Override
+                    @RequiredReadAction
                     protected void run(Result<MavenDomDependency> result) throws Throwable {
-                        boolean isInsideManagedDependencies;
-
                         MavenDomDependencyManagement dependencyManagement = mavenModel.getDependencyManagement();
                         XmlElement managedDependencyXml = dependencyManagement.getXmlElement();
-                        if (managedDependencyXml != null
-                            && managedDependencyXml.getTextRange().contains(editor.getCaretModel().getOffset())) {
-                            isInsideManagedDependencies = true;
-                        }
-                        else {
-                            isInsideManagedDependencies = false;
-                        }
+                        boolean isInsideManagedDependencies = managedDependencyXml != null
+                            && managedDependencyXml.getTextRange().contains(editor.getCaretModel().getOffset());
 
                         for (MavenId each : ids) {
                             MavenDomDependency res;

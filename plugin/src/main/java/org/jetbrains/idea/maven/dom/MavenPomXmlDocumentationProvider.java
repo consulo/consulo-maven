@@ -16,6 +16,7 @@
 package org.jetbrains.idea.maven.dom;
 
 import com.intellij.xml.util.documentation.XmlDocumentationProvider;
+import consulo.annotation.access.RequiredReadAction;
 import consulo.annotation.component.ExtensionImpl;
 import consulo.language.Language;
 import consulo.language.editor.documentation.DocumentationProvider;
@@ -47,6 +48,7 @@ public class MavenPomXmlDocumentationProvider implements LanguageDocumentationPr
     };
 
 
+    @RequiredReadAction
     private static boolean isFromPomXml(PsiElement element) {
         if (element == null) {
             return false;
@@ -58,42 +60,30 @@ public class MavenPomXmlDocumentationProvider implements LanguageDocumentationPr
 
     @Nullable
     @Override
+    @RequiredReadAction
     public String getQuickNavigateInfo(PsiElement element, PsiElement originalElement) {
-        if (!isFromPomXml(element)) {
-            return null;
-        }
-
-        return myDelegate.getQuickNavigateInfo(element, originalElement);
+        return isFromPomXml(element) ? myDelegate.getQuickNavigateInfo(element, originalElement) : null;
     }
 
     @Nullable
     @Override
+    @RequiredReadAction
     public List<String> getUrlFor(PsiElement element, PsiElement originalElement) {
-        if (!isFromPomXml(element)) {
-            return null;
-        }
-
-        return myDelegate.getUrlFor(element, originalElement);
+        return isFromPomXml(element) ? myDelegate.getUrlFor(element, originalElement) : null;
     }
 
     @Nullable
     @Override
+    @RequiredReadAction
     public String generateDoc(PsiElement element, @Nullable PsiElement originalElement) {
-        if (!isFromPomXml(element)) {
-            return null;
-        }
-
-        return myDelegate.generateDoc(element, originalElement);
+        return isFromPomXml(element) ? myDelegate.generateDoc(element, originalElement) : null;
     }
 
     @Nullable
     @Override
+    @RequiredReadAction
     public PsiElement getDocumentationElementForLookupItem(PsiManager psiManager, Object object, PsiElement element) {
-        if (!isFromPomXml(element)) {
-            return null;
-        }
-
-        return myDelegate.getDocumentationElementForLookupItem(psiManager, object, element);
+        return isFromPomXml(element) ? myDelegate.getDocumentationElementForLookupItem(psiManager, object, element) : null;
     }
 
     @Nonnull

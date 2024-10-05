@@ -15,6 +15,7 @@
  */
 package org.jetbrains.idea.maven.dom;
 
+import consulo.annotation.access.RequiredReadAction;
 import consulo.annotation.component.ExtensionImpl;
 import consulo.language.Language;
 import consulo.language.editor.documentation.LanguageDocumentationProvider;
@@ -39,10 +40,14 @@ import java.util.List;
 
 @ExtensionImpl
 public class MavenModelDocumentationProvider implements LanguageDocumentationProvider {
+    @Override
+    @RequiredReadAction
     public String getQuickNavigateInfo(PsiElement element, PsiElement originalElement) {
         return getDoc(element, false);
     }
 
+    @Override
+    @RequiredReadAction
     public List<String> getUrlFor(PsiElement element, PsiElement originalElement) {
         element = getMavenElement(element);
         if (element == null) {
@@ -58,28 +63,33 @@ public class MavenModelDocumentationProvider implements LanguageDocumentationPro
         return Collections.singletonList("http://maven.apache.org/ref/2.2.1/maven-model/maven.html");
     }
 
+    @Override
+    @RequiredReadAction
     public String generateDoc(PsiElement element, PsiElement originalElement) {
         return getDoc(element, true);
     }
 
     @Nullable
+    @RequiredReadAction
     private String getDoc(PsiElement element, boolean html) {
         return getMavenElementDescription(element, DescKind.TYPE_NAME_VALUE, html);
     }
 
+    @RequiredReadAction
     public String getElementDescription(@Nonnull PsiElement element, @Nonnull ElementDescriptionLocation location) {
         return getMavenElementDescription(element, location instanceof UsageViewTypeLocation ? DescKind.TYPE : DescKind.NAME, false);
     }
 
     @Nullable
+    @RequiredReadAction
     private static String getMavenElementDescription(PsiElement e, DescKind kind, boolean html) {
         e = getMavenElement(e);
         if (e == null) {
             return null;
         }
 
-        if (e instanceof FakePsiElement) {
-            return ((FakePsiElement)e).getPresentableText();
+        if (e instanceof FakePsiElement fakePsiElement) {
+            return fakePsiElement.getPresentableText();
         }
 
         boolean property = MavenDomUtil.isMavenProperty(e);
@@ -104,8 +114,8 @@ public class MavenModelDocumentationProvider implements LanguageDocumentationPro
                 ""
             };
             String valueSuffix = "";
-            if (e instanceof XmlTag) {
-                valueSuffix = ": " + bold[0] + ((XmlTag)e).getValue().getTrimmedText() + bold[1];
+            if (e instanceof XmlTag tag) {
+                valueSuffix = ": " + bold[0] + tag.getValue().getTrimmedText() + bold[1];
             }
             return type + br + name + valueSuffix;
         }
@@ -114,32 +124,29 @@ public class MavenModelDocumentationProvider implements LanguageDocumentationPro
         return null;
     }
 
+    @RequiredReadAction
     private static String buildPropertyName(PsiElement e, boolean property) {
         if (property) {
             return DescriptiveNameUtil.getDescriptiveName(e);
         }
 
-        List<String> path = new ArrayList<String>();
+        List<String> path = new ArrayList<>();
         do {
             path.add(DescriptiveNameUtil.getDescriptiveName(e));
+            e = PsiTreeUtil.getParentOfType(e, XmlTag.class);
         }
-        while ((e = PsiTreeUtil.getParentOfType(e, XmlTag.class)) != null);
+        while (e != null);
         Collections.reverse(path);
         return StringUtil.join(path, ".");
     }
 
+    @RequiredReadAction
     private static PsiElement getMavenElement(PsiElement e) {
-        if (e instanceof MavenPsiElementWrapper) {
-            e = ((MavenPsiElementWrapper)e).getWrappee();
+        if (e instanceof MavenPsiElementWrapper wrapper) {
+            e = wrapper.getWrappee();
         }
 
-        if (!MavenDomUtil.isMavenFile(e)) {
-            return null;
-        }
-        if (e instanceof PsiFile) {
-            return null;
-        }
-        return e;
+        return !MavenDomUtil.isMavenFile(e) || e instanceof PsiFile ? null : e;
     }
 
     @Nonnull

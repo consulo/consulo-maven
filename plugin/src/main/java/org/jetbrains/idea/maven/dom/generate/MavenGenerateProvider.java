@@ -31,6 +31,7 @@ public abstract class MavenGenerateProvider<ELEMENT_TYPE extends DomElement> ext
         super(description, clazz);
     }
 
+    @Override
     protected DomElement getParentDomElement(Project project, Editor editor, PsiFile file) {
         DomElement el = DomUtil.getContextElement(editor);
         return DomUtil.getFileElement(el).getRootElement();
@@ -51,8 +52,8 @@ public abstract class MavenGenerateProvider<ELEMENT_TYPE extends DomElement> ext
     public boolean isAvailableForElement(@Nonnull DomElement el) {
         DomElement root = DomUtil.getFileElement(el).getRootElement();
         return root.getModule() != null
-            && root instanceof MavenDomProjectModel
-            && isAvailableForModel((MavenDomProjectModel)root);
+            && root instanceof MavenDomProjectModel domProjectModel
+            && isAvailableForModel(domProjectModel);
     }
 
     protected boolean isAvailableForModel(MavenDomProjectModel mavenModel) {

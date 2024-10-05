@@ -17,6 +17,7 @@ package org.jetbrains.idea.maven.dom.references;
 
 import javax.annotation.Nonnull;
 
+import consulo.annotation.access.RequiredReadAction;
 import consulo.ide.impl.idea.ide.BrowserUtil;
 import consulo.document.util.TextRange;
 import consulo.language.impl.psi.FakePsiElement;
@@ -27,13 +28,17 @@ public class MavenUrlPsiReference extends MavenPsiReference {
         super(element, text, range);
     }
 
+    @Override
+    @RequiredReadAction
     public PsiElement resolve() {
         return new FakePsiElement() {
+            @Override
             public PsiElement getParent() {
                 return myElement;
             }
 
             @Override
+            @RequiredReadAction
             public String getName() {
                 return myText;
             }
@@ -46,6 +51,8 @@ public class MavenUrlPsiReference extends MavenPsiReference {
     }
 
     @Nonnull
+    @Override
+    @RequiredReadAction
     public Object[] getVariants() {
         return EMPTY_ARRAY;
     }

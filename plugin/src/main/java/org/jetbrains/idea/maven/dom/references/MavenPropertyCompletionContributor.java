@@ -15,6 +15,7 @@
  */
 package org.jetbrains.idea.maven.dom.references;
 
+import consulo.annotation.access.RequiredReadAction;
 import consulo.annotation.component.ExtensionImpl;
 import consulo.document.util.TextRange;
 import consulo.language.Language;
@@ -37,6 +38,7 @@ import java.util.Collection;
 @ExtensionImpl(id = "Maven", order = "after propertiesCompletion, before javaClassReference")
 public class MavenPropertyCompletionContributor extends CompletionContributor {
     @Override
+    @RequiredReadAction
     public void fillCompletionVariants(CompletionParameters parameters, CompletionResultSet result) {
         PsiFile psiFile = parameters.getOriginalFile();
         Project project = psiFile.getProject();

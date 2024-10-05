@@ -30,14 +30,15 @@ import consulo.language.psi.PsiUtilCore;
 import consulo.language.psi.util.PsiTreeUtil;
 import consulo.language.util.IncorrectOperationException;
 import consulo.project.Project;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.virtualFileSystem.VirtualFile;
 import consulo.xml.psi.xml.XmlTag;
 import consulo.xml.util.xml.DomElement;
 import consulo.xml.util.xml.DomManager;
 import org.jetbrains.annotations.TestOnly;
-import org.jetbrains.idea.maven.dom.MavenDomBundle;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
 import org.jetbrains.idea.maven.dom.model.MavenDomDependency;
+import org.jetbrains.idea.maven.localize.MavenDomLocalize;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -49,14 +50,17 @@ public class ChooseFileIntentionAction implements IntentionAction {
     private Supplier<VirtualFile[]> myFileChooser = null;
 
     @Nonnull
+    @Override
     public String getText() {
-        return MavenDomBundle.message("intention.choose.file");
+        return MavenDomLocalize.intentionChooseFile().get();
     }
 
+    @Override
     public boolean startInWriteAction() {
         return false;
     }
 
+    @Override
     public boolean isAvailable(@Nonnull Project project, Editor editor, PsiFile file) {
         if (!MavenDomUtil.isMavenFile(file)) {
             return false;
@@ -65,6 +69,8 @@ public class ChooseFileIntentionAction implements IntentionAction {
         return dep != null && "system".equals(dep.getScope().getStringValue());
     }
 
+    @Override
+    @RequiredUIAccess
     public void invoke(@Nonnull Project project, Editor editor, PsiFile file) throws IncorrectOperationException {
         final MavenDomDependency dep = getDependency(file, editor);
 
@@ -89,6 +95,7 @@ public class ChooseFileIntentionAction implements IntentionAction {
 
         if (dep != null) {
             new WriteCommandAction(project) {
+                @Override
                 protected void run(Result result) throws Throwable {
                     dep.getSystemPath().setValue(selectedFile);
                 }

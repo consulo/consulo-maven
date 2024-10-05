@@ -1,7 +1,7 @@
 package org.jetbrains.idea.maven.dom.inspections;
 
+import consulo.annotation.access.RequiredReadAction;
 import consulo.annotation.component.ExtensionImpl;
-import consulo.application.ApplicationManager;
 import consulo.language.editor.FileModificationService;
 import consulo.language.editor.inspection.LocalQuickFix;
 import consulo.language.editor.inspection.LocalQuickFixBase;
@@ -17,9 +17,9 @@ import consulo.xml.psi.xml.XmlFile;
 import consulo.xml.psi.xml.XmlTag;
 import consulo.xml.util.xml.DomFileElement;
 import consulo.xml.util.xml.DomManager;
-import org.jetbrains.idea.maven.dom.MavenDomBundle;
 import org.jetbrains.idea.maven.dom.model.MavenDomParent;
 import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
+import org.jetbrains.idea.maven.localize.MavenDomLocalize;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -30,30 +30,35 @@ import javax.annotation.Nullable;
 @ExtensionImpl
 public class MavenRedundantGroupIdInspection extends XmlSuppressableInspectionTool {
     @Nonnull
+    @Override
     public String getGroupDisplayName() {
-        return MavenDomBundle.message("inspection.group");
+        return MavenDomLocalize.inspectionGroup().get();
     }
 
     @Nonnull
+    @Override
     public String getDisplayName() {
-        return MavenDomBundle.message("inspection.redundant.groupId.name");
+        return MavenDomLocalize.inspectionRedundantGroupidName().get();
     }
 
     @Nonnull
+    @Override
     public String getShortName() {
         return "MavenRedundantGroupId";
     }
 
     @Nonnull
+    @Override
     public HighlightDisplayLevel getDefaultLevel() {
         return HighlightDisplayLevel.WARNING;
     }
 
     @Nullable
+    @Override
     public ProblemDescriptor[] checkFile(@Nonnull PsiFile file, @Nonnull InspectionManager manager, boolean isOnTheFly) {
-        if (file instanceof XmlFile && (file.isPhysical() || ApplicationManager.getApplication().isUnitTestMode())) {
+        if (file instanceof XmlFile xmlFile && (xmlFile.isPhysical() || xmlFile.getApplication().isUnitTestMode())) {
             DomFileElement<MavenDomProjectModel> model =
-                DomManager.getDomManager(file.getProject()).getFileElement((XmlFile)file, MavenDomProjectModel.class);
+                DomManager.getDomManager(xmlFile.getProject()).getFileElement(xmlFile, MavenDomProjectModel.class);
 
             if (model != null) {
                 MavenDomProjectModel projectModel = model.getRootElement();
@@ -69,6 +74,7 @@ public class MavenRedundantGroupIdInspection extends XmlSuppressableInspectionTo
 
                         LocalQuickFix fix = new LocalQuickFixBase("Remove unnecessary <groupId>") {
                             @Override
+                            @RequiredReadAction
                             public void applyFix(@Nonnull Project project, @Nonnull ProblemDescriptor descriptor) {
                                 PsiElement xmlTag = descriptor.getPsiElement();
 

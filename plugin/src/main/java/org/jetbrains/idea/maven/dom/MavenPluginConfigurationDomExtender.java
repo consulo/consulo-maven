@@ -15,9 +15,9 @@
  */
 package org.jetbrains.idea.maven.dom;
 
-import com.intellij.java.language.psi.CommonClassNames;
 import consulo.annotation.component.ExtensionImpl;
 import consulo.application.util.matcher.NameUtil;
+import consulo.java.language.module.util.JavaClassNames;
 import consulo.language.psi.PsiElement;
 import consulo.util.dataholder.Key;
 import consulo.util.lang.StringUtil;
@@ -49,11 +49,11 @@ public class MavenPluginConfigurationDomExtender extends DomExtender<MavenDomCon
     public static final Key<ParameterData> PLUGIN_PARAMETER_KEY = Key.create("MavenPluginConfigurationDomExtender.PLUGIN_PARAMETER_KEY");
 
     private static final Set<String> COLLECTIONS_TYPE_NAMES = Set.of(
-    	"java.util.Collection",
-		CommonClassNames.JAVA_UTIL_SET,
-        CommonClassNames.JAVA_UTIL_LIST,
+        "java.util.Collection",
+        JavaClassNames.JAVA_UTIL_SET,
+        JavaClassNames.JAVA_UTIL_LIST,
         "java.util.ArrayList",
-		"java.util.HashSet",
+        "java.util.HashSet",
         "java.util.LinkedList"
     );
 
@@ -90,13 +90,10 @@ public class MavenPluginConfigurationDomExtender extends DomExtender<MavenDomCon
         }
 
         PsiElement pluginsTag = pluginTag.getParent();
-        if (pluginsTag == null) {
-            return false;
-        }
+        return pluginsTag != null
+            && pluginsTag.getParent() instanceof XmlTag pluginManagementTag
+            && "pluginManagement".equals(pluginManagementTag.getName());
 
-        PsiElement pluginManagementTag = pluginsTag.getParent();
-
-        return pluginManagementTag instanceof XmlTag && "pluginManagement".equals(((XmlTag)pluginManagementTag).getName());
     }
 
     private static Collection<ParameterData> collectParameters(MavenDomPluginModel pluginModel, MavenDomConfiguration config) {
@@ -208,6 +205,7 @@ public class MavenPluginConfigurationDomExtender extends DomExtender<MavenDomCon
                     return DomElement.class;
                 }
 
+                @Override
                 public void registerExtensions(@Nonnull DomElement domElement, @Nonnull DomExtensionsRegistrar registrar) {
                     for (String each : collectPossibleNameForCollectionParameter(parameterName)) {
                         DomExtension inner =
@@ -256,6 +254,7 @@ public class MavenPluginConfigurationDomExtender extends DomExtender<MavenDomCon
                     return false;
                 }
 
+                @Override
                 public Class<? extends Annotation> annotationType() {
                     return Required.class;
                 }
@@ -279,11 +278,7 @@ public class MavenPluginConfigurationDomExtender extends DomExtender<MavenDomCon
 
     private static boolean isCollection(MavenDomParameter parameter) {
         String type = parameter.getType().getStringValue();
-        if (type == null) {
-            return false;
-        }
-
-        return type.endsWith("[]") || COLLECTIONS_TYPE_NAMES.contains(type);
+        return type != null && (type.endsWith("[]") || COLLECTIONS_TYPE_NAMES.contains(type));
     }
 
     public static class ParameterData {

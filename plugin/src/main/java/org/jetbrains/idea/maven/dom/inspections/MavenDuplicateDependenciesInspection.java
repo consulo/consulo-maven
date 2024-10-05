@@ -15,6 +15,7 @@
  */
 package org.jetbrains.idea.maven.dom.inspections;
 
+import consulo.annotation.access.RequiredReadAction;
 import consulo.annotation.component.ExtensionImpl;
 import consulo.application.util.function.Processor;
 import consulo.language.editor.annotation.HighlightSeverity;
@@ -26,11 +27,11 @@ import consulo.xml.psi.xml.XmlTag;
 import consulo.xml.util.xml.DomFileElement;
 import consulo.xml.util.xml.highlighting.BasicDomElementsInspection;
 import consulo.xml.util.xml.highlighting.DomElementAnnotationHolder;
-import org.jetbrains.idea.maven.dom.MavenDomBundle;
 import org.jetbrains.idea.maven.dom.MavenDomProjectProcessorUtils;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
 import org.jetbrains.idea.maven.dom.model.MavenDomDependency;
 import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
+import org.jetbrains.idea.maven.localize.MavenDomLocalize;
 import org.jetbrains.idea.maven.project.MavenProject;
 
 import javax.annotation.Nonnull;
@@ -44,6 +45,7 @@ public class MavenDuplicateDependenciesInspection extends BasicDomElementsInspec
     }
 
     @Override
+    @RequiredReadAction
     public void checkFileElement(
         DomFileElement<MavenDomProjectModel> domFileElement,
         DomElementAnnotationHolder holder,
@@ -54,6 +56,7 @@ public class MavenDuplicateDependenciesInspection extends BasicDomElementsInspec
         checkMavenProjectModel(projectModel, holder);
     }
 
+    @RequiredReadAction
     private static void checkMavenProjectModel(
         @Nonnull MavenDomProjectModel projectModel,
         @Nonnull DomElementAnnotationHolder holder
@@ -66,7 +69,7 @@ public class MavenDuplicateDependenciesInspection extends BasicDomElementsInspec
                 Set<MavenDomDependency> dependencies = allDuplicates.get(id);
                 if (dependencies != null && dependencies.size() > 1) {
 
-                    List<MavenDomDependency> duplicatedDependencies = new ArrayList<MavenDomDependency>();
+                    List<MavenDomDependency> duplicatedDependencies = new ArrayList<>();
 
                     for (MavenDomDependency d : dependencies) {
                         if (d == dependency) {
@@ -102,6 +105,7 @@ public class MavenDuplicateDependenciesInspection extends BasicDomElementsInspec
         return res;
     }
 
+    @RequiredReadAction
     private static void addProblem(
         @Nonnull MavenDomDependency dependency,
         @Nonnull Collection<MavenDomDependency> dependencies,
@@ -126,10 +130,11 @@ public class MavenDuplicateDependenciesInspection extends BasicDomElementsInspec
         holder.createProblem(
             dependency,
             HighlightSeverity.WARNING,
-            MavenDomBundle.message("MavenDuplicateDependenciesInspection.has.duplicates", sb.toString())
+            MavenDomLocalize.mavenduplicatedependenciesinspectionHasDuplicates(sb.toString()).get()
         );
     }
 
+    @RequiredReadAction
     private static String createLinkText(@Nonnull MavenDomProjectModel model, @Nonnull MavenDomDependency dependency) {
         StringBuilder sb = new StringBuilder();
 
@@ -172,25 +177,23 @@ public class MavenDuplicateDependenciesInspection extends BasicDomElementsInspec
 
     @Nonnull
     private static Map<String, Set<MavenDomDependency>> getDuplicateDependenciesMap(MavenDomProjectModel projectModel) {
-        final Map<String, Set<MavenDomDependency>> allDependencies = new HashMap<String, Set<MavenDomDependency>>();
+        final Map<String, Set<MavenDomDependency>> allDependencies = new HashMap<>();
 
-        Processor<MavenDomProjectModel> collectProcessor = new Processor<MavenDomProjectModel>() {
-            public boolean process(MavenDomProjectModel model) {
-                for (MavenDomDependency dependency : model.getDependencies().getDependencies()) {
-                    String mavenId = createId(dependency);
-                    if (mavenId != null) {
-                        if (allDependencies.containsKey(mavenId)) {
-                            allDependencies.get(mavenId).add(dependency);
-                        }
-                        else {
-                            Set<MavenDomDependency> dependencies = new HashSet<MavenDomDependency>();
-                            dependencies.add(dependency);
-                            allDependencies.put(mavenId, dependencies);
-                        }
+        Processor<MavenDomProjectModel> collectProcessor = model -> {
+            for (MavenDomDependency dependency : model.getDependencies().getDependencies()) {
+                String mavenId = createId(dependency);
+                if (mavenId != null) {
+                    if (allDependencies.containsKey(mavenId)) {
+                        allDependencies.get(mavenId).add(dependency);
+                    }
+                    else {
+                        Set<MavenDomDependency> dependencies = new HashSet<>();
+                        dependencies.add(dependency);
+                        allDependencies.put(mavenId, dependencies);
                     }
                 }
-                return false;
             }
+            return false;
         };
 
         MavenDomProjectProcessorUtils.processChildrenRecursively(projectModel, collectProcessor, true);
@@ -215,21 +218,25 @@ public class MavenDuplicateDependenciesInspection extends BasicDomElementsInspec
     }
 
     @Nonnull
+    @Override
     public String getGroupDisplayName() {
-        return MavenDomBundle.message("inspection.group");
+        return MavenDomLocalize.inspectionGroup().get();
     }
 
     @Nonnull
+    @Override
     public String getDisplayName() {
-        return MavenDomBundle.message("inspection.duplicate.dependencies.name");
+        return MavenDomLocalize.inspectionDuplicateDependenciesName().get();
     }
 
     @Nonnull
+    @Override
     public String getShortName() {
         return "MavenDuplicateDependenciesInspection";
     }
 
     @Nonnull
+    @Override
     public HighlightDisplayLevel getDefaultLevel() {
         return HighlightDisplayLevel.WARNING;
     }

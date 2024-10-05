@@ -18,6 +18,7 @@ package org.jetbrains.idea.maven.dom;
 
 import com.intellij.xml.XmlElementDescriptor;
 import com.intellij.xml.impl.schema.XmlNSDescriptorImpl;
+import consulo.annotation.access.RequiredReadAction;
 import consulo.annotation.component.ComponentScope;
 import consulo.annotation.component.ServiceAPI;
 import consulo.annotation.component.ServiceImpl;
@@ -53,16 +54,19 @@ public class MavenDomElementDescriptorHolder {
 
     private enum FileKind {
         PROJECT_FILE {
+            @Override
             public String getSchemaUrl() {
                 return MavenSchemaProvider.MAVEN_PROJECT_SCHEMA_URL;
             }
         },
         PROFILES_FILE {
+            @Override
             public String getSchemaUrl() {
                 return MavenSchemaProvider.MAVEN_PROFILES_SCHEMA_URL;
             }
         },
         SETTINGS_FILE {
+            @Override
             public String getSchemaUrl() {
                 return MavenSchemaProvider.MAVEN_SETTINGS_SCHEMA_URL;
             }
@@ -106,18 +110,20 @@ public class MavenDomElementDescriptorHolder {
     private XmlNSDescriptorImpl tryGetOrCreateDescriptor(final FileKind kind) {
         CachedValue<XmlNSDescriptorImpl> result = myDescriptorsMap.get(kind);
         if (result == null) {
-            result = CachedValuesManager.getManager(myProject).createCachedValue(new CachedValueProvider<XmlNSDescriptorImpl>() {
-                @Override
-                public Result<XmlNSDescriptorImpl> compute() {
-                    return Result.create(doCreateDescriptor(kind), PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT);
-                }
-            }, false);
+            result = CachedValuesManager.getManager(myProject).createCachedValue(
+                () -> CachedValueProvider.Result.create(
+                    doCreateDescriptor(kind),
+                    PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT
+                ),
+                false
+            );
             myDescriptorsMap.put(kind, result);
         }
         return result.getValue();
     }
 
     @Nullable
+    @RequiredReadAction
     private XmlNSDescriptorImpl doCreateDescriptor(FileKind kind) {
         String schemaUrl = kind.getSchemaUrl();
         String location = ExternalResourceManager.getInstance().getResourceLocation(schemaUrl);
