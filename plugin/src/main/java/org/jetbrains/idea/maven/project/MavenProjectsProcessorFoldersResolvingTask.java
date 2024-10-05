@@ -23,23 +23,28 @@ import org.jetbrains.idea.maven.utils.MavenProcessCanceledException;
 import org.jetbrains.idea.maven.utils.MavenProgressIndicator;
 
 public class MavenProjectsProcessorFoldersResolvingTask extends MavenProjectsProcessorBasicTask {
-  @Nonnull
-  private final MavenImportingSettings myImportingSettings;
-  @Nullable
-  private final Runnable myOnCompletion;
+    @Nonnull
+    private final MavenImportingSettings myImportingSettings;
+    @Nullable
+    private final Runnable myOnCompletion;
 
-  public MavenProjectsProcessorFoldersResolvingTask(@Nonnull MavenProject project,
-                                                    @Nonnull MavenImportingSettings importingSettings,
-                                                    @Nonnull MavenProjectsTree tree,
-                                                    @Nullable Runnable onCompletion) {
-    super(project, tree);
-    myImportingSettings = importingSettings;
-    myOnCompletion = onCompletion;
-  }
+    public MavenProjectsProcessorFoldersResolvingTask(
+        @Nonnull MavenProject project,
+        @Nonnull MavenImportingSettings importingSettings,
+        @Nonnull MavenProjectsTree tree,
+        @Nullable Runnable onCompletion
+    ) {
+        super(project, tree);
+        myImportingSettings = importingSettings;
+        myOnCompletion = onCompletion;
+    }
 
-  public void perform(Project project, MavenEmbeddersManager embeddersManager, MavenConsole console, MavenProgressIndicator indicator)
-    throws MavenProcessCanceledException {
-    myTree.resolveFolders(myMavenProject, myImportingSettings, embeddersManager, console, indicator);
-    if (myOnCompletion != null) myOnCompletion.run();
-  }
+    @Override
+    public void perform(Project project, MavenEmbeddersManager embeddersManager, MavenConsole console, MavenProgressIndicator indicator)
+        throws MavenProcessCanceledException {
+        myTree.resolveFolders(myMavenProject, myImportingSettings, embeddersManager, console, indicator);
+        if (myOnCompletion != null) {
+            myOnCompletion.run();
+        }
+    }
 }

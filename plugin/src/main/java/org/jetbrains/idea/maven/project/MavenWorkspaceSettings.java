@@ -19,24 +19,20 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class MavenWorkspaceSettings
-{
-	public MavenGeneralSettings generalSettings = new MavenGeneralSettings();
-	public MavenImportingSettings importingSettings = new MavenImportingSettings();
+public class MavenWorkspaceSettings {
+    public MavenGeneralSettings generalSettings = new MavenGeneralSettings();
+    public MavenImportingSettings importingSettings = new MavenImportingSettings();
 
-	public List<String> enabledProfiles = new ArrayList<String>();
-	public List<String> disabledProfiles = new ArrayList<String>();
+    public List<String> enabledProfiles = new ArrayList<>();
+    public List<String> disabledProfiles = new ArrayList<>();
 
-	public void setEnabledProfiles(Collection<String> profiles)
-	{
-		enabledProfiles.clear();
-		enabledProfiles.addAll(profiles);
-	}
+    public void setEnabledProfiles(Collection<String> profiles) {
+        enabledProfiles.clear();
+        enabledProfiles.addAll(profiles);
+    }
 
-	public void setDisabledProfiles(Collection<String> profiles)
-	{
-		disabledProfiles.clear();
-		disabledProfiles.addAll(profiles);
-	}
-
+    public void setDisabledProfiles(Collection<String> profiles) {
+        disabledProfiles.clear();
+        disabledProfiles.addAll(profiles);
+    }
 }

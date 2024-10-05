@@ -16,7 +16,7 @@
 package org.jetbrains.idea.maven.project.actions;
 
 public class DownloadAllDocsAction extends DownloadAllSourcesAndDocsAction {
-  public DownloadAllDocsAction() {
-    super(false, true);
-  }
+    public DownloadAllDocsAction() {
+        super(false, true);
+    }
 }

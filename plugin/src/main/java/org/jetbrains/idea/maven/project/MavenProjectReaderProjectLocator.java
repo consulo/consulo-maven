@@ -19,5 +19,5 @@ import consulo.maven.rt.server.common.model.MavenId;
 import consulo.virtualFileSystem.VirtualFile;
 
 public interface MavenProjectReaderProjectLocator {
-  VirtualFile findProjectFile(MavenId coordinates);
+    VirtualFile findProjectFile(MavenId coordinates);
 }

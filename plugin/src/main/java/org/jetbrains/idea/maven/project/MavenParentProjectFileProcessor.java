@@ -25,83 +25,76 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.File;
 
-public abstract class MavenParentProjectFileProcessor<RESULT_TYPE>
-{
-	@Nullable
-	public RESULT_TYPE process(@Nonnull MavenGeneralSettings generalSettings, @Nonnull VirtualFile projectFile, @Nullable MavenParentDesc parentDesc)
-	{
-		VirtualFile superPom = generalSettings.getEffectiveSuperPom();
-		if(superPom == null || projectFile.equals(superPom))
-		{
-			return null;
-		}
+public abstract class MavenParentProjectFileProcessor<RESULT_TYPE> {
+    @Nullable
+    public RESULT_TYPE process(
+        @Nonnull MavenGeneralSettings generalSettings,
+        @Nonnull VirtualFile projectFile,
+        @Nullable MavenParentDesc parentDesc
+    ) {
+        VirtualFile superPom = generalSettings.getEffectiveSuperPom();
+        if (superPom == null || projectFile.equals(superPom)) {
+            return null;
+        }
 
-		RESULT_TYPE result = null;
+        RESULT_TYPE result = null;
 
-		if(parentDesc == null)
-		{
-			return processSuperParent(superPom);
-		}
+        if (parentDesc == null) {
+            return processSuperParent(superPom);
+        }
 
-		VirtualFile parentFile = findManagedFile(parentDesc.getParentId());
-		if(parentFile != null)
-		{
-			result = processManagedParent(parentFile);
-		}
+        VirtualFile parentFile = findManagedFile(parentDesc.getParentId());
+        if (parentFile != null) {
+            result = processManagedParent(parentFile);
+        }
 
-		if(result == null)
-		{
-			parentFile = projectFile.getParent() == null ? null : projectFile.getParent().findFileByRelativePath(parentDesc.getParentRelativePath());
-			if(parentFile != null && parentFile.isDirectory())
-			{
-				parentFile = parentFile.findFileByRelativePath(MavenConstants.POM_XML);
-			}
-			if(parentFile != null)
-			{
-				result = processRelativeParent(parentFile);
-			}
-		}
+        if (result == null) {
+            parentFile = projectFile.getParent() == null
+                ? null
+                : projectFile.getParent().findFileByRelativePath(parentDesc.getParentRelativePath());
+            if (parentFile != null && parentFile.isDirectory()) {
+                parentFile = parentFile.findFileByRelativePath(MavenConstants.POM_XML);
+            }
+            if (parentFile != null) {
+                result = processRelativeParent(parentFile);
+            }
+        }
 
-		if(result == null)
-		{
-			File parentIoFile = MavenArtifactUtil.getArtifactFile(generalSettings.getEffectiveLocalRepository(), parentDesc.getParentId(), "pom");
-			parentFile = LocalFileSystem.getInstance().findFileByIoFile(parentIoFile);
-			if(parentFile != null)
-			{
-				result = processRepositoryParent(parentFile);
-			}
-		}
+        if (result == null) {
+            File parentIoFile =
+                MavenArtifactUtil.getArtifactFile(generalSettings.getEffectiveLocalRepository(), parentDesc.getParentId(), "pom");
+            parentFile = LocalFileSystem.getInstance().findFileByIoFile(parentIoFile);
+            if (parentFile != null) {
+                result = processRepositoryParent(parentFile);
+            }
+        }
 
-		return result;
-	}
+        return result;
+    }
 
-	@Nullable
-	protected abstract VirtualFile findManagedFile(@Nonnull MavenId id);
+    @Nullable
+    protected abstract VirtualFile findManagedFile(@Nonnull MavenId id);
 
-	@Nullable
-	protected RESULT_TYPE processManagedParent(VirtualFile parentFile)
-	{
-		return doProcessParent(parentFile);
-	}
+    @Nullable
+    protected RESULT_TYPE processManagedParent(VirtualFile parentFile) {
+        return doProcessParent(parentFile);
+    }
 
-	@Nullable
-	protected RESULT_TYPE processRelativeParent(VirtualFile parentFile)
-	{
-		return doProcessParent(parentFile);
-	}
+    @Nullable
+    protected RESULT_TYPE processRelativeParent(VirtualFile parentFile) {
+        return doProcessParent(parentFile);
+    }
 
-	@Nullable
-	protected RESULT_TYPE processRepositoryParent(VirtualFile parentFile)
-	{
-		return doProcessParent(parentFile);
-	}
+    @Nullable
+    protected RESULT_TYPE processRepositoryParent(VirtualFile parentFile) {
+        return doProcessParent(parentFile);
+    }
 
-	@Nullable
-	protected RESULT_TYPE processSuperParent(VirtualFile parentFile)
-	{
-		return doProcessParent(parentFile);
-	}
+    @Nullable
+    protected RESULT_TYPE processSuperParent(VirtualFile parentFile) {
+        return doProcessParent(parentFile);
+    }
 
-	@Nullable
-	protected abstract RESULT_TYPE doProcessParent(VirtualFile parentFile);
+    @Nullable
+    protected abstract RESULT_TYPE doProcessParent(VirtualFile parentFile);
 }

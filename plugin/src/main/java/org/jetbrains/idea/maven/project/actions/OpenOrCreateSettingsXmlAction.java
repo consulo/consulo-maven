@@ -24,13 +24,14 @@ import java.util.Collections;
 import java.util.List;
 
 public class OpenOrCreateSettingsXmlAction extends MavenOpenOrCreateFilesAction {
-  protected List<File> getFiles(AnActionEvent e) {
-    File file = MavenActionUtil.getProjectsManager(e.getDataContext()).getGeneralSettings().getEffectiveUserSettingsIoFile();
-    return file != null ? Collections.singletonList(file) : Collections.<File>emptyList();
-  }
+    @Override
+    protected List<File> getFiles(AnActionEvent e) {
+        File file = MavenActionUtil.getProjectsManager(e.getDataContext()).getGeneralSettings().getEffectiveUserSettingsIoFile();
+        return file != null ? Collections.singletonList(file) : Collections.<File>emptyList();
+    }
 
-  @Override
-  protected String getFileTemplate() {
-    return MavenFileTemplateGroupFactory.MAVEN_SETTINGS_XML_TEMPLATE;
-  }
+    @Override
+    protected String getFileTemplate() {
+        return MavenFileTemplateGroupFactory.MAVEN_SETTINGS_XML_TEMPLATE;
+    }
 }

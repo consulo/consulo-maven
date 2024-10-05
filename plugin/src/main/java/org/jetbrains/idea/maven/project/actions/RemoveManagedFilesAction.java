@@ -15,6 +15,7 @@
  */
 package org.jetbrains.idea.maven.project.actions;
 
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.action.AnActionEvent;
 import consulo.dataContext.DataContext;
 import consulo.virtualFileSystem.VirtualFile;
@@ -22,20 +23,25 @@ import org.jetbrains.idea.maven.utils.actions.MavenAction;
 import org.jetbrains.idea.maven.utils.actions.MavenActionUtil;
 
 public class RemoveManagedFilesAction extends MavenAction {
-  @Override
-  protected boolean isAvailable(AnActionEvent e) {
-    if (!super.isAvailable(e)) return false;
+    @Override
+    protected boolean isAvailable(AnActionEvent e) {
+        if (!super.isAvailable(e)) {
+            return false;
+        }
 
-    final DataContext context = e.getDataContext();
-    for (VirtualFile each : MavenActionUtil.getMavenProjectsFiles(context)) {
-      if (MavenActionUtil.getProjectsManager(context).isManagedFile(each)) return true;
+        final DataContext context = e.getDataContext();
+        for (VirtualFile each : MavenActionUtil.getMavenProjectsFiles(context)) {
+            if (MavenActionUtil.getProjectsManager(context).isManagedFile(each)) {
+                return true;
+            }
+        }
+        return false;
     }
-    return false;
-  }
 
-  @Override
-  public void actionPerformed(AnActionEvent e) {
-    final DataContext context = e.getDataContext();
-    MavenActionUtil.getProjectsManager(context).removeManagedFiles(MavenActionUtil.getMavenProjectsFiles(context));
-  }
+    @Override
+    @RequiredUIAccess
+    public void actionPerformed(AnActionEvent e) {
+        final DataContext context = e.getDataContext();
+        MavenActionUtil.getProjectsManager(context).removeManagedFiles(MavenActionUtil.getMavenProjectsFiles(context));
+    }
 }

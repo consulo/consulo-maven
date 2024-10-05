@@ -27,62 +27,59 @@ import javax.swing.*;
 /**
  * @author Sergey Evdokimov
  */
-public class MavenGeneralSettingsEditor extends SettingsEditor<MavenRunConfiguration>
-{
+public class MavenGeneralSettingsEditor extends SettingsEditor<MavenRunConfiguration> {
+    private final MavenGeneralPanel myPanel;
 
-  private final MavenGeneralPanel myPanel;
+    private JCheckBox myUseProjectSettings;
 
-  private JCheckBox myUseProjectSettings;
+    private final Project myProject;
 
-  private final Project myProject;
-
-  public MavenGeneralSettingsEditor(@Nonnull Project project) {
-    myProject = project;
-    myPanel = new MavenGeneralPanel();
-  }
-
-  @Override
-  protected void resetEditorFrom(MavenRunConfiguration s) {
-    myUseProjectSettings.setSelected(s.getGeneralSettings() == null);
-
-    if (s.getGeneralSettings() == null) {
-      MavenGeneralSettings settings = MavenProjectsManager.getInstance(myProject).getGeneralSettings();
-      myPanel.getData(settings);
+    public MavenGeneralSettingsEditor(@Nonnull Project project) {
+        myProject = project;
+        myPanel = new MavenGeneralPanel();
     }
-    else {
-      myPanel.getData(s.getGeneralSettings());
+
+    @Override
+    protected void resetEditorFrom(MavenRunConfiguration s) {
+        myUseProjectSettings.setSelected(s.getGeneralSettings() == null);
+
+        if (s.getGeneralSettings() == null) {
+            MavenGeneralSettings settings = MavenProjectsManager.getInstance(myProject).getGeneralSettings();
+            myPanel.getData(settings);
+        }
+        else {
+            myPanel.getData(s.getGeneralSettings());
+        }
     }
-  }
 
-  @Override
-  protected void applyEditorTo(MavenRunConfiguration s) throws ConfigurationException
-  {
-    if (myUseProjectSettings.isSelected()) {
-      s.setGeneralSettings(null);
+    @Override
+    protected void applyEditorTo(MavenRunConfiguration s) throws ConfigurationException {
+        if (myUseProjectSettings.isSelected()) {
+            s.setGeneralSettings(null);
+        }
+        else {
+            MavenGeneralSettings state = s.getGeneralSettings();
+            if (state != null) {
+                myPanel.setData(state);
+            }
+            else {
+                MavenGeneralSettings settings = MavenProjectsManager.getInstance(myProject).getGeneralSettings().clone();
+                myPanel.setData(settings);
+                s.setGeneralSettings(settings);
+            }
+        }
     }
-    else {
-      MavenGeneralSettings state = s.getGeneralSettings();
-      if (state != null) {
-        myPanel.setData(state);
-      }
-      else {
-        MavenGeneralSettings settings = MavenProjectsManager.getInstance(myProject).getGeneralSettings().clone();
-        myPanel.setData(settings);
-        s.setGeneralSettings(settings);
-      }
+
+    @Nonnull
+    @Override
+    protected JComponent createEditor() {
+        Pair<JPanel, JCheckBox> pair = MavenDisablePanelCheckbox.createPanel(myPanel.createComponent(this), "Use project settings");
+
+        myUseProjectSettings = pair.second;
+        return pair.first;
     }
-  }
 
-  @Nonnull
-  @Override
-  protected JComponent createEditor() {
-    Pair<JPanel,JCheckBox> pair = MavenDisablePanelCheckbox.createPanel(myPanel.createComponent(this), "Use project settings");
-
-    myUseProjectSettings = pair.second;
-    return pair.first;
-  }
-
-  public Project getProject() {
-    return myProject;
-  }
+    public Project getProject() {
+        return myProject;
+    }
 }

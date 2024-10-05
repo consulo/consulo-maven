@@ -41,212 +41,181 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class MavenConsoleImpl extends MavenConsole
-{
-	private static final Key<MavenConsoleImpl> CONSOLE_KEY = Key.create("MAVEN_CONSOLE_KEY");
+public class MavenConsoleImpl extends MavenConsole {
+    private static final Key<MavenConsoleImpl> CONSOLE_KEY = Key.create("MAVEN_CONSOLE_KEY");
 
-	private static final String CONSOLE_FILTER_REGEXP =
-			"(?:^|(?:\\[\\w+\\]\\s*))" + RegexpFilter.FILE_PATH_MACROS + ":\\[" + RegexpFilter.LINE_MACROS + "," + RegexpFilter.COLUMN_MACROS + "]";
+    private static final String CONSOLE_FILTER_REGEXP = "(?:^|(?:\\[\\w+\\]\\s*))" + RegexpFilter.FILE_PATH_MACROS +
+        ":\\[" + RegexpFilter.LINE_MACROS + "," + RegexpFilter.COLUMN_MACROS + "]";
 
-	private final String myTitle;
-	private final Project myProject;
-	private final ConsoleView myConsoleView;
-	private final AtomicBoolean isOpen = new AtomicBoolean(false);
-	private final Pair<MavenRunnerParameters, MavenRunnerSettings> myParametersAndSettings;
+    private final String myTitle;
+    private final Project myProject;
+    private final ConsoleView myConsoleView;
+    private final AtomicBoolean isOpen = new AtomicBoolean(false);
+    private final Pair<MavenRunnerParameters, MavenRunnerSettings> myParametersAndSettings;
 
-	public MavenConsoleImpl(String title, Project project)
-	{
-		this(title, project, null);
-	}
+    public MavenConsoleImpl(String title, Project project) {
+        this(title, project, null);
+    }
 
-	public MavenConsoleImpl(String title,
-							Project project,
-							Pair<MavenRunnerParameters, MavenRunnerSettings> parametersAndSettings)
-	{
-		super(getGeneralSettings(project).getLoggingLevel(), getGeneralSettings(project).isPrintErrorStackTraces());
-		myTitle = title;
-		myProject = project;
-		myConsoleView = createConsoleView();
-		myParametersAndSettings = parametersAndSettings;
-	}
+    public MavenConsoleImpl(
+        String title,
+        Project project,
+        Pair<MavenRunnerParameters, MavenRunnerSettings> parametersAndSettings
+    ) {
+        super(getGeneralSettings(project).getLoggingLevel(), getGeneralSettings(project).isPrintErrorStackTraces());
+        myTitle = title;
+        myProject = project;
+        myConsoleView = createConsoleView();
+        myParametersAndSettings = parametersAndSettings;
+    }
 
-	private static MavenGeneralSettings getGeneralSettings(Project project)
-	{
-		return MavenProjectsManager.getInstance(project).getGeneralSettings();
-	}
+    private static MavenGeneralSettings getGeneralSettings(Project project) {
+        return MavenProjectsManager.getInstance(project).getGeneralSettings();
+    }
 
-	private ConsoleView createConsoleView()
-	{
-		return createConsoleBuilder(myProject).getConsole();
-	}
+    private ConsoleView createConsoleView() {
+        return createConsoleBuilder(myProject).getConsole();
+    }
 
-	public static TextConsoleBuilder createConsoleBuilder(final Project project)
-	{
-		TextConsoleBuilder builder = TextConsoleBuilderFactory.getInstance().createBuilder(project);
+    public static TextConsoleBuilder createConsoleBuilder(final Project project) {
+        TextConsoleBuilder builder = TextConsoleBuilderFactory.getInstance().createBuilder(project);
 
-		final List<Filter> filters = ExceptionFilters.getFilters(GlobalSearchScope.allScope(project));
-		for(Filter filter : filters)
-		{
-			builder.addFilter(filter);
-		}
-		builder.addFilter(new RegexpFilter(project, CONSOLE_FILTER_REGEXP)
-		{
-			@Nullable
-			@Override
-			protected HyperlinkInfo createOpenFileHyperlink(String fileName, int line, int column)
-			{
-				HyperlinkInfo res = super.createOpenFileHyperlink(fileName, line, column);
-				if(res == null && fileName.startsWith("\\") && SystemInfo.isWindows)
-				{
-					// Maven cut prefix 'C:\' from paths on Windows
-					VirtualFile[] roots = ProjectRootManager.getInstance(project).getContentRoots();
-					if(roots.length > 0)
-					{
-						String projectPath = roots[0].getPath();
-						if(projectPath.matches("[A-Z]:[\\\\/].+"))
-						{
-							res = super.createOpenFileHyperlink(projectPath.charAt(0) + ":" + fileName, line, column);
-						}
-					}
+        final List<Filter> filters = ExceptionFilters.getFilters(GlobalSearchScope.allScope(project));
+        for (Filter filter : filters) {
+            builder.addFilter(filter);
+        }
+        builder.addFilter(new RegexpFilter(project, CONSOLE_FILTER_REGEXP) {
+            @Nullable
+            @Override
+            protected HyperlinkInfo createOpenFileHyperlink(String fileName, int line, int column) {
+                HyperlinkInfo res = super.createOpenFileHyperlink(fileName, line, column);
+                if (res == null && fileName.startsWith("\\") && SystemInfo.isWindows) {
+                    // Maven cut prefix 'C:\' from paths on Windows
+                    VirtualFile[] roots = ProjectRootManager.getInstance(project).getContentRoots();
+                    if (roots.length > 0) {
+                        String projectPath = roots[0].getPath();
+                        if (projectPath.matches("[A-Z]:[\\\\/].+")) {
+                            res = super.createOpenFileHyperlink(projectPath.charAt(0) + ":" + fileName, line, column);
+                        }
+                    }
+                }
 
-				}
+                return res;
+            }
+        });
 
-				return res;
-			}
-		});
+        builder.addFilter(new MavenGroovyConsoleFilter(project));
+        return builder;
+    }
 
-		builder.addFilter(new MavenGroovyConsoleFilter(project));
-		return builder;
-	}
+    @Override
+    public boolean canPause() {
+        return myConsoleView.canPause();
+    }
 
-	@Override
-	public boolean canPause()
-	{
-		return myConsoleView.canPause();
-	}
+    @Override
+    public boolean isOutputPaused() {
+        return myConsoleView.isOutputPaused();
+    }
 
-	@Override
-	public boolean isOutputPaused()
-	{
-		return myConsoleView.isOutputPaused();
-	}
+    @Override
+    public void setOutputPaused(boolean outputPaused) {
+        myConsoleView.setOutputPaused(outputPaused);
+    }
 
-	@Override
-	public void setOutputPaused(boolean outputPaused)
-	{
-		myConsoleView.setOutputPaused(outputPaused);
-	}
+    public Pair<MavenRunnerParameters, MavenRunnerSettings> getParametersAndSettings() {
+        return myParametersAndSettings;
+    }
 
-	public Pair<MavenRunnerParameters, MavenRunnerSettings> getParametersAndSettings()
-	{
-		return myParametersAndSettings;
-	}
+    @Override
+    public void attachToProcess(ProcessHandler processHandler) {
+        myConsoleView.attachToProcess(processHandler);
+        myConsoleView.setProcessTextFilter((processEvent, key) -> isSuppressed(processEvent.getText()));
 
-	@Override
-	public void attachToProcess(ProcessHandler processHandler)
-	{
-		myConsoleView.attachToProcess(processHandler);
-		myConsoleView.setProcessTextFilter((processEvent, key) -> isSuppressed(processEvent.getText()));
+        processHandler.addProcessListener(new ProcessListener() {
+            @Override
+            public void onTextAvailable(ProcessEvent event, Key outputType) {
+                ensureAttachedToToolWindow();
+            }
+        });
+    }
 
-		processHandler.addProcessListener(new ProcessListener()
-		{
-			@Override
-			public void onTextAvailable(ProcessEvent event, Key outputType)
-			{
-				ensureAttachedToToolWindow();
-			}
-		});
-	}
+    @Override
+    protected void doPrint(String text, OutputType type) {
+        ensureAttachedToToolWindow();
 
-	@Override
-	protected void doPrint(String text, OutputType type)
-	{
-		ensureAttachedToToolWindow();
+        ConsoleViewContentType contentType;
+        switch (type) {
+            case SYSTEM:
+                contentType = ConsoleViewContentType.SYSTEM_OUTPUT;
+                break;
+            case ERROR:
+                contentType = ConsoleViewContentType.ERROR_OUTPUT;
+                break;
+            case NORMAL:
+            default:
+                contentType = ConsoleViewContentType.NORMAL_OUTPUT;
+        }
+        myConsoleView.print(text, contentType);
+    }
 
-		ConsoleViewContentType contentType;
-		switch(type)
-		{
-			case SYSTEM:
-				contentType = ConsoleViewContentType.SYSTEM_OUTPUT;
-				break;
-			case ERROR:
-				contentType = ConsoleViewContentType.ERROR_OUTPUT;
-				break;
-			case NORMAL:
-			default:
-				contentType = ConsoleViewContentType.NORMAL_OUTPUT;
-		}
-		myConsoleView.print(text, contentType);
-	}
+    private void ensureAttachedToToolWindow() {
+        if (!isOpen.compareAndSet(false, true)) {
+            return;
+        }
 
-	private void ensureAttachedToToolWindow()
-	{
-		if(!isOpen.compareAndSet(false, true))
-		{
-			return;
-		}
+        MavenUtil.invokeLater(
+            myProject,
+            new Runnable() {
+                @Override
+                public void run() {
+                    MessageView messageView = MessageView.SERVICE.getInstance(myProject);
 
-		MavenUtil.invokeLater(myProject, new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				MessageView messageView = MessageView.SERVICE.getInstance(myProject);
+                    Content content = ContentFactory.getInstance().createContent(myConsoleView.getComponent(), myTitle, true);
+                    content.putUserData(CONSOLE_KEY, MavenConsoleImpl.this);
+                    messageView.getContentManager().addContent(content);
+                    messageView.getContentManager().setSelectedContent(content);
 
-				Content content = ContentFactory.getInstance().createContent(myConsoleView.getComponent(), myTitle, true);
-				content.putUserData(CONSOLE_KEY, MavenConsoleImpl.this);
-				messageView.getContentManager().addContent(content);
-				messageView.getContentManager().setSelectedContent(content);
+                    // remove unused tabs
+                    for (Content each : messageView.getContentManager().getContents()) {
+                        if (each.isPinned()) {
+                            continue;
+                        }
+                        if (each == content) {
+                            continue;
+                        }
 
-				// remove unused tabs
-				for(Content each : messageView.getContentManager().getContents())
-				{
-					if(each.isPinned())
-					{
-						continue;
-					}
-					if(each == content)
-					{
-						continue;
-					}
+                        MavenConsoleImpl console = each.getUserData(CONSOLE_KEY);
+                        if (console == null) {
+                            continue;
+                        }
 
-					MavenConsoleImpl console = each.getUserData(CONSOLE_KEY);
-					if(console == null)
-					{
-						continue;
-					}
+                        if (!myTitle.equals(console.myTitle)) {
+                            continue;
+                        }
 
-					if(!myTitle.equals(console.myTitle))
-					{
-						continue;
-					}
+                        if (console.isFinished()) {
+                            messageView.getContentManager().removeContent(each, false);
+                        }
+                    }
 
-					if(console.isFinished())
-					{
-						messageView.getContentManager().removeContent(each, false);
-					}
-				}
+                    ToolWindow toolWindow = ToolWindowManager.getInstance(myProject).getToolWindow(ToolWindowId.MESSAGES_WINDOW);
+                    if (!toolWindow.isActive()) {
+                        toolWindow.activate(null, false);
+                    }
+                }
+            }
+        );
+    }
 
-				ToolWindow toolWindow = ToolWindowManager.getInstance(myProject).getToolWindow(ToolWindowId.MESSAGES_WINDOW);
-				if(!toolWindow.isActive())
-				{
-					toolWindow.activate(null, false);
-				}
-			}
-		});
-	}
-
-	public void close()
-	{
-		MessageView messageView = MessageView.SERVICE.getInstance(myProject);
-		for(Content each : messageView.getContentManager().getContents())
-		{
-			MavenConsoleImpl console = each.getUserData(CONSOLE_KEY);
-			if(console != null)
-			{
-				messageView.getContentManager().removeContent(each, true);
-				return;
-			}
-		}
-	}
+    public void close() {
+        MessageView messageView = MessageView.SERVICE.getInstance(myProject);
+        for (Content each : messageView.getContentManager().getContents()) {
+            MavenConsoleImpl console = each.getUserData(CONSOLE_KEY);
+            if (console != null) {
+                messageView.getContentManager().removeContent(each, true);
+                return;
+            }
+        }
+    }
 }

@@ -26,86 +26,86 @@ import consulo.ui.ex.awt.EnumComboBoxModel;
 import consulo.ui.ex.awt.ListCellRendererWrapper;
 
 public class MavenImportingSettingsForm {
-  private JPanel myPanel;
+    private JPanel myPanel;
 
-  private JCheckBox mySearchRecursivelyCheckBox;
+    private JCheckBox mySearchRecursivelyCheckBox;
 
-  private JCheckBox myImportAutomaticallyBox;
-  private JCheckBox myCreateModulesForAggregators;
-  private JCheckBox myCreateGroupsCheckBox;
-  private JComboBox myUpdateFoldersOnImportPhaseComboBox;
-  private JCheckBox myKeepSourceFoldersCheckBox;
-  private JCheckBox myUseMavenOutputCheckBox;
-  private JCheckBox myDownloadSourcesCheckBox;
-  private JCheckBox myDownloadDocsCheckBox;
+    private JCheckBox myImportAutomaticallyBox;
+    private JCheckBox myCreateModulesForAggregators;
+    private JCheckBox myCreateGroupsCheckBox;
+    private JComboBox myUpdateFoldersOnImportPhaseComboBox;
+    private JCheckBox myKeepSourceFoldersCheckBox;
+    private JCheckBox myUseMavenOutputCheckBox;
+    private JCheckBox myDownloadSourcesCheckBox;
+    private JCheckBox myDownloadDocsCheckBox;
 
-  private JPanel myAdditionalSettingsPanel;
-  private JComboBox myGeneratedSourcesComboBox;
-  private JCheckBox myExcludeTargetFolderCheckBox;
+    private JPanel myAdditionalSettingsPanel;
+    private JComboBox myGeneratedSourcesComboBox;
+    private JCheckBox myExcludeTargetFolderCheckBox;
 
-  public MavenImportingSettingsForm(boolean isImportStep, boolean isCreatingNewProject) {
-    mySearchRecursivelyCheckBox.setVisible(isImportStep);
+    public MavenImportingSettingsForm(boolean isImportStep, boolean isCreatingNewProject) {
+        mySearchRecursivelyCheckBox.setVisible(isImportStep);
 
-    myUpdateFoldersOnImportPhaseComboBox.setModel(new DefaultComboBoxModel(MavenImportingSettings.UPDATE_FOLDERS_PHASES));
+        myUpdateFoldersOnImportPhaseComboBox.setModel(new DefaultComboBoxModel(MavenImportingSettings.UPDATE_FOLDERS_PHASES));
 
-    myGeneratedSourcesComboBox.setModel(new EnumComboBoxModel<MavenImportingSettings.GeneratedSourcesFolder>(MavenImportingSettings.GeneratedSourcesFolder.class));
-    myGeneratedSourcesComboBox.setRenderer(new ListCellRendererWrapper() {
-      @Override
-      public void customize(JList list, Object value, int index, boolean selected, boolean hasFocus) {
-        if (value instanceof MavenImportingSettings.GeneratedSourcesFolder) {
-          setText(((MavenImportingSettings.GeneratedSourcesFolder)value).title);
-        }
-      }
-    });
-  }
+        myGeneratedSourcesComboBox.setModel(new EnumComboBoxModel<>(MavenImportingSettings.GeneratedSourcesFolder.class));
+        myGeneratedSourcesComboBox.setRenderer(new ListCellRendererWrapper() {
+            @Override
+            public void customize(JList list, Object value, int index, boolean selected, boolean hasFocus) {
+                if (value instanceof MavenImportingSettings.GeneratedSourcesFolder generatedSourcesFolder) {
+                    setText(generatedSourcesFolder.title);
+                }
+            }
+        });
+    }
 
-  public JComponent createComponent() {
-    return myPanel;
-  }
+    public JComponent createComponent() {
+        return myPanel;
+    }
 
-  public void getData(MavenImportingSettings data) {
-    data.setLookForNested(mySearchRecursivelyCheckBox.isSelected());
+    public void getData(MavenImportingSettings data) {
+        data.setLookForNested(mySearchRecursivelyCheckBox.isSelected());
 
-    data.setImportAutomatically(myImportAutomaticallyBox.isSelected());
-    data.setCreateModulesForAggregators(myCreateModulesForAggregators.isSelected());
-    data.setCreateModuleGroups(myCreateGroupsCheckBox.isSelected());
+        data.setImportAutomatically(myImportAutomaticallyBox.isSelected());
+        data.setCreateModulesForAggregators(myCreateModulesForAggregators.isSelected());
+        data.setCreateModuleGroups(myCreateGroupsCheckBox.isSelected());
 
-    data.setKeepSourceFolders(myKeepSourceFoldersCheckBox.isSelected());
-    data.setExcludeTargetFolder(myExcludeTargetFolderCheckBox.isSelected());
-    data.setUseMavenOutput(myUseMavenOutputCheckBox.isSelected());
+        data.setKeepSourceFolders(myKeepSourceFoldersCheckBox.isSelected());
+        data.setExcludeTargetFolder(myExcludeTargetFolderCheckBox.isSelected());
+        data.setUseMavenOutput(myUseMavenOutputCheckBox.isSelected());
 
-    data.setUpdateFoldersOnImportPhase((String)myUpdateFoldersOnImportPhaseComboBox.getSelectedItem());
-    data.setGeneratedSourcesFolder((MavenImportingSettings.GeneratedSourcesFolder)myGeneratedSourcesComboBox.getSelectedItem());
+        data.setUpdateFoldersOnImportPhase((String)myUpdateFoldersOnImportPhaseComboBox.getSelectedItem());
+        data.setGeneratedSourcesFolder((MavenImportingSettings.GeneratedSourcesFolder)myGeneratedSourcesComboBox.getSelectedItem());
 
-    data.setDownloadSourcesAutomatically(myDownloadSourcesCheckBox.isSelected());
-    data.setDownloadDocsAutomatically(myDownloadDocsCheckBox.isSelected());
-  }
+        data.setDownloadSourcesAutomatically(myDownloadSourcesCheckBox.isSelected());
+        data.setDownloadDocsAutomatically(myDownloadDocsCheckBox.isSelected());
+    }
 
-  public void setData(MavenImportingSettings data) {
-    mySearchRecursivelyCheckBox.setSelected(data.isLookForNested());
+    public void setData(MavenImportingSettings data) {
+        mySearchRecursivelyCheckBox.setSelected(data.isLookForNested());
 
-    myImportAutomaticallyBox.setSelected(data.isImportAutomatically());
-    myCreateModulesForAggregators.setSelected(data.isCreateModulesForAggregators());
-    myCreateGroupsCheckBox.setSelected(data.isCreateModuleGroups());
+        myImportAutomaticallyBox.setSelected(data.isImportAutomatically());
+        myCreateModulesForAggregators.setSelected(data.isCreateModulesForAggregators());
+        myCreateGroupsCheckBox.setSelected(data.isCreateModuleGroups());
 
-    myKeepSourceFoldersCheckBox.setSelected(data.isKeepSourceFolders());
-    myExcludeTargetFolderCheckBox.setSelected(data.isExcludeTargetFolder());
-    myUseMavenOutputCheckBox.setSelected(data.isUseMavenOutput());
+        myKeepSourceFoldersCheckBox.setSelected(data.isKeepSourceFolders());
+        myExcludeTargetFolderCheckBox.setSelected(data.isExcludeTargetFolder());
+        myUseMavenOutputCheckBox.setSelected(data.isUseMavenOutput());
 
-    myUpdateFoldersOnImportPhaseComboBox.setSelectedItem(data.getUpdateFoldersOnImportPhase());
-    myGeneratedSourcesComboBox.setSelectedItem(data.getGeneratedSourcesFolder());
+        myUpdateFoldersOnImportPhaseComboBox.setSelectedItem(data.getUpdateFoldersOnImportPhase());
+        myGeneratedSourcesComboBox.setSelectedItem(data.getGeneratedSourcesFolder());
 
-    myDownloadSourcesCheckBox.setSelected(data.isDownloadSourcesAutomatically());
-    myDownloadDocsCheckBox.setSelected(data.isDownloadDocsAutomatically());
-  }
+        myDownloadSourcesCheckBox.setSelected(data.isDownloadSourcesAutomatically());
+        myDownloadDocsCheckBox.setSelected(data.isDownloadDocsAutomatically());
+    }
 
-  public boolean isModified(MavenImportingSettings settings) {
-    MavenImportingSettings formData = new MavenImportingSettings();
-    getData(formData);
-    return !formData.equals(settings);
-  }
+    public boolean isModified(MavenImportingSettings settings) {
+        MavenImportingSettings formData = new MavenImportingSettings();
+        getData(formData);
+        return !formData.equals(settings);
+    }
 
-  public JPanel getAdditionalSettingsPanel() {
-    return myAdditionalSettingsPanel;
-  }
+    public JPanel getAdditionalSettingsPanel() {
+        return myAdditionalSettingsPanel;
+    }
 }

@@ -34,41 +34,35 @@ import javax.annotation.Nonnull;
 @State(name = "MavenImportPreferences", storages = {@Storage(file = StoragePathMacros.WORKSPACE_FILE)})
 @ServiceAPI(ComponentScope.PROJECT)
 @ServiceImpl
-public class MavenWorkspaceSettingsComponent implements PersistentStateComponent<MavenWorkspaceSettings>
-{
-	private MavenWorkspaceSettings mySettings = new MavenWorkspaceSettings();
+public class MavenWorkspaceSettingsComponent implements PersistentStateComponent<MavenWorkspaceSettings> {
+    private MavenWorkspaceSettings mySettings = new MavenWorkspaceSettings();
 
-	private final Project myProject;
+    private final Project myProject;
 
-	@Inject
-	public MavenWorkspaceSettingsComponent(Project project)
-	{
-		myProject = project;
-	}
+    @Inject
+    public MavenWorkspaceSettingsComponent(Project project) {
+        myProject = project;
+    }
 
-	public static MavenWorkspaceSettingsComponent getInstance(Project project)
-	{
-		return ServiceManager.getService(project, MavenWorkspaceSettingsComponent.class);
-	}
+    public static MavenWorkspaceSettingsComponent getInstance(Project project) {
+        return ServiceManager.getService(project, MavenWorkspaceSettingsComponent.class);
+    }
 
-	@Override
-	@Nonnull
-	public MavenWorkspaceSettings getState()
-	{
-		MavenExplicitProfiles profiles = MavenProjectsManager.getInstance(myProject).getExplicitProfiles();
-		mySettings.setEnabledProfiles(profiles.getEnabledProfiles());
-		mySettings.setDisabledProfiles(profiles.getDisabledProfiles());
-		return mySettings;
-	}
+    @Override
+    @Nonnull
+    public MavenWorkspaceSettings getState() {
+        MavenExplicitProfiles profiles = MavenProjectsManager.getInstance(myProject).getExplicitProfiles();
+        mySettings.setEnabledProfiles(profiles.getEnabledProfiles());
+        mySettings.setDisabledProfiles(profiles.getDisabledProfiles());
+        return mySettings;
+    }
 
-	@Override
-	public void loadState(MavenWorkspaceSettings state)
-	{
-		mySettings = state;
-	}
+    @Override
+    public void loadState(MavenWorkspaceSettings state) {
+        mySettings = state;
+    }
 
-	public MavenWorkspaceSettings getSettings()
-	{
-		return mySettings;
-	}
+    public MavenWorkspaceSettings getSettings() {
+        return mySettings;
+    }
 }

@@ -20,21 +20,21 @@ import javax.annotation.Nonnull;
 import consulo.maven.rt.server.common.model.MavenId;
 
 public class MavenParentDesc {
-  private final MavenId myParentId;
-  private final String myParentRelativePath;
+    private final MavenId myParentId;
+    private final String myParentRelativePath;
 
-  public MavenParentDesc(@Nonnull MavenId parentId, @Nonnull String parentRelativePath) {
-    myParentId = parentId;
-    myParentRelativePath = parentRelativePath;
-  }
+    public MavenParentDesc(@Nonnull MavenId parentId, @Nonnull String parentRelativePath) {
+        myParentId = parentId;
+        myParentRelativePath = parentRelativePath;
+    }
 
-  @Nonnull
-  public MavenId getParentId() {
-    return myParentId;
-  }
+    @Nonnull
+    public MavenId getParentId() {
+        return myParentId;
+    }
 
-  @Nonnull
-  public String getParentRelativePath() {
-    return myParentRelativePath;
-  }
+    @Nonnull
+    public String getParentRelativePath() {
+        return myParentRelativePath;
+    }
 }

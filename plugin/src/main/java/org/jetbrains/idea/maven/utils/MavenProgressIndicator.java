@@ -17,6 +17,7 @@ package org.jetbrains.idea.maven.utils;
 
 import consulo.application.progress.EmptyProgressIndicator;
 import consulo.application.progress.ProgressIndicator;
+import consulo.localize.LocalizeValue;
 import consulo.util.lang.function.Condition;
 import consulo.component.ProcessCanceledException;
 
@@ -58,9 +59,15 @@ public class MavenProgressIndicator
 		return myIndicator;
 	}
 
+	@Deprecated
 	public synchronized void setText(String text)
 	{
 		myIndicator.setText(text);
+	}
+
+	public synchronized void setText(LocalizeValue text)
+	{
+		myIndicator.setTextValue(text);
 	}
 
 	public synchronized void setText2(String text)

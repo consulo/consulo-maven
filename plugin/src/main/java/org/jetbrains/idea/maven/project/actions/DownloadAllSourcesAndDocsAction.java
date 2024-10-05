@@ -18,21 +18,21 @@ package org.jetbrains.idea.maven.project.actions;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 
 public class DownloadAllSourcesAndDocsAction extends MavenProjectsManagerAction {
-  private boolean mySources;
-  private boolean myDocs;
+    private boolean mySources;
+    private boolean myDocs;
 
-  @SuppressWarnings({"UnusedDeclaration"})
-  public DownloadAllSourcesAndDocsAction() {
-    this(true, true);
-  }
+    @SuppressWarnings({"UnusedDeclaration"})
+    public DownloadAllSourcesAndDocsAction() {
+        this(true, true);
+    }
 
-  public DownloadAllSourcesAndDocsAction(boolean sources, boolean docs) {
-    mySources = sources;
-    myDocs = docs;
-  }
+    public DownloadAllSourcesAndDocsAction(boolean sources, boolean docs) {
+        mySources = sources;
+        myDocs = docs;
+    }
 
-  @Override
-  protected void perform(MavenProjectsManager manager) {
-    manager.scheduleArtifactsDownloading(manager.getProjects(), null, mySources, myDocs, null);
-  }
+    @Override
+    protected void perform(MavenProjectsManager manager) {
+        manager.scheduleArtifactsDownloading(manager.getProjects(), null, mySources, myDocs, null);
+    }
 }

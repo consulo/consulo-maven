@@ -29,126 +29,107 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 
-public class MavenEmbeddersManager
-{
-	public static final Key FOR_DEPENDENCIES_RESOLVE = Key.create(MavenEmbeddersManager.class + ".FOR_DEPENDENCIES_RESOLVE");
-	public static final Key FOR_PLUGINS_RESOLVE = Key.create(MavenEmbeddersManager.class + ".FOR_PLUGINS_RESOLVE");
-	public static final Key FOR_FOLDERS_RESOLVE = Key.create(MavenEmbeddersManager.class + ".FOR_FOLDERS_RESOLVE");
-	public static final Key FOR_POST_PROCESSING = Key.create(MavenEmbeddersManager.class + ".FOR_POST_PROCESSING");
+public class MavenEmbeddersManager {
+    public static final Key FOR_DEPENDENCIES_RESOLVE = Key.create(MavenEmbeddersManager.class + ".FOR_DEPENDENCIES_RESOLVE");
+    public static final Key FOR_PLUGINS_RESOLVE = Key.create(MavenEmbeddersManager.class + ".FOR_PLUGINS_RESOLVE");
+    public static final Key FOR_FOLDERS_RESOLVE = Key.create(MavenEmbeddersManager.class + ".FOR_FOLDERS_RESOLVE");
+    public static final Key FOR_POST_PROCESSING = Key.create(MavenEmbeddersManager.class + ".FOR_POST_PROCESSING");
 
-	// will always regardless to 'work offline' setting
-	public static final Key FOR_DOWNLOAD = Key.create(MavenEmbeddersManager.class + ".FOR_DOWNLOAD");
+    // will always regardless to 'work offline' setting
+    public static final Key FOR_DOWNLOAD = Key.create(MavenEmbeddersManager.class + ".FOR_DOWNLOAD");
 
-	private final Project myProject;
+    private final Project myProject;
 
-	private final Map<Key, MavenEmbedderWrapper> myPool = ContainerUtil.createSoftValueMap();
-	private final Set<MavenEmbedderWrapper> myEmbeddersInUse = new HashSet<MavenEmbedderWrapper>();
-	private final Set<MavenEmbedderWrapper> myEmbeddersToClear = new HashSet<MavenEmbedderWrapper>();
+    private final Map<Key, MavenEmbedderWrapper> myPool = ContainerUtil.createSoftValueMap();
+    private final Set<MavenEmbedderWrapper> myEmbeddersInUse = new HashSet<MavenEmbedderWrapper>();
+    private final Set<MavenEmbedderWrapper> myEmbeddersToClear = new HashSet<MavenEmbedderWrapper>();
 
-	public MavenEmbeddersManager(Project project)
-	{
-		myProject = project;
-	}
+    public MavenEmbeddersManager(Project project) {
+        myProject = project;
+    }
 
-	public synchronized void reset()
-	{
-		releasePooledEmbedders(false);
-	}
+    public synchronized void reset() {
+        releasePooledEmbedders(false);
+    }
 
-	public synchronized void clearCaches()
-	{
-		forEachPooled(false, new Function<MavenEmbedderWrapper, Object>()
-		{
-			public Object apply(MavenEmbedderWrapper each)
-			{
-				each.clearCaches();
-				return null;
-			}
-		});
-		myEmbeddersToClear.addAll(myEmbeddersInUse);
-	}
+    public synchronized void clearCaches() {
+        forEachPooled(
+            false,
+            each -> {
+                each.clearCaches();
+                return null;
+            }
+        );
+        myEmbeddersToClear.addAll(myEmbeddersInUse);
+    }
 
-	@Nonnull
-	public synchronized MavenEmbedderWrapper getEmbedder(Key kind)
-	{
-		MavenEmbedderWrapper result = myPool.get(kind);
-		boolean alwaysOnline = kind == FOR_DOWNLOAD;
+    @Nonnull
+    public synchronized MavenEmbedderWrapper getEmbedder(Key kind) {
+        MavenEmbedderWrapper result = myPool.get(kind);
+        boolean alwaysOnline = kind == FOR_DOWNLOAD;
 
-		if(result == null)
-		{
-			result = MavenServerManager.getInstance().createEmbedder(myProject, alwaysOnline);
-			myPool.put(kind, result);
-		}
+        if (result == null) {
+            result = MavenServerManager.getInstance().createEmbedder(myProject, alwaysOnline);
+            myPool.put(kind, result);
+        }
 
-		if(myEmbeddersInUse.contains(result))
-		{
-			MavenLog.LOG.warn("embedder " + kind + " is already used");
-			return MavenServerManager.getInstance().createEmbedder(myProject, alwaysOnline);
-		}
+        if (myEmbeddersInUse.contains(result)) {
+            MavenLog.LOG.warn("embedder " + kind + " is already used");
+            return MavenServerManager.getInstance().createEmbedder(myProject, alwaysOnline);
+        }
 
-		myEmbeddersInUse.add(result);
-		return result;
-	}
+        myEmbeddersInUse.add(result);
+        return result;
+    }
 
-	public synchronized void release(@Nonnull MavenEmbedderWrapper embedder)
-	{
-		if(!myEmbeddersInUse.contains(embedder))
-		{
-			embedder.release();
-			myEmbeddersToClear.remove(embedder);
-			return;
-		}
+    public synchronized void release(@Nonnull MavenEmbedderWrapper embedder) {
+        if (!myEmbeddersInUse.contains(embedder)) {
+            embedder.release();
+            myEmbeddersToClear.remove(embedder);
+            return;
+        }
 
-		embedder.reset();
-		myEmbeddersInUse.remove(embedder);
+        embedder.reset();
+        myEmbeddersInUse.remove(embedder);
 
-		if(myEmbeddersToClear.contains(embedder))
-		{
-			embedder.clearCaches();
-			myEmbeddersToClear.remove(embedder);
-		}
-	}
+        if (myEmbeddersToClear.contains(embedder)) {
+            embedder.clearCaches();
+            myEmbeddersToClear.remove(embedder);
+        }
+    }
 
-	@TestOnly
-	public synchronized void releaseInTests()
-	{
-		if(!myEmbeddersInUse.isEmpty())
-		{
-			MavenLog.LOG.warn("embedders should be release first");
-		}
-		releasePooledEmbedders(false);
-	}
+    @TestOnly
+    public synchronized void releaseInTests() {
+        if (!myEmbeddersInUse.isEmpty()) {
+            MavenLog.LOG.warn("embedders should be release first");
+        }
+        releasePooledEmbedders(false);
+    }
 
-	public synchronized void releaseForcefullyInTests()
-	{
-		releasePooledEmbedders(true);
-	}
+    public synchronized void releaseForcefullyInTests() {
+        releasePooledEmbedders(true);
+    }
 
-	private synchronized void releasePooledEmbedders(boolean force)
-	{
-		forEachPooled(force, each -> {
-			each.release();
-			return null;
-		});
-		myPool.clear();
-		myEmbeddersInUse.clear();
-		myEmbeddersToClear.clear();
-	}
+    private synchronized void releasePooledEmbedders(boolean force) {
+        forEachPooled(force, each -> {
+            each.release();
+            return null;
+        });
+        myPool.clear();
+        myEmbeddersInUse.clear();
+        myEmbeddersToClear.clear();
+    }
 
-	private void forEachPooled(boolean includeInUse, Function<MavenEmbedderWrapper, ?> func)
-	{
-		for(Key each : myPool.keySet())
-		{
-			MavenEmbedderWrapper embedder = myPool.get(each);
-			if(embedder == null)
-			{
-				continue; // collected
-			}
-			if(!includeInUse && myEmbeddersInUse.contains(embedder))
-			{
-				continue;
-			}
-			func.apply(embedder);
-		}
-	}
+    private void forEachPooled(boolean includeInUse, Function<MavenEmbedderWrapper, ?> func) {
+        for (Key each : myPool.keySet()) {
+            MavenEmbedderWrapper embedder = myPool.get(each);
+            if (embedder == null) {
+                continue; // collected
+            }
+            if (!includeInUse && myEmbeddersInUse.contains(embedder)) {
+                continue;
+            }
+            func.apply(embedder);
+        }
+    }
 }

@@ -15,9 +15,9 @@
  */
 package org.jetbrains.idea.maven.project;
 
-import consulo.application.ApplicationManager;
-import consulo.project.Project;
+import consulo.application.Application;
 import consulo.application.util.Semaphore;
+import consulo.project.Project;
 import consulo.util.lang.function.Condition;
 import org.jetbrains.idea.maven.execution.SoutMavenConsole;
 import org.jetbrains.idea.maven.utils.*;
@@ -26,132 +26,132 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 public class MavenProjectsProcessor {
-  private final Project myProject;
-  private final String myTitle;
-  private final boolean myCancellable;
-  private final MavenEmbeddersManager myEmbeddersManager;
+    private final Project myProject;
+    private final String myTitle;
+    private final boolean myCancellable;
+    private final MavenEmbeddersManager myEmbeddersManager;
 
-  private final Queue<MavenProjectsProcessorTask> myQueue = new LinkedList<MavenProjectsProcessorTask>();
-  private boolean isProcessing;
+    private final Queue<MavenProjectsProcessorTask> myQueue = new LinkedList<>();
+    private boolean isProcessing;
 
-  private volatile boolean isStopped;
+    private volatile boolean isStopped;
 
-  public MavenProjectsProcessor(Project project, String title, boolean cancellable, MavenEmbeddersManager embeddersManager) {
-    myProject = project;
-    myTitle = title;
-    myCancellable = cancellable;
-    myEmbeddersManager = embeddersManager;
-  }
-
-  public void scheduleTask(MavenProjectsProcessorTask task) {
-    synchronized (myQueue) {
-      if (!isProcessing && !ApplicationManager.getApplication().isUnitTestMode()) {
-        isProcessing = true;
-        startProcessing(task);
-        return;
-      }
-      if (myQueue.contains(task)) return;
-      myQueue.add(task);
-    }
-  }
-
-  public void removeTask(MavenProjectsProcessorTask task) {
-    synchronized (myQueue) {
-      myQueue.remove(task);
-    }
-  }
-
-  public void waitForCompletion() {
-    if (isStopped) return;
-
-    if (ApplicationManager.getApplication().isUnitTestMode()) {
-      synchronized (myQueue) {
-        while (!myQueue.isEmpty()) {
-          startProcessing(myQueue.poll());
-        }
-      }
-      return;
+    public MavenProjectsProcessor(Project project, String title, boolean cancellable, MavenEmbeddersManager embeddersManager) {
+        myProject = project;
+        myTitle = title;
+        myCancellable = cancellable;
+        myEmbeddersManager = embeddersManager;
     }
 
-    final Semaphore semaphore = new Semaphore();
-    semaphore.down();
-    scheduleTask(new MavenProjectsProcessorTask() {
-      public void perform(Project project, MavenEmbeddersManager embeddersManager, MavenConsole console, MavenProgressIndicator indicator)
-        throws MavenProcessCanceledException {
-        semaphore.up();
-      }
-    });
-
-    while (true) {
-      if (isStopped || semaphore.waitFor(1000)) return;
-    }
-  }
-
-  public void stop() {
-    isStopped = true;
-    synchronized (myQueue) {
-      myQueue.clear();
-    }
-  }
-
-  private void startProcessing(final MavenProjectsProcessorTask task) {
-    MavenUtil.runInBackground(myProject, myTitle, myCancellable, new MavenTask() {
-      public void run(MavenProgressIndicator indicator) throws MavenProcessCanceledException {
-        Condition<MavenProgressIndicator> condition = new Condition<MavenProgressIndicator>() {
-          public boolean value(MavenProgressIndicator mavenProgressIndicator) {
-            return isStopped;
-          }
-        };
-        indicator.addCancelCondition(condition);
-        try {
-          doProcessPendingTasks(indicator, task);
-        }
-        finally {
-          indicator.removeCancelCondition(condition);
-        }
-      }
-    });
-  }
-
-  private void doProcessPendingTasks(MavenProgressIndicator indicator, MavenProjectsProcessorTask task)
-    throws MavenProcessCanceledException {
-    int counter = 0;
-    try {
-      while (true) {
-        indicator.checkCanceled();
-        counter++;
-
-        int remained;
+    public void scheduleTask(MavenProjectsProcessorTask task) {
         synchronized (myQueue) {
-          remained = myQueue.size();
+            if (!isProcessing && !Application.get().isUnitTestMode()) {
+                isProcessing = true;
+                startProcessing(task);
+                return;
+            }
+            if (myQueue.contains(task)) {
+                return;
+            }
+            myQueue.add(task);
         }
-        indicator.setFraction(counter / (double)(counter + remained));
+    }
 
+    public void removeTask(MavenProjectsProcessorTask task) {
+        synchronized (myQueue) {
+            myQueue.remove(task);
+        }
+    }
+
+    public void waitForCompletion() {
+        if (isStopped) {
+            return;
+        }
+
+        if (Application.get().isUnitTestMode()) {
+            synchronized (myQueue) {
+                while (!myQueue.isEmpty()) {
+                    startProcessing(myQueue.poll());
+                }
+            }
+            return;
+        }
+
+        final Semaphore semaphore = new Semaphore();
+        semaphore.down();
+        scheduleTask((project, embeddersManager, console, indicator) -> semaphore.up());
+
+        while (true) {
+            if (isStopped || semaphore.waitFor(1000)) {
+                return;
+            }
+        }
+    }
+
+    public void stop() {
+        isStopped = true;
+        synchronized (myQueue) {
+            myQueue.clear();
+        }
+    }
+
+    private void startProcessing(final MavenProjectsProcessorTask task) {
+        MavenUtil.runInBackground(
+            myProject,
+            myTitle,
+            myCancellable,
+            indicator -> {
+                Condition<MavenProgressIndicator> condition = mavenProgressIndicator -> isStopped;
+                indicator.addCancelCondition(condition);
+                try {
+                    doProcessPendingTasks(indicator, task);
+                }
+                finally {
+                    indicator.removeCancelCondition(condition);
+                }
+            }
+        );
+    }
+
+    private void doProcessPendingTasks(MavenProgressIndicator indicator, MavenProjectsProcessorTask task)
+        throws MavenProcessCanceledException {
+        int counter = 0;
         try {
-          task.perform(myProject, myEmbeddersManager, new SoutMavenConsole(), indicator);
+            while (true) {
+                indicator.checkCanceled();
+                counter++;
+
+                int remained;
+                synchronized (myQueue) {
+                    remained = myQueue.size();
+                }
+                indicator.setFraction(counter / (double)(counter + remained));
+
+                try {
+                    task.perform(myProject, myEmbeddersManager, new SoutMavenConsole(), indicator);
+                }
+                catch (MavenProcessCanceledException e) {
+                    throw e;
+                }
+                catch (Throwable e) {
+                    MavenLog.LOG.error(e);
+                }
+
+                synchronized (myQueue) {
+                    task = myQueue.poll();
+                    if (task == null) {
+                        isProcessing = false;
+                        return;
+                    }
+                }
+            }
         }
         catch (MavenProcessCanceledException e) {
-          throw e;
+            synchronized (myQueue) {
+                myQueue.clear();
+                isProcessing = false;
+            }
+            throw e;
         }
-        catch (Throwable e) {
-          MavenLog.LOG.error(e);
-        }
-
-        synchronized (myQueue) {
-          task = myQueue.poll();
-          if (task == null) {
-            isProcessing = false;
-            return;
-          }
-        }
-      }
     }
-    catch (MavenProcessCanceledException e) {
-      synchronized (myQueue) {
-        myQueue.clear();
-        isProcessing = false;
-      }
-      throw e;
-    }
-  }
 }

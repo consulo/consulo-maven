@@ -28,40 +28,34 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Collections;
 
-public class AddFileAsMavenProjectAction extends MavenAction
-{
-	@RequiredUIAccess
-	@Override
-	public void actionPerformed(@Nonnull AnActionEvent e)
-	{
-		final DataContext context = e.getDataContext();
-		MavenProjectsManager manager = MavenActionUtil.getProjectsManager(context);
-		manager.addManagedFiles(Collections.singletonList(getSelectedFile(context)));
-	}
+public class AddFileAsMavenProjectAction extends MavenAction {
+    @RequiredUIAccess
+    @Override
+    public void actionPerformed(@Nonnull AnActionEvent e) {
+        final DataContext context = e.getDataContext();
+        MavenProjectsManager manager = MavenActionUtil.getProjectsManager(context);
+        manager.addManagedFiles(Collections.singletonList(getSelectedFile(context)));
+    }
 
-	@Override
-	protected boolean isAvailable(AnActionEvent e)
-	{
-		final DataContext context = e.getDataContext();
-		VirtualFile file = getSelectedFile(context);
-		return super.isAvailable(e) && MavenActionUtil.isMavenProjectFile(file) && !isExistingProjectFile(context, file);
-	}
+    @Override
+    protected boolean isAvailable(AnActionEvent e) {
+        final DataContext context = e.getDataContext();
+        VirtualFile file = getSelectedFile(context);
+        return super.isAvailable(e) && MavenActionUtil.isMavenProjectFile(file) && !isExistingProjectFile(context, file);
+    }
 
-	@Override
-	protected boolean isVisible(AnActionEvent e)
-	{
-		return super.isVisible(e) && isAvailable(e);
-	}
+    @Override
+    protected boolean isVisible(AnActionEvent e) {
+        return super.isVisible(e) && isAvailable(e);
+    }
 
-	private static boolean isExistingProjectFile(DataContext context, VirtualFile file)
-	{
-		MavenProjectsManager manager = MavenActionUtil.getProjectsManager(context);
-		return manager.findProject(file) != null;
-	}
+    private static boolean isExistingProjectFile(DataContext context, VirtualFile file) {
+        MavenProjectsManager manager = MavenActionUtil.getProjectsManager(context);
+        return manager.findProject(file) != null;
+    }
 
-	@Nullable
-	private static VirtualFile getSelectedFile(DataContext context)
-	{
-		return context.getData(PlatformDataKeys.VIRTUAL_FILE);
-	}
+    @Nullable
+    private static VirtualFile getSelectedFile(DataContext context) {
+        return context.getData(PlatformDataKeys.VIRTUAL_FILE);
+    }
 }
