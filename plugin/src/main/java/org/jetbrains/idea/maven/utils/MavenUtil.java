@@ -15,8 +15,8 @@
  */
 package org.jetbrains.idea.maven.utils;
 
+import consulo.annotation.access.RequiredReadAction;
 import consulo.application.Application;
-import consulo.application.ApplicationManager;
 import consulo.application.progress.ProgressIndicator;
 import consulo.application.progress.ProgressManager;
 import consulo.application.progress.Task;
@@ -60,6 +60,7 @@ import consulo.project.ui.notification.NotificationType;
 import consulo.project.ui.notification.Notifications;
 import consulo.ui.ModalityState;
 import consulo.ui.UIAccess;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.image.ImageKey;
 import consulo.util.collection.ContainerUtil;
 import consulo.util.io.FileUtil;
@@ -151,7 +152,7 @@ public class MavenUtil {
             r.run();
         }
         else {
-            ApplicationManager.getApplication().invokeLater(DisposeAwareRunnable.create(r, p), state);
+            Application.get().invokeLater(DisposeAwareRunnable.create(r, p), state);
         }
     }
 
@@ -163,31 +164,28 @@ public class MavenUtil {
         if (isNoBackgroundMode()) {
             r.run();
         }
-        else if (ApplicationManager.getApplication().isDispatchThread()) {
+        else if (Application.get().isDispatchThread()) {
             r.run();
         }
         else {
-            ApplicationManager.getApplication().invokeAndWait(DisposeAwareRunnable.create(r, p), state);
+            Application.get().invokeAndWait(DisposeAwareRunnable.create(r, p), state);
         }
     }
 
     public static void smartInvokeAndWait(final Project p, final ModalityState state, final Runnable r) {
-        if (isNoBackgroundMode() || ApplicationManager.getApplication().isDispatchThread()) {
+        if (isNoBackgroundMode() || Application.get().isDispatchThread()) {
             r.run();
         }
         else {
             final Semaphore semaphore = new Semaphore();
             semaphore.down();
             DumbService.getInstance(p).smartInvokeLater(
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            r.run();
-                        }
-                        finally {
-                            semaphore.up();
-                        }
+                () -> {
+                    try {
+                        r.run();
+                    }
+                    finally {
+                        semaphore.up();
                     }
                 },
                 state
@@ -197,15 +195,7 @@ public class MavenUtil {
     }
 
     public static void invokeAndWaitWriteAction(Project p, final Runnable r) {
-        invokeAndWait(
-            p,
-            new Runnable() {
-                @Override
-                public void run() {
-                    ApplicationManager.getApplication().runWriteAction(r);
-                }
-            }
-        );
+        invokeAndWait(p, () -> Application.get().runWriteAction(r));
     }
 
     public static void runDumbAware(final Project project, final Runnable r) {
@@ -236,14 +226,12 @@ public class MavenUtil {
     }
 
     public static boolean isNoBackgroundMode() {
-        return (ApplicationManager.getApplication().isUnitTestMode() || ApplicationManager.getApplication().isHeadlessEnvironment());
+        return Application.get().isUnitTestMode() || Application.get().isHeadlessEnvironment();
     }
 
+    @RequiredUIAccess
     public static boolean isInModalContext() {
-        if (isNoBackgroundMode()) {
-            return false;
-        }
-        return UIAccess.current().isInModalContext();
+        return !isNoBackgroundMode() && UIAccess.current().isInModalContext();
     }
 
     public static void showError(Project project, String title, Throwable e) {
@@ -281,7 +269,7 @@ public class MavenUtil {
     }
 
     public static <T, U> List<T> collectFirsts(List<Pair<T, U>> pairs) {
-        List<T> result = new ArrayList<T>(pairs.size());
+        List<T> result = new ArrayList<>(pairs.size());
         for (Pair<T, ?> each : pairs) {
             result.add(each.first);
         }
@@ -297,11 +285,11 @@ public class MavenUtil {
     }
 
     public static List<String> collectPaths(List<VirtualFile> files) {
-        return ContainerUtil.map(files, file -> file.getPath());
+        return ContainerUtil.map(files, VirtualFile::getPath);
     }
 
     public static List<VirtualFile> collectFiles(Collection<MavenProject> projects) {
-        return ContainerUtil.map(projects, project -> project.getFile());
+        return ContainerUtil.map(projects, MavenProject::getFile);
     }
 
     public static <T> boolean equalAsSets(final Collection<T> collection1, final Collection<T> collection2) {
@@ -320,6 +308,7 @@ public class MavenUtil {
         return "<icon src=\"" + imageKey.getGroupId() + "@" + imageKey.getImageId() + "\"/> ";
     }
 
+    @RequiredReadAction
     public static void runOrApplyMavenProjectFileTemplate(
         Project project,
         VirtualFile file,
@@ -329,6 +318,7 @@ public class MavenUtil {
         runOrApplyMavenProjectFileTemplate(project, file, projectId, null, null, interactive);
     }
 
+    @RequiredReadAction
     public static void runOrApplyMavenProjectFileTemplate(
         Project project,
         VirtualFile file,
@@ -375,10 +365,12 @@ public class MavenUtil {
         );
     }
 
+    @RequiredReadAction
     public static void runFileTemplate(Project project, VirtualFile file, String templateName) throws IOException {
         runOrApplyFileTemplate(project, file, templateName, new Properties(), new Properties(), true);
     }
 
+    @RequiredReadAction
     private static void runOrApplyFileTemplate(
         Project project,
         VirtualFile file,
@@ -470,10 +462,7 @@ public class MavenUtil {
                 try {
                     task.run(new MavenProgressIndicator(i));
                 }
-                catch (MavenProcessCanceledException e) {
-                    canceledEx[0] = e;
-                }
-                catch (ProcessCanceledException e) {
+                catch (MavenProcessCanceledException | ProcessCanceledException e) {
                     canceledEx[0] = e;
                 }
                 catch (RuntimeException e) {
@@ -891,12 +880,8 @@ public class MavenUtil {
     }
 
     public static int crcWithoutSpaces(@Nonnull VirtualFile xmlFile) throws IOException {
-        InputStream inputStream = xmlFile.getInputStream();
-        try {
+        try (InputStream inputStream = xmlFile.getInputStream()) {
             return crcWithoutSpaces(inputStream);
-        }
-        finally {
-            inputStream.close();
         }
     }
 
@@ -946,6 +931,7 @@ public class MavenUtil {
     }
 
     @Nonnull
+    @SuppressWarnings("unchecked")
     public static <K, V extends Map> V getOrCreate(Map map, K key) {
         Map res = (Map)map.get(key);
         if (res == null) {

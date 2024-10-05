@@ -15,8 +15,6 @@
  */
 package org.jetbrains.idea.maven.utils;
 
-import org.jetbrains.annotations.NonNls;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -26,11 +24,10 @@ import java.util.StringTokenizer;
  * @author Vladislav.Kaznacheev
  */
 public class Strings {
-    @NonNls
     public static final String WHITESPACE = " \t\n\r\f";
 
     public static List<String> tokenize(final String string, final String delim) {
-        final List<String> tokens = new ArrayList<String>();
+        final List<String> tokens = new ArrayList<>();
         for (StringTokenizer tokenizer = new StringTokenizer(string, delim); tokenizer.hasMoreTokens(); ) {
             tokens.add(tokenizer.nextToken());
         }

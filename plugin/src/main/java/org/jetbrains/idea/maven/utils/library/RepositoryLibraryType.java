@@ -23,6 +23,7 @@ import consulo.content.library.ui.LibraryEditorComponent;
 import consulo.content.library.ui.LibraryPropertiesEditor;
 import consulo.maven.icon.MavenIconGroup;
 import consulo.project.Project;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.image.Image;
 import consulo.virtualFileSystem.VirtualFile;
 
@@ -58,6 +59,7 @@ public class RepositoryLibraryType extends LibraryType<RepositoryLibraryProperti
     }
 
     @Override
+    @RequiredUIAccess
     public NewLibraryConfiguration createNewLibrary(
         @Nonnull JComponent parentComponent,
         @Nullable VirtualFile contextDirectory,

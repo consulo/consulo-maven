@@ -15,7 +15,7 @@
  */
 package org.jetbrains.idea.maven.utils;
 
-import consulo.application.ApplicationManager;
+import consulo.application.Application;
 import consulo.codeEditor.EditorFactory;
 import consulo.codeEditor.event.CaretAdapter;
 import consulo.codeEditor.event.CaretEvent;
@@ -58,7 +58,7 @@ public class MavenMergingUpdateQueue extends MergingUpdateQueue {
     @Override
     public void queue(@Nonnull Update update) {
         boolean passThrough = false;
-        if (ApplicationManager.getApplication().isUnitTestMode()) {
+        if (Application.get().isUnitTestMode()) {
             passThrough = isPassThrough();
         }
         else if (MavenUtil.isNoBackgroundMode()) {
@@ -116,24 +116,18 @@ public class MavenMergingUpdateQueue extends MergingUpdateQueue {
     public void makeModalAware(Project project) {
         MavenUtil.invokeLater(
             project,
-            new Runnable() {
-                @Override
-                public void run() {
-                    final ModalityStateListener listener = new ModalityStateListener() {
-                        @Override
-                        public void beforeModalityStateChanged(boolean entering, @Nonnull Object o) {
-                            if (entering) {
-                                suspend();
-                            }
-                            else {
-                                resume();
-                            }
-                        }
-                    };
-                    UIAccess.addModalityStateListener(listener, MavenMergingUpdateQueue.this);
-                    if (MavenUtil.isInModalContext()) {
+            () -> {
+                final ModalityStateListener listener = (entering, o) -> {
+                    if (entering) {
                         suspend();
                     }
+                    else {
+                        resume();
+                    }
+                };
+                UIAccess.addModalityStateListener(listener, MavenMergingUpdateQueue.this);
+                if (MavenUtil.isInModalContext()) {
+                    suspend();
                 }
             }
         );

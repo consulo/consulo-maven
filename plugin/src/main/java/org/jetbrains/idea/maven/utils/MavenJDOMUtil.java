@@ -65,9 +65,11 @@ public class MavenJDOMUtil {
         final Element[] result = {null};
         XmlBuilderDriver driver = new XmlBuilderDriver(text);
         XmlBuilder builder = new XmlBuilder() {
+            @Override
             public void doctype(@Nullable CharSequence publicId, @Nullable CharSequence systemId, int startOffset, int endOffset) {
             }
 
+            @Override
             public ProcessingOrder startTag(CharSequence localName, String namespace, int startoffset, int endoffset, int headerEndOffset) {
                 String name = localName.toString();
                 if (StringUtil.isEmptyOrSpaces(name)) {
@@ -94,6 +96,7 @@ public class MavenJDOMUtil {
                 return ProcessingOrder.TAGS_AND_TEXTS;
             }
 
+            @Override
             public void endTag(CharSequence localName, String namespace, int startoffset, int endoffset) {
                 String name = localName.toString();
                 if (StringUtil.isEmptyOrSpaces(name)) {
@@ -111,16 +114,20 @@ public class MavenJDOMUtil {
                 }
             }
 
+            @Override
             public void textElement(CharSequence text, CharSequence physical, int startoffset, int endoffset) {
                 stack.getLast().addContent(JDOMUtil.legalizeText(text.toString()));
             }
 
+            @Override
             public void attribute(CharSequence name, CharSequence value, int startoffset, int endoffset) {
             }
 
+            @Override
             public void entityRef(CharSequence ref, int startOffset, int endOffset) {
             }
 
+            @Override
             public void error(LocalizeValue message, int startOffset, int endOffset) {
                 if (handler != null) {
                     handler.onSyntaxError();
@@ -189,7 +196,7 @@ public class MavenJDOMUtil {
 
         if (firstDot == -1) {
             //noinspection unchecked
-            return (List<Element>)container.getChildren(subPath);
+            return container.getChildren(subPath);
         }
 
         String childName = subPath.substring(0, firstDot);
@@ -197,7 +204,7 @@ public class MavenJDOMUtil {
 
         List<Element> result = new ArrayList<>();
         //noinspection unchecked
-        for (Element each : (Iterable<? extends Element>)container.getChildren(childName)) {
+        for (Element each : container.getChildren(childName)) {
             Element child = findChildByPath(each, pathInChild);
             if (child != null) {
                 result.add(child);

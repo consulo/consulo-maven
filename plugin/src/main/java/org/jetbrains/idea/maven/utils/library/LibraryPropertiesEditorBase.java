@@ -29,6 +29,7 @@ import consulo.content.library.LibraryProperties;
 import consulo.content.library.LibraryType;
 import consulo.content.library.ui.LibraryPropertiesEditor;
 import consulo.content.library.ui.LibraryEditorComponent;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.awt.UIUtil;
 
 /**
@@ -50,12 +51,7 @@ public abstract class LibraryPropertiesEditorBase<P extends LibraryProperties, T
             myEditButton.setText(UIUtil.replaceMnemonicAmpersand(editButtonText));
         }
         myEditButton.setVisible(!myEditorComponent.isNewLibrary());
-        myEditButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                edit();
-            }
-        });
+        myEditButton.addActionListener(e -> edit());
     }
 
     protected JPanel getMainPanel() {
@@ -75,16 +71,19 @@ public abstract class LibraryPropertiesEditorBase<P extends LibraryProperties, T
 
     @Nonnull
     @Override
+    @RequiredUIAccess
     public JComponent createComponent() {
         return myMainPanel;
     }
 
     @Override
+    @RequiredUIAccess
     public boolean isModified() {
         return myModified;
     }
 
     @Override
+    @RequiredUIAccess
     public void reset() {
         updateDescription();
     }

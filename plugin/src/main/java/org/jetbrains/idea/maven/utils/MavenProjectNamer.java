@@ -12,7 +12,6 @@ import java.util.*;
  * @author Sergey Evdokimov
  */
 public class MavenProjectNamer {
-
     //private static Logger LOG = Logger.getInstance(MavenProjectNamer.class);
 
     public static Map<MavenProject, String> generateNameMap(Collection<MavenProject> mavenProjects) {

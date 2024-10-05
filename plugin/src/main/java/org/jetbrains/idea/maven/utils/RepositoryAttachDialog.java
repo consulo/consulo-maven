@@ -15,8 +15,7 @@
  */
 package org.jetbrains.idea.maven.utils;
 
-import consulo.application.AllIcons;
-import consulo.application.ApplicationManager;
+import consulo.application.Application;
 import consulo.component.PropertiesComponent;
 import consulo.disposer.Disposer;
 import consulo.fileChooser.FileChooserDescriptor;
@@ -26,8 +25,9 @@ import consulo.maven.rt.server.common.model.MavenArtifactInfo;
 import consulo.maven.rt.server.common.model.MavenRepositoryInfo;
 import consulo.platform.base.icon.PlatformIconGroup;
 import consulo.project.Project;
-import consulo.project.ProjectBundle;
 import consulo.project.ProjectPropertiesComponent;
+import consulo.project.localize.ProjectLocalize;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.awt.*;
 import consulo.ui.ex.awt.event.DocumentAdapter;
 import consulo.util.collection.ContainerUtil;
@@ -36,10 +36,8 @@ import consulo.util.lang.Comparing;
 import consulo.util.lang.Pair;
 import consulo.util.lang.StringUtil;
 import consulo.util.lang.function.Condition;
-import consulo.util.lang.function.PairProcessor;
 import consulo.util.lang.xml.XmlStringUtil;
 import consulo.virtualFileSystem.VirtualFile;
-import org.jetbrains.annotations.NonNls;
 import org.jetbrains.idea.maven.utils.library.RepositoryAttachHandler;
 
 import javax.annotation.Nonnull;
@@ -48,18 +46,13 @@ import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.text.JTextComponent;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.List;
 import java.util.*;
 
 public class RepositoryAttachDialog extends DialogWrapper {
-    @NonNls
     private static final String PROPERTY_DOWNLOAD_TO_PATH = "Downloaded.Files.Path";
-    @NonNls
     private static final String PROPERTY_ATTACH_JAVADOC = "Repository.Attach.JavaDocs";
-    @NonNls
     private static final String PROPERTY_ATTACH_SOURCES = "Repository.Attach.Sources";
 
     private JBLabel myInfoLabel;
@@ -73,7 +66,7 @@ public class RepositoryAttachDialog extends DialogWrapper {
     private JBLabel myCaptionLabel;
     private final Map<String, Pair<MavenArtifactInfo, MavenRepositoryInfo>> myCoordinates = new HashMap<>();
     private final Map<String, MavenRepositoryInfo> myRepositories = new TreeMap<>();
-    private final ArrayList<String> myShownItems = new ArrayList<>();
+    private final List<String> myShownItems = new ArrayList<>();
     private final JComboBox myCombobox;
 
     private TextFieldWithBrowseButton myDirectoryField;
@@ -95,12 +88,7 @@ public class RepositoryAttachDialog extends DialogWrapper {
         ));
 
         myComboComponent.setButtonIcon(PlatformIconGroup.actionsSearch());
-        myComboComponent.getButton().addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                performSearch();
-            }
-        });
+        myComboComponent.getButton().addActionListener(e -> performSearch());
         myCombobox = myComboComponent.getComboBox();
         myCombobox.setModel(new CollectionComboBoxModel(myShownItems, null));
         myCombobox.setEditable(true);
@@ -112,28 +100,23 @@ public class RepositoryAttachDialog extends DialogWrapper {
         textField.getDocument().addDocumentListener(new DocumentAdapter() {
             @Override
             protected void textChanged(DocumentEvent e) {
-                ApplicationManager.getApplication().invokeLater(new Runnable() {
-                    public void run() {
-                      if (myProgressIcon.isDisposed()) {
+                Application.get().invokeLater(() -> {
+                    if (myProgressIcon.isDisposed()) {
                         return;
-                      }
-                        updateComboboxSelection(false);
                     }
+                    updateComboboxSelection(false);
                 });
             }
         });
-        myCombobox.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                final boolean popupVisible = myCombobox.isPopupVisible();
-                if (!myInUpdate && (!popupVisible || myCoordinates.isEmpty())) {
-                    performSearch();
-                }
-                else {
-                    final String item = (String)myCombobox.getSelectedItem();
-                    if (StringUtil.isNotEmpty(item)) {
-                        ((JTextField)myCombobox.getEditor().getEditorComponent()).setText(item);
-                    }
+        myCombobox.addActionListener(e -> {
+            final boolean popupVisible = myCombobox.isPopupVisible();
+            if (!myInUpdate && (!popupVisible || myCoordinates.isEmpty())) {
+                performSearch();
+            }
+            else {
+                final String item = (String)myCombobox.getSelectedItem();
+                if (StringUtil.isNotEmpty(item)) {
+                    ((JTextField)myCombobox.getEditor().getEditorComponent()).setText(item);
                 }
             }
         });
@@ -153,8 +136,10 @@ public class RepositoryAttachDialog extends DialogWrapper {
             }
             final FileChooserDescriptor descriptor = FileChooserDescriptorFactory.createSingleFolderDescriptor();
             descriptor.putUserData(FileChooserDialog.PREFER_LAST_OVER_TO_SELECT, Boolean.TRUE);
-            myDirectoryField.addBrowseFolderListener(ProjectBundle.message("file.chooser.directory.for.downloaded.libraries.title"),
-                ProjectBundle.message("file.chooser.directory.for.downloaded.libraries.description"), null,
+            myDirectoryField.addBrowseFolderListener(
+                ProjectLocalize.fileChooserDirectoryForDownloadedLibrariesTitle().get(),
+                ProjectLocalize.fileChooserDirectoryForDownloadedLibrariesDescription().get(),
+                null,
                 descriptor
             );
         }
@@ -178,6 +163,7 @@ public class RepositoryAttachDialog extends DialogWrapper {
     }
 
     @Override
+    @RequiredUIAccess
     public JComponent getPreferredFocusedComponent() {
         return myCombobox;
     }
@@ -188,9 +174,9 @@ public class RepositoryAttachDialog extends DialogWrapper {
         final int caret = field.getCaretPosition();
         myFilterString = field.getText();
 
-      if (!force && Comparing.equal(myFilterString, prevFilter)) {
-        return;
-      }
+        if (!force && Comparing.equal(myFilterString, prevFilter)) {
+            return;
+        }
         int prevSize = myShownItems.size();
         myShownItems.clear();
 
@@ -247,36 +233,34 @@ public class RepositoryAttachDialog extends DialogWrapper {
         RepositoryAttachHandler.searchArtifacts(
             myProject,
             text,
-            new PairProcessor<>() {
-                public boolean process(Collection<Pair<MavenArtifactInfo, MavenRepositoryInfo>> artifacts, Boolean tooMany) {
-                  if (myProgressIcon.isDisposed()) {
+            (artifacts, tooMany) -> {
+                if (myProgressIcon.isDisposed()) {
                     return false;
-                  }
-                  if (tooMany != null) {
-                    myProgressIcon.suspend(); // finished
-                  }
-                    final int prevSize = myCoordinates.size();
-                    for (Pair<MavenArtifactInfo, MavenRepositoryInfo> each : artifacts) {
-                        myCoordinates.put(each.first.getGroupId() + ":" + each.first.getArtifactId() + ":" + each.first.getVersion(), each);
-                        String url = each.second != null ? each.second.getUrl() : null;
-                        if (StringUtil.isNotEmpty(url) && !myRepositories.containsKey(url)) {
-                            myRepositories.put(url, each.second);
-                        }
-                    }
-                    String title = getTitle();
-                    String tooManyMessage = ": too many results found";
-                    if (tooMany != null) {
-                        boolean alreadyThere = title.endsWith(tooManyMessage);
-                        if (tooMany.booleanValue() && !alreadyThere) {
-                            setTitle(title + tooManyMessage);
-                        }
-                        else if (!tooMany.booleanValue() && alreadyThere) {
-                            setTitle(title.substring(0, title.length() - tooManyMessage.length()));
-                        }
-                    }
-                    updateComboboxSelection(prevSize != myCoordinates.size());
-                    return true;
                 }
+                if (tooMany != null) {
+                    myProgressIcon.suspend(); // finished
+                }
+                final int prevSize = myCoordinates.size();
+                for (Pair<MavenArtifactInfo, MavenRepositoryInfo> each : artifacts) {
+                    myCoordinates.put(each.first.getGroupId() + ":" + each.first.getArtifactId() + ":" + each.first.getVersion(), each);
+                    String url = each.second != null ? each.second.getUrl() : null;
+                    if (StringUtil.isNotEmpty(url) && !myRepositories.containsKey(url)) {
+                        myRepositories.put(url, each.second);
+                    }
+                }
+                String title = getTitle();
+                String tooManyMessage = ": too many results found";
+                if (tooMany != null) {
+                    boolean alreadyThere = title.endsWith(tooManyMessage);
+                    if (tooMany && !alreadyThere) {
+                        setTitle(title + tooManyMessage);
+                    }
+                    else if (!tooMany && alreadyThere) {
+                        setTitle(title.substring(0, title.length() - tooManyMessage.length()));
+                    }
+                }
+                updateComboboxSelection(prevSize != myCoordinates.size());
+                return true;
             }
         );
         return true;
@@ -287,6 +271,7 @@ public class RepositoryAttachDialog extends DialogWrapper {
     }
 
     @Override
+    @RequiredUIAccess
     protected ValidationInfo doValidate() {
         if (!isValidCoordinateSelected()) {
             return new ValidationInfo("Please enter valid coordinate, discover it or select one from the list", myCombobox);
@@ -305,6 +290,7 @@ public class RepositoryAttachDialog extends DialogWrapper {
         return null;
     }
 
+    @Override
     protected JComponent createNorthPanel() {
         return myPanel;
     }

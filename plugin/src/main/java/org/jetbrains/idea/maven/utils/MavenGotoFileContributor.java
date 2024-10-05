@@ -15,6 +15,7 @@
  */
 package org.jetbrains.idea.maven.utils;
 
+import consulo.annotation.access.RequiredReadAction;
 import consulo.annotation.component.ExtensionImpl;
 import consulo.ide.navigation.GotoFileContributor;
 import consulo.language.psi.PsiFile;
@@ -32,6 +33,7 @@ import java.util.List;
 @ExtensionImpl
 public class MavenGotoFileContributor implements GotoFileContributor {
     @Nonnull
+    @Override
     public String[] getNames(Project project, boolean includeNonProjectItems) {
         List<String> result = new ArrayList<>();
 
@@ -43,6 +45,8 @@ public class MavenGotoFileContributor implements GotoFileContributor {
     }
 
     @Nonnull
+    @Override
+    @RequiredReadAction
     public NavigationItem[] getItemsByName(String name, String pattern, Project project, boolean includeNonProjectItems) {
         List<NavigationItem> result = new ArrayList<>();
 

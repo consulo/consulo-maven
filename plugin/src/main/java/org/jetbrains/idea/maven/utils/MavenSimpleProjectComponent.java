@@ -15,7 +15,7 @@
  */
 package org.jetbrains.idea.maven.utils;
 
-import consulo.application.ApplicationManager;
+import consulo.application.Application;
 import consulo.project.Project;
 
 public abstract class MavenSimpleProjectComponent {
@@ -34,11 +34,11 @@ public abstract class MavenSimpleProjectComponent {
     }
 
     protected boolean isUnitTestMode() {
-        return ApplicationManager.getApplication().isUnitTestMode();
+        return Application.get().isUnitTestMode();
     }
 
     protected boolean isHeadless() {
-        return ApplicationManager.getApplication().isHeadlessEnvironment();
+        return Application.get().isHeadlessEnvironment();
     }
 
     protected boolean isDefault() {

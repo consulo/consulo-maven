@@ -20,12 +20,14 @@ import consulo.annotation.component.ExtensionImpl;
 import consulo.fileEditor.EditorTabTitleProvider;
 import consulo.project.Project;
 import consulo.virtualFileSystem.VirtualFile;
+import jakarta.annotation.Nonnull;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 
 @ExtensionImpl
 public class MavenEditorTabTitleProvider implements EditorTabTitleProvider {
-    public String getEditorTabTitle(Project project, VirtualFile file) {
+    @Override
+    public String getEditorTabTitle(@Nonnull Project project, @Nonnull VirtualFile file) {
         MavenProjectsManager projectsManager = MavenProjectsManager.getInstance(project);
         if (!projectsManager.isMavenizedProject()) {
             return null;

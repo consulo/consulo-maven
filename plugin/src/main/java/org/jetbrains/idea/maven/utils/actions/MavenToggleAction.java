@@ -18,10 +18,11 @@ package org.jetbrains.idea.maven.utils.actions;
 import consulo.ui.ex.action.AnActionEvent;
 import consulo.ui.ex.action.ToggleAction;
 import consulo.application.dumb.DumbAware;
+import jakarta.annotation.Nonnull;
 
 public abstract class MavenToggleAction extends ToggleAction implements DumbAware {
     @Override
-    public void update(AnActionEvent e) {
+    public void update(@Nonnull AnActionEvent e) {
         super.update(e);
         e.getPresentation().setEnabled(isAvailable(e));
     }
@@ -30,11 +31,9 @@ public abstract class MavenToggleAction extends ToggleAction implements DumbAwar
         return MavenActionUtil.hasProject(e.getDataContext());
     }
 
-    public final boolean isSelected(AnActionEvent e) {
-        if (!isAvailable(e)) {
-            return false;
-        }
-        return doIsSelected(e);
+    @Override
+    public final boolean isSelected(@Nonnull AnActionEvent e) {
+        return isAvailable(e) && doIsSelected(e);
     }
 
     protected abstract boolean doIsSelected(AnActionEvent e);

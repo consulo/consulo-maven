@@ -28,8 +28,8 @@ import consulo.ui.ex.awt.util.MergingUpdateQueue;
 import consulo.ui.ex.awt.util.Update;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+import org.jetbrains.idea.maven.localize.MavenProjectLocalize;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
-import org.jetbrains.idea.maven.project.ProjectBundle;
 
 import javax.swing.event.HyperlinkEvent;
 
@@ -114,9 +114,9 @@ public class MavenImportNotifier extends MavenSimpleProjectComponent implements 
 
             myNotification = new Notification(
                 MavenNotificationGroup.IMPORT,
-                ProjectBundle.message("maven.project.changed"),
-                "<a href='reimport'>" + ProjectBundle.message("maven.project.importChanged") + "</a> " +
-                    "<a href='autoImport'>" + ProjectBundle.message("maven.project.enableAutoImport") + "</a>",
+                MavenProjectLocalize.mavenProjectChanged().get(),
+                "<a href='reimport'>" + MavenProjectLocalize.mavenProjectImportchanged() + "</a> " +
+                    "<a href='autoImport'>" + MavenProjectLocalize.mavenProjectEnableautoimport() + "</a>",
                 NotificationType.INFORMATION,
                 (notification, event) -> {
                     if (event.getEventType() != HyperlinkEvent.EventType.ACTIVATED) {

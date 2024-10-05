@@ -24,7 +24,6 @@ import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import consulo.language.editor.CommonDataKeys;
 import consulo.maven.rt.server.common.model.MavenConstants;
 import consulo.module.content.ProjectFileIndex;
 import org.jetbrains.idea.maven.project.MavenProject;
@@ -43,16 +42,16 @@ public class MavenActionUtil {
     }
 
     public static boolean hasProject(DataContext context) {
-        return context.getData(CommonDataKeys.PROJECT) != null;
+        return context.getData(Project.KEY) != null;
     }
 
     @Nonnull
     public static Project getProject(DataContext context) {
-        return context.getData(CommonDataKeys.PROJECT);
+        return context.getData(Project.KEY);
     }
 
     public static boolean isMavenizedProject(DataContext context) {
-        Project project = context.getData(CommonDataKeys.PROJECT);
+        Project project = context.getData(Project.KEY);
         return project != null && MavenProjectsManager.getInstance(project).isMavenizedProject();
     }
 
@@ -82,7 +81,7 @@ public class MavenActionUtil {
 
     @Nullable
     private static Module getModule(DataContext context) {
-        final Module module = context.getData(LangDataKeys.MODULE);
+        final Module module = context.getData(Module.KEY);
         return module != null ? module : context.getData(LangDataKeys.MODULE_CONTEXT);
     }
 
@@ -96,7 +95,7 @@ public class MavenActionUtil {
     }
 
     public static List<MavenProject> getMavenProjects(DataContext context) {
-        Project project = context.getData(CommonDataKeys.PROJECT);
+        Project project = context.getData(Project.KEY);
         if (project == null) {
             return Collections.emptyList();
         }

@@ -19,6 +19,7 @@ import consulo.content.library.ui.LibraryEditorComponent;
 import consulo.ide.impl.idea.openapi.roots.ui.configuration.libraryEditor.LibraryEditorBase;
 import consulo.content.library.NewLibraryConfiguration;
 import consulo.project.Project;
+import consulo.ui.annotation.RequiredUIAccess;
 
 /**
  * @author nik
@@ -29,6 +30,7 @@ public class RepositoryLibraryEditor extends LibraryPropertiesEditorBase<Reposit
     }
 
     @Override
+    @RequiredUIAccess
     protected void edit() {
         final Project project = myEditorComponent.getProject();
         final NewLibraryConfiguration configuration = RepositoryAttachHandler.chooseLibraryAndDownload(
@@ -51,6 +53,7 @@ public class RepositoryLibraryEditor extends LibraryPropertiesEditorBase<Reposit
     }
 
     @Override
+    @RequiredUIAccess
     public void apply() {
     }
 }

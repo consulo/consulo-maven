@@ -16,6 +16,7 @@
 package org.jetbrains.idea.maven.utils;
 
 import consulo.dataContext.DataManager;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.action.ActionManager;
 import consulo.ui.ex.action.AnAction;
 import consulo.ui.ex.action.AnActionEvent;
@@ -36,6 +37,7 @@ import java.util.List;
 import java.util.TreeSet;
 
 public class MavenUIUtil {
+    @RequiredUIAccess
     public static void executeAction(final String actionId, final InputEvent e) {
         final ActionManager actionManager = ActionManager.getInstance();
         final AnAction action = actionManager.getAction(actionId);
@@ -53,7 +55,7 @@ public class MavenUIUtil {
     public static <E> void setElements(ElementsChooser<E> chooser, Collection<E> all, Collection<E> selected, Comparator<E> comparator) {
         List<E> selection = chooser.getSelectedElements();
         chooser.clear();
-        Collection<E> sorted = new TreeSet<E>(comparator);
+        Collection<E> sorted = new TreeSet<>(comparator);
         sorted.addAll(all);
         for (E element : sorted) {
             chooser.addElement(element, selected.contains(element));
@@ -68,43 +70,34 @@ public class MavenUIUtil {
         panel.add(checkbox, BorderLayout.WEST);
 
         final TreeCellRenderer baseRenderer = tree.getCellRenderer();
-        tree.setCellRenderer(new TreeCellRenderer() {
-            public Component getTreeCellRendererComponent(
-                final JTree tree,
-                final Object value,
-                final boolean selected,
-                final boolean expanded,
-                final boolean leaf,
-                final int row,
-                final boolean hasFocus
-            ) {
-                final Component baseComponent =
-                    baseRenderer.getTreeCellRendererComponent(tree, value, selected, expanded, leaf, row, hasFocus);
+        tree.setCellRenderer((tree1, value, selected, expanded, leaf, row, hasFocus) -> {
+            final Component baseComponent =
+                baseRenderer.getTreeCellRendererComponent(tree1, value, selected, expanded, leaf, row, hasFocus);
 
-                final Object userObject = ((DefaultMutableTreeNode)value).getUserObject();
-                if (!handler.isVisible(userObject)) {
-                    return baseComponent;
-                }
-
-                final Color foreground = selected ? UIUtil.getTreeSelectionForeground() : UIUtil.getTreeTextForeground();
-
-                Color background = selected ? UIUtil.getTreeSelectionBackground(hasFocus) : UIUtil.getTreeTextBackground();
-
-                panel.add(baseComponent, BorderLayout.CENTER);
-                panel.setBackground(background);
-                panel.setForeground(foreground);
-
-                CheckBoxState state = handler.getState(userObject);
-                checkbox.setSelected(state != CheckBoxState.UNCHECKED);
-                checkbox.setEnabled(state != CheckBoxState.PARTIAL);
-                checkbox.setBackground(background);
-                checkbox.setForeground(foreground);
-
-                return panel;
+            final Object userObject = ((DefaultMutableTreeNode)value).getUserObject();
+            if (!handler.isVisible(userObject)) {
+                return baseComponent;
             }
+
+            final Color foreground = selected ? UIUtil.getTreeSelectionForeground(hasFocus) : UIUtil.getTreeTextForeground();
+
+            Color background = selected ? UIUtil.getTreeSelectionBackground(hasFocus) : UIUtil.getTreeTextBackground();
+
+            panel.add(baseComponent, BorderLayout.CENTER);
+            panel.setBackground(background);
+            panel.setForeground(foreground);
+
+            CheckBoxState state = handler.getState(userObject);
+            checkbox.setSelected(state != CheckBoxState.UNCHECKED);
+            checkbox.setEnabled(state != CheckBoxState.PARTIAL);
+            checkbox.setBackground(background);
+            checkbox.setForeground(foreground);
+
+            return panel;
         });
 
         tree.addMouseListener(new MouseAdapter() {
+            @Override
             public void mousePressed(MouseEvent e) {
                 int row = tree.getRowForLocation(e.getX(), e.getY());
                 if (row >= 0) {
@@ -125,6 +118,7 @@ public class MavenUIUtil {
         });
 
         tree.addKeyListener(new KeyAdapter() {
+            @Override
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_SPACE) {
                     TreePath[] treePaths = tree.getSelectionPaths();

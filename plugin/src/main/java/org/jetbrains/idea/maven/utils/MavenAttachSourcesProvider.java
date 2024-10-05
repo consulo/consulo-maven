@@ -34,10 +34,10 @@ import consulo.ui.event.ComponentEvent;
 import consulo.util.concurrent.AsyncResult;
 import jakarta.inject.Inject;
 import org.jetbrains.idea.maven.importing.MavenRootModelAdapter;
+import org.jetbrains.idea.maven.localize.MavenProjectLocalize;
 import org.jetbrains.idea.maven.project.MavenArtifactDownloader;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
-import org.jetbrains.idea.maven.project.ProjectBundle;
 
 import javax.annotation.Nonnull;
 import java.util.*;
@@ -67,15 +67,16 @@ public class MavenAttachSourcesProvider implements AttachSourcesProvider {
         return List.of(new AttachSourcesAction() {
             @Override
             public String getName() {
-                return ProjectBundle.message("maven.action.download.sources");
+                return MavenProjectLocalize.mavenActionDownloadSources().get();
             }
 
             @Override
             public String getBusyText() {
-                return ProjectBundle.message("maven.action.download.sources.busy.text");
+                return MavenProjectLocalize.mavenActionDownloadSourcesBusyText().get();
             }
 
             @Override
+            @RequiredReadAction
             public AsyncResult<Void> perform(@Nonnull List<LibraryOrderEntry> list, @Nonnull ComponentEvent<Component> uiEvent) {
                 // may have been changed by this time...
                 Collection<MavenProject> mavenProjects = getMavenProjects(psiFile);

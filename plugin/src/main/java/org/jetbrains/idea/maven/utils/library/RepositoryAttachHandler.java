@@ -15,10 +15,7 @@
  */
 package org.jetbrains.idea.maven.utils.library;
 
-import consulo.application.AccessToken;
-import consulo.application.ApplicationManager;
-import consulo.application.CommonBundle;
-import consulo.application.WriteAction;
+import consulo.application.*;
 import consulo.application.progress.ProgressIndicator;
 import consulo.application.progress.ProgressManager;
 import consulo.application.progress.Task;
@@ -32,10 +29,12 @@ import consulo.content.library.OrderRoot;
 import consulo.content.library.ui.LibraryEditor;
 import consulo.maven.MavenNotificationGroup;
 import consulo.maven.rt.server.common.model.*;
+import consulo.platform.base.localize.CommonLocalize;
 import consulo.project.Project;
 import consulo.project.ui.notification.Notification;
 import consulo.project.ui.notification.NotificationType;
 import consulo.project.ui.notification.Notifications;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.awt.DialogWrapper;
 import consulo.ui.ex.awt.Messages;
 import consulo.util.collection.SmartList;
@@ -63,7 +62,6 @@ import javax.annotation.Nullable;
 import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -72,6 +70,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class RepositoryAttachHandler {
     @Nullable
+    @RequiredUIAccess
     public static NewLibraryConfiguration chooseLibraryAndDownload(
         final @Nonnull Project project,
         final @Nullable String initialFilter,
@@ -101,63 +100,61 @@ public class RepositoryAttachHandler {
             coord,
             extraTypes,
             dialog.getRepositories(),
-            new Processor<>() {
-                public boolean process(final List<MavenArtifact> artifacts) {
-                    if (!artifacts.isEmpty()) {
-                        AccessToken accessToken = WriteAction.start();
-                        try {
-                            final List<OrderRoot> roots = createRoots(artifacts, copyTo);
-                            result.set(new NewLibraryConfiguration(
-                                coord,
-                                RepositoryLibraryType.getInstance(),
-                                new RepositoryLibraryProperties(coord)
-                            ) {
-                                @Override
-                                public void addRoots(@Nonnull LibraryEditor editor) {
-                                    editor.addRoots(roots);
-                                }
-                            });
-                        }
-                        finally {
-                            accessToken.finish();
-                        }
-
-                        final StringBuilder sb = new StringBuilder();
-                        final String title = "The following files were downloaded:";
-                        sb.append("<ol>");
-                        for (MavenArtifact each : artifacts) {
-                            sb.append("<li>");
-                            sb.append(each.getFile().getName());
-                            final String scope = each.getScope();
-                            if (scope != null) {
-                                sb.append(" (");
-                                sb.append(scope);
-                                sb.append(")");
+            artifacts -> {
+                if (!artifacts.isEmpty()) {
+                    AccessToken accessToken = WriteAction.start();
+                    try {
+                        final List<OrderRoot> roots = createRoots(artifacts, copyTo);
+                        result.set(new NewLibraryConfiguration(
+                            coord,
+                            RepositoryLibraryType.getInstance(),
+                            new RepositoryLibraryProperties(coord)
+                        ) {
+                            @Override
+                            public void addRoots(@Nonnull LibraryEditor editor) {
+                                editor.addRoots(roots);
                             }
-                            sb.append("</li>");
-                        }
-                        sb.append("</ol>");
-                        Notifications.Bus.notify(new Notification(
-                            MavenNotificationGroup.REPOSITORY,
-                            title,
-                            sb.toString(),
-                            NotificationType.INFORMATION
-                        ), project);
+                        });
                     }
-                    return true;
+                    finally {
+                        accessToken.finish();
+                    }
+
+                    final StringBuilder sb = new StringBuilder();
+                    final String title = "The following files were downloaded:";
+                    sb.append("<ol>");
+                    for (MavenArtifact each : artifacts) {
+                        sb.append("<li>");
+                        sb.append(each.getFile().getName());
+                        final String scope = each.getScope();
+                        if (scope != null) {
+                            sb.append(" (");
+                            sb.append(scope);
+                            sb.append(")");
+                        }
+                        sb.append("</li>");
+                    }
+                    sb.append("</ol>");
+                    Notifications.Bus.notify(new Notification(
+                        MavenNotificationGroup.REPOSITORY,
+                        title,
+                        sb.toString(),
+                        NotificationType.INFORMATION
+                    ), project);
                 }
+                return true;
             }
         );
 
         NewLibraryConfiguration configuration = result.get();
         if (configuration == null) {
-            Messages.showErrorDialog(parentComponent, "No files were downloaded for " + coord, CommonBundle.getErrorTitle());
+            Messages.showErrorDialog(parentComponent, "No files were downloaded for " + coord, CommonLocalize.titleError().get());
         }
         return configuration;
     }
 
     private static List<OrderRoot> createRoots(Collection<MavenArtifact> artifacts, String copyTo) {
-        final List<OrderRoot> result = new ArrayList<OrderRoot>();
+        final List<OrderRoot> result = new ArrayList<>();
         final VirtualFileManager manager = VirtualFileManager.getInstance();
         for (MavenArtifact each : artifacts) {
             try {
@@ -187,9 +184,6 @@ public class RepositoryAttachHandler {
                     result.add(new OrderRoot(file, rootType));
                 }
             }
-            catch (MalformedURLException e) {
-                MavenLog.LOG.warn(e);
-            }
             catch (IOException e) {
                 MavenLog.LOG.warn(e);
             }
@@ -212,6 +206,7 @@ public class RepositoryAttachHandler {
             template = new MavenArtifactInfo(getMavenId(coord), "jar", null);
         }
         ProgressManager.getInstance().run(new Task.Backgroundable(project, "Maven", false) {
+            @Override
             public void run(@Nonnull ProgressIndicator indicator) {
                 String[] urls = MavenRepositoryServicesManager.getServiceUrls();
                 boolean tooManyResults = false;
@@ -231,7 +226,7 @@ public class RepositoryAttachHandler {
                                 break;
                             }
                             final List<MavenRepositoryInfo> repositories = MavenRepositoryServicesManager.getRepositories(serviceUrl);
-                            final HashMap<String, MavenRepositoryInfo> map = new HashMap<String, MavenRepositoryInfo>();
+                            final HashMap<String, MavenRepositoryInfo> map = new HashMap<>();
                             for (MavenRepositoryInfo repository : repositories) {
                                 map.put(repository.getId(), repository);
                             }
@@ -253,12 +248,8 @@ public class RepositoryAttachHandler {
                             break;
                         }
                         final Boolean aBoolean = i == length - 1 ? tooManyResults : null;
-                        ApplicationManager.getApplication().invokeLater(
-                            new Runnable() {
-                                public void run() {
-                                    proceedFlag.set(resultProcessor.process(resultList, aBoolean));
-                                }
-                            },
+                        Application.get().invokeLater(
+                            () -> proceedFlag.set(resultProcessor.process(resultList, aBoolean)),
                             () -> !proceedFlag.get()
                         );
                     }
@@ -273,7 +264,7 @@ public class RepositoryAttachHandler {
         final Processor<Collection<MavenRepositoryInfo>> resultProcessor
     ) {
         ProgressManager.getInstance().run(new Task.Backgroundable(project, "Maven", false) {
-
+            @Override
             public void run(@Nonnull ProgressIndicator indicator) {
                 final Ref<List<MavenRepositoryInfo>> result = Ref.create(Collections.<MavenRepositoryInfo>emptyList());
                 try {
@@ -295,11 +286,7 @@ public class RepositoryAttachHandler {
                     MavenLog.LOG.error(e);
                 }
                 finally {
-                    ApplicationManager.getApplication().invokeLater(new Runnable() {
-                        public void run() {
-                            resultProcessor.process(result.get());
-                        }
-                    });
+                    Application.get().invokeLater(() -> resultProcessor.process(result.get()));
                 }
             }
         });
@@ -314,6 +301,7 @@ public class RepositoryAttachHandler {
     ) {
         final MavenId mavenId = getMavenId(coord);
         final Task task = new Task.Modal(project, "Maven", false) {
+            @Override
             public void run(@Nonnull ProgressIndicator indicator) {
                 doResolveInner(project, mavenId, extraTypes, repositories, resultProcessor, indicator);
             }
@@ -386,12 +374,8 @@ public class RepositoryAttachHandler {
         finally {
             manager.release(embedder);
             if (!cancelled) {
-                ApplicationManager.getApplication().invokeAndWait(
-                    new Runnable() {
-                        public void run() {
-                            resultProcessor.process(new ArrayList<>(result));
-                        }
-                    },
+                Application.get().invokeAndWait(
+                    () -> resultProcessor.process(new ArrayList<>(result)),
                     indicator.getModalityState()
                 );
             }

@@ -15,6 +15,7 @@
  */
 package org.jetbrains.idea.maven.utils;
 
+import consulo.annotation.access.RequiredReadAction;
 import consulo.annotation.component.ExtensionImpl;
 import consulo.application.dumb.DumbAware;
 import consulo.ide.navigation.GotoFileContributor;
@@ -48,14 +49,15 @@ public class MavenGotoSettingsFileContributor implements GotoFileContributor, Du
         return ArrayUtil.toStringArray(result);
     }
 
-    @Override
     @Nonnull
+    @Override
+    @RequiredReadAction
     public NavigationItem[] getItemsByName(String name, String pattern, Project project, boolean includeNonProjectItems) {
         if (!includeNonProjectItems) {
-            return NavigationItem.EMPTY_NAVIGATION_ITEM_ARRAY;
+            return NavigationItem.EMPTY_ARRAY;
         }
 
-        List<NavigationItem> result = new ArrayList<NavigationItem>();
+        List<NavigationItem> result = new ArrayList<>();
         for (VirtualFile each : getSettingsFiles(project)) {
             if (each.getName().equals(name)) {
                 PsiFile psiFile = PsiManager.getInstance(project).findFile(each);

@@ -34,14 +34,6 @@ public class MavenProblemFileHighlighter implements WolfFileProblemFilter {
         }
 
         // MavenDomUtil.isProfilesFile(PsiFile)
-        if (fileName.equals(MavenConstants.PROFILES_XML)) {
-            return true;
-        }
-
-        if (fileName.equals(MavenConstants.SETTINGS_XML)) {
-            return true;
-        }
-
-        return false;
+        return fileName.equals(MavenConstants.PROFILES_XML) || fileName.equals(MavenConstants.SETTINGS_XML);
     }
 }
