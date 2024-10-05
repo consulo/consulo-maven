@@ -15,13 +15,13 @@
  */
 package org.jetbrains.idea.maven.project;
 
-import consulo.application.util.SystemInfo;
 import consulo.codeEditor.CodeInsightColors;
 import consulo.colorScheme.EditorColorsManager;
 import consulo.colorScheme.EffectType;
 import consulo.colorScheme.TextAttributes;
 import consulo.execution.ui.console.Filter;
 import consulo.execution.ui.console.OpenFileHyperlinkInfo;
+import consulo.platform.Platform;
 import consulo.project.Project;
 import consulo.ui.style.StandardColors;
 import consulo.virtualFileSystem.LocalFileSystem;
@@ -64,7 +64,7 @@ public class MavenGroovyConsoleFilter implements Filter {
 
         VirtualFile file = LocalFileSystem.getInstance().findFileByPath(path);
         if (file == null) {
-            if (SystemInfo.isWindows && path.matches("/[A-Z]:/.+")) {
+            if (Platform.current().os().isWindows() && path.matches("/[A-Z]:/.+")) {
                 file = LocalFileSystem.getInstance().findFileByPath(path.substring(1));
             }
             if (file == null) {

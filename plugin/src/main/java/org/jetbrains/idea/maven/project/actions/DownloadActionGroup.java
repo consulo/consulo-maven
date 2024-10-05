@@ -15,14 +15,17 @@
  */
 package org.jetbrains.idea.maven.project.actions;
 
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.action.DefaultActionGroup;
 import consulo.application.dumb.DumbAware;
 import consulo.ui.ex.action.AnActionEvent;
+import jakarta.annotation.Nonnull;
 import org.jetbrains.idea.maven.utils.actions.MavenActionUtil;
 
 public class DownloadActionGroup extends DefaultActionGroup implements DumbAware {
     @Override
-    public void update(AnActionEvent e) {
+    @RequiredUIAccess
+    public void update(@Nonnull AnActionEvent e) {
         super.update(e);
         e.getPresentation().setEnabled(isEnabled(e));
     }

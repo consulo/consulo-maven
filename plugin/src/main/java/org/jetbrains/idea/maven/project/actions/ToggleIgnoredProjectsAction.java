@@ -15,13 +15,14 @@
  */
 package org.jetbrains.idea.maven.project.actions;
 
-import consulo.ide.setting.ShowSettingsUtil;
-import consulo.ui.ex.action.AnActionEvent;
 import consulo.dataContext.DataContext;
+import consulo.ide.setting.ShowSettingsUtil;
+import consulo.ui.annotation.RequiredUIAccess;
+import consulo.ui.ex.action.AnActionEvent;
+import org.jetbrains.idea.maven.localize.MavenProjectLocalize;
 import org.jetbrains.idea.maven.project.MavenIgnoredFilesConfigurable;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
-import org.jetbrains.idea.maven.project.ProjectBundle;
 import org.jetbrains.idea.maven.utils.actions.MavenAction;
 import org.jetbrains.idea.maven.utils.actions.MavenActionUtil;
 
@@ -40,13 +41,13 @@ public class ToggleIgnoredProjectsAction extends MavenAction {
         List<MavenProject> projects = MavenActionUtil.getMavenProjects(context);
 
         if (isIgnoredInSettings(projectsManager, projects)) {
-            e.getPresentation().setText(ProjectBundle.message("maven.ignore.edit"));
+            e.getPresentation().setTextValue(MavenProjectLocalize.mavenIgnoreEdit());
         }
         else if (isIgnored(projectsManager, projects)) {
-            e.getPresentation().setText(ProjectBundle.message("maven.unignore"));
+            e.getPresentation().setTextValue(MavenProjectLocalize.mavenUnignore());
         }
         else {
-            e.getPresentation().setText(ProjectBundle.message("maven.ignore"));
+            e.getPresentation().setTextValue(MavenProjectLocalize.mavenIgnore());
         }
     }
 
@@ -89,6 +90,7 @@ public class ToggleIgnoredProjectsAction extends MavenAction {
     }
 
     @Override
+    @RequiredUIAccess
     public void actionPerformed(AnActionEvent e) {
         final DataContext context = e.getDataContext();
         MavenProjectsManager projectsManager = MavenActionUtil.getProjectsManager(context);

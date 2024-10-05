@@ -20,10 +20,10 @@ import consulo.configurable.ConfigurationException;
 import consulo.configurable.SearchableConfigurable;
 import consulo.disposer.Disposable;
 import consulo.project.Project;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.awt.ElementsChooser;
 import consulo.util.io.FileUtil;
-import org.jetbrains.annotations.Nls;
-import org.jetbrains.annotations.NonNls;
+import org.jetbrains.idea.maven.localize.MavenProjectLocalize;
 import org.jetbrains.idea.maven.utils.MavenUIUtil;
 import org.jetbrains.idea.maven.utils.MavenUtil;
 import org.jetbrains.idea.maven.utils.Strings;
@@ -32,7 +32,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.swing.*;
 import java.util.Collection;
-import java.util.Comparator;
 
 public class MavenIgnoredFilesConfigurable implements SearchableConfigurable, Configurable.NoScroll {
     private static final char SEPARATOR = ',';
@@ -51,27 +50,37 @@ public class MavenIgnoredFilesConfigurable implements SearchableConfigurable, Co
     }
 
     private void createUIComponents() {
-        myIgnoredFilesPathsChooser = new ElementsChooser<String>(true);
-        myIgnoredFilesPathsChooser.getEmptyText().setText(ProjectBundle.message("maven.ingored.no.file"));
+        myIgnoredFilesPathsChooser = new ElementsChooser<>(true);
+        myIgnoredFilesPathsChooser.getEmptyText().setText(MavenProjectLocalize.mavenIngoredNoFile().get());
     }
 
+    @Override
+    @RequiredUIAccess
     public JComponent createComponent(@Nonnull Disposable uiDisposable) {
         return myMainPanel;
     }
 
+    @Override
+    @RequiredUIAccess
     public void disposeUIResources() {
     }
 
+    @Override
+    @RequiredUIAccess
     public boolean isModified() {
         return !MavenUtil.equalAsSets(myOriginallyIgnoredFilesPaths, myIgnoredFilesPathsChooser.getMarkedElements()) ||
             !myOriginallyIgnoredFilesPatterns.equals(myIgnoredFilesPattersEditor.getText());
     }
 
+    @Override
+    @RequiredUIAccess
     public void apply() throws ConfigurationException {
         myManager.setIgnoredFilesPaths(myIgnoredFilesPathsChooser.getMarkedElements());
         myManager.setIgnoredFilesPatterns(Strings.tokenize(myIgnoredFilesPattersEditor.getText(), Strings.WHITESPACE + SEPARATOR));
     }
 
+    @Override
+    @RequiredUIAccess
     public void reset() {
         myOriginallyIgnoredFilesPaths = myManager.getIgnoredFilesPaths();
         myOriginallyIgnoredFilesPatterns = Strings.detokenize(myManager.getIgnoredFilesPatterns(), SEPARATOR);
@@ -80,31 +89,29 @@ public class MavenIgnoredFilesConfigurable implements SearchableConfigurable, Co
             myIgnoredFilesPathsChooser,
             MavenUtil.collectPaths(myManager.getProjectsFiles()),
             myOriginallyIgnoredFilesPaths,
-            new Comparator<String>() {
-                public int compare(String o1, String o2) {
-                    return FileUtil.comparePaths(o1, o2);
-                }
-            }
+            FileUtil::comparePaths
         );
         myIgnoredFilesPattersEditor.setText(myOriginallyIgnoredFilesPatterns);
     }
 
-    @Nls
+    @Override
     public String getDisplayName() {
-        return ProjectBundle.message("maven.tab.ignored.files");
+        return MavenProjectLocalize.mavenTabIgnoredFiles().get();
     }
 
     @Nullable
-    @NonNls
+    @Override
     public String getHelpTopic() {
         return "reference.settings.project.maven.ignored.files";
     }
 
     @Nonnull
+    @Override
     public String getId() {
         return getHelpTopic();
     }
 
+    @Override
     public Runnable enableSearch(String option) {
         return null;
     }

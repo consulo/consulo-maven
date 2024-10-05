@@ -22,6 +22,7 @@ import consulo.disposer.Disposable;
 import consulo.project.Project;
 import consulo.ui.annotation.RequiredUIAccess;
 import org.jetbrains.annotations.Nls;
+import org.jetbrains.idea.maven.localize.MavenProjectLocalize;
 import org.jetbrains.idea.maven.server.MavenServerManager;
 
 import javax.annotation.Nonnull;
@@ -51,7 +52,7 @@ public class MavenImportingConfigurable implements SearchableConfigurable {
 
     @RequiredUIAccess
     @Override
-    public JComponent createComponent(Disposable parent) {
+    public JComponent createComponent(@Nonnull Disposable parent) {
         final JPanel panel = mySettingsForm.getAdditionalSettingsPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 
@@ -86,11 +87,8 @@ public class MavenImportingConfigurable implements SearchableConfigurable {
             }
         }
 
-        if (!MavenServerManager.getInstance().getMavenEmbedderVMOptions().equals(myEmbedderVMOptions.getText())) {
-            return true;
-        }
-
-        return mySettingsForm.isModified(myImportingSettings);
+        return !MavenServerManager.getInstance().getMavenEmbedderVMOptions().equals(myEmbedderVMOptions.getText())
+            || mySettingsForm.isModified(myImportingSettings);
     }
 
     @Override
@@ -120,7 +118,7 @@ public class MavenImportingConfigurable implements SearchableConfigurable {
     @Override
     @Nls
     public String getDisplayName() {
-        return ProjectBundle.message("maven.tab.importing");
+        return MavenProjectLocalize.mavenTabImporting().get();
     }
 
     @Override

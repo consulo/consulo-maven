@@ -19,6 +19,7 @@ import consulo.fileChooser.FileChooserDescriptor;
 import consulo.fileChooser.IdeaFileChooser;
 import consulo.language.editor.PlatformDataKeys;
 import consulo.project.Project;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.action.AnActionEvent;
 import consulo.virtualFileSystem.VirtualFile;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
@@ -29,20 +30,20 @@ import java.util.Arrays;
 
 public class AddManagedFilesAction extends MavenAction {
     @Override
+    @RequiredUIAccess
     public void actionPerformed(AnActionEvent e) {
         final MavenProjectsManager manager = MavenActionUtil.getProjectsManager(e.getDataContext());
         FileChooserDescriptor singlePomSelection = new FileChooserDescriptor(true, false, false, false, false, true) {
             @Override
+            @RequiredUIAccess
             public boolean isFileSelectable(VirtualFile file) {
                 return super.isFileSelectable(file) && !manager.isManagedFile(file);
             }
 
             @Override
             public boolean isFileVisible(VirtualFile file, boolean showHiddenFiles) {
-                if (!file.isDirectory() && !MavenActionUtil.isMavenProjectFile(file)) {
-                    return false;
-                }
-                return super.isFileVisible(file, showHiddenFiles);
+                return (file.isDirectory() || MavenActionUtil.isMavenProjectFile(file))
+                    && super.isFileVisible(file, showHiddenFiles);
             }
         };
 

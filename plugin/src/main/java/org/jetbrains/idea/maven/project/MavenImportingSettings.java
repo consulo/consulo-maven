@@ -244,13 +244,9 @@ public class MavenImportingSettings implements Cloneable {
         if (generatedSourcesFolder != that.generatedSourcesFolder) {
             return false;
         }
-        if (updateFoldersOnImportPhase != null
-            ? !updateFoldersOnImportPhase.equals(that.updateFoldersOnImportPhase)
-            : that.updateFoldersOnImportPhase != null) {
-            return false;
-        }
-
-        return true;
+        return updateFoldersOnImportPhase != null
+            ? updateFoldersOnImportPhase.equals(that.updateFoldersOnImportPhase)
+            : that.updateFoldersOnImportPhase == null;
     }
 
     @Override

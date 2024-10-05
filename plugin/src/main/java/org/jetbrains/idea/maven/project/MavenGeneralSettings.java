@@ -332,6 +332,7 @@ public class MavenGeneralSettings implements Cloneable {
         changed();
     }
 
+    @Override
     public boolean equals(final Object o) {
         if (this == o) {
             return true;
@@ -378,16 +379,10 @@ public class MavenGeneralSettings implements Cloneable {
         if (!mavenBundleName.equals(that.mavenBundleName)) {
             return false;
         }
-        if (!mavenSettingsFile.equals(that.mavenSettingsFile)) {
-            return false;
-        }
-        if (!Comparing.equal(threads, that.threads)) {
-            return false;
-        }
-
-        return true;
+        return mavenSettingsFile.equals(that.mavenSettingsFile) && Comparing.equal(threads, that.threads);
     }
 
+    @Override
     public int hashCode() {
         int result;
         result = (workOffline ? 1 : 0);

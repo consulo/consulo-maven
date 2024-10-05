@@ -1,0 +1,186 @@
+maven.name:
+  text: Maven
+maven.scanning.projects:
+  text: Scanning Maven projects...
+maven.locating.files:
+  text: Locating Maven project files...
+maven.searching.profiles:
+  text: Looking for available profiles...
+maven.reading:
+  text: Reading Maven projects..
+maven.reading.pom:
+  text: Reading {0}...
+maven.resolving:
+  text: Resolving Maven dependencies...
+maven.resolving.finished:
+  text: Finished resolving dependencies
+maven.resolving.pom:
+  text: Resolving dependencies of {0}...
+maven.updating.folders:
+  text: Generating Maven sources...
+maven.updating.folders.finished:
+  text: Finished Generating sources
+maven.updating.folders.pom:
+  text: Generating sources for {0}...
+maven.downloading.plugins:
+  text: Downloading Maven plugins...
+maven.downloading.pom.plugins:
+  text: Downloading plugins for {0}...
+maven.downloading:
+  text: Downloading Maven sources and documentation...
+maven.downloading.sources:
+  text: Downloading Maven sources...
+maven.downloading.docs:
+  text: Downloading Maven documentation...
+maven.downloading.finished:
+  text: Finished downloading
+maven.downloading.failed:
+  text: No files were downloaded for {0}
+maven.action.download.sources:
+  text: Download Sources
+maven.action.download.sources.busy.text:
+  text: Downloading sources...
+maven.project.changed:
+  text: Maven projects need to be imported
+maven.project.importChanged:
+  text: Import Changes
+maven.project.enableAutoImport:
+  text: Enable Auto-Import
+maven.project.importing:
+  text: Importing Maven projects
+maven.project.import.title:
+  text: Import Maven Projects
+maven.project.importing.finished:
+  text: Finished importing Maven projects
+maven.project.import.waiting.for.active.process:
+  text: Waiting for an active process
+maven.post.processing:
+  text: Configuring Maven projects
+module.group.name:
+  text: '{0} and modules'
+maven.import.label.select.root:
+  text: '&Root directory'
+maven.import.title.select.root:
+  text: Select root directory
+maven.import.environment.settings:
+  text: '&Environment settings...'
+maven.import.environment.settings.title:
+  text: Maven environment
+maven.import.title.module.dir:
+  text: Select directory for IDEA module files (*.iml)
+maven.import.dependency.type.description:
+  text: Comma separated list of dependency types that should be imported
+maven.orphan.notification.title:
+  text: <b>Non-managed pom.xml file found:</b>
+maven.orphan.notification.msg:
+  text: |-
+    {0}<br>
+     <a href="#add">Add as Maven Project</a> or <a href="#disable">Disable notification</a>
+maven.import.incompatible.modules:
+  text: <html>The following {0,choice,1#module has|2#modules have} incorrect type and {0,choice,1#needs|2#need} to be recreated:<br><br>{1}<br><br>If you do not want the {0,choice,1#module|2#modules} to be recreated, corresponding Maven projects will be marked as ignored,<br>you will be able to unignore them afterwards in the Maven Projects tool window.</html>
+maven.import.incompatible.modules.recreate:
+  text: Recreate
+maven.import.incompatible.modules.ignore:
+  text: Ignore These Projects
+maven.import.message.delete.obsolete:
+  text: |-
+    These modules have been removed from Maven structure:
+    {0}
+
+    Do you want them to be removed from the project too?
+maven.navigator.nothing.to.display:
+  text: <html><center>There are no Maven projects to display.<br><br>You may use {0} to add a project<br>or {1} to let the plugin find all pom.xml files<br>under the project roots and import them.</center></html>
+maven.tab.importing:
+  text: Importing
+maven.tab.downloading:
+  text: Downloading
+maven.download.never:
+  text: Never
+maven.download.ondemand:
+  text: On demand
+maven.download.always:
+  text: On import
+maven.tab.ignored.files:
+  text: Ignored Files
+maven.testRunning:
+  text: Running Tests
+maven.ignore:
+  text: Ignore Projects
+maven.unignore:
+  text: Unignore Projects
+maven.ingored.no.file:
+  text: No Maven files
+maven.ignore.edit:
+  text: Edit Ignored Files...
+maven.profile.activate:
+  text: Activate
+maven.profile.deactivate:
+  text: Deactivate
+maven.profile.default:
+  text: Use default
+maven.project.problem.recursiveInheritance:
+  text: Recursive inheritance found
+maven.project.problem.selfInheritance:
+  text: Self-inheritance found
+maven.project.problem.parentHasProblems:
+  text: Parent ''{0}'' has problems
+maven.project.problem.parentNotFound:
+  text: Parent ''{0}'' not found
+maven.project.problem.moduleNotFound:
+  text: Module ''{0}'' not found
+maven.project.problem.unresolvedDependency:
+  text: 'Unresolved dependency: ''''{0}'''''
+maven.project.problem.unresolvedExtension:
+  text: 'Unresolved build extension: ''''{0}'''''
+maven.project.problem.unresolvedPlugin:
+  text: 'Unresolved plugin: ''''{0}'''''
+maven.tab.general:
+  text: General
+maven.configurable.name:
+  text: Maven Integration
+maven.default.configurable.name:
+  text: 'Maven Integration: default settings'
+maven.select.maven.home.directory:
+  text: Select Maven Home Directory
+maven.select.maven.settings.file:
+  text: Select User Settings File
+maven.select.local.repository:
+  text: Select Local Repository
+maven.file.type.descr:
+  text: Maven project files
+view.node.lifecycle:
+  text: Lifecycle
+view.node.profiles:
+  text: Profiles
+view.node.plugins:
+  text: Plugins
+view.node.run.configurations:
+  text: Run Configurations
+view.node.dependencies:
+  text: Dependencies
+view.node.modules:
+  text: Modules
+maven.library.family.name:
+  text: Maven libraries
+maven.loading.library.version.hint:
+  text: Loading {0} Versions
+maven.loading.library.hint:
+  text: Loading {0}
+maven.add.library.support:
+  text: Add {0} Support
+maven.add.to.module.dependencies:
+  text: Add {0} library to module dependencies
+maven.version.kind.selector.release:
+  text: Release
+maven.version.kind.selector.latest:
+  text: Latest
+maven.version.kind.selector.select:
+  text: Select...
+maven.property.download.sources:
+  text: Download &Sources
+maven.property.download.javadocs:
+  text: Download &JavaDocs
+maven.remote.task.failed:
+  text: Exception during maven remote task {0}
+maven.remote.task.cancelled:
+  text: Maven remote task {0} was cancelled

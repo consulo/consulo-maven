@@ -15,13 +15,14 @@
  */
 package org.jetbrains.idea.maven.project;
 
-import consulo.util.lang.Comparing;
-import consulo.util.lang.Pair;
-import consulo.virtualFileSystem.VirtualFile;
 import consulo.maven.rt.server.common.model.*;
 import consulo.maven.rt.server.common.server.MavenServerExecutionResult;
 import consulo.maven.rt.server.common.server.ProfileApplicationResult;
+import consulo.util.lang.Comparing;
+import consulo.util.lang.Pair;
+import consulo.virtualFileSystem.VirtualFile;
 import org.jdom.Element;
+import org.jetbrains.idea.maven.localize.MavenProjectLocalize;
 import org.jetbrains.idea.maven.server.MavenEmbedderWrapper;
 import org.jetbrains.idea.maven.server.MavenServerManager;
 import org.jetbrains.idea.maven.utils.MavenJDOMUtil;
@@ -40,7 +41,7 @@ import static consulo.util.lang.StringUtil.isEmptyOrSpaces;
 public class MavenProjectReader {
     private static final String UNKNOWN = MavenId.UNKNOWN_VALUE;
 
-    private final Map<VirtualFile, RawModelReadResult> myRawModelsCache = new HashMap<VirtualFile, RawModelReadResult>();
+    private final Map<VirtualFile, RawModelReadResult> myRawModelsCache = new HashMap<>();
     private SettingsProfilesCache mySettingsProfilesCache;
 
     public MavenProjectReaderResult readProject(
@@ -50,7 +51,7 @@ public class MavenProjectReader {
         MavenProjectReaderProjectLocator locator
     ) {
         Pair<RawModelReadResult, MavenExplicitProfiles> readResult =
-            doReadProjectModel(generalSettings, file, explicitProfiles, new HashSet<VirtualFile>(), locator);
+            doReadProjectModel(generalSettings, file, explicitProfiles, new HashSet<>(), locator);
 
         File basedir = getBaseDir(file);
         MavenModel model = MavenServerManager.getInstance().interpolateAndAlignModel(readResult.first.model, basedir);
@@ -161,9 +162,7 @@ public class MavenProjectReader {
         mavenBuildBase.setTestResources(collectResources(MavenJDOMUtil.findChildrenByPath(xmlBuild, "testResources", "testResource")));
         mavenBuildBase.setFilters(MavenJDOMUtil.findChildrenValuesByPath(xmlBuild, "filters", "filter"));
 
-        if (mavenBuildBase instanceof MavenBuild) {
-            MavenBuild mavenBuild = (MavenBuild)mavenBuildBase;
-
+        if (mavenBuildBase instanceof MavenBuild mavenBuild) {
             String source = MavenJDOMUtil.findChildValueByPath(xmlBuild, "sourceDirectory");
             if (!isEmptyOrSpaces(source)) {
                 mavenBuild.addSource(source);
@@ -428,7 +427,7 @@ public class MavenProjectReader {
         if (recursionGuard.contains(file)) {
             problems.add(MavenProjectProblem.createProblem(
                 file.getPath(),
-                ProjectBundle.message("maven.project.problem.recursiveInheritance"),
+                MavenProjectLocalize.mavenProjectProblemRecursiveinheritance().get(),
                 MavenProjectProblem.ProblemType.PARENT
             ));
             return model;
@@ -442,7 +441,7 @@ public class MavenProjectReader {
                 if (model.getMavenId().equals(parent.getMavenId())) {
                     problems.add(MavenProjectProblem.createProblem(
                         file.getPath(),
-                        ProjectBundle.message("maven.project.problem.selfInheritance"),
+                        MavenProjectLocalize.mavenProjectProblemSelfinheritance().get(),
                         MavenProjectProblem.ProblemType.PARENT
                     ));
                     return model;
@@ -490,7 +489,7 @@ public class MavenProjectReader {
             if (!parentModelWithProblems.second.problems.isEmpty()) {
                 problems.add(MavenProjectProblem.createProblem(
                     parentModelWithProblems.first.getPath(),
-                    ProjectBundle.message("maven.project.problem.parentHasProblems", parentModel.getMavenId()),
+                    MavenProjectLocalize.mavenProjectProblemParenthasproblems(parentModel.getMavenId()).get(),
                     MavenProjectProblem.ProblemType.PARENT
                 ));
             }

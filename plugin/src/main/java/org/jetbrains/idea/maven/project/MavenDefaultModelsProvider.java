@@ -15,6 +15,7 @@
  */
 package org.jetbrains.idea.maven.project;
 
+import consulo.annotation.access.RequiredReadAction;
 import consulo.module.Module;
 import consulo.module.ModuleManager;
 import consulo.module.content.ModuleRootManager;
@@ -30,8 +31,9 @@ public class MavenDefaultModelsProvider implements MavenModelsProvider {
         myProject = project;
     }
 
-    @Override
     @Nonnull
+    @Override
+    @RequiredReadAction
     public Module[] getModules() {
         return ModuleManager.getInstance(myProject).getModules();
     }

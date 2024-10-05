@@ -19,6 +19,7 @@ import consulo.application.Result;
 import consulo.language.editor.WriteCommandAction;
 import consulo.navigation.OpenFileDescriptorFactory;
 import consulo.project.Project;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.action.AnActionEvent;
 import consulo.ui.ex.action.Presentation;
 import consulo.virtualFileSystem.LocalFileSystem;
@@ -65,6 +66,7 @@ public abstract class MavenOpenOrCreateFilesAction extends MavenAction {
     }
 
     @Override
+    @RequiredUIAccess
     public void actionPerformed(AnActionEvent e) {
         final Project project = MavenActionUtil.getProject(e.getDataContext());
         final List<File> files = getFiles(e);

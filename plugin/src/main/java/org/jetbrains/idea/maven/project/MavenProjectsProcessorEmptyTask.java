@@ -24,6 +24,7 @@ public class MavenProjectsProcessorEmptyTask extends MavenProjectsProcessorBasic
         super(project, null);
     }
 
+    @Override
     public void perform(Project project, MavenEmbeddersManager embeddersManager, MavenConsole console, MavenProgressIndicator indicator)
         throws MavenProcessCanceledException {
         throw new UnsupportedOperationException();
@@ -31,7 +32,7 @@ public class MavenProjectsProcessorEmptyTask extends MavenProjectsProcessorBasic
 
     @Override
     public boolean equals(Object o) {
-        return o instanceof MavenProjectsProcessorBasicTask
-            && myMavenProject.equals(((MavenProjectsProcessorBasicTask)o).myMavenProject);
+        return o instanceof MavenProjectsProcessorBasicTask processorBasicTask
+            && myMavenProject.equals(processorBasicTask.myMavenProject);
     }
 }

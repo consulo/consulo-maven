@@ -88,7 +88,7 @@ public class MavenArtifactIndex {
             return EMPTY_INDEX;
         }
 
-        Map<String, Map<String, List<MavenArtifact>>> map = new HashMap<String, Map<String, List<MavenArtifact>>>();
+        Map<String, Map<String, List<MavenArtifact>>> map = new HashMap<>();
 
         for (MavenArtifact dep : dependencies) {
             String groupId = dep.getGroupId();

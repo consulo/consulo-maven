@@ -17,14 +17,15 @@
 
 package org.jetbrains.idea.maven.project;
 
+import consulo.disposer.Disposable;
 import consulo.ui.ex.awt.CollectionComboBoxModel;
+import consulo.ui.ex.awt.JBLabel;
+import consulo.ui.ex.awt.PanelWithAnchor;
 import consulo.util.lang.Pair;
 import consulo.util.lang.StringUtil;
-import consulo.ui.ex.awt.PanelWithAnchor;
-import consulo.ui.ex.awt.JBLabel;
-import consulo.disposer.Disposable;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.idea.maven.execution.MavenExecutionOptions;
+import org.jetbrains.idea.maven.localize.MavenProjectLocalize;
 import org.jetbrains.idea.maven.utils.ComboBoxUtil;
 
 import javax.annotation.Nonnull;
@@ -154,7 +155,7 @@ public class MavenGeneralPanel implements PanelWithAnchor {
 
     @Nls
     public String getDisplayName() {
-        return ProjectBundle.message("maven.tab.general");
+        return MavenProjectLocalize.mavenTabGeneral().get();
     }
 
     @Override

@@ -18,7 +18,6 @@ package org.jetbrains.idea.maven.project;
 import consulo.application.WriteAction;
 import consulo.codeEditor.EditorFactory;
 import consulo.component.messagebus.MessageBusConnection;
-import consulo.disposer.Disposable;
 import consulo.disposer.Disposer;
 import consulo.document.Document;
 import consulo.document.FileDocumentManager;
@@ -171,17 +170,12 @@ public class MavenProjectsManagerWatcher {
 
                         MavenUtil.invokeLater(
                             myProject,
-                            new Runnable() {
-                                @Override
-                                public void run() {
-                                    WriteAction.run(() -> {
-                                        for (Document each : copy) {
-                                            PsiDocumentManager.getInstance(myProject).commitDocument(each);
-                                            ((FileDocumentManagerImpl)FileDocumentManager.getInstance()).saveDocument(each, false);
-                                        }
-                                    });
+                            () -> WriteAction.run(() -> {
+                                for (Document each : copy) {
+                                    PsiDocumentManager.getInstance(myProject).commitDocument(each);
+                                    ((FileDocumentManagerImpl)FileDocumentManager.getInstance()).saveDocument(each, false);
                                 }
-                            }
+                            })
                         );
                     }
                 });
@@ -189,22 +183,16 @@ public class MavenProjectsManagerWatcher {
         };
         EditorFactory.getInstance().getEventMulticaster().addDocumentListener(myDocumentListener, myChangedDocumentsQueue);
 
-        final MavenGeneralSettings.Listener mySettingsPathsChangesListener = new MavenGeneralSettings.Listener() {
-            @Override
-            public void changed() {
-                updateSettingsFilePointers();
-                onSettingsChange();
-            }
+        final MavenGeneralSettings.Listener mySettingsPathsChangesListener = () -> {
+            updateSettingsFilePointers();
+            onSettingsChange();
         };
         myGeneralSettings.addListener(mySettingsPathsChangesListener);
         Disposer.register(
             myChangedDocumentsQueue,
-            new Disposable() {
-                @Override
-                public void dispose() {
-                    myGeneralSettings.removeListener(mySettingsPathsChangesListener);
-                    mySettingsFilesPointers.clear();
-                }
+            () -> {
+                myGeneralSettings.removeListener(mySettingsPathsChangesListener);
+                mySettingsFilesPointers.clear();
             }
         );
         updateSettingsFilePointers();
@@ -367,20 +355,14 @@ public class MavenProjectsManagerWatcher {
     }
 
     private boolean isPomFile(String path) {
-        if (!path.endsWith("/" + MavenConstants.POM_XML)) {
-            return false;
-        }
-        return myProjectsTree.isPotentialProject(path);
+        return path.endsWith("/" + MavenConstants.POM_XML) && myProjectsTree.isPotentialProject(path);
     }
 
     private boolean isProfilesFile(String path) {
-        if (!path.endsWith("/" + MavenConstants.PROFILES_XML)) {
-            return false;
-        }
-        return myProjectsTree.isPotentialProject(path.substring(
-            0,
-            path.length() - MavenConstants.PROFILES_XML.length()
-        ) + MavenConstants.POM_XML);
+        return path.endsWith("/" + MavenConstants.PROFILES_XML)
+            && myProjectsTree.isPotentialProject(
+                path.substring(0, path.length() - MavenConstants.PROFILES_XML.length()) + MavenConstants.POM_XML
+            );
     }
 
     private boolean isSettingsFile(String path) {
@@ -557,8 +539,7 @@ public class MavenProjectsManagerWatcher {
                             deleteRecursively(each.getFile(), each);
                         }
                     }
-                    else if (each instanceof VFileMoveEvent) {
-                        VFileMoveEvent moveEvent = (VFileMoveEvent)each;
+                    else if (each instanceof VFileMoveEvent moveEvent) {
                         String newPath = moveEvent.getNewParent().getPath() + "/" + moveEvent.getFile().getName();
                         if (!isRelevant(newPath)) {
                             deleteRecursively(moveEvent.getFile(), each);
@@ -581,7 +562,7 @@ public class MavenProjectsManagerWatcher {
                 @Nullable
                 @Override
                 public Iterable<VirtualFile> getChildrenIterable(@Nonnull VirtualFile f) {
-                    return f.isDirectory() && f instanceof NewVirtualFile ? ((NewVirtualFile)f).iterInDbChildren() : null;
+                    return f.isDirectory() && f instanceof NewVirtualFile newVirtualFile ? newVirtualFile.iterInDbChildren() : null;
                 }
             });
         }
@@ -593,15 +574,13 @@ public class MavenProjectsManagerWatcher {
                     continue;
                 }
 
-                if (each instanceof VFileCreateEvent) {
-                    VFileCreateEvent createEvent = (VFileCreateEvent)each;
+                if (each instanceof VFileCreateEvent createEvent) {
                     VirtualFile newChild = createEvent.getParent().findChild(createEvent.getChildName());
                     if (newChild != null) {
                         updateFile(newChild, each);
                     }
                 }
-                else if (each instanceof VFileCopyEvent) {
-                    VFileCopyEvent copyEvent = (VFileCopyEvent)each;
+                else if (each instanceof VFileCopyEvent copyEvent) {
                     VirtualFile newChild = copyEvent.getNewParent().findChild(copyEvent.getNewChildName());
                     if (newChild != null) {
                         updateFile(newChild, each);

@@ -21,8 +21,6 @@ import consulo.util.lang.Pair;
 
 import javax.annotation.Nonnull;
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.util.HashSet;
 import java.util.Set;
@@ -59,8 +57,8 @@ public class MavenDisablePanelCheckbox extends JCheckBox {
         }
 
         for (Component component : c.getComponents()) {
-            if (component instanceof JComponent) {
-                disable((JComponent)component);
+            if (component instanceof JComponent jComponent) {
+                disable(jComponent);
             }
         }
     }
@@ -71,8 +69,8 @@ public class MavenDisablePanelCheckbox extends JCheckBox {
         }
 
         for (Component component : c.getComponents()) {
-            if (component instanceof JComponent) {
-                enable((JComponent)component);
+            if (component instanceof JComponent jComponent) {
+                enable(jComponent);
             }
         }
     }

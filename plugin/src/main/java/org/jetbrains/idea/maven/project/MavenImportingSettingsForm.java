@@ -52,8 +52,8 @@ public class MavenImportingSettingsForm {
         myGeneratedSourcesComboBox.setRenderer(new ListCellRendererWrapper() {
             @Override
             public void customize(JList list, Object value, int index, boolean selected, boolean hasFocus) {
-                if (value instanceof MavenImportingSettings.GeneratedSourcesFolder) {
-                    setText(((MavenImportingSettings.GeneratedSourcesFolder)value).title);
+                if (value instanceof MavenImportingSettings.GeneratedSourcesFolder generatedSourcesFolder) {
+                    setText(generatedSourcesFolder.title);
                 }
             }
         });

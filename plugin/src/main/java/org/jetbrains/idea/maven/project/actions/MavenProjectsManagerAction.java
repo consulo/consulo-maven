@@ -15,6 +15,7 @@
  */
 package org.jetbrains.idea.maven.project.actions;
 
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.action.AnActionEvent;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.utils.actions.MavenAction;
@@ -22,6 +23,7 @@ import org.jetbrains.idea.maven.utils.actions.MavenActionUtil;
 
 public abstract class MavenProjectsManagerAction extends MavenAction {
     @Override
+    @RequiredUIAccess
     public void actionPerformed(AnActionEvent e) {
         perform(MavenActionUtil.getProjectsManager(e.getDataContext()));
     }

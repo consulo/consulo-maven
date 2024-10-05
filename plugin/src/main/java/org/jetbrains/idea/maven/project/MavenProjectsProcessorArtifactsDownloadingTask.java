@@ -69,8 +69,6 @@ public class MavenProjectsProcessorArtifactsDownloadingTask implements MavenProj
             myCallbackResult.setDone(result);
         }
 
-        Application.get().invokeLater(() -> {
-            VirtualFileManager.getInstance().asyncRefresh(null);
-        });
+        Application.get().invokeLater(() -> VirtualFileManager.getInstance().asyncRefresh(null));
     }
 }

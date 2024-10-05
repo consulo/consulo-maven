@@ -18,7 +18,7 @@ package org.jetbrains.idea.maven.project;
 import consulo.annotation.component.ComponentScope;
 import consulo.annotation.component.ServiceAPI;
 import consulo.annotation.component.ServiceImpl;
-import consulo.application.ApplicationManager;
+import consulo.application.Application;
 import consulo.application.ReadAction;
 import consulo.component.persist.*;
 import consulo.component.util.ModificationTracker;
@@ -54,6 +54,7 @@ import org.jetbrains.idea.maven.importing.MavenDefaultModifiableModelsProvider;
 import org.jetbrains.idea.maven.importing.MavenFoldersImporter;
 import org.jetbrains.idea.maven.importing.MavenModifiableModelsProvider;
 import org.jetbrains.idea.maven.importing.MavenProjectImporter;
+import org.jetbrains.idea.maven.localize.MavenProjectLocalize;
 import org.jetbrains.idea.maven.utils.MavenLog;
 import org.jetbrains.idea.maven.utils.MavenMergingUpdateQueue;
 import org.jetbrains.idea.maven.utils.MavenSimpleProjectComponent;
@@ -273,15 +274,15 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
     }
 
     private void initWorkers() {
-        myReadingProcessor = new MavenProjectsProcessor(myProject, ProjectBundle.message("maven.reading"), false, myEmbeddersManager);
-        myResolvingProcessor = new MavenProjectsProcessor(myProject, ProjectBundle.message("maven.resolving"), true, myEmbeddersManager);
+        myReadingProcessor = new MavenProjectsProcessor(myProject, MavenProjectLocalize.mavenReading().get(), false, myEmbeddersManager);
+        myResolvingProcessor = new MavenProjectsProcessor(myProject, MavenProjectLocalize.mavenResolving().get(), true, myEmbeddersManager);
         myPluginsResolvingProcessor =
-            new MavenProjectsProcessor(myProject, ProjectBundle.message("maven.downloading.plugins"), true, myEmbeddersManager);
+            new MavenProjectsProcessor(myProject, MavenProjectLocalize.mavenDownloadingPlugins().get(), true, myEmbeddersManager);
         myFoldersResolvingProcessor =
-            new MavenProjectsProcessor(myProject, ProjectBundle.message("maven.updating.folders"), true, myEmbeddersManager);
+            new MavenProjectsProcessor(myProject, MavenProjectLocalize.mavenUpdatingFolders().get(), true, myEmbeddersManager);
         myArtifactsDownloadingProcessor =
-            new MavenProjectsProcessor(myProject, ProjectBundle.message("maven.downloading"), true, myEmbeddersManager);
-        myPostProcessor = new MavenProjectsProcessor(myProject, ProjectBundle.message("maven.post.processing"), true, myEmbeddersManager);
+            new MavenProjectsProcessor(myProject, MavenProjectLocalize.mavenDownloading().get(), true, myEmbeddersManager);
+        myPostProcessor = new MavenProjectsProcessor(myProject, MavenProjectLocalize.mavenPostProcessing().get(), true, myEmbeddersManager);
 
         myWatcher =
             new MavenProjectsManagerWatcher(myProject, this, myProjectsTree, getGeneralSettings(), myReadingProcessor, myEmbeddersManager);
@@ -539,10 +540,7 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
     }
 
     public boolean hasProjects() {
-        if (!isInitialized()) {
-            return false;
-        }
-        return myProjectsTree.hasProjects();
+        return isInitialized() && myProjectsTree.hasProjects();
     }
 
     @Nonnull
@@ -692,10 +690,7 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
     }
 
     public boolean getIgnoredState(@Nonnull MavenProject project) {
-        if (!isInitialized()) {
-            return false;
-        }
-        return myProjectsTree.getIgnoredState(project);
+        return isInitialized() && myProjectsTree.getIgnoredState(project);
     }
 
     public void setIgnoredState(@Nonnull List<MavenProject> projects, boolean ignored) {
@@ -721,10 +716,7 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
     }
 
     public boolean isIgnored(@Nonnull MavenProject project) {
-        if (!isInitialized()) {
-            return false;
-        }
-        return myProjectsTree.isIgnored(project);
+        return isInitialized() && myProjectsTree.isIgnored(project);
     }
 
     public Set<MavenRemoteRepository> getRemoteRepositories() {
@@ -807,7 +799,7 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
             Iterator<MavenProject> it = toResolve.iterator();
             while (it.hasNext()) {
                 MavenProject each = it.next();
-                Runnable onCompletion = it.hasNext() ? null : (Runnable)() -> {
+                Runnable onCompletion = it.hasNext() ? null : () -> {
                     if (hasScheduledProjects()) {
                         scheduleImport().notify(result);
                     }
@@ -874,7 +866,7 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
             Iterator<MavenProject> it = projects.iterator();
             while (it.hasNext()) {
                 MavenProject each = it.next();
-                Runnable onCompletion = it.hasNext() ? null : (Runnable)() -> {
+                Runnable onCompletion = it.hasNext() ? null : () -> {
                     if (hasScheduledProjects()) {
                         scheduleImport();
                     }
@@ -987,10 +979,7 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 
     @TestOnly
     public boolean hasScheduledImportsInTests() {
-        if (!isInitialized()) {
-            return false;
-        }
-        return !myImportingQueue.isEmpty();
+        return isInitialized() && !myImportingQueue.isEmpty();
     }
 
     @TestOnly
@@ -1085,7 +1074,7 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
     }
 
     public void updateProjectTargetFolders() {
-        ApplicationManager.getApplication().invokeLater(() -> {
+        Application.get().invokeLater(() -> {
             if (myProject.isDisposed()) {
                 return;
             }
@@ -1123,13 +1112,13 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
         };
 
         // called from wizard or ui
-        if (ApplicationManager.getApplication().isDispatchThread()) {
+        if (Application.get().isDispatchThread()) {
             r.run();
         }
         else {
             MavenUtil.runInBackground(
                 myProject,
-                ProjectBundle.message("maven.project.importing"),
+                MavenProjectLocalize.mavenProjectImporting().get(),
                 false,
                 indicator -> r.run()
             ).waitFor();

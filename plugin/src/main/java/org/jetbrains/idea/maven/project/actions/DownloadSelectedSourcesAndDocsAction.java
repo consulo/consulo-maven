@@ -15,8 +15,8 @@
  */
 package org.jetbrains.idea.maven.project.actions;
 
-import consulo.ui.ex.action.AnActionEvent;
 import consulo.maven.rt.server.common.model.MavenArtifact;
+import consulo.ui.ex.action.AnActionEvent;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.utils.MavenDataKeys;
@@ -49,6 +49,7 @@ public class DownloadSelectedSourcesAndDocsAction extends MavenProjectsAction {
         return result == null ? Collections.<MavenArtifact>emptyList() : result;
     }
 
+    @Override
     protected void perform(MavenProjectsManager manager, List<MavenProject> mavenProjects, AnActionEvent e) {
         manager.scheduleArtifactsDownloading(mavenProjects, getDependencies(e), mySources, myDocs, null);
     }

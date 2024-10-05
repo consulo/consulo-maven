@@ -15,13 +15,15 @@
  */
 package org.jetbrains.idea.maven.project;
 
-import consulo.application.ApplicationManager;
-import consulo.project.Project;
-import consulo.virtualFileSystem.LocalFileSystem;
+import consulo.application.Application;
 import consulo.application.ReadAction;
+import consulo.localize.LocalizeValue;
 import consulo.maven.rt.server.common.model.*;
+import consulo.project.Project;
 import consulo.util.lang.Pair;
+import consulo.virtualFileSystem.LocalFileSystem;
 import org.jetbrains.idea.maven.importing.MavenExtraArtifactType;
+import org.jetbrains.idea.maven.localize.MavenProjectLocalize;
 import org.jetbrains.idea.maven.server.MavenEmbedderWrapper;
 import org.jetbrains.idea.maven.utils.MavenLog;
 import org.jetbrains.idea.maven.utils.MavenProcessCanceledException;
@@ -99,18 +101,18 @@ public class MavenArtifactDownloader {
                 types.add(MavenExtraArtifactType.DOCS);
             }
 
-            String caption = downloadSources && downloadDocs
-                ? ProjectBundle.message("maven.downloading")
+            LocalizeValue caption = downloadSources && downloadDocs
+                ? MavenProjectLocalize.mavenDownloading()
                 : downloadSources
-                ? ProjectBundle.message("maven.downloading.sources")
-                : ProjectBundle.message("maven.downloading.docs");
+                ? MavenProjectLocalize.mavenDownloadingSources()
+                : MavenProjectLocalize.mavenDownloadingDocs();
             myProgress.setText(caption);
 
             Map<MavenId, DownloadData> artifacts = collectArtifactsToDownload(types);
             return download(artifacts, downloadedFiles);
         }
         finally {
-            boolean isAsync = !ApplicationManager.getApplication().isUnitTestMode();
+            boolean isAsync = !Application.get().isUnitTestMode();
 
             // We have to refresh parents of downloaded files, because some additional files  may have been download.
             Set<File> parentsToRefresh = new HashSet<>();
@@ -203,40 +205,38 @@ public class MavenArtifactDownloader {
 
                 for (final DownloadElement eachElement : data.classifiersWithExtensions) {
                     final int finalTotal = total;
-                    futures.add(EXECUTOR.submit(new Runnable() {
-                        public void run() {
-                            try {
-                                if (myProject.isDisposed()) {
-                                    return;
-                                }
+                    futures.add(EXECUTOR.submit((Runnable)() -> {
+                        try {
+                            if (myProject.isDisposed()) {
+                                return;
+                            }
 
-                                myProgress.checkCanceled();
-                                myProgress.setFraction(((double)downloaded.getAndIncrement()) / finalTotal);
+                            myProgress.checkCanceled();
+                            myProgress.setFraction(((double)downloaded.getAndIncrement()) / finalTotal);
 
-                                MavenArtifact a = myEmbedder.resolve(
-                                    new MavenArtifactInfo(id, eachElement.extension, eachElement.classifier),
-                                    new ArrayList<>(data.repositories)
-                                );
-                                File file = a.getFile();
-                                if (file.exists()) {
-                                    synchronized (downloadedFiles) {
-                                        downloadedFiles.add(file);
+                            MavenArtifact a = myEmbedder.resolve(
+                                new MavenArtifactInfo(id, eachElement.extension, eachElement.classifier),
+                                new ArrayList<>(data.repositories)
+                            );
+                            File file = a.getFile();
+                            if (file.exists()) {
+                                synchronized (downloadedFiles) {
+                                    downloadedFiles.add(file);
 
-                                        switch (eachElement.type) {
-                                            case SOURCES:
-                                                result.resolvedSources.add(id);
-                                                result.unresolvedSources.remove(id);
-                                                break;
-                                            case DOCS:
-                                                result.resolvedDocs.add(id);
-                                                result.unresolvedDocs.remove(id);
-                                                break;
-                                        }
+                                    switch (eachElement.type) {
+                                        case SOURCES:
+                                            result.resolvedSources.add(id);
+                                            result.unresolvedSources.remove(id);
+                                            break;
+                                        case DOCS:
+                                            result.resolvedDocs.add(id);
+                                            result.unresolvedDocs.remove(id);
+                                            break;
                                     }
                                 }
                             }
-                            catch (MavenProcessCanceledException ignore) {
-                            }
+                        }
+                        catch (MavenProcessCanceledException ignore) {
                         }
                     }));
                 }
@@ -289,11 +289,7 @@ public class MavenArtifactDownloader {
             if (extension != null ? !extension.equals(that.extension) : that.extension != null) {
                 return false;
             }
-            if (type != that.type) {
-                return false;
-            }
-
-            return true;
+            return type == that.type;
         }
 
         @Override

@@ -15,12 +15,13 @@
  */
 package org.jetbrains.idea.maven.project.actions;
 
-import consulo.ui.ex.action.AnActionEvent;
-import consulo.ui.annotation.RequiredUIAccess;
+import consulo.localize.LocalizeValue;
 import consulo.maven.rt.server.common.model.MavenExplicitProfiles;
 import consulo.maven.rt.server.common.model.MavenProfileKind;
+import consulo.ui.annotation.RequiredUIAccess;
+import consulo.ui.ex.action.AnActionEvent;
+import org.jetbrains.idea.maven.localize.MavenProjectLocalize;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
-import org.jetbrains.idea.maven.project.ProjectBundle;
 import org.jetbrains.idea.maven.utils.MavenDataKeys;
 import org.jetbrains.idea.maven.utils.actions.MavenAction;
 import org.jetbrains.idea.maven.utils.actions.MavenActionUtil;
@@ -31,6 +32,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class ToggleProfileAction extends MavenAction {
+    @Override
     public void update(AnActionEvent e) {
         super.update(e);
         if (!isAvailable(e)) {
@@ -41,29 +43,17 @@ public class ToggleProfileAction extends MavenAction {
         if (targetState == null) {
             return;
         }
-        String text;
-        switch (targetState) {
-            case NONE:
-                text = ProjectBundle.message("maven.profile.deactivate");
-                break;
-            case EXPLICIT:
-                text = ProjectBundle.message("maven.profile.activate");
-                break;
-            case IMPLICIT:
-            default:
-                text = ProjectBundle.message("maven.profile.default");
-                break;
-        }
-        e.getPresentation().setText(text);
+        LocalizeValue text = switch (targetState) {
+            case NONE -> MavenProjectLocalize.mavenProfileDeactivate();
+            case EXPLICIT -> MavenProjectLocalize.mavenProfileActivate();
+            default -> MavenProjectLocalize.mavenProfileDefault();
+        };
+        e.getPresentation().setTextValue(text);
     }
 
     @Override
     protected boolean isAvailable(AnActionEvent e) {
-        if (!super.isAvailable(e)) {
-            return false;
-        }
-
-        return getTargetState(e) != null;
+        return super.isAvailable(e) && getTargetState(e) != null;
     }
 
     @Nullable

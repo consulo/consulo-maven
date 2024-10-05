@@ -24,14 +24,15 @@ import consulo.util.dataholder.Key;
 import consulo.util.io.BufferExposingByteArrayOutputStream;
 import consulo.util.io.FileUtil;
 import consulo.util.lang.Comparing;
+import consulo.util.lang.Couple;
 import consulo.util.lang.Pair;
 import consulo.util.lang.StringUtil;
-import consulo.util.lang.function.Condition;
 import consulo.virtualFileSystem.LocalFileSystem;
 import consulo.virtualFileSystem.VirtualFile;
 import org.jdom.Element;
 import org.jetbrains.idea.maven.importing.MavenExtraArtifactType;
 import org.jetbrains.idea.maven.importing.MavenImporter;
+import org.jetbrains.idea.maven.localize.MavenProjectLocalize;
 import org.jetbrains.idea.maven.plugins.api.MavenModelPropertiesPatcher;
 import org.jetbrains.idea.maven.server.MavenEmbedderWrapper;
 import org.jetbrains.idea.maven.utils.*;
@@ -72,8 +73,7 @@ public class MavenProject {
         }
 
         ByteArrayInputStream bs = new ByteArrayInputStream(bytes);
-        ObjectInputStream os = new ObjectInputStream(bs);
-        try {
+        try (ObjectInputStream os = new ObjectInputStream(bs)) {
             try {
                 MavenProject result = new MavenProject(file);
                 result.myState = (State)os.readObject();
@@ -86,7 +86,6 @@ public class MavenProject {
             }
         }
         finally {
-            os.close();
             bs.close();
         }
     }
@@ -95,15 +94,13 @@ public class MavenProject {
         out.writeUTF(getPath());
 
         BufferExposingByteArrayOutputStream bs = new BufferExposingByteArrayOutputStream();
-        ObjectOutputStream os = new ObjectOutputStream(bs);
-        try {
+        try (ObjectOutputStream os = new ObjectOutputStream(bs)) {
             os.writeObject(myState);
 
             out.writeInt(bs.size());
             out.write(bs.getInternalBuffer(), 0, bs.size());
         }
         finally {
-            os.close();
             bs.close();
         }
     }
@@ -424,7 +421,7 @@ public class MavenProject {
         Element procElement = compilerConfiguration.getChild("proc");
         if (procElement != null) {
             String procMode = procElement.getValue();
-            return ("only".equalsIgnoreCase(procMode)) ? ProcMode.ONLY : ("none".equalsIgnoreCase(procMode)) ? ProcMode.NONE : ProcMode.BOTH;
+            return "only".equalsIgnoreCase(procMode) ? ProcMode.ONLY : "none".equalsIgnoreCase(procMode) ? ProcMode.NONE : ProcMode.BOTH;
         }
 
         String compilerArgument = compilerConfiguration.getChildTextTrim("compilerArgument");
@@ -621,7 +618,8 @@ public class MavenProject {
     public List<String> getFilterPropertiesFiles() {
         List<String> res = getCachedValue(FILTERS_CACHE_KEY);
         if (res == null) {
-            Element propCfg = getPluginGoalConfiguration("org.codehaus.mojo", "properties-maven-plugin", "read-project-properties");
+            Element propCfg =
+                getPluginGoalConfiguration("org.codehaus.mojo", "properties-maven-plugin", "read-project-properties");
             if (propCfg != null) {
                 Element files = propCfg.getChild("files");
                 if (files != null) {
@@ -726,7 +724,7 @@ public class MavenProject {
 
         for (Map.Entry<String, String> each : state.myModulesPathsAndNames.entrySet()) {
             if (LocalFileSystem.getInstance().findFileByPath(each.getKey()) == null) {
-                result.add(createDependencyProblem(file, ProjectBundle.message("maven.project.problem.moduleNotFound", each.getValue())));
+                result.add(createDependencyProblem(file, MavenProjectLocalize.mavenProjectProblemModulenotfound(each.getValue()).get()));
             }
         }
 
@@ -739,7 +737,7 @@ public class MavenProject {
 
     private static void validateParent(VirtualFile file, State state, List<MavenProjectProblem> result) {
         if (!isParentResolved(state)) {
-            result.add(createDependencyProblem(file, ProjectBundle.message("maven.project.problem.parentNotFound", state.myParentId)));
+            result.add(createDependencyProblem(file, MavenProjectLocalize.mavenProjectProblemParentnotfound(state.myParentId).get()));
         }
     }
 
@@ -747,7 +745,7 @@ public class MavenProject {
         for (MavenArtifact each : getUnresolvedDependencies(state)) {
             result.add(createDependencyProblem(
                 file,
-                ProjectBundle.message("maven.project.problem.unresolvedDependency", each.getDisplayStringWithType())
+                MavenProjectLocalize.mavenProjectProblemUnresolveddependency(each.getDisplayStringWithType()).get()
             ));
         }
     }
@@ -756,14 +754,14 @@ public class MavenProject {
         for (MavenArtifact each : getUnresolvedExtensions(state)) {
             result.add(createDependencyProblem(
                 file,
-                ProjectBundle.message("maven.project.problem.unresolvedExtension", each.getDisplayStringSimple())
+                MavenProjectLocalize.mavenProjectProblemUnresolvedextension(each.getDisplayStringSimple()).get()
             ));
         }
     }
 
     private static void validatePlugins(VirtualFile file, State state, List<MavenProjectProblem> result) {
         for (MavenPlugin each : getUnresolvedPlugins(state)) {
-            result.add(createDependencyProblem(file, ProjectBundle.message("maven.project.problem.unresolvedPlugin", each)));
+            result.add(createDependencyProblem(file, MavenProjectLocalize.mavenProjectProblemUnresolvedplugin(each).get()));
         }
     }
 
@@ -960,12 +958,7 @@ public class MavenProject {
     private static List<MavenPlugin> getDeclaredPlugins(State state) {
         return ContainerUtil.findAll(
             state.myPlugins,
-            new Condition<MavenPlugin>() {
-                @Override
-                public boolean value(MavenPlugin mavenPlugin) {
-                    return !mavenPlugin.isDefault();
-                }
-            }
+            mavenPlugin -> !mavenPlugin.isDefault()
         );
     }
 
@@ -1090,7 +1083,7 @@ public class MavenProject {
                 return result;
             }
         }
-        return Pair.create(type.getDefaultClassifier(), type.getDefaultExtension());
+        return Couple.of(type.getDefaultClassifier(), type.getDefaultExtension());
     }
 
     public MavenArtifactIndex getDependencyArtifactIndex() {
@@ -1110,14 +1103,11 @@ public class MavenProject {
     }
 
     @Nonnull
+    @SuppressWarnings("unchecked")
     public <V> V putCachedValue(Key<V> key, @Nonnull V value) {
         ConcurrentHashMap<Key, Object> map = myState.myCache;
         Object oldValue = map.putIfAbsent(key, value);
-        if (oldValue != null) {
-            return (V)oldValue;
-        }
-
-        return value;
+        return oldValue != null ? (V)oldValue : value;
     }
 
     @Override

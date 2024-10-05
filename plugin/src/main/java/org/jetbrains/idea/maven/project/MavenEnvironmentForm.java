@@ -33,6 +33,7 @@ import consulo.ui.ex.awt.util.Alarm;
 import consulo.util.lang.Comparing;
 import consulo.util.lang.StringUtil;
 import consulo.util.lang.function.Conditions;
+import org.jetbrains.idea.maven.localize.MavenProjectLocalize;
 import org.jetbrains.idea.maven.utils.MavenUtil;
 
 import javax.annotation.Nonnull;
@@ -150,13 +151,13 @@ public class MavenEnvironmentForm implements PanelWithAnchor {
 
     public JComponent createComponent(Disposable uiDisposable) {
         settingsFileComponent.getComponent().addBrowseFolderListener(
-            ProjectBundle.message("maven.select.maven.settings.file"),
+            MavenProjectLocalize.mavenSelectMavenSettingsFile().get(),
             "",
             null,
             FileChooserDescriptorFactory.createSingleFileNoJarsDescriptor()
         );
         localRepositoryComponent.getComponent().addBrowseFolderListener(
-            ProjectBundle.message("maven.select.local.repository"),
+            MavenProjectLocalize.mavenSelectLocalRepository().get(),
             "",
             null,
             FileChooserDescriptorFactory.createSingleFolderDescriptor()

@@ -15,9 +15,9 @@
  */
 package org.jetbrains.idea.maven.project;
 
-import consulo.application.ApplicationManager;
-import consulo.project.Project;
+import consulo.application.Application;
 import consulo.application.util.Semaphore;
+import consulo.project.Project;
 import consulo.util.lang.function.Condition;
 import org.jetbrains.idea.maven.execution.SoutMavenConsole;
 import org.jetbrains.idea.maven.utils.*;
@@ -45,7 +45,7 @@ public class MavenProjectsProcessor {
 
     public void scheduleTask(MavenProjectsProcessorTask task) {
         synchronized (myQueue) {
-            if (!isProcessing && !ApplicationManager.getApplication().isUnitTestMode()) {
+            if (!isProcessing && !Application.get().isUnitTestMode()) {
                 isProcessing = true;
                 startProcessing(task);
                 return;
@@ -68,7 +68,7 @@ public class MavenProjectsProcessor {
             return;
         }
 
-        if (ApplicationManager.getApplication().isUnitTestMode()) {
+        if (Application.get().isUnitTestMode()) {
             synchronized (myQueue) {
                 while (!myQueue.isEmpty()) {
                     startProcessing(myQueue.poll());
@@ -79,17 +79,7 @@ public class MavenProjectsProcessor {
 
         final Semaphore semaphore = new Semaphore();
         semaphore.down();
-        scheduleTask(new MavenProjectsProcessorTask() {
-            public void perform(
-                Project project,
-                MavenEmbeddersManager embeddersManager,
-                MavenConsole console,
-                MavenProgressIndicator indicator
-            )
-                throws MavenProcessCanceledException {
-                semaphore.up();
-            }
-        });
+        scheduleTask((project, embeddersManager, console, indicator) -> semaphore.up());
 
         while (true) {
             if (isStopped || semaphore.waitFor(1000)) {
@@ -110,20 +100,14 @@ public class MavenProjectsProcessor {
             myProject,
             myTitle,
             myCancellable,
-            new MavenTask() {
-                public void run(MavenProgressIndicator indicator) throws MavenProcessCanceledException {
-                    Condition<MavenProgressIndicator> condition = new Condition<MavenProgressIndicator>() {
-                        public boolean value(MavenProgressIndicator mavenProgressIndicator) {
-                            return isStopped;
-                        }
-                    };
-                    indicator.addCancelCondition(condition);
-                    try {
-                        doProcessPendingTasks(indicator, task);
-                    }
-                    finally {
-                        indicator.removeCancelCondition(condition);
-                    }
+            indicator -> {
+                Condition<MavenProgressIndicator> condition = mavenProgressIndicator -> isStopped;
+                indicator.addCancelCondition(condition);
+                try {
+                    doProcessPendingTasks(indicator, task);
+                }
+                finally {
+                    indicator.removeCancelCondition(condition);
                 }
             }
         );
