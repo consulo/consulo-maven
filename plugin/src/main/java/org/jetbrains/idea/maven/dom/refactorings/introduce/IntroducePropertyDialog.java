@@ -19,6 +19,7 @@ import consulo.language.codeStyle.CodeStyleSettingsManager;
 import consulo.language.editor.refactoring.ui.NameSuggestionsField;
 import consulo.language.psi.util.PsiTreeUtil;
 import consulo.project.Project;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.awt.DialogWrapper;
 import consulo.util.collection.ArrayUtil;
 import consulo.util.lang.Pair;
@@ -29,12 +30,12 @@ import consulo.xml.psi.xml.XmlTag;
 import consulo.xml.util.xml.DomElement;
 import consulo.xml.util.xml.DomFileElement;
 import consulo.xml.util.xml.DomUtil;
-import org.jetbrains.idea.maven.dom.MavenDomBundle;
 import org.jetbrains.idea.maven.dom.MavenDomProjectProcessorUtils;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
 import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
 import org.jetbrains.idea.maven.dom.model.MavenDomProperties;
 import org.jetbrains.idea.maven.dom.model.MavenDomShortArtifactCoordinates;
+import org.jetbrains.idea.maven.localize.MavenDomLocalize;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.utils.ComboBoxUtil;
 
@@ -43,7 +44,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.List;
 import java.util.*;
-import java.util.function.Function;
 
 public class IntroducePropertyDialog extends DialogWrapper {
 
@@ -72,10 +72,11 @@ public class IntroducePropertyDialog extends DialogWrapper {
 
         mySelectedString = selectedString;
 
-        setTitle(MavenDomBundle.message("refactoring.introduce.property"));
+        setTitle(MavenDomLocalize.refactoringIntroduceProperty());
         init();
     }
 
+    @Override
     protected void dispose() {
         myNameField.removeDataChangedListener(myNameChangedListener);
 
@@ -83,10 +84,12 @@ public class IntroducePropertyDialog extends DialogWrapper {
     }
 
     @Nonnull
+    @Override
     protected Action[] createActions() {
         return new Action[]{getOKAction(), getCancelAction()};
     }
 
+    @Override
     protected void init() {
         super.init();
         updateOkStatus();
@@ -109,7 +112,7 @@ public class IntroducePropertyDialog extends DialogWrapper {
     }
 
     private String[] getSuggestions(int level) {
-        Collection<String> result = new HashSet<String>();
+        Collection<String> result = new HashSet<>();
 
         String value = mySelectedString.trim();
         boolean addUnqualifiedForm = true;
@@ -165,10 +168,14 @@ public class IntroducePropertyDialog extends DialogWrapper {
             level--;
         }
 
-        result = new ArrayList<>(result);
-        Collections.sort((List)result, CodeStyleSettingsManager.getSettings(myProject).PREFER_LONGER_NAMES ?
-            StringLenComparator.getDescendingInstance() : StringLenComparator.getInstance());
-        return ArrayUtil.toStringArray(result);
+        List<String> listResult = new ArrayList<>(result);
+        Collections.sort(
+            listResult,
+            CodeStyleSettingsManager.getSettings(myProject).PREFER_LONGER_NAMES
+                ? StringLenComparator.getDescendingInstance()
+                : StringLenComparator.getInstance()
+        );
+        return ArrayUtil.toStringArray(listResult);
     }
 
     private static String joinWords(@Nonnull String s, @Nonnull String delimiter) {
@@ -176,7 +183,7 @@ public class IntroducePropertyDialog extends DialogWrapper {
     }
 
     private static String joinWords(@Nonnull List<String> stringList) {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         for (int i = 0; i < stringList.size(); i++) {
             String word = stringList.get(i);
             if (!StringUtil.isEmptyOrSpaces(word)) {
@@ -186,15 +193,12 @@ public class IntroducePropertyDialog extends DialogWrapper {
         return sb.toString();
     }
 
+    @Override
     protected JComponent createCenterPanel() {
         myFieldNamePanel.setLayout(new BorderLayout());
 
         myNameField = new NameSuggestionsField(myProject);
-        myNameChangedListener = new NameSuggestionsField.DataChanged() {
-            public void dataChanged() {
-                updateOkStatus();
-            }
-        };
+        myNameChangedListener = this::updateOkStatus;
         myNameField.addDataChangedListener(myNameChangedListener);
         myNameField.setSuggestions(getSuggestions());
 
@@ -202,20 +206,22 @@ public class IntroducePropertyDialog extends DialogWrapper {
 
         List<MavenDomProjectModel> projects = getProjects();
 
-        ComboBoxUtil
-            .setModel(myMavenProjectsComboBox, new DefaultComboBoxModel(), projects, new Function<MavenDomProjectModel, Pair<String, ?>>() {
-                public Pair<String, ?> apply(MavenDomProjectModel model) {
-                    String projectName = model.getName().getStringValue();
-                    MavenProject mavenProject = MavenDomUtil.findProject(model);
-                    if (mavenProject != null) {
-                        projectName = mavenProject.getDisplayName();
-                    }
-                    if (StringUtil.isEmptyOrSpaces(projectName)) {
-                        projectName = "pom.xml";
-                    }
-                    return Pair.create(projectName, model);
+        ComboBoxUtil.setModel(
+            myMavenProjectsComboBox,
+            new DefaultComboBoxModel(),
+            projects,
+            model -> {
+                String projectName = model.getName().getStringValue();
+                MavenProject mavenProject = MavenDomUtil.findProject(model);
+                if (mavenProject != null) {
+                    projectName = mavenProject.getDisplayName();
                 }
-            });
+                if (StringUtil.isEmptyOrSpaces(projectName)) {
+                    projectName = "pom.xml";
+                }
+                return Pair.create(projectName, model);
+            }
+        );
 
         myMavenProjectsComboBox.setSelectedItem(myMavenDomProjectModel);
 
@@ -239,7 +245,9 @@ public class IntroducePropertyDialog extends DialogWrapper {
     }
 
     private static boolean isContainWrongSymbols(@Nonnull String text) {
-        return text.length() == 0 || Character.isDigit(text.charAt(0)) || StringUtil.containsAnyChar(text, "\t ;*'\"\\/,()^&<>={}[]");
+        return text.length() == 0
+            || Character.isDigit(text.charAt(0))
+            || StringUtil.containsAnyChar(text, "\t ;*'\"\\/,()^&<>={}[]");
     }
 
     private boolean isPropertyExist(@Nonnull String text) {
@@ -277,6 +285,8 @@ public class IntroducePropertyDialog extends DialogWrapper {
         return false;
     }
 
+    @Override
+    @RequiredUIAccess
     public JComponent getPreferredFocusedComponent() {
         return myNameField.getFocusableComponent();
     }

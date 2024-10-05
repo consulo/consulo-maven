@@ -82,10 +82,8 @@ public class IntroducePropertyAction extends BaseRefactoringAction {
         @Nonnull PsiFile file,
         @Nonnull DataContext context
     ) {
-        if (!super.isAvailableOnElementInEditorAndFile(element, editor, file, context)) {
-            return false;
-        }
-        return getSelectedElementAndTextRange(editor, file) != null;
+        return super.isAvailableOnElementInEditorAndFile(element, editor, file, context)
+            && getSelectedElementAndTextRange(editor, file) != null;
     }
 
     @Nullable

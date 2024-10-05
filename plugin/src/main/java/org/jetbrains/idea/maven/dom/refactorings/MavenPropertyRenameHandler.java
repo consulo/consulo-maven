@@ -32,44 +32,36 @@ import org.jetbrains.idea.maven.dom.references.MavenTargetUtil;
 import javax.annotation.Nonnull;
 
 @ExtensionImpl
-public class MavenPropertyRenameHandler extends PsiElementRenameHandler
-{
-	@Override
-	public boolean isAvailableOnDataContext(DataContext context)
-	{
-		return findTarget(context) != null;
-	}
+public class MavenPropertyRenameHandler extends PsiElementRenameHandler {
+    @Override
+    public boolean isAvailableOnDataContext(DataContext context) {
+        return findTarget(context) != null;
+    }
 
-	@Override
-	public void invoke(@Nonnull Project project, Editor editor, PsiFile file, DataContext dataContext)
-	{
-		invoke(project, PsiElement.EMPTY_ARRAY, dataContext);
-	}
+    @Override
+    public void invoke(@Nonnull Project project, Editor editor, PsiFile file, DataContext dataContext) {
+        invoke(project, PsiElement.EMPTY_ARRAY, dataContext);
+    }
 
-	@Override
-	public void invoke(@Nonnull Project project, @Nonnull PsiElement[] elements, DataContext dataContext)
-	{
-		PsiElement element = elements.length == 1 ? elements[0] : null;
-		if(element == null)
-		{
-			element = findTarget(dataContext);
-		}
+    @Override
+    public void invoke(@Nonnull Project project, @Nonnull PsiElement[] elements, DataContext dataContext) {
+        PsiElement element = elements.length == 1 ? elements[0] : null;
+        if (element == null) {
+            element = findTarget(dataContext);
+        }
 
-		RenameDialog dialog = new RenameDialog(project, element, null, dataContext.getData(PlatformDataKeys.EDITOR));
-		if(ApplicationManager.getApplication().isUnitTestMode())
-		{
-			String name = dataContext.getData(DEFAULT_NAME);
-			dialog.performRename(name);
-			dialog.close(DialogWrapper.OK_EXIT_CODE);
-		}
-		else
-		{
-			dialog.show();
-		}
-	}
+        RenameDialog dialog = new RenameDialog(project, element, null, dataContext.getData(PlatformDataKeys.EDITOR));
+        if (ApplicationManager.getApplication().isUnitTestMode()) {
+            String name = dataContext.getData(DEFAULT_NAME);
+            dialog.performRename(name);
+            dialog.close(DialogWrapper.OK_EXIT_CODE);
+        }
+        else {
+            dialog.show();
+        }
+    }
 
-	private static PsiElement findTarget(DataContext context)
-	{
-		return MavenTargetUtil.getRefactorTarget(context.getData(PlatformDataKeys.EDITOR), context.getData(LangDataKeys.PSI_FILE));
-	}
+    private static PsiElement findTarget(DataContext context) {
+        return MavenTargetUtil.getRefactorTarget(context.getData(PlatformDataKeys.EDITOR), context.getData(LangDataKeys.PSI_FILE));
+    }
 }
