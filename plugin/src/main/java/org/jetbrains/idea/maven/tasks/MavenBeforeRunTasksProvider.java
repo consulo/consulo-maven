@@ -50,193 +50,177 @@ import java.util.Collections;
 import java.util.List;
 
 @ExtensionImpl
-public class MavenBeforeRunTasksProvider extends BeforeRunTaskProvider<MavenBeforeRunTask>
-{
-	public static final Key<MavenBeforeRunTask> ID = Key.create("Maven.BeforeRunTask");
-	private final Project myProject;
+public class MavenBeforeRunTasksProvider extends BeforeRunTaskProvider<MavenBeforeRunTask> {
+    public static final Key<MavenBeforeRunTask> ID = Key.create("Maven.BeforeRunTask");
+    private final Project myProject;
 
-	@Inject
-	public MavenBeforeRunTasksProvider(Project project)
-	{
-		myProject = project;
-	}
+    @Inject
+    public MavenBeforeRunTasksProvider(Project project) {
+        myProject = project;
+    }
 
-	@Nonnull
-	@Override
-	public Key<MavenBeforeRunTask> getId()
-	{
-		return ID;
-	}
+    @Nonnull
+    @Override
+    public Key<MavenBeforeRunTask> getId() {
+        return ID;
+    }
 
-	@Nonnull
-	@Override
-	public String getName()
-	{
-		return TasksBundle.message("maven.tasks.before.run.empty");
-	}
+    @Nonnull
+    @Override
+    public String getName() {
+        return TasksBundle.message("maven.tasks.before.run.empty");
+    }
 
-	@Override
-	public Image getIcon()
-	{
-		return MavenIcons.MavenLogo;
-	}
+    @Override
+    public Image getIcon() {
+        return MavenIcons.MavenLogo;
+    }
 
-	@Nonnull
-	@Override
-	public String getDescription(MavenBeforeRunTask task)
-	{
-		MavenProject mavenProject = getMavenProject(task);
-		if(mavenProject == null)
-		{
-			return TasksBundle.message("maven.tasks.before.run.empty");
-		}
+    @Nonnull
+    @Override
+    public String getDescription(MavenBeforeRunTask task) {
+        MavenProject mavenProject = getMavenProject(task);
+        if (mavenProject == null) {
+            return TasksBundle.message("maven.tasks.before.run.empty");
+        }
 
-		String desc = mavenProject.getDisplayName() + ": " + StringUtil.notNullize(task.getGoal()).trim();
-		return TasksBundle.message("maven.tasks.before.run", desc);
-	}
+        String desc = mavenProject.getDisplayName() + ": " + StringUtil.notNullize(task.getGoal()).trim();
+        return TasksBundle.message("maven.tasks.before.run", desc);
+    }
 
-	@Nullable
-	private MavenProject getMavenProject(MavenBeforeRunTask task)
-	{
-		String pomXmlPath = task.getProjectPath();
-		if(StringUtil.isEmpty(pomXmlPath))
-		{
-			return null;
-		}
+    @Nullable
+    private MavenProject getMavenProject(MavenBeforeRunTask task) {
+        String pomXmlPath = task.getProjectPath();
+        if (StringUtil.isEmpty(pomXmlPath)) {
+            return null;
+        }
 
-		VirtualFile file = LocalFileSystem.getInstance().findFileByPath(pomXmlPath);
-		if(file == null)
-		{
-			return null;
-		}
+        VirtualFile file = LocalFileSystem.getInstance().findFileByPath(pomXmlPath);
+        if (file == null) {
+            return null;
+        }
 
-		return MavenProjectsManager.getInstance(myProject).findProject(file);
-	}
+        return MavenProjectsManager.getInstance(myProject).findProject(file);
+    }
 
-	@Override
-	public boolean isConfigurable()
-	{
-		return true;
-	}
+    @Override
+    public boolean isConfigurable() {
+        return true;
+    }
 
-	@Override
-	public MavenBeforeRunTask createTask(RunConfiguration runConfiguration)
-	{
-		return new MavenBeforeRunTask();
-	}
+    @Override
+    public MavenBeforeRunTask createTask(RunConfiguration runConfiguration) {
+        return new MavenBeforeRunTask();
+    }
 
-	@Nonnull
-	@RequiredUIAccess
-	@Override
-	public AsyncResult<Void> configureTask(RunConfiguration runConfiguration, MavenBeforeRunTask task)
-	{
-		MavenEditGoalDialog dialog = new MavenEditGoalDialog(myProject, Arrays.asList("aaa", "adasdas"));
+    @Nonnull
+    @RequiredUIAccess
+    @Override
+    public AsyncResult<Void> configureTask(RunConfiguration runConfiguration, MavenBeforeRunTask task) {
+        MavenEditGoalDialog dialog = new MavenEditGoalDialog(myProject, Arrays.asList("aaa", "adasdas"));
 
-		dialog.setTitle(TasksBundle.message("maven.tasks.select.goal.title"));
+        dialog.setTitle(TasksBundle.message("maven.tasks.select.goal.title"));
 
-		if(task.getGoal() == null)
-		{
-			// just created empty task.
-			MavenProjectsManager projectsManager = MavenProjectsManager.getInstance(myProject);
-			List<MavenProject> rootProjects = projectsManager.getRootProjects();
-			if(rootProjects.size() > 0)
-			{
-				dialog.setSelectedMavenProject(rootProjects.get(0));
-			}
-			else
-			{
-				dialog.setSelectedMavenProject(null);
-			}
-		}
-		else
-		{
-			dialog.setGoals(task.getGoal());
-			MavenProject mavenProject = getMavenProject(task);
-			if(mavenProject != null)
-			{
-				dialog.setSelectedMavenProject(mavenProject);
-			}
-			else
-			{
-				dialog.setSelectedMavenProject(null);
-			}
-		}
+        if (task.getGoal() == null) {
+            // just created empty task.
+            MavenProjectsManager projectsManager = MavenProjectsManager.getInstance(myProject);
+            List<MavenProject> rootProjects = projectsManager.getRootProjects();
+            if (rootProjects.size() > 0) {
+                dialog.setSelectedMavenProject(rootProjects.get(0));
+            }
+            else {
+                dialog.setSelectedMavenProject(null);
+            }
+        }
+        else {
+            dialog.setGoals(task.getGoal());
+            MavenProject mavenProject = getMavenProject(task);
+            if (mavenProject != null) {
+                dialog.setSelectedMavenProject(mavenProject);
+            }
+            else {
+                dialog.setSelectedMavenProject(null);
+            }
+        }
 
-		AsyncResult<Void> result = dialog.showAsync();
-		result.doWhenDone(() -> {
-			task.setProjectPath(dialog.getWorkDirectory() + "/pom.xml");
-			task.setGoal(dialog.getGoals());
-		});
+        AsyncResult<Void> result = dialog.showAsync();
+        result.doWhenDone(() -> {
+            task.setProjectPath(dialog.getWorkDirectory() + "/pom.xml");
+            task.setGoal(dialog.getGoals());
+        });
 
-		return result;
-	}
+        return result;
+    }
 
-	@Override
-	public boolean canExecuteTask(RunConfiguration configuration, MavenBeforeRunTask task)
-	{
-		return task.getGoal() != null && task.getProjectPath() != null;
-	}
+    @Override
+    public boolean canExecuteTask(RunConfiguration configuration, MavenBeforeRunTask task) {
+        return task.getGoal() != null && task.getProjectPath() != null;
+    }
 
-	@Nonnull
-	@Override
-	public AsyncResult<Void> executeTaskAsync(UIAccess uiAccess, DataContext context, RunConfiguration configuration, ExecutionEnvironment env, MavenBeforeRunTask task)
-	{
-		AsyncResult<Void> result = AsyncResult.undefined();
-		uiAccess.give(() ->
-		{
-			final Project project = context.getData(CommonDataKeys.PROJECT);
-			final MavenProject mavenProject = getMavenProject(task);
+    @Nonnull
+    @Override
+    public AsyncResult<Void> executeTaskAsync(
+        UIAccess uiAccess,
+        DataContext context,
+        RunConfiguration configuration,
+        ExecutionEnvironment env,
+        MavenBeforeRunTask task
+    ) {
+        AsyncResult<Void> result = AsyncResult.undefined();
+        uiAccess.give(() -> {
+            final Project project = context.getData(CommonDataKeys.PROJECT);
+            final MavenProject mavenProject = getMavenProject(task);
 
-			if(project == null || project.isDisposed() || mavenProject == null)
-			{
-				result.setRejected();
-				return;
-			}
+            if (project == null || project.isDisposed() || mavenProject == null) {
+                result.setRejected();
+                return;
+            }
 
-			FileDocumentManager.getInstance().saveAllDocuments();
+            FileDocumentManager.getInstance().saveAllDocuments();
 
-			final MavenExplicitProfiles explicitProfiles = MavenProjectsManager.getInstance(project).getExplicitProfiles();
-			final MavenRunner mavenRunner = MavenRunner.getInstance(project);
+            final MavenExplicitProfiles explicitProfiles = MavenProjectsManager.getInstance(project).getExplicitProfiles();
+            final MavenRunner mavenRunner = MavenRunner.getInstance(project);
 
-			new Task.Backgroundable(project, TasksBundle.message("maven.tasks.executing"), true)
-			{
-				@Override
-				public void run(@Nonnull ProgressIndicator indicator)
-				{
-					boolean value = false;
-					try
-					{
-						MavenRunnerParameters params = new MavenRunnerParameters(true, mavenProject.getDirectory(), ParametersListUtil.parse(task.getGoal()), explicitProfiles);
+            new Task.Backgroundable(project, TasksBundle.message("maven.tasks.executing"), true) {
+                @Override
+                public void run(@Nonnull ProgressIndicator indicator) {
+                    boolean value = false;
+                    try {
+                        MavenRunnerParameters params = new MavenRunnerParameters(true,
+                            mavenProject.getDirectory(),
+                            ParametersListUtil.parse(task.getGoal()),
+                            explicitProfiles
+                        );
 
-						value = mavenRunner.runBatch(Collections.singletonList(params), null, null, TasksBundle.message("maven.tasks.executing"), indicator);
-					}
-					finally
-					{
-						if(value)
-						{
-							result.setDone();
-						}
-						else
-						{
-							result.setRejected();
-						}
-					}
-				}
+                        value = mavenRunner.runBatch(Collections.singletonList(params),
+                            null,
+                            null,
+                            TasksBundle.message("maven.tasks.executing"),
+                            indicator
+                        );
+                    }
+                    finally {
+                        if (value) {
+                            result.setDone();
+                        }
+                        else {
+                            result.setRejected();
+                        }
+                    }
+                }
 
-				@Override
-				public boolean shouldStartInBackground()
-				{
-					return MavenRunner.getInstance(project).getSettings().isRunMavenInBackground();
-				}
+                @Override
+                public boolean shouldStartInBackground() {
+                    return MavenRunner.getInstance(project).getSettings().isRunMavenInBackground();
+                }
 
-				@Override
-				public void processSentToBackground()
-				{
-					MavenRunner.getInstance(project).getSettings().setRunMavenInBackground(true);
-				}
-			}.queue();
-		}).doWhenRejectedWithThrowable(result::rejectWithThrowable);
+                @Override
+                public void processSentToBackground() {
+                    MavenRunner.getInstance(project).getSettings().setRunMavenInBackground(true);
+                }
+            }.queue();
+        }).doWhenRejectedWithThrowable(result::rejectWithThrowable);
 
-		return result;
-	}
+        return result;
+    }
 }
