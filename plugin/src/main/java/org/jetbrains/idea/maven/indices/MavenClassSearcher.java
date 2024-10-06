@@ -32,6 +32,7 @@ import java.util.regex.PatternSyntaxException;
 public class MavenClassSearcher extends MavenSearcher<MavenClassSearchResult> {
     public static final String TERM = MavenServerIndexer.SEARCH_TERM_CLASS_NAMES;
 
+    @Override
     protected Pair<String, Query> preparePatternAndQuery(String pattern) {
         pattern = pattern.toLowerCase();
         if (pattern.trim().length() == 0) {
@@ -60,6 +61,7 @@ public class MavenClassSearcher extends MavenSearcher<MavenClassSearchResult> {
         return new Pair<>(pattern, new WildcardQuery(new Term(TERM, queryPattern)));
     }
 
+    @Override
     protected Collection<MavenClassSearchResult> processResults(Set<MavenArtifactInfo> infos, String pattern, int maxResult) {
         if (pattern.length() == 0 || pattern.equals("*")) {
             pattern = "^/(.*)$";

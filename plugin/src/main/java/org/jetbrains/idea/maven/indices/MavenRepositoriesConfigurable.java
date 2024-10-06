@@ -21,40 +21,32 @@ import consulo.configurable.BaseConfigurable;
 import consulo.configurable.Configurable;
 import consulo.configurable.ConfigurationException;
 import consulo.configurable.SearchableConfigurable;
+import consulo.disposer.Disposable;
+import consulo.disposer.Disposer;
 import consulo.project.Project;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.InputValidator;
+import consulo.ui.ex.JBColor;
 import consulo.ui.ex.awt.*;
 import consulo.ui.ex.awt.table.JBTable;
 import consulo.ui.ex.awt.util.ListUtil;
-import consulo.util.lang.StringUtil;
-import consulo.ui.ex.JBColor;
-import consulo.ui.ex.awt.JBList;
-import consulo.application.util.function.Processor;
-import consulo.ui.ex.awt.AsyncProcessIcon;
-import consulo.ui.ex.awt.UIUtil;
 import consulo.ui.ex.awtUnsafe.TargetAWT;
-import consulo.disposer.Disposable;
-import consulo.disposer.Disposer;
-import consulo.maven.rt.server.common.model.MavenRepositoryInfo;
-import consulo.ui.ex.awt.Messages;
+import consulo.util.lang.StringUtil;
+import org.jetbrains.idea.maven.localize.MavenIndicesLocalize;
 import org.jetbrains.idea.maven.services.MavenRepositoryServicesManager;
 import org.jetbrains.idea.maven.utils.library.RepositoryAttachHandler;
 
 import javax.annotation.Nonnull;
 import javax.swing.*;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -83,6 +75,7 @@ public class MavenRepositoriesConfigurable extends BaseConfigurable implements S
     }
 
     @Override
+    @RequiredUIAccess
     public boolean isModified() {
         return !myModel.getItems().equals(MavenRepositoryServicesManager.getInstance().getUrls());
     }
@@ -90,68 +83,55 @@ public class MavenRepositoriesConfigurable extends BaseConfigurable implements S
     private void configControls() {
         myServiceList.setModel(myModel);
         myServiceList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        myAddButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                final String value = (String)myServiceList.getSelectedValue();
-                final String text = Messages.showInputDialog(
-                    "Artifactory or Nexus Service URL",
-                    "Add Service URL",
-                    Messages.getQuestionIcon(),
-                    value == null ? "http://" : value,
-                    new URLInputVaslidator()
-                );
-                if (StringUtil.isNotEmpty(text)) {
-                    myModel.add(text);
-                    myServiceList.setSelectedValue(text, true);
-                }
+        myAddButton.addActionListener(e -> {
+            final String value = (String)myServiceList.getSelectedValue();
+            @SuppressWarnings("RequiredXAction")
+            final String text = Messages.showInputDialog(
+                "Artifactory or Nexus Service URL",
+                "Add Service URL",
+                UIUtil.getQuestionIcon(),
+                value == null ? "http://" : value,
+                new URLInputVaslidator()
+            );
+            if (StringUtil.isNotEmpty(text)) {
+                myModel.add(text);
+                myServiceList.setSelectedValue(text, true);
             }
         });
-        myEditButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                final int index = myServiceList.getSelectedIndex();
-                final String text = Messages.showInputDialog(
-                    "Artifactory or Nexus Service URL",
-                    "Edit Service URL",
-                    Messages.getQuestionIcon(),
-                    myModel.getElementAt(index),
-                    new URLInputVaslidator()
-                );
-                if (StringUtil.isNotEmpty(text)) {
-                    myModel.setElementAt(text, index);
-                }
+        myEditButton.addActionListener(e -> {
+            final int index = myServiceList.getSelectedIndex();
+            @SuppressWarnings("RequiredXAction")
+            final String text = Messages.showInputDialog(
+                "Artifactory or Nexus Service URL",
+                "Edit Service URL",
+                UIUtil.getQuestionIcon(),
+                myModel.getElementAt(index),
+                new URLInputVaslidator()
+            );
+            if (StringUtil.isNotEmpty(text)) {
+                myModel.setElementAt(text, index);
             }
         });
         ListUtil.addRemoveListener(myRemoveButton, myServiceList);
         ListUtil.disableWhenNoSelection(myTestButton, myServiceList);
         ListUtil.disableWhenNoSelection(myEditButton, myServiceList);
-        myTestButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                final String value = (String)myServiceList.getSelectedValue();
-                if (value != null) {
-                    testServiceConnection(value);
-                }
+        myTestButton.addActionListener(e -> {
+            final String value = (String)myServiceList.getSelectedValue();
+            if (value != null) {
+                testServiceConnection(value);
             }
         });
 
-        myUpdateButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                doUpdateIndex();
-            }
-        });
+        myUpdateButton.addActionListener(e -> doUpdateIndex());
 
-        myIndicesTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-            public void valueChanged(ListSelectionEvent e) {
-                updateButtonsState();
-            }
-        });
+        myIndicesTable.getSelectionModel().addListSelectionListener(e -> updateButtonsState());
 
         myIndicesTable.addMouseMotionListener(new MouseMotionListener() {
+            @Override
             public void mouseDragged(MouseEvent e) {
             }
 
+            @Override
             public void mouseMoved(MouseEvent e) {
                 int row = myIndicesTable.rowAtPoint(e.getPoint());
                 if (row == -1) {
@@ -178,32 +158,29 @@ public class MavenRepositoriesConfigurable extends BaseConfigurable implements S
         RepositoryAttachHandler.searchRepositories(
             myProject,
             Collections.singletonList(url),
-            new Processor<Collection<MavenRepositoryInfo>>() {
-                @Override
-                public boolean process(Collection<MavenRepositoryInfo> infos) {
-                    myTestButton.setEnabled(true);
-                    if (infos.isEmpty()) {
-                        Messages.showMessageDialog(
-                            "No repositories found",
-                            "Service Connection Failed",
-                            Messages.getWarningIcon()
-                        );
-                    }
-                    else {
-                        final StringBuilder sb = new StringBuilder();
-                        sb.append(infos.size()).append(infos.size() == 1 ? "repository" : " repositories").append(" found");
-                        //for (MavenRepositoryInfo info : infos) {
-                        //  sb.append("\n  ");
-                        //  sb.append(info.getId()).append(" (").append(info.getName()).append(")").append(": ").append(info.getUrl());
-                        //}
-                        Messages.showMessageDialog(
-                            sb.toString(),
-                            "Service Connection Successful",
-                            Messages.getInformationIcon()
-                        );
-                    }
-                    return true;
+            infos -> {
+                myTestButton.setEnabled(true);
+                if (infos.isEmpty()) {
+                    Messages.showMessageDialog(
+                        "No repositories found",
+                        "Service Connection Failed",
+                        UIUtil.getWarningIcon()
+                    );
                 }
+                else {
+                    final StringBuilder sb = new StringBuilder();
+                    sb.append(infos.size()).append(infos.size() == 1 ? "repository" : " repositories").append(" found");
+                    //for (MavenRepositoryInfo info : infos) {
+                    //  sb.append("\n  ");
+                    //  sb.append(info.getId()).append(" (").append(info.getName()).append(")").append(": ").append(info.getUrl());
+                    //}
+                    Messages.showMessageDialog(
+                        sb.toString(),
+                        "Service Connection Successful",
+                        UIUtil.getInformationIcon()
+                    );
+                }
+                return true;
             }
         );
     }
@@ -229,7 +206,7 @@ public class MavenRepositoriesConfigurable extends BaseConfigurable implements S
     }
 
     private List<MavenIndex> getSelectedIndices() {
-        List<MavenIndex> result = new ArrayList<MavenIndex>();
+        List<MavenIndex> result = new ArrayList<>();
         for (int i : myIndicesTable.getSelectedRows()) {
             result.add(getIndexAt(i));
         }
@@ -241,27 +218,36 @@ public class MavenRepositoriesConfigurable extends BaseConfigurable implements S
         return model.getIndex(i);
     }
 
+    @Override
     public String getDisplayName() {
-        return IndicesBundle.message("maven.repositories.title");
+        return MavenIndicesLocalize.mavenRepositoriesTitle().get();
     }
 
+    @Override
     public String getHelpTopic() {
         return "reference.settings.project.maven.repository.indices";
     }
 
     @Nonnull
+    @Override
     public String getId() {
         return getHelpTopic();
     }
 
+    @Override
+    @RequiredUIAccess
     public JComponent createComponent(@Nonnull Disposable uiDisposable) {
         return myMainPanel;
     }
 
+    @Override
+    @RequiredUIAccess
     public void apply() throws ConfigurationException {
         MavenRepositoryServicesManager.getInstance().setUrls(myModel.getItems());
     }
 
+    @Override
+    @RequiredUIAccess
     public void reset() {
         myModel.removeAll();
         myModel.add(MavenRepositoryServicesManager.getInstance().getUrls());
@@ -272,18 +258,16 @@ public class MavenRepositoriesConfigurable extends BaseConfigurable implements S
         myIndicesTable.getColumnModel().getColumn(2).setPreferredWidth(50);
         myIndicesTable.getColumnModel().getColumn(3).setPreferredWidth(20);
 
-        myUpdatingIcon = new AsyncProcessIcon(IndicesBundle.message("maven.indices.updating"));
+        myUpdatingIcon = new AsyncProcessIcon(MavenIndicesLocalize.mavenIndicesUpdating().get());
         myUpdatingIcon.resume();
 
-        myTimerListener = new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                myIndicesTable.repaint();
-            }
-        };
+        myTimerListener = e -> myIndicesTable.repaint();
         myRepaintTimer = UIUtil.createNamedTimer("Maven repaint", AsyncProcessIcon.CYCLE_LENGTH / 20, myTimerListener);
         myRepaintTimer.start();
     }
 
+    @Override
+    @RequiredUIAccess
     public void disposeUIResources() {
         if (myRepaintTimer == null) {
             return; // has not yet been initialized and reset
@@ -296,9 +280,9 @@ public class MavenRepositoriesConfigurable extends BaseConfigurable implements S
 
     private class MyTableModel extends AbstractTableModel {
         private final String[] COLUMNS = new String[]{
-            IndicesBundle.message("maven.index.url"),
-            IndicesBundle.message("maven.index.type"),
-            IndicesBundle.message("maven.index.updated"),
+            MavenIndicesLocalize.mavenIndexUrl().get(),
+            MavenIndicesLocalize.mavenIndexType().get(),
+            MavenIndicesLocalize.mavenIndexUpdated().get(),
             ""
         };
 
@@ -308,6 +292,7 @@ public class MavenRepositoriesConfigurable extends BaseConfigurable implements S
             myIndices = indices;
         }
 
+        @Override
         public int getColumnCount() {
             return COLUMNS.length;
         }
@@ -317,6 +302,7 @@ public class MavenRepositoriesConfigurable extends BaseConfigurable implements S
             return COLUMNS[index];
         }
 
+        @Override
         public int getRowCount() {
             return myIndices.size();
         }
@@ -329,6 +315,7 @@ public class MavenRepositoriesConfigurable extends BaseConfigurable implements S
             return super.getColumnClass(columnIndex);
         }
 
+        @Override
         public Object getValueAt(int rowIndex, int columnIndex) {
             MavenIndex i = getIndex(rowIndex);
             switch (columnIndex) {
@@ -341,11 +328,11 @@ public class MavenRepositoriesConfigurable extends BaseConfigurable implements S
                     return "Remote";
                 case 2:
                     if (i.getFailureMessage() != null) {
-                        return IndicesBundle.message("maven.index.updated.error");
+                        return MavenIndicesLocalize.mavenIndexUpdatedError().get();
                     }
                     long timestamp = i.getUpdateTimestamp();
                     if (timestamp == -1) {
-                        return IndicesBundle.message("maven.index.updated.never");
+                        return MavenIndicesLocalize.mavenIndexUpdatedNever().get();
                     }
                     return DateFormatUtil.formatDate(timestamp);
                 case 3:
@@ -426,6 +413,7 @@ public class MavenRepositoriesConfigurable extends BaseConfigurable implements S
 
     private static class URLInputVaslidator implements InputValidator {
         @Override
+        @RequiredUIAccess
         public boolean checkInput(String inputString) {
             try {
                 final URL url = new URL(inputString);
@@ -437,6 +425,7 @@ public class MavenRepositoriesConfigurable extends BaseConfigurable implements S
         }
 
         @Override
+        @RequiredUIAccess
         public boolean canClose(String inputString) {
             return checkInput(inputString);
         }

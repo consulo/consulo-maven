@@ -18,7 +18,7 @@ package org.jetbrains.idea.maven.indices;
 import consulo.annotation.component.ComponentScope;
 import consulo.annotation.component.ServiceAPI;
 import consulo.annotation.component.ServiceImpl;
-import consulo.application.ApplicationManager;
+import consulo.application.Application;
 import consulo.application.ReadAction;
 import consulo.maven.rt.server.common.model.MavenArtifactInfo;
 import consulo.maven.rt.server.common.model.MavenId;
@@ -28,6 +28,7 @@ import consulo.project.Project;
 import consulo.ui.ex.awt.util.MergingUpdateQueue;
 import consulo.ui.ex.awt.util.Update;
 import consulo.util.collection.ContainerUtil;
+import consulo.util.lang.Couple;
 import consulo.util.lang.Pair;
 import consulo.util.lang.StringUtil;
 import jakarta.inject.Inject;
@@ -71,7 +72,7 @@ public class MavenProjectIndicesManager extends MavenSimpleProjectComponent {
     }
 
     public void doInit() {
-        if (ApplicationManager.getApplication().isUnitTestMode()) {
+        if (Application.get().isUnitTestMode()) {
             scheduleUpdateIndicesList();
         }
 
@@ -136,7 +137,7 @@ public class MavenProjectIndicesManager extends MavenSimpleProjectComponent {
             String id = each.getId();
             String url = each.getUrl();
 
-            result.add(Pair.create(id, url));
+            result.add(Couple.of(id, url));
         }
         return result;
     }

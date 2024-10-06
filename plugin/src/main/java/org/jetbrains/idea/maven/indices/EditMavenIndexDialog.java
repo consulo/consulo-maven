@@ -15,6 +15,7 @@
  */
 package org.jetbrains.idea.maven.indices;
 
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.awt.DialogWrapper;
 import consulo.virtualFileSystem.VirtualFileManager;
 
@@ -35,6 +36,7 @@ public class EditMavenIndexDialog extends DialogWrapper {
         init();
     }
 
+    @Override
     protected JComponent createCenterPanel() {
         return myMainPanel;
     }
@@ -48,6 +50,7 @@ public class EditMavenIndexDialog extends DialogWrapper {
     }
 
     @Override
+    @RequiredUIAccess
     public JComponent getPreferredFocusedComponent() {
         return myUrlField;
     }

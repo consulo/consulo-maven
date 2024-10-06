@@ -603,19 +603,11 @@ public class MavenIndex {
     }
 
     public synchronized boolean hasGroupId(String groupId) {
-        if (isBroken) {
-            return false;
-        }
-
-        return hasValue(myData.groupToArtifactMap, myData.hasGroupCache, groupId);
+        return !isBroken && hasValue(myData.groupToArtifactMap, myData.hasGroupCache, groupId);
     }
 
     public synchronized boolean hasArtifactId(String groupId, String artifactId) {
-        if (isBroken) {
-            return false;
-        }
-
-        return hasValue(myData.groupWithArtifactToVersionMap, myData.hasArtifactCache, groupId + ":" + artifactId);
+        return !isBroken && hasValue(myData.groupWithArtifactToVersionMap, myData.hasArtifactCache, groupId + ":" + artifactId);
     }
 
     public synchronized boolean hasVersion(String groupId, String artifactId, final String version) {
@@ -627,12 +619,17 @@ public class MavenIndex {
 
         Boolean res = myData.hasVersionCache.get(groupWithArtifactWithVersion);
         if (res == null) {
-            res = doIndexTask(() -> {
-                String groupWithVersion =
-                    groupWithArtifactWithVersion.substring(0, groupWithArtifactWithVersion.length() - version.length() - 1);
-                Set<String> set = myData.groupWithArtifactToVersionMap.get(groupWithVersion);
-                return set != null && set.contains(version);
-            }, false);
+            res = doIndexTask(
+                () -> {
+                    String groupWithVersion = groupWithArtifactWithVersion.substring(
+                        0,
+                        groupWithArtifactWithVersion.length() - version.length() - 1
+                    );
+                    Set<String> set = myData.groupWithArtifactToVersionMap.get(groupWithVersion);
+                    return set != null && set.contains(version);
+                },
+                false
+            );
 
             myData.hasVersionCache.put(groupWithArtifactWithVersion, res);
         }
@@ -643,7 +640,7 @@ public class MavenIndex {
     private boolean hasValue(final PersistentHashMap<String, ?> map, Map<String, Boolean> cache, final String value) {
         Boolean res = cache.get(value);
         if (res == null) {
-            res = doIndexTask(() -> map.tryEnumerate(value) != 0, false).booleanValue();
+            res = doIndexTask(() -> map.tryEnumerate(value) != 0, false);
 
             cache.put(value, res);
         }
@@ -710,11 +707,7 @@ public class MavenIndex {
 
                 indexId = createContext(getDataContextDir(dir), dir.getName());
             }
-            catch (IOException e) {
-                close(true);
-                throw new MavenIndexException(e);
-            }
-            catch (MavenServerIndexerException e) {
+            catch (IOException | MavenServerIndexerException e) {
                 close(true);
                 throw new MavenIndexException(e);
             }

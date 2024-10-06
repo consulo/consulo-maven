@@ -46,14 +46,7 @@ public abstract class MavenSearcher<RESULT_TYPE extends MavenArtifactSearchResul
             Collections.sort(each.versions, COMPARATOR);
         }
 
-        Collections.sort(
-            result,
-            new Comparator<RESULT_TYPE>() {
-                public int compare(RESULT_TYPE o1, RESULT_TYPE o2) {
-                    return makeSortKey(o1).compareTo(makeSortKey(o2));
-                }
-            }
-        );
+        Collections.sort(result, (o1, o2) -> makeSortKey(o1).compareTo(makeSortKey(o2)));
     }
 
     protected String makeSortKey(RESULT_TYPE result) {
@@ -65,6 +58,7 @@ public abstract class MavenSearcher<RESULT_TYPE extends MavenArtifactSearchResul
     }
 
     private static class VersionComparator implements Comparator<MavenArtifactInfo> {
+        @Override
         public int compare(MavenArtifactInfo f1, MavenArtifactInfo f2) {
             int result = Comparing.compare(f1.getGroupId(), f2.getGroupId());
             if (result != 0) {

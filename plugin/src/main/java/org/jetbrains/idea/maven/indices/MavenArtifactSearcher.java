@@ -27,6 +27,7 @@ import java.util.*;
 public class MavenArtifactSearcher extends MavenSearcher<MavenArtifactSearchResult> {
     public static final String TERM = MavenServerIndexer.SEARCH_TERM_COORDINATES;
 
+    @Override
     protected Pair<String, Query> preparePatternAndQuery(String pattern) {
         pattern = pattern.toLowerCase();
         if (pattern.trim().length() == 0) {
@@ -66,6 +67,7 @@ public class MavenArtifactSearcher extends MavenSearcher<MavenArtifactSearchResu
         return Pair.create(pattern, (Query)query);
     }
 
+    @Override
     protected Collection<MavenArtifactSearchResult> processResults(Set<MavenArtifactInfo> infos, String pattern, int maxResult) {
         Map<String, MavenArtifactSearchResult> result = new HashMap<>();
 

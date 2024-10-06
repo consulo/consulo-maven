@@ -15,14 +15,20 @@
  */
 package org.jetbrains.idea.maven.indices;
 
+import consulo.annotation.DeprecationInfo;
+import consulo.annotation.internal.MigratedExtensionsTo;
 import consulo.application.CommonBundle;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.PropertyKey;
+import org.jetbrains.idea.maven.localize.MavenIndicesLocalize;
 
 import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
 import java.util.ResourceBundle;
 
+@Deprecated
+@DeprecationInfo("Use MavenIndicesLocalize")
+@MigratedExtensionsTo(MavenIndicesLocalize.class)
 public class IndicesBundle {
     private static Reference<ResourceBundle> ourBundle;
 

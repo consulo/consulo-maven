@@ -19,7 +19,6 @@ import consulo.annotation.component.ComponentScope;
 import consulo.annotation.component.ServiceAPI;
 import consulo.annotation.component.ServiceImpl;
 import consulo.application.Application;
-import consulo.application.ApplicationManager;
 import consulo.application.ReadAction;
 import consulo.application.progress.ProgressIndicator;
 import consulo.application.progress.Task;
@@ -39,6 +38,7 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jetbrains.annotations.TestOnly;
+import org.jetbrains.idea.maven.localize.MavenIndicesLocalize;
 import org.jetbrains.idea.maven.project.MavenGeneralSettings;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.server.MavenIndexerWrapper;
@@ -89,7 +89,7 @@ public class MavenIndicesManager implements Disposable {
 
     @Inject
     public MavenIndicesManager(Application application) {
-        myUpdatingQueue = new BackgroundTaskQueue(application, null, IndicesBundle.message("maven.indices.updating"));
+        myUpdatingQueue = new BackgroundTaskQueue(application, null, MavenIndicesLocalize.mavenIndicesUpdating().get());
     }
 
     @TestOnly
@@ -113,21 +113,13 @@ public class MavenIndicesManager implements Disposable {
 
         myIndexer = MavenServerManager.getInstance().createIndexer();
 
-        myDownloadListener = new MavenServerDownloadListener() {
-            public void artifactDownloaded(File file, String relativePath) {
-                addArtifact(file, relativePath);
-            }
-        };
+        myDownloadListener = this::addArtifact;
         MavenServerManager.getInstance().addDownloadListener(myDownloadListener);
 
         myIndices = new MavenIndices(
             myIndexer,
             getIndicesDir(),
-            new MavenIndex.IndexListener() {
-                public void indexIsBroken(MavenIndex index) {
-                    scheduleUpdate(null, Collections.singletonList(index), false);
-                }
-            }
+            index -> scheduleUpdate(null, Collections.singletonList(index), false)
         );
 
         loadUserArchetypes();
@@ -137,9 +129,10 @@ public class MavenIndicesManager implements Disposable {
         return myTestIndicesDir == null ? MavenUtil.getPluginSystemDir("Indices") : myTestIndicesDir;
     }
 
+    @Override
     public void dispose() {
         doShutdown();
-        if (ApplicationManager.getApplication().isUnitTestMode()) {
+        if (Application.get().isUnitTestMode()) {
             FileUtil.delete(getIndicesDir());
         }
     }
@@ -249,7 +242,8 @@ public class MavenIndicesManager implements Disposable {
         if (toSchedule.isEmpty()) {
             return;
         }
-        myUpdatingQueue.run(new Task.Backgroundable(projectOrNull, IndicesBundle.message("maven.indices.updating"), true) {
+        myUpdatingQueue.run(new Task.Backgroundable(projectOrNull, MavenIndicesLocalize.mavenIndicesUpdating().get(), true) {
+            @Override
             public void run(@Nonnull ProgressIndicator indicator) {
                 try {
                     doUpdateIndices(projectOrNull, toSchedule, fullUpdate, new MavenProgressIndicator(indicator));
@@ -276,11 +270,7 @@ public class MavenIndicesManager implements Disposable {
                     return;
                 }
 
-                indicator.setText(IndicesBundle.message(
-                    "maven.indices.updating.index",
-                    each.getRepositoryId(),
-                    each.getRepositoryPathOrUrl()
-                ));
+                indicator.setText(MavenIndicesLocalize.mavenIndicesUpdatingIndex(each.getRepositoryId(), each.getRepositoryPathOrUrl()));
 
                 synchronized (myUpdatingIndicesLock) {
                     remainingWaiting.remove(each);
@@ -404,10 +394,7 @@ public class MavenIndicesManager implements Disposable {
 
             myUserArchetypes = listResult;
         }
-        catch (IOException e) {
-            MavenLog.LOG.warn(e);
-        }
-        catch (JDOMException e) {
+        catch (IOException | JDOMException e) {
             MavenLog.LOG.warn(e);
         }
     }

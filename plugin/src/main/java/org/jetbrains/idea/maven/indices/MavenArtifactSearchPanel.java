@@ -31,6 +31,7 @@ import consulo.ui.ex.awt.event.DoubleClickListener;
 import consulo.ui.ex.awt.tree.Tree;
 import consulo.ui.ex.awt.util.Alarm;
 import consulo.util.lang.Comparing;
+import consulo.util.lang.Couple;
 import consulo.util.lang.Pair;
 import org.jetbrains.idea.maven.utils.MavenLog;
 
@@ -38,8 +39,6 @@ import javax.annotation.Nonnull;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.TreeModelListener;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.TreeCellRenderer;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
@@ -47,8 +46,10 @@ import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.*;
+import java.util.Map;
 
 public class MavenArtifactSearchPanel extends JPanel {
     private final Project myProject;
@@ -137,16 +138,13 @@ public class MavenArtifactSearchPanel extends JPanel {
             }
         });
 
-        myResultList.addTreeSelectionListener(new TreeSelectionListener() {
-            @Override
-            public void valueChanged(TreeSelectionEvent e) {
-                if (!myAlarm.isEmpty()) {
-                    return;
-                }
-
-                boolean hasSelection = !myResultList.isSelectionEmpty();
-                myListener.canSelectStateChanged(MavenArtifactSearchPanel.this, hasSelection);
+        myResultList.addTreeSelectionListener(e -> {
+            if (!myAlarm.isEmpty()) {
+                return;
             }
+
+            boolean hasSelection = !myResultList.isSelectionEmpty();
+            myListener.canSelectStateChanged(MavenArtifactSearchPanel.this, hasSelection);
         });
 
         myResultList.addKeyListener(new KeyAdapter() {
@@ -184,15 +182,12 @@ public class MavenArtifactSearchPanel extends JPanel {
 
         myAlarm.cancelAllRequests();
         myAlarm.addRequest(
-            new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        doSearch(text);
-                    }
-                    catch (Throwable e) {
-                        MavenLog.LOG.warn(e);
-                    }
+            () -> {
+                try {
+                    doSearch(text);
+                }
+                catch (Throwable e) {
+                    MavenLog.LOG.warn(e);
                 }
             },
             500
@@ -207,26 +202,23 @@ public class MavenArtifactSearchPanel extends JPanel {
 
             MavenArtifactInfo artifactInfo = searchResult.versions.get(0);
             final String managedVersion =
-                myManagedDependenciesMap.get(Pair.create(artifactInfo.getGroupId(), artifactInfo.getArtifactId()));
+                myManagedDependenciesMap.get(Couple.of(artifactInfo.getGroupId(), artifactInfo.getArtifactId()));
             if (managedVersion != null) {
                 Collections.sort(
                     searchResult.versions,
-                    new Comparator<MavenArtifactInfo>() {
-                        @Override
-                        public int compare(MavenArtifactInfo o1, MavenArtifactInfo o2) {
-                            String v1 = o1.getVersion();
-                            String v2 = o2.getVersion();
-                            if (Comparing.equal(v1, v2)) {
-                                return 0;
-                            }
-                            if (managedVersion.equals(v1)) {
-                                return -1;
-                            }
-                            if (managedVersion.equals(v2)) {
-                                return 1;
-                            }
+                    (o1, o2) -> {
+                        String v1 = o1.getVersion();
+                        String v2 = o2.getVersion();
+                        if (Comparing.equal(v1, v2)) {
                             return 0;
                         }
+                        if (managedVersion.equals(v1)) {
+                            return -1;
+                        }
+                        if (managedVersion.equals(v2)) {
+                            return 1;
+                        }
+                        return 0;
                     }
                 );
             }
@@ -241,18 +233,15 @@ public class MavenArtifactSearchPanel extends JPanel {
 
         final TreeModel model = new MyTreeModel(result);
 
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                if (!myDialog.isVisible()) {
-                    return;
-                }
-
-                myResultList.getEmptyText().setText("No results");
-                myResultList.setModel(model);
-                myResultList.setSelectionRow(0);
-                myResultList.setPaintBusy(false);
+        SwingUtilities.invokeLater(() -> {
+            if (!myDialog.isVisible()) {
+                return;
             }
+
+            myResultList.getEmptyText().setText("No results");
+            myResultList.setModel(model);
+            myResultList.setSelectionRow(0);
+            myResultList.setPaintBusy(false);
         });
     }
 
@@ -263,8 +252,8 @@ public class MavenArtifactSearchPanel extends JPanel {
         for (TreePath each : myResultList.getSelectionPaths()) {
             Object sel = each.getLastPathComponent();
             MavenArtifactInfo info;
-            if (sel instanceof MavenArtifactInfo) {
-                info = (MavenArtifactInfo)sel;
+            if (sel instanceof MavenArtifactInfo artifactInfo) {
+                info = artifactInfo;
             }
             else {
                 info = ((MavenArtifactSearchResult)sel).versions.get(0);
@@ -303,8 +292,8 @@ public class MavenArtifactSearchPanel extends JPanel {
             if (parent == myItems) {
                 return myItems;
             }
-            if (parent instanceof MavenArtifactSearchResult) {
-                return ((MavenArtifactSearchResult)parent).versions;
+            if (parent instanceof MavenArtifactSearchResult artifactSearchResult) {
+                return artifactSearchResult.versions;
             }
             return null;
         }
@@ -378,8 +367,8 @@ public class MavenArtifactSearchPanel extends JPanel {
                     Container parent = tree.getParent();
                     if (parent != null) {
                         Container parentParent = parent.getParent();
-                        if (parentParent instanceof JScrollPane) {
-                            JScrollBar sb = ((JScrollPane)parentParent).getVerticalScrollBar();
+                        if (parentParent instanceof JScrollPane scrollPane) {
+                            JScrollBar sb = scrollPane.getVerticalScrollBar();
                             if (sb != null) {
                                 w -= sb.getWidth();
                             }
@@ -403,22 +392,21 @@ public class MavenArtifactSearchPanel extends JPanel {
             myLeftComponent.clear();
             myRightComponent.clear();
 
-            setBackground(selected ? UIUtil.getTreeSelectionBackground() : tree.getBackground());
+            setBackground(selected ? UIUtil.getTreeSelectionBackground(hasFocus) : tree.getBackground());
 
-            myLeftComponent.setForeground(selected ? UIUtil.getTreeSelectionForeground() : null);
-            myRightComponent.setForeground(selected ? UIUtil.getTreeSelectionForeground() : null);
+            myLeftComponent.setForeground(selected ? UIUtil.getTreeSelectionForeground(hasFocus) : null);
+            myRightComponent.setForeground(selected ? UIUtil.getTreeSelectionForeground(hasFocus) : null);
 
             if (value == tree.getModel().getRoot()) {
                 myLeftComponent.append("Results", SimpleTextAttributes.REGULAR_ATTRIBUTES);
             }
-            else if (value instanceof MavenArtifactSearchResult) {
-                formatSearchResult(tree, (MavenArtifactSearchResult)value, selected);
+            else if (value instanceof MavenArtifactSearchResult artifactSearchResult) {
+                formatSearchResult(tree, artifactSearchResult, selected);
             }
-            else if (value instanceof MavenArtifactInfo) {
-                MavenArtifactInfo info = (MavenArtifactInfo)value;
+            else if (value instanceof MavenArtifactInfo info) {
                 String version = info.getVersion();
 
-                String managedVersion = myManagedDependenciesMap.get(Pair.create(info.getGroupId(), info.getArtifactId()));
+                String managedVersion = myManagedDependenciesMap.get(Couple.of(info.getGroupId(), info.getArtifactId()));
 
                 if (managedVersion != null && managedVersion.equals(version)) {
                     myLeftComponent.append(version, SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);

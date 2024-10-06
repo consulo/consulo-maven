@@ -75,8 +75,7 @@ class BintrayIndexer implements NotNexusIndexer {
                                     try {
                                         HttpRequests.request(myUrlTemplate + "&start_pos=" + (i * endPos))
                                             .accept("application/json")
-                                            .connect(r ->
-                                            {
+                                            .connect(r -> {
                                                 fetchMavenIds(r, processor);
                                                 progress.setFraction(1d * iterationsCounter.get() / totalIterations);
                                                 return null;
@@ -121,11 +120,11 @@ class BintrayIndexer implements NotNexusIndexer {
 
         Exception e = exception.get();
         if (e != null) {
-            if (e instanceof IOException) {
-                throw (IOException)e;
+            if (e instanceof IOException ioException) {
+                throw ioException;
             }
-            if (e instanceof MavenServerIndexerException) {
-                throw (MavenServerIndexerException)e;
+            if (e instanceof MavenServerIndexerException indexerException) {
+                throw indexerException;
             }
             throw new MavenServerIndexerException(e);
         }
