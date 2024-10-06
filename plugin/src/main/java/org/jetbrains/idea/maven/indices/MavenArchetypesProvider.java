@@ -24,7 +24,7 @@ import java.util.Collection;
 
 @ExtensionAPI(ComponentScope.APPLICATION)
 public interface MavenArchetypesProvider {
-  ExtensionPointName<MavenArchetypesProvider> EP_NAME = ExtensionPointName.create(MavenArchetypesProvider.class);
+    ExtensionPointName<MavenArchetypesProvider> EP_NAME = ExtensionPointName.create(MavenArchetypesProvider.class);
 
-  Collection<MavenArchetype> getArchetypes();
+    Collection<MavenArchetype> getArchetypes();
 }

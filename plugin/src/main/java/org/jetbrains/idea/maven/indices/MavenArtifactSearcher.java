@@ -25,53 +25,64 @@ import consulo.maven.rt.server.common.server.MavenServerIndexer;
 import java.util.*;
 
 public class MavenArtifactSearcher extends MavenSearcher<MavenArtifactSearchResult> {
-  public static final String TERM = MavenServerIndexer.SEARCH_TERM_COORDINATES;
+    public static final String TERM = MavenServerIndexer.SEARCH_TERM_COORDINATES;
 
-  protected Pair<String, Query> preparePatternAndQuery(String pattern) {
-    pattern = pattern.toLowerCase();
-    if (pattern.trim().length() == 0) return Pair.create(pattern, (Query)new MatchAllDocsQuery());
+    protected Pair<String, Query> preparePatternAndQuery(String pattern) {
+        pattern = pattern.toLowerCase();
+        if (pattern.trim().length() == 0) {
+            return Pair.create(pattern, (Query)new MatchAllDocsQuery());
+        }
 
-    List<String> parts = new ArrayList<String>();
-    for (String each : StringUtil.tokenize(pattern, " :")) {
-      parts.add(each);
+        List<String> parts = new ArrayList<>();
+        for (String each : StringUtil.tokenize(pattern, " :")) {
+            parts.add(each);
+        }
+
+        BooleanQuery query = new BooleanQuery();
+
+        if (parts.size() == 1) {
+            query.add(new WildcardQuery(new Term(TERM, "*" + parts.get(0) + "*|*|*|*")), BooleanClause.Occur.SHOULD);
+            query.add(new WildcardQuery(new Term(TERM, "*|*" + parts.get(0) + "*|*|*")), BooleanClause.Occur.SHOULD);
+        }
+        if (parts.size() == 2) {
+            query.add(
+                new WildcardQuery(new Term(TERM, "*" + parts.get(0) + "*|*" + parts.get(1) + "*|*|*")),
+                BooleanClause.Occur.SHOULD
+            );
+            query.add(
+                new WildcardQuery(new Term(TERM, "*" + parts.get(0) + "*|*|" + parts.get(1) + "*|*")),
+                BooleanClause.Occur.SHOULD
+            );
+            query.add(
+                new WildcardQuery(new Term(TERM, "*|*" + parts.get(0) + "*|" + parts.get(1) + "*|*")),
+                BooleanClause.Occur.SHOULD
+            );
+        }
+        if (parts.size() >= 3) {
+            String s = "*" + parts.get(0) + "*|*" + parts.get(1) + "*|" + parts.get(2) + "*|*";
+            query.add(new WildcardQuery(new Term(TERM, s)), BooleanClause.Occur.MUST);
+        }
+
+        return Pair.create(pattern, (Query)query);
     }
 
-    BooleanQuery query = new BooleanQuery();
+    protected Collection<MavenArtifactSearchResult> processResults(Set<MavenArtifactInfo> infos, String pattern, int maxResult) {
+        Map<String, MavenArtifactSearchResult> result = new HashMap<>();
 
-    if (parts.size() == 1) {
-      query.add(new WildcardQuery(new Term(TERM, "*" + parts.get(0) + "*|*|*|*")), BooleanClause.Occur.SHOULD);
-      query.add(new WildcardQuery(new Term(TERM, "*|*" + parts.get(0) + "*|*|*")), BooleanClause.Occur.SHOULD);
+        for (MavenArtifactInfo each : infos) {
+            if (!StringUtil.isEmptyOrSpaces(each.getClassifier())) {
+                continue; // todo skip for now
+            }
+
+            String key = makeKey(each);
+            MavenArtifactSearchResult searchResult = result.get(key);
+            if (searchResult == null) {
+                searchResult = new MavenArtifactSearchResult();
+                result.put(key, searchResult);
+            }
+            searchResult.versions.add(each);
+        }
+
+        return result.values();
     }
-    if (parts.size() == 2) {
-      query.add(new WildcardQuery(new Term(TERM, "*" + parts.get(0) + "*|*" + parts.get(1) + "*|*|*")), BooleanClause.Occur.SHOULD);
-      query.add(new WildcardQuery(new Term(TERM, "*" + parts.get(0) + "*|*|" + parts.get(1) + "*|*")), BooleanClause.Occur.SHOULD);
-      query.add(new WildcardQuery(new Term(TERM, "*|*" + parts.get(0) + "*|" + parts.get(1) + "*|*")), BooleanClause.Occur.SHOULD);
-    }
-    if (parts.size() >= 3) {
-      String s = "*" + parts.get(0) + "*|*" + parts.get(1) + "*|" + parts.get(2) + "*|*";
-      query.add(new WildcardQuery(new Term(TERM, s)), BooleanClause.Occur.MUST);
-    }
-
-    return Pair.create(pattern, (Query)query);
-  }
-
-  protected Collection<MavenArtifactSearchResult> processResults(Set<MavenArtifactInfo> infos, String pattern, int maxResult) {
-    Map<String, MavenArtifactSearchResult> result = new HashMap<String, MavenArtifactSearchResult>();
-
-    for (MavenArtifactInfo each : infos) {
-      if (!StringUtil.isEmptyOrSpaces(each.getClassifier())) {
-        continue; // todo skip for now
-      }
-
-      String key = makeKey(each);
-      MavenArtifactSearchResult searchResult = result.get(key);
-      if (searchResult == null) {
-        searchResult = new MavenArtifactSearchResult();
-        result.put(key, searchResult);
-      }
-      searchResult.versions.add(each);
-    }
-
-    return result.values();
-  }
 }

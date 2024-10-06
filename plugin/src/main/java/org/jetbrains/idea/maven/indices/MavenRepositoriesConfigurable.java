@@ -59,338 +59,386 @@ import java.util.Collections;
 import java.util.List;
 
 public class MavenRepositoriesConfigurable extends BaseConfigurable implements SearchableConfigurable, Configurable.NoScroll {
-  private final MavenProjectIndicesManager myManager;
+    private final MavenProjectIndicesManager myManager;
 
-  private JPanel myMainPanel;
-  private JBTable myIndicesTable;
-  private JButton myUpdateButton;
-  private JButton myRemoveButton;
-  private JButton myAddButton;
-  private JBList myServiceList;
-  private JButton myTestButton;
-  private JButton myEditButton;
+    private JPanel myMainPanel;
+    private JBTable myIndicesTable;
+    private JButton myUpdateButton;
+    private JButton myRemoveButton;
+    private JButton myAddButton;
+    private JBList myServiceList;
+    private JButton myTestButton;
+    private JButton myEditButton;
 
-  private AsyncProcessIcon myUpdatingIcon;
-  private Timer myRepaintTimer;
-  private ActionListener myTimerListener;
-  private final Project myProject;
-  private final CollectionListModel<String> myModel = new CollectionListModel<String>();
+    private AsyncProcessIcon myUpdatingIcon;
+    private Timer myRepaintTimer;
+    private ActionListener myTimerListener;
+    private final Project myProject;
+    private final CollectionListModel<String> myModel = new CollectionListModel<>();
 
-  public MavenRepositoriesConfigurable(Project project) {
-    myProject = project;
-    myManager = MavenProjectIndicesManager.getInstance(project);
-    configControls();
-  }
+    public MavenRepositoriesConfigurable(Project project) {
+        myProject = project;
+        myManager = MavenProjectIndicesManager.getInstance(project);
+        configControls();
+    }
 
-  @Override
-  public boolean isModified() {
-    return !myModel.getItems().equals(MavenRepositoryServicesManager.getInstance().getUrls());
-  }
+    @Override
+    public boolean isModified() {
+        return !myModel.getItems().equals(MavenRepositoryServicesManager.getInstance().getUrls());
+    }
 
-  private void configControls() {
-    myServiceList.setModel(myModel);
-    myServiceList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-    myAddButton.addActionListener(new ActionListener() {
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        final String value = (String)myServiceList.getSelectedValue();
-        final String text = Messages.showInputDialog("Artifactory or Nexus Service URL", "Add Service URL", Messages.getQuestionIcon(),
-                                                     value == null ? "http://" : value, new URLInputVaslidator());
-        if (StringUtil.isNotEmpty(text)) {
-          myModel.add(text);
-          myServiceList.setSelectedValue(text, true);
-        }
-      }
-    });
-    myEditButton.addActionListener(new ActionListener() {
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        final int index = myServiceList.getSelectedIndex();
-        final String text = Messages.showInputDialog("Artifactory or Nexus Service URL", "Edit Service URL", Messages.getQuestionIcon(),
-                                                     myModel.getElementAt(index), new URLInputVaslidator());
-        if (StringUtil.isNotEmpty(text)) {
-          myModel.setElementAt(text, index);
-        }
-      }
-    });
-    ListUtil.addRemoveListener(myRemoveButton, myServiceList);
-    ListUtil.disableWhenNoSelection(myTestButton, myServiceList);
-    ListUtil.disableWhenNoSelection(myEditButton, myServiceList);
-    myTestButton.addActionListener(new ActionListener() {
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        final String value = (String)myServiceList.getSelectedValue();
-        if (value != null) {
-          testServiceConnection(value);
-        }
-      }
-    });
+    private void configControls() {
+        myServiceList.setModel(myModel);
+        myServiceList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        myAddButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                final String value = (String)myServiceList.getSelectedValue();
+                final String text = Messages.showInputDialog(
+                    "Artifactory or Nexus Service URL",
+                    "Add Service URL",
+                    Messages.getQuestionIcon(),
+                    value == null ? "http://" : value,
+                    new URLInputVaslidator()
+                );
+                if (StringUtil.isNotEmpty(text)) {
+                    myModel.add(text);
+                    myServiceList.setSelectedValue(text, true);
+                }
+            }
+        });
+        myEditButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                final int index = myServiceList.getSelectedIndex();
+                final String text = Messages.showInputDialog(
+                    "Artifactory or Nexus Service URL",
+                    "Edit Service URL",
+                    Messages.getQuestionIcon(),
+                    myModel.getElementAt(index),
+                    new URLInputVaslidator()
+                );
+                if (StringUtil.isNotEmpty(text)) {
+                    myModel.setElementAt(text, index);
+                }
+            }
+        });
+        ListUtil.addRemoveListener(myRemoveButton, myServiceList);
+        ListUtil.disableWhenNoSelection(myTestButton, myServiceList);
+        ListUtil.disableWhenNoSelection(myEditButton, myServiceList);
+        myTestButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                final String value = (String)myServiceList.getSelectedValue();
+                if (value != null) {
+                    testServiceConnection(value);
+                }
+            }
+        });
 
-    myUpdateButton.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        doUpdateIndex();
-      }
-    });
+        myUpdateButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                doUpdateIndex();
+            }
+        });
 
-    myIndicesTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-      public void valueChanged(ListSelectionEvent e) {
+        myIndicesTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+            public void valueChanged(ListSelectionEvent e) {
+                updateButtonsState();
+            }
+        });
+
+        myIndicesTable.addMouseMotionListener(new MouseMotionListener() {
+            public void mouseDragged(MouseEvent e) {
+            }
+
+            public void mouseMoved(MouseEvent e) {
+                int row = myIndicesTable.rowAtPoint(e.getPoint());
+                if (row == -1) {
+                    return;
+                }
+                updateIndexHint(row);
+            }
+        });
+
+        myIndicesTable.setDefaultRenderer(Object.class, new MyCellRenderer());
+        myIndicesTable.setDefaultRenderer(
+            MavenIndicesManager.IndexUpdatingState.class,
+            new MyIconCellRenderer()
+        );
+
+        myServiceList.getEmptyText().setText("No services");
+        myIndicesTable.getEmptyText().setText("No remote repositories");
+
         updateButtonsState();
-      }
-    });
+    }
 
-    myIndicesTable.addMouseMotionListener(new MouseMotionListener() {
-      public void mouseDragged(MouseEvent e) {
-      }
+    private void testServiceConnection(String url) {
+        myTestButton.setEnabled(false);
+        RepositoryAttachHandler.searchRepositories(
+            myProject,
+            Collections.singletonList(url),
+            new Processor<Collection<MavenRepositoryInfo>>() {
+                @Override
+                public boolean process(Collection<MavenRepositoryInfo> infos) {
+                    myTestButton.setEnabled(true);
+                    if (infos.isEmpty()) {
+                        Messages.showMessageDialog(
+                            "No repositories found",
+                            "Service Connection Failed",
+                            Messages.getWarningIcon()
+                        );
+                    }
+                    else {
+                        final StringBuilder sb = new StringBuilder();
+                        sb.append(infos.size()).append(infos.size() == 1 ? "repository" : " repositories").append(" found");
+                        //for (MavenRepositoryInfo info : infos) {
+                        //  sb.append("\n  ");
+                        //  sb.append(info.getId()).append(" (").append(info.getName()).append(")").append(": ").append(info.getUrl());
+                        //}
+                        Messages.showMessageDialog(
+                            sb.toString(),
+                            "Service Connection Successful",
+                            Messages.getInformationIcon()
+                        );
+                    }
+                    return true;
+                }
+            }
+        );
+    }
 
-      public void mouseMoved(MouseEvent e) {
-        int row = myIndicesTable.rowAtPoint(e.getPoint());
-        if (row == -1) return;
-        updateIndexHint(row);
-      }
-    });
+    private void updateButtonsState() {
+        boolean hasSelection = !myIndicesTable.getSelectionModel().isSelectionEmpty();
+        myUpdateButton.setEnabled(hasSelection);
+    }
 
-    myIndicesTable.setDefaultRenderer(Object.class, new MyCellRenderer());
-    myIndicesTable.setDefaultRenderer(MavenIndicesManager.IndexUpdatingState.class,
-                                      new MyIconCellRenderer());
-
-    myServiceList.getEmptyText().setText("No services");
-    myIndicesTable.getEmptyText().setText("No remote repositories");
-
-    updateButtonsState();
-  }
-
-  private void testServiceConnection(String url) {
-    myTestButton.setEnabled(false);
-    RepositoryAttachHandler.searchRepositories(myProject, Collections.singletonList(url), new Processor<Collection<MavenRepositoryInfo>>() {
-      @Override
-      public boolean process(Collection<MavenRepositoryInfo> infos) {
-        myTestButton.setEnabled(true);
-        if (infos.isEmpty()) {
-          Messages.showMessageDialog("No repositories found", "Service Connection Failed", Messages.getWarningIcon());
+    public void updateIndexHint(int row) {
+        MavenIndex index = getIndexAt(row);
+        String message = index.getFailureMessage();
+        if (message == null) {
+            myIndicesTable.setToolTipText(null);
         }
         else {
-          final StringBuilder sb = new StringBuilder();
-          sb.append(infos.size()).append(infos.size() == 1 ? "repository" : " repositories").append(" found");
-          //for (MavenRepositoryInfo info : infos) {
-          //  sb.append("\n  ");
-          //  sb.append(info.getId()).append(" (").append(info.getName()).append(")").append(": ").append(info.getUrl());
-          //}
-          Messages.showMessageDialog(sb.toString(), "Service Connection Successful", Messages.getInformationIcon());
+            myIndicesTable.setToolTipText(message);
         }
-        return true;
-      }
-    });
-  }
-
-  private void updateButtonsState() {
-    boolean hasSelection = !myIndicesTable.getSelectionModel().isSelectionEmpty();
-    myUpdateButton.setEnabled(hasSelection);
-  }
-
-  public void updateIndexHint(int row) {
-    MavenIndex index = getIndexAt(row);
-    String message = index.getFailureMessage();
-    if (message == null) {
-      myIndicesTable.setToolTipText(null);
-    }
-    else {
-      myIndicesTable.setToolTipText(message);
-    }
-  }
-
-  private void doUpdateIndex() {
-    myManager.scheduleUpdate(getSelectedIndices());
-  }
-
-  private List<MavenIndex> getSelectedIndices() {
-    List<MavenIndex> result = new ArrayList<MavenIndex>();
-    for (int i : myIndicesTable.getSelectedRows()) {
-      result.add(getIndexAt(i));
-    }
-    return result;
-  }
-
-  private MavenIndex getIndexAt(int i) {
-    MyTableModel model = (MyTableModel)myIndicesTable.getModel();
-    return model.getIndex(i);
-  }
-
-  public String getDisplayName() {
-    return IndicesBundle.message("maven.repositories.title");
-  }
-
-  public String getHelpTopic() {
-    return "reference.settings.project.maven.repository.indices";
-  }
-
-  @Nonnull
-  public String getId() {
-    return getHelpTopic();
-  }
-
-  public JComponent createComponent(@Nonnull Disposable uiDisposable) {
-    return myMainPanel;
-  }
-
-  public void apply() throws ConfigurationException {
-    MavenRepositoryServicesManager.getInstance().setUrls(myModel.getItems());
-  }
-
-  public void reset() {
-    myModel.removeAll();
-    myModel.add(MavenRepositoryServicesManager.getInstance().getUrls());
-
-    myIndicesTable.setModel(new MyTableModel(myManager.getIndices()));
-    myIndicesTable.getColumnModel().getColumn(0).setPreferredWidth(400);
-    myIndicesTable.getColumnModel().getColumn(1).setPreferredWidth(50);
-    myIndicesTable.getColumnModel().getColumn(2).setPreferredWidth(50);
-    myIndicesTable.getColumnModel().getColumn(3).setPreferredWidth(20);
-
-    myUpdatingIcon = new AsyncProcessIcon(IndicesBundle.message("maven.indices.updating"));
-    myUpdatingIcon.resume();
-
-    myTimerListener = new ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        myIndicesTable.repaint();
-      }
-    };
-    myRepaintTimer = UIUtil.createNamedTimer("Maven repaint", AsyncProcessIcon.CYCLE_LENGTH / 20, myTimerListener);
-    myRepaintTimer.start();
-  }
-
-  public void disposeUIResources() {
-    if (myRepaintTimer == null) return; // has not yet been initialized and reset
-
-    myRepaintTimer.removeActionListener(myTimerListener);
-    myRepaintTimer.stop();
-    Disposer.dispose(myUpdatingIcon);
-  }
-
-  private class MyTableModel extends AbstractTableModel {
-    private final String[] COLUMNS =
-      new String[]{
-        IndicesBundle.message("maven.index.url"),
-        IndicesBundle.message("maven.index.type"),
-        IndicesBundle.message("maven.index.updated"),
-        ""};
-
-    private final List<MavenIndex> myIndices;
-
-    public MyTableModel(List<MavenIndex> indices) {
-      myIndices = indices;
     }
 
-    public int getColumnCount() {
-      return COLUMNS.length;
+    private void doUpdateIndex() {
+        myManager.scheduleUpdate(getSelectedIndices());
     }
 
-    @Override
-    public String getColumnName(int index) {
-      return COLUMNS[index];
-    }
-
-    public int getRowCount() {
-      return myIndices.size();
-    }
-
-    @Override
-    public Class<?> getColumnClass(int columnIndex) {
-      if (columnIndex == 3) return MavenIndicesManager.IndexUpdatingState.class;
-      return super.getColumnClass(columnIndex);
-    }
-
-    public Object getValueAt(int rowIndex, int columnIndex) {
-      MavenIndex i = getIndex(rowIndex);
-      switch (columnIndex) {
-        case 0:
-          return i.getRepositoryPathOrUrl();
-        case 1:
-          if (i.getKind() == MavenIndex.Kind.LOCAL) return "Local";
-          return "Remote";
-        case 2:
-          if (i.getFailureMessage() != null) {
-            return IndicesBundle.message("maven.index.updated.error");
-          }
-          long timestamp = i.getUpdateTimestamp();
-          if (timestamp == -1) return IndicesBundle.message("maven.index.updated.never");
-          return DateFormatUtil.formatDate(timestamp);
-        case 3:
-          return myManager.getUpdatingState(i);
-      }
-      throw new RuntimeException();
-    }
-
-    public MavenIndex getIndex(int rowIndex) {
-      return myIndices.get(rowIndex);
-    }
-  }
-
-  private class MyCellRenderer extends DefaultTableCellRenderer {
-    @Override
-    public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-      // reset custom colors and let DefaultTableCellRenderer to set ones
-      setForeground(null);
-      setBackground(null);
-
-      Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-
-      MavenIndex index = getIndexAt(row);
-      if (index.getFailureMessage() != null) {
-        if (isSelected) {
-          setForeground(JBColor.PINK);
+    private List<MavenIndex> getSelectedIndices() {
+        List<MavenIndex> result = new ArrayList<MavenIndex>();
+        for (int i : myIndicesTable.getSelectedRows()) {
+            result.add(getIndexAt(i));
         }
-        else {
-          setBackground(JBColor.PINK);
+        return result;
+    }
+
+    private MavenIndex getIndexAt(int i) {
+        MyTableModel model = (MyTableModel)myIndicesTable.getModel();
+        return model.getIndex(i);
+    }
+
+    public String getDisplayName() {
+        return IndicesBundle.message("maven.repositories.title");
+    }
+
+    public String getHelpTopic() {
+        return "reference.settings.project.maven.repository.indices";
+    }
+
+    @Nonnull
+    public String getId() {
+        return getHelpTopic();
+    }
+
+    public JComponent createComponent(@Nonnull Disposable uiDisposable) {
+        return myMainPanel;
+    }
+
+    public void apply() throws ConfigurationException {
+        MavenRepositoryServicesManager.getInstance().setUrls(myModel.getItems());
+    }
+
+    public void reset() {
+        myModel.removeAll();
+        myModel.add(MavenRepositoryServicesManager.getInstance().getUrls());
+
+        myIndicesTable.setModel(new MyTableModel(myManager.getIndices()));
+        myIndicesTable.getColumnModel().getColumn(0).setPreferredWidth(400);
+        myIndicesTable.getColumnModel().getColumn(1).setPreferredWidth(50);
+        myIndicesTable.getColumnModel().getColumn(2).setPreferredWidth(50);
+        myIndicesTable.getColumnModel().getColumn(3).setPreferredWidth(20);
+
+        myUpdatingIcon = new AsyncProcessIcon(IndicesBundle.message("maven.indices.updating"));
+        myUpdatingIcon.resume();
+
+        myTimerListener = new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                myIndicesTable.repaint();
+            }
+        };
+        myRepaintTimer = UIUtil.createNamedTimer("Maven repaint", AsyncProcessIcon.CYCLE_LENGTH / 20, myTimerListener);
+        myRepaintTimer.start();
+    }
+
+    public void disposeUIResources() {
+        if (myRepaintTimer == null) {
+            return; // has not yet been initialized and reset
         }
-      }
 
-      return c;
-    }
-  }
-
-  private class MyIconCellRenderer extends MyCellRenderer {
-    MavenIndicesManager.IndexUpdatingState myState;
-
-    @Override
-    public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-      myState = (MavenIndicesManager.IndexUpdatingState)value;
-      return super.getTableCellRendererComponent(table, "", isSelected, hasFocus, row, column);
+        myRepaintTimer.removeActionListener(myTimerListener);
+        myRepaintTimer.stop();
+        Disposer.dispose(myUpdatingIcon);
     }
 
-    @Override
-    protected void paintComponent(Graphics g) {
-      super.paintComponent(g);
-      Dimension size = getSize();
-      switch (myState) {
-        case UPDATING:
-          myUpdatingIcon.setBackground(getBackground());
-          myUpdatingIcon.setSize(size.width, size.height);
-          myUpdatingIcon.paint(g);
-          break;
-        case WAITING:
-          int x = (size.width - AllIcons.Process.Step_passive.getWidth()) / 2;
-          int y = (size.height - AllIcons.Process.Step_passive.getHeight()) / 2;
-          TargetAWT.to(AllIcons.Process.Step_passive).paintIcon(this, g, x, y);
-          break;
-      }
-    }
-  }
+    private class MyTableModel extends AbstractTableModel {
+        private final String[] COLUMNS = new String[]{
+            IndicesBundle.message("maven.index.url"),
+            IndicesBundle.message("maven.index.type"),
+            IndicesBundle.message("maven.index.updated"),
+            ""
+        };
 
-  private static class URLInputVaslidator implements InputValidator {
-    @Override
-    public boolean checkInput(String inputString) {
-      try {
-        final URL url = new URL(inputString);
-        return StringUtil.isNotEmpty(url.getHost());
-      }
-      catch (MalformedURLException e) {
-        return false;
-      }
+        private final List<MavenIndex> myIndices;
+
+        public MyTableModel(List<MavenIndex> indices) {
+            myIndices = indices;
+        }
+
+        public int getColumnCount() {
+            return COLUMNS.length;
+        }
+
+        @Override
+        public String getColumnName(int index) {
+            return COLUMNS[index];
+        }
+
+        public int getRowCount() {
+            return myIndices.size();
+        }
+
+        @Override
+        public Class<?> getColumnClass(int columnIndex) {
+            if (columnIndex == 3) {
+                return MavenIndicesManager.IndexUpdatingState.class;
+            }
+            return super.getColumnClass(columnIndex);
+        }
+
+        public Object getValueAt(int rowIndex, int columnIndex) {
+            MavenIndex i = getIndex(rowIndex);
+            switch (columnIndex) {
+                case 0:
+                    return i.getRepositoryPathOrUrl();
+                case 1:
+                    if (i.getKind() == MavenIndex.Kind.LOCAL) {
+                        return "Local";
+                    }
+                    return "Remote";
+                case 2:
+                    if (i.getFailureMessage() != null) {
+                        return IndicesBundle.message("maven.index.updated.error");
+                    }
+                    long timestamp = i.getUpdateTimestamp();
+                    if (timestamp == -1) {
+                        return IndicesBundle.message("maven.index.updated.never");
+                    }
+                    return DateFormatUtil.formatDate(timestamp);
+                case 3:
+                    return myManager.getUpdatingState(i);
+            }
+            throw new RuntimeException();
+        }
+
+        public MavenIndex getIndex(int rowIndex) {
+            return myIndices.get(rowIndex);
+        }
     }
 
-    @Override
-    public boolean canClose(String inputString) {
-      return checkInput(inputString);
+    private class MyCellRenderer extends DefaultTableCellRenderer {
+        @Override
+        public Component getTableCellRendererComponent(
+            JTable table,
+            Object value,
+            boolean isSelected,
+            boolean hasFocus,
+            int row,
+            int column
+        ) {
+            // reset custom colors and let DefaultTableCellRenderer to set ones
+            setForeground(null);
+            setBackground(null);
+
+            Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+            MavenIndex index = getIndexAt(row);
+            if (index.getFailureMessage() != null) {
+                if (isSelected) {
+                    setForeground(JBColor.PINK);
+                }
+                else {
+                    setBackground(JBColor.PINK);
+                }
+            }
+
+            return c;
+        }
     }
-  }
+
+    private class MyIconCellRenderer extends MyCellRenderer {
+        MavenIndicesManager.IndexUpdatingState myState;
+
+        @Override
+        public Component getTableCellRendererComponent(
+            JTable table,
+            Object value,
+            boolean isSelected,
+            boolean hasFocus,
+            int row,
+            int column
+        ) {
+            myState = (MavenIndicesManager.IndexUpdatingState)value;
+            return super.getTableCellRendererComponent(table, "", isSelected, hasFocus, row, column);
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            Dimension size = getSize();
+            switch (myState) {
+                case UPDATING:
+                    myUpdatingIcon.setBackground(getBackground());
+                    myUpdatingIcon.setSize(size.width, size.height);
+                    myUpdatingIcon.paint(g);
+                    break;
+                case WAITING:
+                    int x = (size.width - AllIcons.Process.Step_passive.getWidth()) / 2;
+                    int y = (size.height - AllIcons.Process.Step_passive.getHeight()) / 2;
+                    TargetAWT.to(AllIcons.Process.Step_passive).paintIcon(this, g, x, y);
+                    break;
+            }
+        }
+    }
+
+    private static class URLInputVaslidator implements InputValidator {
+        @Override
+        public boolean checkInput(String inputString) {
+            try {
+                final URL url = new URL(inputString);
+                return StringUtil.isNotEmpty(url.getHost());
+            }
+            catch (MalformedURLException e) {
+                return false;
+            }
+        }
+
+        @Override
+        public boolean canClose(String inputString) {
+            return checkInput(inputString);
+        }
+    }
 }
