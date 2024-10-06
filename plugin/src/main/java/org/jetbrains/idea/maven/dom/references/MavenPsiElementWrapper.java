@@ -15,60 +15,63 @@
  */
 package org.jetbrains.idea.maven.dom.references;
 
+import consulo.annotation.access.RequiredReadAction;
 import consulo.document.util.TextRange;
+import consulo.maven.icon.MavenIconGroup;
 import consulo.navigation.Navigatable;
 import consulo.language.psi.PsiElement;
 import consulo.language.psi.PsiNamedElement;
 import consulo.language.impl.psi.RenameableFakePsiElement;
 import consulo.ui.image.Image;
-import org.jetbrains.idea.maven.MavenIcons;
 
 public class MavenPsiElementWrapper extends RenameableFakePsiElement {
-  private final PsiElement myWrappee;
-  private final Navigatable myNavigatable;
+    private final PsiElement myWrappee;
+    private final Navigatable myNavigatable;
 
-  public MavenPsiElementWrapper(PsiElement wrappeeElement, Navigatable navigatable) {
-    super(wrappeeElement.getParent());
-    myWrappee = wrappeeElement;
-    myNavigatable = navigatable;
-  }
-
-  public PsiElement getWrappee() {
-    return myWrappee;
-  }
-
-  public PsiElement getParent() {
-    return myWrappee.getParent();
-  }
-
-  @Override
-  public String getName() {
-    return ((PsiNamedElement)myWrappee).getName();
-  }
-
-  @Override
-  public void navigate(boolean requestFocus) {
-    myNavigatable.navigate(requestFocus);
-  }
-
-  public String getTypeName() {
-    return "Property";
-  }
-
-  public Image getIcon() {
-    return MavenIcons.MavenLogo;
-  }
-
-  @Override
-  public TextRange getTextRange() {
-    return myWrappee.getTextRange();
-  }
-
-  @Override
-  public boolean isEquivalentTo(PsiElement other) {
-    if (other instanceof MavenPsiElementWrapper) {
-      return myWrappee == ((MavenPsiElementWrapper)other).myWrappee;
+    public MavenPsiElementWrapper(PsiElement wrappeeElement, Navigatable navigatable) {
+        super(wrappeeElement.getParent());
+        myWrappee = wrappeeElement;
+        myNavigatable = navigatable;
     }
-    return myWrappee == other;
-  }
+
+    public PsiElement getWrappee() {
+        return myWrappee;
+    }
+
+    @Override
+    public PsiElement getParent() {
+        return myWrappee.getParent();
+    }
+
+    @Override
+    @RequiredReadAction
+    public String getName() {
+        return ((PsiNamedElement)myWrappee).getName();
+    }
+
+    @Override
+    public void navigate(boolean requestFocus) {
+        myNavigatable.navigate(requestFocus);
+    }
+
+    @Override
+    public String getTypeName() {
+        return "Property";
+    }
+
+    @Override
+    public Image getIcon() {
+        return MavenIconGroup.mavenlogo();
+    }
+
+    @Override
+    @RequiredReadAction
+    public TextRange getTextRange() {
+        return myWrappee.getTextRange();
+    }
+
+    @Override
+    public boolean isEquivalentTo(PsiElement other) {
+        return other instanceof MavenPsiElementWrapper wrapper ? myWrappee == wrapper.myWrappee : myWrappee == other;
+    }
 }

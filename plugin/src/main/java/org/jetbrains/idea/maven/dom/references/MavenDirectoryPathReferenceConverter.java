@@ -21,8 +21,7 @@ import consulo.language.psi.path.FileReferenceSet;
  * @author Sergey Evdokimov
  */
 public class MavenDirectoryPathReferenceConverter extends MavenPathReferenceConverter {
-
-  public MavenDirectoryPathReferenceConverter() {
-    super(FileReferenceSet.DIRECTORY_FILTER);
-  }
+    public MavenDirectoryPathReferenceConverter() {
+        super(FileReferenceSet.DIRECTORY_FILTER);
+    }
 }

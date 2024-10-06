@@ -23,12 +23,10 @@ import org.jetbrains.idea.maven.dom.MavenDomUtil;
 import org.jetbrains.idea.maven.dom.references.MavenPsiElementWrapper;
 
 @ExtensionImpl
-public class MavenVetoModelRenameCondition implements VetoRenameCondition
-{
-	@RequiredReadAction
-	@Override
-	public boolean isVetoed(PsiElement target)
-	{
-		return target instanceof MavenPsiElementWrapper || MavenDomUtil.isMavenFile(target);
-	}
+public class MavenVetoModelRenameCondition implements VetoRenameCondition {
+    @RequiredReadAction
+    @Override
+    public boolean isVetoed(PsiElement target) {
+        return target instanceof MavenPsiElementWrapper || MavenDomUtil.isMavenFile(target);
+    }
 }

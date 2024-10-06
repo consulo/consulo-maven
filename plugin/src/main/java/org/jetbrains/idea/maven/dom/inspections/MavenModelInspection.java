@@ -17,60 +17,54 @@ package org.jetbrains.idea.maven.dom.inspections;
 
 import consulo.annotation.component.ExtensionImpl;
 import consulo.virtualFileSystem.VirtualFile;
-import consulo.xml.util.xml.Converter;
 import consulo.xml.util.xml.DomUtil;
 import consulo.xml.util.xml.GenericDomValue;
 import consulo.xml.util.xml.highlighting.BasicDomElementsInspection;
-import org.jetbrains.idea.maven.dom.MavenDomBundle;
 import org.jetbrains.idea.maven.dom.converters.MavenDomSoftAwareConverter;
 import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
+import org.jetbrains.idea.maven.localize.MavenDomLocalize;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 
 import javax.annotation.Nonnull;
 
 @ExtensionImpl
 public class MavenModelInspection extends BasicDomElementsInspection<MavenDomProjectModel, Object> {
-  public MavenModelInspection() {
-    super(MavenDomProjectModel.class);
-  }
-
-  @Nonnull
-  public String getGroupDisplayName() {
-    return MavenDomBundle.message("inspection.group");
-  }
-
-  @Nonnull
-  public String getDisplayName() {
-    return MavenDomBundle.message("inspection.name");
-  }
-
-  @Nonnull
-  public String getShortName() {
-    return "MavenModelInspection";
-  }
-
-  private static boolean isElementInsideManagedFile(GenericDomValue value) {
-    VirtualFile virtualFile = DomUtil.getFile(value).getVirtualFile();
-    if (virtualFile == null) {
-      return false;
+    public MavenModelInspection() {
+        super(MavenDomProjectModel.class);
     }
 
-    MavenProjectsManager projectsManager = MavenProjectsManager.getInstance(value.getManager().getProject());
-
-    return projectsManager.findProject(virtualFile) != null;
-  }
-
-  @Override
-  protected boolean shouldCheckResolveProblems(GenericDomValue value) {
-    if (!isElementInsideManagedFile(value)) {
-      return false;
+    @Nonnull
+    @Override
+    public String getGroupDisplayName() {
+        return MavenDomLocalize.inspectionGroup().get();
     }
 
-    Converter converter = value.getConverter();
-    if (converter instanceof MavenDomSoftAwareConverter) {
-      return !((MavenDomSoftAwareConverter)converter).isSoft(value);
+    @Nonnull
+    @Override
+    public String getDisplayName() {
+        return MavenDomLocalize.inspectionName().get();
     }
 
-    return true;
-  }
+    @Nonnull
+    @Override
+    public String getShortName() {
+        return "MavenModelInspection";
+    }
+
+    private static boolean isElementInsideManagedFile(GenericDomValue value) {
+        VirtualFile virtualFile = DomUtil.getFile(value).getVirtualFile();
+        if (virtualFile == null) {
+            return false;
+        }
+
+        MavenProjectsManager projectsManager = MavenProjectsManager.getInstance(value.getManager().getProject());
+
+        return projectsManager.findProject(virtualFile) != null;
+    }
+
+    @Override
+    protected boolean shouldCheckResolveProblems(GenericDomValue value) {
+        return isElementInsideManagedFile(value)
+            && !(value.getConverter() instanceof MavenDomSoftAwareConverter domSoftAwareConverter && domSoftAwareConverter.isSoft(value));
+    }
 }

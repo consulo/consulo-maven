@@ -21,7 +21,7 @@ import org.jetbrains.idea.maven.dom.plugin.MavenDomPluginModel;
 
 @ExtensionImpl
 public class MavenDomPluginModelDescription extends DomFileDescription<MavenDomPluginModel> {
-  public MavenDomPluginModelDescription() {
-    super(MavenDomPluginModel.class, "plugin");
-  }
+    public MavenDomPluginModelDescription() {
+        super(MavenDomPluginModel.class, "plugin");
+    }
 }

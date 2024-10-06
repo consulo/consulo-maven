@@ -35,137 +35,121 @@ import java.awt.event.ItemListener;
 import java.util.Set;
 import java.util.function.Function;
 
-public class SelectMavenProjectDialog extends DialogWrapper
-{
-	private final Set<MavenDomProjectModel> myMavenDomProjectModels;
-	private final boolean myHasExclusions;
+public class SelectMavenProjectDialog extends DialogWrapper {
+    private final Set<MavenDomProjectModel> myMavenDomProjectModels;
+    private final boolean myHasExclusions;
 
-	private JComboBox myMavenProjectsComboBox;
-	private JPanel myMainPanel;
-	private JCheckBox myReplaceAllCheckBox;
-	private JCheckBox myExtractExclusions;
-	private boolean myHasUsagesInProjects = false;
+    private JComboBox myMavenProjectsComboBox;
+    private JPanel myMainPanel;
+    private JCheckBox myReplaceAllCheckBox;
+    private JCheckBox myExtractExclusions;
+    private boolean myHasUsagesInProjects = false;
 
-	private ItemListener myReplaceAllListener;
-	private final Function<MavenDomProjectModel, Set<MavenDomDependency>> myOccurrencesCountFunction;
+    private ItemListener myReplaceAllListener;
+    private final Function<MavenDomProjectModel, Set<MavenDomDependency>> myOccurrencesCountFunction;
 
-	public SelectMavenProjectDialog(@Nonnull Project project,
-									@Nonnull Set<MavenDomProjectModel> mavenDomProjectModels,
-									@Nonnull Function<MavenDomProjectModel, Set<MavenDomDependency>> funOccurrences,
-									@Nonnull boolean hasExclusions)
-	{
-		super(project, true);
-		myMavenDomProjectModels = mavenDomProjectModels;
-		myHasExclusions = hasExclusions;
+    public SelectMavenProjectDialog(
+        @Nonnull Project project,
+        @Nonnull Set<MavenDomProjectModel> mavenDomProjectModels,
+        @Nonnull Function<MavenDomProjectModel, Set<MavenDomDependency>> funOccurrences,
+        boolean hasExclusions
+    ) {
+        super(project, true);
+        myMavenDomProjectModels = mavenDomProjectModels;
+        myHasExclusions = hasExclusions;
 
-		setTitle(MavenDomBundle.message("choose.project"));
+        setTitle(MavenDomBundle.message("choose.project"));
 
-		myOccurrencesCountFunction = funOccurrences;
-		for(MavenDomProjectModel model : myMavenDomProjectModels)
-		{
-			if(myOccurrencesCountFunction.apply(model).size() > 0)
-			{
-				myHasUsagesInProjects = true;
-				break;
-			}
-		}
+        myOccurrencesCountFunction = funOccurrences;
+        for (MavenDomProjectModel model : myMavenDomProjectModels) {
+            if (myOccurrencesCountFunction.apply(model).size() > 0) {
+                myHasUsagesInProjects = true;
+                break;
+            }
+        }
 
-		init();
-	}
+        init();
+    }
 
-	@Nonnull
-	protected Action[] createActions()
-	{
-		return new Action[]{
-				getOKAction(),
-				getCancelAction()
-		};
-	}
+    @Nonnull
+    protected Action[] createActions() {
+        return new Action[]{
+            getOKAction(),
+            getCancelAction()
+        };
+    }
 
-	protected void init()
-	{
-		super.init();
+    protected void init() {
+        super.init();
 
-		updateOkStatus();
-	}
+        updateOkStatus();
+    }
 
-	@Override
-	protected void dispose()
-	{
-		super.dispose();
-		if(myReplaceAllCheckBox != null)
-		{
-			myReplaceAllCheckBox.removeItemListener(myReplaceAllListener);
-		}
-	}
+    @Override
+    protected void dispose() {
+        super.dispose();
+        if (myReplaceAllCheckBox != null) {
+            myReplaceAllCheckBox.removeItemListener(myReplaceAllListener);
+        }
+    }
 
-	@Nullable
-	public MavenDomProjectModel getSelectedProject()
-	{
-		return (MavenDomProjectModel) ComboBoxUtil.getSelectedValue((DefaultComboBoxModel) myMavenProjectsComboBox.getModel());
-	}
+    @Nullable
+    public MavenDomProjectModel getSelectedProject() {
+        return (MavenDomProjectModel)ComboBoxUtil.getSelectedValue((DefaultComboBoxModel)myMavenProjectsComboBox.getModel());
+    }
 
-	public boolean isReplaceAllOccurrences()
-	{
-		return myReplaceAllCheckBox.isSelected();
-	}
+    public boolean isReplaceAllOccurrences() {
+        return myReplaceAllCheckBox.isSelected();
+    }
 
-	public boolean isExtractExclusions()
-	{
-		return myExtractExclusions.isSelected();
-	}
+    public boolean isExtractExclusions() {
+        return myExtractExclusions.isSelected();
+    }
 
-	protected JComponent createCenterPanel()
-	{
-		ComboBoxUtil.setModel(myMavenProjectsComboBox, new DefaultComboBoxModel(), myMavenDomProjectModels,
-				model -> {
-					String projectName = model.getName().getStringValue();
-					MavenProject mavenProject = MavenDomUtil.findProject(model);
-					if(mavenProject != null)
-					{
-						projectName = mavenProject.getDisplayName();
-					}
-					if(StringUtil.isEmptyOrSpaces(projectName))
-					{
-						projectName = "pom.xml";
-					}
-					return Pair.create(projectName, model);
-				});
+    protected JComponent createCenterPanel() {
+        ComboBoxUtil.setModel(myMavenProjectsComboBox, new DefaultComboBoxModel(), myMavenDomProjectModels,
+            model -> {
+                String projectName = model.getName().getStringValue();
+                MavenProject mavenProject = MavenDomUtil.findProject(model);
+                if (mavenProject != null) {
+                    projectName = mavenProject.getDisplayName();
+                }
+                if (StringUtil.isEmptyOrSpaces(projectName)) {
+                    projectName = "pom.xml";
+                }
+                return Pair.create(projectName, model);
+            }
+        );
 
-		myReplaceAllListener = new ItemListener()
-		{
-			public void itemStateChanged(ItemEvent e)
-			{
-				updateControls();
-			}
-		};
+        myReplaceAllListener = new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                updateControls();
+            }
+        };
 
-		myMavenProjectsComboBox.addItemListener(myReplaceAllListener);
-		myMavenProjectsComboBox.setSelectedItem(0);
-		myReplaceAllCheckBox.setVisible(myHasUsagesInProjects);
-		myExtractExclusions.setVisible(myHasExclusions);
+        myMavenProjectsComboBox.addItemListener(myReplaceAllListener);
+        myMavenProjectsComboBox.setSelectedItem(0);
+        myReplaceAllCheckBox.setVisible(myHasUsagesInProjects);
+        myExtractExclusions.setVisible(myHasExclusions);
 
-		updateControls();
+        updateControls();
 
-		return myMainPanel;
-	}
+        return myMainPanel;
+    }
 
-	private void updateControls()
-	{
-		MavenDomProjectModel project = getSelectedProject();
-		Integer count = myOccurrencesCountFunction.apply(project).size();
-		myReplaceAllCheckBox.setText(RefactoringBundle.message("replace.all.occurences", count));
+    private void updateControls() {
+        MavenDomProjectModel project = getSelectedProject();
+        Integer count = myOccurrencesCountFunction.apply(project).size();
+        myReplaceAllCheckBox.setText(RefactoringBundle.message("replace.all.occurences", count));
 
-		myReplaceAllCheckBox.setEnabled(count != 0);
-	}
+        myReplaceAllCheckBox.setEnabled(count != 0);
+    }
 
-	private void updateOkStatus()
-	{
-		setOKActionEnabled(getSelectedProject() != null);
-	}
+    private void updateOkStatus() {
+        setOKActionEnabled(getSelectedProject() != null);
+    }
 
-	public JComponent getPreferredFocusedComponent()
-	{
-		return myMavenProjectsComboBox;
-	}
+    public JComponent getPreferredFocusedComponent() {
+        return myMavenProjectsComboBox;
+    }
 }

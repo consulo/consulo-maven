@@ -28,22 +28,21 @@ import org.jetbrains.idea.maven.dom.model.MavenDomProperties;
 import javax.annotation.Nonnull;
 
 @ExtensionImpl
-public class MavenPropertyPsiReferenceContributor extends PsiReferenceContributor
-{
-	@Override
-	public void registerReferenceProviders(PsiReferenceRegistrar registrar)
-	{
-		ElementPattern pattern = XmlPatterns.xmlTag().withParent(DomPatterns.withDom(DomPatterns.domElement(MavenDomProperties.class)));
-		registrar.registerReferenceProvider(pattern, new MavenPropertyPsiReferenceProvider(), PsiReferenceRegistrar.DEFAULT_PRIORITY);
-		registrar.registerReferenceProvider(PlatformPatterns.psiElement(),
-				new MavenFilteredPropertyPsiReferenceProvider(),
-				PsiReferenceRegistrar.DEFAULT_PRIORITY);
-	}
+public class MavenPropertyPsiReferenceContributor extends PsiReferenceContributor {
+    @Override
+    public void registerReferenceProviders(PsiReferenceRegistrar registrar) {
+        ElementPattern pattern = XmlPatterns.xmlTag().withParent(DomPatterns.withDom(DomPatterns.domElement(MavenDomProperties.class)));
+        registrar.registerReferenceProvider(pattern, new MavenPropertyPsiReferenceProvider(), PsiReferenceRegistrar.DEFAULT_PRIORITY);
+        registrar.registerReferenceProvider(
+            PlatformPatterns.psiElement(),
+            new MavenFilteredPropertyPsiReferenceProvider(),
+            PsiReferenceRegistrar.DEFAULT_PRIORITY
+        );
+    }
 
-	@Nonnull
-	@Override
-	public Language getLanguage()
-	{
-		return Language.ANY;
-	}
+    @Nonnull
+    @Override
+    public Language getLanguage() {
+        return Language.ANY;
+    }
 }

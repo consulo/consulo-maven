@@ -18,16 +18,19 @@ import java.util.function.Function;
  * User: Sergey.Vasiliev
  */
 public class MavenGenerateTemplateAction extends GenerateDomElementAction {
-  public MavenGenerateTemplateAction(@Nonnull final String description,
-                                     @Nonnull final Class<? extends DomElement> childElementClass,
-                                     @Nullable final String mappingId,
-                                     @Nonnull Function<MavenDomProjectModel, DomElement> parentFunction) {
-    super(new MavenGenerateDomElementProvider(description, childElementClass, mappingId, parentFunction));
+    public MavenGenerateTemplateAction(
+        @Nonnull final String description,
+        @Nonnull final Class<? extends DomElement> childElementClass,
+        @Nullable final String mappingId,
+        @Nonnull Function<MavenDomProjectModel, DomElement> parentFunction
+    ) {
+        super(new MavenGenerateDomElementProvider(description, childElementClass, mappingId, parentFunction));
 
-    getTemplatePresentation().setIcon(ElementPresentationManager.getIconForClass(childElementClass));
-  }
+        getTemplatePresentation().setIcon(ElementPresentationManager.getIconForClass(childElementClass));
+    }
 
-  protected boolean isValidForFile(@Nonnull Project project, @Nonnull Editor editor, @Nonnull PsiFile file) {
-    return file instanceof XmlFile && MavenDomUtil.getMavenDomModel(file, MavenDomProjectModel.class) != null;
-  }
+    @Override
+    protected boolean isValidForFile(@Nonnull Project project, @Nonnull Editor editor, @Nonnull PsiFile file) {
+        return file instanceof XmlFile && MavenDomUtil.getMavenDomModel(file, MavenDomProjectModel.class) != null;
+    }
 }

@@ -26,26 +26,21 @@ import org.jetbrains.idea.maven.dom.model.MavenDomConfigurationParameter;
 import javax.annotation.Nonnull;
 
 @ExtensionImpl
-public class MavenPluginConfigurationParameterDomExtender extends DomExtender<MavenDomConfigurationParameter>
-{
-	@Nonnull
-	@Override
-	public Class<MavenDomConfigurationParameter> getElementClass()
-	{
-		return MavenDomConfigurationParameter.class;
-	}
+public class MavenPluginConfigurationParameterDomExtender extends DomExtender<MavenDomConfigurationParameter> {
+    @Nonnull
+    @Override
+    public Class<MavenDomConfigurationParameter> getElementClass() {
+        return MavenDomConfigurationParameter.class;
+    }
 
-	@Override
-	public void registerExtensions(@Nonnull MavenDomConfigurationParameter param, @Nonnull DomExtensionsRegistrar r)
-	{
-		for(XmlAttribute each : param.getXmlTag().getAttributes())
-		{
-			String name = each.getName();
-			if(CompletionUtilCore.DUMMY_IDENTIFIER_TRIMMED.equals(name))
-			{
-				continue;
-			}
-			r.registerGenericAttributeValueChildExtension(new XmlName(name), String.class);
-		}
-	}
+    @Override
+    public void registerExtensions(@Nonnull MavenDomConfigurationParameter param, @Nonnull DomExtensionsRegistrar r) {
+        for (XmlAttribute each : param.getXmlTag().getAttributes()) {
+            String name = each.getName();
+            if (CompletionUtilCore.DUMMY_IDENTIFIER_TRIMMED.equals(name)) {
+                continue;
+            }
+            r.registerGenericAttributeValueChildExtension(new XmlName(name), String.class);
+        }
+    }
 }
