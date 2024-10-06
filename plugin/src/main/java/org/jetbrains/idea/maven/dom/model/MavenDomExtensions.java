@@ -28,7 +28,6 @@ import java.util.List;
  * http://maven.apache.org/POM/4.0.0:extensionsElemType interface.
  */
 public interface MavenDomExtensions extends MavenDomElement {
-
   /**
    * Returns the list of extension children.
    *

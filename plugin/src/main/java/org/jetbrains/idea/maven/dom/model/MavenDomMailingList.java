@@ -34,80 +34,79 @@ import org.jetbrains.idea.maven.dom.converters.MavenUrlConverter;
  * </pre>
  */
 public interface MavenDomMailingList extends MavenDomElement {
+    /**
+     * Returns the value of the name child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:name documentation</h3>
+     * 3.0.0+
+     * </pre>
+     *
+     * @return the value of the name child.
+     */
+    @Nonnull
+    GenericDomValue<String> getName();
 
-  /**
-   * Returns the value of the name child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:name documentation</h3>
-   * 3.0.0+
-   * </pre>
-   *
-   * @return the value of the name child.
-   */
-  @Nonnull
-  GenericDomValue<String> getName();
+    /**
+     * Returns the value of the subscribe child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:subscribe documentation</h3>
+     * 3.0.0+
+     * </pre>
+     *
+     * @return the value of the subscribe child.
+     */
+    @Nonnull
+    @Convert(MavenUrlConverter.class)
+    GenericDomValue<String> getSubscribe();
 
-  /**
-   * Returns the value of the subscribe child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:subscribe documentation</h3>
-   * 3.0.0+
-   * </pre>
-   *
-   * @return the value of the subscribe child.
-   */
-  @Nonnull
-  @Convert(MavenUrlConverter.class)
-  GenericDomValue<String> getSubscribe();
+    /**
+     * Returns the value of the unsubscribe child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:unsubscribe documentation</h3>
+     * 3.0.0+
+     * </pre>
+     *
+     * @return the value of the unsubscribe child.
+     */
+    @Nonnull
+    @Convert(MavenUrlConverter.class)
+    GenericDomValue<String> getUnsubscribe();
 
-  /**
-   * Returns the value of the unsubscribe child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:unsubscribe documentation</h3>
-   * 3.0.0+
-   * </pre>
-   *
-   * @return the value of the unsubscribe child.
-   */
-  @Nonnull
-  @Convert(MavenUrlConverter.class)
-  GenericDomValue<String> getUnsubscribe();
+    /**
+     * Returns the value of the post child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:post documentation</h3>
+     * 3.0.0+
+     * </pre>
+     *
+     * @return the value of the post child.
+     */
+    @Nonnull
+    @Convert(MavenUrlConverter.class)
+    GenericDomValue<String> getPost();
 
-  /**
-   * Returns the value of the post child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:post documentation</h3>
-   * 3.0.0+
-   * </pre>
-   *
-   * @return the value of the post child.
-   */
-  @Nonnull
-  @Convert(MavenUrlConverter.class)
-  GenericDomValue<String> getPost();
+    /**
+     * Returns the value of the archive child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:archive documentation</h3>
+     * 3.0.0+
+     * </pre>
+     *
+     * @return the value of the archive child.
+     */
+    @Nonnull
+    @Convert(MavenUrlConverter.class)
+    GenericDomValue<String> getArchive();
 
-  /**
-   * Returns the value of the archive child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:archive documentation</h3>
-   * 3.0.0+
-   * </pre>
-   *
-   * @return the value of the archive child.
-   */
-  @Nonnull
-  @Convert(MavenUrlConverter.class)
-  GenericDomValue<String> getArchive();
-
-  /**
-   * Returns the value of the otherArchives child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:otherArchives documentation</h3>
-   * 3.0.0+
-   * </pre>
-   *
-   * @return the value of the otherArchives child.
-   */
-  @Nonnull
-  MavenDomOtherArchives getOtherArchives();
+    /**
+     * Returns the value of the otherArchives child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:otherArchives documentation</h3>
+     * 3.0.0+
+     * </pre>
+     *
+     * @return the value of the otherArchives child.
+     */
+    @Nonnull
+    MavenDomOtherArchives getOtherArchives();
 }

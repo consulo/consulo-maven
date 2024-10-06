@@ -21,6 +21,6 @@ import consulo.xml.util.xml.GenericDomValue;
 import java.util.List;
 
 public interface MavenDomConfigurationParameter extends MavenDomMergedElement, GenericDomValue<Object> {
-  @CustomChildren
-  List<MavenDomConfigurationParameter> getChildren();
+    @CustomChildren
+    List<MavenDomConfigurationParameter> getChildren();
 }

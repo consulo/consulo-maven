@@ -20,9 +20,9 @@ import javax.annotation.Nonnull;
 import org.jetbrains.idea.maven.dom.MavenDomElement;
 
 public interface MavenDomSettingsModel extends MavenDomElement {
-  @Nonnull
-  MavenDomProfiles getProfiles();
+    @Nonnull
+    MavenDomProfiles getProfiles();
 
-  @Nonnull
-  MavenDomMirrors getMirrors();
+    @Nonnull
+    MavenDomMirrors getMirrors();
 }

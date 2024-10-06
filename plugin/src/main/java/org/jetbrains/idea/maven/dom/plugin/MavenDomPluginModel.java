@@ -20,6 +20,6 @@ import javax.annotation.Nonnull;
 import org.jetbrains.idea.maven.dom.MavenDomElement;
 
 public interface MavenDomPluginModel extends MavenDomElement {
-  @Nonnull
-  MavenDomMojos getMojos();
+    @Nonnull
+    MavenDomMojos getMojos();
 }

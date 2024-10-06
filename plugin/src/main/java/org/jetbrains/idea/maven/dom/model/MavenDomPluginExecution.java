@@ -35,68 +35,67 @@ import org.jetbrains.idea.maven.dom.converters.MavenPhaseConverter;
  * </pre>
  */
 public interface MavenDomPluginExecution extends MavenDomElement {
+    /**
+     * Returns the value of the id child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:id documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the id child.
+     */
+    @Nonnull
+    @Required(value = false, nonEmpty = true)
+    GenericDomValue<String> getId();
 
-  /**
-   * Returns the value of the id child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:id documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the id child.
-   */
-  @Nonnull
-  @Required(value = false, nonEmpty = true)
-  GenericDomValue<String> getId();
+    /**
+     * Returns the value of the phase child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:phase documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the phase child.
+     */
+    @Nonnull
+    @Required(value = false, nonEmpty = true)
+    @Convert(MavenPhaseConverter.class)
+    GenericDomValue<String> getPhase();
 
-  /**
-   * Returns the value of the phase child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:phase documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the phase child.
-   */
-  @Nonnull
-  @Required(value = false, nonEmpty = true)
-  @Convert(MavenPhaseConverter.class)
-  GenericDomValue<String> getPhase();
+    /**
+     * Returns the value of the goals child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:goals documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the goals child.
+     */
+    @Nonnull
+    MavenDomGoals getGoals();
 
-  /**
-   * Returns the value of the goals child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:goals documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the goals child.
-   */
-  @Nonnull
-  MavenDomGoals getGoals();
+    /**
+     * Returns the value of the inherited child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:inherited documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the inherited child.
+     */
+    @Nonnull
+    @Required(value = false, nonEmpty = true)
+    GenericDomValue<String> getInherited();
 
-  /**
-   * Returns the value of the inherited child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:inherited documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the inherited child.
-   */
-  @Nonnull
-  @Required(value = false, nonEmpty = true)
-  GenericDomValue<String> getInherited();
-
-  /**
-   * Returns the value of the configuration child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:configuration documentation</h3>
-   * 0.0.0+
-   * </pre>
-   *
-   * @return the value of the configuration child.
-   */
-  @Nonnull
-  MavenDomConfiguration getConfiguration();
+    /**
+     * Returns the value of the configuration child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:configuration documentation</h3>
+     * 0.0.0+
+     * </pre>
+     *
+     * @return the value of the configuration child.
+     */
+    @Nonnull
+    MavenDomConfiguration getConfiguration();
 }

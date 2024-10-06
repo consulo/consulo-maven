@@ -44,79 +44,67 @@ import java.util.Set;
  * @author Sergey Evdokimov
  */
 @ExtensionImpl
-public class MavenVersionCompletionContributor extends CompletionContributor
-{
-	@Override
-	public void fillCompletionVariants(CompletionParameters parameters, CompletionResultSet result)
-	{
-		if(parameters.getCompletionType() != CompletionType.BASIC)
-		{
-			return;
-		}
+public class MavenVersionCompletionContributor extends CompletionContributor {
+    @Override
+    public void fillCompletionVariants(CompletionParameters parameters, CompletionResultSet result) {
+        if (parameters.getCompletionType() != CompletionType.BASIC) {
+            return;
+        }
 
-		PsiElement element = parameters.getPosition();
+        PsiElement element = parameters.getPosition();
 
-		PsiElement xmlText = element.getParent();
-		if(!(xmlText instanceof XmlText))
-		{
-			return;
-		}
+        PsiElement xmlText = element.getParent();
+        if (!(xmlText instanceof XmlText)) {
+            return;
+        }
 
-		PsiElement tagElement = xmlText.getParent();
+        PsiElement tagElement = xmlText.getParent();
 
-		if(!(tagElement instanceof XmlTag))
-		{
-			return;
-		}
+        if (!(tagElement instanceof XmlTag)) {
+            return;
+        }
 
-		XmlTag tag = (XmlTag) tagElement;
+        XmlTag tag = (XmlTag)tagElement;
 
-		Project project = element.getProject();
+        Project project = element.getProject();
 
-		DomElement domElement = DomManager.getDomManager(project).getDomElement(tag);
+        DomElement domElement = DomManager.getDomManager(project).getDomElement(tag);
 
-		if(!(domElement instanceof GenericDomValue))
-		{
-			return;
-		}
+        if (!(domElement instanceof GenericDomValue)) {
+            return;
+        }
 
-		DomElement parent = domElement.getParent();
+        DomElement parent = domElement.getParent();
 
-		if(parent instanceof MavenDomArtifactCoordinates
-				&& ((GenericDomValue) domElement).getConverter() instanceof MavenArtifactCoordinatesVersionConverter)
-		{
-			MavenDomArtifactCoordinates coordinates = (MavenDomArtifactCoordinates) parent;
+        if (parent instanceof MavenDomArtifactCoordinates
+            && ((GenericDomValue)domElement).getConverter() instanceof MavenArtifactCoordinatesVersionConverter) {
+            MavenDomArtifactCoordinates coordinates = (MavenDomArtifactCoordinates)parent;
 
-			String groupId = coordinates.getGroupId().getStringValue();
-			String artifactId = coordinates.getArtifactId().getStringValue();
+            String groupId = coordinates.getGroupId().getStringValue();
+            String artifactId = coordinates.getArtifactId().getStringValue();
 
-			if(!StringUtil.isEmptyOrSpaces(groupId) && !StringUtil.isEmptyOrSpaces(artifactId))
-			{
-				Set<String> versions = MavenProjectIndicesManager.getInstance(project).getVersions(groupId, artifactId);
+            if (!StringUtil.isEmptyOrSpaces(groupId) && !StringUtil.isEmptyOrSpaces(artifactId)) {
+                Set<String> versions = MavenProjectIndicesManager.getInstance(project).getVersions(groupId, artifactId);
 
-				CompletionResultSet newResultSet = result.withRelevanceSorter(CompletionService.getCompletionService().emptySorter().weigh(
-						new LookupElementWeigher("mavenVersionWeigher")
-						{
-							@Nullable
-							@Override
-							public Comparable weigh(@Nonnull LookupElement element)
-							{
-								return new NegatingComparable(new MavenVersionComparable(element.getLookupString()));
-							}
-						}));
+                CompletionResultSet newResultSet = result.withRelevanceSorter(CompletionService.getCompletionService().emptySorter().weigh(
+                    new LookupElementWeigher("mavenVersionWeigher") {
+                        @Nullable
+                        @Override
+                        public Comparable weigh(@Nonnull LookupElement element) {
+                            return new NegatingComparable(new MavenVersionComparable(element.getLookupString()));
+                        }
+                    }));
 
-				for(String version : versions)
-				{
-					newResultSet.addElement(LookupElementBuilder.create(version));
-				}
-			}
-		}
-	}
+                for (String version : versions) {
+                    newResultSet.addElement(LookupElementBuilder.create(version));
+                }
+            }
+        }
+    }
 
-	@Nonnull
-	@Override
-	public Language getLanguage()
-	{
-		return XMLLanguage.INSTANCE;
-	}
+    @Nonnull
+    @Override
+    public Language getLanguage() {
+        return XMLLanguage.INSTANCE;
+    }
 }

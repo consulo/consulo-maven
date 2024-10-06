@@ -20,6 +20,7 @@
 package org.jetbrains.idea.maven.dom.model;
 
 import javax.annotation.Nonnull;
+
 import org.jetbrains.idea.maven.dom.MavenDomElement;
 
 import java.util.List;
@@ -28,19 +29,18 @@ import java.util.List;
  * http://maven.apache.org/POM/4.0.0:developersElemType interface.
  */
 public interface MavenDomDevelopers extends MavenDomElement {
+    /**
+     * Returns the list of developer children.
+     *
+     * @return the list of developer children.
+     */
+    @Nonnull
+    List<MavenDomDeveloper> getDevelopers();
 
-  /**
-   * Returns the list of developer children.
-   *
-   * @return the list of developer children.
-   */
-  @Nonnull
-  List<MavenDomDeveloper> getDevelopers();
-
-  /**
-   * Adds new child to the list of developer children.
-   *
-   * @return created child
-   */
-  MavenDomDeveloper addDeveloper();
+    /**
+     * Adds new child to the list of developer children.
+     *
+     * @return created child
+     */
+    MavenDomDeveloper addDeveloper();
 }

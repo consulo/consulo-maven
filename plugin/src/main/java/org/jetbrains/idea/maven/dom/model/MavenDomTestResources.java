@@ -20,6 +20,7 @@
 package org.jetbrains.idea.maven.dom.model;
 
 import javax.annotation.Nonnull;
+
 import org.jetbrains.idea.maven.dom.MavenDomElement;
 
 import java.util.List;
@@ -28,19 +29,18 @@ import java.util.List;
  * http://maven.apache.org/POM/4.0.0:testResourcesElemType interface.
  */
 public interface MavenDomTestResources extends MavenDomElement {
+    /**
+     * Returns the list of testResource children.
+     *
+     * @return the list of testResource children.
+     */
+    @Nonnull
+    List<MavenDomResource> getTestResources();
 
-  /**
-   * Returns the list of testResource children.
-   *
-   * @return the list of testResource children.
-   */
-  @Nonnull
-  List<MavenDomResource> getTestResources();
-
-  /**
-   * Adds new child to the list of testResource children.
-   *
-   * @return created child
-   */
-  MavenDomResource addTestResource();
+    /**
+     * Adds new child to the list of testResource children.
+     *
+     * @return created child
+     */
+    MavenDomResource addTestResource();
 }

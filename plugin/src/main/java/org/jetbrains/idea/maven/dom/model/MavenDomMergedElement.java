@@ -25,12 +25,11 @@ import org.jetbrains.idea.maven.dom.converters.MavenCombineChildConverter;
  * @author Sergey Evdokimov
  */
 public interface MavenDomMergedElement extends MavenDomElement {
-
-  @Attribute("combine.self")
-  @Convert(MavenCombineChildConverter.class)
+    @Attribute("combine.self")
+    @Convert(MavenCombineChildConverter.class)
     GenericAttributeValue<String> getCombineSelf();
 
-  @Attribute("combine.children")
-  @Convert(MavenCombineChildConverter.class)
-  GenericAttributeValue<String> getCombineChild();
+    @Attribute("combine.children")
+    @Convert(MavenCombineChildConverter.class)
+    GenericAttributeValue<String> getCombineChild();
 }

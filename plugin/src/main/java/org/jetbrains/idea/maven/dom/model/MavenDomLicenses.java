@@ -20,6 +20,7 @@
 package org.jetbrains.idea.maven.dom.model;
 
 import javax.annotation.Nonnull;
+
 import org.jetbrains.idea.maven.dom.MavenDomElement;
 
 import java.util.List;
@@ -28,19 +29,18 @@ import java.util.List;
  * http://maven.apache.org/POM/4.0.0:licensesElemType interface.
  */
 public interface MavenDomLicenses extends MavenDomElement {
+    /**
+     * Returns the list of license children.
+     *
+     * @return the list of license children.
+     */
+    @Nonnull
+    List<MavenDomLicense> getLicenses();
 
-  /**
-   * Returns the list of license children.
-   *
-   * @return the list of license children.
-   */
-  @Nonnull
-  List<MavenDomLicense> getLicenses();
-
-  /**
-   * Adds new child to the list of license children.
-   *
-   * @return created child
-   */
-  MavenDomLicense addLicense();
+    /**
+     * Adds new child to the list of license children.
+     *
+     * @return created child
+     */
+    MavenDomLicense addLicense();
 }

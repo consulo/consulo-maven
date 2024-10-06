@@ -20,6 +20,7 @@
 package org.jetbrains.idea.maven.dom.model;
 
 import javax.annotation.Nonnull;
+
 import org.jetbrains.idea.maven.dom.MavenDomElement;
 
 /**
@@ -30,16 +31,15 @@ import org.jetbrains.idea.maven.dom.MavenDomElement;
  * </pre>
  */
 public interface MavenDomDependencyManagement extends MavenDomElement {
-
-  /**
-   * Returns the value of the dependencies child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:dependencies documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the dependencies child.
-   */
-  @Nonnull
-  MavenDomDependencies getDependencies();
+    /**
+     * Returns the value of the dependencies child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:dependencies documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the dependencies child.
+     */
+    @Nonnull
+    MavenDomDependencies getDependencies();
 }

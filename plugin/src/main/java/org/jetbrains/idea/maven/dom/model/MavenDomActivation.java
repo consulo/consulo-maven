@@ -21,7 +21,9 @@ package org.jetbrains.idea.maven.dom.model;
 
 import consulo.xml.util.xml.GenericDomValue;
 import consulo.xml.util.xml.Required;
+
 import javax.annotation.Nonnull;
+
 import org.jetbrains.idea.maven.dom.MavenDomElement;
 
 /**
@@ -33,64 +35,64 @@ import org.jetbrains.idea.maven.dom.MavenDomElement;
  */
 public interface MavenDomActivation extends MavenDomElement {
 
-  /**
-   * Returns the value of the activeByDefault child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:activeByDefault documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the activeByDefault child.
-   */
-  @Nonnull
-  @Required(value = false, nonEmpty = true)
-  GenericDomValue<Boolean> getActiveByDefault();
+    /**
+     * Returns the value of the activeByDefault child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:activeByDefault documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the activeByDefault child.
+     */
+    @Nonnull
+    @Required(value = false, nonEmpty = true)
+    GenericDomValue<Boolean> getActiveByDefault();
 
-  /**
-   * Returns the value of the jdk child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:jdk documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the jdk child.
-   */
-  @Nonnull
-  GenericDomValue<String> getJdk();
+    /**
+     * Returns the value of the jdk child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:jdk documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the jdk child.
+     */
+    @Nonnull
+    GenericDomValue<String> getJdk();
 
-  /**
-   * Returns the value of the os child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:os documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the os child.
-   */
-  @Nonnull
-  MavenDomActivationOS getOs();
+    /**
+     * Returns the value of the os child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:os documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the os child.
+     */
+    @Nonnull
+    MavenDomActivationOS getOs();
 
-  /**
-   * Returns the value of the property child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:property documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the property child.
-   */
-  @Nonnull
-  MavenDomActivationProperty getProperty();
+    /**
+     * Returns the value of the property child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:property documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the property child.
+     */
+    @Nonnull
+    MavenDomActivationProperty getProperty();
 
-  /**
-   * Returns the value of the file child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:file documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the file child.
-   */
-  @Nonnull
-  MavenDomActivationFile getFile();
+    /**
+     * Returns the value of the file child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:file documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the file child.
+     */
+    @Nonnull
+    MavenDomActivationFile getFile();
 }

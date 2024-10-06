@@ -32,52 +32,51 @@ import org.jetbrains.idea.maven.dom.MavenDomElement;
  * </pre>
  */
 public interface MavenDomRelocation extends MavenDomElement {
+    /**
+     * Returns the value of the groupId child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:groupId documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the groupId child.
+     */
+    @Nonnull
+    GenericDomValue<String> getGroupId();
 
-  /**
-   * Returns the value of the groupId child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:groupId documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the groupId child.
-   */
-  @Nonnull
-  GenericDomValue<String> getGroupId();
+    /**
+     * Returns the value of the artifactId child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:artifactId documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the artifactId child.
+     */
+    @Nonnull
+    GenericDomValue<String> getArtifactId();
 
-  /**
-   * Returns the value of the artifactId child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:artifactId documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the artifactId child.
-   */
-  @Nonnull
-  GenericDomValue<String> getArtifactId();
+    /**
+     * Returns the value of the version child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:version documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the version child.
+     */
+    @Nonnull
+    GenericDomValue<String> getVersion();
 
-  /**
-   * Returns the value of the version child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:version documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the version child.
-   */
-  @Nonnull
-  GenericDomValue<String> getVersion();
-
-  /**
-   * Returns the value of the message child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:message documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the message child.
-   */
-  @Nonnull
-  GenericDomValue<String> getMessage();
+    /**
+     * Returns the value of the message child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:message documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the message child.
+     */
+    @Nonnull
+    GenericDomValue<String> getMessage();
 }

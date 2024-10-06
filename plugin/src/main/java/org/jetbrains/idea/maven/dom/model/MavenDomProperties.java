@@ -25,5 +25,4 @@ import org.jetbrains.idea.maven.dom.MavenDomElement;
  * http://maven.apache.org/POM/4.0.0:propertiesElemType interface.
  */
 public interface MavenDomProperties extends MavenDomElement {
-
 }

@@ -36,104 +36,103 @@ import org.jetbrains.idea.maven.dom.references.MavenDirectoryPathReferenceConver
  * </pre>
  */
 public interface MavenDomBuildBase extends MavenDomElement {
+    /**
+     * Returns the value of the defaultGoal child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:defaultGoal documentation</h3>
+     * 3.0.0+
+     * </pre>
+     *
+     * @return the value of the defaultGoal child.
+     */
+    @Nonnull
+    @Required(value = false, nonEmpty = true)
+    GenericDomValue<String> getDefaultGoal();
 
-  /**
-   * Returns the value of the defaultGoal child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:defaultGoal documentation</h3>
-   * 3.0.0+
-   * </pre>
-   *
-   * @return the value of the defaultGoal child.
-   */
-  @Nonnull
-  @Required(value = false, nonEmpty = true)
-  GenericDomValue<String> getDefaultGoal();
+    /**
+     * Returns the value of the resources child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:resources documentation</h3>
+     * 3.0.0+
+     * </pre>
+     *
+     * @return the value of the resources child.
+     */
+    @Nonnull
+    MavenDomResources getResources();
 
-  /**
-   * Returns the value of the resources child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:resources documentation</h3>
-   * 3.0.0+
-   * </pre>
-   *
-   * @return the value of the resources child.
-   */
-  @Nonnull
-  MavenDomResources getResources();
+    /**
+     * Returns the value of the testResources child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:testResources documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the testResources child.
+     */
+    @Nonnull
+    MavenDomTestResources getTestResources();
 
-  /**
-   * Returns the value of the testResources child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:testResources documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the testResources child.
-   */
-  @Nonnull
-  MavenDomTestResources getTestResources();
+    /**
+     * Returns the value of the directory child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:directory documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the directory child.
+     */
+    @Nonnull
+    @Required(value = false, nonEmpty = true)
+    @Convert(value = MavenDirectoryPathReferenceConverter.class, soft = true)
+    GenericDomValue<PathReference> getDirectory();
 
-  /**
-   * Returns the value of the directory child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:directory documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the directory child.
-   */
-  @Nonnull
-  @Required(value = false, nonEmpty = true)
-  @Convert(value = MavenDirectoryPathReferenceConverter.class, soft = true)
-  GenericDomValue<PathReference> getDirectory();
+    /**
+     * Returns the value of the finalName child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:finalName documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the finalName child.
+     */
+    @Nonnull
+    @Required(value = false, nonEmpty = true)
+    GenericDomValue<String> getFinalName();
 
-  /**
-   * Returns the value of the finalName child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:finalName documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the finalName child.
-   */
-  @Nonnull
-  @Required(value = false, nonEmpty = true)
-  GenericDomValue<String> getFinalName();
+    /**
+     * Returns the value of the filters child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:filters documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the filters child.
+     */
+    @Nonnull
+    MavenDomFilters getFilters();
 
-  /**
-   * Returns the value of the filters child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:filters documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the filters child.
-   */
-  @Nonnull
-  MavenDomFilters getFilters();
+    /**
+     * Returns the value of the pluginManagement child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:pluginManagement documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the pluginManagement child.
+     */
+    @Nonnull
+    MavenDomPluginManagement getPluginManagement();
 
-  /**
-   * Returns the value of the pluginManagement child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:pluginManagement documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the pluginManagement child.
-   */
-  @Nonnull
-  MavenDomPluginManagement getPluginManagement();
-
-  /**
-   * Returns the value of the plugins child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:plugins documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the plugins child.
-   */
-  @Nonnull
-  MavenDomPlugins getPlugins();
+    /**
+     * Returns the value of the plugins child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:plugins documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the plugins child.
+     */
+    @Nonnull
+    MavenDomPlugins getPlugins();
 }

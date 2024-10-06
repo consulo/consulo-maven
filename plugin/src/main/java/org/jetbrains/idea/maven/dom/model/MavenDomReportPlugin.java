@@ -32,76 +32,75 @@ import org.jetbrains.idea.maven.dom.MavenDomElement;
  * </pre>
  */
 public interface MavenDomReportPlugin extends MavenDomElement {
+    /**
+     * Returns the value of the groupId child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:groupId documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the groupId child.
+     */
+    @Nonnull
+    GenericDomValue<String> getGroupId();
 
-  /**
-   * Returns the value of the groupId child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:groupId documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the groupId child.
-   */
-  @Nonnull
-  GenericDomValue<String> getGroupId();
+    /**
+     * Returns the value of the artifactId child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:artifactId documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the artifactId child.
+     */
+    @Nonnull
+    GenericDomValue<String> getArtifactId();
 
-  /**
-   * Returns the value of the artifactId child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:artifactId documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the artifactId child.
-   */
-  @Nonnull
-  GenericDomValue<String> getArtifactId();
+    /**
+     * Returns the value of the version child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:version documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the version child.
+     */
+    @Nonnull
+    GenericDomValue<String> getVersion();
 
-  /**
-   * Returns the value of the version child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:version documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the version child.
-   */
-  @Nonnull
-  GenericDomValue<String> getVersion();
+    /**
+     * Returns the value of the inherited child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:inherited documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the inherited child.
+     */
+    @Nonnull
+    GenericDomValue<String> getInherited();
 
-  /**
-   * Returns the value of the inherited child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:inherited documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the inherited child.
-   */
-  @Nonnull
-  GenericDomValue<String> getInherited();
+    /**
+     * Returns the value of the configuration child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:configuration documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the configuration child.
+     */
+    @Nonnull
+    MavenDomElement getConfiguration();
 
-  /**
-   * Returns the value of the configuration child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:configuration documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the configuration child.
-   */
-  @Nonnull
-  MavenDomElement getConfiguration();
-
-  /**
-   * Returns the value of the reportSets child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:reportSets documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the reportSets child.
-   */
-  @Nonnull
-  MavenDomReportSets getReportSets();
+    /**
+     * Returns the value of the reportSets child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:reportSets documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the reportSets child.
+     */
+    @Nonnull
+    MavenDomReportSets getReportSets();
 }

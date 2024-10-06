@@ -16,9 +16,10 @@
 package org.jetbrains.idea.maven.dom.model;
 
 import javax.annotation.Nonnull;
+
 import org.jetbrains.idea.maven.dom.MavenDomElement;
 
 public interface MavenDomProfilesModel extends MavenDomElement {
-  @Nonnull
-  MavenDomProfiles getProfiles();
+    @Nonnull
+    MavenDomProfiles getProfiles();
 }

@@ -33,83 +33,83 @@ import javax.annotation.Nonnull;
  * </pre>
  */
 public interface MavenDomPlugin extends MavenDomElement, MavenDomArtifactCoordinates {
-  @Required(value = false, nonEmpty = true)
-  GenericDomValue<String> getGroupId();
+    @Required(value = false, nonEmpty = true)
+    GenericDomValue<String> getGroupId();
 
-  @Required(value = false, nonEmpty = true)
-  GenericDomValue<String> getVersion();
+    @Required(value = false, nonEmpty = true)
+    GenericDomValue<String> getVersion();
 
-  /**
-   * Returns the value of the extensions child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:extensions documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the extensions child.
-   */
-  @Nonnull
-  @Required(value = false, nonEmpty = true)
-  GenericDomValue<Boolean> getExtensions();
+    /**
+     * Returns the value of the extensions child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:extensions documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the extensions child.
+     */
+    @Nonnull
+    @Required(value = false, nonEmpty = true)
+    GenericDomValue<Boolean> getExtensions();
 
-  /**
-   * Returns the value of the executions child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:executions documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the executions child.
-   */
-  @Nonnull
-  MavenDomExecutions getExecutions();
+    /**
+     * Returns the value of the executions child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:executions documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the executions child.
+     */
+    @Nonnull
+    MavenDomExecutions getExecutions();
 
-  /**
-   * Returns the value of the dependencies child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:dependencies documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the dependencies child.
-   */
-  @Nonnull
-  MavenDomDependencies getDependencies();
+    /**
+     * Returns the value of the dependencies child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:dependencies documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the dependencies child.
+     */
+    @Nonnull
+    MavenDomDependencies getDependencies();
 
-  /**
-   * Returns the value of the goals child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:goals documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the goals child.
-   */
-  @Nonnull
-  MavenDomGoals getGoals();
+    /**
+     * Returns the value of the goals child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:goals documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the goals child.
+     */
+    @Nonnull
+    MavenDomGoals getGoals();
 
-  /**
-   * Returns the value of the inherited child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:inherited documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the inherited child.
-   */
-  @Nonnull
-  @Required(value = false, nonEmpty = true)
-  GenericDomValue<Boolean> getInherited();
+    /**
+     * Returns the value of the inherited child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:inherited documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the inherited child.
+     */
+    @Nonnull
+    @Required(value = false, nonEmpty = true)
+    GenericDomValue<Boolean> getInherited();
 
-  /**
-   * Returns the value of the configuration child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:configuration documentation</h3>
-   * 0.0.0+
-   * </pre>
-   *
-   * @return the value of the configuration child.
-   */
-  @Nonnull
-  MavenDomConfiguration getConfiguration();
+    /**
+     * Returns the value of the configuration child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:configuration documentation</h3>
+     * 0.0.0+
+     * </pre>
+     *
+     * @return the value of the configuration child.
+     */
+    @Nonnull
+    MavenDomConfiguration getConfiguration();
 }

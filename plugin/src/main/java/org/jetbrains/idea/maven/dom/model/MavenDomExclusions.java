@@ -20,6 +20,7 @@
 package org.jetbrains.idea.maven.dom.model;
 
 import javax.annotation.Nonnull;
+
 import org.jetbrains.idea.maven.dom.MavenDomElement;
 
 import java.util.List;
@@ -28,19 +29,18 @@ import java.util.List;
  * http://maven.apache.org/POM/4.0.0:exclusionsElemType interface.
  */
 public interface MavenDomExclusions extends MavenDomElement {
+    /**
+     * Returns the list of exclusion children.
+     *
+     * @return the list of exclusion children.
+     */
+    @Nonnull
+    List<MavenDomExclusion> getExclusions();
 
-  /**
-   * Returns the list of exclusion children.
-   *
-   * @return the list of exclusion children.
-   */
-  @Nonnull
-  List<MavenDomExclusion> getExclusions();
-
-  /**
-   * Adds new child to the list of exclusion children.
-   *
-   * @return created child
-   */
-  MavenDomExclusion addExclusion();
+    /**
+     * Adds new child to the list of exclusion children.
+     *
+     * @return created child
+     */
+    MavenDomExclusion addExclusion();
 }

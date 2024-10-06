@@ -24,33 +24,33 @@ import javax.annotation.Nonnull;
 import org.jetbrains.idea.maven.dom.MavenDomElement;
 
 public interface MavenDomProjectModelBase extends MavenDomElement {
-  @Nonnull
-  MavenDomBuildBase getBuild();
+    @Nonnull
+    MavenDomBuildBase getBuild();
 
-  @Nonnull
-  MavenDomModules getModules();
+    @Nonnull
+    MavenDomModules getModules();
 
-  @Nonnull
-  MavenDomRepositories getRepositories();
+    @Nonnull
+    MavenDomRepositories getRepositories();
 
-  @Nonnull
-  MavenDomPluginRepositories getPluginRepositories();
+    @Nonnull
+    MavenDomPluginRepositories getPluginRepositories();
 
-  @Nonnull
-  MavenDomDependencies getDependencies();
+    @Nonnull
+    MavenDomDependencies getDependencies();
 
-  @Nonnull
-  MavenDomReports getReports();
+    @Nonnull
+    MavenDomReports getReports();
 
-  @Nonnull
-  MavenDomReporting getReporting();
+    @Nonnull
+    MavenDomReporting getReporting();
 
-  @Nonnull
-  MavenDomDependencyManagement getDependencyManagement();
+    @Nonnull
+    MavenDomDependencyManagement getDependencyManagement();
 
-  @Nonnull
-  MavenDomDistributionManagement getDistributionManagement();
+    @Nonnull
+    MavenDomDistributionManagement getDistributionManagement();
 
-  @Nonnull
-  MavenDomProperties getProperties();
+    @Nonnull
+    MavenDomProperties getProperties();
 }

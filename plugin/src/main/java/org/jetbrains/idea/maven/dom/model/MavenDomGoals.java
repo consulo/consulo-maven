@@ -27,5 +27,5 @@ import java.util.List;
  * http://maven.apache.org/POM/4.0.0:goalsElemType interface.
  */
 public interface MavenDomGoals extends MavenDomElement {
-  List<MavenDomGoal> getGoals();
+    List<MavenDomGoal> getGoals();
 }

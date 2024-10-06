@@ -31,16 +31,15 @@ import org.jetbrains.idea.maven.dom.MavenDomElement;
  * </pre>
  */
 public interface MavenDomPluginManagement extends MavenDomElement {
-
-  /**
-   * Returns the value of the plugins child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:plugins documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the plugins child.
-   */
-  @Nonnull
-  MavenDomPlugins getPlugins();
+    /**
+     * Returns the value of the plugins child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:plugins documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the plugins child.
+     */
+    @Nonnull
+    MavenDomPlugins getPlugins();
 }

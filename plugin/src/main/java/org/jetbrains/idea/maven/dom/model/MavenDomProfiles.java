@@ -20,6 +20,7 @@
 package org.jetbrains.idea.maven.dom.model;
 
 import javax.annotation.Nonnull;
+
 import org.jetbrains.idea.maven.dom.MavenDomElement;
 
 import java.util.List;
@@ -28,19 +29,18 @@ import java.util.List;
  * http://maven.apache.org/POM/4.0.0:profilesElemType interface.
  */
 public interface MavenDomProfiles extends MavenDomElement {
+    /**
+     * Returns the list of profile children.
+     *
+     * @return the list of profile children.
+     */
+    @Nonnull
+    List<MavenDomProfile> getProfiles();
 
-  /**
-   * Returns the list of profile children.
-   *
-   * @return the list of profile children.
-   */
-  @Nonnull
-  List<MavenDomProfile> getProfiles();
-
-  /**
-   * Adds new child to the list of profile children.
-   *
-   * @return created child
-   */
-  MavenDomProfile addProfile();
+    /**
+     * Adds new child to the list of profile children.
+     *
+     * @return created child
+     */
+    MavenDomProfile addProfile();
 }
