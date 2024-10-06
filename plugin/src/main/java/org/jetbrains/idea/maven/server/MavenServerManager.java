@@ -122,7 +122,7 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
     public MavenServerManager() {
         super(null);
 
-        mySupport = new RemoteProcessSupport<Object, MavenServer, Object>(MavenServer.class) {
+        mySupport = new RemoteProcessSupport<>(MavenServer.class) {
             @Override
             protected void fireModificationCountChanged() {
             }
@@ -478,7 +478,11 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
         result.setGlobalSettingsFile(settings.getEffectiveGlobalSettingsIoFile());
         result.setLocalRepository(settings.getEffectiveLocalRepository());
         result.setPluginUpdatePolicy(settings.getPluginUpdatePolicy().getServerPolicy());
-        result.setSnapshotUpdatePolicy(settings.isAlwaysUpdateSnapshots() ? MavenServerSettings.UpdatePolicy.ALWAYS_UPDATE : MavenServerSettings.UpdatePolicy.DO_NOT_UPDATE);
+        result.setSnapshotUpdatePolicy(
+            settings.isAlwaysUpdateSnapshots()
+                ? MavenServerSettings.UpdatePolicy.ALWAYS_UPDATE
+                : MavenServerSettings.UpdatePolicy.DO_NOT_UPDATE
+        );
         return result;
     }
 

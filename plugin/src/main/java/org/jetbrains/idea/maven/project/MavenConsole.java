@@ -17,10 +17,10 @@ package org.jetbrains.idea.maven.project;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.ImmutableBiMap;
+import consulo.maven.rt.server.common.server.MavenServerConsole;
 import consulo.process.ProcessHandler;
 import org.jetbrains.idea.maven.execution.MavenExecutionOptions;
-import org.jetbrains.idea.maven.execution.RunnerBundle;
-import consulo.maven.rt.server.common.server.MavenServerConsole;
+import org.jetbrains.idea.maven.localize.MavenRunnerLocalize;
 
 import java.text.MessageFormat;
 
@@ -73,7 +73,7 @@ public abstract class MavenConsole {
     public abstract void attachToProcess(ProcessHandler processHandler);
 
     public void printException(Throwable throwable) {
-        systemMessage(MavenServerConsole.LEVEL_ERROR, RunnerBundle.message("embedded.build.failed"), throwable);
+        systemMessage(MavenServerConsole.LEVEL_ERROR, MavenRunnerLocalize.embeddedBuildFailed().get(), throwable);
     }
 
     public void systemMessage(int level, String string, Throwable throwable) {

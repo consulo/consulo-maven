@@ -1,5 +1,6 @@
 package org.jetbrains.idea.maven.plugins.api;
 
+import consulo.annotation.access.RequiredReadAction;
 import consulo.language.psi.PsiElement;
 import consulo.language.psi.PsiReference;
 import consulo.language.util.ProcessingContext;
@@ -25,12 +26,14 @@ public abstract class MavenCompletionReferenceProvider implements MavenParamRefe
         return new PsiReference[]{
             new PsiReferenceBase<>(element, true) {
                 @Override
+                @RequiredReadAction
                 public PsiElement resolve() {
                     return null;
                 }
 
                 @Nonnull
                 @Override
+                @RequiredReadAction
                 public Object[] getVariants() {
                     return MavenCompletionReferenceProvider.this.getVariants(this);
                 }

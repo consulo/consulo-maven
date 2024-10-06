@@ -19,7 +19,7 @@ import consulo.util.xml.serializer.annotation.Tag;
 
 /**
  * @author Eugene Zhuravlev
- * Date: 10/27/12
+ * @since 2012-10-27
  */
 public class MavenIdBean {
     @Tag("groupId")
@@ -57,11 +57,7 @@ public class MavenIdBean {
         if (groupId != null ? !groupId.equals(bean.groupId) : bean.groupId != null) {
             return false;
         }
-        if (version != null ? !version.equals(bean.version) : bean.version != null) {
-            return false;
-        }
-
-        return true;
+        return version != null ? version.equals(bean.version) : bean.version == null;
     }
 
     @Override

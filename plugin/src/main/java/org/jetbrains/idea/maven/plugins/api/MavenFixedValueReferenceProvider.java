@@ -1,5 +1,6 @@
 package org.jetbrains.idea.maven.plugins.api;
 
+import consulo.annotation.access.RequiredReadAction;
 import consulo.document.util.TextRange;
 import consulo.language.psi.*;
 import consulo.language.util.ProcessingContext;
@@ -24,6 +25,7 @@ public class MavenFixedValueReferenceProvider implements MavenParamReferenceProv
     }
 
     @Override
+    @RequiredReadAction
     public PsiReference[] getReferencesByElement(
         @Nonnull PsiElement element,
         @Nonnull MavenDomConfiguration domCfg,
@@ -42,6 +44,7 @@ public class MavenFixedValueReferenceProvider implements MavenParamReferenceProv
             new PsiReferenceBase<>(element, mySoft) {
                 @Nullable
                 @Override
+                @RequiredReadAction
                 public PsiElement resolve() {
                     if (mySoft) {
                         return null;
@@ -56,6 +59,7 @@ public class MavenFixedValueReferenceProvider implements MavenParamReferenceProv
 
                 @Nonnull
                 @Override
+                @RequiredReadAction
                 public Object[] getVariants() {
                     return myValues;
                 }

@@ -15,6 +15,7 @@
  */
 package org.jetbrains.idea.maven.plugins.api;
 
+import consulo.annotation.access.RequiredReadAction;
 import consulo.annotation.component.ExtensionImpl;
 import consulo.language.Language;
 import consulo.language.pattern.PlatformPatterns;
@@ -48,6 +49,7 @@ public class MavenPluginParamReferenceContributor extends PsiReferenceContributo
     private static class MavenPluginParamRefProvider extends PsiReferenceProvider {
         @Nonnull
         @Override
+        @RequiredReadAction
         public PsiReference[] getReferencesByElement(@Nonnull final PsiElement element, @Nonnull final ProcessingContext context) {
             final XmlText xmlText = (XmlText)element.getParent();
 

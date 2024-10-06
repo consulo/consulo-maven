@@ -26,7 +26,7 @@ import java.util.Set;
 
 /**
  * @author Eugene Zhuravlev
- * Date: 10/20/12
+ * @since 2012-10-20
  */
 @Tag("resource")
 public class ResourceRootConfiguration {
@@ -43,12 +43,11 @@ public class ResourceRootConfiguration {
 
     @Tag("includes")
     @AbstractCollection(surroundWithTag = false, elementTag = "pattern")
-    public Set<String> includes = new HashSet<String>();
+    public Set<String> includes = new HashSet<>();
 
     @Tag("excludes")
     @AbstractCollection(surroundWithTag = false, elementTag = "pattern")
-    public Set<String> excludes = new HashSet<String>();
-
+    public Set<String> excludes = new HashSet<>();
 
     public int computeConfigurationHash() {
         int result = directory.hashCode();

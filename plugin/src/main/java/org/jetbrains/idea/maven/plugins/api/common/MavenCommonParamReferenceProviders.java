@@ -15,6 +15,7 @@
  */
 package org.jetbrains.idea.maven.plugins.api.common;
 
+import consulo.annotation.access.RequiredReadAction;
 import consulo.language.editor.completion.lookup.LookupElement;
 import consulo.language.editor.completion.lookup.LookupElementBuilder;
 import consulo.language.psi.PsiElement;
@@ -44,6 +45,7 @@ public class MavenCommonParamReferenceProviders {
 
     public static class FilePath implements MavenParamReferenceProvider {
         @Override
+        @RequiredReadAction
         public PsiReference[] getReferencesByElement(
             @Nonnull PsiElement element,
             @Nonnull MavenDomConfiguration domCfg,
@@ -55,6 +57,7 @@ public class MavenCommonParamReferenceProviders {
 
     public static class DirPath implements MavenParamReferenceProvider {
         @Override
+        @RequiredReadAction
         public PsiReference[] getReferencesByElement(
             @Nonnull PsiElement element,
             @Nonnull MavenDomConfiguration domCfg,

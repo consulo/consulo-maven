@@ -25,16 +25,14 @@ public class MavenPluginParamInfo {
     @RequiredReadAction
     public static boolean isSimpleText(@Nonnull XmlText paramValue) {
         PsiElement prevSibling = paramValue.getPrevSibling();
-        if (!(prevSibling instanceof LeafPsiElement) || ((LeafPsiElement)prevSibling).getElementType() != XmlTokenType.XML_TAG_END) {
+        if (!(prevSibling instanceof LeafPsiElement prevLeafPsiElement
+            && prevLeafPsiElement.getElementType() == XmlTokenType.XML_TAG_END)) {
             return false;
         }
 
         PsiElement nextSibling = paramValue.getNextSibling();
-        if (!(nextSibling instanceof LeafPsiElement) || ((LeafPsiElement)nextSibling).getElementType() != XmlTokenType.XML_END_TAG_START) {
-            return false;
-        }
-
-        return true;
+        return nextSibling instanceof LeafPsiElement nextLeafPsiElement
+            && nextLeafPsiElement.getElementType() == XmlTokenType.XML_END_TAG_START;
     }
 
     public static void processParamInfo(

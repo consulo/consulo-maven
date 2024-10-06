@@ -15,6 +15,7 @@
  */
 package org.jetbrains.idea.maven.plugins.api;
 
+import consulo.annotation.access.RequiredReadAction;
 import consulo.annotation.component.ExtensionImpl;
 import consulo.document.util.TextRange;
 import consulo.language.Language;
@@ -31,6 +32,7 @@ import javax.annotation.Nonnull;
 @ExtensionImpl
 public final class MavenPluginConfigurationLanguageInjector implements LanguageInjector {
     @Override
+    @RequiredReadAction
     public void injectLanguages(
         @Nonnull final PsiLanguageInjectionHost host,
         @Nonnull final InjectedLanguagePlaces injectionPlacesRegistrar

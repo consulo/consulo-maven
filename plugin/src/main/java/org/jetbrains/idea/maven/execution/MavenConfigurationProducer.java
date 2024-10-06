@@ -15,8 +15,8 @@
  */
 
 /*
- * User: anna
- * Date: 13-May-2010
+ * @author anna
+ * @since 2010-05-13
  */
 package org.jetbrains.idea.maven.execution;
 

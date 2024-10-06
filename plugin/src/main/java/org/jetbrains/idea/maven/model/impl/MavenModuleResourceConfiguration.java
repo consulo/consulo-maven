@@ -28,7 +28,7 @@ import java.util.*;
 
 /**
  * @author Eugene Zhuravlev
- * Date: 10/20/12
+ * @since 2012-10-20
  */
 public class MavenModuleResourceConfiguration {
     @Nonnull
@@ -49,11 +49,11 @@ public class MavenModuleResourceConfiguration {
 
     @Tag("model-map")
     @MapAnnotation(surroundWithTag = false, surroundKeyWithTag = false, surroundValueWithTag = false)
-    public Map<String, String> modelMap = new HashMap<String, String>();
+    public Map<String, String> modelMap = new HashMap<>();
 
     @Tag("properties")
     @MapAnnotation(surroundWithTag = false, surroundKeyWithTag = false, surroundValueWithTag = false)
-    public Map<String, String> properties = new HashMap<String, String>();
+    public Map<String, String> properties = new HashMap<>();
 
     @Tag("filtering-excluded-extensions")
     @AbstractCollection(surroundWithTag = false, elementTag = "extension")
@@ -67,11 +67,11 @@ public class MavenModuleResourceConfiguration {
 
     @Tag("resources")
     @AbstractCollection(surroundWithTag = false, elementTag = "resource")
-    public List<ResourceRootConfiguration> resources = new ArrayList<ResourceRootConfiguration>();
+    public List<ResourceRootConfiguration> resources = new ArrayList<>();
 
     @Tag("test-resources")
     @AbstractCollection(surroundWithTag = false, elementTag = "resource")
-    public List<ResourceRootConfiguration> testResources = new ArrayList<ResourceRootConfiguration>();
+    public List<ResourceRootConfiguration> testResources = new ArrayList<>();
 
     public Set<String> getFilteringExcludedExtensions() {
         if (filteringExclusions.isEmpty()) {
