@@ -39,61 +39,63 @@ import java.nio.charset.Charset;
  * @author Sergey Evdokimov
  */
 public class MavenCommonParamReferenceProviders {
-
-  private MavenCommonParamReferenceProviders() {
-  }
-
-  public static class FilePath implements MavenParamReferenceProvider {
-    @Override
-    public PsiReference[] getReferencesByElement(@Nonnull PsiElement element,
-												 @Nonnull MavenDomConfiguration domCfg,
-												 @Nonnull ProcessingContext context) {
-      return MavenPathReferenceConverter.createReferences(domCfg, element, Condition.TRUE);
+    private MavenCommonParamReferenceProviders() {
     }
-  }
 
-  public static class DirPath implements MavenParamReferenceProvider {
-    @Override
-    public PsiReference[] getReferencesByElement(@Nonnull PsiElement element,
-																	  @Nonnull MavenDomConfiguration domCfg,
-																	  @Nonnull ProcessingContext context) {
-      return MavenPathReferenceConverter.createReferences(domCfg, element, FileReferenceSet.DIRECTORY_FILTER);
+    public static class FilePath implements MavenParamReferenceProvider {
+        @Override
+        public PsiReference[] getReferencesByElement(
+            @Nonnull PsiElement element,
+            @Nonnull MavenDomConfiguration domCfg,
+            @Nonnull ProcessingContext context
+        ) {
+            return MavenPathReferenceConverter.createReferences(domCfg, element, Condition.TRUE);
+        }
     }
-  }
 
-  public static class DependencyWithoutVersion extends MavenDependencyReferenceProvider {
-    public DependencyWithoutVersion() {
-      setCanHasVersion(false);
+    public static class DirPath implements MavenParamReferenceProvider {
+        @Override
+        public PsiReference[] getReferencesByElement(
+            @Nonnull PsiElement element,
+            @Nonnull MavenDomConfiguration domCfg,
+            @Nonnull ProcessingContext context
+        ) {
+            return MavenPathReferenceConverter.createReferences(domCfg, element, FileReferenceSet.DIRECTORY_FILTER);
+        }
     }
-  }
 
-  public static class Encoding extends MavenCompletionReferenceProvider {
-
-    @Override
-    protected Object[] getVariants(@Nonnull PsiReferenceBase reference) {
-      Charset[] charsets = CharsetToolkit.getAvailableCharsets();
-
-      LookupElement[] res = new LookupElement[charsets.length];
-      for (int i = 0; i < charsets.length; i++) {
-        res[i] = LookupElementBuilder.create(charsets[i].name()).withCaseSensitivity(false);
-      }
-
-      return res;
+    public static class DependencyWithoutVersion extends MavenDependencyReferenceProvider {
+        public DependencyWithoutVersion() {
+            setCanHasVersion(false);
+        }
     }
-  }
 
-  public static class Goal extends MavenCompletionReferenceProvider {
-    @Override
-    protected Object[] getVariants(@Nonnull PsiReferenceBase reference) {
-      return MavenUtil.getPhaseVariants(MavenProjectsManager.getInstance(reference.getElement().getProject())).toArray();
+    public static class Encoding extends MavenCompletionReferenceProvider {
+
+        @Override
+        protected Object[] getVariants(@Nonnull PsiReferenceBase reference) {
+            Charset[] charsets = CharsetToolkit.getAvailableCharsets();
+
+            LookupElement[] res = new LookupElement[charsets.length];
+            for (int i = 0; i < charsets.length; i++) {
+                res[i] = LookupElementBuilder.create(charsets[i].name()).withCaseSensitivity(false);
+            }
+
+            return res;
+        }
     }
-  }
 
-  public static class Profile extends MavenCompletionReferenceProvider {
-    @Override
-    protected Object[] getVariants(@Nonnull PsiReferenceBase reference) {
-      return MavenProjectsManager.getInstance(reference.getElement().getProject()).getAvailableProfiles().toArray();
+    public static class Goal extends MavenCompletionReferenceProvider {
+        @Override
+        protected Object[] getVariants(@Nonnull PsiReferenceBase reference) {
+            return MavenUtil.getPhaseVariants(MavenProjectsManager.getInstance(reference.getElement().getProject())).toArray();
+        }
     }
-  }
 
+    public static class Profile extends MavenCompletionReferenceProvider {
+        @Override
+        protected Object[] getVariants(@Nonnull PsiReferenceBase reference) {
+            return MavenProjectsManager.getInstance(reference.getElement().getProject()).getAvailableProfiles().toArray();
+        }
+    }
 }

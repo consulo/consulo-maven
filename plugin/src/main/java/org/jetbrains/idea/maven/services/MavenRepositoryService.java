@@ -16,6 +16,7 @@
 package org.jetbrains.idea.maven.services;
 
 import javax.annotation.Nonnull;
+
 import consulo.maven.rt.server.common.model.MavenArtifactInfo;
 import consulo.maven.rt.server.common.model.MavenRepositoryInfo;
 
@@ -26,17 +27,16 @@ import java.util.List;
  * @author Gregory.Shrago
  */
 public abstract class MavenRepositoryService {
-  @Nonnull
-  public abstract String getDisplayName();
+    @Nonnull
+    public abstract String getDisplayName();
 
-  @Nonnull
-  public abstract List<MavenRepositoryInfo> getRepositories(@Nonnull String url) throws IOException;
+    @Nonnull
+    public abstract List<MavenRepositoryInfo> getRepositories(@Nonnull String url) throws IOException;
 
-  @Nonnull
-  public abstract List<MavenArtifactInfo> findArtifacts(@Nonnull String url, @Nonnull MavenArtifactInfo template) throws IOException;
+    @Nonnull
+    public abstract List<MavenArtifactInfo> findArtifacts(@Nonnull String url, @Nonnull MavenArtifactInfo template) throws IOException;
 
-
-  public final String toString() {
-    return getDisplayName();
-  }
+    public final String toString() {
+        return getDisplayName();
+    }
 }

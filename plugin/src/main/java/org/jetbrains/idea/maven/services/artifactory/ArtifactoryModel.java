@@ -19,52 +19,52 @@ package org.jetbrains.idea.maven.services.artifactory;
  * @author Gregory.Shrago
  */
 public class ArtifactoryModel {
-  public static class RepositoryType {
-    public String key;
-    public String type;
-    public String description;
-    public String url;
-    public String configuration;
-  }
+    public static class RepositoryType {
+        public String key;
+        public String type;
+        public String description;
+        public String url;
+        public String configuration;
+    }
 
-  public static class GavcResults {
-    public GavcResult[] results;
-  }
+    public static class GavcResults {
+        public GavcResult[] results;
+    }
 
-  public static class GavcResult {
-    public String uri;
-  }
+    public static class GavcResult {
+        public String uri;
+    }
 
-  public static class ArchiveResults {
-    public ArchiveResult[] results;
-  }
+    public static class ArchiveResults {
+        public ArchiveResult[] results;
+    }
 
-  public static class ArchiveResult {
-    public String entry;
-    public String[] archiveUris;
-  }
+    public static class ArchiveResult {
+        public String entry;
+        public String[] archiveUris;
+    }
 
-  public static class FileInfo {
-    public String uri;
-    public String downloadUri;
-    public String metadataUri;
-    public String repo;
-    public String path;
-    public String remoteUrl;
-    public String created;
-    public String createdBy;
-    public String lastModified;
-    public String modifiedBy;
-    public String lastUpdated;
-    public String size;
-    public String mimeType;
-    public Checksums checksums;
-    public Checksums originalChecksums;
-  }
+    public static class FileInfo {
+        public String uri;
+        public String downloadUri;
+        public String metadataUri;
+        public String repo;
+        public String path;
+        public String remoteUrl;
+        public String created;
+        public String createdBy;
+        public String lastModified;
+        public String modifiedBy;
+        public String lastUpdated;
+        public String size;
+        public String mimeType;
+        public Checksums checksums;
+        public Checksums originalChecksums;
+    }
 
-  public static class Checksums {
-    public String md5;
-    public String sha1;
-  }
+    public static class Checksums {
+        public String md5;
+        public String sha1;
+    }
 }
 

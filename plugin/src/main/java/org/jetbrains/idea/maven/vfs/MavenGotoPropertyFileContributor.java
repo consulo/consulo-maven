@@ -27,30 +27,24 @@ import consulo.virtualFileSystem.VirtualFile;
 import javax.annotation.Nonnull;
 
 @ExtensionImpl
-public class MavenGotoPropertyFileContributor implements GotoFileContributor
-{
-	@Nonnull
-	public String[] getNames(Project project, boolean includeNonProjectItems)
-	{
-		if(!includeNonProjectItems)
-		{
-			return ArrayUtil.EMPTY_STRING_ARRAY;
-		}
-		return MavenPropertiesVirtualFileSystem.PROPERTIES_FILES;
-	}
+public class MavenGotoPropertyFileContributor implements GotoFileContributor {
+    @Nonnull
+    public String[] getNames(Project project, boolean includeNonProjectItems) {
+        if (!includeNonProjectItems) {
+            return ArrayUtil.EMPTY_STRING_ARRAY;
+        }
+        return MavenPropertiesVirtualFileSystem.PROPERTIES_FILES;
+    }
 
-	@Nonnull
-	public NavigationItem[] getItemsByName(String name, String pattern, Project project, boolean includeNonProjectItems)
-	{
-		VirtualFile file = MavenPropertiesVirtualFileSystem.getInstance().findFileByPath(name);
-		if(file != null)
-		{
-			PsiFile psiFile = PsiManager.getInstance(project).findFile(file);
-			if(psiFile != null)
-			{
-				return new NavigationItem[]{psiFile};
-			}
-		}
-		return NavigationItem.EMPTY_NAVIGATION_ITEM_ARRAY;
-	}
+    @Nonnull
+    public NavigationItem[] getItemsByName(String name, String pattern, Project project, boolean includeNonProjectItems) {
+        VirtualFile file = MavenPropertiesVirtualFileSystem.getInstance().findFileByPath(name);
+        if (file != null) {
+            PsiFile psiFile = PsiManager.getInstance(project).findFile(file);
+            if (psiFile != null) {
+                return new NavigationItem[]{psiFile};
+            }
+        }
+        return NavigationItem.EMPTY_NAVIGATION_ITEM_ARRAY;
+    }
 }

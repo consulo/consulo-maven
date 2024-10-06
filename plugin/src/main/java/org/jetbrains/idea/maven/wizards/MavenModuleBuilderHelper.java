@@ -52,240 +52,213 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
 
-public class MavenModuleBuilderHelper
-{
-	private final MavenId myProjectId;
+public class MavenModuleBuilderHelper {
+    private final MavenId myProjectId;
 
-	private final MavenProject myAggregatorProject;
-	private final MavenProject myParentProject;
+    private final MavenProject myAggregatorProject;
+    private final MavenProject myParentProject;
 
-	private final boolean myInheritGroupId;
-	private final boolean myInheritVersion;
+    private final boolean myInheritGroupId;
+    private final boolean myInheritVersion;
 
-	private final MavenArchetype myArchetype;
-	private final Map<String, String> myPropertiesToCreateByArtifact;
+    private final MavenArchetype myArchetype;
+    private final Map<String, String> myPropertiesToCreateByArtifact;
 
-	private final String myCommandName;
+    private final String myCommandName;
 
-	public MavenModuleBuilderHelper(@Nonnull MavenId projectId,
-			MavenProject aggregatorProject,
-			MavenProject parentProject,
-			boolean inheritGroupId,
-			boolean inheritVersion,
-			MavenArchetype archetype,
-			Map<String, String> propertiesToCreateByArtifact,
-			String commaneName)
-	{
-		myProjectId = projectId;
-		myAggregatorProject = aggregatorProject;
-		myParentProject = parentProject;
-		myInheritGroupId = inheritGroupId;
-		myInheritVersion = inheritVersion;
-		myArchetype = archetype;
-		myPropertiesToCreateByArtifact = propertiesToCreateByArtifact;
-		myCommandName = commaneName;
-	}
+    public MavenModuleBuilderHelper(
+        @Nonnull MavenId projectId,
+        MavenProject aggregatorProject,
+        MavenProject parentProject,
+        boolean inheritGroupId,
+        boolean inheritVersion,
+        MavenArchetype archetype,
+        Map<String, String> propertiesToCreateByArtifact,
+        String commaneName
+    ) {
+        myProjectId = projectId;
+        myAggregatorProject = aggregatorProject;
+        myParentProject = parentProject;
+        myInheritGroupId = inheritGroupId;
+        myInheritVersion = inheritVersion;
+        myArchetype = archetype;
+        myPropertiesToCreateByArtifact = propertiesToCreateByArtifact;
+        myCommandName = commaneName;
+    }
 
-	public void configure(final Project project, final VirtualFile root, final boolean isInteractive)
-	{
-		PsiFile[] psiFiles = myAggregatorProject != null ? new PsiFile[]{getPsiFile(project, myAggregatorProject.getFile())} : PsiFile.EMPTY_ARRAY;
-		final VirtualFile pom = new WriteCommandAction<VirtualFile>(project, myCommandName, psiFiles)
-		{
-			@Override
-			protected void run(Result<VirtualFile> result) throws Throwable
-			{
-				VirtualFile file;
-				try
-				{
-					file = root.createChildData(this, MavenConstants.POM_XML);
-					MavenUtil.runOrApplyMavenProjectFileTemplate(project, file, myProjectId, isInteractive);
-					result.setResult(file);
-				}
-				catch(IOException e)
-				{
-					showError(project, e);
-					return;
-				}
+    public void configure(final Project project, final VirtualFile root, final boolean isInteractive) {
+        PsiFile[] psiFiles =
+            myAggregatorProject != null ? new PsiFile[]{getPsiFile(project, myAggregatorProject.getFile())} : PsiFile.EMPTY_ARRAY;
+        final VirtualFile pom = new WriteCommandAction<VirtualFile>(project, myCommandName, psiFiles) {
+            @Override
+            protected void run(Result<VirtualFile> result) throws Throwable {
+                VirtualFile file;
+                try {
+                    file = root.createChildData(this, MavenConstants.POM_XML);
+                    MavenUtil.runOrApplyMavenProjectFileTemplate(project, file, myProjectId, isInteractive);
+                    result.setResult(file);
+                }
+                catch (IOException e) {
+                    showError(project, e);
+                    return;
+                }
 
-				updateProjectPom(project, file);
+                updateProjectPom(project, file);
 
-				if(myAggregatorProject != null)
-				{
-					MavenDomProjectModel model = MavenDomUtil.getMavenDomProjectModel(project, myAggregatorProject.getFile());
-					model.getPackaging().setStringValue("pom");
-					MavenDomModule module = model.getModules().addModule();
-					module.setValue(getPsiFile(project, file));
-				}
-			}
-		}.execute().getResultObject();
+                if (myAggregatorProject != null) {
+                    MavenDomProjectModel model = MavenDomUtil.getMavenDomProjectModel(project, myAggregatorProject.getFile());
+                    model.getPackaging().setStringValue("pom");
+                    MavenDomModule module = model.getModules().addModule();
+                    module.setValue(getPsiFile(project, file));
+                }
+            }
+        }.execute().getResultObject();
 
-		if(pom == null)
-		{
-			return;
-		}
+        if (pom == null) {
+            return;
+        }
 
-		if(myAggregatorProject == null)
-		{
-			MavenProjectsManager manager = MavenProjectsManager.getInstance(project);
-			manager.addManagedFiles(Collections.singletonList(pom));
-		}
+        if (myAggregatorProject == null) {
+            MavenProjectsManager manager = MavenProjectsManager.getInstance(project);
+            manager.addManagedFiles(Collections.singletonList(pom));
+        }
 
-		if(myArchetype == null)
-		{
-			try
-			{
-				VirtualFileUtil.createDirectories(root.getPath() + "/src/main/java");
-				VirtualFileUtil.createDirectories(root.getPath() + "/src/main/resources");
-				VirtualFileUtil.createDirectories(root.getPath() + "/src/test/java");
-			}
-			catch(IOException e)
-			{
-				MavenLog.LOG.info(e);
-			}
-		}
+        if (myArchetype == null) {
+            try {
+                VirtualFileUtil.createDirectories(root.getPath() + "/src/main/java");
+                VirtualFileUtil.createDirectories(root.getPath() + "/src/main/resources");
+                VirtualFileUtil.createDirectories(root.getPath() + "/src/test/java");
+            }
+            catch (IOException e) {
+                MavenLog.LOG.info(e);
+            }
+        }
 
-		// execute when current dialog is closed (e.g. Project Structure)
-		MavenUtil.invokeLater(project, Application.get().getNoneModalityState(), new Runnable()
-		{
-			public void run()
-			{
-				if(!pom.isValid())
-				{
-					return;
-				}
+        // execute when current dialog is closed (e.g. Project Structure)
+        MavenUtil.invokeLater(project, Application.get().getNoneModalityState(), new Runnable() {
+            public void run() {
+                if (!pom.isValid()) {
+                    return;
+                }
 
-				EditorHelper.openInEditor(getPsiFile(project, pom));
-				if(myArchetype != null)
-				{
-					generateFromArchetype(project, pom);
-				}
-			}
-		});
-	}
+                EditorHelper.openInEditor(getPsiFile(project, pom));
+                if (myArchetype != null) {
+                    generateFromArchetype(project, pom);
+                }
+            }
+        });
+    }
 
-	private void updateProjectPom(final Project project, final VirtualFile pom)
-	{
-		if(myParentProject == null)
-		{
-			return;
-		}
+    private void updateProjectPom(final Project project, final VirtualFile pom) {
+        if (myParentProject == null) {
+            return;
+        }
 
-		new WriteCommandAction.Simple(project, myCommandName)
-		{
-			protected void run() throws Throwable
-			{
-				MavenDomProjectModel model = MavenDomUtil.getMavenDomProjectModel(project, pom);
-				if(model == null)
-				{
-					return;
-				}
+        new WriteCommandAction.Simple(project, myCommandName) {
+            protected void run() throws Throwable {
+                MavenDomProjectModel model = MavenDomUtil.getMavenDomProjectModel(project, pom);
+                if (model == null) {
+                    return;
+                }
 
-				MavenDomUtil.updateMavenParent(model, myParentProject);
+                MavenDomUtil.updateMavenParent(model, myParentProject);
 
-				if(myInheritGroupId)
-				{
-					XmlElement el = model.getGroupId().getXmlElement();
-					if(el != null)
-					{
-						el.delete();
-					}
-				}
-				if(myInheritVersion)
-				{
-					XmlElement el = model.getVersion().getXmlElement();
-					if(el != null)
-					{
-						el.delete();
-					}
-				}
+                if (myInheritGroupId) {
+                    XmlElement el = model.getGroupId().getXmlElement();
+                    if (el != null) {
+                        el.delete();
+                    }
+                }
+                if (myInheritVersion) {
+                    XmlElement el = model.getVersion().getXmlElement();
+                    if (el != null) {
+                        el.delete();
+                    }
+                }
 
-				CodeStyleManager.getInstance(project).reformat(getPsiFile(project, pom));
+                CodeStyleManager.getInstance(project).reformat(getPsiFile(project, pom));
 
-				pom.putUserData(MavenProjectsManagerWatcher.FORCE_IMPORT_AND_RESOLVE_ON_REFRESH, Boolean.TRUE);
-				try
-				{
-					Document doc = FileDocumentManager.getInstance().getDocument(pom);
-					PsiDocumentManager.getInstance(project).doPostponedOperationsAndUnblockDocument(doc);
-					FileDocumentManager.getInstance().saveDocument(doc);
-				}
-				finally
-				{
-					pom.putUserData(MavenProjectsManagerWatcher.FORCE_IMPORT_AND_RESOLVE_ON_REFRESH, null);
-				}
-			}
-		}.execute();
-	}
+                pom.putUserData(MavenProjectsManagerWatcher.FORCE_IMPORT_AND_RESOLVE_ON_REFRESH, Boolean.TRUE);
+                try {
+                    Document doc = FileDocumentManager.getInstance().getDocument(pom);
+                    PsiDocumentManager.getInstance(project).doPostponedOperationsAndUnblockDocument(doc);
+                    FileDocumentManager.getInstance().saveDocument(doc);
+                }
+                finally {
+                    pom.putUserData(MavenProjectsManagerWatcher.FORCE_IMPORT_AND_RESOLVE_ON_REFRESH, null);
+                }
+            }
+        }.execute();
+    }
 
-	private PsiFile getPsiFile(Project project, VirtualFile pom)
-	{
-		return PsiManager.getInstance(project).findFile(pom);
-	}
+    private PsiFile getPsiFile(Project project, VirtualFile pom) {
+        return PsiManager.getInstance(project).findFile(pom);
+    }
 
-	private void generateFromArchetype(final Project project, final VirtualFile pom)
-	{
-		final File workingDir;
-		try
-		{
-			workingDir = FileUtil.createTempDirectory("archetype", "tmp");
-			workingDir.deleteOnExit();
-		}
-		catch(IOException e)
-		{
-			showError(project, e);
-			return;
-		}
+    private void generateFromArchetype(final Project project, final VirtualFile pom) {
+        final File workingDir;
+        try {
+            workingDir = FileUtil.createTempDirectory("archetype", "tmp");
+            workingDir.deleteOnExit();
+        }
+        catch (IOException e) {
+            showError(project, e);
+            return;
+        }
 
-		MavenRunnerParameters params = new MavenRunnerParameters(false, workingDir.getPath(), Collections.singletonList("org.apache.maven.plugins:maven-archetype-plugin:RELEASE:generate"),
-				Collections.<String>emptyList());
+        MavenRunnerParameters params = new MavenRunnerParameters(
+            false,
+            workingDir.getPath(),
+            Collections.singletonList("org.apache.maven.plugins:maven-archetype-plugin:RELEASE:generate"),
+            Collections.<String>emptyList()
+        );
 
 
-		MavenRunner runner = MavenRunner.getInstance(project);
-		MavenRunnerSettings settings = runner.getState().clone();
-		Map<String, String> props = settings.getMavenProperties();
+        MavenRunner runner = MavenRunner.getInstance(project);
+        MavenRunnerSettings settings = runner.getState().clone();
+        Map<String, String> props = settings.getMavenProperties();
 
-		props.put("interactiveMode", "false");
-		//props.put("archetypeGroupId", myArchetype.groupId);
-		//props.put("archetypeArtifactId", myArchetype.artifactId);
-		//props.put("archetypeVersion", myArchetype.version);
-		//if (myArchetype.repository != null) props.put("archetypeRepository", myArchetype.repository);
+        props.put("interactiveMode", "false");
+        //props.put("archetypeGroupId", myArchetype.groupId);
+        //props.put("archetypeArtifactId", myArchetype.artifactId);
+        //props.put("archetypeVersion", myArchetype.version);
+        //if (myArchetype.repository != null) props.put("archetypeRepository", myArchetype.repository);
 
-		//props.put("groupId", myProjectId.getGroupId());
-		//props.put("artifactId", myProjectId.getArtifactId());
-		//props.put("version", myProjectId.getVersion());
+        //props.put("groupId", myProjectId.getGroupId());
+        //props.put("artifactId", myProjectId.getArtifactId());
+        //props.put("version", myProjectId.getVersion());
 
-		props.putAll(myPropertiesToCreateByArtifact);
+        props.putAll(myPropertiesToCreateByArtifact);
 
-		runner.run(params, settings, new Runnable()
-		{
-			public void run()
-			{
-				copyGeneratedFiles(workingDir, pom, project);
-			}
-		});
-	}
+        runner.run(
+            params,
+            settings,
+            new Runnable() {
+                public void run() {
+                    copyGeneratedFiles(workingDir, pom, project);
+                }
+            }
+        );
+    }
 
-	private void copyGeneratedFiles(File workingDir, VirtualFile pom, Project project)
-	{
-		try
-		{
-			FileUtil.copyDir(new File(workingDir, myProjectId.getArtifactId()), new File(pom.getParent().getPath()));
-		}
-		catch(IOException e)
-		{
-			showError(project, e);
-			return;
-		}
+    private void copyGeneratedFiles(File workingDir, VirtualFile pom, Project project) {
+        try {
+            FileUtil.copyDir(new File(workingDir, myProjectId.getArtifactId()), new File(pom.getParent().getPath()));
+        }
+        catch (IOException e) {
+            showError(project, e);
+            return;
+        }
 
-		FileUtil.delete(workingDir);
+        FileUtil.delete(workingDir);
 
-		pom.refresh(false, false);
-		updateProjectPom(project, pom);
+        pom.refresh(false, false);
+        updateProjectPom(project, pom);
 
-		LocalFileSystem.getInstance().refreshWithoutFileWatcher(true);
-	}
+        LocalFileSystem.getInstance().refreshWithoutFileWatcher(true);
+    }
 
-	private void showError(Project project, Throwable e)
-	{
-		MavenUtil.showError(project, "Failed to create a Maven project", e);
-	}
+    private void showError(Project project, Throwable e) {
+        MavenUtil.showError(project, "Failed to create a Maven project", e);
+    }
 }

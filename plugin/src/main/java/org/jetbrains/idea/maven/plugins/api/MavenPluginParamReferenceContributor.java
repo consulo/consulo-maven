@@ -34,67 +34,57 @@ import java.util.function.BiPredicate;
  * @author Sergey Evdokimov
  */
 @ExtensionImpl
-public class MavenPluginParamReferenceContributor extends PsiReferenceContributor
-{
-	@Override
-	public void registerReferenceProviders(PsiReferenceRegistrar registrar)
-	{
-		registrar.registerReferenceProvider(
-				PlatformPatterns.psiElement(XmlTokenType.XML_DATA_CHARACTERS).withParent(
-						XmlPatterns.xmlText().inFile(XmlPatterns.xmlFile().withName("pom.xml"))
-				),
-				new MavenPluginParamRefProvider());
-	}
+public class MavenPluginParamReferenceContributor extends PsiReferenceContributor {
+    @Override
+    public void registerReferenceProviders(PsiReferenceRegistrar registrar) {
+        registrar.registerReferenceProvider(
+            PlatformPatterns.psiElement(XmlTokenType.XML_DATA_CHARACTERS).withParent(
+                XmlPatterns.xmlText().inFile(XmlPatterns.xmlFile().withName("pom.xml"))
+            ),
+            new MavenPluginParamRefProvider()
+        );
+    }
 
-	private static class MavenPluginParamRefProvider extends PsiReferenceProvider
-	{
+    private static class MavenPluginParamRefProvider extends PsiReferenceProvider {
+        @Nonnull
+        @Override
+        public PsiReference[] getReferencesByElement(@Nonnull final PsiElement element, @Nonnull final ProcessingContext context) {
+            final XmlText xmlText = (XmlText)element.getParent();
 
-		@Nonnull
-		@Override
-		public PsiReference[] getReferencesByElement(@Nonnull final PsiElement element, @Nonnull final ProcessingContext context)
-		{
-			final XmlText xmlText = (XmlText) element.getParent();
+            if (!MavenPluginParamInfo.isSimpleText(xmlText)) {
+                return PsiReference.EMPTY_ARRAY;
+            }
 
-			if(!MavenPluginParamInfo.isSimpleText(xmlText))
-			{
-				return PsiReference.EMPTY_ARRAY;
-			}
+            class MyProcessor implements BiPredicate<MavenPluginDescriptorParam, MavenDomConfiguration> {
+                PsiReference[] result;
 
-			class MyProcessor implements BiPredicate<MavenPluginDescriptorParam, MavenDomConfiguration>
-			{
-				PsiReference[] result;
+                @Override
+                public boolean test(MavenPluginDescriptorParam info, MavenDomConfiguration domCfg) {
+                    MavenParamReferenceProvider providerInstance = info.getRefProvider();
+                    if (providerInstance != null) {
+                        result = providerInstance.getReferencesByElement(xmlText, domCfg, context);
+                        return false;
+                    }
 
-				@Override
-				public boolean test(MavenPluginDescriptorParam info, MavenDomConfiguration domCfg)
-				{
-					MavenParamReferenceProvider providerInstance = info.getRefProvider();
-					if(providerInstance != null)
-					{
-						result = providerInstance.getReferencesByElement(xmlText, domCfg, context);
-						return false;
-					}
+                    return true;
+                }
+            }
 
-					return true;
-				}
-			}
+            MyProcessor processor = new MyProcessor();
 
-			MyProcessor processor = new MyProcessor();
+            MavenPluginParamInfo.processParamInfo(xmlText, processor);
 
-			MavenPluginParamInfo.processParamInfo(xmlText, processor);
+            if (processor.result != null) {
+                return processor.result;
+            }
 
-			if(processor.result != null)
-			{
-				return processor.result;
-			}
+            return PsiReference.EMPTY_ARRAY;
+        }
+    }
 
-			return PsiReference.EMPTY_ARRAY;
-		}
-	}
-
-	@Nonnull
-	@Override
-	public Language getLanguage()
-	{
-		return XMLLanguage.INSTANCE;
-	}
+    @Nonnull
+    @Override
+    public Language getLanguage() {
+        return XMLLanguage.INSTANCE;
+    }
 }

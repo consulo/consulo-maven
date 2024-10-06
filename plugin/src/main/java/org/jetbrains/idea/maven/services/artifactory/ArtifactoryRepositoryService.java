@@ -19,6 +19,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 
 import javax.annotation.Nonnull;
+
 import consulo.maven.rt.server.common.model.MavenArtifactInfo;
 import consulo.maven.rt.server.common.model.MavenRepositoryInfo;
 import consulo.util.lang.StringUtil;
@@ -36,97 +37,104 @@ import java.util.List;
  * @author Gregory.Shrago
  */
 public class ArtifactoryRepositoryService extends MavenRepositoryService {
-  @Nonnull
-  @Override
-  public String getDisplayName() {
-    return "Artifactory";
-  }
-
-  @Nonnull
-  @Override
-  public List<MavenRepositoryInfo> getRepositories(@Nonnull String url) throws IOException {
-    try {
-      final Gson gson = new Gson();
-      final InputStreamReader stream =
-        new InputStreamReader(new Endpoint.Repositories(url).getRepositoryDetailsListJson(null).getInputStream());
-      final ArtifactoryModel.RepositoryType[] repos = gson.fromJson(stream, ArtifactoryModel.RepositoryType[].class);
-      final List<MavenRepositoryInfo> result = new ArrayList<MavenRepositoryInfo>(repos.length);
-      for (ArtifactoryModel.RepositoryType repo : repos) {
-        result.add(convert(repo));
-      }
-      return result;
+    @Nonnull
+    @Override
+    public String getDisplayName() {
+        return "Artifactory";
     }
-    catch (JsonSyntaxException e) {
-      return Collections.emptyList();
-    }
-    catch (Exception e) {
-      throw new IOException(e);
-    }
-  }
 
-  private static MavenRepositoryInfo convert(ArtifactoryModel.RepositoryType repo) {
-    return new MavenRepositoryInfo(repo.key, repo.description, repo.url);
-  }
-
-  @Nonnull
-  @Override
-  public List<MavenArtifactInfo> findArtifacts(@Nonnull String url, @Nonnull MavenArtifactInfo template) throws IOException {
-    try {
-      final String packaging = StringUtil.notNullize(template.getPackaging());
-      final ArrayList<MavenArtifactInfo> artifacts = new ArrayList<MavenArtifactInfo>();
-      final Gson gson = new Gson();
-      final String className = template.getClassNames();
-      if (className == null || className.length() == 0) {
-        final String name = StringUtil.join(Arrays.asList(template.getGroupId(), template.getArtifactId(), template.getVersion()), ":");
-        final InputStream stream = new Endpoint.Search.Artifact(url).getArtifactSearchResultJson(name, null).getInputStream();
-
-        final ArtifactoryModel.GavcResults results = stream == null? null : gson.fromJson(new InputStreamReader(stream), ArtifactoryModel.GavcResults.class);
-        if (results != null && results.results != null) {
-          for (ArtifactoryModel.GavcResult result : results.results) {
-            if (!result.uri.endsWith(packaging)) continue;
-            artifacts.add(convertArtifactInfo(result.uri, url, null));
-          }
-        }
-      }
-      else {
-        // IDEA-58225
-        final String searchString = className.endsWith("*") || className.endsWith("?") ? className : className + ".class";
-        final InputStream stream = new Endpoint.Search.Archive(url).getArchiveSearchResultJson(searchString, null).getInputStream();
-
-        final ArtifactoryModel.ArchiveResults results = stream == null? null : gson.fromJson(new InputStreamReader(stream), ArtifactoryModel.ArchiveResults.class);
-        if (results != null && results.results != null) {
-          for (ArtifactoryModel.ArchiveResult result : results.results) {
-            for (String uri : result.archiveUris) {
-              if (!uri.endsWith(packaging)) continue;
-              artifacts.add(convertArtifactInfo(uri, url, result.entry));
+    @Nonnull
+    @Override
+    public List<MavenRepositoryInfo> getRepositories(@Nonnull String url) throws IOException {
+        try {
+            final Gson gson = new Gson();
+            final InputStreamReader stream =
+                new InputStreamReader(new Endpoint.Repositories(url).getRepositoryDetailsListJson(null).getInputStream());
+            final ArtifactoryModel.RepositoryType[] repos = gson.fromJson(stream, ArtifactoryModel.RepositoryType[].class);
+            final List<MavenRepositoryInfo> result = new ArrayList<MavenRepositoryInfo>(repos.length);
+            for (ArtifactoryModel.RepositoryType repo : repos) {
+                result.add(convert(repo));
             }
-          }
+            return result;
         }
-      }
-      return artifacts;
+        catch (JsonSyntaxException e) {
+            return Collections.emptyList();
+        }
+        catch (Exception e) {
+            throw new IOException(e);
+        }
     }
-    catch (JsonSyntaxException e) {
-      return Collections.emptyList();
-    }
-    catch (Exception e) {
-      throw new IOException(e);
-    }
-  }
 
-  private static MavenArtifactInfo convertArtifactInfo(String uri, String baseUri, String className) throws IOException {
-    final String repoPathFile = uri.substring((baseUri + "storage/").length());
-    final int repoIndex = repoPathFile.indexOf('/');
-    final String repoString = repoPathFile.substring(0, repoIndex);
-    final String repo = repoString.endsWith("-cache") ? repoString.substring(0, repoString.lastIndexOf('-')) : repoString;
-    final String filePath = repoPathFile.substring(repoIndex + 1, repoPathFile.lastIndexOf('/'));
-    final int artIdIndex = filePath.lastIndexOf('/');
-    final String version = filePath.substring(artIdIndex + 1);
-    final String groupArtifact = filePath.substring(0, artIdIndex);
-    final int groupIndex = groupArtifact.lastIndexOf('/');
-    final String artifact = groupArtifact.substring(groupIndex + 1);
-    final String group = groupArtifact.substring(0, groupIndex).replace('/', '.');
-    final String packaging = uri.substring(uri.lastIndexOf('.') + 1);
+    private static MavenRepositoryInfo convert(ArtifactoryModel.RepositoryType repo) {
+        return new MavenRepositoryInfo(repo.key, repo.description, repo.url);
+    }
 
-    return new MavenArtifactInfo(group, artifact, version, packaging, null, className, repo);
-  }
+    @Nonnull
+    @Override
+    public List<MavenArtifactInfo> findArtifacts(@Nonnull String url, @Nonnull MavenArtifactInfo template) throws IOException {
+        try {
+            final String packaging = StringUtil.notNullize(template.getPackaging());
+            final ArrayList<MavenArtifactInfo> artifacts = new ArrayList<MavenArtifactInfo>();
+            final Gson gson = new Gson();
+            final String className = template.getClassNames();
+            if (className == null || className.length() == 0) {
+                final String name =
+                    StringUtil.join(Arrays.asList(template.getGroupId(), template.getArtifactId(), template.getVersion()), ":");
+                final InputStream stream = new Endpoint.Search.Artifact(url).getArtifactSearchResultJson(name, null).getInputStream();
+
+                final ArtifactoryModel.GavcResults results =
+                    stream == null ? null : gson.fromJson(new InputStreamReader(stream), ArtifactoryModel.GavcResults.class);
+                if (results != null && results.results != null) {
+                    for (ArtifactoryModel.GavcResult result : results.results) {
+                        if (!result.uri.endsWith(packaging)) {
+                            continue;
+                        }
+                        artifacts.add(convertArtifactInfo(result.uri, url, null));
+                    }
+                }
+            }
+            else {
+                // IDEA-58225
+                final String searchString = className.endsWith("*") || className.endsWith("?") ? className : className + ".class";
+                final InputStream stream = new Endpoint.Search.Archive(url).getArchiveSearchResultJson(searchString, null).getInputStream();
+
+                final ArtifactoryModel.ArchiveResults results =
+                    stream == null ? null : gson.fromJson(new InputStreamReader(stream), ArtifactoryModel.ArchiveResults.class);
+                if (results != null && results.results != null) {
+                    for (ArtifactoryModel.ArchiveResult result : results.results) {
+                        for (String uri : result.archiveUris) {
+                            if (!uri.endsWith(packaging)) {
+                                continue;
+                            }
+                            artifacts.add(convertArtifactInfo(uri, url, result.entry));
+                        }
+                    }
+                }
+            }
+            return artifacts;
+        }
+        catch (JsonSyntaxException e) {
+            return Collections.emptyList();
+        }
+        catch (Exception e) {
+            throw new IOException(e);
+        }
+    }
+
+    private static MavenArtifactInfo convertArtifactInfo(String uri, String baseUri, String className) throws IOException {
+        final String repoPathFile = uri.substring((baseUri + "storage/").length());
+        final int repoIndex = repoPathFile.indexOf('/');
+        final String repoString = repoPathFile.substring(0, repoIndex);
+        final String repo = repoString.endsWith("-cache") ? repoString.substring(0, repoString.lastIndexOf('-')) : repoString;
+        final String filePath = repoPathFile.substring(repoIndex + 1, repoPathFile.lastIndexOf('/'));
+        final int artIdIndex = filePath.lastIndexOf('/');
+        final String version = filePath.substring(artIdIndex + 1);
+        final String groupArtifact = filePath.substring(0, artIdIndex);
+        final int groupIndex = groupArtifact.lastIndexOf('/');
+        final String artifact = groupArtifact.substring(groupIndex + 1);
+        final String group = groupArtifact.substring(0, groupIndex).replace('/', '.');
+        final String packaging = uri.substring(uri.lastIndexOf('.') + 1);
+
+        return new MavenArtifactInfo(group, artifact, version, packaging, null, className, repo);
+    }
 }

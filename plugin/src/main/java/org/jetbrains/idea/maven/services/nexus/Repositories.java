@@ -19,15 +19,15 @@ package org.jetbrains.idea.maven.services.nexus;
 import consulo.maven.rt.server.common.model.MavenRepositoryInfo;
 
 import jakarta.xml.bind.annotation.*;
+
 import java.util.ArrayList;
 import java.util.List;
 
-
 /**
  * <p>Java class for anonymous complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType>
  *   &lt;complexContent>
@@ -49,26 +49,18 @@ import java.util.List;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "", propOrder = {
-    "data"
-})
+@XmlType(name = "", propOrder = {"data"})
 @XmlRootElement(name = "repositories")
 public class Repositories {
-
     @XmlElement(required = true)
     protected Repositories.Data data;
 
     /**
      * Gets the value of the data property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link Repositories.Data }
-     *     
+     *
+     * @return possible object is {@link Repositories.Data }
      */
     public Repositories.Data getData() {
         return data;
@@ -76,22 +68,18 @@ public class Repositories {
 
     /**
      * Sets the value of the data property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link Repositories.Data }
-     *     
+     *
+     * @param value allowed object is {@link Repositories.Data }
      */
     public void setData(Repositories.Data value) {
         this.data = value;
     }
 
-
     /**
      * <p>Java class for anonymous complex type.
-     * 
+     *
      * <p>The following schema fragment specifies the expected content contained within this class.
-     * 
+     *
      * <pre>
      * &lt;complexType>
      *   &lt;complexContent>
@@ -103,47 +91,38 @@ public class Repositories {
      *   &lt;/complexContent>
      * &lt;/complexType>
      * </pre>
-     * 
-     * 
      */
     @XmlAccessorType(XmlAccessType.FIELD)
-    @XmlType(name = "", propOrder = {
-        "repositoriesItem"
-    })
+    @XmlType(name = "", propOrder = {"repositoriesItem"})
     public static class Data {
-
         @XmlElement(name = "repositories-item")
         protected List<RepositoryType> repositoriesItem;
 
         /**
          * Gets the value of the repositoriesItem property.
-         * 
+         *
          * <p>
          * This accessor method returns a reference to the live list,
          * not a snapshot. Therefore any modification you make to the
          * returned list will be present inside the JAXB object.
          * This is why there is not a <CODE>set</CODE> method for the repositoriesItem property.
-         * 
+         *
          * <p>
          * For example, to add a new item, do as follows:
          * <pre>
          *    getRepositoriesItem().add(newItem);
          * </pre>
-         * 
-         * 
+         *
+         *
          * <p>
          * Objects of the following type(s) are allowed in the list
          * {@link MavenRepositoryInfo }
-         * 
-         * 
          */
         public List<RepositoryType> getRepositoriesItem() {
             if (repositoriesItem == null) {
-                repositoriesItem = new ArrayList<RepositoryType>();
+                repositoriesItem = new ArrayList<>();
             }
             return this.repositoriesItem;
         }
-
     }
-
 }

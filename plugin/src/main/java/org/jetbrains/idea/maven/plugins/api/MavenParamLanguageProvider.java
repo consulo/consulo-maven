@@ -26,8 +26,7 @@ import javax.annotation.Nullable;
  * @author Sergey Evdokimov
  */
 @FunctionalInterface
-public interface MavenParamLanguageProvider
-{
-	@Nullable
-	Language getLanguage(@Nonnull XmlText xmlText, @Nonnull MavenDomConfiguration configuration);
+public interface MavenParamLanguageProvider {
+    @Nullable
+    Language getLanguage(@Nonnull XmlText xmlText, @Nonnull MavenDomConfiguration configuration);
 }

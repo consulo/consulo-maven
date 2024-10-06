@@ -223,8 +223,8 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
                 for (Map.Entry<Object, Object> each : System.getProperties().entrySet()) {
                     Object key = each.getKey();
                     Object value = each.getValue();
-                    if (key instanceof String && value instanceof String && ((String) key).startsWith("javax.net.ssl")) {
-                        defs.put((String) key, (String) value);
+                    if (key instanceof String && value instanceof String && ((String)key).startsWith("javax.net.ssl")) {
+                        defs.put((String)key, (String)value);
                     }
                 }
 
@@ -287,7 +287,8 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
 
                 String mavenEmbedderDebugPort = System.getProperty("idea.maven.embedder.debug.port");
                 if (mavenEmbedderDebugPort != null) {
-                    params.getVMParametersList().addParametersString("-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=" + mavenEmbedderDebugPort);
+                    params.getVMParametersList()
+                        .addParametersString("-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=" + mavenEmbedderDebugPort);
                 }
 
                 String mavenEmbedderParameters = System.getProperty("idea.maven.embedder.parameters");
@@ -297,7 +298,8 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
 
                 String mavenEmbedderCliOptions = System.getProperty(MavenServerEmbedder.MAVEN_EMBEDDER_CLI_ADDITIONAL_ARGS);
                 if (mavenEmbedderCliOptions != null) {
-                    params.getVMParametersList().addProperty(MavenServerEmbedder.MAVEN_EMBEDDER_CLI_ADDITIONAL_ARGS, mavenEmbedderCliOptions);
+                    params.getVMParametersList()
+                        .addProperty(MavenServerEmbedder.MAVEN_EMBEDDER_CLI_ADDITIONAL_ARGS, mavenEmbedderCliOptions);
                 }
 
                 return params;
@@ -438,15 +440,25 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
     }
 
     public MavenModel interpolateAndAlignModel(final MavenModel model, final File basedir) {
-        return perform((Retriable<MavenModel>) () -> getOrCreateWrappee().interpolateAndAlignModel(model, basedir));
+        return perform((Retriable<MavenModel>)() -> getOrCreateWrappee().interpolateAndAlignModel(model, basedir));
     }
 
     public MavenModel assembleInheritance(final MavenModel model, final MavenModel parentModel) {
-        return perform((Retriable<MavenModel>) () -> getOrCreateWrappee().assembleInheritance(model, parentModel));
+        return perform((Retriable<MavenModel>)() -> getOrCreateWrappee().assembleInheritance(model, parentModel));
     }
 
-    public ProfileApplicationResult applyProfiles(final MavenModel model, final File basedir, final MavenExplicitProfiles explicitProfiles, final Collection<String> alwaysOnProfiles) {
-        return perform((Retriable<ProfileApplicationResult>) () -> getOrCreateWrappee().applyProfiles(model, basedir, explicitProfiles, alwaysOnProfiles));
+    public ProfileApplicationResult applyProfiles(
+        final MavenModel model,
+        final File basedir,
+        final MavenExplicitProfiles explicitProfiles,
+        final Collection<String> alwaysOnProfiles
+    ) {
+        return perform((Retriable<ProfileApplicationResult>)() -> getOrCreateWrappee().applyProfiles(
+            model,
+            basedir,
+            explicitProfiles,
+            alwaysOnProfiles
+        ));
     }
 
     public void addDownloadListener(MavenServerDownloadListener listener) {

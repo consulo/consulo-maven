@@ -35,165 +35,149 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-public class MavenProjectImportStep implements WizardStep<MavenImportModuleContext>
-{
-	private final JPanel myPanel;
-	private final NamePathComponent myRootPathComponent;
-	private final MavenImportingSettingsForm myImportingSettingsForm;
-	private final MavenImportModuleContext myContext;
+public class MavenProjectImportStep implements WizardStep<MavenImportModuleContext> {
+    private final JPanel myPanel;
+    private final NamePathComponent myRootPathComponent;
+    private final MavenImportingSettingsForm myImportingSettingsForm;
+    private final MavenImportModuleContext myContext;
 
-	public MavenProjectImportStep(MavenImportModuleContext context)
-	{
-		myContext = context;
+    public MavenProjectImportStep(MavenImportModuleContext context) {
+        myContext = context;
 
-		myImportingSettingsForm = new MavenImportingSettingsForm(true, context.isNewProject());
+        myImportingSettingsForm = new MavenImportingSettingsForm(true, context.isNewProject());
 
-		myRootPathComponent = new NamePathComponent("", ProjectBundle.message("maven.import.label.select.root"), ProjectBundle.message("maven.import.title.select.root"), "", false, false);
+        myRootPathComponent = new NamePathComponent("",
+            ProjectBundle.message("maven.import.label.select.root"),
+            ProjectBundle.message("maven.import.title.select.root"),
+            "",
+            false,
+            false
+        );
 
-		JButton envSettingsButton = new JButton(ProjectBundle.message("maven.import.environment.settings"));
-		envSettingsButton.addActionListener(new ActionListener()
-		{
-			@Override
-			public void actionPerformed(ActionEvent e)
-			{
-				ShowSettingsUtil.getInstance().editConfigurable(myPanel, new MavenEnvironmentConfigurable());
-			}
-		});
+        JButton envSettingsButton = new JButton(ProjectBundle.message("maven.import.environment.settings"));
+        envSettingsButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ShowSettingsUtil.getInstance().editConfigurable(myPanel, new MavenEnvironmentConfigurable());
+            }
+        });
 
-		myPanel = new JPanel(new GridBagLayout());
+        myPanel = new JPanel(new GridBagLayout());
 
-		GridBagConstraints c = new GridBagConstraints();
-		c.gridx = 0;
-		c.gridy = 0;
-		c.weightx = 1;
-		c.fill = GridBagConstraints.HORIZONTAL;
-		c.insets = new Insets(4, 4, 0, 4);
+        GridBagConstraints c = new GridBagConstraints();
+        c.gridx = 0;
+        c.gridy = 0;
+        c.weightx = 1;
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.insets = new Insets(4, 4, 0, 4);
 
-		myPanel.add(myRootPathComponent, c);
+        myPanel.add(myRootPathComponent, c);
 
-		c.gridy = 1;
-		c.insets = new Insets(4, 4, 0, 4);
-		myPanel.add(myImportingSettingsForm.createComponent(), c);
+        c.gridy = 1;
+        c.insets = new Insets(4, 4, 0, 4);
+        myPanel.add(myImportingSettingsForm.createComponent(), c);
 
-		c.gridy = 2;
-		c.fill = GridBagConstraints.NONE;
-		c.anchor = GridBagConstraints.NORTHEAST;
-		c.weighty = 1;
-		c.insets = new Insets(4 + envSettingsButton.getPreferredSize().height, 4, 4, 4);
-		myPanel.add(envSettingsButton, c);
+        c.gridy = 2;
+        c.fill = GridBagConstraints.NONE;
+        c.anchor = GridBagConstraints.NORTHEAST;
+        c.weighty = 1;
+        c.insets = new Insets(4 + envSettingsButton.getPreferredSize().height, 4, 4, 4);
+        myPanel.add(envSettingsButton, c);
 
-		myRootPathComponent.setNameComponentVisible(false);
-	}
+        myRootPathComponent.setNameComponentVisible(false);
+    }
 
-	@RequiredUIAccess
-	@Nonnull
-	@Override
-	public Component getComponent(@Nonnull MavenImportModuleContext context, @Nonnull Disposable disposable)
-	{
-		throw new UnsupportedOperationException("destop only");
-	}
+    @RequiredUIAccess
+    @Nonnull
+    @Override
+    public Component getComponent(@Nonnull MavenImportModuleContext context, @Nonnull Disposable disposable) {
+        throw new UnsupportedOperationException("destop only");
+    }
 
-	@RequiredUIAccess
-	@Nonnull
-	@Override
-	public JComponent getSwingComponent(@Nonnull MavenImportModuleContext context, @Nonnull Disposable disposable)
-	{
-		return myPanel;
-	}
+    @RequiredUIAccess
+    @Nonnull
+    @Override
+    public JComponent getSwingComponent(@Nonnull MavenImportModuleContext context, @Nonnull Disposable disposable) {
+        return myPanel;
+    }
 
-	@Override
-	public void onStepEnter(@Nonnull MavenImportModuleContext mavenImportModuleContext)
-	{
-		if(!myRootPathComponent.isPathChangedByUser())
-		{
-			final VirtualFile rootDirectory = myContext.getRootDirectory();
-			final String path;
-			if(rootDirectory != null)
-			{
-				path = rootDirectory.getPath();
-			}
-			else
-			{
-				path = myContext.getPath();
-			}
-			if(path != null)
-			{
-				myRootPathComponent.setPath(FileUtil.toSystemDependentName(path));
-				myRootPathComponent.getPathComponent().selectAll();
-			}
-		}
-		myImportingSettingsForm.setData(getImportingSettings());
-	}
+    @Override
+    public void onStepEnter(@Nonnull MavenImportModuleContext mavenImportModuleContext) {
+        if (!myRootPathComponent.isPathChangedByUser()) {
+            final VirtualFile rootDirectory = myContext.getRootDirectory();
+            final String path;
+            if (rootDirectory != null) {
+                path = rootDirectory.getPath();
+            }
+            else {
+                path = myContext.getPath();
+            }
+            if (path != null) {
+                myRootPathComponent.setPath(FileUtil.toSystemDependentName(path));
+                myRootPathComponent.getPathComponent().selectAll();
+            }
+        }
+        myImportingSettingsForm.setData(getImportingSettings());
+    }
 
-	@Override
-	public void onStepLeave(@Nonnull MavenImportModuleContext mavenImportModuleContext)
-	{
-		MavenImportingSettings settings = getImportingSettings();
-		myImportingSettingsForm.getData(settings);
-		suggestProjectNameAndPath(settings.getDedicatedModuleDir(), myRootPathComponent.getPath());
-		myContext.setRootDirectory(myContext.getProject(), myRootPathComponent.getPath());
-	}
+    @Override
+    public void onStepLeave(@Nonnull MavenImportModuleContext mavenImportModuleContext) {
+        MavenImportingSettings settings = getImportingSettings();
+        myImportingSettingsForm.getData(settings);
+        suggestProjectNameAndPath(settings.getDedicatedModuleDir(), myRootPathComponent.getPath());
+        myContext.setRootDirectory(myContext.getProject(), myRootPathComponent.getPath());
+    }
 
-	protected void suggestProjectNameAndPath(final String alternativePath, final String path)
-	{
-		myContext.setPath(alternativePath != null && alternativePath.length() > 0 ? alternativePath : path);
-		final String global = FileUtil.toSystemIndependentName(path);
-		myContext.setName(global.substring(global.lastIndexOf("/") + 1));
-	}
+    protected void suggestProjectNameAndPath(final String alternativePath, final String path) {
+        myContext.setPath(alternativePath != null && alternativePath.length() > 0 ? alternativePath : path);
+        final String global = FileUtil.toSystemIndependentName(path);
+        myContext.setName(global.substring(global.lastIndexOf("/") + 1));
+    }
 
-	@Override
-	public JComponent getSwingPreferredFocusedComponent()
-	{
-		return myRootPathComponent.getPathComponent();
-	}
+    @Override
+    public JComponent getSwingPreferredFocusedComponent() {
+        return myRootPathComponent.getPathComponent();
+    }
 
-	private MavenGeneralSettings getGeneralSettings()
-	{
-		return myContext.getGeneralSettings();
-	}
+    private MavenGeneralSettings getGeneralSettings() {
+        return myContext.getGeneralSettings();
+    }
 
-	private MavenImportingSettings getImportingSettings()
-	{
-		return myContext.getImportingSettings();
-	}
+    private MavenImportingSettings getImportingSettings() {
+        return myContext.getImportingSettings();
+    }
 
-	class MavenEnvironmentConfigurable implements Configurable
-	{
-		MavenEnvironmentForm myForm = new MavenEnvironmentForm();
+    class MavenEnvironmentConfigurable implements Configurable {
+        MavenEnvironmentForm myForm = new MavenEnvironmentForm();
 
-		@Override
-		@Nls
-		public String getDisplayName()
-		{
-			return ProjectBundle.message("maven.import.environment.settings.title");
-		}
+        @Override
+        @Nls
+        public String getDisplayName() {
+            return ProjectBundle.message("maven.import.environment.settings.title");
+        }
 
-		@RequiredUIAccess
-		@Override
-		public JComponent createComponent(@Nonnull Disposable uiDisposable)
-		{
-			return myForm.createComponent(uiDisposable);
-		}
+        @RequiredUIAccess
+        @Override
+        public JComponent createComponent(@Nonnull Disposable uiDisposable) {
+            return myForm.createComponent(uiDisposable);
+        }
 
-		@RequiredUIAccess
-		@Override
-		public boolean isModified()
-		{
-			return myForm.isModified(getGeneralSettings());
-		}
+        @RequiredUIAccess
+        @Override
+        public boolean isModified() {
+            return myForm.isModified(getGeneralSettings());
+        }
 
-		@RequiredUIAccess
-		@Override
-		public void apply() throws ConfigurationException
-		{
-			myForm.setData(getGeneralSettings());
-		}
+        @RequiredUIAccess
+        @Override
+        public void apply() throws ConfigurationException {
+            myForm.setData(getGeneralSettings());
+        }
 
-		@RequiredUIAccess
-		@Override
-		public void reset()
-		{
-			myForm.getData(getGeneralSettings());
-		}
-	}
+        @RequiredUIAccess
+        @Override
+        public void reset() {
+            myForm.getData(getGeneralSettings());
+        }
+    }
 }

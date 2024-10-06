@@ -1,25 +1,24 @@
 /*
-* Copyright 2000-2010 JetBrains s.r.o.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-* http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+ * Copyright 2000-2010 JetBrains s.r.o.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.jetbrains.idea.maven.services.nexus;
 
 import consulo.maven.rt.server.common.model.MavenArtifactInfo;
 import consulo.maven.rt.server.common.model.MavenRepositoryInfo;
 
 import jakarta.xml.bind.annotation.XmlRegistry;
-
 
 /**
  * This object contains factory methods for each
@@ -36,60 +35,58 @@ import jakarta.xml.bind.annotation.XmlRegistry;
  */
 @XmlRegistry
 public class ObjectFactory {
+    /**
+     * Create a new ObjectFactory that can be used to create new instances of schema derived classes for package: nexus
+     */
+    public ObjectFactory() {
+    }
 
+    /**
+     * Create an instance of {@link Repositories }
+     */
+    public Repositories createRepositories() {
+        return new Repositories();
+    }
 
-  /**
-   * Create a new ObjectFactory that can be used to create new instances of schema derived classes for package: nexus
-   */
-  public ObjectFactory() {
-  }
+    /**
+     * Create an instance of {@link RepositoryMetaData }
+     */
+    public RepositoryMetaData createRepositoryMetaData() {
+        return new RepositoryMetaData();
+    }
 
-  /**
-   * Create an instance of {@link Repositories }
-   */
-  public Repositories createRepositories() {
-    return new Repositories();
-  }
+    /**
+     * Create an instance of {@link SearchResults }
+     */
+    public SearchResults createSearchResults() {
+        return new SearchResults();
+    }
 
-  /**
-   * Create an instance of {@link RepositoryMetaData }
-   */
-  public RepositoryMetaData createRepositoryMetaData() {
-    return new RepositoryMetaData();
-  }
+    /**
+     * Create an instance of {@link MavenRepositoryInfo }
+     */
+    public RepositoryType createRepositoryType() {
+        return new RepositoryType();
+    }
 
-  /**
-   * Create an instance of {@link SearchResults }
-   */
-  public SearchResults createSearchResults() {
-    return new SearchResults();
-  }
+    /**
+     * Create an instance of {@link MavenArtifactInfo }
+     */
+    public ArtifactType createArtifactType() {
+        return new ArtifactType();
+    }
 
-  /**
-   * Create an instance of {@link MavenRepositoryInfo }
-   */
-  public RepositoryType createRepositoryType() {
-    return new RepositoryType();
-  }
+    /**
+     * Create an instance of {@link Repositories.Data }
+     */
+    public Repositories.Data createRepositoriesData() {
+        return new Repositories.Data();
+    }
 
-  /**
-   * Create an instance of {@link MavenArtifactInfo }
-   */
-  public ArtifactType createArtifactType() {
-    return new ArtifactType();
-  }
-
-  /**
-   * Create an instance of {@link Repositories.Data }
-   */
-  public Repositories.Data createRepositoriesData() {
-    return new Repositories.Data();
-  }
-
-  /**
-   * Create an instance of {@link SearchResults.Data }
-   */
-  public SearchResults.Data createSearchResultsData() {
-    return new SearchResults.Data();
-  }
+    /**
+     * Create an instance of {@link SearchResults.Data }
+     */
+    public SearchResults.Data createSearchResultsData() {
+        return new SearchResults.Data();
+    }
 }

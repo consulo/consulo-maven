@@ -18,16 +18,16 @@ package org.jetbrains.idea.maven.services.nexus;
 
 import consulo.maven.rt.server.common.model.MavenArtifactInfo;
 import jakarta.xml.bind.annotation.*;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
-
 /**
  * <p>Java class for anonymous complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType>
  *   &lt;complexContent>
@@ -53,8 +53,6 @@ import java.util.List;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
@@ -66,7 +64,6 @@ import java.util.List;
 })
 @XmlRootElement(name = "search-results")
 public class SearchResults {
-
     @XmlElement(required = true)
     protected BigInteger totalCount;
     @XmlElement(required = true)
@@ -78,11 +75,8 @@ public class SearchResults {
 
     /**
      * Gets the value of the totalCount property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link BigInteger }
-     *     
+     *
+     * @return possible object is {@link BigInteger}
      */
     public BigInteger getTotalCount() {
         return totalCount;
@@ -90,11 +84,8 @@ public class SearchResults {
 
     /**
      * Sets the value of the totalCount property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link BigInteger }
-     *     
+     *
+     * @param value allowed object is {@link BigInteger}
      */
     public void setTotalCount(BigInteger value) {
         this.totalCount = value;
@@ -102,11 +93,8 @@ public class SearchResults {
 
     /**
      * Gets the value of the from property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link BigInteger }
-     *     
+     *
+     * @return possible object is {@link BigInteger}
      */
     public BigInteger getFrom() {
         return from;
@@ -114,11 +102,8 @@ public class SearchResults {
 
     /**
      * Sets the value of the from property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link BigInteger }
-     *     
+     *
+     * @param value allowed object is {@link BigInteger}
      */
     public void setFrom(BigInteger value) {
         this.from = value;
@@ -126,11 +111,8 @@ public class SearchResults {
 
     /**
      * Gets the value of the count property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link BigInteger }
-     *     
+     *
+     * @return possible object is {@link BigInteger}
      */
     public BigInteger getCount() {
         return count;
@@ -138,11 +120,8 @@ public class SearchResults {
 
     /**
      * Sets the value of the count property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link BigInteger }
-     *     
+     *
+     * @param value allowed object is {@link BigInteger}
      */
     public void setCount(BigInteger value) {
         this.count = value;
@@ -150,7 +129,6 @@ public class SearchResults {
 
     /**
      * Gets the value of the tooManyResults property.
-     * 
      */
     public boolean isTooManyResults() {
         return tooManyResults;
@@ -158,7 +136,6 @@ public class SearchResults {
 
     /**
      * Sets the value of the tooManyResults property.
-     * 
      */
     public void setTooManyResults(boolean value) {
         this.tooManyResults = value;
@@ -166,11 +143,8 @@ public class SearchResults {
 
     /**
      * Gets the value of the data property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link SearchResults.Data }
-     *     
+     *
+     * @return possible object is {@link SearchResults.Data}
      */
     public SearchResults.Data getData() {
         return data;
@@ -178,22 +152,18 @@ public class SearchResults {
 
     /**
      * Sets the value of the data property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link SearchResults.Data }
-     *     
+     *
+     * @param value allowed object is {@link SearchResults.Data}
      */
     public void setData(SearchResults.Data value) {
         this.data = value;
     }
 
-
     /**
      * <p>Java class for anonymous complex type.
-     * 
+     *
      * <p>The following schema fragment specifies the expected content contained within this class.
-     * 
+     *
      * <pre>
      * &lt;complexType>
      *   &lt;complexContent>
@@ -205,46 +175,35 @@ public class SearchResults {
      *   &lt;/complexContent>
      * &lt;/complexType>
      * </pre>
-     * 
-     * 
      */
     @XmlAccessorType(XmlAccessType.FIELD)
-    @XmlType(name = "", propOrder = {
-        "artifact"
-    })
+    @XmlType(name = "", propOrder = {"artifact"})
     public static class Data {
-
         protected ArrayList<ArtifactType> artifact;
 
         /**
          * Gets the value of the artifact property.
-         * 
+         *
          * <p>
          * This accessor method returns a reference to the live list,
          * not a snapshot. Therefore any modification you make to the
          * returned list will be present inside the JAXB object.
          * This is why there is not a <CODE>set</CODE> method for the artifact property.
-         * 
+         *
          * <p>
          * For example, to add a new item, do as follows:
          * <pre>
          *    getArtifact().add(newItem);
          * </pre>
-         * 
-         * 
+         *
          * <p>
-         * Objects of the following type(s) are allowed in the list
-         * {@link MavenArtifactInfo }
-         * 
-         * 
+         * Objects of the following type(s) are allowed in the list {@link MavenArtifactInfo}
          */
         public List<ArtifactType> getArtifact() {
             if (artifact == null) {
-                artifact = new ArrayList<ArtifactType>();
+                artifact = new ArrayList<>();
             }
             return this.artifact;
         }
-
     }
-
 }
