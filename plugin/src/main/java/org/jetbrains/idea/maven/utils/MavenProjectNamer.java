@@ -12,110 +12,121 @@ import java.util.*;
  * @author Sergey Evdokimov
  */
 public class MavenProjectNamer {
+    //private static Logger LOG = Logger.getInstance(MavenProjectNamer.class);
 
-  //private static Logger LOG = Logger.getInstance(MavenProjectNamer.class);
+    public static Map<MavenProject, String> generateNameMap(Collection<MavenProject> mavenProjects) {
+        MultiMap<String, MavenProject> artifactIdMap = new MultiMap<>();
 
-  public static Map<MavenProject, String> generateNameMap(Collection<MavenProject> mavenProjects) {
-    MultiMap<String, MavenProject> artifactIdMap = new MultiMap<String, MavenProject>();
-
-    for (MavenProject project : mavenProjects) {
-      artifactIdMap.putValue(project.getMavenId().getArtifactId(), project);
-    }
-
-    Map<MavenProject, String> res = new HashMap<MavenProject, String>();
-
-    for (Map.Entry<String, Collection<MavenProject>> entry : artifactIdMap.entrySet()) {
-      List<MavenProject> projectList = (List<MavenProject>)entry.getValue();
-      String artifactId = entry.getKey();
-
-      if (projectList.size() == 1) {
-        res.put(projectList.get(0), artifactId);
-      }
-      else if (allGroupsAreDifferent(projectList)) {
-        for (MavenProject mavenProject : projectList) {
-          res.put(mavenProject, mavenProject.getMavenId().getGroupId() + ':' + mavenProject.getMavenId().getArtifactId());
+        for (MavenProject project : mavenProjects) {
+            artifactIdMap.putValue(project.getMavenId().getArtifactId(), project);
         }
-      } else if (allGroupsEqual(mavenProjects)) {
-        for (MavenProject mavenProject : projectList) {
-          res.put(mavenProject, mavenProject.getMavenId().getArtifactId() + ':' + mavenProject.getMavenId().getVersion());
+
+        Map<MavenProject, String> res = new HashMap<>();
+
+        for (Map.Entry<String, Collection<MavenProject>> entry : artifactIdMap.entrySet()) {
+            List<MavenProject> projectList = (List<MavenProject>)entry.getValue();
+            String artifactId = entry.getKey();
+
+            if (projectList.size() == 1) {
+                res.put(projectList.get(0), artifactId);
+            }
+            else if (allGroupsAreDifferent(projectList)) {
+                for (MavenProject mavenProject : projectList) {
+                    res.put(mavenProject, mavenProject.getMavenId().getGroupId() + ':' + mavenProject.getMavenId().getArtifactId());
+                }
+            }
+            else if (allGroupsEqual(mavenProjects)) {
+                for (MavenProject mavenProject : projectList) {
+                    res.put(mavenProject, mavenProject.getMavenId().getArtifactId() + ':' + mavenProject.getMavenId().getVersion());
+                }
+            }
+            else {
+                for (MavenProject mavenProject : projectList) {
+                    MavenId mavenId = mavenProject.getMavenId();
+                    res.put(mavenProject, mavenId.getGroupId() + ':' + mavenId.getArtifactId() + ':' + mavenId.getVersion());
+                }
+            }
         }
-      }
-      else {
-        for (MavenProject mavenProject : projectList) {
-          MavenId mavenId = mavenProject.getMavenId();
-          res.put(mavenProject, mavenId.getGroupId() + ':' + mavenId.getArtifactId() + ':' + mavenId.getVersion());
+
+        return res;
+    }
+
+    private static boolean allGroupsEqual(Collection<MavenProject> mavenProjects) {
+        Iterator<MavenProject> itr = mavenProjects.iterator();
+
+        if (!itr.hasNext()) {
+            return true;
         }
-      }
+
+        String groupId = itr.next().getMavenId().getGroupId();
+
+        while (itr.hasNext()) {
+            MavenProject mavenProject = itr.next();
+
+            if (!Comparing.equal(groupId, mavenProject.getMavenId().getGroupId())) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
-    return res;
-  }
+    private static boolean allGroupsAreDifferent(Collection<MavenProject> mavenProjects) {
+        Set<String> exitingGroups = new HashSet<>();
 
-  private static boolean allGroupsEqual(Collection<MavenProject> mavenProjects) {
-    Iterator<MavenProject> itr = mavenProjects.iterator();
+        for (MavenProject mavenProject : mavenProjects) {
+            if (!exitingGroups.add(mavenProject.getMavenId().getGroupId())) {
+                return false;
+            }
+        }
 
-    if (!itr.hasNext()) return true;
-
-    String groupId = itr.next().getMavenId().getGroupId();
-
-    while (itr.hasNext()) {
-      MavenProject mavenProject = itr.next();
-
-      if (!Comparing.equal(groupId, mavenProject.getMavenId().getGroupId())) {
-        return false;
-      }
+        return true;
     }
 
-    return true;
-  }
+    private static void doBuildProjectTree(
+        MavenProjectsManager manager,
+        Map<MavenProject, Integer> res,
+        List<MavenProject> rootProjects,
+        int depth
+    ) {
+        MavenProject[] rootProjectArray = rootProjects.toArray(new MavenProject[rootProjects.size()]);
+        Arrays.sort(rootProjectArray, new MavenProjectComparator());
 
-  private static boolean allGroupsAreDifferent(Collection<MavenProject> mavenProjects) {
-    Set<String> exitingGroups = new HashSet<String>();
+        for (MavenProject project : rootProjectArray) {
+            if (!res.containsKey(project)) {
+                res.put(project, depth);
 
-    for (MavenProject mavenProject : mavenProjects) {
-      if (!exitingGroups.add(mavenProject.getMavenId().getGroupId())) {
-        return false;
-      }
+                doBuildProjectTree(manager, res, manager.getModules(project), depth + 1);
+            }
+        }
     }
 
-    return true;
-  }
+    public static Map<MavenProject, Integer> buildProjectTree(MavenProjectsManager manager) {
+        Map<MavenProject, Integer> res = new LinkedHashMap<>();
 
-  private static void doBuildProjectTree(MavenProjectsManager manager, Map<MavenProject, Integer> res, List<MavenProject> rootProjects, int depth) {
-    MavenProject[] rootProjectArray = rootProjects.toArray(new MavenProject[rootProjects.size()]);
-    Arrays.sort(rootProjectArray, new MavenProjectComparator());
+        doBuildProjectTree(manager, res, manager.getRootProjects(), 0);
 
-    for (MavenProject project : rootProjectArray) {
-      if (!res.containsKey(project)) {
-        res.put(project, depth);
-
-        doBuildProjectTree(manager, res, manager.getModules(project), depth + 1);
-      }
+        return res;
     }
-  }
 
-  public static Map<MavenProject, Integer> buildProjectTree(MavenProjectsManager manager) {
-    Map<MavenProject, Integer> res = new LinkedHashMap<MavenProject, Integer>();
+    public static class MavenProjectComparator implements Comparator<MavenProject> {
+        @Override
+        public int compare(MavenProject o1, MavenProject o2) {
+            MavenId id1 = o1.getMavenId();
+            MavenId id2 = o2.getMavenId();
 
-    doBuildProjectTree(manager, res, manager.getRootProjects(), 0);
+            int res = Comparing.compare(id1.getGroupId(), id2.getGroupId());
+            if (res != 0) {
+                return res;
+            }
 
-    return res;
-  }
+            res = Comparing.compare(id1.getArtifactId(), id2.getArtifactId());
+            if (res != 0) {
+                return res;
+            }
 
-  public static class MavenProjectComparator implements Comparator<MavenProject> {
-    @Override
-    public int compare(MavenProject o1, MavenProject o2) {
-      MavenId id1 = o1.getMavenId();
-      MavenId id2 = o2.getMavenId();
-
-      int res = Comparing.compare(id1.getGroupId(), id2.getGroupId());
-      if (res != 0) return res;
-
-      res = Comparing.compare(id1.getArtifactId(), id2.getArtifactId());
-      if (res != 0) return res;
-
-      res = Comparing.compare(id1.getVersion(), id2.getVersion());
-      return res;
+            res = Comparing.compare(id1.getVersion(), id2.getVersion());
+            return res;
+        }
     }
-  }
 }

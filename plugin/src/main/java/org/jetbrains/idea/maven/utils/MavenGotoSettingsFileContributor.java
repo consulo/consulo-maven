@@ -15,6 +15,7 @@
  */
 package org.jetbrains.idea.maven.utils;
 
+import consulo.annotation.access.RequiredReadAction;
 import consulo.annotation.component.ExtensionImpl;
 import consulo.application.dumb.DumbAware;
 import consulo.ide.navigation.GotoFileContributor;
@@ -33,51 +34,42 @@ import java.util.List;
 import java.util.Set;
 
 @ExtensionImpl
-public class MavenGotoSettingsFileContributor implements GotoFileContributor, DumbAware
-{
-	@Override
-	@Nonnull
-	public String[] getNames(Project project, boolean includeNonProjectItems)
-	{
-		if(!includeNonProjectItems)
-		{
-			return ArrayUtil.EMPTY_STRING_ARRAY;
-		}
+public class MavenGotoSettingsFileContributor implements GotoFileContributor, DumbAware {
+    @Override
+    @Nonnull
+    public String[] getNames(Project project, boolean includeNonProjectItems) {
+        if (!includeNonProjectItems) {
+            return ArrayUtil.EMPTY_STRING_ARRAY;
+        }
 
-		Set<String> result = new HashSet<String>();
-		for(VirtualFile each : getSettingsFiles(project))
-		{
-			result.add(each.getName());
-		}
-		return ArrayUtil.toStringArray(result);
-	}
+        Set<String> result = new HashSet<>();
+        for (VirtualFile each : getSettingsFiles(project)) {
+            result.add(each.getName());
+        }
+        return ArrayUtil.toStringArray(result);
+    }
 
-	@Override
-	@Nonnull
-	public NavigationItem[] getItemsByName(String name, String pattern, Project project, boolean includeNonProjectItems)
-	{
-		if(!includeNonProjectItems)
-		{
-			return NavigationItem.EMPTY_NAVIGATION_ITEM_ARRAY;
-		}
+    @Nonnull
+    @Override
+    @RequiredReadAction
+    public NavigationItem[] getItemsByName(String name, String pattern, Project project, boolean includeNonProjectItems) {
+        if (!includeNonProjectItems) {
+            return NavigationItem.EMPTY_ARRAY;
+        }
 
-		List<NavigationItem> result = new ArrayList<NavigationItem>();
-		for(VirtualFile each : getSettingsFiles(project))
-		{
-			if(each.getName().equals(name))
-			{
-				PsiFile psiFile = PsiManager.getInstance(project).findFile(each);
-				if(psiFile != null)
-				{
-					result.add(psiFile);
-				}
-			}
-		}
-		return result.toArray(new NavigationItem[result.size()]);
-	}
+        List<NavigationItem> result = new ArrayList<>();
+        for (VirtualFile each : getSettingsFiles(project)) {
+            if (each.getName().equals(name)) {
+                PsiFile psiFile = PsiManager.getInstance(project).findFile(each);
+                if (psiFile != null) {
+                    result.add(psiFile);
+                }
+            }
+        }
+        return result.toArray(new NavigationItem[result.size()]);
+    }
 
-	private List<VirtualFile> getSettingsFiles(Project project)
-	{
-		return MavenProjectsManager.getInstance(project).getGeneralSettings().getEffectiveSettingsFiles();
-	}
+    private List<VirtualFile> getSettingsFiles(Project project) {
+        return MavenProjectsManager.getInstance(project).getGeneralSettings().getEffectiveSettingsFiles();
+    }
 }

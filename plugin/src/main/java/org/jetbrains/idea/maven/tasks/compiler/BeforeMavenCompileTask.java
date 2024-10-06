@@ -4,14 +4,12 @@ import consulo.annotation.component.ExtensionImpl;
 import consulo.compiler.BeforeCompileTask;
 
 /**
-* @author VISTALL
-* @since 21/01/2023
-*/
+ * @author VISTALL
+ * @since 2023-01-21
+ */
 @ExtensionImpl
-public class BeforeMavenCompileTask extends MavenCompileTask implements BeforeCompileTask
-{
-	public BeforeMavenCompileTask()
-	{
-		super(true);
-	}
+public class BeforeMavenCompileTask extends MavenCompileTask implements BeforeCompileTask {
+    public BeforeMavenCompileTask() {
+        super(true);
+    }
 }

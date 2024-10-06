@@ -22,43 +22,42 @@ import consulo.util.xml.serializer.annotation.Attribute;
 /**
  * @author nik
  */
-public class RepositoryLibraryProperties extends LibraryProperties<RepositoryLibraryProperties>
-{
-  private String myMavenId;
+public class RepositoryLibraryProperties extends LibraryProperties<RepositoryLibraryProperties> {
+    private String myMavenId;
 
-  public RepositoryLibraryProperties() {
-  }
+    public RepositoryLibraryProperties() {
+    }
 
-  public RepositoryLibraryProperties(String mavenId) {
-    myMavenId = mavenId;
-  }
+    public RepositoryLibraryProperties(String mavenId) {
+        myMavenId = mavenId;
+    }
 
-  @Override
-  public boolean equals(Object obj) {
-    return obj instanceof RepositoryLibraryProperties && Comparing.equal(myMavenId, ((RepositoryLibraryProperties)obj).myMavenId);
-  }
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof RepositoryLibraryProperties && Comparing.equal(myMavenId, ((RepositoryLibraryProperties)obj).myMavenId);
+    }
 
-  @Override
-  public int hashCode() {
-    return Comparing.hashcode(myMavenId);
-  }
+    @Override
+    public int hashCode() {
+        return Comparing.hashcode(myMavenId);
+    }
 
-  @Override
-  public RepositoryLibraryProperties getState() {
-    return this;
-  }
+    @Override
+    public RepositoryLibraryProperties getState() {
+        return this;
+    }
 
-  @Override
-  public void loadState(RepositoryLibraryProperties state) {
-    myMavenId = state.myMavenId;
-  }
+    @Override
+    public void loadState(RepositoryLibraryProperties state) {
+        myMavenId = state.myMavenId;
+    }
 
-  @Attribute("maven-id")
-  public String getMavenId() {
-    return myMavenId;
-  }
+    @Attribute("maven-id")
+    public String getMavenId() {
+        return myMavenId;
+    }
 
-  public void setMavenId(String mavenId) {
-    myMavenId = mavenId;
-  }
+    public void setMavenId(String mavenId) {
+        myMavenId = mavenId;
+    }
 }

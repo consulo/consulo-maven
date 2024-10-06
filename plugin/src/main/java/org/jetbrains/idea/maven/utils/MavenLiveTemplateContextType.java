@@ -44,14 +44,6 @@ public class MavenLiveTemplateContextType extends BaseTemplateContextType {
         }
 
         PsiElement element = file.findElementAt(offset);
-        if (element == null) {
-            return false;
-        }
-
-        if (PsiTreeUtil.getParentOfType(element, XmlText.class) == null) {
-            return false;
-        }
-
-        return true;
+        return element != null && PsiTreeUtil.getParentOfType(element, XmlText.class) != null;
     }
 }

@@ -21,12 +21,10 @@ import consulo.language.editor.template.DefaultLiveTemplatesProvider;
 import javax.annotation.Nonnull;
 
 @ExtensionImpl
-public class MavenLiveTemplatesProvider implements DefaultLiveTemplatesProvider
-{
-	@Nonnull
-	@Override
-	public String[] getDefaultLiveTemplateFiles()
-	{
-		return new String[]{"/liveTemplates/maven_xml"};
-	}
+public class MavenLiveTemplatesProvider implements DefaultLiveTemplatesProvider {
+    @Nonnull
+    @Override
+    public String[] getDefaultLiveTemplateFiles() {
+        return new String[]{"/liveTemplates/maven_xml"};
+    }
 }

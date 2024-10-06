@@ -15,25 +15,28 @@
  */
 package org.jetbrains.idea.maven.utils.actions;
 
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.action.AnAction;
 import consulo.ui.ex.action.AnActionEvent;
 import consulo.ui.ex.action.Presentation;
 import consulo.application.dumb.DumbAware;
+import jakarta.annotation.Nonnull;
 
 public abstract class MavenAction extends AnAction implements DumbAware {
-  @Override
-  public void update(AnActionEvent e) {
-    super.update(e);
-    Presentation p = e.getPresentation();
-    p.setEnabled(isAvailable(e));
-    p.setVisible(isVisible(e));
-  }
+    @Override
+    @RequiredUIAccess
+    public void update(@Nonnull AnActionEvent e) {
+        super.update(e);
+        Presentation p = e.getPresentation();
+        p.setEnabled(isAvailable(e));
+        p.setVisible(isVisible(e));
+    }
 
-  protected boolean isAvailable(AnActionEvent e) {
-    return MavenActionUtil.hasProject(e.getDataContext());
-  }
+    protected boolean isAvailable(AnActionEvent e) {
+        return MavenActionUtil.hasProject(e.getDataContext());
+    }
 
-  protected boolean isVisible(AnActionEvent e) {
-    return true;
-  }
+    protected boolean isVisible(AnActionEvent e) {
+        return true;
+    }
 }

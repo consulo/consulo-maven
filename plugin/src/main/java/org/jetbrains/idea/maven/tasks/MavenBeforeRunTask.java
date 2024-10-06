@@ -21,65 +21,78 @@ import org.jdom.Element;
 import org.jetbrains.idea.maven.project.MavenProject;
 
 public class MavenBeforeRunTask extends BeforeRunTask<MavenBeforeRunTask> {
-  private String myProjectPath;
-  private String myGoal;
+    private String myProjectPath;
+    private String myGoal;
 
-  public MavenBeforeRunTask() {
-    super(MavenBeforeRunTasksProvider.ID);
-  }
+    public MavenBeforeRunTask() {
+        super(MavenBeforeRunTasksProvider.ID);
+    }
 
-  public String getProjectPath() {
-    return myProjectPath;
-  }
+    public String getProjectPath() {
+        return myProjectPath;
+    }
 
-  public void setProjectPath(String projectPath) {
-    myProjectPath = projectPath;
-  }
+    public void setProjectPath(String projectPath) {
+        myProjectPath = projectPath;
+    }
 
-  public String getGoal() {
-    return myGoal;
-  }
+    public String getGoal() {
+        return myGoal;
+    }
 
-  public void setGoal(String goal) {
-    myGoal = goal;
-  }
+    public void setGoal(String goal) {
+        myGoal = goal;
+    }
 
-  public boolean isFor(MavenProject project, String goal) {
-    if (myProjectPath == null || myGoal == null) return false;
-    return FileUtil.pathsEqual(project.getPath(), myProjectPath) && goal.equals(myGoal);
-  }
+    public boolean isFor(MavenProject project, String goal) {
+        return !(myProjectPath == null || myGoal == null)
+            && FileUtil.pathsEqual(project.getPath(), myProjectPath)
+            && goal.equals(myGoal);
+    }
 
-  @Override
-  public void writeExternal(Element element) {
-    super.writeExternal(element);
-    if (myProjectPath != null) element.setAttribute("file", myProjectPath);
-    if (myGoal != null) element.setAttribute("goal", myGoal);
-  }
+    @Override
+    public void writeExternal(Element element) {
+        super.writeExternal(element);
+        if (myProjectPath != null) {
+            element.setAttribute("file", myProjectPath);
+        }
+        if (myGoal != null) {
+            element.setAttribute("goal", myGoal);
+        }
+    }
 
-  @Override
-  public void readExternal(Element element) {
-    super.readExternal(element);
-    myProjectPath = element.getAttributeValue("file");
-    myGoal = element.getAttributeValue("goal");
-  }
+    @Override
+    public void readExternal(Element element) {
+        super.readExternal(element);
+        myProjectPath = element.getAttributeValue("file");
+        myGoal = element.getAttributeValue("goal");
+    }
 
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-    if (!super.equals(o)) return false;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
 
-    MavenBeforeRunTask that = (MavenBeforeRunTask)o;
+        MavenBeforeRunTask that = (MavenBeforeRunTask)o;
 
-    if (myGoal != null ? !myGoal.equals(that.myGoal) : that.myGoal != null) return false;
-    if (myProjectPath != null ? !myProjectPath.equals(that.myProjectPath) : that.myProjectPath != null) return false;
+        if (myGoal != null ? !myGoal.equals(that.myGoal) : that.myGoal != null) {
+            return false;
+        }
+        return myProjectPath != null ? myProjectPath.equals(that.myProjectPath) : that.myProjectPath == null;
+    }
 
-    return true;
-  }
-
-  public int hashCode() {
-    int result = super.hashCode();
-    result = 31 * result + (myProjectPath != null ? myProjectPath.hashCode() : 0);
-    result = 31 * result + (myGoal != null ? myGoal.hashCode() : 0);
-    return result;
-  }
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + (myProjectPath != null ? myProjectPath.hashCode() : 0);
+        result = 31 * result + (myGoal != null ? myGoal.hashCode() : 0);
+        return result;
+    }
 }
