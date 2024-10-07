@@ -15,34 +15,42 @@
  */
 package org.jetbrains.idea.maven.indices;
 
+import consulo.annotation.DeprecationInfo;
+import consulo.annotation.internal.MigratedExtensionsTo;
 import consulo.application.CommonBundle;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.PropertyKey;
+import org.jetbrains.idea.maven.localize.MavenIndicesLocalize;
 
 import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
 import java.util.ResourceBundle;
 
+@Deprecated
+@DeprecationInfo("Use MavenIndicesLocalize")
+@MigratedExtensionsTo(MavenIndicesLocalize.class)
 public class IndicesBundle {
-  private static Reference<ResourceBundle> ourBundle;
+    private static Reference<ResourceBundle> ourBundle;
 
-  @NonNls
-  private static final String BUNDLE = "IndicesBundle";
+    @NonNls
+    private static final String BUNDLE = "IndicesBundle";
 
-  private IndicesBundle() {
-  }
-
-  public static String message(@PropertyKey(resourceBundle = BUNDLE) String key, Object... params) {
-    return CommonBundle.message(getBundle(), key, params);
-  }
-
-  private static ResourceBundle getBundle() {
-    ResourceBundle bundle = null;
-    if (ourBundle != null) bundle = ourBundle.get();
-    if (bundle == null) {
-      bundle = ResourceBundle.getBundle(BUNDLE);
-      ourBundle = new SoftReference<ResourceBundle>(bundle);
+    private IndicesBundle() {
     }
-    return bundle;
-  }
+
+    public static String message(@PropertyKey(resourceBundle = BUNDLE) String key, Object... params) {
+        return CommonBundle.message(getBundle(), key, params);
+    }
+
+    private static ResourceBundle getBundle() {
+        ResourceBundle bundle = null;
+        if (ourBundle != null) {
+            bundle = ourBundle.get();
+        }
+        if (bundle == null) {
+            bundle = ResourceBundle.getBundle(BUNDLE);
+            ourBundle = new SoftReference<>(bundle);
+        }
+        return bundle;
+    }
 }
