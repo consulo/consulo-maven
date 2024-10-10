@@ -15,6 +15,7 @@
  */
 package org.jetbrains.idea.maven.plugins.api;
 
+import consulo.annotation.access.RequiredReadAction;
 import consulo.annotation.component.ExtensionImpl;
 import consulo.document.util.TextRange;
 import consulo.language.Language;
@@ -29,42 +30,46 @@ import javax.annotation.Nonnull;
  * @author Sergey Evdokimov
  */
 @ExtensionImpl
-public final class MavenPluginConfigurationLanguageInjector implements LanguageInjector
-{
-	@Override
-	public void injectLanguages(@Nonnull final PsiLanguageInjectionHost host, @Nonnull final InjectedLanguagePlaces injectionPlacesRegistrar)
-	{
-		if(!(host instanceof XmlText))
-		{
-			return;
-		}
+public final class MavenPluginConfigurationLanguageInjector implements LanguageInjector {
+    @Override
+    @RequiredReadAction
+    public void injectLanguages(
+        @Nonnull final PsiLanguageInjectionHost host,
+        @Nonnull final InjectedLanguagePlaces injectionPlacesRegistrar
+    ) {
+        if (!(host instanceof XmlText)) {
+            return;
+        }
 
-		final XmlText xmlText = (XmlText) host;
+        final XmlText xmlText = (XmlText)host;
 
-		if(!MavenPluginParamInfo.isSimpleText(xmlText))
-		{
-			return;
-		}
+        if (!MavenPluginParamInfo.isSimpleText(xmlText)) {
+            return;
+        }
 
-		MavenPluginParamInfo.processParamInfo(xmlText, (info, configuration) ->
-		{
-			Language language = info.getLanguage();
+        MavenPluginParamInfo.processParamInfo(
+            xmlText,
+            (info, configuration) -> {
+                Language language = info.getLanguage();
 
-			if(language == null)
-			{
-				MavenParamLanguageProvider provider = info.getLanguageProvider();
-				if(provider != null)
-				{
-					language = provider.getLanguage(xmlText, configuration);
-				}
-			}
+                if (language == null) {
+                    MavenParamLanguageProvider provider = info.getLanguageProvider();
+                    if (provider != null) {
+                        language = provider.getLanguage(xmlText, configuration);
+                    }
+                }
 
-			if(language != null)
-			{
-				injectionPlacesRegistrar.addPlace(language, TextRange.from(0, host.getTextLength()), info.getLanguageInjectionPrefix(), info.getLanguageInjectionSuffix());
-				return false;
-			}
-			return true;
-		});
-	}
+                if (language != null) {
+                    injectionPlacesRegistrar.addPlace(
+                        language,
+                        TextRange.from(0, host.getTextLength()),
+                        info.getLanguageInjectionPrefix(),
+                        info.getLanguageInjectionSuffix()
+                    );
+                    return false;
+                }
+                return true;
+            }
+        );
+    }
 }

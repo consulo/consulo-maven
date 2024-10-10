@@ -23,8 +23,10 @@ import consulo.virtualFileSystem.VirtualFileManager;
 import consulo.ide.impl.idea.openapi.vfs.ex.dummy.DummyFileSystem;
 import consulo.virtualFileSystem.VirtualFile;
 import org.jetbrains.annotations.NonNls;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
 
 import java.util.Map;
@@ -32,109 +34,114 @@ import java.util.Properties;
 
 @ExtensionImpl
 public class MavenPropertiesVirtualFileSystem extends DummyFileSystem {
-  @NonNls public static final String PROTOCOL = "maven-properties";
+    @NonNls
+    public static final String PROTOCOL = "maven-properties";
 
-  @NonNls public static final String SYSTEM_PROPERTIES_FILE = "System.properties";
-  @NonNls public static final String ENV_PROPERTIES_FILE = "Environment.properties";
+    @NonNls
+    public static final String SYSTEM_PROPERTIES_FILE = "System.properties";
+    @NonNls
+    public static final String ENV_PROPERTIES_FILE = "Environment.properties";
 
-  public static final String[] PROPERTIES_FILES = new String[]{SYSTEM_PROPERTIES_FILE, ENV_PROPERTIES_FILE};
+    public static final String[] PROPERTIES_FILES = new String[]{SYSTEM_PROPERTIES_FILE, ENV_PROPERTIES_FILE};
 
-  private VirtualFile mySystemPropertiesFile;
-  private VirtualFile myEnvPropertiesFile;
+    private VirtualFile mySystemPropertiesFile;
+    private VirtualFile myEnvPropertiesFile;
 
-  public static MavenPropertiesVirtualFileSystem getInstance() {
-    return (MavenPropertiesVirtualFileSystem)VirtualFileManager.getInstance().getFileSystem(PROTOCOL);
-  }
+    public static MavenPropertiesVirtualFileSystem getInstance() {
+        return (MavenPropertiesVirtualFileSystem)VirtualFileManager.getInstance().getFileSystem(PROTOCOL);
+    }
 
-  @Nonnull
-  public String getProtocol() {
-    return PROTOCOL;
-  }
+    @Nonnull
+    public String getProtocol() {
+        return PROTOCOL;
+    }
 
-  public VirtualFile getSystemPropertiesFile() {
-    if (mySystemPropertiesFile == null) {
-      Properties systemProperties = new Properties();
+    public VirtualFile getSystemPropertiesFile() {
+        if (mySystemPropertiesFile == null) {
+            Properties systemProperties = new Properties();
 
-      for (Map.Entry<Object, Object> entry : System.getProperties().entrySet()) {
-        if (entry.getKey() instanceof String && entry.getValue() instanceof String) {
-          String key = (String)entry.getKey();
-          if (!key.startsWith("idea.")) {
-            systemProperties.setProperty(key, (String)entry.getValue());
-          }
+            for (Map.Entry<Object, Object> entry : System.getProperties().entrySet()) {
+                if (entry.getKey() instanceof String && entry.getValue() instanceof String) {
+                    String key = (String)entry.getKey();
+                    if (!key.startsWith("idea.")) {
+                        systemProperties.setProperty(key, (String)entry.getValue());
+                    }
+                }
+            }
+
+            mySystemPropertiesFile = new MavenPropertiesVirtualFile(SYSTEM_PROPERTIES_FILE, systemProperties, this);
         }
-      }
 
-      mySystemPropertiesFile = new MavenPropertiesVirtualFile(SYSTEM_PROPERTIES_FILE, systemProperties, this);
+        return mySystemPropertiesFile;
     }
 
-    return mySystemPropertiesFile;
-  }
+    public VirtualFile getEnvPropertiesFile() {
+        if (myEnvPropertiesFile == null) {
+            Properties envProperties = new Properties();
 
-  public VirtualFile getEnvPropertiesFile() {
-    if (myEnvPropertiesFile == null) {
-      Properties envProperties = new Properties();
+            for (Map.Entry<String, String> each : System.getenv().entrySet()) {
+                String key = each.getKey();
+                if (key.startsWith("=")) {
+                    continue;
+                }
+                envProperties.setProperty(SystemInfo.isWindows ? key.toUpperCase() : key, each.getValue());
+            }
 
-      for (Map.Entry<String, String> each : System.getenv().entrySet()) {
-        String key = each.getKey();
-        if (key.startsWith("=")) continue;
-        envProperties.setProperty(SystemInfo.isWindows ? key.toUpperCase() : key, each.getValue());
-      }
+            myEnvPropertiesFile = new MavenPropertiesVirtualFile(ENV_PROPERTIES_FILE, envProperties, this);
+        }
 
-      myEnvPropertiesFile = new MavenPropertiesVirtualFile(ENV_PROPERTIES_FILE, envProperties, this);
+        return myEnvPropertiesFile;
     }
 
-    return myEnvPropertiesFile;
-  }
+    //@Override
+    //public boolean isPhysical() {
+    //  return false;
+    //}
 
-  //@Override
-  //public boolean isPhysical() {
-  //  return false;
-  //}
+    public synchronized VirtualFile findFileByPath(@Nonnull @NonNls String path) {
+        if (path.equals(SYSTEM_PROPERTIES_FILE)) {
+            return getSystemPropertiesFile();
+        }
 
-  public synchronized VirtualFile findFileByPath(@Nonnull @NonNls String path) {
-    if (path.equals(SYSTEM_PROPERTIES_FILE)) {
-      return getSystemPropertiesFile();
+        if (path.equals(ENV_PROPERTIES_FILE)) {
+            return getEnvPropertiesFile();
+        }
+
+        return null;
     }
 
-    if (path.equals(ENV_PROPERTIES_FILE)) {
-      return getEnvPropertiesFile();
+    @Nullable
+    public IProperty findSystemProperty(Project project, @Nonnull String propertyName) {
+        return MavenDomUtil.findProperty(project, getSystemPropertiesFile(), propertyName);
     }
 
-    return null;
-  }
+    @Nullable
+    public IProperty findEnvProperty(Project project, @Nonnull String propertyName) {
+        return MavenDomUtil.findProperty(project, getEnvPropertiesFile(), propertyName);
+    }
 
-  @Nullable
-  public IProperty findSystemProperty(Project project, @Nonnull String propertyName) {
-    return MavenDomUtil.findProperty(project, getSystemPropertiesFile(), propertyName);
-  }
-
-  @Nullable
-  public IProperty findEnvProperty(Project project, @Nonnull String propertyName) {
-    return MavenDomUtil.findProperty(project, getEnvPropertiesFile(), propertyName);
-  }
-
-  //protected void deleteFile(Object requestor, VirtualFile vFile) throws IOException {
-  //  throw new UnsupportedOperationException();
-  //}
-  //
-  //protected void moveFile(Object requestor, VirtualFile vFile, VirtualFile newParent) throws IOException {
-  //  throw new UnsupportedOperationException();
-  //}
-  //
-  //protected void renameFile(Object requestor, VirtualFile vFile, String newName) throws IOException {
-  //  throw new UnsupportedOperationException();
-  //}
-  //
-  //protected VirtualFile createChildFile(Object requestor, VirtualFile vDir, String fileName) throws IOException {
-  //  throw new UnsupportedOperationException();
-  //}
-  //
-  //protected VirtualFile createChildDirectory(Object requestor, VirtualFile vDir, String dirName) throws IOException {
-  //  throw new UnsupportedOperationException();
-  //}
-  //
-  //protected VirtualFile copyFile(Object requestor, VirtualFile virtualFile, VirtualFile newParent, String copyName)
-  //  throws IOException {
-  //  throw new UnsupportedOperationException();
-  //}
+    //protected void deleteFile(Object requestor, VirtualFile vFile) throws IOException {
+    //  throw new UnsupportedOperationException();
+    //}
+    //
+    //protected void moveFile(Object requestor, VirtualFile vFile, VirtualFile newParent) throws IOException {
+    //  throw new UnsupportedOperationException();
+    //}
+    //
+    //protected void renameFile(Object requestor, VirtualFile vFile, String newName) throws IOException {
+    //  throw new UnsupportedOperationException();
+    //}
+    //
+    //protected VirtualFile createChildFile(Object requestor, VirtualFile vDir, String fileName) throws IOException {
+    //  throw new UnsupportedOperationException();
+    //}
+    //
+    //protected VirtualFile createChildDirectory(Object requestor, VirtualFile vDir, String dirName) throws IOException {
+    //  throw new UnsupportedOperationException();
+    //}
+    //
+    //protected VirtualFile copyFile(Object requestor, VirtualFile virtualFile, VirtualFile newParent, String copyName)
+    //  throws IOException {
+    //  throw new UnsupportedOperationException();
+    //}
 }

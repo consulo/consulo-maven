@@ -20,7 +20,6 @@ import consulo.maven.rt.server.common.server.IndexedMavenId;
 import java.util.Collection;
 
 @FunctionalInterface
-public interface MavenIndicesProcessor
-{
-	void processArtifacts(Collection<IndexedMavenId> artifacts);
+public interface MavenIndicesProcessor {
+    void processArtifacts(Collection<IndexedMavenId> artifacts);
 }

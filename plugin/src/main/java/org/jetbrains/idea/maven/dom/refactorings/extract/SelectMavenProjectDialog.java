@@ -15,22 +15,22 @@
  */
 package org.jetbrains.idea.maven.dom.refactorings.extract;
 
-import consulo.language.editor.refactoring.RefactoringBundle;
+import consulo.language.editor.refactoring.localize.RefactoringLocalize;
 import consulo.project.Project;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.awt.DialogWrapper;
 import consulo.util.lang.Pair;
 import consulo.util.lang.StringUtil;
-import org.jetbrains.idea.maven.dom.MavenDomBundle;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
 import org.jetbrains.idea.maven.dom.model.MavenDomDependency;
 import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
+import org.jetbrains.idea.maven.localize.MavenDomLocalize;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.utils.ComboBoxUtil;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.swing.*;
-import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.Set;
 import java.util.function.Function;
@@ -58,7 +58,7 @@ public class SelectMavenProjectDialog extends DialogWrapper {
         myMavenDomProjectModels = mavenDomProjectModels;
         myHasExclusions = hasExclusions;
 
-        setTitle(MavenDomBundle.message("choose.project"));
+        setTitle(MavenDomLocalize.chooseProject());
 
         myOccurrencesCountFunction = funOccurrences;
         for (MavenDomProjectModel model : myMavenDomProjectModels) {
@@ -72,6 +72,7 @@ public class SelectMavenProjectDialog extends DialogWrapper {
     }
 
     @Nonnull
+    @Override
     protected Action[] createActions() {
         return new Action[]{
             getOKAction(),
@@ -79,6 +80,7 @@ public class SelectMavenProjectDialog extends DialogWrapper {
         };
     }
 
+    @Override
     protected void init() {
         super.init();
 
@@ -106,6 +108,7 @@ public class SelectMavenProjectDialog extends DialogWrapper {
         return myExtractExclusions.isSelected();
     }
 
+    @Override
     protected JComponent createCenterPanel() {
         ComboBoxUtil.setModel(myMavenProjectsComboBox, new DefaultComboBoxModel(), myMavenDomProjectModels,
             model -> {
@@ -121,11 +124,7 @@ public class SelectMavenProjectDialog extends DialogWrapper {
             }
         );
 
-        myReplaceAllListener = new ItemListener() {
-            public void itemStateChanged(ItemEvent e) {
-                updateControls();
-            }
-        };
+        myReplaceAllListener = e -> updateControls();
 
         myMavenProjectsComboBox.addItemListener(myReplaceAllListener);
         myMavenProjectsComboBox.setSelectedItem(0);
@@ -140,7 +139,7 @@ public class SelectMavenProjectDialog extends DialogWrapper {
     private void updateControls() {
         MavenDomProjectModel project = getSelectedProject();
         Integer count = myOccurrencesCountFunction.apply(project).size();
-        myReplaceAllCheckBox.setText(RefactoringBundle.message("replace.all.occurences", count));
+        myReplaceAllCheckBox.setText(RefactoringLocalize.replaceAllOccurences(count).get());
 
         myReplaceAllCheckBox.setEnabled(count != 0);
     }
@@ -149,6 +148,8 @@ public class SelectMavenProjectDialog extends DialogWrapper {
         setOKActionEnabled(getSelectedProject() != null);
     }
 
+    @Override
+    @RequiredUIAccess
     public JComponent getPreferredFocusedComponent() {
         return myMavenProjectsComboBox;
     }

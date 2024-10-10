@@ -26,7 +26,9 @@ import javax.annotation.Nonnull;
  * @author Sergey Evdokimov
  */
 public interface MavenParamReferenceProvider {
-
-  PsiReference[] getReferencesByElement(@Nonnull PsiElement element, @Nonnull MavenDomConfiguration domCfg, @Nonnull ProcessingContext context);
-
+    PsiReference[] getReferencesByElement(
+        @Nonnull PsiElement element,
+        @Nonnull MavenDomConfiguration domCfg,
+        @Nonnull ProcessingContext context
+    );
 }

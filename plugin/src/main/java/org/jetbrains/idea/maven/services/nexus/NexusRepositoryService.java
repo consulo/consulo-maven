@@ -34,71 +34,85 @@ import java.util.List;
  * @author Gregory.Shrago
  */
 public class NexusRepositoryService extends MavenRepositoryService {
-  public static MavenRepositoryInfo convertRepositoryInfo(RepositoryType repo) {
-    return new MavenRepositoryInfo(repo.getId(), repo.getName(), repo.getContentResourceURI());
-  }
-
-  public static MavenArtifactInfo convertArtifactInfo(ArtifactType t) {
-    return new MavenArtifactInfo(t.getGroupId(),
-                                 t.getArtifactId(),
-                                 t.getVersion(),
-                                 t.getPackaging(),
-                                 t.getClassifier(),
-                                 null,
-                                 t.getRepoId());
-  }
-
-  @Nonnull
-  @Override
-  public String getDisplayName() {
-    return "Nexus";
-  }
-
-  @Nonnull
-  @Override
-  public List<MavenRepositoryInfo> getRepositories(@Nonnull String url) throws IOException {
-    try {
-      List<RepositoryType> repos = new Endpoint.Repositories(url).getRepolistAsRepositories().getData().getRepositoriesItem();
-      List<MavenRepositoryInfo> result = new ArrayList<MavenRepositoryInfo>(repos.size());
-      for (RepositoryType repo : repos) {
-        if (!"maven2".equals(repo.getProvider())) continue;
-        result.add(convertRepositoryInfo(repo));
-      }
-      return result;
+    public static MavenRepositoryInfo convertRepositoryInfo(RepositoryType repo) {
+        return new MavenRepositoryInfo(repo.getId(), repo.getName(), repo.getContentResourceURI());
     }
-    catch (UnmarshalException e) {
-      return Collections.emptyList();
-    }
-    catch (JAXBException e) {
-      throw new IOException(e);
-    }
-  }
 
-  @Nonnull
-  @Override
-  public List<MavenArtifactInfo> findArtifacts(@Nonnull String url, @Nonnull MavenArtifactInfo template) throws IOException {
-    try {
-      final String packaging = StringUtil.notNullize(template.getPackaging());
-      final String name = StringUtil.join(Arrays.asList(template.getGroupId(), template.getArtifactId(), template.getVersion()), ":");
-      final SearchResults results = new Endpoint.DataIndex(url).getArtifactlistAsSearchResults(
-        name, template.getGroupId(), template.getArtifactId(), template.getVersion(), null, template.getClassNames());
-      boolean tooManyResults = results.isTooManyResults();
-      final SearchResults.Data data = results.getData();
-      final ArrayList<MavenArtifactInfo> result = new ArrayList<MavenArtifactInfo>();
-      if (data != null) {
-        for (ArtifactType each : data.getArtifact()) {
-          if (!Comparing.equal(each.packaging, packaging)) continue;
-          result.add(convertArtifactInfo(each));
+    public static MavenArtifactInfo convertArtifactInfo(ArtifactType t) {
+        return new MavenArtifactInfo(
+            t.getGroupId(),
+            t.getArtifactId(),
+            t.getVersion(),
+            t.getPackaging(),
+            t.getClassifier(),
+            null,
+            t.getRepoId()
+        );
+    }
+
+    @Nonnull
+    @Override
+    public String getDisplayName() {
+        return "Nexus";
+    }
+
+    @Nonnull
+    @Override
+    public List<MavenRepositoryInfo> getRepositories(@Nonnull String url) throws IOException {
+        try {
+            List<RepositoryType> repos = new Endpoint.Repositories(url).getRepolistAsRepositories().getData().getRepositoriesItem();
+            List<MavenRepositoryInfo> result = new ArrayList<>(repos.size());
+            for (RepositoryType repo : repos) {
+                if (!"maven2".equals(repo.getProvider())) {
+                    continue;
+                }
+                result.add(convertRepositoryInfo(repo));
+            }
+            return result;
         }
-      }
-      if (tooManyResults) result.add(null);
-      return result;
+        catch (UnmarshalException e) {
+            return Collections.emptyList();
+        }
+        catch (JAXBException e) {
+            throw new IOException(e);
+        }
     }
-    catch (UnmarshalException e) {
-      return Collections.emptyList();
+
+    @Nonnull
+    @Override
+    public List<MavenArtifactInfo> findArtifacts(@Nonnull String url, @Nonnull MavenArtifactInfo template) throws IOException {
+        try {
+            final String packaging = StringUtil.notNullize(template.getPackaging());
+            final String name = StringUtil.join(Arrays.asList(template.getGroupId(), template.getArtifactId(), template.getVersion()), ":");
+            final SearchResults results = new Endpoint.DataIndex(url).getArtifactlistAsSearchResults(
+                name,
+                template.getGroupId(),
+                template.getArtifactId(),
+                template.getVersion(),
+                null,
+                template.getClassNames()
+            );
+            boolean tooManyResults = results.isTooManyResults();
+            final SearchResults.Data data = results.getData();
+            final ArrayList<MavenArtifactInfo> result = new ArrayList<>();
+            if (data != null) {
+                for (ArtifactType each : data.getArtifact()) {
+                    if (!Comparing.equal(each.packaging, packaging)) {
+                        continue;
+                    }
+                    result.add(convertArtifactInfo(each));
+                }
+            }
+            if (tooManyResults) {
+                result.add(null);
+            }
+            return result;
+        }
+        catch (UnmarshalException e) {
+            return Collections.emptyList();
+        }
+        catch (JAXBException e) {
+            throw new IOException(e);
+        }
     }
-    catch (JAXBException e) {
-      throw new IOException(e);
-    }
-  }
 }

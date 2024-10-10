@@ -19,46 +19,52 @@ import consulo.util.xml.serializer.annotation.Tag;
 
 /**
  * @author Eugene Zhuravlev
- *         Date: 10/27/12
+ * @since 2012-10-27
  */
 public class MavenIdBean {
-  @Tag("groupId")
-  public String groupId;
+    @Tag("groupId")
+    public String groupId;
 
-  @Tag("artifactId")
-  public String artifactId;
+    @Tag("artifactId")
+    public String artifactId;
 
-  @Tag("version")
-  public String version;
+    @Tag("version")
+    public String version;
 
-  public MavenIdBean() {
-  }
+    public MavenIdBean() {
+    }
 
-  public MavenIdBean(String groupId, String artifactId, String version) {
-    this.groupId = groupId;
-    this.artifactId = artifactId;
-    this.version = version;
-  }
+    public MavenIdBean(String groupId, String artifactId, String version) {
+        this.groupId = groupId;
+        this.artifactId = artifactId;
+        this.version = version;
+    }
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
-    MavenIdBean bean = (MavenIdBean)o;
+        MavenIdBean bean = (MavenIdBean)o;
 
-    if (artifactId != null ? !artifactId.equals(bean.artifactId) : bean.artifactId != null) return false;
-    if (groupId != null ? !groupId.equals(bean.groupId) : bean.groupId != null) return false;
-    if (version != null ? !version.equals(bean.version) : bean.version != null) return false;
+        if (artifactId != null ? !artifactId.equals(bean.artifactId) : bean.artifactId != null) {
+            return false;
+        }
+        if (groupId != null ? !groupId.equals(bean.groupId) : bean.groupId != null) {
+            return false;
+        }
+        return version != null ? version.equals(bean.version) : bean.version == null;
+    }
 
-    return true;
-  }
-
-  @Override
-  public int hashCode() {
-    int result = groupId != null ? groupId.hashCode() : 0;
-    result = 31 * result + (artifactId != null ? artifactId.hashCode() : 0);
-    result = 31 * result + (version != null ? version.hashCode() : 0);
-    return result;
-  }
+    @Override
+    public int hashCode() {
+        int result = groupId != null ? groupId.hashCode() : 0;
+        result = 31 * result + (artifactId != null ? artifactId.hashCode() : 0);
+        result = 31 * result + (version != null ? version.hashCode() : 0);
+        return result;
+    }
 }

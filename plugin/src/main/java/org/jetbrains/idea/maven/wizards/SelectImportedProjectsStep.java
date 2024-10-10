@@ -42,146 +42,157 @@ import java.util.List;
 /**
  * @author Vladislav.Kaznacheev
  */
-public abstract class SelectImportedProjectsStep implements WizardStep<MavenImportModuleContext>
-{
-	private final JPanel panel;
-	protected final ElementsChooser<MavenProject> fileChooser;
-	protected final MavenImportModuleContext myContext;
+public abstract class SelectImportedProjectsStep implements WizardStep<MavenImportModuleContext> {
+    private final JPanel panel;
+    protected final ElementsChooser<MavenProject> fileChooser;
+    protected final MavenImportModuleContext myContext;
 
-	public SelectImportedProjectsStep(MavenImportModuleContext context)
-	{
-		myContext = context;
-		fileChooser = new ElementsChooser<MavenProject>(true)
-		{
-			@Override
-			protected String getItemText(@Nonnull MavenProject item)
-			{
-				return getElementText(item);
-			}
+    public SelectImportedProjectsStep(MavenImportModuleContext context) {
+        myContext = context;
+        fileChooser = new ElementsChooser<>(true) {
+            @Override
+            protected String getItemText(@Nonnull MavenProject item) {
+                return getElementText(item);
+            }
 
-			@Override
-			protected Image getItemIcon(@Nonnull final MavenProject item)
-			{
-				return getElementIcon(item);
-			}
-		};
+            @Override
+            protected Image getItemIcon(@Nonnull final MavenProject item) {
+                return getElementIcon(item);
+            }
+        };
 
-		panel = new JPanel(new GridLayoutManager(3, 1, JBUI.emptyInsets(), -1, -1));
+        panel = new JPanel(new GridLayoutManager(3, 1, JBUI.emptyInsets(), -1, -1));
 
-		panel.add(fileChooser, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_NORTH, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW,
-				GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null));
+        panel.add(fileChooser, new GridConstraints(
+            0,
+            0,
+            1,
+            1,
+            GridConstraints.ANCHOR_NORTH,
+            GridConstraints.FILL_BOTH,
+            GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW,
+            GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW,
+            null,
+            null,
+            null
+        ));
 
-		final AnAction selectAllAction = new AnAction(RefactoringBundle.message("select.all.button"), null, PlatformIconGroup.actionsSelectall())
-		{
-			@RequiredUIAccess
-			@Override
-			public void actionPerformed(@Nonnull AnActionEvent e)
-			{
-				fileChooser.setAllElementsMarked(true);
-			}
+        final AnAction selectAllAction =
+            new AnAction(RefactoringBundle.message("select.all.button"), null, PlatformIconGroup.actionsSelectall()) {
+                @RequiredUIAccess
+                @Override
+                public void actionPerformed(@Nonnull AnActionEvent e) {
+                    fileChooser.setAllElementsMarked(true);
+                }
 
-			@Override
-			public boolean displayTextInToolbar()
-			{
-				return true;
-			}
-		};
-		final AnAction unselectAllAction = new AnAction(RefactoringBundle.message("unselect.all.button"), null, PlatformIconGroup.actionsUnselectall())
-		{
-			@RequiredUIAccess
-			@Override
-			public void actionPerformed(@Nonnull AnActionEvent e)
-			{
-				fileChooser.setAllElementsMarked(false);
-			}
+                @Override
+                public boolean displayTextInToolbar() {
+                    return true;
+                }
+            };
+        final AnAction unselectAllAction =
+            new AnAction(RefactoringBundle.message("unselect.all.button"), null, PlatformIconGroup.actionsUnselectall()) {
+                @RequiredUIAccess
+                @Override
+                public void actionPerformed(@Nonnull AnActionEvent e) {
+                    fileChooser.setAllElementsMarked(false);
+                }
 
-			@Override
-			public boolean displayTextInToolbar()
-			{
-				return true;
-			}
-		};
-		ActionToolbar toolbar = ActionManager.getInstance().createActionToolbar(ActionPlaces.UNKNOWN, new DefaultActionGroup(selectAllAction, unselectAllAction), true);
-		toolbar.setTargetComponent(panel);
-		final JComponent actionToolbar = toolbar.getComponent();
-		panel.add(actionToolbar, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_NORTH, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints
-				.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK, null, null, null));
-	}
+                @Override
+                public boolean displayTextInToolbar() {
+                    return true;
+                }
+            };
+        ActionToolbar toolbar = ActionManager.getInstance()
+            .createActionToolbar(ActionPlaces.UNKNOWN, new DefaultActionGroup(selectAllAction, unselectAllAction), true);
+        toolbar.setTargetComponent(panel);
+        final JComponent actionToolbar = toolbar.getComponent();
+        panel.add(
+            actionToolbar,
+            new GridConstraints(
+                1,
+                0,
+                1,
+                1,
+                GridConstraints.ANCHOR_NORTH,
+                GridConstraints.FILL_HORIZONTAL,
+                GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints
+                    .SIZEPOLICY_WANT_GROW,
+                GridConstraints.SIZEPOLICY_CAN_SHRINK,
+                null,
+                null,
+                null
+            )
+        );
+    }
 
-	@Nullable
-	protected Image getElementIcon(final MavenProject item)
-	{
-		return null;
-	}
+    @Nullable
+    protected Image getElementIcon(final MavenProject item) {
+        return null;
+    }
 
-	protected abstract String getElementText(final MavenProject item);
+    protected abstract String getElementText(final MavenProject item);
 
-	@RequiredUIAccess
-	@Nonnull
-	@Override
-	public Component getComponent(@Nonnull MavenImportModuleContext context, @Nonnull Disposable disposable)
-	{
-		throw new UnsupportedOperationException("desktop only");
-	}
+    @RequiredUIAccess
+    @Nonnull
+    @Override
+    public Component getComponent(@Nonnull MavenImportModuleContext context, @Nonnull Disposable disposable) {
+        throw new UnsupportedOperationException("desktop only");
+    }
 
-	@RequiredUIAccess
-	@Nonnull
-	@Override
-	public JComponent getSwingComponent(@Nonnull MavenImportModuleContext context, @Nonnull Disposable disposable)
-	{
-		return panel;
-	}
+    @RequiredUIAccess
+    @Nonnull
+    @Override
+    public JComponent getSwingComponent(@Nonnull MavenImportModuleContext context, @Nonnull Disposable disposable) {
+        return panel;
+    }
 
-	protected boolean isElementEnabled(MavenProject element)
-	{
-		return true;
-	}
+    protected boolean isElementEnabled(MavenProject element) {
+        return true;
+    }
 
-	@Override
-	public void onStepEnter(@Nonnull MavenImportModuleContext context)
-	{
-		fileChooser.clear();
-		List<MavenProject> list = context.getList();
-		if(list != null)
-		{
-			for(MavenProject element : list)
-			{
-				boolean isEnabled = isElementEnabled(element);
-				fileChooser.addElement(element, isEnabled && getContext().isMarked(element));
-				if(!isEnabled)
-				{
-					fileChooser.disableElement(element);
-				}
-			}
-		}
+    @Override
+    public void onStepEnter(@Nonnull MavenImportModuleContext context) {
+        fileChooser.clear();
+        List<MavenProject> list = context.getList();
+        if (list != null) {
+            for (MavenProject element : list) {
+                boolean isEnabled = isElementEnabled(element);
+                fileChooser.addElement(element, isEnabled && getContext().isMarked(element));
+                if (!isEnabled) {
+                    fileChooser.disableElement(element);
+                }
+            }
+        }
 
-		fileChooser.setBorder(IdeBorderFactory.createTitledBorder(IdeBundle.message("project.import.select.title", ProjectBundle.message("maven.name")), false));
-	}
+        fileChooser.setBorder(IdeBorderFactory.createTitledBorder(
+            IdeBundle.message(
+                "project.import.select.title",
+                ProjectBundle.message("maven.name")
+            ),
+            false
+        ));
+    }
 
-	@Override
-	public void onStepLeave(@Nonnull MavenImportModuleContext context)
-	{
-		context.setList(fileChooser.getMarkedElements());
+    @Override
+    public void onStepLeave(@Nonnull MavenImportModuleContext context) {
+        context.setList(fileChooser.getMarkedElements());
 
-		updateDataModel();
-	}
+        updateDataModel();
+    }
 
-	@Override
-	public void validateStep(@Nonnull MavenImportModuleContext context) throws WizardStepValidationException
-	{
-		onStepLeave(context);
-		if(fileChooser.getMarkedElements().size() == 0)
-		{
-			throw new WizardStepValidationException("Nothing found to import");
-		}
-	}
+    @Override
+    public void validateStep(@Nonnull MavenImportModuleContext context) throws WizardStepValidationException {
+        onStepLeave(context);
+        if (fileChooser.getMarkedElements().size() == 0) {
+            throw new WizardStepValidationException("Nothing found to import");
+        }
+    }
 
-	public void updateDataModel()
-	{
-	}
+    public void updateDataModel() {
+    }
 
-	public MavenImportModuleContext getContext()
-	{
-		return myContext;
-	}
+    public MavenImportModuleContext getContext() {
+        return myContext;
+    }
 }

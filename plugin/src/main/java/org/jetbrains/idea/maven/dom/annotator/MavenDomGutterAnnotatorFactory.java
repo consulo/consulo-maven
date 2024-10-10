@@ -11,7 +11,7 @@ import javax.annotation.Nullable;
 
 /**
  * @author VISTALL
- * @since 21/01/2023
+ * @since 2023-01-21
  */
 @ExtensionImpl
 public class MavenDomGutterAnnotatorFactory implements AnnotatorFactory {
