@@ -22,9 +22,9 @@ package org.jetbrains.idea.maven.dom.model;
 import javax.annotation.Nonnull;
 
 public interface MavenDomRepository extends MavenDomRepositoryBase {
-  @Nonnull
-  MavenDomRepositoryPolicy getReleases();
+    @Nonnull
+    MavenDomRepositoryPolicy getReleases();
 
-  @Nonnull
-  MavenDomRepositoryPolicy getSnapshots();
+    @Nonnull
+    MavenDomRepositoryPolicy getSnapshots();
 }

@@ -20,6 +20,7 @@
 package org.jetbrains.idea.maven.dom.model;
 
 import javax.annotation.Nonnull;
+
 import org.jetbrains.idea.maven.dom.MavenDomElement;
 
 import java.util.List;
@@ -28,19 +29,18 @@ import java.util.List;
  * http://maven.apache.org/POM/4.0.0:notifiersElemType interface.
  */
 public interface MavenDomNotifiers extends MavenDomElement {
+    /**
+     * Returns the list of notifier children.
+     *
+     * @return the list of notifier children.
+     */
+    @Nonnull
+    List<MavenDomNotifier> getNotifiers();
 
-  /**
-   * Returns the list of notifier children.
-   *
-   * @return the list of notifier children.
-   */
-  @Nonnull
-  List<MavenDomNotifier> getNotifiers();
-
-  /**
-   * Adds new child to the list of notifier children.
-   *
-   * @return created child
-   */
-  MavenDomNotifier addNotifier();
+    /**
+     * Adds new child to the list of notifier children.
+     *
+     * @return created child
+     */
+    MavenDomNotifier addNotifier();
 }

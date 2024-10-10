@@ -22,8 +22,8 @@ import consulo.xml.util.xml.Required;
 import org.jetbrains.idea.maven.dom.converters.MavenArtifactCoordinatesVersionConverter;
 
 public interface MavenDomArtifactCoordinates extends MavenDomShortArtifactCoordinates {
-  @Required
-  @NoSpellchecking
-  @Convert(MavenArtifactCoordinatesVersionConverter.class)
-  GenericDomValue<String> getVersion();
+    @Required
+    @NoSpellchecking
+    @Convert(MavenArtifactCoordinatesVersionConverter.class)
+    GenericDomValue<String> getVersion();
 }

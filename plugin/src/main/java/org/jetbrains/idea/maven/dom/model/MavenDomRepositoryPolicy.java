@@ -36,45 +36,44 @@ import org.jetbrains.idea.maven.dom.converters.MavenRepositoryUpdatePolicyConver
  * </pre>
  */
 public interface MavenDomRepositoryPolicy extends MavenDomElement {
+    /**
+     * Returns the value of the enabled child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:enabled documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the enabled child.
+     */
+    @Nonnull
+    @Required(value = false, nonEmpty = true)
+    GenericDomValue<Boolean> getEnabled();
 
-  /**
-   * Returns the value of the enabled child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:enabled documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the enabled child.
-   */
-  @Nonnull
-  @Required(value = false, nonEmpty = true)
-  GenericDomValue<Boolean> getEnabled();
+    /**
+     * Returns the value of the updatePolicy child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:updatePolicy documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the updatePolicy child.
+     */
+    @Nonnull
+    @Required(value = false, nonEmpty = true)
+    @Convert(MavenRepositoryUpdatePolicyConverter.class)
+    GenericDomValue<String> getUpdatePolicy();
 
-  /**
-   * Returns the value of the updatePolicy child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:updatePolicy documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the updatePolicy child.
-   */
-  @Nonnull
-  @Required(value = false, nonEmpty = true)
-  @Convert(MavenRepositoryUpdatePolicyConverter.class)
-  GenericDomValue<String> getUpdatePolicy();
-
-  /**
-   * Returns the value of the checksumPolicy child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:checksumPolicy documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the checksumPolicy child.
-   */
-  @Nonnull
-  @Required(value = false, nonEmpty = true)
-  @Convert(MavenRepositoryChecksumPolicyConverter.class)
-  GenericDomValue<String> getChecksumPolicy();
+    /**
+     * Returns the value of the checksumPolicy child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:checksumPolicy documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the checksumPolicy child.
+     */
+    @Nonnull
+    @Required(value = false, nonEmpty = true)
+    @Convert(MavenRepositoryChecksumPolicyConverter.class)
+    GenericDomValue<String> getChecksumPolicy();
 }

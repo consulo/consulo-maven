@@ -20,7 +20,9 @@
 package org.jetbrains.idea.maven.dom.model;
 
 import consulo.xml.util.xml.GenericDomValue;
+
 import javax.annotation.Nonnull;
+
 import org.jetbrains.idea.maven.dom.MavenDomElement;
 
 import java.util.List;
@@ -29,19 +31,18 @@ import java.util.List;
  * http://maven.apache.org/POM/4.0.0:includesElemType interface.
  */
 public interface MavenDomIncludes extends MavenDomElement {
+    /**
+     * Returns the list of include children.
+     *
+     * @return the list of include children.
+     */
+    @Nonnull
+    List<GenericDomValue<String>> getIncludes();
 
-  /**
-   * Returns the list of include children.
-   *
-   * @return the list of include children.
-   */
-  @Nonnull
-  List<GenericDomValue<String>> getIncludes();
-
-  /**
-   * Adds new child to the list of include children.
-   *
-   * @return created child
-   */
-  GenericDomValue<String> addInclude();
+    /**
+     * Adds new child to the list of include children.
+     *
+     * @return created child
+     */
+    GenericDomValue<String> addInclude();
 }

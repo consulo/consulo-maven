@@ -23,13 +23,13 @@ import org.jetbrains.idea.maven.dom.converters.MavenArtifactCoordinatesArtifactI
 import org.jetbrains.idea.maven.dom.converters.MavenArtifactCoordinatesGroupIdConverter;
 
 public interface MavenDomShortArtifactCoordinates {
-  @Required
-  @NoSpellchecking
-  @Convert(MavenArtifactCoordinatesGroupIdConverter.class)
-  GenericDomValue<String> getGroupId();
+    @Required
+    @NoSpellchecking
+    @Convert(MavenArtifactCoordinatesGroupIdConverter.class)
+    GenericDomValue<String> getGroupId();
 
-  @Required
-  @NoSpellchecking
-  @Convert(MavenArtifactCoordinatesArtifactIdConverter.class)
-  GenericDomValue<String> getArtifactId();
+    @Required
+    @NoSpellchecking
+    @Convert(MavenArtifactCoordinatesArtifactIdConverter.class)
+    GenericDomValue<String> getArtifactId();
 }

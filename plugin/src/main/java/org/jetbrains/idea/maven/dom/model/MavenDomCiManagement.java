@@ -34,41 +34,40 @@ import org.jetbrains.idea.maven.dom.converters.MavenUrlConverter;
  * </pre>
  */
 public interface MavenDomCiManagement extends MavenDomElement {
+    /**
+     * Returns the value of the system child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:system documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the system child.
+     */
+    @Nonnull
+    GenericDomValue<String> getSystem();
 
-  /**
-   * Returns the value of the system child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:system documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the system child.
-   */
-  @Nonnull
-  GenericDomValue<String> getSystem();
+    /**
+     * Returns the value of the url child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:url documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the url child.
+     */
+    @Nonnull
+    @Convert(MavenUrlConverter.class)
+    GenericDomValue<String> getUrl();
 
-  /**
-   * Returns the value of the url child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:url documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the url child.
-   */
-  @Nonnull
-  @Convert(MavenUrlConverter.class)
-  GenericDomValue<String> getUrl();
-
-  /**
-   * Returns the value of the notifiers child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:notifiers documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the notifiers child.
-   */
-  @Nonnull
-  MavenDomNotifiers getNotifiers();
+    /**
+     * Returns the value of the notifiers child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:notifiers documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the notifiers child.
+     */
+    @Nonnull
+    MavenDomNotifiers getNotifiers();
 }

@@ -35,30 +35,29 @@ import org.jetbrains.idea.maven.dom.references.MavenDirectoryPathReferenceConver
  * </pre>
  */
 public interface MavenDomActivationFile extends MavenDomElement {
+    /**
+     * Returns the value of the missing child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:missing documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the missing child.
+     */
+    @Nonnull
+    @Convert(value = MavenDirectoryPathReferenceConverter.class, soft = true)
+    GenericDomValue<PathReference> getMissing();
 
-  /**
-   * Returns the value of the missing child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:missing documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the missing child.
-   */
-  @Nonnull
-  @Convert(value = MavenDirectoryPathReferenceConverter.class, soft = true)
-  GenericDomValue<PathReference> getMissing();
-
-  /**
-   * Returns the value of the exists child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:exists documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the exists child.
-   */
-  @Nonnull
-  @Convert(value = MavenDirectoryPathReferenceConverter.class, soft = true)
-  GenericDomValue<PathReference> getExists();
+    /**
+     * Returns the value of the exists child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:exists documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the exists child.
+     */
+    @Nonnull
+    @Convert(value = MavenDirectoryPathReferenceConverter.class, soft = true)
+    GenericDomValue<PathReference> getExists();
 }

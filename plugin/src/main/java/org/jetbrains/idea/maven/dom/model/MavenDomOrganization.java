@@ -34,29 +34,28 @@ import org.jetbrains.idea.maven.dom.converters.MavenUrlConverter;
  * </pre>
  */
 public interface MavenDomOrganization extends MavenDomElement {
+    /**
+     * Returns the value of the name child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:name documentation</h3>
+     * 3.0.0+
+     * </pre>
+     *
+     * @return the value of the name child.
+     */
+    @Nonnull
+    GenericDomValue<String> getName();
 
-  /**
-   * Returns the value of the name child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:name documentation</h3>
-   * 3.0.0+
-   * </pre>
-   *
-   * @return the value of the name child.
-   */
-  @Nonnull
-  GenericDomValue<String> getName();
-
-  /**
-   * Returns the value of the url child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:url documentation</h3>
-   * 3.0.0+
-   * </pre>
-   *
-   * @return the value of the url child.
-   */
-  @Nonnull
-  @Convert(MavenUrlConverter.class)
-  GenericDomValue<String> getUrl();
+    /**
+     * Returns the value of the url child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:url documentation</h3>
+     * 3.0.0+
+     * </pre>
+     *
+     * @return the value of the url child.
+     */
+    @Nonnull
+    @Convert(MavenUrlConverter.class)
+    GenericDomValue<String> getUrl();
 }

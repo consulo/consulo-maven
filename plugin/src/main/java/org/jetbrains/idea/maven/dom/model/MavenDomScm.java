@@ -34,55 +34,54 @@ import org.jetbrains.idea.maven.dom.converters.MavenUrlConverter;
  * </pre>
  */
 public interface MavenDomScm extends MavenDomElement {
+    /**
+     * Returns the value of the connection child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:connection documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the connection child.
+     */
+    @Nonnull
+    @Convert(MavenUrlConverter.class)
+    GenericDomValue<String> getConnection();
 
-  /**
-   * Returns the value of the connection child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:connection documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the connection child.
-   */
-  @Nonnull
-  @Convert(MavenUrlConverter.class)
-  GenericDomValue<String> getConnection();
+    /**
+     * Returns the value of the developerConnection child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:developerConnection documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the developerConnection child.
+     */
+    @Nonnull
+    @Convert(MavenUrlConverter.class)
+    GenericDomValue<String> getDeveloperConnection();
 
-  /**
-   * Returns the value of the developerConnection child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:developerConnection documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the developerConnection child.
-   */
-  @Nonnull
-  @Convert(MavenUrlConverter.class)
-  GenericDomValue<String> getDeveloperConnection();
+    /**
+     * Returns the value of the tag child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:tag documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the tag child.
+     */
+    @Nonnull
+    GenericDomValue<String> getTag();
 
-  /**
-   * Returns the value of the tag child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:tag documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the tag child.
-   */
-  @Nonnull
-  GenericDomValue<String> getTag();
-
-  /**
-   * Returns the value of the url child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:url documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the url child.
-   */
-  @Nonnull
-  @Convert(MavenUrlConverter.class)
-  GenericDomValue<String> getUrl();
+    /**
+     * Returns the value of the url child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:url documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the url child.
+     */
+    @Nonnull
+    @Convert(MavenUrlConverter.class)
+    GenericDomValue<String> getUrl();
 }

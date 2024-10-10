@@ -21,7 +21,9 @@ package org.jetbrains.idea.maven.dom.model;
 
 import consulo.xml.util.xml.Convert;
 import consulo.xml.util.xml.GenericDomValue;
+
 import javax.annotation.Nonnull;
+
 import org.jetbrains.idea.maven.dom.MavenDomElement;
 import org.jetbrains.idea.maven.dom.converters.MavenUrlConverter;
 
@@ -33,41 +35,40 @@ import org.jetbrains.idea.maven.dom.converters.MavenUrlConverter;
  * </pre>
  */
 public interface MavenDomSite extends MavenDomElement {
+    /**
+     * Returns the value of the id child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:id documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the id child.
+     */
+    @Nonnull
+    GenericDomValue<String> getId();
 
-  /**
-   * Returns the value of the id child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:id documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the id child.
-   */
-  @Nonnull
-  GenericDomValue<String> getId();
+    /**
+     * Returns the value of the name child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:name documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the name child.
+     */
+    @Nonnull
+    GenericDomValue<String> getName();
 
-  /**
-   * Returns the value of the name child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:name documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the name child.
-   */
-  @Nonnull
-  GenericDomValue<String> getName();
-
-  /**
-   * Returns the value of the url child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:url documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the url child.
-   */
-  @Nonnull
-  @Convert(MavenUrlConverter.class)
-  GenericDomValue<String> getUrl();
+    /**
+     * Returns the value of the url child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:url documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the url child.
+     */
+    @Nonnull
+    @Convert(MavenUrlConverter.class)
+    GenericDomValue<String> getUrl();
 }

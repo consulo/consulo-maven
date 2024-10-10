@@ -20,6 +20,7 @@
 package org.jetbrains.idea.maven.dom.model;
 
 import javax.annotation.Nonnull;
+
 import org.jetbrains.idea.maven.dom.MavenDomElement;
 
 import java.util.List;
@@ -28,19 +29,18 @@ import java.util.List;
  * http://maven.apache.org/POM/4.0.0:executionsElemType interface.
  */
 public interface MavenDomExecutions extends MavenDomElement {
+    /**
+     * Returns the list of execution children.
+     *
+     * @return the list of execution children.
+     */
+    @Nonnull
+    List<MavenDomPluginExecution> getExecutions();
 
-  /**
-   * Returns the list of execution children.
-   *
-   * @return the list of execution children.
-   */
-  @Nonnull
-  List<MavenDomPluginExecution> getExecutions();
-
-  /**
-   * Adds new child to the list of execution children.
-   *
-   * @return created child
-   */
-  MavenDomPluginExecution addExecution();
+    /**
+     * Adds new child to the list of execution children.
+     *
+     * @return created child
+     */
+    MavenDomPluginExecution addExecution();
 }

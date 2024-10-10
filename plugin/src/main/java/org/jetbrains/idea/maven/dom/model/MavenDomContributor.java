@@ -34,103 +34,102 @@ import org.jetbrains.idea.maven.dom.converters.MavenUrlConverter;
  * </pre>
  */
 public interface MavenDomContributor extends MavenDomElement {
+    /**
+     * Returns the value of the name child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:name documentation</h3>
+     * 3.0.0+
+     * </pre>
+     *
+     * @return the value of the name child.
+     */
+    @Nonnull
+    GenericDomValue<String> getName();
 
-  /**
-   * Returns the value of the name child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:name documentation</h3>
-   * 3.0.0+
-   * </pre>
-   *
-   * @return the value of the name child.
-   */
-  @Nonnull
-  GenericDomValue<String> getName();
+    /**
+     * Returns the value of the email child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:email documentation</h3>
+     * 3.0.0+
+     * </pre>
+     *
+     * @return the value of the email child.
+     */
+    @Nonnull
+    @Convert(MavenUrlConverter.class)
+    GenericDomValue<String> getEmail();
 
-  /**
-   * Returns the value of the email child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:email documentation</h3>
-   * 3.0.0+
-   * </pre>
-   *
-   * @return the value of the email child.
-   */
-  @Nonnull
-  @Convert(MavenUrlConverter.class)
-  GenericDomValue<String> getEmail();
+    /**
+     * Returns the value of the url child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:url documentation</h3>
+     * 3.0.0+
+     * </pre>
+     *
+     * @return the value of the url child.
+     */
+    @Nonnull
+    @Convert(MavenUrlConverter.class)
+    GenericDomValue<String> getUrl();
 
-  /**
-   * Returns the value of the url child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:url documentation</h3>
-   * 3.0.0+
-   * </pre>
-   *
-   * @return the value of the url child.
-   */
-  @Nonnull
-  @Convert(MavenUrlConverter.class)
-  GenericDomValue<String> getUrl();
+    /**
+     * Returns the value of the organization child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:organization documentation</h3>
+     * 3.0.0+
+     * </pre>
+     *
+     * @return the value of the organization child.
+     */
+    @Nonnull
+    GenericDomValue<String> getOrganization();
 
-  /**
-   * Returns the value of the organization child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:organization documentation</h3>
-   * 3.0.0+
-   * </pre>
-   *
-   * @return the value of the organization child.
-   */
-  @Nonnull
-  GenericDomValue<String> getOrganization();
+    /**
+     * Returns the value of the organizationUrl child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:organizationUrl documentation</h3>
+     * 3.0.0+
+     * </pre>
+     *
+     * @return the value of the organizationUrl child.
+     */
+    @Nonnull
+    @Convert(MavenUrlConverter.class)
+    GenericDomValue<String> getOrganizationUrl();
 
-  /**
-   * Returns the value of the organizationUrl child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:organizationUrl documentation</h3>
-   * 3.0.0+
-   * </pre>
-   *
-   * @return the value of the organizationUrl child.
-   */
-  @Nonnull
-  @Convert(MavenUrlConverter.class)
-  GenericDomValue<String> getOrganizationUrl();
+    /**
+     * Returns the value of the roles child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:roles documentation</h3>
+     * 3.0.0+
+     * </pre>
+     *
+     * @return the value of the roles child.
+     */
+    @Nonnull
+    MavenDomRoles getRoles();
 
-  /**
-   * Returns the value of the roles child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:roles documentation</h3>
-   * 3.0.0+
-   * </pre>
-   *
-   * @return the value of the roles child.
-   */
-  @Nonnull
-  MavenDomRoles getRoles();
+    /**
+     * Returns the value of the timezone child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:timezone documentation</h3>
+     * 3.0.0+
+     * </pre>
+     *
+     * @return the value of the timezone child.
+     */
+    @Nonnull
+    GenericDomValue<String> getTimezone();
 
-  /**
-   * Returns the value of the timezone child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:timezone documentation</h3>
-   * 3.0.0+
-   * </pre>
-   *
-   * @return the value of the timezone child.
-   */
-  @Nonnull
-  GenericDomValue<String> getTimezone();
-
-  /**
-   * Returns the value of the properties child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:properties documentation</h3>
-   * 3.0.0+
-   * </pre>
-   *
-   * @return the value of the properties child.
-   */
-  @Nonnull
-  MavenDomProperties getProperties();
+    /**
+     * Returns the value of the properties child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:properties documentation</h3>
+     * 3.0.0+
+     * </pre>
+     *
+     * @return the value of the properties child.
+     */
+    @Nonnull
+    MavenDomProperties getProperties();
 }

@@ -32,52 +32,51 @@ import org.jetbrains.idea.maven.dom.MavenDomElement;
  * </pre>
  */
 public interface MavenDomReportSet extends MavenDomElement {
+    /**
+     * Returns the value of the id child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:id documentation</h3>
+     * 0.0.0+
+     * </pre>
+     *
+     * @return the value of the id child.
+     */
+    @Nonnull
+    GenericDomValue<String> getId();
 
-  /**
-   * Returns the value of the id child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:id documentation</h3>
-   * 0.0.0+
-   * </pre>
-   *
-   * @return the value of the id child.
-   */
-  @Nonnull
-  GenericDomValue<String> getId();
+    /**
+     * Returns the value of the configuration child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:configuration documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the configuration child.
+     */
+    @Nonnull
+    MavenDomElement getConfiguration();
 
-  /**
-   * Returns the value of the configuration child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:configuration documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the configuration child.
-   */
-  @Nonnull
-  MavenDomElement getConfiguration();
+    /**
+     * Returns the value of the inherited child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:inherited documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the inherited child.
+     */
+    @Nonnull
+    GenericDomValue<String> getInherited();
 
-  /**
-   * Returns the value of the inherited child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:inherited documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the inherited child.
-   */
-  @Nonnull
-  GenericDomValue<String> getInherited();
-
-  /**
-   * Returns the value of the reports child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:reports documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the reports child.
-   */
-  @Nonnull
-  MavenDomReports getReports();
+    /**
+     * Returns the value of the reports child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:reports documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the reports child.
+     */
+    @Nonnull
+    MavenDomReports getReports();
 }

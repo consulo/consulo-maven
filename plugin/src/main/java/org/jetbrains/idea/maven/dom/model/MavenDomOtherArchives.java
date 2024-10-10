@@ -21,7 +21,9 @@ package org.jetbrains.idea.maven.dom.model;
 
 import consulo.xml.util.xml.Convert;
 import consulo.xml.util.xml.GenericDomValue;
+
 import javax.annotation.Nonnull;
+
 import org.jetbrains.idea.maven.dom.MavenDomElement;
 import org.jetbrains.idea.maven.dom.converters.MavenUrlConverter;
 
@@ -31,20 +33,19 @@ import java.util.List;
  * http://maven.apache.org/POM/4.0.0:otherArchivesElemType interface.
  */
 public interface MavenDomOtherArchives extends MavenDomElement {
+    /**
+     * Returns the list of otherArchive children.
+     *
+     * @return the list of otherArchive children.
+     */
+    @Nonnull
+    @Convert(MavenUrlConverter.class)
+    List<GenericDomValue<String>> getOtherArchives();
 
-  /**
-   * Returns the list of otherArchive children.
-   *
-   * @return the list of otherArchive children.
-   */
-  @Nonnull
-  @Convert(MavenUrlConverter.class)
-  List<GenericDomValue<String>> getOtherArchives();
-
-  /**
-   * Adds new child to the list of otherArchive children.
-   *
-   * @return created child
-   */
-  GenericDomValue<String> addOtherArchive();
+    /**
+     * Adds new child to the list of otherArchive children.
+     *
+     * @return created child
+     */
+    GenericDomValue<String> addOtherArchive();
 }

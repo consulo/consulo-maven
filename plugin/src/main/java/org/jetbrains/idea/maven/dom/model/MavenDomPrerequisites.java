@@ -32,16 +32,15 @@ import org.jetbrains.idea.maven.dom.MavenDomElement;
  * </pre>
  */
 public interface MavenDomPrerequisites extends MavenDomElement {
-
-  /**
-   * Returns the value of the maven child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:maven documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the maven child.
-   */
-  @Nonnull
-  GenericDomValue<String> getMaven();
+    /**
+     * Returns the value of the maven child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:maven documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the maven child.
+     */
+    @Nonnull
+    GenericDomValue<String> getMaven();
 }

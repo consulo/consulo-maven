@@ -20,6 +20,7 @@
 package org.jetbrains.idea.maven.dom.model;
 
 import javax.annotation.Nonnull;
+
 import org.jetbrains.idea.maven.dom.MavenDomElement;
 
 import java.util.List;
@@ -28,19 +29,18 @@ import java.util.List;
  * http://maven.apache.org/POM/4.0.0:pluginRepositoriesElemType interface.
  */
 public interface MavenDomPluginRepositories extends MavenDomElement {
+    /**
+     * Returns the list of pluginRepository children.
+     *
+     * @return the list of pluginRepository children.
+     */
+    @Nonnull
+    List<MavenDomRepository> getPluginRepositories();
 
-  /**
-   * Returns the list of pluginRepository children.
-   *
-   * @return the list of pluginRepository children.
-   */
-  @Nonnull
-  List<MavenDomRepository> getPluginRepositories();
-
-  /**
-   * Adds new child to the list of pluginRepository children.
-   *
-   * @return created child
-   */
-  MavenDomRepository addPluginRepository();
+    /**
+     * Adds new child to the list of pluginRepository children.
+     *
+     * @return created child
+     */
+    MavenDomRepository addPluginRepository();
 }

@@ -29,21 +29,21 @@ import org.jetbrains.idea.maven.dom.converters.MavenRepositoryLayoutConverter;
 import org.jetbrains.idea.maven.dom.converters.repositories.MavenRepositoryConverter;
 
 public interface MavenDomRepositoryBase extends MavenDomElement {
-  @Nonnull
-  @Required
-  @Convert(MavenRepositoryConverter.Id.class)
-  GenericDomValue<String> getId();
+    @Nonnull
+    @Required
+    @Convert(MavenRepositoryConverter.Id.class)
+    GenericDomValue<String> getId();
 
-  @Nonnull
-  @Convert(MavenRepositoryConverter.Name.class)
-  GenericDomValue<String> getName();
+    @Nonnull
+    @Convert(MavenRepositoryConverter.Name.class)
+    GenericDomValue<String> getName();
 
-  @Nonnull
-  @Convert(MavenRepositoryConverter.Url.class)
-  GenericDomValue<String> getUrl();
+    @Nonnull
+    @Convert(MavenRepositoryConverter.Url.class)
+    GenericDomValue<String> getUrl();
 
-  @Nonnull
-  @Required(value = false, nonEmpty = true)
-  @Convert(MavenRepositoryLayoutConverter.class)
-  GenericDomValue<String> getLayout();
+    @Nonnull
+    @Required(value = false, nonEmpty = true)
+    @Convert(MavenRepositoryLayoutConverter.class)
+    GenericDomValue<String> getLayout();
 }

@@ -38,86 +38,86 @@ import javax.annotation.Nonnull;
  * </pre>
  */
 public interface MavenDomDependency extends MavenDomElement, MavenDomArtifactCoordinates {
-  @Required(value = false, nonEmpty = true)
-  GenericDomValue<String> getVersion();
+    @Required(value = false, nonEmpty = true)
+    GenericDomValue<String> getVersion();
 
-  /**
-   * Returns the value of the type child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:type documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the type child.
-   */
-  @Nonnull
-  @Required(value = false, nonEmpty = true)
-  @Convert(MavenDependencyTypeConverter.class)
-  GenericDomValue<String> getType();
+    /**
+     * Returns the value of the type child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:type documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the type child.
+     */
+    @Nonnull
+    @Required(value = false, nonEmpty = true)
+    @Convert(MavenDependencyTypeConverter.class)
+    GenericDomValue<String> getType();
 
-  /**
-   * Returns the value of the classifier child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:classifier documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the classifier child.
-   */
-  @Nonnull
-  @Required(value = false, nonEmpty = true)
-  GenericDomValue<String> getClassifier();
+    /**
+     * Returns the value of the classifier child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:classifier documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the classifier child.
+     */
+    @Nonnull
+    @Required(value = false, nonEmpty = true)
+    GenericDomValue<String> getClassifier();
 
-  /**
-   * Returns the value of the scope child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:scope documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the scope child.
-   */
-  @Nonnull
-  @Required(value = false, nonEmpty = true)
-  @Convert(MavenDependencyScopeConverter.class)
-  GenericDomValue<String> getScope();
+    /**
+     * Returns the value of the scope child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:scope documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the scope child.
+     */
+    @Nonnull
+    @Required(value = false, nonEmpty = true)
+    @Convert(MavenDependencyScopeConverter.class)
+    GenericDomValue<String> getScope();
 
-  /**
-   * Returns the value of the systemPath child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:systemPath documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the systemPath child.
-   */
-  @Nonnull
-  @Required(value = false, nonEmpty = true)
-  @Convert(MavenDependencySystemPathConverter.class)
-  GenericDomValue<PsiFile> getSystemPath();
+    /**
+     * Returns the value of the systemPath child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:systemPath documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the systemPath child.
+     */
+    @Nonnull
+    @Required(value = false, nonEmpty = true)
+    @Convert(MavenDependencySystemPathConverter.class)
+    GenericDomValue<PsiFile> getSystemPath();
 
-  /**
-   * Returns the value of the exclusions child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:exclusions documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the exclusions child.
-   */
-  @Nonnull
-  MavenDomExclusions getExclusions();
+    /**
+     * Returns the value of the exclusions child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:exclusions documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the exclusions child.
+     */
+    @Nonnull
+    MavenDomExclusions getExclusions();
 
-  /**
-   * Returns the value of the optional child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:optional documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the optional child.
-   */
-  @Nonnull
-  @Required(value = false, nonEmpty = true)
-  GenericDomValue<Boolean> getOptional();
+    /**
+     * Returns the value of the optional child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:optional documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the optional child.
+     */
+    @Nonnull
+    @Required(value = false, nonEmpty = true)
+    GenericDomValue<Boolean> getOptional();
 }

@@ -23,7 +23,9 @@ import consulo.language.psi.PsiFile;
 import consulo.xml.util.xml.Convert;
 import consulo.xml.util.xml.GenericDomValue;
 import consulo.xml.util.xml.Required;
+
 import javax.annotation.Nonnull;
+
 import org.jetbrains.idea.maven.dom.MavenDomElement;
 import org.jetbrains.idea.maven.dom.converters.MavenParentRelativePathConverter;
 
@@ -35,17 +37,17 @@ import org.jetbrains.idea.maven.dom.converters.MavenParentRelativePathConverter;
  * </pre>
  */
 public interface MavenDomParent extends MavenDomElement, MavenDomArtifactCoordinates {
-  /**
-   * Returns the value of the relativePath child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:relativePath documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the relativePath child.
-   */
-  @Nonnull
-  @Required(value = false, nonEmpty = false)
-  @Convert(MavenParentRelativePathConverter.class)
-  GenericDomValue<PsiFile> getRelativePath();
+    /**
+     * Returns the value of the relativePath child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:relativePath documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the relativePath child.
+     */
+    @Nonnull
+    @Required(value = false, nonEmpty = false)
+    @Convert(MavenParentRelativePathConverter.class)
+    GenericDomValue<PsiFile> getRelativePath();
 }

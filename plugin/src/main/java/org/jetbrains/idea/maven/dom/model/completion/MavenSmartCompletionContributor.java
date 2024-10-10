@@ -40,74 +40,61 @@ import java.util.Collection;
 import java.util.Collections;
 
 @ExtensionImpl
-public class MavenSmartCompletionContributor extends CompletionContributor
-{
-	@Override
-	public void fillCompletionVariants(final CompletionParameters parameters, CompletionResultSet result)
-	{
-		if(parameters.getCompletionType() != CompletionType.SMART)
-		{
-			return;
-		}
+public class MavenSmartCompletionContributor extends CompletionContributor {
+    @Override
+    public void fillCompletionVariants(final CompletionParameters parameters, CompletionResultSet result) {
+        if (parameters.getCompletionType() != CompletionType.SMART) {
+            return;
+        }
 
-		Collection<?> variants = getVariants(parameters);
+        Collection<?> variants = getVariants(parameters);
 
-		MavenPropertyCompletionContributor.addVariants(variants, result);
-	}
+        MavenPropertyCompletionContributor.addVariants(variants, result);
+    }
 
-	@Nonnull
-	private static Collection<?> getVariants(CompletionParameters parameters)
-	{
-		if(!MavenDomUtil.isMavenFile(parameters.getOriginalFile()))
-		{
-			return Collections.emptyList();
-		}
+    @Nonnull
+    private static Collection<?> getVariants(CompletionParameters parameters) {
+        if (!MavenDomUtil.isMavenFile(parameters.getOriginalFile())) {
+            return Collections.emptyList();
+        }
 
-		SmartList<?> result = new SmartList<Object>();
+        SmartList<?> result = new SmartList<>();
 
-		for(PsiReference each : getReferences(parameters))
-		{
-			if(each instanceof TagNameReference)
-			{
-				continue;
-			}
+        for (PsiReference each : getReferences(parameters)) {
+            if (each instanceof TagNameReference) {
+                continue;
+            }
 
-			if(each instanceof GenericDomValueReference)
-			{
-				GenericDomValueReference reference = (GenericDomValueReference) each;
+            if (each instanceof GenericDomValueReference) {
+                GenericDomValueReference reference = (GenericDomValueReference)each;
 
-				Converter converter = reference.getConverter();
+                Converter converter = reference.getConverter();
 
-				if(converter instanceof MavenSmartConverter)
-				{
-					result.addAll(((MavenSmartConverter) converter).getSmartVariants(reference.getConvertContext()));
-				}
-				else if(converter instanceof ResolvingConverter)
-				{
-					//noinspection unchecked
-					result.addAll(((ResolvingConverter) converter).getVariants(reference.getConvertContext()));
-				}
-			}
-			else
-			{
-				//noinspection unchecked
-				Collections.addAll((Collection) result, each.getVariants());
-			}
-		}
-		return result;
-	}
+                if (converter instanceof MavenSmartConverter) {
+                    result.addAll(((MavenSmartConverter)converter).getSmartVariants(reference.getConvertContext()));
+                }
+                else if (converter instanceof ResolvingConverter) {
+                    //noinspection unchecked
+                    result.addAll(((ResolvingConverter)converter).getVariants(reference.getConvertContext()));
+                }
+            }
+            else {
+                //noinspection unchecked
+                Collections.addAll((Collection)result, each.getVariants());
+            }
+        }
+        return result;
+    }
 
-	@Nonnull
-	private static PsiReference[] getReferences(CompletionParameters parameters)
-	{
-		PsiElement psiElement = parameters.getPosition().getParent();
-		return psiElement instanceof XmlText ? psiElement.getParent().getReferences() : psiElement.getReferences();
-	}
+    @Nonnull
+    private static PsiReference[] getReferences(CompletionParameters parameters) {
+        PsiElement psiElement = parameters.getPosition().getParent();
+        return psiElement instanceof XmlText ? psiElement.getParent().getReferences() : psiElement.getReferences();
+    }
 
-	@Nonnull
-	@Override
-	public Language getLanguage()
-	{
-		return XMLLanguage.INSTANCE;
-	}
+    @Nonnull
+    @Override
+    public Language getLanguage() {
+        return XMLLanguage.INSTANCE;
+    }
 }

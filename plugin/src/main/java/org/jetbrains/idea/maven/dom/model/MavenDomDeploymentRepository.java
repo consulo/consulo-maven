@@ -21,10 +21,11 @@ package org.jetbrains.idea.maven.dom.model;
 
 import consulo.xml.util.xml.GenericDomValue;
 import consulo.xml.util.xml.Required;
+
 import javax.annotation.Nonnull;
 
 public interface MavenDomDeploymentRepository extends MavenDomRepositoryBase {
-  @Nonnull
-  @Required(value = false, nonEmpty = true)
-  GenericDomValue<Boolean> getUniqueVersion();
+    @Nonnull
+    @Required(value = false, nonEmpty = true)
+    GenericDomValue<Boolean> getUniqueVersion();
 }

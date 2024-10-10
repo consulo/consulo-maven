@@ -29,7 +29,6 @@ import java.util.List;
  * http://maven.apache.org/POM/4.0.0:filtersElemType interface.
  */
 public interface MavenDomFilters extends MavenDomElement {
-
   /**
    * Returns the list of filter children.
    *

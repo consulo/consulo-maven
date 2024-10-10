@@ -21,14 +21,16 @@ package org.jetbrains.idea.maven.dom.model;
 
 import consulo.xml.util.xml.GenericDomValue;
 import consulo.xml.util.xml.Required;
+
 import javax.annotation.Nonnull;
+
 import org.jetbrains.idea.maven.dom.MavenDomElement;
 
 public interface MavenDomProfile extends MavenDomElement, MavenDomProjectModelBase {
-  @Nonnull
-  @Required
-  GenericDomValue<String> getId();
+    @Nonnull
+    @Required
+    GenericDomValue<String> getId();
 
-  @Nonnull
-  MavenDomActivation getActivation();
+    @Nonnull
+    MavenDomActivation getActivation();
 }
