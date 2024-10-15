@@ -30,7 +30,7 @@ import consulo.ui.ex.action.Constraints;
 import consulo.ui.ex.action.DefaultActionGroup;
 import org.jetbrains.idea.maven.utils.MavenDataKeys;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 /**
  * @author Sergey Evdokimov

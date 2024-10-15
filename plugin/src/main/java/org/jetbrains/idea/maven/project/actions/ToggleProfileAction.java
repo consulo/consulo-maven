@@ -20,14 +20,14 @@ import consulo.maven.rt.server.common.model.MavenExplicitProfiles;
 import consulo.maven.rt.server.common.model.MavenProfileKind;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.action.AnActionEvent;
+import jakarta.annotation.Nonnull;
 import org.jetbrains.idea.maven.localize.MavenProjectLocalize;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.utils.MavenDataKeys;
 import org.jetbrains.idea.maven.utils.actions.MavenAction;
 import org.jetbrains.idea.maven.utils.actions.MavenActionUtil;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import java.util.Map;
 import java.util.Set;
 

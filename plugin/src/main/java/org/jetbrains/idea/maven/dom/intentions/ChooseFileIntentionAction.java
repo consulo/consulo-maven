@@ -35,13 +35,14 @@ import consulo.virtualFileSystem.VirtualFile;
 import consulo.xml.psi.xml.XmlTag;
 import consulo.xml.util.xml.DomElement;
 import consulo.xml.util.xml.DomManager;
+import jakarta.annotation.Nullable;
 import org.jetbrains.annotations.TestOnly;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
 import org.jetbrains.idea.maven.dom.model.MavenDomDependency;
 import org.jetbrains.idea.maven.localize.MavenDomLocalize;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+
 import java.util.function.Supplier;
 
 @ExtensionImpl

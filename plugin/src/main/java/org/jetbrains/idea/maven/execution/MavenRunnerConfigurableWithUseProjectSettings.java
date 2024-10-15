@@ -19,10 +19,10 @@ import consulo.project.Project;
 import consulo.util.lang.Pair;
 import consulo.disposer.Disposable;
 import consulo.ui.annotation.RequiredUIAccess;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import org.jetbrains.idea.maven.project.MavenDisablePanelCheckbox;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.swing.*;
 
 /**

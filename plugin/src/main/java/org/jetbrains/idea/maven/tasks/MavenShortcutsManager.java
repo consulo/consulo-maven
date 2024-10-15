@@ -18,7 +18,6 @@ package org.jetbrains.idea.maven.tasks;
 import consulo.annotation.component.ComponentScope;
 import consulo.annotation.component.ServiceAPI;
 import consulo.annotation.component.ServiceImpl;
-import consulo.application.dumb.DumbAwareRunnable;
 import consulo.disposer.Disposable;
 import consulo.maven.rt.server.common.server.NativeMavenProjectHolder;
 import consulo.project.Project;
@@ -45,7 +44,7 @@ import org.jetbrains.idea.maven.utils.MavenMergingUpdateQueue;
 import org.jetbrains.idea.maven.utils.MavenSimpleProjectComponent;
 import org.jetbrains.idea.maven.utils.MavenUtil;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import java.io.File;
 import java.util.Collections;
 import java.util.HashMap;

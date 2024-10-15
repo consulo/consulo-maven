@@ -20,12 +20,12 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
 
 import consulo.maven.rt.server.common.model.MavenId;
 import consulo.maven.rt.server.common.model.MavenModel;
 import consulo.maven.rt.server.common.model.MavenProjectProblem;
+import jakarta.annotation.Nullable;
 
 public class MavenServerExecutionResult implements Serializable
 {

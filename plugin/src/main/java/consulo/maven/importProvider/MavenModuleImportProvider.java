@@ -14,6 +14,7 @@ import consulo.ui.image.Image;
 import consulo.util.lang.StringUtil;
 import consulo.virtualFileSystem.VirtualFile;
 import consulo.virtualFileSystem.util.VirtualFileUtil;
+import jakarta.annotation.Nullable;
 import org.jetbrains.idea.maven.MavenIcons;
 import org.jetbrains.idea.maven.importing.MavenDefaultModifiableModelsProvider;
 import org.jetbrains.idea.maven.project.*;
@@ -22,8 +23,8 @@ import org.jetbrains.idea.maven.wizards.MavenProjectImportStep;
 import org.jetbrains.idea.maven.wizards.SelectImportedProjectsStep;
 import org.jetbrains.idea.maven.wizards.SelectProfilesStep;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+
 import java.io.File;
 import java.util.Collection;
 import java.util.List;

@@ -18,7 +18,7 @@ package org.jetbrains.idea.maven.services.artifactory;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 import consulo.maven.rt.server.common.model.MavenArtifactInfo;
 import consulo.maven.rt.server.common.model.MavenRepositoryInfo;

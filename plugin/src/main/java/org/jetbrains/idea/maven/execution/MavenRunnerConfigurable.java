@@ -5,10 +5,9 @@ import consulo.configurable.ConfigurationException;
 import consulo.configurable.SearchableConfigurable;
 import consulo.project.Project;
 import consulo.ui.annotation.RequiredUIAccess;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import org.jetbrains.idea.maven.localize.MavenRunnerLocalize;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 /**
  * @author Sergey Evdokimov

@@ -29,11 +29,11 @@ import consulo.usage.UsageViewTypeLocation;
 import consulo.util.lang.StringUtil;
 import consulo.xml.lang.xml.XMLLanguage;
 import consulo.xml.psi.xml.XmlTag;
+import jakarta.annotation.Nonnull;
 import org.jetbrains.idea.maven.dom.references.MavenPsiElementWrapper;
 import org.jetbrains.idea.maven.utils.MavenLog;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

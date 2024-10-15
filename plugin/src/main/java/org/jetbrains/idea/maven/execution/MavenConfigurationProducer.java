@@ -28,9 +28,9 @@ import consulo.execution.action.RuntimeConfigurationProducer;
 import consulo.language.psi.PsiElement;
 import consulo.maven.rt.server.common.model.MavenExplicitProfiles;
 import consulo.virtualFileSystem.VirtualFile;
+import jakarta.annotation.Nonnull;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 
 @ExtensionImpl

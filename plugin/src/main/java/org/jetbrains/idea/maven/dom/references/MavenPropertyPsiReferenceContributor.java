@@ -25,7 +25,7 @@ import consulo.xml.patterns.DomPatterns;
 import consulo.xml.patterns.XmlPatterns;
 import org.jetbrains.idea.maven.dom.model.MavenDomProperties;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 @ExtensionImpl
 public class MavenPropertyPsiReferenceContributor extends PsiReferenceContributor {

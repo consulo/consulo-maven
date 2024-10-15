@@ -37,13 +37,14 @@ import consulo.ui.ex.awt.tree.TreeUtil;
 import consulo.ui.ex.wizard.WizardStep;
 import consulo.ui.ex.wizard.WizardStepValidationException;
 import consulo.util.lang.StringUtil;
+import jakarta.annotation.Nullable;
 import org.jetbrains.idea.maven.indices.MavenIndicesManager;
 import org.jetbrains.idea.maven.navigator.SelectMavenProjectDialog;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+
 import javax.swing.*;
 import javax.swing.tree.*;
 import java.awt.*;

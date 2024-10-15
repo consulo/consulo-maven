@@ -19,7 +19,7 @@
 
 package org.jetbrains.idea.maven.dom.model;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 import consulo.language.psi.path.PathReference;
 import consulo.xml.util.xml.Convert;

@@ -17,8 +17,7 @@ package org.jetbrains.idea.maven.utils;
 
 import consulo.annotation.component.ExtensionImpl;
 import consulo.language.editor.template.DefaultLiveTemplatesProvider;
-
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 @ExtensionImpl
 public class MavenLiveTemplatesProvider implements DefaultLiveTemplatesProvider {

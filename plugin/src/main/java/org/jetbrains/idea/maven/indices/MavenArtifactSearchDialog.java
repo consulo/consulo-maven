@@ -26,7 +26,7 @@ import consulo.util.lang.Pair;
 import consulo.util.lang.StringUtil;
 import org.jetbrains.idea.maven.dom.model.MavenDomDependency;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import javax.swing.*;
 import java.awt.*;
 import java.util.List;

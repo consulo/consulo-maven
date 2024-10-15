@@ -26,7 +26,7 @@ import consulo.xml.psi.xml.XmlText;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
 import org.jetbrains.idea.maven.localize.MavenLocalize;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 @ExtensionImpl
 public class MavenLiveTemplateContextType extends BaseTemplateContextType {

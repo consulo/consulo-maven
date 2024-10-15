@@ -43,6 +43,7 @@ import consulo.ui.ex.toolWindow.ToolWindow;
 import consulo.util.collection.ContainerUtil;
 import consulo.util.lang.Pair;
 import consulo.util.xml.serializer.WriteExternalException;
+import jakarta.annotation.Nullable;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import org.jdom.Element;
@@ -55,8 +56,8 @@ import org.jetbrains.idea.maven.utils.MavenLog;
 import org.jetbrains.idea.maven.utils.MavenSimpleProjectComponent;
 import org.jetbrains.idea.maven.utils.MavenUtil;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+
 import javax.swing.*;
 import javax.swing.tree.TreeSelectionModel;
 import java.awt.*;

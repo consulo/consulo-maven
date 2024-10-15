@@ -3,7 +3,7 @@ package consulo.maven.rt.m3.common.server;
 import org.apache.maven.project.MavenProject;
 import consulo.maven.rt.server.common.server.NativeMavenProjectHolder;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.util.HashMap;

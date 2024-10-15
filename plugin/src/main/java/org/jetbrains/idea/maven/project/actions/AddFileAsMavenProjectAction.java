@@ -20,12 +20,13 @@ import consulo.ui.ex.action.AnActionEvent;
 import consulo.dataContext.DataContext;
 import consulo.virtualFileSystem.VirtualFile;
 import consulo.ui.annotation.RequiredUIAccess;
+import jakarta.annotation.Nullable;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.utils.actions.MavenAction;
 import org.jetbrains.idea.maven.utils.actions.MavenActionUtil;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+
 import java.util.Collections;
 
 public class AddFileAsMavenProjectAction extends MavenAction {

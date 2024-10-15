@@ -29,6 +29,7 @@ import consulo.ui.ex.action.AnActionEvent;
 import consulo.ui.ex.action.DumbAwareAction;
 import consulo.util.lang.Pair;
 import consulo.util.lang.StringUtil;
+import jakarta.annotation.Nonnull;
 import org.jetbrains.idea.maven.execution.*;
 import org.jetbrains.idea.maven.localize.MavenRunnerLocalize;
 import org.jetbrains.idea.maven.project.MavenGeneralSettings;
@@ -37,7 +38,6 @@ import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.utils.MavenSettings;
 import org.jetbrains.idea.maven.utils.MavenUtil;
 
-import javax.annotation.Nonnull;
 import javax.swing.event.HyperlinkEvent;
 import java.io.File;
 import java.util.Arrays;

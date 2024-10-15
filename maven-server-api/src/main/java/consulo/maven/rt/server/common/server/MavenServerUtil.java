@@ -21,9 +21,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 
-import javax.annotation.Nonnull;
-
 import consulo.maven.rt.server.common.util.MavenSystemInfo;
+import jakarta.annotation.Nonnull;
 
 public class MavenServerUtil
 {

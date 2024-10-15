@@ -21,8 +21,8 @@ import org.jetbrains.idea.maven.utils.MavenDataKeys;
 import org.jetbrains.idea.maven.utils.actions.MavenAction;
 import org.jetbrains.idea.maven.utils.actions.MavenActionUtil;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import javax.swing.*;
 
 public abstract class MavenTreeAction extends MavenAction {

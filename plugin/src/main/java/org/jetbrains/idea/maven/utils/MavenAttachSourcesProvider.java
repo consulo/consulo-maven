@@ -39,7 +39,7 @@ import org.jetbrains.idea.maven.project.MavenArtifactDownloader;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import java.util.*;
 
 @ExtensionImpl

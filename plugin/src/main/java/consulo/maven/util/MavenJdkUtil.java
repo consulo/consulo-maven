@@ -7,9 +7,9 @@ import consulo.content.bundle.SdkTable;
 import consulo.java.language.bundle.JavaSdkTypeUtil;
 import consulo.util.collection.ContainerUtil;
 import consulo.util.lang.StringUtil;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.List;
 
 /**

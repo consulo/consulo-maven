@@ -1,5 +1,6 @@
 package consulo.maven.rt.m3.common.server;
 
+import jakarta.annotation.Nullable;
 import org.apache.maven.execution.MavenExecutionRequest;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Writer;
@@ -18,8 +19,8 @@ import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 import consulo.maven.rt.server.common.server.MavenServerProcessCanceledException;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;

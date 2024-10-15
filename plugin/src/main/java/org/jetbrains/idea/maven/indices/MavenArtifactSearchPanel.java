@@ -35,7 +35,7 @@ import consulo.util.lang.Couple;
 import consulo.util.lang.Pair;
 import org.jetbrains.idea.maven.utils.MavenLog;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.TreeModelListener;

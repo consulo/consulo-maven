@@ -33,11 +33,11 @@ import consulo.ui.ex.awt.util.Alarm;
 import consulo.util.lang.Comparing;
 import consulo.util.lang.StringUtil;
 import consulo.util.lang.function.Conditions;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import org.jetbrains.idea.maven.localize.MavenProjectLocalize;
 import org.jetbrains.idea.maven.utils.MavenUtil;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;

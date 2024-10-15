@@ -17,7 +17,7 @@ package org.jetbrains.idea.maven.tasks.actions;
 
 import java.util.List;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 import consulo.dataContext.DataContext;
 import consulo.ui.annotation.RequiredUIAccess;

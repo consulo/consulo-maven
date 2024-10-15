@@ -20,7 +20,7 @@ import consulo.xml.util.xml.DomFileDescription;
 import consulo.xml.util.xml.highlighting.DomElementsAnnotator;
 import org.jetbrains.idea.maven.dom.annotator.MavenDomAnnotator;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 public abstract class MavenDomFileDescription<T> extends DomFileDescription<T> {
     public MavenDomFileDescription(Class<T> rootElementClass, String rootTagName) {

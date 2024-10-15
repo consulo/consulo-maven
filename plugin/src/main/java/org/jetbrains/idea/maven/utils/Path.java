@@ -18,8 +18,7 @@ package org.jetbrains.idea.maven.utils;
 import consulo.util.io.FileUtil;
 import consulo.util.io.PathUtil;
 import consulo.virtualFileSystem.util.VirtualFileUtil;
-
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 public class Path {
     private final String path;

@@ -18,6 +18,7 @@ package org.jetbrains.idea.maven.project.actions;
 import consulo.dataContext.DataContext;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.action.AnActionEvent;
+import jakarta.annotation.Nonnull;
 import org.jetbrains.idea.maven.execution.MavenRunConfigurationType;
 import org.jetbrains.idea.maven.execution.MavenRunnerParameters;
 import org.jetbrains.idea.maven.project.MavenProject;
@@ -25,7 +26,6 @@ import org.jetbrains.idea.maven.utils.MavenDataKeys;
 import org.jetbrains.idea.maven.utils.actions.MavenAction;
 import org.jetbrains.idea.maven.utils.actions.MavenActionUtil;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 
 public class RunBuildAction extends MavenAction {

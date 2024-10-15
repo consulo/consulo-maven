@@ -32,7 +32,7 @@ import consulo.ui.event.ModalityStateListener;
 import consulo.ui.ex.awt.util.MergingUpdateQueue;
 import consulo.ui.ex.awt.util.Update;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import javax.swing.*;
 import java.util.concurrent.atomic.AtomicInteger;
 

@@ -38,10 +38,11 @@ import consulo.util.lang.StringUtil;
 import consulo.util.lang.function.Condition;
 import consulo.util.lang.xml.XmlStringUtil;
 import consulo.virtualFileSystem.VirtualFile;
+import jakarta.annotation.Nullable;
 import org.jetbrains.idea.maven.utils.library.RepositoryAttachHandler;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.text.JTextComponent;

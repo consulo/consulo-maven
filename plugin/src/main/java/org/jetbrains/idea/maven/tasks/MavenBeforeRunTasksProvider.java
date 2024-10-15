@@ -43,8 +43,8 @@ import org.jetbrains.idea.maven.localize.MavenTasksLocalize;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;

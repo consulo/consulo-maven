@@ -20,8 +20,8 @@ import consulo.virtualFileSystem.InvalidVirtualFileAccessException;
 import consulo.virtualFileSystem.VirtualFile;
 import consulo.virtualFileSystem.util.VirtualFileUtil;
 import consulo.virtualFileSystem.util.VirtualFileVisitor;
+import jakarta.annotation.Nonnull;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 
 public class FileFinder {

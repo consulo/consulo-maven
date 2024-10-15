@@ -20,8 +20,8 @@ import consulo.ui.ex.awt.DialogWrapper;
 import consulo.util.collection.ArrayUtil;
 import consulo.util.lang.Couple;
 import consulo.util.lang.Pair;
+import jakarta.annotation.Nullable;
 
-import javax.annotation.Nullable;
 import javax.swing.*;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;

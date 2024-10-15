@@ -20,7 +20,7 @@ import consulo.component.persist.Storage;
 import consulo.component.persist.PersistentStateComponent;
 import consulo.component.persist.StoragePathMacros;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import java.util.LinkedList;
 
 /**

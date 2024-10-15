@@ -23,6 +23,7 @@ import consulo.configurable.SearchableConfigurable;
 import consulo.disposer.Disposable;
 import consulo.project.Project;
 import consulo.ui.annotation.RequiredUIAccess;
+import jakarta.annotation.Nonnull;
 import jakarta.inject.Inject;
 import org.jetbrains.idea.maven.execution.MavenRunner;
 import org.jetbrains.idea.maven.execution.MavenRunnerConfigurable;
@@ -30,8 +31,7 @@ import org.jetbrains.idea.maven.execution.MavenRunnerSettings;
 import org.jetbrains.idea.maven.indices.MavenRepositoriesConfigurable;
 import org.jetbrains.idea.maven.project.*;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;

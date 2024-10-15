@@ -30,12 +30,11 @@ import consulo.process.event.ProcessEvent;
 import consulo.process.event.ProcessListener;
 import consulo.project.Project;
 import consulo.util.dataholder.Key;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import org.jetbrains.idea.maven.localize.MavenRunnerLocalize;
 import org.jetbrains.idea.maven.project.MavenConsole;
 import org.jetbrains.idea.maven.project.MavenGeneralSettings;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 public class MavenExternalExecutor extends MavenExecutor {
     private ProcessHandler myProcessHandler;

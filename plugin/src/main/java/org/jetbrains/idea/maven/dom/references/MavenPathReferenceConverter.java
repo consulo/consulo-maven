@@ -21,7 +21,7 @@ import consulo.xml.util.xml.converters.PathReferenceConverter;
 import org.jetbrains.idea.maven.dom.MavenPropertyResolver;
 import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Objects;

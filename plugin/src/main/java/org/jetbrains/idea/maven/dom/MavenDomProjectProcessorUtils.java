@@ -34,8 +34,8 @@ import org.jetbrains.idea.maven.dom.model.*;
 import org.jetbrains.idea.maven.project.*;
 import org.jetbrains.idea.maven.utils.MavenUtil;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;

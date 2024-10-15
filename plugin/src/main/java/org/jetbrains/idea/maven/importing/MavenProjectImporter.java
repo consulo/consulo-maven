@@ -40,13 +40,13 @@ import consulo.util.lang.Pair;
 import consulo.util.lang.StringUtil;
 import consulo.virtualFileSystem.LocalFileSystem;
 import consulo.virtualFileSystem.VirtualFile;
+import jakarta.annotation.Nullable;
 import org.jetbrains.idea.maven.importing.configurers.MavenModuleConfigurer;
 import org.jetbrains.idea.maven.project.*;
 import org.jetbrains.idea.maven.utils.MavenProcessCanceledException;
 import org.jetbrains.idea.maven.utils.MavenProgressIndicator;
 import org.jetbrains.idea.maven.utils.MavenUtil;
 
-import javax.annotation.Nullable;
 import java.io.File;
 import java.util.*;
 

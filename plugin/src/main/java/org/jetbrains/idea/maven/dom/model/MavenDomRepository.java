@@ -19,7 +19,7 @@
 
 package org.jetbrains.idea.maven.dom.model;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 public interface MavenDomRepository extends MavenDomRepositoryBase {
     @Nonnull

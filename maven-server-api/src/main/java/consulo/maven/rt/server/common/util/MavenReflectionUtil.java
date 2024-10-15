@@ -1,12 +1,13 @@
 package consulo.maven.rt.server.common.util;
 
+import jakarta.annotation.Nonnull;
+
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 /**
  * @author VISTALL

@@ -21,7 +21,7 @@ package org.jetbrains.idea.maven.execution;
 import consulo.application.progress.ProgressIndicator;
 import consulo.application.progress.ProgressManager;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 import org.jetbrains.idea.maven.localize.MavenRunnerLocalize;
 import org.jetbrains.idea.maven.project.MavenConsole;

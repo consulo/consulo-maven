@@ -27,6 +27,7 @@ import consulo.xml.psi.xml.XmlTag;
 import consulo.xml.util.xml.DomFileElement;
 import consulo.xml.util.xml.highlighting.BasicDomElementsInspection;
 import consulo.xml.util.xml.highlighting.DomElementAnnotationHolder;
+import jakarta.annotation.Nullable;
 import org.jetbrains.idea.maven.dom.MavenDomProjectProcessorUtils;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
 import org.jetbrains.idea.maven.dom.model.MavenDomDependency;
@@ -34,8 +35,8 @@ import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
 import org.jetbrains.idea.maven.localize.MavenDomLocalize;
 import org.jetbrains.idea.maven.project.MavenProject;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+
 import java.util.*;
 
 @ExtensionImpl

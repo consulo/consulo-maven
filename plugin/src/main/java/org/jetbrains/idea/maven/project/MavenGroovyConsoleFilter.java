@@ -26,8 +26,8 @@ import consulo.project.Project;
 import consulo.ui.style.StandardColors;
 import consulo.virtualFileSystem.LocalFileSystem;
 import consulo.virtualFileSystem.VirtualFile;
+import jakarta.annotation.Nullable;
 
-import javax.annotation.Nullable;
 import java.awt.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

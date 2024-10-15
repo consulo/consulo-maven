@@ -23,8 +23,7 @@ import consulo.xml.util.xml.ConvertContext;
 import consulo.xml.util.xml.Converter;
 import consulo.xml.util.xml.CustomReferenceConverter;
 import consulo.xml.util.xml.GenericDomValue;
-
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 public abstract class MavenReferenceConverter<T> extends Converter<T> implements CustomReferenceConverter<T> {
     @Nonnull

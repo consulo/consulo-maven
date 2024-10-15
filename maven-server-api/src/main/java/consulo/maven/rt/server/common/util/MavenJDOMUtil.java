@@ -4,9 +4,9 @@ package consulo.maven.rt.server.common.util;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
 
+import jakarta.annotation.Nullable;
 import org.jdom.Attribute;
 import org.jdom.Content;
 import org.jdom.Element;

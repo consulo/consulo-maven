@@ -19,11 +19,11 @@ package consulo.maven.rt.server.common.model;
 import java.io.File;
 import java.io.Serializable;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 import consulo.maven.rt.server.common.util.MavenFileUtil;
 import consulo.maven.rt.server.common.util.MavenStringUtil;
+import jakarta.annotation.Nonnull;
 
 public class MavenArtifact implements Serializable, MavenCoordinate {
 

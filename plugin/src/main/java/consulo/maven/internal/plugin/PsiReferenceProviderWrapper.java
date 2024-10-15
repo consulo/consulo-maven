@@ -8,7 +8,7 @@ import org.jetbrains.idea.maven.dom.model.MavenDomConfiguration;
 import org.jetbrains.idea.maven.plugins.api.MavenParamReferenceProvider;
 import org.jetbrains.idea.maven.plugins.api.MavenSoftAwareReferenceProvider;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 public class PsiReferenceProviderWrapper implements MavenParamReferenceProvider, MavenSoftAwareReferenceProvider
 {

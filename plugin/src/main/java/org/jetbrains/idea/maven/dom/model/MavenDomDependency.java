@@ -28,7 +28,7 @@ import org.jetbrains.idea.maven.dom.converters.MavenDependencyScopeConverter;
 import org.jetbrains.idea.maven.dom.converters.MavenDependencySystemPathConverter;
 import org.jetbrains.idea.maven.dom.converters.MavenDependencyTypeConverter;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 /**
  * http://maven.apache.org/POM/4.0.0:Dependency interface.

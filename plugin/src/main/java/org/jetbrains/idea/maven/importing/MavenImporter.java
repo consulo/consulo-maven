@@ -35,7 +35,7 @@ import org.jetbrains.idea.maven.project.*;
 import org.jetbrains.idea.maven.server.MavenEmbedderWrapper;
 import org.jetbrains.idea.maven.utils.MavenProcessCanceledException;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;

@@ -20,9 +20,9 @@ import com.intellij.java.compiler.artifact.impl.ui.ManifestFileConfiguration;
 import consulo.compiler.artifact.*;
 import consulo.compiler.artifact.element.*;
 import consulo.util.lang.Pair;
+import jakarta.annotation.Nonnull;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

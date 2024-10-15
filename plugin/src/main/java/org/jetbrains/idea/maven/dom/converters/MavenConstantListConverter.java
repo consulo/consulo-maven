@@ -19,9 +19,9 @@ import consulo.localize.LocalizeValue;
 import consulo.util.lang.StringUtil;
 import consulo.xml.util.xml.ConvertContext;
 import consulo.xml.util.xml.ResolvingConverter;
+import jakarta.annotation.Nonnull;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import java.util.Collection;
 
 public abstract class MavenConstantListConverter extends ResolvingConverter<String> {

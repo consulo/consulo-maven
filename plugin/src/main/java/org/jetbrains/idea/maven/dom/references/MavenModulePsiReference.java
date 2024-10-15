@@ -33,12 +33,12 @@ import consulo.util.lang.Comparing;
 import consulo.virtualFileSystem.VirtualFile;
 import consulo.virtualFileSystem.util.VirtualFileUtil;
 import consulo.xml.util.xml.DomFileElement;
+import jakarta.annotation.Nonnull;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
 import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
 import org.jetbrains.idea.maven.localize.MavenDomLocalize;
 import org.jetbrains.idea.maven.utils.MavenUtil;
 
-import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;

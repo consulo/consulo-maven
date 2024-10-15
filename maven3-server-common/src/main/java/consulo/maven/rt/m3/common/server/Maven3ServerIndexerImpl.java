@@ -40,8 +40,8 @@ import org.sonatype.nexus.index.creator.MinimalArtifactInfoIndexCreator;
 import org.sonatype.nexus.index.updater.IndexUpdateRequest;
 import org.sonatype.nexus.index.updater.IndexUpdater;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;

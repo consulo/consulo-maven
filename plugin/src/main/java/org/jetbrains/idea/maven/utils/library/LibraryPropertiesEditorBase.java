@@ -15,11 +15,8 @@
  */
 package org.jetbrains.idea.maven.utils.library;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import jakarta.annotation.Nonnull;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -31,6 +28,7 @@ import consulo.content.library.ui.LibraryPropertiesEditor;
 import consulo.content.library.ui.LibraryEditorComponent;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.awt.UIUtil;
+import jakarta.annotation.Nullable;
 
 /**
  * @author nik

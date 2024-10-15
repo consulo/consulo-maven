@@ -17,7 +17,6 @@ package org.jetbrains.idea.maven.project;
 
 import consulo.annotation.access.RequiredReadAction;
 import consulo.application.Application;
-import consulo.application.ApplicationManager;
 import consulo.application.ReadAction;
 import consulo.logging.Logger;
 import consulo.maven.rt.server.common.model.*;
@@ -44,8 +43,8 @@ import org.jetbrains.idea.maven.localize.MavenProjectLocalize;
 import org.jetbrains.idea.maven.server.MavenEmbedderWrapper;
 import org.jetbrains.idea.maven.utils.*;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.locks.Lock;

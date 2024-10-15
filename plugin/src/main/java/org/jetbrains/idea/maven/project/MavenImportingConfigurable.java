@@ -21,12 +21,12 @@ import consulo.configurable.UnnamedConfigurable;
 import consulo.disposer.Disposable;
 import consulo.project.Project;
 import consulo.ui.annotation.RequiredUIAccess;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.idea.maven.localize.MavenProjectLocalize;
 import org.jetbrains.idea.maven.server.MavenServerManager;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;

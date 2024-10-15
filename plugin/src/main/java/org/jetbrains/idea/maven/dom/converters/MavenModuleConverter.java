@@ -21,9 +21,8 @@ import consulo.language.psi.PsiFile;
 import consulo.language.psi.PsiReference;
 import consulo.virtualFileSystem.VirtualFile;
 import consulo.xml.util.xml.ConvertContext;
+import jakarta.annotation.Nullable;
 import org.jetbrains.idea.maven.dom.references.MavenModulePsiReference;
-
-import javax.annotation.Nullable;
 
 public class MavenModuleConverter extends MavenReferenceConverter<PsiFile> {
     @Override

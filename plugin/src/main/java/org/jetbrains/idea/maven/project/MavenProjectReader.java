@@ -21,6 +21,7 @@ import consulo.maven.rt.server.common.server.ProfileApplicationResult;
 import consulo.util.lang.Comparing;
 import consulo.util.lang.Pair;
 import consulo.virtualFileSystem.VirtualFile;
+import jakarta.annotation.Nonnull;
 import org.jdom.Element;
 import org.jetbrains.idea.maven.localize.MavenProjectLocalize;
 import org.jetbrains.idea.maven.server.MavenEmbedderWrapper;
@@ -30,8 +31,7 @@ import org.jetbrains.idea.maven.utils.MavenLog;
 import org.jetbrains.idea.maven.utils.MavenProcessCanceledException;
 import org.jetbrains.idea.maven.utils.MavenUtil;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;

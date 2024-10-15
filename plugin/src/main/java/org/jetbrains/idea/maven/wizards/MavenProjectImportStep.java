@@ -29,7 +29,7 @@ import consulo.virtualFileSystem.VirtualFile;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.idea.maven.project.*;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;

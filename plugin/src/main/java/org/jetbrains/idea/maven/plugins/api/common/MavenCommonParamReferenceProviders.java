@@ -33,7 +33,7 @@ import org.jetbrains.idea.maven.plugins.api.MavenParamReferenceProvider;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.utils.MavenUtil;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import java.nio.charset.Charset;
 
 /**

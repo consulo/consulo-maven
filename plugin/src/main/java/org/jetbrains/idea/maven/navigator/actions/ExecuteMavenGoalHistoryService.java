@@ -24,10 +24,11 @@ import consulo.component.persist.Storage;
 import consulo.component.persist.StoragePathMacros;
 import consulo.ide.ServiceManager;
 import consulo.project.Project;
+import jakarta.annotation.Nullable;
 import jakarta.inject.Singleton;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;

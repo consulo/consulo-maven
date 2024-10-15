@@ -21,7 +21,7 @@ import consulo.ui.ex.awt.ElementsChooser;
 import consulo.ui.ex.awt.ScrollPaneFactory;
 import consulo.ui.ex.awt.UIUtil;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import javax.swing.*;
 import java.awt.*;
 

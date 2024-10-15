@@ -7,7 +7,7 @@ import consulo.maven.plugin.MavenPluginDescriptorParam;
 import consulo.maven.plugin.extension.MavenPluginDescriptorContributor;
 import consulo.maven.rt.server.common.model.MavenId;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;

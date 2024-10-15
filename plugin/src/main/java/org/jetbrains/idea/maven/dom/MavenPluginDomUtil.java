@@ -26,6 +26,7 @@ import consulo.virtualFileSystem.VirtualFile;
 import consulo.virtualFileSystem.archive.ArchiveVfsUtil;
 import consulo.xml.psi.xml.XmlElement;
 import consulo.xml.util.xml.DomElement;
+import jakarta.annotation.Nullable;
 import org.jetbrains.idea.maven.dom.model.MavenDomConfiguration;
 import org.jetbrains.idea.maven.dom.model.MavenDomPlugin;
 import org.jetbrains.idea.maven.dom.plugin.MavenDomPluginModel;
@@ -33,8 +34,8 @@ import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.utils.MavenArtifactUtil;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+
 import java.io.File;
 
 public class MavenPluginDomUtil {

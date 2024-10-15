@@ -15,9 +15,9 @@
  */
 package consulo.maven.rt.server.common.model;
 
-import java.io.Serializable;
+import jakarta.annotation.Nonnull;
 
-import javax.annotation.Nonnull;
+import java.io.Serializable;
 
 public class MavenProfile extends MavenModelBase implements Serializable {
   private final String myId;

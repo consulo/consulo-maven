@@ -25,9 +25,9 @@ import consulo.navigation.NavigationItem;
 import consulo.project.Project;
 import consulo.util.collection.ArrayUtil;
 import consulo.virtualFileSystem.VirtualFile;
+import jakarta.annotation.Nonnull;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;

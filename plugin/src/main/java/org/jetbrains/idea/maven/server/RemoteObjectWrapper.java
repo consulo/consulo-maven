@@ -15,8 +15,8 @@
  */
 package org.jetbrains.idea.maven.server;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 
 import consulo.maven.rt.server.common.server.MavenServerIndexerException;
 import consulo.maven.rt.server.common.server.MavenServerProcessCanceledException;

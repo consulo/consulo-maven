@@ -36,11 +36,12 @@ import consulo.ui.ex.action.AnAction;
 import consulo.ui.ex.action.AnActionEvent;
 import consulo.ui.ex.awt.Messages;
 import consulo.util.dataholder.Key;
+import jakarta.annotation.Nullable;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;

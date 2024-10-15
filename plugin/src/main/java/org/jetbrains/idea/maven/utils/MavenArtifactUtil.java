@@ -21,8 +21,8 @@ import consulo.util.lang.Comparing;
 import consulo.util.lang.StringUtil;
 import org.jetbrains.idea.maven.indices.IndicesBundle;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;

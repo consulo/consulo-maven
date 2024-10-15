@@ -23,8 +23,7 @@ import consulo.language.inject.InjectedLanguagePlaces;
 import consulo.language.inject.LanguageInjector;
 import consulo.language.psi.PsiLanguageInjectionHost;
 import consulo.xml.psi.xml.XmlText;
-
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 /**
  * @author Sergey Evdokimov

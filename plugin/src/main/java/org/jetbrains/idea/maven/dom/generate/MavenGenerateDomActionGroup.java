@@ -20,8 +20,8 @@ import consulo.xml.util.xml.DomElement;
 import org.jetbrains.idea.maven.dom.model.*;
 import org.jetbrains.idea.maven.localize.MavenDomLocalize;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import java.util.function.Function;
 
 public class MavenGenerateDomActionGroup extends DefaultActionGroup {

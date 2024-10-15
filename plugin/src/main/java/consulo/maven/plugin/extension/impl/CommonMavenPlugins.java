@@ -7,7 +7,7 @@ import consulo.maven.plugin.extension.MavenPluginDescriptorRegistrator;
 import org.jetbrains.idea.maven.dom.references.MavenDependencyReferenceProvider;
 import org.jetbrains.idea.maven.plugins.api.common.MavenCommonParamReferenceProviders;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 /**
  * @author VISTALL

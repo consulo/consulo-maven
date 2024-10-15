@@ -28,13 +28,13 @@ import consulo.maven.rt.server.common.model.MavenRepositoryInfo;
 import consulo.util.collection.ArrayUtil;
 import consulo.util.collection.SmartList;
 import consulo.util.lang.StringUtil;
+import jakarta.annotation.Nonnull;
 import jakarta.inject.Singleton;
 import org.jdom.Element;
 import org.jetbrains.idea.maven.services.artifactory.ArtifactoryRepositoryService;
 import org.jetbrains.idea.maven.services.nexus.NexusRepositoryService;
 import org.jetbrains.idea.maven.utils.MavenLog;
 
-import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;

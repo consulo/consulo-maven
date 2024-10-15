@@ -2,12 +2,13 @@ package consulo.maven.internal.plugin;
 
 import consulo.language.psi.PsiReferenceProvider;
 import consulo.maven.plugin.extension.MavenPluginDescriptorParamBuilder;
+import jakarta.annotation.Nullable;
 import org.jetbrains.idea.maven.plugins.api.MavenFixedValueReferenceProvider;
 import org.jetbrains.idea.maven.plugins.api.MavenParamLanguageProvider;
 import org.jetbrains.idea.maven.plugins.api.MavenParamReferenceProvider;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+
 import java.util.function.Supplier;
 
 /**

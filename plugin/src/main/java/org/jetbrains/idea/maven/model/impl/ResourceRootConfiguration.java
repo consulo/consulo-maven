@@ -18,9 +18,9 @@ package org.jetbrains.idea.maven.model.impl;
 import consulo.util.xml.serializer.annotation.AbstractCollection;
 import consulo.util.xml.serializer.annotation.Attribute;
 import consulo.util.xml.serializer.annotation.Tag;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.HashSet;
 import java.util.Set;
 

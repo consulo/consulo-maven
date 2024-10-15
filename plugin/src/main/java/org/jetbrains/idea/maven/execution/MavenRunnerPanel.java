@@ -28,10 +28,10 @@ import consulo.module.ui.awt.SdkComboBox;
 import consulo.project.Project;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.awt.IdeBorderFactory;
+import jakarta.annotation.Nonnull;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 
-import javax.annotation.Nonnull;
 import javax.swing.*;
 import java.awt.*;
 import java.util.LinkedHashMap;

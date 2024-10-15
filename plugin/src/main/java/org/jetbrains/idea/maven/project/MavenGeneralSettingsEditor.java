@@ -21,7 +21,7 @@ import consulo.project.Project;
 import consulo.util.lang.Pair;
 import org.jetbrains.idea.maven.execution.MavenRunConfiguration;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import javax.swing.*;
 
 /**

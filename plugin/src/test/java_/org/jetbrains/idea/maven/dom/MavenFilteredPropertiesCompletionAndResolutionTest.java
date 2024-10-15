@@ -18,6 +18,7 @@ package org.jetbrains.idea.maven.dom;
 import consulo.language.psi.PsiElement;
 import consulo.language.psi.PsiReference;
 import consulo.language.psi.util.PsiTreeUtil;
+import jakarta.annotation.Nullable;
 import org.jetbrains.idea.maven.dom.model.MavenDomProfilesModel;
 import org.jetbrains.idea.maven.dom.references.MavenPropertyPsiReference;
 import com.intellij.lang.properties.IProperty;
@@ -25,8 +26,6 @@ import consulo.virtualFileSystem.VirtualFile;
 import consulo.language.psi.PsiDirectory;
 import consulo.language.psi.PsiManager;
 import com.intellij.psi.xml.XmlAttribute;
-
-import javax.annotation.Nullable;
 
 public abstract class MavenFilteredPropertiesCompletionAndResolutionTest extends MavenDomTestCase {
   public void testBasic() throws Exception {

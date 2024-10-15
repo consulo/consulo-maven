@@ -28,8 +28,8 @@ import org.jetbrains.idea.maven.utils.MavenUIUtil;
 import org.jetbrains.idea.maven.utils.MavenUtil;
 import org.jetbrains.idea.maven.utils.Strings;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import javax.swing.*;
 import java.util.Collection;
 

@@ -2,8 +2,8 @@ package consulo.maven.internal.plugin;
 
 import consulo.maven.plugin.extension.MavenPluginDescriptorBuilder;
 import consulo.maven.plugin.extension.MavenPluginDescriptorParamBuilder;
+import jakarta.annotation.Nonnull;
 
-import javax.annotation.Nonnull;
 import java.util.*;
 
 /**

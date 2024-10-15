@@ -15,10 +15,10 @@
  */
 package consulo.maven.rt.m3.common.server.embedder;
 
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import org.apache.maven.project.DependencyResolutionResult;
 import org.apache.maven.project.MavenProject;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;

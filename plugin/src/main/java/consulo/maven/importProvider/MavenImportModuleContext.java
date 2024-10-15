@@ -15,7 +15,7 @@ import consulo.virtualFileSystem.VirtualFile;
 import org.jetbrains.idea.maven.project.*;
 import org.jetbrains.idea.maven.utils.*;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;

@@ -20,7 +20,7 @@ import consulo.util.collection.Lists;
 import consulo.util.lang.StringUtil;
 import consulo.util.xml.serializer.annotation.Property;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;

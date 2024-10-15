@@ -18,7 +18,7 @@ package org.jetbrains.idea.maven.dom.converters;
 import consulo.maven.rt.server.common.model.MavenConstants;
 import consulo.xml.util.xml.ConvertContext;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 import org.jetbrains.idea.maven.dom.model.MavenDomDependencyManagement;
 import org.jetbrains.idea.maven.project.MavenProject;

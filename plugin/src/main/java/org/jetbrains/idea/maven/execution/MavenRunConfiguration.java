@@ -48,8 +48,8 @@ import org.jdom.Element;
 import org.jetbrains.idea.maven.localize.MavenRunnerLocalize;
 import org.jetbrains.idea.maven.project.*;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 
 public class MavenRunConfiguration extends LocatableConfigurationBase implements GenericDebugRunnerConfiguration {
     private MavenSettings mySettings;

@@ -41,7 +41,7 @@ import org.jetbrains.idea.maven.project.MavenProjectsTree;
 import org.jetbrains.idea.maven.utils.MavenMergingUpdateQueue;
 import org.jetbrains.idea.maven.utils.MavenSimpleProjectComponent;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;

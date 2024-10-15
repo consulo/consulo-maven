@@ -18,10 +18,9 @@ package org.jetbrains.idea.maven.project;
 import consulo.util.lang.Pair;
 import consulo.component.util.ModificationTracker;
 import consulo.maven.rt.server.common.server.NativeMavenProjectHolder;
+import jakarta.annotation.Nullable;
 
 import java.util.List;
-
-import javax.annotation.Nullable;
 
 /**
  * @author Konstantin Bulenkov

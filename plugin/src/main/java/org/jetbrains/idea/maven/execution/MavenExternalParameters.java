@@ -55,8 +55,8 @@ import org.jetbrains.idea.maven.rt.m31.MavenArtifactResolvedM31RtMarker;
 import org.jetbrains.idea.maven.utils.MavenSettings;
 import org.jetbrains.idea.maven.utils.MavenUtil;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 import java.io.*;

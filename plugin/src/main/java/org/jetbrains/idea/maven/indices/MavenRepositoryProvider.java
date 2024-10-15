@@ -21,7 +21,7 @@ import consulo.component.extension.ExtensionPointName;
 import consulo.maven.rt.server.common.model.MavenRemoteRepository;
 import consulo.project.Project;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import java.util.Set;
 
 /**

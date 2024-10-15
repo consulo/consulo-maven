@@ -15,7 +15,7 @@
  */
 package org.jetbrains.idea.maven.dom.plugin;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 import org.jetbrains.idea.maven.dom.MavenDomElement;
 

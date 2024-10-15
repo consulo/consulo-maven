@@ -24,8 +24,8 @@ import consulo.util.xml.serializer.annotation.OptionTag;
 import consulo.util.xml.serializer.annotation.Transient;
 import org.jetbrains.idea.maven.utils.Path;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import java.io.File;
 import java.util.*;
 

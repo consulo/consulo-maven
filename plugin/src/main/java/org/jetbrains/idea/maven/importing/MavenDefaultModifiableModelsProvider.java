@@ -33,7 +33,7 @@ import consulo.project.content.library.ProjectLibraryTable;
 import consulo.ui.ModalityState;
 import org.jetbrains.idea.maven.utils.library.RepositoryLibraryType;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import java.util.Collection;
 
 public class MavenDefaultModifiableModelsProvider extends MavenBaseModifiableModelsProvider

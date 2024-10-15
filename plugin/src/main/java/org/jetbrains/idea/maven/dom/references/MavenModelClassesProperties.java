@@ -17,8 +17,8 @@ package org.jetbrains.idea.maven.dom.references;
 
 import com.google.common.collect.ImmutableMap;
 import consulo.java.language.module.util.JavaClassNames;
+import jakarta.annotation.Nonnull;
 
-import javax.annotation.Nonnull;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;

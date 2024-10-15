@@ -22,7 +22,7 @@ import consulo.module.content.layer.OrderEnumerationPolicy;
 import consulo.project.Project;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 @ExtensionImpl
 public class MavenOrderEnumeratorHandler implements OrderEnumerationPolicy {

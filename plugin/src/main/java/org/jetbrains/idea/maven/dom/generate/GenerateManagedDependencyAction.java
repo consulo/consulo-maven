@@ -25,6 +25,7 @@ import consulo.language.editor.WriteCommandAction;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.util.lang.StringUtil;
 import consulo.xml.util.xml.ui.actions.generate.GenerateDomElementAction;
+import jakarta.annotation.Nonnull;
 import org.jetbrains.idea.maven.dom.DependencyConflictId;
 import org.jetbrains.idea.maven.dom.MavenDomProjectProcessorUtils;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
@@ -32,7 +33,6 @@ import org.jetbrains.idea.maven.dom.model.MavenDomDependency;
 import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
 import org.jetbrains.idea.maven.localize.MavenDomLocalize;
 
-import javax.annotation.Nonnull;
 import java.util.*;
 
 public class GenerateManagedDependencyAction extends GenerateDomElementAction {

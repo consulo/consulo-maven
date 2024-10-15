@@ -21,6 +21,7 @@ import consulo.maven.rt.m3.common.server.embedder.*;
 import consulo.maven.rt.server.common.model.*;
 import consulo.maven.rt.server.common.server.*;
 import consulo.maven.rt.server.common.util.MavenStringUtil;
+import jakarta.annotation.Nullable;
 import org.apache.maven.*;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.InvalidRepositoryException;
@@ -73,8 +74,8 @@ import org.sonatype.aether.repository.LocalRepositoryManager;
 import org.sonatype.aether.util.DefaultRepositorySystemSession;
 import org.sonatype.aether.util.graph.PreorderNodeListGenerator;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+
 import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;

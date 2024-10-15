@@ -23,12 +23,12 @@ import consulo.xml.util.xml.ConvertContext;
 import consulo.xml.util.xml.DomFileDescription;
 import consulo.xml.util.xml.DomReferenceInjector;
 import consulo.xml.util.xml.DomUtil;
+import jakarta.annotation.Nonnull;
 import org.jetbrains.idea.maven.dom.MavenDomProjectModelDescription;
 import org.jetbrains.idea.maven.dom.MavenPropertyResolver;
 import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 @ExtensionImpl
 public class MavenPropertyPsiReferenceInjector implements DomReferenceInjector {

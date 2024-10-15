@@ -21,7 +21,7 @@ import consulo.language.editor.documentation.LanguageDocumentationProvider;
 import consulo.language.psi.PsiElement;
 import consulo.xml.lang.xml.XMLLanguage;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 @ExtensionImpl
 public class MavenPluginModelDocumentationProvider implements LanguageDocumentationProvider {

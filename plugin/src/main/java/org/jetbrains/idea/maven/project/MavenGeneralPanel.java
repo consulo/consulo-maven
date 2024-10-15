@@ -28,7 +28,7 @@ import org.jetbrains.idea.maven.execution.MavenExecutionOptions;
 import org.jetbrains.idea.maven.localize.MavenProjectLocalize;
 import org.jetbrains.idea.maven.utils.ComboBoxUtil;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import javax.swing.*;
 import java.util.Arrays;
 import java.util.List;

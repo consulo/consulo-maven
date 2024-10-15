@@ -13,6 +13,7 @@ import consulo.maven.rt.server.common.model.MavenId;
 import consulo.module.Module;
 import consulo.module.extension.ModuleExtensionHelper;
 import consulo.project.Project;
+import jakarta.annotation.Nonnull;
 import jakarta.inject.Inject;
 import org.jetbrains.idea.maven.execution.MavenRunner;
 import org.jetbrains.idea.maven.execution.MavenRunnerParameters;
@@ -22,7 +23,6 @@ import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.tasks.TasksBundle;
 
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

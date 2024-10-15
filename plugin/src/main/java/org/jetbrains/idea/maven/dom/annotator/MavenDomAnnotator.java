@@ -34,7 +34,7 @@ import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
 import org.jetbrains.idea.maven.localize.MavenDomLocalize;
 import org.jetbrains.idea.maven.project.MavenProject;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import java.util.Arrays;
 
 public class MavenDomAnnotator implements DomElementsAnnotator {

@@ -31,6 +31,7 @@ import consulo.ui.ex.awt.DialogWrapper;
 import consulo.util.lang.Pair;
 import consulo.xml.psi.xml.XmlElement;
 import consulo.xml.util.xml.DomUtil;
+import jakarta.annotation.Nullable;
 import org.jetbrains.idea.maven.dom.DependencyConflictId;
 import org.jetbrains.idea.maven.dom.MavenDomProjectProcessorUtils;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
@@ -39,8 +40,8 @@ import org.jetbrains.idea.maven.dom.model.MavenDomExclusion;
 import org.jetbrains.idea.maven.dom.model.MavenDomExclusions;
 import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;

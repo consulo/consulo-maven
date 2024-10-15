@@ -28,7 +28,7 @@ import org.jetbrains.idea.maven.dom.converters.MavenModelVersionConverter;
 import org.jetbrains.idea.maven.dom.converters.MavenPackagingConverter;
 import org.jetbrains.idea.maven.dom.converters.MavenUrlConverter;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 /**
  * http://maven.apache.org/POM/4.0.0:Model interface.

@@ -19,9 +19,8 @@ import consulo.document.util.TextRange;
 import consulo.language.psi.PsiElement;
 import consulo.language.psi.PsiReference;
 import consulo.xml.util.xml.ConvertContext;
+import jakarta.annotation.Nullable;
 import org.jetbrains.idea.maven.dom.references.MavenUrlPsiReference;
-
-import javax.annotation.Nullable;
 
 public class MavenUrlConverter extends MavenReferenceConverter<String> {
     @Override

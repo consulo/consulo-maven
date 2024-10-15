@@ -15,7 +15,7 @@
  */
 package org.jetbrains.idea.maven.services;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 import consulo.maven.rt.server.common.model.MavenArtifactInfo;
 import consulo.maven.rt.server.common.model.MavenRepositoryInfo;

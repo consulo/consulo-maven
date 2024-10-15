@@ -15,8 +15,8 @@
  */
 package consulo.maven.rt.server.common.model;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 
 import java.io.File;
 import java.io.Serializable;

@@ -21,8 +21,8 @@ import java.rmi.RemoteException;
 import java.util.Collection;
 import java.util.List;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 
 import consulo.maven.rt.server.common.model.MavenArtifact;
 import consulo.maven.rt.server.common.model.MavenArtifactInfo;

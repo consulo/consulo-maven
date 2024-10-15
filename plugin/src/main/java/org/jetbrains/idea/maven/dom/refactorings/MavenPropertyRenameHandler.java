@@ -29,7 +29,7 @@ import consulo.project.Project;
 import consulo.ui.ex.awt.DialogWrapper;
 import org.jetbrains.idea.maven.dom.references.MavenTargetUtil;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 @ExtensionImpl
 public class MavenPropertyRenameHandler extends PsiElementRenameHandler {

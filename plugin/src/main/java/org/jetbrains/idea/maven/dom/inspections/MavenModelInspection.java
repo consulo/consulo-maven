@@ -20,12 +20,11 @@ import consulo.virtualFileSystem.VirtualFile;
 import consulo.xml.util.xml.DomUtil;
 import consulo.xml.util.xml.GenericDomValue;
 import consulo.xml.util.xml.highlighting.BasicDomElementsInspection;
+import jakarta.annotation.Nonnull;
 import org.jetbrains.idea.maven.dom.converters.MavenDomSoftAwareConverter;
 import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
 import org.jetbrains.idea.maven.localize.MavenDomLocalize;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
-
-import javax.annotation.Nonnull;
 
 @ExtensionImpl
 public class MavenModelInspection extends BasicDomElementsInspection<MavenDomProjectModel, Object> {

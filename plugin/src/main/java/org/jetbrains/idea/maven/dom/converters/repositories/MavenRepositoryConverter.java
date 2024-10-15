@@ -29,8 +29,8 @@ import consulo.xml.util.xml.ConvertContext;
 import consulo.xml.util.xml.GenericDomValue;
 import consulo.xml.util.xml.ResolvingConverter;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 
 import org.jetbrains.idea.maven.dom.converters.MavenUrlConverter;
 import org.jetbrains.idea.maven.dom.model.MavenDomRepositoryBase;

@@ -22,10 +22,10 @@ import consulo.module.Module;
 import consulo.project.Project;
 import consulo.virtualFileSystem.VirtualFile;
 import consulo.virtualFileSystem.util.VirtualFileUtil;
+import jakarta.annotation.Nullable;
 import org.jetbrains.idea.maven.project.MavenProject;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
 
 /**
  * @author Sergey Evdokimov

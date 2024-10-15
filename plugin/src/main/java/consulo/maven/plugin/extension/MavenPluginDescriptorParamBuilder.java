@@ -4,7 +4,7 @@ import consulo.language.psi.PsiReferenceProvider;
 import org.jetbrains.idea.maven.plugins.api.MavenParamLanguageProvider;
 import org.jetbrains.idea.maven.plugins.api.MavenParamReferenceProvider;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import java.util.function.Supplier;
 
 /**

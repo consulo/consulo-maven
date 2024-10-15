@@ -18,9 +18,8 @@ package org.jetbrains.idea.maven.navigator;
 import consulo.ui.ex.awt.tree.NullNode;
 import consulo.ui.ex.awt.tree.SimpleNode;
 
-import javax.annotation.Nonnull;
-
 import consulo.project.Project;
+import jakarta.annotation.Nonnull;
 import org.jetbrains.idea.maven.project.MavenProject;
 
 import javax.swing.*;

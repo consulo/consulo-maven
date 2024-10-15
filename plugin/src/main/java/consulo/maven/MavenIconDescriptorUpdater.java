@@ -26,7 +26,7 @@ import consulo.virtualFileSystem.VirtualFile;
 import org.jetbrains.idea.maven.MavenIcons;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 /**
  * @author VISTALL

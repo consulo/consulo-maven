@@ -17,9 +17,9 @@ package org.jetbrains.idea.maven.importing;
 
 import consulo.module.Module;
 
-import javax.annotation.Nullable;
 import consulo.maven.rt.server.common.model.MavenId;
 import consulo.util.lang.StringUtil;
+import jakarta.annotation.Nullable;
 import org.jetbrains.idea.maven.project.MavenProject;
 
 import java.util.*;

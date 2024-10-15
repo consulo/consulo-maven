@@ -6,7 +6,7 @@ import consulo.component.extension.preview.ExtensionPreview;
 import consulo.component.extension.preview.ExtensionPreviewRecorder;
 import jakarta.inject.Inject;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import java.util.function.Consumer;
 
 /**

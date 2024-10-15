@@ -20,6 +20,7 @@ import consulo.execution.RunManager;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.action.AnActionEvent;
 import consulo.util.lang.Pair;
+import jakarta.annotation.Nullable;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.tasks.MavenBeforeRunTask;
 import org.jetbrains.idea.maven.tasks.MavenBeforeRunTasksProvider;
@@ -27,7 +28,6 @@ import org.jetbrains.idea.maven.utils.MavenDataKeys;
 import org.jetbrains.idea.maven.utils.actions.MavenActionUtil;
 import org.jetbrains.idea.maven.utils.actions.MavenToggleAction;
 
-import javax.annotation.Nullable;
 import java.util.List;
 
 public class ToggleBeforeRunTaskAction extends MavenToggleAction {

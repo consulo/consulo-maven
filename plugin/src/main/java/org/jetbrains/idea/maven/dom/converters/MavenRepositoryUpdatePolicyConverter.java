@@ -16,9 +16,9 @@
 package org.jetbrains.idea.maven.dom.converters;
 
 import consulo.xml.util.xml.ConvertContext;
+import jakarta.annotation.Nonnull;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;

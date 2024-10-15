@@ -6,7 +6,7 @@ import consulo.content.bundle.PredefinedBundlesProvider;
 import consulo.container.plugin.PluginManager;
 import consulo.content.bundle.Sdk;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import java.io.File;
 
 /**

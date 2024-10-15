@@ -17,10 +17,10 @@ package consulo.maven.importing;
 
 import consulo.annotation.UsedInPlugin;
 import consulo.maven.rt.server.common.model.MavenArtifact;
+import jakarta.annotation.Nullable;
 import org.jetbrains.idea.maven.importing.MavenImporter;
 import org.jetbrains.idea.maven.project.MavenProject;
 
-import javax.annotation.Nullable;
 import java.util.List;
 
 /**

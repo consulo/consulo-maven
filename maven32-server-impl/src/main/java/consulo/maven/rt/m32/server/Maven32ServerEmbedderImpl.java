@@ -81,8 +81,8 @@ import org.eclipse.aether.resolution.ArtifactRequest;
 import org.eclipse.aether.resolution.ArtifactResult;
 import org.eclipse.aether.util.graph.visitor.PreorderNodeListGenerator;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;

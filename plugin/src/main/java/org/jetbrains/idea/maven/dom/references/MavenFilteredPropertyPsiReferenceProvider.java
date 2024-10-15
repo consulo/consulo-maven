@@ -30,7 +30,7 @@ import org.jetbrains.idea.maven.dom.MavenPropertyResolver;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.utils.MavenJDOMUtil;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;

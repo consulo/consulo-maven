@@ -37,8 +37,8 @@ import org.jetbrains.idea.maven.plugins.api.MavenModelPropertiesPatcher;
 import org.jetbrains.idea.maven.server.MavenEmbedderWrapper;
 import org.jetbrains.idea.maven.utils.*;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;

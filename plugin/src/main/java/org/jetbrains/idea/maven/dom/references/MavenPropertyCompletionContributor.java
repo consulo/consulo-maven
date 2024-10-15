@@ -27,11 +27,11 @@ import consulo.language.editor.completion.lookup.LookupElementBuilder;
 import consulo.language.psi.PsiFile;
 import consulo.language.psi.PsiNamedElement;
 import consulo.project.Project;
+import jakarta.annotation.Nonnull;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 
-import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.Collection;
 

@@ -20,6 +20,7 @@ import consulo.annotation.component.ExtensionImpl;
 import consulo.java.execution.configurations.OwnJavaParameters;
 import consulo.module.Module;
 import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import org.jdom.Element;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
 import org.jetbrains.idea.maven.dom.MavenPropertyResolver;
@@ -28,7 +29,6 @@ import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.utils.MavenJDOMUtil;
 
-import javax.annotation.Nullable;
 import java.util.List;
 
 /**

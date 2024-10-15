@@ -14,14 +14,14 @@ import consulo.module.Module;
 import consulo.module.content.ModuleRootManager;
 import consulo.project.Project;
 import consulo.virtualFileSystem.VirtualFile;
+import jakarta.annotation.Nullable;
 import jakarta.inject.Inject;
 import jakarta.inject.Provider;
 import org.jdom.Element;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
 
 /**
  * @author VISTALL

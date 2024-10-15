@@ -4,8 +4,8 @@ import consulo.annotation.component.ExtensionImpl;
 import consulo.localize.LocalizeValue;
 import consulo.project.ui.notification.NotificationGroup;
 import consulo.project.ui.notification.NotificationGroupContributor;
+import jakarta.annotation.Nonnull;
 
-import javax.annotation.Nonnull;
 import java.util.function.Consumer;
 
 /**

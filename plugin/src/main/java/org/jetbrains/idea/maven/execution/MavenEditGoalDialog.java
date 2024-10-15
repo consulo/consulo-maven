@@ -29,12 +29,13 @@ import consulo.ui.ex.awt.*;
 import consulo.ui.ex.awtUnsafe.TargetAWT;
 import consulo.util.collection.ArrayUtil;
 import consulo.virtualFileSystem.VirtualFile;
+import jakarta.annotation.Nullable;
 import org.jetbrains.idea.maven.localize.MavenRunnerLocalize;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+
 import javax.swing.*;
 import java.util.Collection;
 

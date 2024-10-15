@@ -14,7 +14,7 @@ import consulo.ui.ex.toolWindow.ToolWindowAnchor;
 import consulo.ui.image.Image;
 import org.jetbrains.idea.maven.navigator.MavenProjectsNavigator;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 /**
  * @author VISTALL

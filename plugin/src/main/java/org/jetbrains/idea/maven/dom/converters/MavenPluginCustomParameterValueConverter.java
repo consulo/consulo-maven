@@ -24,8 +24,7 @@ import consulo.project.Project;
 import consulo.xml.util.xml.Converter;
 import consulo.xml.util.xml.GenericDomValue;
 import consulo.xml.util.xml.WrappingConverter;
-
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 public class MavenPluginCustomParameterValueConverter extends WrappingConverter {
     private final String myType;

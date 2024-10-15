@@ -5,7 +5,7 @@ import consulo.language.editor.ProblemHighlightFilter;
 import consulo.language.psi.PsiFile;
 import consulo.virtualFileSystem.VirtualFile;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 /**
  * @author Sergey Evdokimov

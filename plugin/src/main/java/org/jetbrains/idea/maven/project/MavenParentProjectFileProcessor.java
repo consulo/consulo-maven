@@ -19,10 +19,10 @@ import consulo.virtualFileSystem.LocalFileSystem;
 import consulo.virtualFileSystem.VirtualFile;
 import consulo.maven.rt.server.common.model.MavenConstants;
 import consulo.maven.rt.server.common.model.MavenId;
+import jakarta.annotation.Nonnull;
 import org.jetbrains.idea.maven.utils.MavenArtifactUtil;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import java.io.File;
 
 public abstract class MavenParentProjectFileProcessor<RESULT_TYPE> {

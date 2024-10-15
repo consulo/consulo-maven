@@ -32,11 +32,11 @@ import consulo.ui.ex.awt.table.JBTable;
 import consulo.ui.ex.awt.util.ListUtil;
 import consulo.ui.ex.awtUnsafe.TargetAWT;
 import consulo.util.lang.StringUtil;
+import jakarta.annotation.Nonnull;
 import org.jetbrains.idea.maven.localize.MavenIndicesLocalize;
 import org.jetbrains.idea.maven.services.MavenRepositoryServicesManager;
 import org.jetbrains.idea.maven.utils.library.RepositoryAttachHandler;
 
-import javax.annotation.Nonnull;
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;

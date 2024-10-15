@@ -15,7 +15,7 @@
  */
 package org.jetbrains.idea.maven.project;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 import consulo.project.Project;
 import consulo.virtualFileSystem.VirtualFile;

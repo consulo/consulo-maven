@@ -25,13 +25,14 @@ import consulo.ui.Component;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.wizard.WizardStep;
 import consulo.ui.ex.wizard.WizardStepValidationException;
+import jakarta.annotation.Nullable;
 import org.jetbrains.idea.maven.execution.MavenPropertiesPanel;
 import org.jetbrains.idea.maven.project.MavenEnvironmentForm;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.utils.MavenUtil;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;

@@ -31,11 +31,11 @@ import consulo.xml.psi.xml.XmlText;
 import consulo.xml.util.xml.Converter;
 import consulo.xml.util.xml.ResolvingConverter;
 import consulo.xml.util.xml.impl.GenericDomValueReference;
+import jakarta.annotation.Nonnull;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
 import org.jetbrains.idea.maven.dom.converters.MavenSmartConverter;
 import org.jetbrains.idea.maven.dom.references.MavenPropertyCompletionContributor;
 
-import javax.annotation.Nonnull;
 import java.util.Collection;
 import java.util.Collections;
 

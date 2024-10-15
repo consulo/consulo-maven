@@ -25,6 +25,7 @@ import java.util.List;
 import consulo.module.ModuleManager;
 import consulo.virtualFileSystem.VirtualFileManager;
 import consulo.virtualFileSystem.util.PathsList;
+import jakarta.annotation.Nullable;
 import org.jetbrains.idea.maven.MavenImportingTestCase;
 import org.jetbrains.idea.maven.importing.MavenModuleImporter;
 import consulo.language.editor.WriteCommandAction;
@@ -46,8 +47,6 @@ import consulo.compiler.ModuleCompilerPathsManager;
 import consulo.java.execution.configurations.OwnJavaParameters;
 import consulo.roots.impl.ProductionContentFolderTypeProvider;
 import consulo.roots.impl.TestContentFolderTypeProvider;
-
-import javax.annotation.Nullable;
 
 public abstract class MavenClasspathsAndSearchScopesTest extends MavenImportingTestCase
 {

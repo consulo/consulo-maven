@@ -9,7 +9,7 @@ import consulo.language.editor.ui.awt.TextFieldCompletionProvider;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 /**
  * @author Sergey Evdokimov

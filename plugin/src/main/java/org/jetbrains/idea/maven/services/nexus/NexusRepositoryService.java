@@ -23,7 +23,7 @@ import consulo.maven.rt.server.common.model.MavenArtifactInfo;
 import consulo.maven.rt.server.common.model.MavenRepositoryInfo;
 import org.jetbrains.idea.maven.services.MavenRepositoryService;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;

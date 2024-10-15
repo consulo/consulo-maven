@@ -24,10 +24,10 @@ import consulo.virtualFileSystem.VirtualFile;
 import consulo.virtualFileSystem.encoding.EncodingRegistry;
 import consulo.xml.psi.impl.source.parsing.xml.XmlBuilder;
 import consulo.xml.psi.impl.source.parsing.xml.XmlBuilderDriver;
+import jakarta.annotation.Nullable;
 import org.jdom.Element;
 import org.jdom.IllegalNameException;
 
-import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.*;
 

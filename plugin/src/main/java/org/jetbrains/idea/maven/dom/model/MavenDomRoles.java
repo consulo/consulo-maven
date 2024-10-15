@@ -21,7 +21,7 @@ package org.jetbrains.idea.maven.dom.model;
 
 import consulo.xml.util.xml.GenericDomValue;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 import org.jetbrains.idea.maven.dom.MavenDomElement;
 

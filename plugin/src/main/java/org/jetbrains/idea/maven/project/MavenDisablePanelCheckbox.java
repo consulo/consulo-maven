@@ -18,8 +18,8 @@ package org.jetbrains.idea.maven.project;
 import consulo.ui.ex.JBColor;
 import consulo.ui.ex.awt.JBUI;
 import consulo.util.lang.Pair;
+import jakarta.annotation.Nonnull;
 
-import javax.annotation.Nonnull;
 import javax.swing.*;
 import java.awt.*;
 import java.util.HashSet;

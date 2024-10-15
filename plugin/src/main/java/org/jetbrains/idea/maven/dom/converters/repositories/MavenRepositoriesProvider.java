@@ -24,8 +24,8 @@ import jakarta.inject.Singleton;
 import org.jetbrains.idea.maven.dom.converters.repositories.beans.RepositoriesBean;
 import org.jetbrains.idea.maven.dom.converters.repositories.beans.RepositoryBeanInfo;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;

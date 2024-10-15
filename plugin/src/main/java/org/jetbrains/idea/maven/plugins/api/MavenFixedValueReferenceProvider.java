@@ -4,11 +4,11 @@ import consulo.annotation.access.RequiredReadAction;
 import consulo.document.util.TextRange;
 import consulo.language.psi.*;
 import consulo.language.util.ProcessingContext;
+import jakarta.annotation.Nonnull;
 import org.jetbrains.idea.maven.dom.MavenPropertyResolver;
 import org.jetbrains.idea.maven.dom.model.MavenDomConfiguration;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import java.util.Arrays;
 import java.util.regex.Matcher;
 

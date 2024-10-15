@@ -15,13 +15,12 @@
  */
 package org.jetbrains.idea.maven.dom.references;
 
-import javax.annotation.Nonnull;
-
 import consulo.annotation.access.RequiredReadAction;
 import consulo.ide.impl.idea.ide.BrowserUtil;
 import consulo.document.util.TextRange;
 import consulo.language.impl.psi.FakePsiElement;
 import consulo.language.psi.PsiElement;
+import jakarta.annotation.Nonnull;
 
 public class MavenUrlPsiReference extends MavenPsiReference {
     public MavenUrlPsiReference(PsiElement element, String text, TextRange range) {

@@ -1,9 +1,9 @@
 package consulo.maven.rt.server.common.util;
 
+import jakarta.annotation.Nonnull;
 import org.jetbrains.annotations.NonNls;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -31,7 +31,7 @@ public class MavenFileUtil
 
 	@Nonnull
 	public static File createTempFile(@Nonnull @NonNls String prefix, @Nullable @NonNls String suffix,
-									  boolean deleteOnExit) throws IOException
+                                      boolean deleteOnExit) throws IOException
 	{
 		final File dir = new File(getTempDirectory());
 		return createTempFile(dir, prefix, suffix, true, deleteOnExit);
@@ -39,23 +39,23 @@ public class MavenFileUtil
 
 	@Nonnull
 	public static File createTempFile(@NonNls File dir,
-									  @Nonnull @NonNls String prefix, @Nullable @NonNls String suffix) throws IOException
+                                      @Nonnull @NonNls String prefix, @Nullable @NonNls String suffix) throws IOException
 	{
 		return createTempFile(dir, prefix, suffix, true, true);
 	}
 
 	@Nonnull
 	public static File createTempFile(@NonNls File dir,
-									  @Nonnull @NonNls String prefix, @Nullable @NonNls String suffix,
-									  boolean create) throws IOException
+                                      @Nonnull @NonNls String prefix, @Nullable @NonNls String suffix,
+                                      boolean create) throws IOException
 	{
 		return createTempFile(dir, prefix, suffix, create, true);
 	}
 
 	@Nonnull
 	public static File createTempFile(@NonNls File dir,
-									  @Nonnull @NonNls String prefix, @Nullable @NonNls String suffix,
-									  boolean create, boolean deleteOnExit) throws IOException
+                                      @Nonnull @NonNls String prefix, @Nullable @NonNls String suffix,
+                                      boolean create, boolean deleteOnExit) throws IOException
 	{
 		File file = doCreateTempFile(dir, prefix, suffix, false);
 		if(deleteOnExit)

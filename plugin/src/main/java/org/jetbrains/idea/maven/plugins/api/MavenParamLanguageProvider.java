@@ -17,10 +17,9 @@ package org.jetbrains.idea.maven.plugins.api;
 
 import consulo.language.Language;
 import consulo.xml.psi.xml.XmlText;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import org.jetbrains.idea.maven.dom.model.MavenDomConfiguration;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 /**
  * @author Sergey Evdokimov

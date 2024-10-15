@@ -3,12 +3,12 @@ package consulo.maven.plugin;
 import consulo.language.Language;
 import consulo.language.LanguagePointerUtil;
 import consulo.maven.internal.plugin.MavenPluginDescriptorParamBuilderImpl;
+import jakarta.annotation.Nonnull;
 import org.jetbrains.idea.maven.plugins.api.MavenParamLanguageProvider;
 import org.jetbrains.idea.maven.plugins.api.MavenParamReferenceProvider;
 import org.jetbrains.idea.maven.plugins.api.MavenSoftAwareReferenceProvider;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import java.util.function.Supplier;
 
 /**

@@ -17,7 +17,7 @@ package org.jetbrains.idea.maven.dom.converters;
 
 import consulo.xml.util.xml.ConvertContext;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 import org.jetbrains.idea.maven.dom.model.MavenDomArtifactCoordinates;
 import org.jetbrains.idea.maven.dom.model.MavenDomShortArtifactCoordinates;

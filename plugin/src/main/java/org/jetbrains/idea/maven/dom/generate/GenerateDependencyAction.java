@@ -28,6 +28,7 @@ import consulo.xml.psi.xml.XmlElement;
 import consulo.xml.psi.xml.XmlFile;
 import consulo.xml.util.xml.DomUtil;
 import consulo.xml.util.xml.ui.actions.generate.GenerateDomElementAction;
+import jakarta.annotation.Nullable;
 import org.jetbrains.idea.maven.dom.DependencyConflictId;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
 import org.jetbrains.idea.maven.dom.model.MavenDomDependency;
@@ -36,8 +37,8 @@ import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
 import org.jetbrains.idea.maven.indices.MavenArtifactSearchDialog;
 import org.jetbrains.idea.maven.localize.MavenDomLocalize;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+
 import java.util.List;
 import java.util.Map;
 

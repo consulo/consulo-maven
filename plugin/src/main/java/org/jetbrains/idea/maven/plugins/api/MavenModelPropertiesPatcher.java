@@ -5,7 +5,7 @@ import consulo.maven.plugin.MavenPluginDescriptor;
 import consulo.maven.rt.server.common.model.MavenId;
 import consulo.maven.rt.server.common.model.MavenPlugin;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Properties;

@@ -21,7 +21,7 @@ import org.jetbrains.idea.maven.importing.MavenImporter;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.utils.MavenJDOMUtil;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 /**
  * @author VISTALL

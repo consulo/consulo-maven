@@ -19,11 +19,10 @@
 
 package org.jetbrains.idea.maven.dom.model;
 
-import javax.annotation.Nonnull;
-
 import consulo.language.psi.path.PathReference;
 import consulo.xml.util.xml.Convert;
 import consulo.xml.util.xml.GenericDomValue;
+import jakarta.annotation.Nonnull;
 import org.jetbrains.idea.maven.dom.MavenDomElement;
 import org.jetbrains.idea.maven.dom.references.MavenDirectoryPathReferenceConverter;
 

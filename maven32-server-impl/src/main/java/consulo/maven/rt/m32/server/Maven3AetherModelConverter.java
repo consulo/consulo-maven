@@ -18,6 +18,8 @@ package consulo.maven.rt.m32.server;
 import consulo.maven.rt.m3.common.server.MavenModelConverter;
 import consulo.maven.rt.server.common.model.*;
 import consulo.maven.rt.server.common.util.MavenStringUtil;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import org.apache.maven.RepositoryUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Model;
@@ -27,8 +29,6 @@ import org.eclipse.aether.graph.DependencyNode;
 import org.eclipse.aether.util.graph.manager.DependencyManagerUtils;
 import org.eclipse.aether.util.graph.transformer.ConflictResolver;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.io.File;
 import java.rmi.RemoteException;
 import java.util.*;

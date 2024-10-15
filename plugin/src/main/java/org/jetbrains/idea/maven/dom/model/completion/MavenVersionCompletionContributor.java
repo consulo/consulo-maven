@@ -36,8 +36,8 @@ import org.jetbrains.idea.maven.dom.converters.MavenArtifactCoordinatesVersionCo
 import org.jetbrains.idea.maven.dom.model.MavenDomArtifactCoordinates;
 import org.jetbrains.idea.maven.indices.MavenProjectIndicesManager;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import java.util.Set;
 
 /**

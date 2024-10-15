@@ -14,7 +14,7 @@ import consulo.ui.ex.wizard.WizardStep;
 import org.jetbrains.idea.maven.wizards.MavenModuleWizardStep;
 import org.jetbrains.idea.maven.wizards.SelectPropertiesStep;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import java.util.function.Consumer;
 
 /**

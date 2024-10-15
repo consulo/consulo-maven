@@ -24,8 +24,7 @@ import consulo.xml.util.xml.Convert;
 import consulo.xml.util.xml.GenericDomValue;
 import consulo.xml.util.xml.Required;
 
-import javax.annotation.Nonnull;
-
+import jakarta.annotation.Nonnull;
 import org.jetbrains.idea.maven.dom.MavenDomElement;
 import org.jetbrains.idea.maven.dom.converters.MavenParentRelativePathConverter;
 

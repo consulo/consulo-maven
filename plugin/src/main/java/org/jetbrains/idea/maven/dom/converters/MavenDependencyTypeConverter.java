@@ -19,7 +19,7 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 import consulo.maven.rt.server.common.model.MavenConstants;
 import org.jetbrains.idea.maven.project.MavenProject;

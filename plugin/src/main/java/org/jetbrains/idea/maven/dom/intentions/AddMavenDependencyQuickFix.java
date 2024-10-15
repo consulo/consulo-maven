@@ -21,19 +21,19 @@ import consulo.codeEditor.Editor;
 import consulo.language.editor.WriteCommandAction;
 import consulo.language.editor.intention.LowPriorityAction;
 import consulo.language.editor.intention.SyntheticIntentionAction;
-import consulo.language.psi.PsiElement;
 import consulo.language.psi.PsiFile;
 import consulo.language.util.IncorrectOperationException;
 import consulo.maven.rt.server.common.model.MavenId;
 import consulo.project.Project;
 import consulo.xml.util.xml.DomUtil;
+import jakarta.annotation.Nullable;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
 import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
 import org.jetbrains.idea.maven.indices.MavenArtifactSearchDialog;
 import org.jetbrains.idea.maven.project.MavenProject;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+
 import java.util.List;
 import java.util.regex.Pattern;
 

@@ -19,8 +19,8 @@ import java.io.File;
 import java.io.Serializable;
 import java.util.Properties;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 
 public class MavenServerSettings implements Serializable, Cloneable
 {

@@ -23,8 +23,7 @@ import consulo.navigation.NavigationItem;
 import consulo.project.Project;
 import consulo.util.collection.ArrayUtil;
 import consulo.virtualFileSystem.VirtualFile;
-
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 @ExtensionImpl
 public class MavenGotoPropertyFileContributor implements GotoFileContributor {

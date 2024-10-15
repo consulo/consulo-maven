@@ -24,10 +24,10 @@ import consulo.language.util.ModuleUtilCore;
 import consulo.module.Module;
 import consulo.project.Project;
 import consulo.util.io.FileUtil;
+import jakarta.annotation.Nonnull;
 import org.jetbrains.idea.maven.project.MavenProject;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import java.io.File;
 import java.util.List;
 import java.util.Map;

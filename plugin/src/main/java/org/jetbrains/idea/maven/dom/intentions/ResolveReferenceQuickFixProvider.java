@@ -19,8 +19,7 @@ import com.intellij.java.language.psi.PsiJavaCodeReferenceElement;
 import consulo.annotation.component.ExtensionImpl;
 import consulo.language.editor.intention.QuickFixActionRegistrar;
 import consulo.language.editor.intention.UnresolvedReferenceQuickFixProvider;
-
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 @ExtensionImpl
 public class ResolveReferenceQuickFixProvider extends UnresolvedReferenceQuickFixProvider<PsiJavaCodeReferenceElement> {

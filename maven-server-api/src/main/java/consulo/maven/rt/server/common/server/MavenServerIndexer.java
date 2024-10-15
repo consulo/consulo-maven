@@ -18,10 +18,11 @@ package consulo.maven.rt.server.common.server;
 import consulo.maven.rt.server.common.model.MavenArchetype;
 import consulo.maven.rt.server.common.model.MavenArtifactInfo;
 import consulo.maven.rt.server.common.model.MavenId;
+import jakarta.annotation.Nullable;
 import org.apache.lucene.search.Query;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+
 import java.io.File;
 import java.rmi.Remote;
 import java.rmi.RemoteException;

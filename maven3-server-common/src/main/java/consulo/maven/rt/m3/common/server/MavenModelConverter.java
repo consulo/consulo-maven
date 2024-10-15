@@ -28,7 +28,7 @@ import org.jdom.Element;
 import org.jdom.IllegalNameException;
 import org.sonatype.nexus.index.ArtifactInfo;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.rmi.RemoteException;

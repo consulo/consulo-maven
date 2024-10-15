@@ -28,8 +28,8 @@ import org.jetbrains.idea.maven.localize.MavenDomLocalize;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.utils.ComboBoxUtil;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import javax.swing.*;
 import java.awt.event.ItemListener;
 import java.util.Set;

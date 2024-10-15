@@ -22,9 +22,9 @@ import consulo.util.io.FileUtil;
 import consulo.util.xml.serializer.annotation.MapAnnotation;
 import consulo.util.xml.serializer.annotation.Tag;
 import consulo.util.xml.serializer.annotation.Transient;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

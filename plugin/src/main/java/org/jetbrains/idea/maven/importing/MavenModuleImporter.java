@@ -41,14 +41,15 @@ import consulo.util.lang.StringUtil;
 import consulo.virtualFileSystem.VirtualFile;
 import consulo.virtualFileSystem.archive.ArchiveVfsUtil;
 import consulo.virtualFileSystem.util.VirtualFileUtil;
+import jakarta.annotation.Nullable;
 import org.jdom.Element;
 import org.jetbrains.idea.maven.execution.MavenRunner;
 import org.jetbrains.idea.maven.project.*;
 import org.jetbrains.idea.maven.utils.MavenUtil;
 import org.jetbrains.idea.maven.utils.library.RepositoryLibraryProperties;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Set;

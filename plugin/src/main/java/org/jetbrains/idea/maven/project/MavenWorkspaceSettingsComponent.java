@@ -25,10 +25,9 @@ import consulo.component.persist.StoragePathMacros;
 import consulo.ide.ServiceManager;
 import consulo.maven.rt.server.common.model.MavenExplicitProfiles;
 import consulo.project.Project;
+import jakarta.annotation.Nonnull;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
-
-import javax.annotation.Nonnull;
 
 @Singleton
 @State(name = "MavenImportPreferences", storages = {@Storage(file = StoragePathMacros.WORKSPACE_FILE)})

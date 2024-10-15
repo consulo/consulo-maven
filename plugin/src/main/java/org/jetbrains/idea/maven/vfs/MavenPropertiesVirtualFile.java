@@ -19,8 +19,8 @@ import consulo.util.lang.StringUtil;
 import consulo.virtualFileSystem.VirtualFile;
 import consulo.virtualFileSystem.VirtualFileSystem;
 import consulo.virtualFileSystem.util.VirtualFileUtil;
+import jakarta.annotation.Nonnull;
 
-import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;

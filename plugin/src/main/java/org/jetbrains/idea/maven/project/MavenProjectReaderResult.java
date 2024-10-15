@@ -19,7 +19,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 import consulo.maven.rt.server.common.model.MavenExplicitProfiles;
 import consulo.maven.rt.server.common.model.MavenId;

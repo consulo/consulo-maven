@@ -17,8 +17,8 @@ package consulo.maven.rt.server.common.model;
 
 import consulo.maven.rt.server.common.util.MavenStringUtil;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import java.io.Serializable;
 
 public class MavenArchetype implements Serializable {

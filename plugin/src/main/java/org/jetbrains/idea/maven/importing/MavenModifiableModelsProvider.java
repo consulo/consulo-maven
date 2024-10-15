@@ -15,7 +15,7 @@
  */
 package org.jetbrains.idea.maven.importing;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 import consulo.module.ModifiableModuleModel;
 import consulo.module.content.layer.ModifiableRootModel;

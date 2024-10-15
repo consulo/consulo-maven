@@ -30,7 +30,7 @@ import org.jetbrains.idea.maven.localize.MavenDomLocalize;
 import org.jetbrains.idea.maven.navigator.SelectMavenProjectDialog;
 import org.jetbrains.idea.maven.project.MavenProject;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 public class GenerateParentAction extends GenerateDomElementAction {
     public GenerateParentAction() {

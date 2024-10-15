@@ -30,6 +30,7 @@ import consulo.xml.util.xml.XmlName;
 import consulo.xml.util.xml.reflect.DomExtender;
 import consulo.xml.util.xml.reflect.DomExtension;
 import consulo.xml.util.xml.reflect.DomExtensionsRegistrar;
+import jakarta.annotation.Nonnull;
 import org.jetbrains.idea.maven.dom.converters.MavenDomConvertersRegistry;
 import org.jetbrains.idea.maven.dom.converters.MavenPluginCustomParameterValueConverter;
 import org.jetbrains.idea.maven.dom.model.MavenDomConfiguration;
@@ -39,8 +40,7 @@ import org.jetbrains.idea.maven.dom.plugin.MavenDomMojo;
 import org.jetbrains.idea.maven.dom.plugin.MavenDomParameter;
 import org.jetbrains.idea.maven.dom.plugin.MavenDomPluginModel;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import java.lang.annotation.Annotation;
 import java.util.*;
 

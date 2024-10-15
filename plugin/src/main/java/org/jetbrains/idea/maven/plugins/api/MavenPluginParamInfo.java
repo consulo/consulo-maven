@@ -12,9 +12,9 @@ import consulo.xml.psi.xml.XmlText;
 import consulo.xml.psi.xml.XmlTokenType;
 import consulo.xml.util.xml.DomElement;
 import consulo.xml.util.xml.DomManager;
+import jakarta.annotation.Nonnull;
 import org.jetbrains.idea.maven.dom.model.*;
 
-import javax.annotation.Nonnull;
 import java.util.Map;
 import java.util.function.BiPredicate;
 
