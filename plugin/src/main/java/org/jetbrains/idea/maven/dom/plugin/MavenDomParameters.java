@@ -16,11 +16,12 @@
 package org.jetbrains.idea.maven.dom.plugin;
 
 import javax.annotation.Nonnull;
+
 import org.jetbrains.idea.maven.dom.MavenDomElement;
 
 import java.util.List;
 
 public interface MavenDomParameters extends MavenDomElement {
-  @Nonnull
-  List<MavenDomParameter> getParameters();
+    @Nonnull
+    List<MavenDomParameter> getParameters();
 }

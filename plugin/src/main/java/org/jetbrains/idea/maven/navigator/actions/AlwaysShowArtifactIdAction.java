@@ -19,17 +19,14 @@ import javax.annotation.Nonnull;
 
 import org.jetbrains.idea.maven.navigator.MavenProjectsNavigator;
 
-public class AlwaysShowArtifactIdAction extends MavenProjectsNavigatorAction
-{
-	@Override
-	public boolean isSelected(@Nonnull MavenProjectsNavigator navigator)
-	{
-		return navigator.getAlwaysShowArtifactId();
-	}
+public class AlwaysShowArtifactIdAction extends MavenProjectsNavigatorAction {
+    @Override
+    public boolean isSelected(@Nonnull MavenProjectsNavigator navigator) {
+        return navigator.getAlwaysShowArtifactId();
+    }
 
-	@Override
-	public void setSelected(@Nonnull MavenProjectsNavigator navigator, boolean value)
-	{
-		navigator.setAlwaysShowArtifactId(value);
-	}
+    @Override
+    public void setSelected(@Nonnull MavenProjectsNavigator navigator, boolean value) {
+        navigator.setAlwaysShowArtifactId(value);
+    }
 }

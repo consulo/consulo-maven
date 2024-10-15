@@ -16,24 +16,26 @@
 package org.jetbrains.idea.maven.dom.plugin;
 
 import consulo.xml.util.xml.GenericDomValue;
+
 import javax.annotation.Nonnull;
+
 import org.jetbrains.idea.maven.dom.MavenDomElement;
 
 public interface MavenDomParameter extends MavenDomElement {
-  @Nonnull
-  GenericDomValue<String> getName();
+    @Nonnull
+    GenericDomValue<String> getName();
 
-  @Nonnull
-  GenericDomValue<String> getAlias();
+    @Nonnull
+    GenericDomValue<String> getAlias();
 
-  @Nonnull
-  GenericDomValue<String> getType();
+    @Nonnull
+    GenericDomValue<String> getType();
 
-  @Nonnull
-  GenericDomValue<Boolean> getEditable();
+    @Nonnull
+    GenericDomValue<Boolean> getEditable();
 
-  @Nonnull
-  GenericDomValue<String> getDescription();
+    @Nonnull
+    GenericDomValue<String> getDescription();
 
-  GenericDomValue<Boolean> getRequired();
+    GenericDomValue<Boolean> getRequired();
 }

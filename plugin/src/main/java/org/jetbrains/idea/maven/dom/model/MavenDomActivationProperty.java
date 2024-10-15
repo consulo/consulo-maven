@@ -20,7 +20,9 @@
 package org.jetbrains.idea.maven.dom.model;
 
 import consulo.xml.util.xml.GenericDomValue;
+
 import javax.annotation.Nonnull;
+
 import org.jetbrains.idea.maven.dom.MavenDomElement;
 
 /**
@@ -31,28 +33,27 @@ import org.jetbrains.idea.maven.dom.MavenDomElement;
  * </pre>
  */
 public interface MavenDomActivationProperty extends MavenDomElement {
+    /**
+     * Returns the value of the name child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:name documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the name child.
+     */
+    @Nonnull
+    GenericDomValue<String> getName();
 
-  /**
-   * Returns the value of the name child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:name documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the name child.
-   */
-  @Nonnull
-  GenericDomValue<String> getName();
-
-  /**
-   * Returns the value of the value child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:value documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the value child.
-   */
-  @Nonnull
-  GenericDomValue<String> getValue();
+    /**
+     * Returns the value of the value child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:value documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the value child.
+     */
+    @Nonnull
+    GenericDomValue<String> getValue();
 }

@@ -19,7 +19,7 @@ import consulo.module.Module;
 import consulo.virtualFileSystem.VirtualFile;
 
 public interface MavenModelsProvider {
-  Module[] getModules();
+    Module[] getModules();
 
-  VirtualFile[] getContentRoots(Module module);
+    VirtualFile[] getContentRoots(Module module);
 }

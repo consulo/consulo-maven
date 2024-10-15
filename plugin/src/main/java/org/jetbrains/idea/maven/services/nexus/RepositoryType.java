@@ -20,14 +20,14 @@ import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlType;
-import java.io.Serializable;
 
+import java.io.Serializable;
 
 /**
  * <p>Java class for repositoryType complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="repositoryType">
  *   &lt;complexContent>
@@ -50,8 +50,6 @@ import java.io.Serializable;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "repositoryType", propOrder = {
@@ -69,7 +67,6 @@ import java.io.Serializable;
     "effectiveLocalStorageUrl"
 })
 public class RepositoryType implements Serializable {
-
     @XmlElement(required = true)
     protected String resourceURI;
     @XmlElement(required = true)
@@ -97,11 +94,9 @@ public class RepositoryType implements Serializable {
 
     /**
      * Gets the value of the resourceURI property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     *
+     * @return possible object is
+     * {@link String }
      */
     public String getResourceURI() {
         return resourceURI;
@@ -109,11 +104,8 @@ public class RepositoryType implements Serializable {
 
     /**
      * Sets the value of the resourceURI property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *
+     * @param value allowed object is {@link String}
      */
     public void setResourceURI(String value) {
         this.resourceURI = value;
@@ -121,11 +113,8 @@ public class RepositoryType implements Serializable {
 
     /**
      * Gets the value of the contentResourceURI property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     *
+     * @return possible object is {@link String}
      */
     public String getContentResourceURI() {
         return contentResourceURI;
@@ -133,11 +122,8 @@ public class RepositoryType implements Serializable {
 
     /**
      * Sets the value of the contentResourceURI property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *
+     * @param value allowed object is {@link String}
      */
     public void setContentResourceURI(String value) {
         this.contentResourceURI = value;
@@ -145,11 +131,8 @@ public class RepositoryType implements Serializable {
 
     /**
      * Gets the value of the id property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     *
+     * @return possible object is {@link String}
      */
     public String getId() {
         return id;
@@ -157,11 +140,8 @@ public class RepositoryType implements Serializable {
 
     /**
      * Sets the value of the id property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *
+     * @param value allowed object is {@link String}
      */
     public void setId(String value) {
         this.id = value;
@@ -169,11 +149,8 @@ public class RepositoryType implements Serializable {
 
     /**
      * Gets the value of the name property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     *
+     * @return possible object is {@link String}
      */
     public String getName() {
         return name;
@@ -181,11 +158,8 @@ public class RepositoryType implements Serializable {
 
     /**
      * Sets the value of the name property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *
+     * @param value allowed object is {@link String}
      */
     public void setName(String value) {
         this.name = value;
@@ -193,11 +167,8 @@ public class RepositoryType implements Serializable {
 
     /**
      * Gets the value of the repoType property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     *
+     * @return possible object is {@link String}
      */
     public String getRepoType() {
         return repoType;
@@ -205,11 +176,8 @@ public class RepositoryType implements Serializable {
 
     /**
      * Sets the value of the repoType property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *
+     * @param value allowed object is {@link String}
      */
     public void setRepoType(String value) {
         this.repoType = value;
@@ -217,11 +185,8 @@ public class RepositoryType implements Serializable {
 
     /**
      * Gets the value of the repoPolicy property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     *
+     * @return possible object is {@link String}
      */
     public String getRepoPolicy() {
         return repoPolicy;
@@ -229,11 +194,8 @@ public class RepositoryType implements Serializable {
 
     /**
      * Sets the value of the repoPolicy property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *
+     * @param value allowed object is {@link String}
      */
     public void setRepoPolicy(String value) {
         this.repoPolicy = value;
@@ -241,11 +203,8 @@ public class RepositoryType implements Serializable {
 
     /**
      * Gets the value of the provider property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     *
+     * @return possible object is {@link String}
      */
     public String getProvider() {
         return provider;
@@ -253,11 +212,9 @@ public class RepositoryType implements Serializable {
 
     /**
      * Sets the value of the provider property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *
+     * @param value allowed object is
+     *              {@link String }
      */
     public void setProvider(String value) {
         this.provider = value;
@@ -265,11 +222,8 @@ public class RepositoryType implements Serializable {
 
     /**
      * Gets the value of the providerRole property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     *
+     * @return possible object is {@link String}
      */
     public String getProviderRole() {
         return providerRole;
@@ -277,11 +231,8 @@ public class RepositoryType implements Serializable {
 
     /**
      * Sets the value of the providerRole property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *
+     * @param value allowed object is {@link String}
      */
     public void setProviderRole(String value) {
         this.providerRole = value;
@@ -289,11 +240,8 @@ public class RepositoryType implements Serializable {
 
     /**
      * Gets the value of the format property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     *
+     * @return possible object is {@link String}
      */
     public String getFormat() {
         return format;
@@ -301,11 +249,8 @@ public class RepositoryType implements Serializable {
 
     /**
      * Sets the value of the format property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *
+     * @param value allowed object is {@link String}
      */
     public void setFormat(String value) {
         this.format = value;
@@ -313,11 +258,8 @@ public class RepositoryType implements Serializable {
 
     /**
      * Gets the value of the userManaged property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     *
+     * @return possible object is {@link String}
      */
     public String getUserManaged() {
         return userManaged;
@@ -325,11 +267,8 @@ public class RepositoryType implements Serializable {
 
     /**
      * Sets the value of the userManaged property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *
+     * @param value allowed object is {@link String}
      */
     public void setUserManaged(String value) {
         this.userManaged = value;
@@ -337,11 +276,8 @@ public class RepositoryType implements Serializable {
 
     /**
      * Gets the value of the exposed property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     *
+     * @return possible object is {@link String}
      */
     public String getExposed() {
         return exposed;
@@ -349,11 +285,8 @@ public class RepositoryType implements Serializable {
 
     /**
      * Sets the value of the exposed property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *
+     * @param value allowed object is {@link String}
      */
     public void setExposed(String value) {
         this.exposed = value;
@@ -361,11 +294,8 @@ public class RepositoryType implements Serializable {
 
     /**
      * Gets the value of the effectiveLocalStorageUrl property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     *
+     * @return possible object is {@link String}
      */
     public String getEffectiveLocalStorageUrl() {
         return effectiveLocalStorageUrl;
@@ -373,14 +303,10 @@ public class RepositoryType implements Serializable {
 
     /**
      * Sets the value of the effectiveLocalStorageUrl property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *
+     * @param value allowed object is {@link String}
      */
     public void setEffectiveLocalStorageUrl(String value) {
         this.effectiveLocalStorageUrl = value;
     }
-
 }

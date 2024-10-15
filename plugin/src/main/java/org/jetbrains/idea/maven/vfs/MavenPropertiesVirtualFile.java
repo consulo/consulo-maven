@@ -29,91 +29,93 @@ import java.util.Set;
 import java.util.TreeSet;
 
 public class MavenPropertiesVirtualFile extends VirtualFile {
-  private final String myPath;
-  private final VirtualFileSystem myFS;
-  private final byte[] myContent;
+    private final String myPath;
+    private final VirtualFileSystem myFS;
+    private final byte[] myContent;
 
-  public MavenPropertiesVirtualFile(String path, Properties properties, VirtualFileSystem FS) {
-    myPath = path;
-    myFS = FS;
+    public MavenPropertiesVirtualFile(String path, Properties properties, VirtualFileSystem FS) {
+        myPath = path;
+        myFS = FS;
 
-    myContent = createContent(properties);
-  }
-
-  private byte[] createContent(Properties properties) {
-    StringBuilder builder = new StringBuilder();
-    TreeSet<String> sortedKeys = new TreeSet<String>((Set)properties.keySet());
-    for (String each : sortedKeys) {
-      builder.append(StringUtil.escapeProperty(each, true));
-      builder.append("=");
-      builder.append(StringUtil.escapeProperty(properties.getProperty(each), false));
-      builder.append("\n");
+        myContent = createContent(properties);
     }
-    return builder.toString().getBytes();
-  }
 
-  @Nonnull
-  public String getName() {
-    return myPath;
-  }
+    private byte[] createContent(Properties properties) {
+        StringBuilder builder = new StringBuilder();
+        TreeSet<String> sortedKeys = new TreeSet<String>((Set)properties.keySet());
+        for (String each : sortedKeys) {
+            builder.append(StringUtil.escapeProperty(each, true));
+            builder.append("=");
+            builder.append(StringUtil.escapeProperty(properties.getProperty(each), false));
+            builder.append("\n");
+        }
+        return builder.toString().getBytes();
+    }
 
-  @Nonnull
-  public VirtualFileSystem getFileSystem() {
-    return myFS;
-  }
+    @Nonnull
+    public String getName() {
+        return myPath;
+    }
 
-  public String getPath() {
-    return myPath;
-  }
+    @Nonnull
+    public VirtualFileSystem getFileSystem() {
+        return myFS;
+    }
 
-  public boolean isWritable() {
-    return false;
-  }
+    public String getPath() {
+        return myPath;
+    }
 
-  public boolean isDirectory() {
-    return false;
-  }
+    public boolean isWritable() {
+        return false;
+    }
 
-  public boolean isValid() {
-    return true;
-  }
+    public boolean isDirectory() {
+        return false;
+    }
 
-  public VirtualFile getParent() {
-    return null;
-  }
+    public boolean isValid() {
+        return true;
+    }
 
-  public VirtualFile[] getChildren() {
-    return null;
-  }
+    public VirtualFile getParent() {
+        return null;
+    }
 
-  @Nonnull
-  public byte[] contentsToByteArray() throws IOException {
-    if (myContent == null) throw new IOException();
-    return myContent;
-  }
+    public VirtualFile[] getChildren() {
+        return null;
+    }
 
-  public long getTimeStamp() {
-    return -1;
-  }
+    @Nonnull
+    public byte[] contentsToByteArray() throws IOException {
+        if (myContent == null) {
+            throw new IOException();
+        }
+        return myContent;
+    }
 
-  @Override
-  public long getModificationStamp() {
-    return myContent.hashCode();
-  }
+    public long getTimeStamp() {
+        return -1;
+    }
 
-  public long getLength() {
-    return myContent.length;
-  }
+    @Override
+    public long getModificationStamp() {
+        return myContent.hashCode();
+    }
 
-  public void refresh(boolean asynchronous, boolean recursive, Runnable postRunnable) {
-  }
+    public long getLength() {
+        return myContent.length;
+    }
 
-  public InputStream getInputStream() throws IOException {
-    return VirtualFileUtil.byteStreamSkippingBOM(myContent,this);
-  }
+    public void refresh(boolean asynchronous, boolean recursive, Runnable postRunnable) {
+    }
 
-  @Nonnull
-  public OutputStream getOutputStream(Object requestor, long newModificationStamp, long newTimeStamp) throws IOException {
-    throw new UnsupportedOperationException();
-  }
+    public InputStream getInputStream() throws IOException {
+        return VirtualFileUtil.byteStreamSkippingBOM(myContent, this);
+    }
+
+    @Nonnull
+    public OutputStream getOutputStream(Object requestor, long newModificationStamp, long newTimeStamp) throws IOException {
+        throw new UnsupportedOperationException();
+    }
 }

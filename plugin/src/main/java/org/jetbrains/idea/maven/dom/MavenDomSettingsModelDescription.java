@@ -20,7 +20,7 @@ import org.jetbrains.idea.maven.dom.model.MavenDomSettingsModel;
 
 @ExtensionImpl
 public class MavenDomSettingsModelDescription extends MavenDomFileDescription<MavenDomSettingsModel> {
-  public MavenDomSettingsModelDescription() {
-    super(MavenDomSettingsModel.class, "settings");
-  }
+    public MavenDomSettingsModelDescription() {
+        super(MavenDomSettingsModel.class, "settings");
+    }
 }

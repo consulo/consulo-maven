@@ -23,59 +23,64 @@ import java.util.Collection;
 import java.util.function.Function;
 
 public class ComboBoxUtil {
+    private static class Item {
+        private final Object value;
+        private final String label;
 
-  private static class Item {
-    private final Object value;
-    private final String label;
+        private Item(Object value, String label) {
+            this.value = value;
+            this.label = label;
+        }
 
-    private Item(Object value, String label) {
-      this.value = value;
-      this.label = label;
+        public Object getValue() {
+            return value;
+        }
+
+        @Override
+        public String toString() {
+            return label;
+        }
     }
 
-    public Object getValue() {
-      return value;
+    public static void addToModel(DefaultComboBoxModel model, Object value, String label) {
+        model.addElement(new Item(value, label));
     }
 
-    public String toString() {
-      return label;
+    public static <T> void setModel(
+        JComboBox comboBox,
+        DefaultComboBoxModel model,
+        Collection<T> values,
+        Function<T, Pair<String, ?>> func
+    ) {
+        model.removeAllElements();
+        for (T each : values) {
+            Pair<String, ?> pair = func.apply(each);
+            addToModel(model, pair.second, pair.first);
+        }
+        comboBox.setModel(model);
     }
-  }
 
-  public static void addToModel(DefaultComboBoxModel model, Object value, String label) {
-    model.addElement(new Item(value, label));
-  }
-
-  public static <T> void setModel(JComboBox comboBox, DefaultComboBoxModel model, Collection<T> values, Function<T, Pair<String, ?>> func) {
-    model.removeAllElements();
-    for (T each : values) {
-      Pair<String, ?> pair = func.apply(each);
-      addToModel(model, pair.second, pair.first);
+    public static void select(DefaultComboBoxModel model, Object value) {
+        for (int i = 0; i < model.getSize(); i++) {
+            Item comboBoxUtil = (Item)model.getElementAt(i);
+            if (comboBoxUtil.getValue().equals(value)) {
+                model.setSelectedItem(comboBoxUtil);
+                return;
+            }
+        }
+        if (model.getSize() != 0) {
+            model.setSelectedItem(model.getElementAt(0));
+        }
     }
-    comboBox.setModel(model);
-  }
 
-  public static void select(DefaultComboBoxModel model, Object value) {
-    for (int i = 0; i < model.getSize(); i++) {
-      Item comboBoxUtil = (Item)model.getElementAt(i);
-      if (comboBoxUtil.getValue().equals(value)) {
-        model.setSelectedItem(comboBoxUtil);
-        return;
-      }
+    @Nullable
+    public static String getSelectedString(DefaultComboBoxModel model) {
+        return String.valueOf(getSelectedValue(model));
     }
-    if (model.getSize() != 0) {
-      model.setSelectedItem(model.getElementAt(0));
+
+    @Nullable
+    public static Object getSelectedValue(DefaultComboBoxModel model) {
+        final Object item = model.getSelectedItem();
+        return item != null ? ((Item)item).getValue() : null;
     }
-  }
-
-  @Nullable
-  public static String getSelectedString(DefaultComboBoxModel model) {
-    return String.valueOf(getSelectedValue(model));
-  }
-
-  @Nullable
-  public static Object getSelectedValue(DefaultComboBoxModel model) {
-    final Object item = model.getSelectedItem();
-    return item != null ? ((Item)item).getValue() : null;
-  }
 }

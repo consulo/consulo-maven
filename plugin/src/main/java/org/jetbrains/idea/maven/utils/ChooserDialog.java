@@ -29,36 +29,38 @@ import java.awt.*;
  * @author Vladislav.Kaznacheev
  */
 public class ChooserDialog<T> extends DialogWrapper {
-  private final ElementsChooser<T> myChooser;
-  private final String myDescription;
+    private final ElementsChooser<T> myChooser;
+    private final String myDescription;
 
-  public ChooserDialog(final Project project, ElementsChooser<T> chooser, final String title, final String description) {
-    super(project, true);
-    myChooser = chooser;
-    myChooser.setPreferredSize(new Dimension(300, 150));
-    setTitle(title);
-    myDescription = description;
+    public ChooserDialog(final Project project, ElementsChooser<T> chooser, final String title, final String description) {
+        super(project, true);
+        myChooser = chooser;
+        myChooser.setPreferredSize(new Dimension(300, 150));
+        setTitle(title);
+        myDescription = description;
 
-    init();
-  }
+        init();
+    }
 
-  @Nullable
-  protected JComponent createCenterPanel() {
-    return ScrollPaneFactory.createScrollPane(myChooser);
-  }
+    @Nullable
+    @Override
+    protected JComponent createCenterPanel() {
+        return ScrollPaneFactory.createScrollPane(myChooser);
+    }
 
-  protected JComponent createNorthPanel() {
-    JTextPane description = new JTextPane();
+    @Override
+    protected JComponent createNorthPanel() {
+        JTextPane description = new JTextPane();
 
-    JLabel label = new JLabel();
-    description.setFont(label.getFont());
-    description.setForeground(label.getForeground());
-    description.setBackground(UIUtil.getOptionPaneBackground());
-    description.setText(myDescription);
+        JLabel label = new JLabel();
+        description.setFont(label.getFont());
+        description.setForeground(label.getForeground());
+        description.setBackground(UIUtil.getOptionPaneBackground());
+        description.setText(myDescription);
 
-    final JPanel panel = new JPanel(new BorderLayout());
-    panel.add(description);
-    panel.setBorder(BorderFactory.createEmptyBorder(0, 5, 5, 5));
-    return panel;
-  }
+        final JPanel panel = new JPanel(new BorderLayout());
+        panel.add(description);
+        panel.setBorder(BorderFactory.createEmptyBorder(0, 5, 5, 5));
+        return panel;
+    }
 }

@@ -18,47 +18,46 @@ package org.jetbrains.idea.maven.tasks.actions;
 import consulo.ide.impl.idea.execution.impl.BaseExecuteBeforeRunDialog;
 import consulo.project.Project;
 import consulo.util.dataholder.Key;
+import org.jetbrains.idea.maven.localize.MavenTasksLocalize;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.tasks.MavenBeforeRunTask;
 import org.jetbrains.idea.maven.tasks.MavenBeforeRunTasksProvider;
-import org.jetbrains.idea.maven.tasks.TasksBundle;
 
-public class MavenExecuteBeforeRunDialog extends BaseExecuteBeforeRunDialog<MavenBeforeRunTask>
-{
-  private final MavenProject myMavenProject;
-  private final String myGoal;
+public class MavenExecuteBeforeRunDialog extends BaseExecuteBeforeRunDialog<MavenBeforeRunTask> {
+    private final MavenProject myMavenProject;
+    private final String myGoal;
 
-  public MavenExecuteBeforeRunDialog(Project project, MavenProject mavenProject, String goal) {
-    super(project);
-    myMavenProject = mavenProject;
-    myGoal = goal;
-    init();
-  }
+    public MavenExecuteBeforeRunDialog(Project project, MavenProject mavenProject, String goal) {
+        super(project);
+        myMavenProject = mavenProject;
+        myGoal = goal;
+        init();
+    }
 
-  @Override
-  protected String getTargetDisplayString() {
-    return TasksBundle.message("maven.tasks.goal");
-  }
+    @Override
+    protected String getTargetDisplayString() {
+        return MavenTasksLocalize.mavenTasksGoal().get();
+    }
 
-  @Override
-  protected Key<MavenBeforeRunTask> getTaskID() {
-    return MavenBeforeRunTasksProvider.ID;
-  }
+    @Override
+    protected Key<MavenBeforeRunTask> getTaskID() {
+        return MavenBeforeRunTasksProvider.ID;
+    }
 
-  @Override
-  protected boolean isRunning(MavenBeforeRunTask task) {
-    return task.isFor(myMavenProject, myGoal);
-  }
+    @Override
+    protected boolean isRunning(MavenBeforeRunTask task) {
+        return task.isFor(myMavenProject, myGoal);
+    }
 
-  @Override
-  protected void update(MavenBeforeRunTask task) {
-    task.setProjectPath(myMavenProject.getPath());
-    task.setGoal(myGoal);
-  }
+    @Override
+    protected void update(MavenBeforeRunTask task) {
+        task.setProjectPath(myMavenProject.getPath());
+        task.setGoal(myGoal);
+    }
 
-  @Override
-  protected void clear(MavenBeforeRunTask task) {
-    task.setProjectPath(null);
-    task.setGoal(null);
-  }
+    @Override
+    protected void clear(MavenBeforeRunTask task) {
+        task.setProjectPath(null);
+        task.setGoal(null);
+    }
 }

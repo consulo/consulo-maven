@@ -31,227 +31,191 @@ import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.*;
 
-public class MavenJDOMUtil
-{
-	@Nullable
-	public static Element read(final VirtualFile file, @Nullable final ErrorHandler handler)
-	{
-		String text;
+public class MavenJDOMUtil {
+    @Nullable
+    public static Element read(final VirtualFile file, @Nullable final ErrorHandler handler) {
+        String text;
 
-		if(!file.isValid())
-		{
-			return null;
-		}
+        if (!file.isValid()) {
+            return null;
+        }
 
-		try
-		{
-			text = ReadAction.compute(() -> new String(file.contentsToByteArray(), file.getCharset()));
-		}
-		catch(IOException e)
-		{
-			if(handler != null)
-			{
-				handler.onReadError(e);
-			}
-			return null;
-		}
+        try {
+            text = ReadAction.compute(() -> new String(file.contentsToByteArray(), file.getCharset()));
+        }
+        catch (IOException e) {
+            if (handler != null) {
+                handler.onReadError(e);
+            }
+            return null;
+        }
 
-		return doRead(text, handler);
-	}
+        return doRead(text, handler);
+    }
 
-	@Nullable
-	public static Element read(byte[] bytes, @Nullable ErrorHandler handler)
-	{
-		return doRead(CharsetToolkit.bytesToString(bytes, EncodingRegistry.getInstance().getDefaultCharset()), handler);
-	}
+    @Nullable
+    public static Element read(byte[] bytes, @Nullable ErrorHandler handler) {
+        return doRead(CharsetToolkit.bytesToString(bytes, EncodingRegistry.getInstance().getDefaultCharset()), handler);
+    }
 
-	@Nullable
-	private static Element doRead(String text, final ErrorHandler handler)
-	{
-		final LinkedList<Element> stack = new LinkedList<Element>();
+    @Nullable
+    private static Element doRead(String text, final ErrorHandler handler) {
+        final LinkedList<Element> stack = new LinkedList<>();
 
-		final Element[] result = {null};
-		XmlBuilderDriver driver = new XmlBuilderDriver(text);
-		XmlBuilder builder = new XmlBuilder()
-		{
-			public void doctype(@Nullable CharSequence publicId, @Nullable CharSequence systemId, int startOffset, int endOffset)
-			{
-			}
+        final Element[] result = {null};
+        XmlBuilderDriver driver = new XmlBuilderDriver(text);
+        XmlBuilder builder = new XmlBuilder() {
+            @Override
+            public void doctype(@Nullable CharSequence publicId, @Nullable CharSequence systemId, int startOffset, int endOffset) {
+            }
 
-			public ProcessingOrder startTag(CharSequence localName, String namespace, int startoffset, int endoffset, int headerEndOffset)
-			{
-				String name = localName.toString();
-				if(StringUtil.isEmptyOrSpaces(name))
-				{
-					return ProcessingOrder.TAGS;
-				}
+            @Override
+            public ProcessingOrder startTag(CharSequence localName, String namespace, int startoffset, int endoffset, int headerEndOffset) {
+                String name = localName.toString();
+                if (StringUtil.isEmptyOrSpaces(name)) {
+                    return ProcessingOrder.TAGS;
+                }
 
-				Element newElement;
-				try
-				{
-					newElement = new Element(name);
-				}
-				catch(IllegalNameException e)
-				{
-					newElement = new Element("invalidName");
-				}
+                Element newElement;
+                try {
+                    newElement = new Element(name);
+                }
+                catch (IllegalNameException e) {
+                    newElement = new Element("invalidName");
+                }
 
-				Element parent = stack.isEmpty() ? null : stack.getLast();
-				if(parent == null)
-				{
-					result[0] = newElement;
-				}
-				else
-				{
-					parent.addContent(newElement);
-				}
-				stack.addLast(newElement);
+                Element parent = stack.isEmpty() ? null : stack.getLast();
+                if (parent == null) {
+                    result[0] = newElement;
+                }
+                else {
+                    parent.addContent(newElement);
+                }
+                stack.addLast(newElement);
 
-				return ProcessingOrder.TAGS_AND_TEXTS;
-			}
+                return ProcessingOrder.TAGS_AND_TEXTS;
+            }
 
-			public void endTag(CharSequence localName, String namespace, int startoffset, int endoffset)
-			{
-				String name = localName.toString();
-				if(StringUtil.isEmptyOrSpaces(name))
-				{
-					return;
-				}
+            @Override
+            public void endTag(CharSequence localName, String namespace, int startoffset, int endoffset) {
+                String name = localName.toString();
+                if (StringUtil.isEmptyOrSpaces(name)) {
+                    return;
+                }
 
-				for(Iterator<Element> itr = stack.descendingIterator(); itr.hasNext(); )
-				{
-					Element element = itr.next();
+                for (Iterator<Element> itr = stack.descendingIterator(); itr.hasNext(); ) {
+                    Element element = itr.next();
 
-					if(element.getName().equals(name))
-					{
-						while(stack.removeLast() != element)
-						{
-						}
-						break;
-					}
-				}
-			}
+                    if (element.getName().equals(name)) {
+                        while (stack.removeLast() != element) {
+                        }
+                        break;
+                    }
+                }
+            }
 
-			public void textElement(CharSequence text, CharSequence physical, int startoffset, int endoffset)
-			{
-				stack.getLast().addContent(JDOMUtil.legalizeText(text.toString()));
-			}
+            @Override
+            public void textElement(CharSequence text, CharSequence physical, int startoffset, int endoffset) {
+                stack.getLast().addContent(JDOMUtil.legalizeText(text.toString()));
+            }
 
-			public void attribute(CharSequence name, CharSequence value, int startoffset, int endoffset)
-			{
-			}
+            @Override
+            public void attribute(CharSequence name, CharSequence value, int startoffset, int endoffset) {
+            }
 
-			public void entityRef(CharSequence ref, int startOffset, int endOffset)
-			{
-			}
+            @Override
+            public void entityRef(CharSequence ref, int startOffset, int endOffset) {
+            }
 
-			public void error(LocalizeValue message, int startOffset, int endOffset)
-			{
-				if(handler != null)
-				{
-					handler.onSyntaxError();
-				}
-			}
-		};
+            @Override
+            public void error(LocalizeValue message, int startOffset, int endOffset) {
+                if (handler != null) {
+                    handler.onSyntaxError();
+                }
+            }
+        };
 
-		driver.build(builder);
-		return result[0];
-	}
+        driver.build(builder);
+        return result[0];
+    }
 
-	@Nullable
-	public static Element findChildByPath(@Nullable Element element, String path)
-	{
-		int i = 0;
-		while(element != null)
-		{
-			int dot = path.indexOf('.', i);
-			if(dot == -1)
-			{
-				return element.getChild(path.substring(i));
-			}
+    @Nullable
+    public static Element findChildByPath(@Nullable Element element, String path) {
+        int i = 0;
+        while (element != null) {
+            int dot = path.indexOf('.', i);
+            if (dot == -1) {
+                return element.getChild(path.substring(i));
+            }
 
-			element = element.getChild(path.substring(i, dot));
-			i = dot + 1;
-		}
+            element = element.getChild(path.substring(i, dot));
+            i = dot + 1;
+        }
 
-		return null;
-	}
+        return null;
+    }
 
-	public static String findChildValueByPath(@Nullable Element element, String path, String defaultValue)
-	{
-		Element child = findChildByPath(element, path);
-		if(child == null)
-		{
-			return defaultValue;
-		}
-		String childValue = child.getTextTrim();
-		return childValue.isEmpty() ? defaultValue : childValue;
-	}
+    public static String findChildValueByPath(@Nullable Element element, String path, String defaultValue) {
+        Element child = findChildByPath(element, path);
+        if (child == null) {
+            return defaultValue;
+        }
+        String childValue = child.getTextTrim();
+        return childValue.isEmpty() ? defaultValue : childValue;
+    }
 
-	public static String findChildValueByPath(@Nullable Element element, String path)
-	{
-		return findChildValueByPath(element, path, null);
-	}
+    public static String findChildValueByPath(@Nullable Element element, String path) {
+        return findChildValueByPath(element, path, null);
+    }
 
-	public static boolean hasChildByPath(@Nullable Element element, String path)
-	{
-		return findChildByPath(element, path) != null;
-	}
+    public static boolean hasChildByPath(@Nullable Element element, String path) {
+        return findChildByPath(element, path) != null;
+    }
 
-	public static List<Element> findChildrenByPath(@Nullable Element element, String path, String subPath)
-	{
-		return collectChildren(findChildByPath(element, path), subPath);
-	}
+    public static List<Element> findChildrenByPath(@Nullable Element element, String path, String subPath) {
+        return collectChildren(findChildByPath(element, path), subPath);
+    }
 
-	public static List<String> findChildrenValuesByPath(@Nullable Element element, String path, String childrenName)
-	{
-		List<String> result = new ArrayList<String>();
-		for(Element each : findChildrenByPath(element, path, childrenName))
-		{
-			String value = each.getTextTrim();
-			if(!value.isEmpty())
-			{
-				result.add(value);
-			}
-		}
-		return result;
-	}
+    public static List<String> findChildrenValuesByPath(@Nullable Element element, String path, String childrenName) {
+        List<String> result = new ArrayList<>();
+        for (Element each : findChildrenByPath(element, path, childrenName)) {
+            String value = each.getTextTrim();
+            if (!value.isEmpty()) {
+                result.add(value);
+            }
+        }
+        return result;
+    }
 
-	private static List<Element> collectChildren(@Nullable Element container, String subPath)
-	{
-		if(container == null)
-		{
-			return Collections.emptyList();
-		}
+    private static List<Element> collectChildren(@Nullable Element container, String subPath) {
+        if (container == null) {
+            return Collections.emptyList();
+        }
 
-		int firstDot = subPath.indexOf('.');
+        int firstDot = subPath.indexOf('.');
 
-		if(firstDot == -1)
-		{
-			//noinspection unchecked
-			return (List<Element>) container.getChildren(subPath);
-		}
+        if (firstDot == -1) {
+            //noinspection unchecked
+            return container.getChildren(subPath);
+        }
 
-		String childName = subPath.substring(0, firstDot);
-		String pathInChild = subPath.substring(firstDot + 1);
+        String childName = subPath.substring(0, firstDot);
+        String pathInChild = subPath.substring(firstDot + 1);
 
-		List<Element> result = new ArrayList<Element>();
-		//noinspection unchecked
-		for(Element each : (Iterable<? extends Element>) container.getChildren(childName))
-		{
-			Element child = findChildByPath(each, pathInChild);
-			if(child != null)
-			{
-				result.add(child);
-			}
-		}
-		return result;
-	}
+        List<Element> result = new ArrayList<>();
+        //noinspection unchecked
+        for (Element each : container.getChildren(childName)) {
+            Element child = findChildByPath(each, pathInChild);
+            if (child != null) {
+                result.add(child);
+            }
+        }
+        return result;
+    }
 
-	public interface ErrorHandler
-	{
-		void onReadError(IOException e);
+    public interface ErrorHandler {
+        void onReadError(IOException e);
 
-		void onSyntaxError();
-	}
+        void onSyntaxError();
+    }
 }

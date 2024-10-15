@@ -20,7 +20,7 @@ import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
 
 @ExtensionImpl
 public class MavenDomProjectModelDescription extends MavenDomFileDescription<MavenDomProjectModel> {
-  public MavenDomProjectModelDescription() {
-    super(MavenDomProjectModel.class, "project");
-  }
+    public MavenDomProjectModelDescription() {
+        super(MavenDomProjectModel.class, "project");
+    }
 }

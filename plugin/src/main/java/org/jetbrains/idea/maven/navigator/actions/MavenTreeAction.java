@@ -25,57 +25,46 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.swing.*;
 
-public abstract class MavenTreeAction extends MavenAction
-{
-	@Override
-	protected boolean isAvailable(AnActionEvent e)
-	{
-		return super.isAvailable(e) && MavenActionUtil.isMavenizedProject(e.getDataContext()) && getTree(e) != null;
-	}
+public abstract class MavenTreeAction extends MavenAction {
+    @Override
+    protected boolean isAvailable(AnActionEvent e) {
+        return super.isAvailable(e) && MavenActionUtil.isMavenizedProject(e.getDataContext()) && getTree(e) != null;
+    }
 
-	@Nullable
-	protected static JTree getTree(AnActionEvent e)
-	{
-		return e.getData(MavenDataKeys.MAVEN_PROJECTS_TREE);
-	}
+    @Nullable
+    protected static JTree getTree(AnActionEvent e) {
+        return e.getData(MavenDataKeys.MAVEN_PROJECTS_TREE);
+    }
 
-	public static class CollapseAll extends MavenTreeAction
-	{
-		@RequiredUIAccess
-		@Override
-		public void actionPerformed(@Nonnull AnActionEvent e)
-		{
-			JTree tree = getTree(e);
-			if(tree == null)
-			{
-				return;
-			}
+    public static class CollapseAll extends MavenTreeAction {
+        @RequiredUIAccess
+        @Override
+        public void actionPerformed(@Nonnull AnActionEvent e) {
+            JTree tree = getTree(e);
+            if (tree == null) {
+                return;
+            }
 
-			int row = tree.getRowCount() - 1;
-			while(row >= 0)
-			{
-				tree.collapseRow(row);
-				row--;
-			}
-		}
-	}
+            int row = tree.getRowCount() - 1;
+            while (row >= 0) {
+                tree.collapseRow(row);
+                row--;
+            }
+        }
+    }
 
-	public static class ExpandAll extends MavenTreeAction
-	{
-		@RequiredUIAccess
-		@Override
-		public void actionPerformed(@Nonnull AnActionEvent e)
-		{
-			JTree tree = getTree(e);
-			if(tree == null)
-			{
-				return;
-			}
+    public static class ExpandAll extends MavenTreeAction {
+        @RequiredUIAccess
+        @Override
+        public void actionPerformed(@Nonnull AnActionEvent e) {
+            JTree tree = getTree(e);
+            if (tree == null) {
+                return;
+            }
 
-			for(int i = 0; i < tree.getRowCount(); i++)
-			{
-				tree.expandRow(i);
-			}
-		}
-	}
+            for (int i = 0; i < tree.getRowCount(); i++) {
+                tree.expandRow(i);
+            }
+        }
+    }
 }

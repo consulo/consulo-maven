@@ -17,14 +17,14 @@
 package org.jetbrains.idea.maven.services.nexus;
 
 import jakarta.xml.bind.annotation.*;
-import java.math.BigInteger;
 
+import java.math.BigInteger;
 
 /**
  * <p>Java class for anonymous complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType>
  *   &lt;complexContent>
@@ -41,8 +41,6 @@ import java.math.BigInteger;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
@@ -55,7 +53,6 @@ import java.math.BigInteger;
 })
 @XmlRootElement(name = "repositoryMetaData")
 public class RepositoryMetaData {
-
     @XmlElement(required = true)
     protected String id;
     @XmlElement(required = true)
@@ -71,11 +68,8 @@ public class RepositoryMetaData {
 
     /**
      * Gets the value of the id property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     *
+     * @return possible object is {@link String}
      */
     public String getId() {
         return id;
@@ -83,11 +77,8 @@ public class RepositoryMetaData {
 
     /**
      * Sets the value of the id property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *
+     * @param value allowed object is {@link String}
      */
     public void setId(String value) {
         this.id = value;
@@ -95,11 +86,8 @@ public class RepositoryMetaData {
 
     /**
      * Gets the value of the repoType property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     *
+     * @return possible object is {@link String}
      */
     public String getRepoType() {
         return repoType;
@@ -107,11 +95,8 @@ public class RepositoryMetaData {
 
     /**
      * Sets the value of the repoType property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *
+     * @param value allowed object is {@link String}
      */
     public void setRepoType(String value) {
         this.repoType = value;
@@ -119,11 +104,8 @@ public class RepositoryMetaData {
 
     /**
      * Gets the value of the effectiveLocalStorageUrl property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     *
+     * @return possible object is {@link String}
      */
     public String getEffectiveLocalStorageUrl() {
         return effectiveLocalStorageUrl;
@@ -131,11 +113,8 @@ public class RepositoryMetaData {
 
     /**
      * Sets the value of the effectiveLocalStorageUrl property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *
+     * @param value allowed object is {@link String}
      */
     public void setEffectiveLocalStorageUrl(String value) {
         this.effectiveLocalStorageUrl = value;
@@ -143,11 +122,8 @@ public class RepositoryMetaData {
 
     /**
      * Gets the value of the proxyUrl property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     *
+     * @return possible object is {@link String}
      */
     public String getProxyUrl() {
         return proxyUrl;
@@ -155,11 +131,8 @@ public class RepositoryMetaData {
 
     /**
      * Sets the value of the proxyUrl property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *
+     * @param value allowed object is {@link String}
      */
     public void setProxyUrl(String value) {
         this.proxyUrl = value;
@@ -167,11 +140,8 @@ public class RepositoryMetaData {
 
     /**
      * Gets the value of the sizeOnDisk property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link BigInteger }
-     *     
+     *
+     * @return possible object is {@link BigInteger}
      */
     public BigInteger getSizeOnDisk() {
         return sizeOnDisk;
@@ -179,11 +149,8 @@ public class RepositoryMetaData {
 
     /**
      * Sets the value of the sizeOnDisk property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link BigInteger }
-     *     
+     *
+     * @param value allowed object is {@link BigInteger}
      */
     public void setSizeOnDisk(BigInteger value) {
         this.sizeOnDisk = value;
@@ -191,11 +158,8 @@ public class RepositoryMetaData {
 
     /**
      * Gets the value of the numArtifacts property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link BigInteger }
-     *     
+     *
+     * @return possible object is {@link BigInteger}
      */
     public BigInteger getNumArtifacts() {
         return numArtifacts;
@@ -203,14 +167,10 @@ public class RepositoryMetaData {
 
     /**
      * Sets the value of the numArtifacts property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link BigInteger }
-     *     
+     *
+     * @param value allowed object is {@link BigInteger}
      */
     public void setNumArtifacts(BigInteger value) {
         this.numArtifacts = value;
     }
-
 }

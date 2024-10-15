@@ -17,6 +17,7 @@ package org.jetbrains.idea.maven.navigator;
 
 import consulo.ui.ex.awt.tree.NullNode;
 import consulo.ui.ex.awt.tree.SimpleNode;
+
 import javax.annotation.Nonnull;
 
 import consulo.project.Project;
@@ -26,49 +27,48 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 
 public class SelectMavenProjectDialog extends SelectFromMavenProjectsDialog {
-  private MavenProject myResult;
+    private MavenProject myResult;
 
-  public SelectMavenProjectDialog(Project project, final MavenProject current) {
-    super(project, "Select Maven Project", MavenProjectsStructure.ProjectNode.class, new NodeSelector() {
-      public boolean shouldSelect(SimpleNode node) {
-        if (node instanceof MavenProjectsStructure.ProjectNode) {
-          return ((MavenProjectsStructure.ProjectNode)node).getMavenProject() == current;
-        }
-        return false;
-      }
-    });
+    public SelectMavenProjectDialog(Project project, final MavenProject current) {
+        super(
+            project,
+            "Select Maven Project",
+            MavenProjectsStructure.ProjectNode.class,
+            node -> node instanceof MavenProjectsStructure.ProjectNode projectNode && projectNode.getMavenProject() == current
+        );
 
-    init();
-  }
-
-  @Nonnull
-  @Override
-  protected Action[] createActions() {
-    Action selectNoneAction = new AbstractAction("&None") {
-      public void actionPerformed(ActionEvent e) {
-        doOKAction();
-        myResult = null;
-      }
-    };
-    return new Action[]{selectNoneAction, getOKAction(), getCancelAction()};
-  }
-
-  @Override
-  protected void doOKAction() {
-    SimpleNode node = getSelectedNode();
-    if (node instanceof NullNode) node = null;
-
-    if (node != null) {
-      if (!(node instanceof MavenProjectsStructure.ProjectNode)) {
-        ((MavenProjectsStructure.MavenSimpleNode)node).findParent(MavenProjectsStructure.ProjectNode.class);
-      }
+        init();
     }
-    myResult = node != null ? ((MavenProjectsStructure.ProjectNode)node).getMavenProject() : null;
 
-    super.doOKAction();
-  }
+    @Nonnull
+    @Override
+    protected Action[] createActions() {
+        Action selectNoneAction = new AbstractAction("&None") {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                doOKAction();
+                myResult = null;
+            }
+        };
+        return new Action[]{selectNoneAction, getOKAction(), getCancelAction()};
+    }
 
-  public MavenProject getResult() {
-    return myResult;
-  }
+    @Override
+    protected void doOKAction() {
+        SimpleNode node = getSelectedNode();
+        if (node instanceof NullNode) {
+            node = null;
+        }
+
+        if (node instanceof MavenProjectsStructure.MavenSimpleNode mavenSimpleNode) {
+            node = mavenSimpleNode.findParent(MavenProjectsStructure.ProjectNode.class);
+        }
+        myResult = node instanceof MavenProjectsStructure.ProjectNode projectNode ? projectNode.getMavenProject() : null;
+
+        super.doOKAction();
+    }
+
+    public MavenProject getResult() {
+        return myResult;
+    }
 }

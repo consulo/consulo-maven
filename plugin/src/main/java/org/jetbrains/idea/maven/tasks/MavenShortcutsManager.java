@@ -56,242 +56,202 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @Singleton
 @ServiceAPI(value = ComponentScope.PROJECT, lazy = false)
 @ServiceImpl
-public class MavenShortcutsManager extends MavenSimpleProjectComponent implements Disposable
-{
-	private static final String ACTION_ID_PREFIX = "Maven_";
+public class MavenShortcutsManager extends MavenSimpleProjectComponent implements Disposable {
+    private static final String ACTION_ID_PREFIX = "Maven_";
 
-	private final AtomicBoolean isInitialized = new AtomicBoolean();
+    private final AtomicBoolean isInitialized = new AtomicBoolean();
 
-	private final MavenProjectsManager myProjectsManager;
+    private final MavenProjectsManager myProjectsManager;
 
-	private MyKeymapListener myKeymapListener;
-	private final List<Listener> myListeners = Lists.newLockFreeCopyOnWriteList();
+    private MyKeymapListener myKeymapListener;
+    private final List<Listener> myListeners = Lists.newLockFreeCopyOnWriteList();
 
-	public static MavenShortcutsManager getInstance(Project project)
-	{
-		return project.getComponent(MavenShortcutsManager.class);
-	}
+    public static MavenShortcutsManager getInstance(Project project) {
+        return project.getComponent(MavenShortcutsManager.class);
+    }
 
-	@Inject
-	public MavenShortcutsManager(Project project, MavenProjectsManager projectsManager, MavenRunner runner)
-	{
-		super(project);
-		myProjectsManager = projectsManager;
+    @Inject
+    public MavenShortcutsManager(Project project, MavenProjectsManager projectsManager, MavenRunner runner) {
+        super(project);
+        myProjectsManager = projectsManager;
 
-		if(!isNormalProject())
-		{
-			return;
-		}
+        if (!isNormalProject()) {
+            return;
+        }
 
-		MavenUtil.runWhenInitialized(myProject, new DumbAwareRunnable()
-		{
-			@Override
-			public void run()
-			{
-				doInit();
-			}
-		});
-	}
+        MavenUtil.runWhenInitialized(myProject, this::doInit);
+    }
 
-	@TestOnly
-	public void doInit()
-	{
-		if(isInitialized.getAndSet(true))
-		{
-			return;
-		}
+    @TestOnly
+    public void doInit() {
+        if (isInitialized.getAndSet(true)) {
+            return;
+        }
 
-		MyProjectsTreeListener listener = new MyProjectsTreeListener();
-		myProjectsManager.addManagerListener(listener);
-		myProjectsManager.addProjectsTreeListener(listener);
+        MyProjectsTreeListener listener = new MyProjectsTreeListener();
+        myProjectsManager.addManagerListener(listener);
+        myProjectsManager.addProjectsTreeListener(listener);
 
-		myKeymapListener = new MyKeymapListener();
-	}
+        myKeymapListener = new MyKeymapListener();
+    }
 
-	@Override
-	public void dispose()
-	{
-		if(!isInitialized.getAndSet(false))
-		{
-			return;
-		}
+    @Override
+    public void dispose() {
+        if (!isInitialized.getAndSet(false)) {
+            return;
+        }
 
-		myKeymapListener.stopListen();
-		MavenKeymapExtension.clearActions(myProject);
-	}
+        myKeymapListener.stopListen();
+        MavenKeymapExtension.clearActions(myProject);
+    }
 
-	public String getActionId(@Nullable String projectPath, @Nullable String goal)
-	{
-		StringBuilder result = new StringBuilder(ACTION_ID_PREFIX);
-		result.append(myProject.getLocationHash());
+    public String getActionId(@Nullable String projectPath, @Nullable String goal) {
+        StringBuilder result = new StringBuilder(ACTION_ID_PREFIX);
+        result.append(myProject.getLocationHash());
 
-		if(projectPath != null)
-		{
-			String portablePath = FileUtil.toSystemIndependentName(projectPath);
+        if (projectPath != null) {
+            String portablePath = FileUtil.toSystemIndependentName(projectPath);
 
-			result.append(new File(portablePath).getParentFile().getName());
-			result.append(Integer.toHexString(portablePath.hashCode()));
+            result.append(new File(portablePath).getParentFile().getName());
+            result.append(Integer.toHexString(portablePath.hashCode()));
 
-			if(goal != null)
-			{
-				result.append(goal);
-			}
-		}
+            if (goal != null) {
+                result.append(goal);
+            }
+        }
 
-		return result.toString();
-	}
+        return result.toString();
+    }
 
-	public String getDescription(MavenProject project, String goal)
-	{
-		String actionId = getActionId(project.getPath(), goal);
-		if(actionId == null)
-		{
-			return "";
-		}
+    public String getDescription(MavenProject project, String goal) {
+        String actionId = getActionId(project.getPath(), goal);
+        if (actionId == null) {
+            return "";
+        }
 
-		Keymap activeKeymap = KeymapManager.getInstance().getActiveKeymap();
-		Shortcut[] shortcuts = activeKeymap.getShortcuts(actionId);
-		if(shortcuts == null || shortcuts.length == 0)
-		{
-			return "";
-		}
+        Keymap activeKeymap = KeymapManager.getInstance().getActiveKeymap();
+        Shortcut[] shortcuts = activeKeymap.getShortcuts(actionId);
+        if (shortcuts == null || shortcuts.length == 0) {
+            return "";
+        }
 
-		return KeymapUtil.getShortcutsText(shortcuts);
-	}
+        return KeymapUtil.getShortcutsText(shortcuts);
+    }
 
-	private void fireShortcutsUpdated()
-	{
-		for(Listener listener : myListeners)
-		{
-			listener.shortcutsUpdated();
-		}
-	}
+    private void fireShortcutsUpdated() {
+        for (Listener listener : myListeners) {
+            listener.shortcutsUpdated();
+        }
+    }
 
-	public void addListener(Listener listener)
-	{
-		myListeners.add(listener);
-	}
+    public void addListener(Listener listener) {
+        myListeners.add(listener);
+    }
 
-	public interface Listener
-	{
-		void shortcutsUpdated();
-	}
+    public interface Listener {
+        void shortcutsUpdated();
+    }
 
-	private class MyKeymapListener implements KeymapManagerListener, Keymap.Listener
-	{
-		private Keymap myCurrentKeymap = null;
+    private class MyKeymapListener implements KeymapManagerListener, Keymap.Listener {
+        private Keymap myCurrentKeymap = null;
 
-		public MyKeymapListener()
-		{
-			KeymapManager keymapManager = KeymapManager.getInstance();
-			listenTo(keymapManager.getActiveKeymap());
-			keymapManager.addKeymapManagerListener(this);
-		}
+        public MyKeymapListener() {
+            KeymapManager keymapManager = KeymapManager.getInstance();
+            listenTo(keymapManager.getActiveKeymap());
+            keymapManager.addKeymapManagerListener(this);
+        }
 
-		@Override
-		public void activeKeymapChanged(Keymap keymap)
-		{
-			listenTo(keymap);
-			fireShortcutsUpdated();
-		}
+        @Override
+        public void activeKeymapChanged(Keymap keymap) {
+            listenTo(keymap);
+            fireShortcutsUpdated();
+        }
 
-		private void listenTo(Keymap keymap)
-		{
-			if(myCurrentKeymap != null)
-			{
-				myCurrentKeymap.removeShortcutChangeListener(this);
-			}
-			myCurrentKeymap = keymap;
-			if(myCurrentKeymap != null)
-			{
-				myCurrentKeymap.addShortcutChangeListener(this);
-			}
-		}
+        private void listenTo(Keymap keymap) {
+            if (myCurrentKeymap != null) {
+                myCurrentKeymap.removeShortcutChangeListener(this);
+            }
+            myCurrentKeymap = keymap;
+            if (myCurrentKeymap != null) {
+                myCurrentKeymap.addShortcutChangeListener(this);
+            }
+        }
 
-		@Override
-		public void onShortcutChanged(String actionId)
-		{
-			fireShortcutsUpdated();
-		}
+        @Override
+        public void onShortcutChanged(String actionId) {
+            fireShortcutsUpdated();
+        }
 
-		public void stopListen()
-		{
-			listenTo(null);
-			KeymapManager.getInstance().removeKeymapManagerListener(this);
-		}
-	}
+        public void stopListen() {
+            listenTo(null);
+            KeymapManager.getInstance().removeKeymapManagerListener(this);
+        }
+    }
 
-	private class MyProjectsTreeListener implements MavenProjectsTree.Listener, MavenProjectsManager.Listener
-	{
-		private final Map<MavenProject, Boolean> mySheduledProjects = new HashMap<>();
-		private final MergingUpdateQueue myUpdateQueue = new MavenMergingUpdateQueue("MavenShortcutsManager: Keymap Update",
-				500, true, myProject);
+    private class MyProjectsTreeListener implements MavenProjectsTree.Listener, MavenProjectsManager.Listener {
+        private final Map<MavenProject, Boolean> mySheduledProjects = new HashMap<>();
+        private final MergingUpdateQueue myUpdateQueue = new MavenMergingUpdateQueue("MavenShortcutsManager: Keymap Update",
+            500, true, myProject
+        );
 
-		@Override
-		public void activated()
-		{
-			scheduleKeymapUpdate(myProjectsManager.getNonIgnoredProjects(), true);
-		}
+        @Override
+        public void activated() {
+            scheduleKeymapUpdate(myProjectsManager.getNonIgnoredProjects(), true);
+        }
 
-		@Override
-		public void projectsIgnoredStateChanged(List<MavenProject> ignored, List<MavenProject> unignored, boolean fromImport)
-		{
-			scheduleKeymapUpdate(unignored, true);
-			scheduleKeymapUpdate(ignored, false);
-		}
+        @Override
+        public void projectsIgnoredStateChanged(List<MavenProject> ignored, List<MavenProject> unignored, boolean fromImport) {
+            scheduleKeymapUpdate(unignored, true);
+            scheduleKeymapUpdate(ignored, false);
+        }
 
-		@Override
-		public void projectsUpdated(List<Pair<MavenProject, MavenProjectChanges>> updated, List<MavenProject> deleted)
-		{
-			scheduleKeymapUpdate(MavenUtil.collectFirsts(updated), true);
-			scheduleKeymapUpdate(deleted, false);
-		}
+        @Override
+        public void projectsUpdated(List<Pair<MavenProject, MavenProjectChanges>> updated, List<MavenProject> deleted) {
+            scheduleKeymapUpdate(MavenUtil.collectFirsts(updated), true);
+            scheduleKeymapUpdate(deleted, false);
+        }
 
-		@Override
-		public void projectResolved(Pair<MavenProject, MavenProjectChanges> projectWithChanges,
-									NativeMavenProjectHolder nativeMavenProject)
-		{
-			scheduleKeymapUpdate(Collections.singletonList(projectWithChanges.first), true);
-		}
+        @Override
+        public void projectResolved(
+            Pair<MavenProject, MavenProjectChanges> projectWithChanges,
+            NativeMavenProjectHolder nativeMavenProject
+        ) {
+            scheduleKeymapUpdate(Collections.singletonList(projectWithChanges.first), true);
+        }
 
-		@Override
-		public void pluginsResolved(MavenProject project)
-		{
-			scheduleKeymapUpdate(Collections.singletonList(project), true);
-		}
+        @Override
+        public void pluginsResolved(MavenProject project) {
+            scheduleKeymapUpdate(Collections.singletonList(project), true);
+        }
 
-		private void scheduleKeymapUpdate(List<MavenProject> mavenProjects, boolean forUpdate)
-		{
-			synchronized(mySheduledProjects)
-			{
-				for(MavenProject each : mavenProjects)
-				{
-					mySheduledProjects.put(each, forUpdate);
-				}
-			}
+        private void scheduleKeymapUpdate(List<MavenProject> mavenProjects, boolean forUpdate) {
+            synchronized (mySheduledProjects) {
+                for (MavenProject each : mavenProjects) {
+                    mySheduledProjects.put(each, forUpdate);
+                }
+            }
 
-			myUpdateQueue.queue(new Update(MavenShortcutsManager.this)
-			{
-				@Override
-				public void run()
-				{
-					List<MavenProject> projectToUpdate;
-					List<MavenProject> projectToDelete;
-					synchronized(mySheduledProjects)
-					{
-						projectToUpdate = selectScheduledProjects(true);
-						projectToDelete = selectScheduledProjects(false);
-						mySheduledProjects.clear();
-					}
-					MavenKeymapExtension.clearActions(myProject, projectToDelete);
-					MavenKeymapExtension.updateActions(myProject, projectToUpdate);
-				}
-			});
-		}
+            myUpdateQueue.queue(new Update(MavenShortcutsManager.this) {
+                @Override
+                public void run() {
+                    List<MavenProject> projectToUpdate;
+                    List<MavenProject> projectToDelete;
+                    synchronized (mySheduledProjects) {
+                        projectToUpdate = selectScheduledProjects(true);
+                        projectToDelete = selectScheduledProjects(false);
+                        mySheduledProjects.clear();
+                    }
+                    MavenKeymapExtension.clearActions(myProject, projectToDelete);
+                    MavenKeymapExtension.updateActions(myProject, projectToUpdate);
+                }
+            });
+        }
 
-		private List<MavenProject> selectScheduledProjects(final boolean forUpdate)
-		{
-			return ContainerUtil.mapNotNull(mySheduledProjects.entrySet(), eachEntry -> forUpdate == eachEntry.getValue() ? eachEntry.getKey() : null);
-		}
-	}
+        private List<MavenProject> selectScheduledProjects(final boolean forUpdate) {
+            return ContainerUtil.mapNotNull(
+                mySheduledProjects.entrySet(),
+                eachEntry -> forUpdate == eachEntry.getValue() ? eachEntry.getKey() : null
+            );
+        }
+    }
 }

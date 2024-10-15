@@ -17,6 +17,7 @@ package org.jetbrains.idea.maven.tasks.actions;
 
 import consulo.dataContext.DataContext;
 import consulo.execution.RunManager;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.action.AnActionEvent;
 import consulo.util.lang.Pair;
 import org.jetbrains.idea.maven.project.MavenProject;
@@ -29,63 +30,52 @@ import org.jetbrains.idea.maven.utils.actions.MavenToggleAction;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class ToggleBeforeRunTaskAction extends MavenToggleAction
-{
-	@Override
-	protected boolean isAvailable(AnActionEvent e)
-	{
-		return super.isAvailable(e) && getTaskDesc(e.getDataContext()) != null;
-	}
+public class ToggleBeforeRunTaskAction extends MavenToggleAction {
+    @Override
+    protected boolean isAvailable(AnActionEvent e) {
+        return super.isAvailable(e) && getTaskDesc(e.getDataContext()) != null;
+    }
 
-	@Override
-	protected boolean doIsSelected(AnActionEvent e)
-	{
-		final DataContext context = e.getDataContext();
-		final Pair<MavenProject, String> desc = getTaskDesc(context);
-		if(desc != null)
-		{
-			for(MavenBeforeRunTask each : getRunManager(context).getBeforeRunTasks(MavenBeforeRunTasksProvider.ID))
-			{
-				if(each.isFor(desc.first, desc.second))
-				{
-					return true;
-				}
-			}
-		}
-		return false;
-	}
+    @Override
+    protected boolean doIsSelected(AnActionEvent e) {
+        final DataContext context = e.getDataContext();
+        final Pair<MavenProject, String> desc = getTaskDesc(context);
+        if (desc != null) {
+            for (MavenBeforeRunTask each : getRunManager(context).getBeforeRunTasks(MavenBeforeRunTasksProvider.ID)) {
+                if (each.isFor(desc.first, desc.second)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 
-	@Override
-	public void setSelected(final AnActionEvent e, boolean state)
-	{
-		final DataContext context = e.getDataContext();
-		final Pair<MavenProject, String> desc = getTaskDesc(context);
-		if(desc != null)
-		{
-			new MavenExecuteBeforeRunDialog(MavenActionUtil.getProject(context), desc.first, desc.second).show();
-		}
-	}
+    @Override
+    @RequiredUIAccess
+    public void setSelected(final AnActionEvent e, boolean state) {
+        final DataContext context = e.getDataContext();
+        final Pair<MavenProject, String> desc = getTaskDesc(context);
+        if (desc != null) {
+            new MavenExecuteBeforeRunDialog(MavenActionUtil.getProject(context), desc.first, desc.second).show();
+        }
+    }
 
-	@Nullable
-	protected static Pair<MavenProject, String> getTaskDesc(DataContext context)
-	{
-		List<String> goals = context.getData(MavenDataKeys.MAVEN_GOALS);
-		if(goals == null || goals.size() != 1)
-		{
-			return null;
-		}
+    @Nullable
+    protected static Pair<MavenProject, String> getTaskDesc(DataContext context) {
+        List<String> goals = context.getData(MavenDataKeys.MAVEN_GOALS);
+        if (goals == null || goals.size() != 1) {
+            return null;
+        }
 
-		MavenProject mavenProject = MavenActionUtil.getMavenProject(context);
-		if(mavenProject == null)
-		{
-			return null;
-		}
+        MavenProject mavenProject = MavenActionUtil.getMavenProject(context);
+        if (mavenProject == null) {
+            return null;
+        }
 
-		return Pair.create(mavenProject, goals.get(0));
-	}
+        return Pair.create(mavenProject, goals.get(0));
+    }
 
-	private static RunManager getRunManager(DataContext context)
-	{
-		return RunManager.getInstance(MavenActionUtil.getProject(context));
-	}
+    private static RunManager getRunManager(DataContext context) {
+        return RunManager.getInstance(MavenActionUtil.getProject(context));
+    }
 }

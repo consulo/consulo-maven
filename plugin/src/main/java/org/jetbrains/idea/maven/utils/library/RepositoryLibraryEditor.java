@@ -19,34 +19,41 @@ import consulo.content.library.ui.LibraryEditorComponent;
 import consulo.ide.impl.idea.openapi.roots.ui.configuration.libraryEditor.LibraryEditorBase;
 import consulo.content.library.NewLibraryConfiguration;
 import consulo.project.Project;
+import consulo.ui.annotation.RequiredUIAccess;
 
 /**
  * @author nik
  */
 public class RepositoryLibraryEditor extends LibraryPropertiesEditorBase<RepositoryLibraryProperties, RepositoryLibraryType> {
-  public RepositoryLibraryEditor(LibraryEditorComponent<RepositoryLibraryProperties> component, RepositoryLibraryType libraryType) {
-    super(component, libraryType, null);
-  }
+    public RepositoryLibraryEditor(LibraryEditorComponent<RepositoryLibraryProperties> component, RepositoryLibraryType libraryType) {
+        super(component, libraryType, null);
+    }
 
-  @Override
-  protected void edit() {
-    final Project project = myEditorComponent.getProject();
-    final NewLibraryConfiguration configuration = RepositoryAttachHandler.chooseLibraryAndDownload(project,
-                                                                                                   myEditorComponent.getProperties().getMavenId(),
-                                                                                                   getMainPanel());
-    if (configuration == null) return;
+    @Override
+    @RequiredUIAccess
+    protected void edit() {
+        final Project project = myEditorComponent.getProject();
+        final NewLibraryConfiguration configuration = RepositoryAttachHandler.chooseLibraryAndDownload(
+            project,
+            myEditorComponent.getProperties().getMavenId(),
+            getMainPanel()
+        );
+        if (configuration == null) {
+            return;
+        }
 
-    final LibraryEditorBase target = (LibraryEditorBase)myEditorComponent.getLibraryEditor();
-    target.removeAllRoots();
-    myEditorComponent.renameLibrary(configuration.getDefaultLibraryName());
-    target.setType(myLibraryType);
-    target.setProperties(configuration.getProperties());
-    configuration.addRoots(target);
-    myEditorComponent.updateRootsTree();
-    setModified();
-  }
+        final LibraryEditorBase target = (LibraryEditorBase)myEditorComponent.getLibraryEditor();
+        target.removeAllRoots();
+        myEditorComponent.renameLibrary(configuration.getDefaultLibraryName());
+        target.setType(myLibraryType);
+        target.setProperties(configuration.getProperties());
+        configuration.addRoots(target);
+        myEditorComponent.updateRootsTree();
+        setModified();
+    }
 
-  @Override
-  public void apply() {
-  }
+    @Override
+    @RequiredUIAccess
+    public void apply() {
+    }
 }

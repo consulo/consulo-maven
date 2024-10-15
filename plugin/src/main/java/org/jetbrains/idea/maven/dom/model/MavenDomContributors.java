@@ -20,6 +20,7 @@
 package org.jetbrains.idea.maven.dom.model;
 
 import javax.annotation.Nonnull;
+
 import org.jetbrains.idea.maven.dom.MavenDomElement;
 
 import java.util.List;
@@ -28,19 +29,18 @@ import java.util.List;
  * http://maven.apache.org/POM/4.0.0:contributorsElemType interface.
  */
 public interface MavenDomContributors extends MavenDomElement {
+    /**
+     * Returns the list of contributor children.
+     *
+     * @return the list of contributor children.
+     */
+    @Nonnull
+    List<MavenDomContributor> getContributors();
 
-  /**
-   * Returns the list of contributor children.
-   *
-   * @return the list of contributor children.
-   */
-  @Nonnull
-  List<MavenDomContributor> getContributors();
-
-  /**
-   * Adds new child to the list of contributor children.
-   *
-   * @return created child
-   */
-  MavenDomContributor addContributor();
+    /**
+     * Adds new child to the list of contributor children.
+     *
+     * @return created child
+     */
+    MavenDomContributor addContributor();
 }

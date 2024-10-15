@@ -15,20 +15,19 @@
  */
 package org.jetbrains.idea.maven.indices;
 
-import consulo.application.ApplicationManager;
+import consulo.application.Application;
 import consulo.maven.rt.server.common.model.MavenId;
 import consulo.project.Project;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.awt.DialogWrapper;
 import consulo.ui.ex.awt.TabbedPaneWrapper;
+import consulo.util.lang.Couple;
 import consulo.util.lang.Pair;
 import consulo.util.lang.StringUtil;
 import org.jetbrains.idea.maven.dom.model.MavenDomDependency;
 
 import javax.annotation.Nonnull;
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.util.List;
 import java.util.*;
@@ -42,13 +41,14 @@ public class MavenArtifactSearchDialog extends DialogWrapper {
     private MavenArtifactSearchPanel myArtifactsPanel;
     private MavenArtifactSearchPanel myClassesPanel;
 
-    private final Map<Pair<String, String>, String> myManagedDependenciesMap = new HashMap<Pair<String, String>, String>();
+    private final Map<Pair<String, String>, String> myManagedDependenciesMap = new HashMap<>();
 
-    private final Map<MavenArtifactSearchPanel, Boolean> myOkButtonStates = new HashMap<MavenArtifactSearchPanel, Boolean>();
+    private final Map<MavenArtifactSearchPanel, Boolean> myOkButtonStates = new HashMap<>();
 
     @Nonnull
+    @RequiredUIAccess
     public static List<MavenId> searchForClass(Project project, String className) {
-        if (ApplicationManager.getApplication().isUnitTestMode()) {
+        if (project.getApplication().isUnitTestMode()) {
             assert ourResultForTest != null;
 
             List<MavenId> res = ourResultForTest;
@@ -66,8 +66,9 @@ public class MavenArtifactSearchDialog extends DialogWrapper {
     }
 
     @Nonnull
+    @RequiredUIAccess
     public static List<MavenId> searchForArtifact(Project project, Collection<MavenDomDependency> managedDependencies) {
-        if (ApplicationManager.getApplication().isUnitTestMode()) {
+        if (Application.get().isUnitTestMode()) {
             assert ourResultForTest != null;
 
             List<MavenId> res = ourResultForTest;
@@ -95,7 +96,7 @@ public class MavenArtifactSearchDialog extends DialogWrapper {
             String version = dependency.getVersion().getStringValue();
 
             if (StringUtil.isNotEmpty(groupId) && StringUtil.isNotEmpty(artifactId) && StringUtil.isNotEmpty(version)) {
-                myManagedDependenciesMap.put(Pair.create(groupId, artifactId), version);
+                myManagedDependenciesMap.put(Couple.of(groupId, artifactId), version);
             }
         }
     }
@@ -106,9 +107,9 @@ public class MavenArtifactSearchDialog extends DialogWrapper {
         initComponents(project, initialText, classMode);
 
         setTitle("Maven Artifact Search");
-        setOKButtonText("Add");
         updateOkButtonState();
         init();
+        setOKButtonText("Add");
 
         myArtifactsPanel.scheduleSearch();
         myClassesPanel.scheduleSearch();
@@ -130,8 +131,10 @@ public class MavenArtifactSearchDialog extends DialogWrapper {
             }
         };
 
-        myArtifactsPanel = new MavenArtifactSearchPanel(project, !classMode ? initialText : "", false, listener, this, myManagedDependenciesMap);
-        myClassesPanel = new MavenArtifactSearchPanel(project, classMode ? initialText : "", true, listener, this, myManagedDependenciesMap);
+        myArtifactsPanel =
+            new MavenArtifactSearchPanel(project, !classMode ? initialText : "", false, listener, this, myManagedDependenciesMap);
+        myClassesPanel =
+            new MavenArtifactSearchPanel(project, classMode ? initialText : "", true, listener, this, myManagedDependenciesMap);
 
         myTabbedPane.addTab("Search for artifact", myArtifactsPanel);
         myTabbedPane.addTab("Search for class", myClassesPanel);
@@ -139,12 +142,7 @@ public class MavenArtifactSearchDialog extends DialogWrapper {
 
         myTabbedPane.getComponent().setPreferredSize(new Dimension(900, 600));
 
-        myTabbedPane.addChangeListener(new ChangeListener() {
-            @Override
-            public void stateChanged(ChangeEvent e) {
-                updateOkButtonState();
-            }
-        });
+        myTabbedPane.addChangeListener(e -> updateOkButtonState());
 
         updateOkButtonState();
     }
@@ -162,8 +160,8 @@ public class MavenArtifactSearchDialog extends DialogWrapper {
         return myTabbedPane.getComponent();
     }
 
-    @RequiredUIAccess
     @Override
+    @RequiredUIAccess
     public JComponent getPreferredFocusedComponent() {
         return myTabbedPane.getSelectedIndex() == 0 ? myArtifactsPanel.getSearchField() : myClassesPanel.getSearchField();
     }

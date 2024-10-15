@@ -15,10 +15,8 @@
  */
 
 /*
- * Created by IntelliJ IDEA.
  * User: Vladislav.Kaznacheev
- * Date: Jun 29, 2007
- * Time: 1:02:29 PM
+ * @since 2007-06-29
  */
 package org.jetbrains.idea.maven.project;
 
@@ -28,8 +26,8 @@ import java.util.Set;
 import java.util.TreeSet;
 
 public class MavenProjectsManagerState {
-  public List<String> originalFiles = new ArrayList<String>();
+    public List<String> originalFiles = new ArrayList<>();
 
-  public Set<String> ignoredFiles = new TreeSet<String>();
-  public List<String> ignoredPathMasks = new ArrayList<String>();
+    public Set<String> ignoredFiles = new TreeSet<>();
+    public List<String> ignoredPathMasks = new ArrayList<>();
 }

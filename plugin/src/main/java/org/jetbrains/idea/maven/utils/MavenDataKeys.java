@@ -16,21 +16,19 @@
 package org.jetbrains.idea.maven.utils;
 
 import consulo.execution.RunnerAndConfigurationSettings;
-import consulo.util.dataholder.Key;
 import consulo.maven.rt.server.common.model.MavenArtifact;
 import consulo.maven.rt.server.common.model.MavenProfileKind;
+import consulo.util.dataholder.Key;
 
 import javax.swing.*;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-
-public interface MavenDataKeys
-{
-	Key<List<String>> MAVEN_GOALS = Key.create("MAVEN_GOALS");
-	Key<RunnerAndConfigurationSettings> RUN_CONFIGURATION = Key.create("MAVEN_RUN_CONFIGURATION");
-	Key<Map<String, MavenProfileKind>> MAVEN_PROFILES = Key.create("MAVEN_PROFILES");
-	Key<Collection<MavenArtifact>> MAVEN_DEPENDENCIES = Key.create("MAVEN_DEPENDENCIES");
-	Key<JTree> MAVEN_PROJECTS_TREE = Key.create("MAVEN_PROJECTS_TREE");
+public interface MavenDataKeys {
+    Key<List<String>> MAVEN_GOALS = Key.create("MAVEN_GOALS");
+    Key<RunnerAndConfigurationSettings> RUN_CONFIGURATION = Key.create("MAVEN_RUN_CONFIGURATION");
+    Key<Map<String, MavenProfileKind>> MAVEN_PROFILES = Key.create("MAVEN_PROFILES");
+    Key<Collection<MavenArtifact>> MAVEN_DEPENDENCIES = Key.create("MAVEN_DEPENDENCIES");
+    Key<JTree> MAVEN_PROJECTS_TREE = Key.create("MAVEN_PROJECTS_TREE");
 }

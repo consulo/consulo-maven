@@ -15,12 +15,13 @@
  */
 package org.jetbrains.idea.maven.execution;
 
-import consulo.localize.LocalizeValue;
-import consulo.project.Project;
+import java.util.Collection;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Collection;
+
+import consulo.localize.LocalizeValue;
+import consulo.project.Project;
 
 /**
  * @author Sergey Evdokimov
@@ -30,7 +31,6 @@ public class MavenExecuteGoalDialog extends MavenEditGoalDialog {
         super(project, history);
 
         setTitle(LocalizeValue.localizeTODO("Execute Maven Goal"));
-
-        getOKAction().setText(LocalizeValue.localizeTODO("&Execute"));
+        setOKButtonText("Execute");
     }
 }

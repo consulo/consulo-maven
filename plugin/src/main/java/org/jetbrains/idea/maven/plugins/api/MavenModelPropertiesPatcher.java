@@ -13,36 +13,29 @@ import java.util.Properties;
 /**
  * @author Sergey Evdokimov
  */
-public class MavenModelPropertiesPatcher
-{
-	/*
-	 * Add properties those should be added by plugins.
-	 */
-	public static void patch(Properties modelProperties, @Nullable Collection<MavenPlugin> plugins)
-	{
-		if(plugins == null)
-		{
-			return;
-		}
+public class MavenModelPropertiesPatcher {
+    /*
+     * Add properties those should be added by plugins.
+     */
+    public static void patch(Properties modelProperties, @Nullable Collection<MavenPlugin> plugins) {
+        if (plugins == null) {
+            return;
+        }
 
-		Map<MavenId, MavenPluginDescriptor> descriptors = MavenPluginDescriptorCache.getDescriptors();
+        Map<MavenId, MavenPluginDescriptor> descriptors = MavenPluginDescriptorCache.getDescriptors();
 
-		for(MavenPlugin plugin : plugins)
-		{
-			MavenPluginDescriptor descriptor = descriptors.get(new MavenId(plugin.getGroupId(), plugin.getArtifactId()));
+        for (MavenPlugin plugin : plugins) {
+            MavenPluginDescriptor descriptor = descriptors.get(new MavenId(plugin.getGroupId(), plugin.getArtifactId()));
 
-			if(descriptor == null)
-			{
-				continue;
-			}
+            if (descriptor == null) {
+                continue;
+            }
 
-			for(String property : descriptor.getProperties())
-			{
-				if(!modelProperties.containsKey(property))
-				{
-					modelProperties.setProperty(property, "");
-				}
-			}
-		}
-	}
+            for (String property : descriptor.getProperties()) {
+                if (!modelProperties.containsKey(property)) {
+                    modelProperties.setProperty(property, "");
+                }
+            }
+        }
+    }
 }

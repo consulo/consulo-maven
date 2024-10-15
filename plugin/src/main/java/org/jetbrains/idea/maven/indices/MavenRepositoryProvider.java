@@ -31,10 +31,9 @@ import java.util.Set;
  * @since 10/25/13
  */
 @ExtensionAPI(ComponentScope.APPLICATION)
-public interface MavenRepositoryProvider
-{
-	ExtensionPointName<MavenRepositoryProvider> EP_NAME = ExtensionPointName.create(MavenRepositoryProvider.class);
+public interface MavenRepositoryProvider {
+    ExtensionPointName<MavenRepositoryProvider> EP_NAME = ExtensionPointName.create(MavenRepositoryProvider.class);
 
-	@Nonnull
-	Set<MavenRemoteRepository> getRemoteRepositories(@Nonnull Project project);
+    @Nonnull
+    Set<MavenRemoteRepository> getRemoteRepositories(@Nonnull Project project);
 }

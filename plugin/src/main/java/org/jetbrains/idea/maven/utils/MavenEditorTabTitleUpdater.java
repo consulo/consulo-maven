@@ -34,36 +34,31 @@ import java.util.List;
 @Singleton
 @ServiceAPI(value = ComponentScope.PROJECT, lazy = false)
 @ServiceImpl
-public class MavenEditorTabTitleUpdater extends MavenSimpleProjectComponent
-{
-	@Inject
-	public MavenEditorTabTitleUpdater(Project project)
-	{
-		super(project);
+public class MavenEditorTabTitleUpdater extends MavenSimpleProjectComponent {
+    @Inject
+    public MavenEditorTabTitleUpdater(Project project) {
+        super(project);
 
-		if(!isNormalProject())
-		{
-			return;
-		}
+        if (!isNormalProject()) {
+            return;
+        }
 
-		MavenProjectsManager.getInstance(myProject).addProjectsTreeListener(new MavenProjectsTree.Listener()
-		{
-			@Override
-			public void projectsUpdated(List<Pair<MavenProject, MavenProjectChanges>> updated, List<MavenProject> deleted)
-			{
-				updateTabName(MavenUtil.collectFirsts(updated));
-			}
-		});
-	}
+        MavenProjectsManager.getInstance(myProject).addProjectsTreeListener(new MavenProjectsTree.Listener() {
+            @Override
+            public void projectsUpdated(List<Pair<MavenProject, MavenProjectChanges>> updated, List<MavenProject> deleted) {
+                updateTabName(MavenUtil.collectFirsts(updated));
+            }
+        });
+    }
 
-	private void updateTabName(final List<MavenProject> projects)
-	{
-		MavenUtil.invokeLater(myProject, () ->
-		{
-			for(MavenProject each : projects)
-			{
-				FileEditorManager.getInstance(myProject).updateFilePresentation(each.getFile());
-			}
-		});
-	}
+    private void updateTabName(final List<MavenProject> projects) {
+        MavenUtil.invokeLater(
+            myProject,
+            () -> {
+                for (MavenProject each : projects) {
+                    FileEditorManager.getInstance(myProject).updateFilePresentation(each.getFile());
+                }
+            }
+        );
+    }
 }

@@ -32,52 +32,51 @@ import org.jetbrains.idea.maven.dom.MavenDomElement;
  * </pre>
  */
 public interface MavenDomActivationOS extends MavenDomElement {
+    /**
+     * Returns the value of the name child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:name documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the name child.
+     */
+    @Nonnull
+    GenericDomValue<String> getName();
 
-  /**
-   * Returns the value of the name child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:name documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the name child.
-   */
-  @Nonnull
-  GenericDomValue<String> getName();
+    /**
+     * Returns the value of the family child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:family documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the family child.
+     */
+    @Nonnull
+    GenericDomValue<String> getFamily();
 
-  /**
-   * Returns the value of the family child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:family documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the family child.
-   */
-  @Nonnull
-  GenericDomValue<String> getFamily();
+    /**
+     * Returns the value of the arch child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:arch documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the arch child.
+     */
+    @Nonnull
+    GenericDomValue<String> getArch();
 
-  /**
-   * Returns the value of the arch child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:arch documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the arch child.
-   */
-  @Nonnull
-  GenericDomValue<String> getArch();
-
-  /**
-   * Returns the value of the version child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:version documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the version child.
-   */
-  @Nonnull
-  GenericDomValue<String> getVersion();
+    /**
+     * Returns the value of the version child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:version documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the version child.
+     */
+    @Nonnull
+    GenericDomValue<String> getVersion();
 }

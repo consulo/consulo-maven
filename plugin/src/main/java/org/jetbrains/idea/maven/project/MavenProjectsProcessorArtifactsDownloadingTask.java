@@ -25,41 +25,50 @@ import org.jetbrains.idea.maven.utils.MavenProgressIndicator;
 
 import java.util.Collection;
 
-public class MavenProjectsProcessorArtifactsDownloadingTask implements MavenProjectsProcessorTask
-{
-	private final Collection<MavenProject> myProjects;
-	private final Collection<MavenArtifact> myArtifacts;
-	private final MavenProjectsTree myTree;
-	private final boolean myDownloadSources;
-	private final boolean myDownloadDocs;
-	private final AsyncResult<MavenArtifactDownloader.DownloadResult> myCallbackResult;
+public class MavenProjectsProcessorArtifactsDownloadingTask implements MavenProjectsProcessorTask {
+    private final Collection<MavenProject> myProjects;
+    private final Collection<MavenArtifact> myArtifacts;
+    private final MavenProjectsTree myTree;
+    private final boolean myDownloadSources;
+    private final boolean myDownloadDocs;
+    private final AsyncResult<MavenArtifactDownloader.DownloadResult> myCallbackResult;
 
-	public MavenProjectsProcessorArtifactsDownloadingTask(Collection<MavenProject> projects,
-														  Collection<MavenArtifact> artifacts,
-														  MavenProjectsTree tree,
-														  boolean downloadSources,
-														  boolean downloadDocs,
-														  AsyncResult<MavenArtifactDownloader.DownloadResult> callbackResult)
-	{
-		myProjects = projects;
-		myArtifacts = artifacts;
-		myTree = tree;
-		myDownloadSources = downloadSources;
-		myDownloadDocs = downloadDocs;
-		myCallbackResult = callbackResult;
-	}
+    public MavenProjectsProcessorArtifactsDownloadingTask(
+        Collection<MavenProject> projects,
+        Collection<MavenArtifact> artifacts,
+        MavenProjectsTree tree,
+        boolean downloadSources,
+        boolean downloadDocs,
+        AsyncResult<MavenArtifactDownloader.DownloadResult> callbackResult
+    ) {
+        myProjects = projects;
+        myArtifacts = artifacts;
+        myTree = tree;
+        myDownloadSources = downloadSources;
+        myDownloadDocs = downloadDocs;
+        myCallbackResult = callbackResult;
+    }
 
-	@Override
-	public void perform(final Project project, MavenEmbeddersManager embeddersManager, MavenConsole console, MavenProgressIndicator indicator) throws MavenProcessCanceledException
-	{
-		MavenArtifactDownloader.DownloadResult result = myTree.downloadSourcesAndJavadocs(project, myProjects, myArtifacts, myDownloadSources, myDownloadDocs, embeddersManager, console, indicator);
-		if(myCallbackResult != null)
-		{
-			myCallbackResult.setDone(result);
-		}
+    @Override
+    public void perform(
+        final Project project,
+        MavenEmbeddersManager embeddersManager,
+        MavenConsole console,
+        MavenProgressIndicator indicator
+    ) throws MavenProcessCanceledException {
+        MavenArtifactDownloader.DownloadResult result = myTree.downloadSourcesAndJavadocs(project,
+            myProjects,
+            myArtifacts,
+            myDownloadSources,
+            myDownloadDocs,
+            embeddersManager,
+            console,
+            indicator
+        );
+        if (myCallbackResult != null) {
+            myCallbackResult.setDone(result);
+        }
 
-		Application.get().invokeLater(() -> {
-			VirtualFileManager.getInstance().asyncRefresh(null);
-		});
-	}
+        Application.get().invokeLater(() -> VirtualFileManager.getInstance().asyncRefresh(null));
+    }
 }

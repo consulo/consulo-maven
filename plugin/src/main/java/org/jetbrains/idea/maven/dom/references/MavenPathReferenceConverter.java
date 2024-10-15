@@ -1,6 +1,7 @@
 // Copyright 2000-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.idea.maven.dom.references;
 
+import consulo.annotation.access.RequiredReadAction;
 import consulo.document.util.TextRange;
 import consulo.ide.impl.idea.openapi.vfs.VfsUtil;
 import consulo.language.psi.*;
@@ -28,199 +29,175 @@ import java.util.Objects;
 /**
  * @author Sergey Evdokimov
  */
-public class MavenPathReferenceConverter extends PathReferenceConverter
-{
-	private final Condition<PsiFileSystemItem> myCondition;
+public class MavenPathReferenceConverter extends PathReferenceConverter {
+    private final Condition<PsiFileSystemItem> myCondition;
 
-	public MavenPathReferenceConverter()
-	{
-		this(Conditions.alwaysTrue());
-	}
+    public MavenPathReferenceConverter() {
+        this(Conditions.alwaysTrue());
+    }
 
-	public MavenPathReferenceConverter(@Nonnull Condition<PsiFileSystemItem> condition)
-	{
-		myCondition = condition;
-	}
+    public MavenPathReferenceConverter(@Nonnull Condition<PsiFileSystemItem> condition) {
+        myCondition = condition;
+    }
 
-	public static PsiReference[] createReferences(final DomElement genericDomValue,
-												  PsiElement element,
-												  @Nonnull final Condition<PsiFileSystemItem> fileFilter)
-	{
-		return createReferences(genericDomValue, element, fileFilter, false);
-	}
+    @RequiredReadAction
+    public static PsiReference[] createReferences(
+        final DomElement genericDomValue,
+        PsiElement element,
+        @Nonnull final Condition<PsiFileSystemItem> fileFilter
+    ) {
+        return createReferences(genericDomValue, element, fileFilter, false);
+    }
 
-	public static PsiReference[] createReferences(final DomElement genericDomValue,
-												  PsiElement element,
-												  @Nonnull final Condition<PsiFileSystemItem> fileFilter, boolean isAbsolutePath)
-	{
-		TextRange range = ElementManipulators.getValueTextRange(element);
-		String text = range.substring(element.getText());
+    @RequiredReadAction
+    public static PsiReference[] createReferences(
+        final DomElement genericDomValue,
+        PsiElement element,
+        @Nonnull final Condition<PsiFileSystemItem> fileFilter,
+        boolean isAbsolutePath
+    ) {
+        TextRange range = ElementManipulators.getValueTextRange(element);
+        String text = range.substring(element.getText());
 
-		FileReferenceSet set = new FileReferenceSet(text, element, range.getStartOffset(), null, Platform.current().fs().isCaseSensitive(), false)
-		{
+        FileReferenceSet set =
+            new FileReferenceSet(text, element, range.getStartOffset(), null, Platform.current().fs().isCaseSensitive(), false) {
 
-			private MavenDomProjectModel model;
+                private MavenDomProjectModel model;
 
-			@Override
-			public Condition<PsiFileSystemItem> getReferenceCompletionFilter()
-			{
-				return fileFilter;
-			}
+                @Override
+                public Condition<PsiFileSystemItem> getReferenceCompletionFilter() {
+                    return fileFilter;
+                }
 
-			@Override
-			protected boolean isSoft()
-			{
-				return true;
-			}
+                @Override
+                protected boolean isSoft() {
+                    return true;
+                }
 
-			@Override
-			public FileReference createFileReference(TextRange range, int index, String text)
-			{
-				return new FileReference(this, range, index, text)
-				{
-					@Override
-					protected void innerResolveInContext(@Nonnull String text,
-														 @Nonnull PsiFileSystemItem context,
-														 Collection<ResolveResult> result,
-														 boolean caseSensitive)
-					{
-						if(model == null)
-						{
-							DomElement rootElement = DomUtil.getFileElement(genericDomValue).getRootElement();
-							if(rootElement instanceof MavenDomProjectModel)
-							{
-								model = (MavenDomProjectModel) rootElement;
-							}
-						}
+                @Override
+                public FileReference createFileReference(TextRange range, int index, String text) {
+                    return new FileReference(this, range, index, text) {
+                        @RequiredReadAction
+                        @Override
+                        protected void innerResolveInContext(
+                            @Nonnull String text,
+                            @Nonnull PsiFileSystemItem context,
+                            Collection<ResolveResult> result,
+                            boolean caseSensitive
+                        ) {
+                            if (model == null) {
+                                DomElement rootElement = DomUtil.getFileElement(genericDomValue).getRootElement();
+                                if (rootElement instanceof MavenDomProjectModel domProjectModel) {
+                                    model = domProjectModel;
+                                }
+                            }
 
-						String resolvedText = model == null ? text : MavenPropertyResolver.resolve(text, model);
+                            String resolvedText = model == null ? text : MavenPropertyResolver.resolve(text, model);
 
-						if(resolvedText.equals(text))
-						{
-							if(getIndex() == 0 && resolvedText.length() == 2 && resolvedText.charAt(1) == ':')
-							{
-								// it's root on windows, e.g. "C:"
-								VirtualFile file = LocalFileSystem.getInstance().findFileByPath(resolvedText + '/');
-								if(file != null)
-								{
-									PsiDirectory psiDirectory = context.getManager().findDirectory(file);
-									if(psiDirectory != null)
-									{
-										result.add(new PsiElementResolveResult(psiDirectory));
-									}
-								}
-							}
-							else if(getIndex() == getAllReferences().length - 1 &&
-									Objects.equals("relativePath", genericDomValue.getXmlElementName()) &&
-									context.getVirtualFile() != null)
-							{
-								// it is a last context and should be resolved to pom.xml
+                            if (resolvedText.equals(text)) {
+                                if (getIndex() == 0 && resolvedText.length() == 2 && resolvedText.charAt(1) == ':') {
+                                    // it's root on windows, e.g. "C:"
+                                    VirtualFile file = LocalFileSystem.getInstance().findFileByPath(resolvedText + '/');
+                                    if (file != null) {
+                                        PsiDirectory psiDirectory = context.getManager().findDirectory(file);
+                                        if (psiDirectory != null) {
+                                            result.add(new PsiElementResolveResult(psiDirectory));
+                                        }
+                                    }
+                                }
+                                else if (getIndex() == getAllReferences().length - 1 &&
+                                    Objects.equals("relativePath", genericDomValue.getXmlElementName()) &&
+                                    context.getVirtualFile() != null) {
+                                    // it is a last context and should be resolved to pom.xml
 
-								VirtualFile parentFile = context.getVirtualFile().findChild(text);
-								if(parentFile != null)
-								{
-									VirtualFile parentPom = parentFile.isDirectory() ? parentFile.findChild("pom.xml") : parentFile;
-									if(parentPom != null)
-									{
-										PsiFile psiFile = context.getManager().findFile(parentPom);
-										if(psiFile != null)
-										{
-											result.add(new PsiElementResolveResult(psiFile));
-										}
-									}
-								}
-							}
-							else if("..".equals(resolvedText))
-							{
-								PsiFileSystemItem resolved = context.getParent();
-								if(resolved != null)
-								{
-									if(context instanceof XmlFileImpl)
-									{
-										resolved = resolved.getParent();  // calculated regarding parent directory, not the pom itself
-									}
-									if(resolved != null)
-									{
-										result.add(new PsiElementResolveResult(resolved));
-									}
-								}
-							}
-							else
-							{
-								super.innerResolveInContext(resolvedText, context, result, caseSensitive);
-							}
-						}
-						else
-						{
-							VirtualFile contextFile = context.getVirtualFile();
-							if(contextFile == null)
-							{
-								return;
-							}
+                                    VirtualFile parentFile = context.getVirtualFile().findChild(text);
+                                    if (parentFile != null) {
+                                        VirtualFile parentPom = parentFile.isDirectory() ? parentFile.findChild("pom.xml") : parentFile;
+                                        if (parentPom != null) {
+                                            PsiFile psiFile = context.getManager().findFile(parentPom);
+                                            if (psiFile != null) {
+                                                result.add(new PsiElementResolveResult(psiFile));
+                                            }
+                                        }
+                                    }
+                                }
+                                else if ("..".equals(resolvedText)) {
+                                    PsiFileSystemItem resolved = context.getParent();
+                                    if (resolved != null) {
+                                        if (context instanceof XmlFileImpl) {
+                                            resolved = resolved.getParent();  // calculated regarding parent directory, not the pom itself
+                                        }
+                                        if (resolved != null) {
+                                            result.add(new PsiElementResolveResult(resolved));
+                                        }
+                                    }
+                                }
+                                else {
+                                    super.innerResolveInContext(resolvedText, context, result, caseSensitive);
+                                }
+                            }
+                            else {
+                                VirtualFile contextFile = context.getVirtualFile();
+                                if (contextFile == null) {
+                                    return;
+                                }
 
-							VirtualFile file = null;
+                                VirtualFile file = null;
 
-							if(getIndex() == 0)
-							{
-								file = LocalFileSystem.getInstance().findFileByPath(resolvedText);
-							}
+                                if (getIndex() == 0) {
+                                    file = LocalFileSystem.getInstance().findFileByPath(resolvedText);
+                                }
 
-							if(file == null)
-							{
-								file = LocalFileSystem.getInstance().findFileByPath(contextFile.getPath() + '/' + resolvedText);
-							}
+                                if (file == null) {
+                                    file = LocalFileSystem.getInstance().findFileByPath(contextFile.getPath() + '/' + resolvedText);
+                                }
 
-							if(file != null)
-							{
-								PsiFileSystemItem res = file.isDirectory() ? context.getManager().findDirectory(file) : context.getManager().findFile(file);
+                                if (file != null) {
+                                    PsiFileSystemItem res =
+                                        file.isDirectory() ? context.getManager().findDirectory(file) : context.getManager().findFile(file);
 
-								if(res != null)
-								{
-									result.add(new PsiElementResolveResult(res));
-								}
-							}
-						}
-					}
-				};
-			}
-		};
+                                    if (res != null) {
+                                        result.add(new PsiElementResolveResult(res));
+                                    }
+                                }
+                            }
+                        }
+                    };
+                }
+            };
 
-		if(isAbsolutePath)
-		{
-			set.addCustomization(FileReferenceSet.DEFAULT_PATH_EVALUATOR_OPTION, file -> {
-				VirtualFile virtualFile = file.getVirtualFile();
+        if (isAbsolutePath) {
+            set.addCustomization(FileReferenceSet.DEFAULT_PATH_EVALUATOR_OPTION, file -> {
+                VirtualFile virtualFile = file.getVirtualFile();
 
-				if(virtualFile == null)
-				{
-					return FileReferenceSet.ABSOLUTE_TOP_LEVEL.apply(file);
-				}
+                if (virtualFile == null) {
+                    return FileReferenceSet.ABSOLUTE_TOP_LEVEL.apply(file);
+                }
 
-				virtualFile = VfsUtil.getRootFile(virtualFile);
-				PsiDirectory root = file.getManager().findDirectory(virtualFile);
+                virtualFile = VfsUtil.getRootFile(virtualFile);
+                PsiDirectory root = file.getManager().findDirectory(virtualFile);
 
-				if(root == null)
-				{
-					return FileReferenceSet.ABSOLUTE_TOP_LEVEL.apply(file);
-				}
+                if (root == null) {
+                    return FileReferenceSet.ABSOLUTE_TOP_LEVEL.apply(file);
+                }
 
-				return Collections.singletonList(root);
-			});
-		}
+                return Collections.singletonList(root);
+            });
+        }
 
-		return set.getAllReferences();
-	}
+        return set.getAllReferences();
+    }
 
-	@Nonnull
-	@Override
-	public PsiReference[] createReferences(final GenericDomValue genericDomValue, PsiElement element, ConvertContext context)
-	{
-		return createReferences(genericDomValue, element, myCondition);
-	}
+    @Nonnull
+    @Override
+    @RequiredReadAction
+    public PsiReference[] createReferences(final GenericDomValue genericDomValue, PsiElement element, ConvertContext context) {
+        return createReferences(genericDomValue, element, myCondition);
+    }
 
-	@Nonnull
-	@Override
-	public PsiReference [] createReferences(@Nonnull PsiElement psiElement, boolean soft)
-	{
-		throw new UnsupportedOperationException();
-	}
+    @Nonnull
+    @Override
+    public PsiReference[] createReferences(@Nonnull PsiElement psiElement, boolean soft) {
+        throw new UnsupportedOperationException();
+    }
 }

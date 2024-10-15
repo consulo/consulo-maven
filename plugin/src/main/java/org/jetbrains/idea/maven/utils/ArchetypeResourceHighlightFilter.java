@@ -12,21 +12,23 @@ import javax.annotation.Nonnull;
  */
 @ExtensionImpl
 public class ArchetypeResourceHighlightFilter extends ProblemHighlightFilter {
+    @Override
+    public boolean shouldHighlight(@Nonnull PsiFile psiFile) {
+        VirtualFile virtualFile = psiFile.getOriginalFile().getVirtualFile();
 
-  @Override
-  public boolean shouldHighlight(@Nonnull PsiFile psiFile) {
-    VirtualFile virtualFile = psiFile.getOriginalFile().getVirtualFile();
+        do {
+            if (virtualFile == null) {
+                return true;
+            }
 
-    do {
-      if (virtualFile == null) return true;
+            if (virtualFile.getName().equals("archetype-resources")) {
+                if (virtualFile.getPath().endsWith("src/main/resources/archetype-resources")) {
+                    return false;
+                }
+            }
 
-      if (virtualFile.getName().equals("archetype-resources")) {
-        if (virtualFile.getPath().endsWith("src/main/resources/archetype-resources")) {
-          return false;
+            virtualFile = virtualFile.getParent();
         }
-      }
-
-      virtualFile = virtualFile.getParent();
-    } while (true);
-  }
+        while (true);
+    }
 }

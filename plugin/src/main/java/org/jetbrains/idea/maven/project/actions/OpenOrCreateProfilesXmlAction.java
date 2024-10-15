@@ -25,16 +25,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class OpenOrCreateProfilesXmlAction extends MavenOpenOrCreateFilesAction {
-  protected List<File> getFiles(AnActionEvent e) {
-    List<File> result = new ArrayList<File>();
-    for (MavenProject each : MavenActionUtil.getMavenProjects(e.getDataContext())) {
-      result.add(each.getProfilesXmlIoFile());
+    @Override
+    protected List<File> getFiles(AnActionEvent e) {
+        List<File> result = new ArrayList<>();
+        for (MavenProject each : MavenActionUtil.getMavenProjects(e.getDataContext())) {
+            result.add(each.getProfilesXmlIoFile());
+        }
+        return result;
     }
-    return result;
-  }
 
-  @Override
-  protected String getFileTemplate() {
-    return MavenFileTemplateGroupFactory.MAVEN_PROFILES_XML_TEMPLATE;
-  }
+    @Override
+    protected String getFileTemplate() {
+        return MavenFileTemplateGroupFactory.MAVEN_PROFILES_XML_TEMPLATE;
+    }
 }

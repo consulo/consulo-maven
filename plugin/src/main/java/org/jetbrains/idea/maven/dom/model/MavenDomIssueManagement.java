@@ -34,28 +34,28 @@ import org.jetbrains.idea.maven.dom.converters.MavenUrlConverter;
  * </pre>
  */
 public interface MavenDomIssueManagement extends MavenDomElement {
-  /**
-   * Returns the value of the system child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:system documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the system child.
-   */
-  @Nonnull
-  GenericDomValue<String> getSystem();
+    /**
+     * Returns the value of the system child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:system documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the system child.
+     */
+    @Nonnull
+    GenericDomValue<String> getSystem();
 
-  /**
-   * Returns the value of the url child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:url documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the url child.
-   */
-  @Nonnull
-  @Convert(MavenUrlConverter.class)
-  GenericDomValue<String> getUrl();
+    /**
+     * Returns the value of the url child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:url documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the url child.
+     */
+    @Nonnull
+    @Convert(MavenUrlConverter.class)
+    GenericDomValue<String> getUrl();
 }

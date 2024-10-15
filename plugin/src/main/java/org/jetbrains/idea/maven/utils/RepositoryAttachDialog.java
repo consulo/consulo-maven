@@ -15,8 +15,7 @@
  */
 package org.jetbrains.idea.maven.utils;
 
-import consulo.application.AllIcons;
-import consulo.application.ApplicationManager;
+import consulo.application.Application;
 import consulo.component.PropertiesComponent;
 import consulo.disposer.Disposer;
 import consulo.fileChooser.FileChooserDescriptor;
@@ -26,8 +25,9 @@ import consulo.maven.rt.server.common.model.MavenArtifactInfo;
 import consulo.maven.rt.server.common.model.MavenRepositoryInfo;
 import consulo.platform.base.icon.PlatformIconGroup;
 import consulo.project.Project;
-import consulo.project.ProjectBundle;
 import consulo.project.ProjectPropertiesComponent;
+import consulo.project.localize.ProjectLocalize;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.awt.*;
 import consulo.ui.ex.awt.event.DocumentAdapter;
 import consulo.util.collection.ContainerUtil;
@@ -36,10 +36,8 @@ import consulo.util.lang.Comparing;
 import consulo.util.lang.Pair;
 import consulo.util.lang.StringUtil;
 import consulo.util.lang.function.Condition;
-import consulo.util.lang.function.PairProcessor;
 import consulo.util.lang.xml.XmlStringUtil;
 import consulo.virtualFileSystem.VirtualFile;
-import org.jetbrains.annotations.NonNls;
 import org.jetbrains.idea.maven.utils.library.RepositoryAttachHandler;
 
 import javax.annotation.Nonnull;
@@ -48,279 +46,290 @@ import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.text.JTextComponent;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.List;
 import java.util.*;
 
-public class RepositoryAttachDialog extends DialogWrapper
-{
-  @NonNls private static final String PROPERTY_DOWNLOAD_TO_PATH = "Downloaded.Files.Path";
-  @NonNls private static final String PROPERTY_ATTACH_JAVADOC = "Repository.Attach.JavaDocs";
-  @NonNls private static final String PROPERTY_ATTACH_SOURCES = "Repository.Attach.Sources";
+public class RepositoryAttachDialog extends DialogWrapper {
+    private static final String PROPERTY_DOWNLOAD_TO_PATH = "Downloaded.Files.Path";
+    private static final String PROPERTY_ATTACH_JAVADOC = "Repository.Attach.JavaDocs";
+    private static final String PROPERTY_ATTACH_SOURCES = "Repository.Attach.Sources";
 
-  private JBLabel myInfoLabel;
-  private JCheckBox myJavaDocCheckBox;
-  private JCheckBox mySourcesCheckBox;
-  private final Project myProject;
-  private final boolean myManaged;
-  private AsyncProcessIcon myProgressIcon;
-  private ComboboxWithBrowseButton myComboComponent;
-  private JPanel myPanel;
-  private JBLabel myCaptionLabel;
-  private final Map<String, Pair<MavenArtifactInfo, MavenRepositoryInfo>> myCoordinates
-    = new HashMap<String, Pair<MavenArtifactInfo, MavenRepositoryInfo>>();
-  private final Map<String, MavenRepositoryInfo> myRepositories = new TreeMap<String, MavenRepositoryInfo>();
-  private final ArrayList<String> myShownItems = new ArrayList<String>();
-  private final JComboBox myCombobox;
+    private JBLabel myInfoLabel;
+    private JCheckBox myJavaDocCheckBox;
+    private JCheckBox mySourcesCheckBox;
+    private final Project myProject;
+    private final boolean myManaged;
+    private AsyncProcessIcon myProgressIcon;
+    private ComboboxWithBrowseButton myComboComponent;
+    private JPanel myPanel;
+    private JBLabel myCaptionLabel;
+    private final Map<String, Pair<MavenArtifactInfo, MavenRepositoryInfo>> myCoordinates = new HashMap<>();
+    private final Map<String, MavenRepositoryInfo> myRepositories = new TreeMap<>();
+    private final List<String> myShownItems = new ArrayList<>();
+    private final JComboBox myCombobox;
 
-  private TextFieldWithBrowseButton myDirectoryField;
-  private String myFilterString;
-  private boolean myInUpdate;
+    private TextFieldWithBrowseButton myDirectoryField;
+    private String myFilterString;
+    private boolean myInUpdate;
 
-  public RepositoryAttachDialog(Project project, boolean managed, final @Nullable String initialFilter) {
-    super(project, true);
-    myProject = project;
-    myManaged = managed;
-    myProgressIcon.suspend();
-    myCaptionLabel.setText(
-      XmlStringUtil.wrapInHtml(StringUtil.escapeXml("enter keyword, pattern or class name to search by or Maven coordinates," +
-                                                    "i.e. 'springframework', 'Logger' or 'org.hibernate:hibernate-core:3.5.0.GA':")
-      ));
-    myInfoLabel.setPreferredSize(
-      new Dimension(myInfoLabel.getFontMetrics(myInfoLabel.getFont()).stringWidth("Showing: 1000"), myInfoLabel.getPreferredSize().height));
+    public RepositoryAttachDialog(Project project, boolean managed, final @Nullable String initialFilter) {
+        super(project, true);
+        myProject = project;
+        myManaged = managed;
+        myProgressIcon.suspend();
+        myCaptionLabel.setText(
+            XmlStringUtil.wrapInHtml(StringUtil.escapeXml("enter keyword, pattern or class name to search by or Maven coordinates," +
+                "i.e. 'springframework', 'Logger' or 'org.hibernate:hibernate-core:3.5.0.GA':")
+            ));
+        myInfoLabel.setPreferredSize(new Dimension(
+            myInfoLabel.getFontMetrics(myInfoLabel.getFont()).stringWidth("Showing: 1000"),
+            myInfoLabel.getPreferredSize().height
+        ));
 
-    myComboComponent.setButtonIcon(PlatformIconGroup.actionsSearch());
-    myComboComponent.getButton().addActionListener(new ActionListener() {
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        performSearch();
-      }
-    });
-    myCombobox = myComboComponent.getComboBox();
-    myCombobox.setModel(new CollectionComboBoxModel(myShownItems, null));
-    myCombobox.setEditable(true);
-    final JTextField textField = (JTextField)myCombobox.getEditor().getEditorComponent();
-    textField.setColumns(20);
-    if (initialFilter != null) {
-      textField.setText(initialFilter);
-    }
-    textField.getDocument().addDocumentListener(new DocumentAdapter() {
-      @Override
-      protected void textChanged(DocumentEvent e) {
-        ApplicationManager.getApplication().invokeLater(new Runnable() {
-          public void run() {
-            if (myProgressIcon.isDisposed()) return;
-            updateComboboxSelection(false);
-          }
+        myComboComponent.setButtonIcon(PlatformIconGroup.actionsSearch());
+        myComboComponent.getButton().addActionListener(e -> performSearch());
+        myCombobox = myComboComponent.getComboBox();
+        myCombobox.setModel(new CollectionComboBoxModel(myShownItems, null));
+        myCombobox.setEditable(true);
+        final JTextField textField = (JTextField)myCombobox.getEditor().getEditorComponent();
+        textField.setColumns(20);
+        if (initialFilter != null) {
+            textField.setText(initialFilter);
+        }
+        textField.getDocument().addDocumentListener(new DocumentAdapter() {
+            @Override
+            protected void textChanged(DocumentEvent e) {
+                Application.get().invokeLater(() -> {
+                    if (myProgressIcon.isDisposed()) {
+                        return;
+                    }
+                    updateComboboxSelection(false);
+                });
+            }
         });
-      }
-    });
-    myCombobox.addActionListener(new ActionListener() {
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        final boolean popupVisible = myCombobox.isPopupVisible();
-        if (!myInUpdate && (!popupVisible || myCoordinates.isEmpty())) {
-          performSearch();
+        myCombobox.addActionListener(e -> {
+            final boolean popupVisible = myCombobox.isPopupVisible();
+            if (!myInUpdate && (!popupVisible || myCoordinates.isEmpty())) {
+                performSearch();
+            }
+            else {
+                final String item = (String)myCombobox.getSelectedItem();
+                if (StringUtil.isNotEmpty(item)) {
+                    ((JTextField)myCombobox.getEditor().getEditorComponent()).setText(item);
+                }
+            }
+        });
+        final PropertiesComponent storage = ProjectPropertiesComponent.getInstance(myProject);
+        final boolean pathValueSet = storage.isValueSet(PROPERTY_DOWNLOAD_TO_PATH);
+        if (pathValueSet) {
+            myDirectoryField.setText(storage.getValue(PROPERTY_DOWNLOAD_TO_PATH));
+        }
+        myJavaDocCheckBox.setSelected(storage.isValueSet(PROPERTY_ATTACH_JAVADOC) && storage.isTrueValue(PROPERTY_ATTACH_JAVADOC));
+        mySourcesCheckBox.setSelected(storage.isValueSet(PROPERTY_ATTACH_SOURCES) && storage.isTrueValue(PROPERTY_ATTACH_SOURCES));
+        if (!myManaged) {
+            if (!pathValueSet && myProject != null && !myProject.isDefault()) {
+                final VirtualFile baseDir = myProject.getBaseDir();
+                if (baseDir != null) {
+                    myDirectoryField.setText(FileUtil.toSystemDependentName(baseDir.getPath() + "/lib"));
+                }
+            }
+            final FileChooserDescriptor descriptor = FileChooserDescriptorFactory.createSingleFolderDescriptor();
+            descriptor.putUserData(FileChooserDialog.PREFER_LAST_OVER_TO_SELECT, Boolean.TRUE);
+            myDirectoryField.addBrowseFolderListener(
+                ProjectLocalize.fileChooserDirectoryForDownloadedLibrariesTitle().get(),
+                ProjectLocalize.fileChooserDirectoryForDownloadedLibrariesDescription().get(),
+                null,
+                descriptor
+            );
         }
         else {
-          final String item = (String)myCombobox.getSelectedItem();
-          if (StringUtil.isNotEmpty(item)) {
-            ((JTextField)myCombobox.getEditor().getEditorComponent()).setText(item);
-          }
+            myDirectoryField.setVisible(false);
         }
-      }
-    });
-    final PropertiesComponent storage = ProjectPropertiesComponent.getInstance(myProject);
-    final boolean pathValueSet = storage.isValueSet(PROPERTY_DOWNLOAD_TO_PATH);
-    if (pathValueSet) {
-      myDirectoryField.setText(storage.getValue(PROPERTY_DOWNLOAD_TO_PATH));
+        updateInfoLabel();
+        init();
     }
-    myJavaDocCheckBox.setSelected(storage.isValueSet(PROPERTY_ATTACH_JAVADOC) && storage.isTrueValue(PROPERTY_ATTACH_JAVADOC));
-    mySourcesCheckBox.setSelected(storage.isValueSet(PROPERTY_ATTACH_SOURCES) && storage.isTrueValue(PROPERTY_ATTACH_SOURCES));
-    if (!myManaged) {
-      if (!pathValueSet && myProject != null && !myProject.isDefault()) {
-        final VirtualFile baseDir = myProject.getBaseDir();
-        if (baseDir != null) {
-          myDirectoryField.setText(FileUtil.toSystemDependentName(baseDir.getPath() + "/lib"));
+
+    public boolean getAttachJavaDoc() {
+        return myJavaDocCheckBox.isSelected();
+    }
+
+    public boolean getAttachSources() {
+        return mySourcesCheckBox.isSelected();
+    }
+
+    public String getDirectoryPath() {
+        return myDirectoryField.getText();
+    }
+
+    @Override
+    @RequiredUIAccess
+    public JComponent getPreferredFocusedComponent() {
+        return myCombobox;
+    }
+
+    private void updateComboboxSelection(boolean force) {
+        final String prevFilter = myFilterString;
+        final JTextComponent field = (JTextComponent)myCombobox.getEditor().getEditorComponent();
+        final int caret = field.getCaretPosition();
+        myFilterString = field.getText();
+
+        if (!force && Comparing.equal(myFilterString, prevFilter)) {
+            return;
         }
-      }
-      final FileChooserDescriptor descriptor = FileChooserDescriptorFactory.createSingleFolderDescriptor();
-      descriptor.putUserData(FileChooserDialog.PREFER_LAST_OVER_TO_SELECT, Boolean.TRUE);
-      myDirectoryField.addBrowseFolderListener(ProjectBundle.message("file.chooser.directory.for.downloaded.libraries.title"),
-                                               ProjectBundle.message("file.chooser.directory.for.downloaded.libraries.description"), null,
-                                               descriptor);
-    }
-    else {
-      myDirectoryField.setVisible(false);
-    }
-    updateInfoLabel();
-    init();
-  }
+        int prevSize = myShownItems.size();
+        myShownItems.clear();
 
-  public boolean getAttachJavaDoc() {
-    return myJavaDocCheckBox.isSelected();
-  }
-
-  public boolean getAttachSources() {
-    return mySourcesCheckBox.isSelected();
-  }
-
-  public String getDirectoryPath() {
-    return myDirectoryField.getText();
-  }
-
-  @Override
-  public JComponent getPreferredFocusedComponent() {
-    return myCombobox;
-  }
-
-  private void updateComboboxSelection(boolean force) {
-    final String prevFilter = myFilterString;
-    final JTextComponent field = (JTextComponent)myCombobox.getEditor().getEditorComponent();
-    final int caret = field.getCaretPosition();
-    myFilterString = field.getText();
-
-    if (!force && Comparing.equal(myFilterString, prevFilter)) return;
-    int prevSize = myShownItems.size();
-    myShownItems.clear();
-
-    myInUpdate = true;
-    final boolean itemSelected = myCoordinates.containsKey(myFilterString) &&
-                                 Comparing.strEqual((String)myCombobox.getSelectedItem(), myFilterString, false);
-    final boolean filtered;
-    if (itemSelected) {
-      myShownItems.addAll(myCoordinates.keySet());
-      filtered = false;
-    }
-    else {
-      final String[] parts = myFilterString.split(" ");
-      main:
-      for (String coordinate : myCoordinates.keySet()) {
-        for (String part : parts) {
-          if (!StringUtil.containsIgnoreCase(coordinate, part)) continue main;
+        myInUpdate = true;
+        final boolean itemSelected = myCoordinates.containsKey(myFilterString) &&
+            Comparing.strEqual((String)myCombobox.getSelectedItem(), myFilterString, false);
+        final boolean filtered;
+        if (itemSelected) {
+            myShownItems.addAll(myCoordinates.keySet());
+            filtered = false;
         }
-        myShownItems.add(coordinate);
-      }
-      filtered = !myShownItems.isEmpty();
-      if (!filtered) {
-        myShownItems.addAll(myCoordinates.keySet());
-      }
-      myCombobox.setSelectedItem(null);
-    }
-    Collections.sort(myShownItems);
-    ((CollectionComboBoxModel)myCombobox.getModel()).update();
-    myInUpdate = false;
-    field.setText(myFilterString);
-    field.setCaretPosition(caret);
-    updateInfoLabel();
-    if (filtered) {
-      if (prevSize < 10 && myShownItems.size() > prevSize && myCombobox.isPopupVisible()) {
-        myCombobox.setPopupVisible(false);
-      }
-      if (!myCombobox.isPopupVisible()) {
-        myCombobox.setPopupVisible(filtered);
-      }
-    }
-  }
-
-  private boolean performSearch() {
-    final String text = getCoordinateText();
-    if (myCoordinates.containsKey(text)) return false;
-    if (myProgressIcon.isRunning()) return false;
-    myProgressIcon.resume();
-    RepositoryAttachHandler.searchArtifacts(myProject, text, new PairProcessor<Collection<Pair<MavenArtifactInfo, MavenRepositoryInfo>>, Boolean>() {
-        public boolean process(Collection<Pair<MavenArtifactInfo, MavenRepositoryInfo>> artifacts, Boolean tooMany) {
-          if (myProgressIcon.isDisposed()) return false;
-          if (tooMany != null) myProgressIcon.suspend(); // finished
-          final int prevSize = myCoordinates.size();
-          for (Pair<MavenArtifactInfo, MavenRepositoryInfo> each : artifacts) {
-            myCoordinates.put(each.first.getGroupId() + ":" + each.first.getArtifactId() + ":" + each.first.getVersion(), each);
-            String url = each.second != null? each.second.getUrl() : null;
-            if (StringUtil.isNotEmpty(url) && !myRepositories.containsKey(url)) {
-              myRepositories.put(url, each.second);
+        else {
+            final String[] parts = myFilterString.split(" ");
+            main:
+            for (String coordinate : myCoordinates.keySet()) {
+                for (String part : parts) {
+                    if (!StringUtil.containsIgnoreCase(coordinate, part)) {
+                        continue main;
+                    }
+                }
+                myShownItems.add(coordinate);
             }
-          }
-          String title = getTitle();
-          String tooManyMessage = ": too many results found";
-          if (tooMany != null) {
-            boolean alreadyThere = title.endsWith(tooManyMessage);
-            if (tooMany.booleanValue() && !alreadyThere) {
-              setTitle(title + tooManyMessage);
+            filtered = !myShownItems.isEmpty();
+            if (!filtered) {
+                myShownItems.addAll(myCoordinates.keySet());
             }
-            else if (!tooMany.booleanValue() && alreadyThere) {
-              setTitle(title.substring(0, title.length() - tooManyMessage.length()));
-            }
-          }
-          updateComboboxSelection(prevSize != myCoordinates.size());
-          return true;
+            myCombobox.setSelectedItem(null);
         }
-      });
-    return true;
-  }
-
-  private void updateInfoLabel() {
-    myInfoLabel.setText("<html>Found: " + myCoordinates.size() + "<br>Showing: " + myCombobox.getModel().getSize() + "</html>");
-  }
-
-  @Override
-  protected ValidationInfo doValidate() {
-    if (!isValidCoordinateSelected()) {
-      return new ValidationInfo("Please enter valid coordinate, discover it or select one from the list", myCombobox);
+        Collections.sort(myShownItems);
+        ((CollectionComboBoxModel)myCombobox.getModel()).update();
+        myInUpdate = false;
+        field.setText(myFilterString);
+        field.setCaretPosition(caret);
+        updateInfoLabel();
+        if (filtered) {
+            if (prevSize < 10 && myShownItems.size() > prevSize && myCombobox.isPopupVisible()) {
+                myCombobox.setPopupVisible(false);
+            }
+            if (!myCombobox.isPopupVisible()) {
+                myCombobox.setPopupVisible(filtered);
+            }
+        }
     }
-    else if (!myManaged) {
-      final File dir = new File(myDirectoryField.getText());
-      if (!dir.exists() && !dir.mkdirs() || !dir.isDirectory()) {
-        return new ValidationInfo("Please enter valid library files path", myDirectoryField.getTextField());
-      }
+
+    private boolean performSearch() {
+        final String text = getCoordinateText();
+        if (myCoordinates.containsKey(text)) {
+            return false;
+        }
+        if (myProgressIcon.isRunning()) {
+            return false;
+        }
+        myProgressIcon.resume();
+        RepositoryAttachHandler.searchArtifacts(
+            myProject,
+            text,
+            (artifacts, tooMany) -> {
+                if (myProgressIcon.isDisposed()) {
+                    return false;
+                }
+                if (tooMany != null) {
+                    myProgressIcon.suspend(); // finished
+                }
+                final int prevSize = myCoordinates.size();
+                for (Pair<MavenArtifactInfo, MavenRepositoryInfo> each : artifacts) {
+                    myCoordinates.put(each.first.getGroupId() + ":" + each.first.getArtifactId() + ":" + each.first.getVersion(), each);
+                    String url = each.second != null ? each.second.getUrl() : null;
+                    if (StringUtil.isNotEmpty(url) && !myRepositories.containsKey(url)) {
+                        myRepositories.put(url, each.second);
+                    }
+                }
+                String title = getTitle();
+                String tooManyMessage = ": too many results found";
+                if (tooMany != null) {
+                    boolean alreadyThere = title.endsWith(tooManyMessage);
+                    if (tooMany && !alreadyThere) {
+                        setTitle(title + tooManyMessage);
+                    }
+                    else if (!tooMany && alreadyThere) {
+                        setTitle(title.substring(0, title.length() - tooManyMessage.length()));
+                    }
+                }
+                updateComboboxSelection(prevSize != myCoordinates.size());
+                return true;
+            }
+        );
+        return true;
     }
-    return super.doValidate();
-  }
 
-  @Override
-  protected JComponent createCenterPanel() {
-    return null;
-  }
+    private void updateInfoLabel() {
+        myInfoLabel.setText("<html>Found: " + myCoordinates.size() + "<br>Showing: " + myCombobox.getModel().getSize() + "</html>");
+    }
 
-  protected JComponent createNorthPanel() {
-    return myPanel;
-  }
+    @Override
+    @RequiredUIAccess
+    protected ValidationInfo doValidate() {
+        if (!isValidCoordinateSelected()) {
+            return new ValidationInfo("Please enter valid coordinate, discover it or select one from the list", myCombobox);
+        }
+        else if (!myManaged) {
+            final File dir = new File(myDirectoryField.getText());
+            if (!dir.exists() && !dir.mkdirs() || !dir.isDirectory()) {
+                return new ValidationInfo("Please enter valid library files path", myDirectoryField.getTextField());
+            }
+        }
+        return super.doValidate();
+    }
 
+    @Override
+    protected JComponent createCenterPanel() {
+        return null;
+    }
 
-  @Override
-  protected void dispose() {
-    Disposer.dispose(myProgressIcon);
-    final PropertiesComponent storage = ProjectPropertiesComponent.getInstance(myProject);
-    storage.setValue(PROPERTY_DOWNLOAD_TO_PATH, myDirectoryField.getText());
-    storage.setValue(PROPERTY_ATTACH_JAVADOC, String.valueOf(myJavaDocCheckBox.isSelected()));
-    storage.setValue(PROPERTY_ATTACH_SOURCES, String.valueOf(mySourcesCheckBox.isSelected()));
-    super.dispose();
-  }
+    @Override
+    protected JComponent createNorthPanel() {
+        return myPanel;
+    }
 
-  @Override
-  protected String getDimensionServiceKey() {
-    return RepositoryAttachDialog.class.getName();
-  }
+    @Override
+    protected void dispose() {
+        Disposer.dispose(myProgressIcon);
+        final PropertiesComponent storage = ProjectPropertiesComponent.getInstance(myProject);
+        storage.setValue(PROPERTY_DOWNLOAD_TO_PATH, myDirectoryField.getText());
+        storage.setValue(PROPERTY_ATTACH_JAVADOC, String.valueOf(myJavaDocCheckBox.isSelected()));
+        storage.setValue(PROPERTY_ATTACH_SOURCES, String.valueOf(mySourcesCheckBox.isSelected()));
+        super.dispose();
+    }
 
-  @Nonnull
-  public List<MavenRepositoryInfo> getRepositories() {
-    final Pair<MavenArtifactInfo, MavenRepositoryInfo> artifactAndRepo = myCoordinates.get(getCoordinateText());
-    final MavenRepositoryInfo repository = artifactAndRepo == null ? null : artifactAndRepo.second;
-    return repository != null ? Collections.singletonList(repository) : ContainerUtil.findAll(myRepositories.values(), Condition.NOT_NULL);
-  }
+    @Override
+    protected String getDimensionServiceKey() {
+        return RepositoryAttachDialog.class.getName();
+    }
 
-  private boolean isValidCoordinateSelected() {
-    final String text = getCoordinateText();
-    return text.split(":").length == 3;
-  }
+    @Nonnull
+    public List<MavenRepositoryInfo> getRepositories() {
+        final Pair<MavenArtifactInfo, MavenRepositoryInfo> artifactAndRepo = myCoordinates.get(getCoordinateText());
+        final MavenRepositoryInfo repository = artifactAndRepo == null ? null : artifactAndRepo.second;
+        return repository != null
+            ? Collections.singletonList(repository)
+            : ContainerUtil.findAll(myRepositories.values(), Condition.NOT_NULL);
+    }
 
-  public String getCoordinateText() {
-    final JTextField field = (JTextField)myCombobox.getEditor().getEditorComponent();
-    return field.getText();
-  }
+    private boolean isValidCoordinateSelected() {
+        final String text = getCoordinateText();
+        return text.split(":").length == 3;
+    }
 
-  private void createUIComponents() {
-    myProgressIcon = new AsyncProcessIcon("Progress");
-  }
+    public String getCoordinateText() {
+        final JTextField field = (JTextField)myCombobox.getEditor().getEditorComponent();
+        return field.getText();
+    }
+
+    private void createUIComponents() {
+        myProgressIcon = new AsyncProcessIcon("Progress");
+    }
 }

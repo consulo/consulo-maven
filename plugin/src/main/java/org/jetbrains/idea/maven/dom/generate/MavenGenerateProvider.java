@@ -27,33 +27,36 @@ import consulo.xml.util.xml.actions.generate.AbstractDomGenerateProvider;
 import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
 
 public abstract class MavenGenerateProvider<ELEMENT_TYPE extends DomElement> extends AbstractDomGenerateProvider<ELEMENT_TYPE> {
-  public MavenGenerateProvider(String description, Class<ELEMENT_TYPE> clazz) {
-    super(description, clazz);
-  }
+    public MavenGenerateProvider(String description, Class<ELEMENT_TYPE> clazz) {
+        super(description, clazz);
+    }
 
-  protected DomElement getParentDomElement(Project project, Editor editor, PsiFile file) {
-    DomElement el = DomUtil.getContextElement(editor);
-    return DomUtil.getFileElement(el).getRootElement();
-  }
+    @Override
+    protected DomElement getParentDomElement(Project project, Editor editor, PsiFile file) {
+        DomElement el = DomUtil.getContextElement(editor);
+        return DomUtil.getFileElement(el).getRootElement();
+    }
 
-  @Override
-  public ELEMENT_TYPE generate(@Nullable DomElement parent, Editor editor) {
-    if (parent == null) return null;
-    return doGenerate((MavenDomProjectModel)parent, editor);
-  }
+    @Override
+    public ELEMENT_TYPE generate(@Nullable DomElement parent, Editor editor) {
+        if (parent == null) {
+            return null;
+        }
+        return doGenerate((MavenDomProjectModel)parent, editor);
+    }
 
-  @Nullable
-  protected abstract ELEMENT_TYPE doGenerate(@Nonnull MavenDomProjectModel mavenModel, Editor editor);
+    @Nullable
+    protected abstract ELEMENT_TYPE doGenerate(@Nonnull MavenDomProjectModel mavenModel, Editor editor);
 
-  @Override
-  public boolean isAvailableForElement(@Nonnull DomElement el) {
-    DomElement root = DomUtil.getFileElement(el).getRootElement();
-    return root.getModule() != null
-           && root instanceof MavenDomProjectModel
-           && isAvailableForModel((MavenDomProjectModel)root);
-  }
+    @Override
+    public boolean isAvailableForElement(@Nonnull DomElement el) {
+        DomElement root = DomUtil.getFileElement(el).getRootElement();
+        return root.getModule() != null
+            && root instanceof MavenDomProjectModel domProjectModel
+            && isAvailableForModel(domProjectModel);
+    }
 
-  protected boolean isAvailableForModel(MavenDomProjectModel mavenModel) {
-    return true;
-  }
+    protected boolean isAvailableForModel(MavenDomProjectModel mavenModel) {
+        return true;
+    }
 }

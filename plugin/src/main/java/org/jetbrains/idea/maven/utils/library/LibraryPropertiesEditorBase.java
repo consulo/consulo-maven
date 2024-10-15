@@ -29,74 +29,62 @@ import consulo.content.library.LibraryProperties;
 import consulo.content.library.LibraryType;
 import consulo.content.library.ui.LibraryPropertiesEditor;
 import consulo.content.library.ui.LibraryEditorComponent;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.awt.UIUtil;
 
 /**
  * @author nik
  */
-public abstract class LibraryPropertiesEditorBase<P extends LibraryProperties, T extends LibraryType<P>> extends LibraryPropertiesEditor
-{
-	private JPanel myMainPanel;
-	private JLabel myDescriptionLabel;
-	private JButton myEditButton;
-	private boolean myModified;
-	protected final LibraryEditorComponent<P> myEditorComponent;
-	protected final T myLibraryType;
+public abstract class LibraryPropertiesEditorBase<P extends LibraryProperties, T extends LibraryType<P>> extends LibraryPropertiesEditor {
+    private JPanel myMainPanel;
+    private JLabel myDescriptionLabel;
+    private JButton myEditButton;
+    private boolean myModified;
+    protected final LibraryEditorComponent<P> myEditorComponent;
+    protected final T myLibraryType;
 
-	protected LibraryPropertiesEditorBase(final LibraryEditorComponent<P> editorComponent, T libraryType, @Nullable String editButtonText)
-	{
-		myEditorComponent = editorComponent;
-		myLibraryType = libraryType;
-		updateDescription();
-		if(editButtonText != null)
-		{
-			myEditButton.setText(UIUtil.replaceMnemonicAmpersand(editButtonText));
-		}
-		myEditButton.setVisible(!myEditorComponent.isNewLibrary());
-		myEditButton.addActionListener(new ActionListener()
-		{
-			@Override
-			public void actionPerformed(ActionEvent e)
-			{
-				edit();
-			}
-		});
-	}
+    protected LibraryPropertiesEditorBase(final LibraryEditorComponent<P> editorComponent, T libraryType, @Nullable String editButtonText) {
+        myEditorComponent = editorComponent;
+        myLibraryType = libraryType;
+        updateDescription();
+        if (editButtonText != null) {
+            myEditButton.setText(UIUtil.replaceMnemonicAmpersand(editButtonText));
+        }
+        myEditButton.setVisible(!myEditorComponent.isNewLibrary());
+        myEditButton.addActionListener(e -> edit());
+    }
 
-	protected JPanel getMainPanel()
-	{
-		return myMainPanel;
-	}
+    protected JPanel getMainPanel() {
+        return myMainPanel;
+    }
 
-	protected void updateDescription()
-	{
-		myDescriptionLabel.setText(myLibraryType.getDescription(myEditorComponent.getProperties()));
-	}
+    protected void updateDescription() {
+        myDescriptionLabel.setText(myLibraryType.getDescription(myEditorComponent.getProperties()));
+    }
 
-	protected abstract void edit();
+    protected abstract void edit();
 
-	protected void setModified()
-	{
-		myModified = true;
-		updateDescription();
-	}
+    protected void setModified() {
+        myModified = true;
+        updateDescription();
+    }
 
-	@Nonnull
-	@Override
-	public JComponent createComponent()
-	{
-		return myMainPanel;
-	}
+    @Nonnull
+    @Override
+    @RequiredUIAccess
+    public JComponent createComponent() {
+        return myMainPanel;
+    }
 
-	@Override
-	public boolean isModified()
-	{
-		return myModified;
-	}
+    @Override
+    @RequiredUIAccess
+    public boolean isModified() {
+        return myModified;
+    }
 
-	@Override
-	public void reset()
-	{
-		updateDescription();
-	}
+    @Override
+    @RequiredUIAccess
+    public void reset() {
+        updateDescription();
+    }
 }

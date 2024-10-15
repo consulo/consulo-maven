@@ -26,36 +26,35 @@ import java.util.Set;
 
 /**
  * @author Eugene Zhuravlev
- *         Date: 10/20/12
+ * @since 2012-10-20
  */
 @Tag("resource")
 public class ResourceRootConfiguration {
-  @Tag("directory")
-  @Nonnull
-  public String directory;
+    @Tag("directory")
+    @Nonnull
+    public String directory;
 
-  @Tag("targetPath")
-  @Nullable
-  public String targetPath;
+    @Tag("targetPath")
+    @Nullable
+    public String targetPath;
 
-  @Attribute("filtered")
-  public boolean isFiltered;
+    @Attribute("filtered")
+    public boolean isFiltered;
 
-  @Tag("includes")
-  @AbstractCollection(surroundWithTag =  false, elementTag = "pattern")
-  public Set<String> includes = new HashSet<String>();
+    @Tag("includes")
+    @AbstractCollection(surroundWithTag = false, elementTag = "pattern")
+    public Set<String> includes = new HashSet<>();
 
-  @Tag("excludes")
-  @AbstractCollection(surroundWithTag =  false, elementTag = "pattern")
-  public Set<String> excludes = new HashSet<String>();
+    @Tag("excludes")
+    @AbstractCollection(surroundWithTag = false, elementTag = "pattern")
+    public Set<String> excludes = new HashSet<>();
 
-
-  public int computeConfigurationHash() {
-    int result = directory.hashCode();
-    result = 31 * result + (targetPath != null ? targetPath.hashCode() : 0);
-    result = 31 * result + (isFiltered ? 1 : 0);
-    //result = 31 * result + includes.hashCode();
-    //result = 31 * result + excludes.hashCode();
-    return result;
-  }
+    public int computeConfigurationHash() {
+        int result = directory.hashCode();
+        result = 31 * result + (targetPath != null ? targetPath.hashCode() : 0);
+        result = 31 * result + (isFiltered ? 1 : 0);
+        //result = 31 * result + includes.hashCode();
+        //result = 31 * result + excludes.hashCode();
+        return result;
+    }
 }

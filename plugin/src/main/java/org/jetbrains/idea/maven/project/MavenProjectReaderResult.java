@@ -20,34 +20,35 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.Nullable;
+
 import consulo.maven.rt.server.common.model.MavenExplicitProfiles;
 import consulo.maven.rt.server.common.model.MavenId;
 import consulo.maven.rt.server.common.model.MavenModel;
 import consulo.maven.rt.server.common.model.MavenProjectProblem;
 import consulo.maven.rt.server.common.server.NativeMavenProjectHolder;
 
-public class MavenProjectReaderResult
-{
-	public final MavenModel mavenModel;
-	public final Map<String, String> nativeModelMap;
-	public final MavenExplicitProfiles activatedProfiles;
-	@Nullable
-	public final NativeMavenProjectHolder nativeMavenProject;
-	public final Collection<MavenProjectProblem> readingProblems;
-	public final Set<MavenId> unresolvedArtifactIds;
+public class MavenProjectReaderResult {
+    public final MavenModel mavenModel;
+    public final Map<String, String> nativeModelMap;
+    public final MavenExplicitProfiles activatedProfiles;
+    @Nullable
+    public final NativeMavenProjectHolder nativeMavenProject;
+    public final Collection<MavenProjectProblem> readingProblems;
+    public final Set<MavenId> unresolvedArtifactIds;
 
-	public MavenProjectReaderResult(MavenModel mavenModel,
-			Map<String, String> nativeModelMap,
-			MavenExplicitProfiles activatedProfiles,
-			@Nullable NativeMavenProjectHolder nativeMavenProject,
-			Collection<MavenProjectProblem> readingProblems,
-			Set<MavenId> unresolvedArtifactIds)
-	{
-		this.mavenModel = mavenModel;
-		this.nativeModelMap = nativeModelMap;
-		this.activatedProfiles = activatedProfiles;
-		this.nativeMavenProject = nativeMavenProject;
-		this.readingProblems = readingProblems;
-		this.unresolvedArtifactIds = unresolvedArtifactIds;
-	}
+    public MavenProjectReaderResult(
+        MavenModel mavenModel,
+        Map<String, String> nativeModelMap,
+        MavenExplicitProfiles activatedProfiles,
+        @Nullable NativeMavenProjectHolder nativeMavenProject,
+        Collection<MavenProjectProblem> readingProblems,
+        Set<MavenId> unresolvedArtifactIds
+    ) {
+        this.mavenModel = mavenModel;
+        this.nativeModelMap = nativeModelMap;
+        this.activatedProfiles = activatedProfiles;
+        this.nativeMavenProject = nativeMavenProject;
+        this.readingProblems = readingProblems;
+        this.unresolvedArtifactIds = unresolvedArtifactIds;
+    }
 }

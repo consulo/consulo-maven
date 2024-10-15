@@ -21,15 +21,15 @@ import consulo.xml.util.xml.GenericDomValue;
 import org.jetbrains.idea.maven.dom.MavenDomElement;
 
 public interface MavenDomMojo extends MavenDomElement {
-  @Nonnull
-  GenericDomValue<String> getGoal();
+    @Nonnull
+    GenericDomValue<String> getGoal();
 
-  @Nonnull
-  GenericDomValue<String> getPhase();
+    @Nonnull
+    GenericDomValue<String> getPhase();
 
-  @Nonnull
-  MavenDomParameters getParameters();
+    @Nonnull
+    MavenDomParameters getParameters();
 
-  @Nonnull
-  MavenDomElement getConfiguration();
+    @Nonnull
+    MavenDomElement getConfiguration();
 }

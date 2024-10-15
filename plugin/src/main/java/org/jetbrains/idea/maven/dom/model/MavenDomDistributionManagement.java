@@ -29,24 +29,24 @@ import org.jetbrains.idea.maven.dom.converters.MavenDistributionStatusConverter;
 import org.jetbrains.idea.maven.dom.converters.MavenUrlConverter;
 
 public interface MavenDomDistributionManagement extends MavenDomElement {
-  @Nonnull
-  MavenDomDeploymentRepository getRepository();
+    @Nonnull
+    MavenDomDeploymentRepository getRepository();
 
-  @Nonnull
-  MavenDomDeploymentRepository getSnapshotRepository();
+    @Nonnull
+    MavenDomDeploymentRepository getSnapshotRepository();
 
-  @Nonnull
-  MavenDomSite getSite();
+    @Nonnull
+    MavenDomSite getSite();
 
-  @Nonnull
-  @Convert(MavenUrlConverter.class)
-  GenericDomValue<String> getDownloadUrl();
+    @Nonnull
+    @Convert(MavenUrlConverter.class)
+    GenericDomValue<String> getDownloadUrl();
 
-  @Nonnull
-  MavenDomRelocation getRelocation();
+    @Nonnull
+    MavenDomRelocation getRelocation();
 
-  @Nonnull
-  @Required(value = false, nonEmpty = true)
-  @Convert(MavenDistributionStatusConverter.class)
-  GenericDomValue<String> getStatus();
+    @Nonnull
+    @Required(value = false, nonEmpty = true)
+    @Convert(MavenDistributionStatusConverter.class)
+    GenericDomValue<String> getStatus();
 }

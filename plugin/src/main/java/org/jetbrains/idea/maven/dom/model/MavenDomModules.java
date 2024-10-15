@@ -20,6 +20,7 @@
 package org.jetbrains.idea.maven.dom.model;
 
 import javax.annotation.Nonnull;
+
 import org.jetbrains.idea.maven.dom.MavenDomElement;
 
 import java.util.List;
@@ -28,19 +29,18 @@ import java.util.List;
  * http://maven.apache.org/POM/4.0.0:modulesElemType interface.
  */
 public interface MavenDomModules extends MavenDomElement {
+    /**
+     * Returns the list of module children.
+     *
+     * @return the list of module children.
+     */
+    @Nonnull
+    List<MavenDomModule> getModules();
 
-  /**
-   * Returns the list of module children.
-   *
-   * @return the list of module children.
-   */
-  @Nonnull
-  List<MavenDomModule> getModules();
-
-  /**
-   * Adds new child to the list of module children.
-   *
-   * @return created child
-   */
-  MavenDomModule addModule();
+    /**
+     * Adds new child to the list of module children.
+     *
+     * @return created child
+     */
+    MavenDomModule addModule();
 }

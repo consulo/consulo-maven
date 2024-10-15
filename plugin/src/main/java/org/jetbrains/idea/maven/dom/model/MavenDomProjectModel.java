@@ -38,254 +38,254 @@ import javax.annotation.Nonnull;
  * </pre>
  */
 public interface MavenDomProjectModel extends MavenDomElement, MavenDomProjectModelBase, MavenDomArtifactCoordinates {
-  /**
-   * Returns the value of the parent child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:parent documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the parent child.
-   */
-  @Nonnull
-  @SubTag("parent")
-  MavenDomParent getMavenParent();
+    /**
+     * Returns the value of the parent child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:parent documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the parent child.
+     */
+    @Nonnull
+    @SubTag("parent")
+    MavenDomParent getMavenParent();
 
-  /**
-   * Returns the value of the modelVersion child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:modelVersion documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the modelVersion child.
-   */
-  @Nonnull
-  @Required
-  @Convert(MavenModelVersionConverter.class)
-  GenericDomValue<String> getModelVersion();
+    /**
+     * Returns the value of the modelVersion child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:modelVersion documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the modelVersion child.
+     */
+    @Nonnull
+    @Required
+    @Convert(MavenModelVersionConverter.class)
+    GenericDomValue<String> getModelVersion();
 
-  /**
-   * Returns the value of the groupId child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:groupId documentation</h3>
-   * 3.0.0+
-   * </pre>
-   *
-   * @return the value of the groupId child.
-   */
-  @Nonnull
-  @Required(value = false, nonEmpty = true)
-  GenericDomValue<String> getGroupId();
+    /**
+     * Returns the value of the groupId child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:groupId documentation</h3>
+     * 3.0.0+
+     * </pre>
+     *
+     * @return the value of the groupId child.
+     */
+    @Nonnull
+    @Required(value = false, nonEmpty = true)
+    GenericDomValue<String> getGroupId();
 
-  /**
-   * Returns the value of the artifactId child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:artifactId documentation</h3>
-   * 3.0.0+
-   * </pre>
-   *
-   * @return the value of the artifactId child.
-   */
-  @Nonnull
-  @Required
-  GenericDomValue<String> getArtifactId();
+    /**
+     * Returns the value of the artifactId child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:artifactId documentation</h3>
+     * 3.0.0+
+     * </pre>
+     *
+     * @return the value of the artifactId child.
+     */
+    @Nonnull
+    @Required
+    GenericDomValue<String> getArtifactId();
 
-  /**
-   * Returns the value of the version child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:version documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the version child.
-   */
-  @Nonnull
-  @Required(value = false, nonEmpty = true)
-  GenericDomValue<String> getVersion();
+    /**
+     * Returns the value of the version child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:version documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the version child.
+     */
+    @Nonnull
+    @Required(value = false, nonEmpty = true)
+    GenericDomValue<String> getVersion();
 
-  /**
-   * Returns the value of the packaging child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:packaging documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the packaging child.
-   */
-  @Nonnull
-  @Convert(MavenPackagingConverter.class)
-  GenericDomValue<String> getPackaging();
+    /**
+     * Returns the value of the packaging child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:packaging documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the packaging child.
+     */
+    @Nonnull
+    @Convert(MavenPackagingConverter.class)
+    GenericDomValue<String> getPackaging();
 
-  /**
-   * Returns the value of the name child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:name documentation</h3>
-   * 3.0.0+
-   * </pre>
-   *
-   * @return the value of the name child.
-   */
-  @Nonnull
-  GenericDomValue<String> getName();
+    /**
+     * Returns the value of the name child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:name documentation</h3>
+     * 3.0.0+
+     * </pre>
+     *
+     * @return the value of the name child.
+     */
+    @Nonnull
+    GenericDomValue<String> getName();
 
-  /**
-   * Returns the value of the description child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:description documentation</h3>
-   * 3.0.0+
-   * </pre>
-   *
-   * @return the value of the description child.
-   */
-  @Nonnull
-  GenericDomValue<String> getDescription();
+    /**
+     * Returns the value of the description child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:description documentation</h3>
+     * 3.0.0+
+     * </pre>
+     *
+     * @return the value of the description child.
+     */
+    @Nonnull
+    GenericDomValue<String> getDescription();
 
-  /**
-   * Returns the value of the url child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:url documentation</h3>
-   * 3.0.0+
-   * </pre>
-   *
-   * @return the value of the url child.
-   */
-  @Nonnull
-  @Convert(MavenUrlConverter.class)
-  GenericDomValue<String> getUrl();
+    /**
+     * Returns the value of the url child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:url documentation</h3>
+     * 3.0.0+
+     * </pre>
+     *
+     * @return the value of the url child.
+     */
+    @Nonnull
+    @Convert(MavenUrlConverter.class)
+    GenericDomValue<String> getUrl();
 
-  /**
-   * Returns the value of the prerequisites child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:prerequisites documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the prerequisites child.
-   */
-  @Nonnull
-  MavenDomPrerequisites getPrerequisites();
+    /**
+     * Returns the value of the prerequisites child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:prerequisites documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the prerequisites child.
+     */
+    @Nonnull
+    MavenDomPrerequisites getPrerequisites();
 
-  /**
-   * Returns the value of the issueManagement child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:issueManagement documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the issueManagement child.
-   */
-  @Nonnull
-  MavenDomIssueManagement getIssueManagement();
+    /**
+     * Returns the value of the issueManagement child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:issueManagement documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the issueManagement child.
+     */
+    @Nonnull
+    MavenDomIssueManagement getIssueManagement();
 
-  /**
-   * Returns the value of the ciManagement child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:ciManagement documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the ciManagement child.
-   */
-  @Nonnull
-  MavenDomCiManagement getCiManagement();
+    /**
+     * Returns the value of the ciManagement child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:ciManagement documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the ciManagement child.
+     */
+    @Nonnull
+    MavenDomCiManagement getCiManagement();
 
-  /**
-   * Returns the value of the inceptionYear child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:inceptionYear documentation</h3>
-   * 3.0.0+
-   * </pre>
-   *
-   * @return the value of the inceptionYear child.
-   */
-  @Nonnull
-  GenericDomValue<String> getInceptionYear();
+    /**
+     * Returns the value of the inceptionYear child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:inceptionYear documentation</h3>
+     * 3.0.0+
+     * </pre>
+     *
+     * @return the value of the inceptionYear child.
+     */
+    @Nonnull
+    GenericDomValue<String> getInceptionYear();
 
-  /**
-   * Returns the value of the mailingLists child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:mailingLists documentation</h3>
-   * 3.0.0+
-   * </pre>
-   *
-   * @return the value of the mailingLists child.
-   */
-  @Nonnull
-  MavenDomMailingLists getMailingLists();
+    /**
+     * Returns the value of the mailingLists child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:mailingLists documentation</h3>
+     * 3.0.0+
+     * </pre>
+     *
+     * @return the value of the mailingLists child.
+     */
+    @Nonnull
+    MavenDomMailingLists getMailingLists();
 
-  /**
-   * Returns the value of the developers child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:developers documentation</h3>
-   * 3.0.0+
-   * </pre>
-   *
-   * @return the value of the developers child.
-   */
-  @Nonnull
-  MavenDomDevelopers getDevelopers();
+    /**
+     * Returns the value of the developers child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:developers documentation</h3>
+     * 3.0.0+
+     * </pre>
+     *
+     * @return the value of the developers child.
+     */
+    @Nonnull
+    MavenDomDevelopers getDevelopers();
 
-  /**
-   * Returns the value of the contributors child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:contributors documentation</h3>
-   * 3.0.0+
-   * </pre>
-   *
-   * @return the value of the contributors child.
-   */
-  @Nonnull
-  MavenDomContributors getContributors();
+    /**
+     * Returns the value of the contributors child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:contributors documentation</h3>
+     * 3.0.0+
+     * </pre>
+     *
+     * @return the value of the contributors child.
+     */
+    @Nonnull
+    MavenDomContributors getContributors();
 
-  /**
-   * Returns the value of the licenses child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:licenses documentation</h3>
-   * 3.0.0+
-   * </pre>
-   *
-   * @return the value of the licenses child.
-   */
-  @Nonnull
-  MavenDomLicenses getLicenses();
+    /**
+     * Returns the value of the licenses child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:licenses documentation</h3>
+     * 3.0.0+
+     * </pre>
+     *
+     * @return the value of the licenses child.
+     */
+    @Nonnull
+    MavenDomLicenses getLicenses();
 
-  /**
-   * Returns the value of the scm child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:scm documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the scm child.
-   */
-  @Nonnull
-  MavenDomScm getScm();
+    /**
+     * Returns the value of the scm child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:scm documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the scm child.
+     */
+    @Nonnull
+    MavenDomScm getScm();
 
-  /**
-   * Returns the value of the organization child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:organization documentation</h3>
-   * 3.0.0+
-   * </pre>
-   *
-   * @return the value of the organization child.
-   */
-  @Nonnull
-  MavenDomOrganization getOrganization();
+    /**
+     * Returns the value of the organization child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:organization documentation</h3>
+     * 3.0.0+
+     * </pre>
+     *
+     * @return the value of the organization child.
+     */
+    @Nonnull
+    MavenDomOrganization getOrganization();
 
-  @Nonnull
-  MavenDomBuild getBuild();
+    @Nonnull
+    MavenDomBuild getBuild();
 
-  /**
-   * Returns the value of the profiles child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:profiles documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the profiles child.
-   */
-  @Nonnull
-  MavenDomProfiles getProfiles();
+    /**
+     * Returns the value of the profiles child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:profiles documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the profiles child.
+     */
+    @Nonnull
+    MavenDomProfiles getProfiles();
 }

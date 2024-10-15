@@ -16,8 +16,8 @@
 package org.jetbrains.idea.maven.execution;
 
 import com.intellij.java.execution.configurations.JavaCommandLineState;
+import consulo.annotation.access.RequiredReadAction;
 import consulo.execution.DefaultExecutionResult;
-import consulo.execution.ExecutionBundle;
 import consulo.execution.ExecutionResult;
 import consulo.execution.configuration.ConfigurationFactory;
 import consulo.execution.configuration.LocatableConfigurationBase;
@@ -27,6 +27,7 @@ import consulo.execution.configuration.log.ui.LogConfigurationPanel;
 import consulo.execution.configuration.ui.SettingsEditor;
 import consulo.execution.configuration.ui.SettingsEditorGroup;
 import consulo.execution.executor.Executor;
+import consulo.execution.localize.ExecutionLocalize;
 import consulo.execution.runner.ExecutionEnvironment;
 import consulo.execution.runner.ProgramRunner;
 import consulo.java.debugger.impl.GenericDebugRunnerConfiguration;
@@ -39,213 +40,191 @@ import consulo.process.event.ProcessEvent;
 import consulo.process.event.ProcessListener;
 import consulo.project.Project;
 import consulo.project.ui.wm.ToolWindowId;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.util.xml.serializer.InvalidDataException;
 import consulo.util.xml.serializer.WriteExternalException;
 import consulo.util.xml.serializer.XmlSerializer;
 import org.jdom.Element;
+import org.jetbrains.idea.maven.localize.MavenRunnerLocalize;
 import org.jetbrains.idea.maven.project.*;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class MavenRunConfiguration extends LocatableConfigurationBase implements GenericDebugRunnerConfiguration
-{
-	private MavenSettings mySettings;
+public class MavenRunConfiguration extends LocatableConfigurationBase implements GenericDebugRunnerConfiguration {
+    private MavenSettings mySettings;
 
-	protected MavenRunConfiguration(Project project, ConfigurationFactory factory, String name)
-	{
-		super(project, factory, name);
-		mySettings = new MavenSettings(project);
-	}
+    protected MavenRunConfiguration(Project project, ConfigurationFactory factory, String name) {
+        super(project, factory, name);
+        mySettings = new MavenSettings(project);
+    }
 
-	@Override
-	public MavenRunConfiguration clone()
-	{
-		MavenRunConfiguration clone = (MavenRunConfiguration) super.clone();
-		clone.mySettings = mySettings.clone();
-		return clone;
-	}
+    @Override
+    public MavenRunConfiguration clone() {
+        MavenRunConfiguration clone = (MavenRunConfiguration)super.clone();
+        clone.mySettings = mySettings.clone();
+        return clone;
+    }
 
-	@Nonnull
-	@Override
-	public SettingsEditor<? extends RunConfiguration> getConfigurationEditor()
-	{
-		SettingsEditorGroup<MavenRunConfiguration> group = new SettingsEditorGroup<MavenRunConfiguration>();
+    @Nonnull
+    @Override
+    @RequiredUIAccess
+    public SettingsEditor<? extends RunConfiguration> getConfigurationEditor() {
+        SettingsEditorGroup<MavenRunConfiguration> group = new SettingsEditorGroup<>();
 
-		group.addEditor(RunnerBundle.message("maven.runner.parameters.title"), new MavenRunnerParametersSettingEditor(getProject()));
-		group.addEditor(ProjectBundle.message("maven.tab.general"), new MavenGeneralSettingsEditor(getProject()));
-		group.addEditor(RunnerBundle.message("maven.tab.runner"), new MavenRunnerSettingsEditor(getProject()));
-		group.addEditor(ExecutionBundle.message("logs.tab.title"), new LogConfigurationPanel<MavenRunConfiguration>());
-		return group;
-	}
+        group.addEditor(MavenRunnerLocalize.mavenRunnerParametersTitle().get(), new MavenRunnerParametersSettingEditor(getProject()));
+        group.addEditor(ProjectBundle.message("maven.tab.general"), new MavenGeneralSettingsEditor(getProject()));
+        group.addEditor(MavenRunnerLocalize.mavenTabRunner().get(), new MavenRunnerSettingsEditor(getProject()));
+        group.addEditor(ExecutionLocalize.logsTabTitle().get(), new LogConfigurationPanel<>());
+        return group;
+    }
 
-	public OwnJavaParameters createJavaParameters(@Nullable Project project) throws ExecutionException
-	{
-		return MavenExternalParameters.createJavaParameters(project, mySettings.myRunnerParameters, mySettings.myGeneralSettings,
-				mySettings.myRunnerSettings, this);
-	}
+    @RequiredReadAction
+    public OwnJavaParameters createJavaParameters(@Nullable Project project) throws ExecutionException {
+        return MavenExternalParameters.createJavaParameters(
+            project,
+            mySettings.myRunnerParameters,
+            mySettings.myGeneralSettings,
+            mySettings.myRunnerSettings,
+            this
+        );
+    }
 
-	@Override
-	public RunProfileState getState(@Nonnull final Executor executor, @Nonnull final ExecutionEnvironment env) throws ExecutionException
-	{
-		JavaCommandLineState state = new JavaCommandLineState(env)
-		{
-			@Override
-			protected OwnJavaParameters createJavaParameters() throws ExecutionException
-			{
-				return MavenRunConfiguration.this.createJavaParameters(env.getProject());
-			}
+    @Override
+    public RunProfileState getState(@Nonnull final Executor executor, @Nonnull final ExecutionEnvironment env) throws ExecutionException {
+        JavaCommandLineState state = new JavaCommandLineState(env) {
+            @Override
+            @RequiredReadAction
+            protected OwnJavaParameters createJavaParameters() throws ExecutionException {
+                return MavenRunConfiguration.this.createJavaParameters(env.getProject());
+            }
 
-			@Nonnull
-			@Override
-			public ExecutionResult execute(@Nonnull Executor executor, @Nonnull ProgramRunner runner) throws ExecutionException
-			{
-				DefaultExecutionResult res = (DefaultExecutionResult) super.execute(executor, runner);
-				if(executor.getId().equals(ToolWindowId.RUN) && MavenResumeAction.isApplicable(env.getProject(), getJavaParameters(),
-						MavenRunConfiguration.this))
-				{
-					MavenResumeAction resumeAction = new MavenResumeAction(res.getProcessHandler(), runner, env);
-					res.setRestartActions(resumeAction);
-				}
-				return res;
-			}
+            @Nonnull
+            @Override
+            public ExecutionResult execute(@Nonnull Executor executor, @Nonnull ProgramRunner runner) throws ExecutionException {
+                DefaultExecutionResult res = (DefaultExecutionResult)super.execute(executor, runner);
+                if (executor.getId().equals(ToolWindowId.RUN) && MavenResumeAction.isApplicable(env.getProject(), getJavaParameters(),
+                    MavenRunConfiguration.this
+                )) {
+                    MavenResumeAction resumeAction = new MavenResumeAction(res.getProcessHandler(), runner, env);
+                    res.setRestartActions(resumeAction);
+                }
+                return res;
+            }
 
-			@Override
-			protected void buildProcessHandler(@Nonnull ProcessHandlerBuilder builder) throws ExecutionException
-			{
-				super.buildProcessHandler(builder);
+            @Override
+            protected void buildProcessHandler(@Nonnull ProcessHandlerBuilder builder) throws ExecutionException {
+                super.buildProcessHandler(builder);
 
-				builder.shouldDestroyProcessRecursively(true);
-			}
+                builder.shouldDestroyProcessRecursively(true);
+            }
 
-			@Override
-			protected void setupProcessHandler(@Nonnull ProcessHandler handler)
-			{
-				super.setupProcessHandler(handler);
-				handler.addProcessListener(new ProcessListener()
-				{
-					@Override
-					public void processTerminated(ProcessEvent event)
-					{
-						updateProjectsFolders();
-					}
-				});
-			}
-		};
-		state.setConsoleBuilder(MavenConsoleImpl.createConsoleBuilder(getProject()));
-		return state;
-	}
+            @Override
+            protected void setupProcessHandler(@Nonnull ProcessHandler handler) {
+                super.setupProcessHandler(handler);
+                handler.addProcessListener(new ProcessListener() {
+                    @Override
+                    public void processTerminated(ProcessEvent event) {
+                        updateProjectsFolders();
+                    }
+                });
+            }
+        };
+        state.setConsoleBuilder(MavenConsoleImpl.createConsoleBuilder(getProject()));
+        return state;
+    }
 
-	private void updateProjectsFolders()
-	{
-		MavenProjectsManager.getInstance(getProject()).updateProjectTargetFolders();
-	}
+    private void updateProjectsFolders() {
+        MavenProjectsManager.getInstance(getProject()).updateProjectTargetFolders();
+    }
 
-	@Override
-	@Nonnull
-	public consulo.module.Module[] getModules()
-	{
-		return Module.EMPTY_ARRAY;
-	}
+    @Override
+    @Nonnull
+    public consulo.module.Module[] getModules() {
+        return Module.EMPTY_ARRAY;
+    }
 
-	@Nullable
-	public MavenGeneralSettings getGeneralSettings()
-	{
-		return mySettings.myGeneralSettings;
-	}
+    @Nullable
+    public MavenGeneralSettings getGeneralSettings() {
+        return mySettings.myGeneralSettings;
+    }
 
-	public void setGeneralSettings(@Nullable MavenGeneralSettings settings)
-	{
-		mySettings.myGeneralSettings = settings;
-	}
+    public void setGeneralSettings(@Nullable MavenGeneralSettings settings) {
+        mySettings.myGeneralSettings = settings;
+    }
 
-	@Nullable
-	public MavenRunnerSettings getRunnerSettings()
-	{
-		return mySettings.myRunnerSettings;
-	}
+    @Nullable
+    public MavenRunnerSettings getRunnerSettings() {
+        return mySettings.myRunnerSettings;
+    }
 
-	public void setRunnerSettings(@Nullable MavenRunnerSettings settings)
-	{
-		mySettings.myRunnerSettings = settings;
-	}
+    public void setRunnerSettings(@Nullable MavenRunnerSettings settings) {
+        mySettings.myRunnerSettings = settings;
+    }
 
-	public MavenRunnerParameters getRunnerParameters()
-	{
-		return mySettings.myRunnerParameters;
-	}
+    public MavenRunnerParameters getRunnerParameters() {
+        return mySettings.myRunnerParameters;
+    }
 
-	public void setRunnerParameters(MavenRunnerParameters p)
-	{
-		mySettings.myRunnerParameters = p;
-	}
+    public void setRunnerParameters(MavenRunnerParameters p) {
+        mySettings.myRunnerParameters = p;
+    }
 
-	@Override
-	public void readExternal(Element element) throws InvalidDataException
-	{
-		super.readExternal(element);
+    @Override
+    public void readExternal(Element element) throws InvalidDataException {
+        super.readExternal(element);
 
-		Element mavenSettingsElement = element.getChild(MavenSettings.TAG);
-		if(mavenSettingsElement != null)
-		{
-			mySettings = XmlSerializer.deserialize(mavenSettingsElement, MavenSettings.class);
-			if(mySettings == null)
-			{
-				mySettings = new MavenSettings();
-			}
+        Element mavenSettingsElement = element.getChild(MavenSettings.TAG);
+        if (mavenSettingsElement != null) {
+            mySettings = XmlSerializer.deserialize(mavenSettingsElement, MavenSettings.class);
+            if (mySettings == null) {
+                mySettings = new MavenSettings();
+            }
 
-			if(mySettings.myRunnerParameters == null)
-			{
-				mySettings.myRunnerParameters = new MavenRunnerParameters();
-			}
+            if (mySettings.myRunnerParameters == null) {
+                mySettings.myRunnerParameters = new MavenRunnerParameters();
+            }
 
-			// fix old settings format
-			mySettings.myRunnerParameters.fixAfterLoadingFromOldFormat();
-		}
-	}
+            // fix old settings format
+            mySettings.myRunnerParameters.fixAfterLoadingFromOldFormat();
+        }
+    }
 
-	@Override
-	public void writeExternal(Element element) throws WriteExternalException
-	{
-		super.writeExternal(element);
-		element.addContent(XmlSerializer.serialize(mySettings));
-	}
+    @Override
+    public void writeExternal(Element element) throws WriteExternalException {
+        super.writeExternal(element);
+        element.addContent(XmlSerializer.serialize(mySettings));
+    }
 
-	@Override
-	public String suggestedName()
-	{
-		return MavenRunConfigurationType.generateName(getProject(), mySettings.myRunnerParameters);
-	}
+    @Override
+    public String suggestedName() {
+        return MavenRunConfigurationType.generateName(getProject(), mySettings.myRunnerParameters);
+    }
 
-	public static class MavenSettings implements Cloneable
-	{
-		public static final String TAG = "MavenSettings";
+    public static class MavenSettings implements Cloneable {
+        public static final String TAG = "MavenSettings";
 
-		public MavenGeneralSettings myGeneralSettings;
-		public MavenRunnerSettings myRunnerSettings;
-		public MavenRunnerParameters myRunnerParameters;
+        public MavenGeneralSettings myGeneralSettings;
+        public MavenRunnerSettings myRunnerSettings;
+        public MavenRunnerParameters myRunnerParameters;
 
-		/* reflection only */
-		public MavenSettings()
-		{
-		}
+        /* reflection only */
+        public MavenSettings() {
+        }
 
-		public MavenSettings(Project project)
-		{
-			this(null, null, new MavenRunnerParameters());
-		}
+        public MavenSettings(Project project) {
+            this(null, null, new MavenRunnerParameters());
+        }
 
-		private MavenSettings(@Nullable MavenGeneralSettings cs, @Nullable MavenRunnerSettings rs, MavenRunnerParameters rp)
-		{
-			myGeneralSettings = cs == null ? null : cs.clone();
-			myRunnerSettings = rs == null ? null : rs.clone();
-			myRunnerParameters = rp.clone();
-		}
+        private MavenSettings(@Nullable MavenGeneralSettings cs, @Nullable MavenRunnerSettings rs, MavenRunnerParameters rp) {
+            myGeneralSettings = cs == null ? null : cs.clone();
+            myRunnerSettings = rs == null ? null : rs.clone();
+            myRunnerParameters = rp.clone();
+        }
 
-		@Override
-		protected MavenSettings clone()
-		{
-			return new MavenSettings(myGeneralSettings, myRunnerSettings, myRunnerParameters);
-		}
-	}
+        @Override
+        protected MavenSettings clone() {
+            return new MavenSettings(myGeneralSettings, myRunnerSettings, myRunnerParameters);
+        }
+    }
 }

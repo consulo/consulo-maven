@@ -22,30 +22,29 @@ import java.util.regex.Pattern;
  * @author Sergey Evdokimov
  */
 public class MavenEscapeWindowsCharacterUtils {
+    // See org.apache.maven.shared.filtering.FilteringUtils.PATTERN
+    private static final Pattern WINDOWS_PATH_PATTERN = Pattern.compile("^(.*)[a-zA-Z]:\\\\(.*)");
 
-  // See org.apache.maven.shared.filtering.FilteringUtils.PATTERN
-  private static final Pattern WINDOWS_PATH_PATTERN = Pattern.compile("^(.*)[a-zA-Z]:\\\\(.*)");
+    /*
+     * See org.apache.maven.shared.filtering.FilteringUtils.escapeWindowsPath()
+     */
+    public static void escapeWindowsPath(Appendable result, String val) throws IOException {
+        if (!val.isEmpty() && WINDOWS_PATH_PATTERN.matcher(val).matches()) {
+            // Adapted from StringUtils.replace in plexus-utils to accommodate pre-escaped backslashes.
+            int start = 0, end;
+            while ((end = val.indexOf('\\', start)) != -1) {
+                result.append(val, start, end).append("\\\\");
+                start = end + 1;
 
-  /*
- * See org.apache.maven.shared.filtering.FilteringUtils.escapeWindowsPath()
- */
-  public static void escapeWindowsPath(Appendable result, String val) throws IOException {
-    if (!val.isEmpty() && WINDOWS_PATH_PATTERN.matcher(val).matches()) {
-      // Adapted from StringUtils.replace in plexus-utils to accommodate pre-escaped backslashes.
-      int start = 0, end;
-      while ((end = val.indexOf('\\', start)) != -1) {
-        result.append(val, start, end).append("\\\\");
-        start = end + 1;
+                if (val.indexOf('\\', end + 1) == end + 1) {
+                    start++;
+                }
+            }
 
-        if (val.indexOf('\\', end + 1) == end + 1) {
-          start++;
+            result.append(val, start, val.length());
         }
-      }
-
-      result.append(val, start, val.length());
+        else {
+            result.append(val);
+        }
     }
-    else {
-      result.append(val);
-    }
-  }
 }

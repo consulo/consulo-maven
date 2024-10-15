@@ -21,5 +21,4 @@ import org.jetbrains.idea.maven.dom.converters.MavenPluginGoalConverter;
 
 @Convert(MavenPluginGoalConverter.class)
 public interface MavenDomGoal extends GenericDomValue<String> {
-
 }

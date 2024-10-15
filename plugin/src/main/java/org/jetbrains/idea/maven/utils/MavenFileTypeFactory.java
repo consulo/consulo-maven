@@ -28,8 +28,8 @@ import javax.annotation.Nonnull;
  */
 @ExtensionImpl
 public class MavenFileTypeFactory extends FileTypeFactory {
-  @Override
-  public void createFileTypes(@Nonnull FileTypeConsumer consumer) {
-    consumer.consume(XmlFileType.INSTANCE, MavenConstants.POM_EXTENSION);
-  }
+    @Override
+    public void createFileTypes(@Nonnull FileTypeConsumer consumer) {
+        consumer.consume(XmlFileType.INSTANCE, MavenConstants.POM_EXTENSION);
+    }
 }

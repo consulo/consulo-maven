@@ -26,5 +26,4 @@ import consulo.xml.util.xml.DefinesXml;
  */
 @DefinesXml
 public interface MavenDomConfiguration extends MavenDomMergedElement {
-
 }

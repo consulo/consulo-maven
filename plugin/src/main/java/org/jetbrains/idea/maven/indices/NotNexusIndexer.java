@@ -10,7 +10,6 @@ import org.jetbrains.idea.maven.utils.MavenProgressIndicator;
 /**
  * @author ibessonov
  */
-interface NotNexusIndexer
-{
-	void processArtifacts(MavenProgressIndicator progress, MavenIndicesProcessor processor) throws IOException, MavenServerIndexerException;
+interface NotNexusIndexer {
+    void processArtifacts(MavenProgressIndicator progress, MavenIndicesProcessor processor) throws IOException, MavenServerIndexerException;
 }

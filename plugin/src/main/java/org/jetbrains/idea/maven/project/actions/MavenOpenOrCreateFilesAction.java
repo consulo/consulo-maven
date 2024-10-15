@@ -19,6 +19,7 @@ import consulo.application.Result;
 import consulo.language.editor.WriteCommandAction;
 import consulo.navigation.OpenFileDescriptorFactory;
 import consulo.project.Project;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.action.AnActionEvent;
 import consulo.ui.ex.action.Presentation;
 import consulo.virtualFileSystem.LocalFileSystem;
@@ -35,74 +36,78 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class MavenOpenOrCreateFilesAction extends MavenAction {
-  @Override
-  public void update(AnActionEvent e) {
-    super.update(e);
+    @Override
+    public void update(AnActionEvent e) {
+        super.update(e);
 
-    Presentation p = e.getPresentation();
+        Presentation p = e.getPresentation();
 
-    List<File> files = getFiles(e);
-    if (files.isEmpty()) {
-      p.setEnabled(false);
-      return;
-    }
-
-    List<VirtualFile> virtualFiles = collectVirtualFiles(files);
-
-    String text;
-    boolean enabled = true;
-
-    if (files.size() == 1 && virtualFiles.isEmpty()) {
-      text = "Create ''{0}''";
-    }
-    else {
-      enabled = virtualFiles.size() == files.size();
-      text = "Open ''{0}''";
-    }
-
-    p.setText(MessageFormat.format(text, files.get(0).getName()));
-    p.setEnabled(enabled);
-  }
-
-  @Override
-  public void actionPerformed(AnActionEvent e) {
-    final Project project = MavenActionUtil.getProject(e.getDataContext());
-    final List<File> files = getFiles(e);
-    final List<VirtualFile> virtualFiles = collectVirtualFiles(files);
-
-    if (files.size() == 1 && virtualFiles.isEmpty()) {
-      new WriteCommandAction(project, e.getPresentation().getText()) {
-        @Override
-        protected void run(Result result) throws Throwable {
-          File file = files.get(0);
-          try {
-            VirtualFile newFile = VirtualFileUtil.createDirectoryIfMissing(file.getParent()).createChildData(this, file.getName());
-            virtualFiles.add(newFile);
-            MavenUtil.runFileTemplate(project, newFile, getFileTemplate());
-          }
-          catch (IOException ex) {
-            MavenUtil.showError(project, "Cannot create " + file.getName(), ex);
-          }
+        List<File> files = getFiles(e);
+        if (files.isEmpty()) {
+            p.setEnabled(false);
+            return;
         }
-      }.execute();
-      return;
+
+        List<VirtualFile> virtualFiles = collectVirtualFiles(files);
+
+        String text;
+        boolean enabled = true;
+
+        if (files.size() == 1 && virtualFiles.isEmpty()) {
+            text = "Create ''{0}''";
+        }
+        else {
+            enabled = virtualFiles.size() == files.size();
+            text = "Open ''{0}''";
+        }
+
+        p.setText(MessageFormat.format(text, files.get(0).getName()));
+        p.setEnabled(enabled);
     }
 
-    for (VirtualFile each : virtualFiles) {
-      OpenFileDescriptorFactory.getInstance(project).builder(each).build().navigate(true);
+    @Override
+    @RequiredUIAccess
+    public void actionPerformed(AnActionEvent e) {
+        final Project project = MavenActionUtil.getProject(e.getDataContext());
+        final List<File> files = getFiles(e);
+        final List<VirtualFile> virtualFiles = collectVirtualFiles(files);
+
+        if (files.size() == 1 && virtualFiles.isEmpty()) {
+            new WriteCommandAction(project, e.getPresentation().getText()) {
+                @Override
+                protected void run(Result result) throws Throwable {
+                    File file = files.get(0);
+                    try {
+                        VirtualFile newFile =
+                            VirtualFileUtil.createDirectoryIfMissing(file.getParent()).createChildData(this, file.getName());
+                        virtualFiles.add(newFile);
+                        MavenUtil.runFileTemplate(project, newFile, getFileTemplate());
+                    }
+                    catch (IOException ex) {
+                        MavenUtil.showError(project, "Cannot create " + file.getName(), ex);
+                    }
+                }
+            }.execute();
+            return;
+        }
+
+        for (VirtualFile each : virtualFiles) {
+            OpenFileDescriptorFactory.getInstance(project).builder(each).build().navigate(true);
+        }
     }
-  }
 
-  private List<VirtualFile> collectVirtualFiles(List<File> files) {
-    List<VirtualFile> result = new ArrayList<VirtualFile>();
-    for (File each : files) {
-      VirtualFile virtualFile = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(each);
-      if (virtualFile != null) result.add(virtualFile);
+    private List<VirtualFile> collectVirtualFiles(List<File> files) {
+        List<VirtualFile> result = new ArrayList<>();
+        for (File each : files) {
+            VirtualFile virtualFile = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(each);
+            if (virtualFile != null) {
+                result.add(virtualFile);
+            }
+        }
+        return result;
     }
-    return result;
-  }
 
-  protected abstract List<File> getFiles(AnActionEvent e);
+    protected abstract List<File> getFiles(AnActionEvent e);
 
-  protected abstract String getFileTemplate();
+    protected abstract String getFileTemplate();
 }

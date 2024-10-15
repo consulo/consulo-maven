@@ -17,164 +17,139 @@ package org.jetbrains.idea.maven.utils;
 
 import consulo.application.progress.EmptyProgressIndicator;
 import consulo.application.progress.ProgressIndicator;
+import consulo.localize.LocalizeValue;
 import consulo.util.lang.function.Condition;
 import consulo.component.ProcessCanceledException;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class MavenProgressIndicator
-{
-	private ProgressIndicator myIndicator;
-	private final List<Condition<MavenProgressIndicator>> myCancelConditions = new ArrayList<>();
+public class MavenProgressIndicator {
+    private ProgressIndicator myIndicator;
+    private final List<Condition<MavenProgressIndicator>> myCancelConditions = new ArrayList<>();
 
-	public MavenProgressIndicator()
-	{
-		this(new MyEmptyProgressIndicator());
-	}
+    public MavenProgressIndicator() {
+        this(new MyEmptyProgressIndicator());
+    }
 
-	public MavenProgressIndicator(ProgressIndicator i)
-	{
-		myIndicator = i;
-	}
+    public MavenProgressIndicator(ProgressIndicator i) {
+        myIndicator = i;
+    }
 
-	public synchronized void setIndicator(ProgressIndicator i)
-	{
-		i.setText(myIndicator.getText());
-		i.setText2(myIndicator.getText2());
-		if(!i.isIndeterminate())
-		{
-			i.setFraction(myIndicator.getFraction());
-		}
-		if(i.isCanceled())
-		{
-			i.cancel();
-		}
-		myIndicator = i;
-	}
+    public synchronized void setIndicator(ProgressIndicator i) {
+        i.setTextValue(myIndicator.getTextValue());
+        i.setText2Value(myIndicator.getText2Value());
+        if (!i.isIndeterminate()) {
+            i.setFraction(myIndicator.getFraction());
+        }
+        if (i.isCanceled()) {
+            i.cancel();
+        }
+        myIndicator = i;
+    }
 
-	public synchronized ProgressIndicator getIndicator()
-	{
-		return myIndicator;
-	}
+    public synchronized ProgressIndicator getIndicator() {
+        return myIndicator;
+    }
 
-	public synchronized void setText(String text)
-	{
-		myIndicator.setText(text);
-	}
+    @Deprecated
+    public synchronized void setText(String text) {
+        myIndicator.setText(text);
+    }
 
-	public synchronized void setText2(String text)
-	{
-		myIndicator.setText2(text);
-	}
+    public synchronized void setText(LocalizeValue text) {
+        myIndicator.setTextValue(text);
+    }
 
-	public synchronized void setFraction(double fraction)
-	{
-		myIndicator.setFraction(fraction);
-	}
+    public synchronized void setText2(String text) {
+        myIndicator.setText2(text);
+    }
 
-	public synchronized void setIndeterminate(boolean indeterminate)
-	{
-		myIndicator.setIndeterminate(indeterminate);
-	}
+    public synchronized void setFraction(double fraction) {
+        myIndicator.setFraction(fraction);
+    }
 
-	public synchronized void pushState()
-	{
-		myIndicator.pushState();
-	}
+    public synchronized void setIndeterminate(boolean indeterminate) {
+        myIndicator.setIndeterminate(indeterminate);
+    }
 
-	public synchronized void popState()
-	{
-		myIndicator.popState();
-	}
+    public synchronized void pushState() {
+        myIndicator.pushState();
+    }
 
-	public synchronized void cancel()
-	{
-		myIndicator.cancel();
-	}
+    public synchronized void popState() {
+        myIndicator.popState();
+    }
 
-	public synchronized void addCancelCondition(Condition<MavenProgressIndicator> condition)
-	{
-		myCancelConditions.add(condition);
-	}
+    public synchronized void cancel() {
+        myIndicator.cancel();
+    }
 
-	public synchronized void removeCancelCondition(Condition<MavenProgressIndicator> condition)
-	{
-		myCancelConditions.remove(condition);
-	}
+    public synchronized void addCancelCondition(Condition<MavenProgressIndicator> condition) {
+        myCancelConditions.add(condition);
+    }
 
-	public synchronized boolean isCanceled()
-	{
-		if(myIndicator.isCanceled())
-		{
-			return true;
-		}
-		for(Condition<MavenProgressIndicator> each : myCancelConditions)
-		{
-			if(each.value(this))
-			{
-				return true;
-			}
-		}
-		return false;
-	}
+    public synchronized void removeCancelCondition(Condition<MavenProgressIndicator> condition) {
+        myCancelConditions.remove(condition);
+    }
 
-	public void checkCanceled() throws MavenProcessCanceledException
-	{
-		if(isCanceled())
-		{
-			throw new MavenProcessCanceledException();
-		}
-	}
+    public synchronized boolean isCanceled() {
+        if (myIndicator.isCanceled()) {
+            return true;
+        }
+        for (Condition<MavenProgressIndicator> each : myCancelConditions) {
+            if (each.value(this)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
-	public void checkCanceledNative()
-	{
-		if(isCanceled())
-		{
-			throw new ProcessCanceledException();
-		}
-	}
+    public void checkCanceled() throws MavenProcessCanceledException {
+        if (isCanceled()) {
+            throw new MavenProcessCanceledException();
+        }
+    }
 
-	private static class MyEmptyProgressIndicator extends EmptyProgressIndicator
-	{
-		private String myText;
-		private String myText2;
-		private double myFraction;
+    public void checkCanceledNative() {
+        if (isCanceled()) {
+            throw new ProcessCanceledException();
+        }
+    }
 
-		@Override
-		public void setText(String text)
-		{
-			myText = text;
-		}
+    private static class MyEmptyProgressIndicator extends EmptyProgressIndicator {
+        private String myText;
+        private String myText2;
+        private double myFraction;
 
-		@Override
-		public String getText()
-		{
-			return myText;
-		}
+        @Override
+        public void setText(String text) {
+            myText = text;
+        }
 
-		@Override
-		public void setText2(String text)
-		{
-			myText2 = text;
-		}
+        @Override
+        public String getText() {
+            return myText;
+        }
 
-		@Override
-		public String getText2()
-		{
-			return myText2;
-		}
+        @Override
+        public void setText2(String text) {
+            myText2 = text;
+        }
 
-		@Override
-		public void setFraction(double fraction)
-		{
-			myFraction = fraction;
-		}
+        @Override
+        public String getText2() {
+            return myText2;
+        }
 
-		@Override
-		public double getFraction()
-		{
-			return myFraction;
-		}
-	}
+        @Override
+        public void setFraction(double fraction) {
+            myFraction = fraction;
+        }
+
+        @Override
+        public double getFraction() {
+            return myFraction;
+        }
+    }
 }

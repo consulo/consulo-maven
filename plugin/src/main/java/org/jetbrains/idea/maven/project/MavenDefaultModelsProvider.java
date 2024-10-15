@@ -15,6 +15,7 @@
  */
 package org.jetbrains.idea.maven.project;
 
+import consulo.annotation.access.RequiredReadAction;
 import consulo.module.Module;
 import consulo.module.ModuleManager;
 import consulo.module.content.ModuleRootManager;
@@ -24,20 +25,21 @@ import consulo.virtualFileSystem.VirtualFile;
 import javax.annotation.Nonnull;
 
 public class MavenDefaultModelsProvider implements MavenModelsProvider {
-  private final Project myProject;
+    private final Project myProject;
 
-  public MavenDefaultModelsProvider(Project project) {
-    myProject = project;
-  }
+    public MavenDefaultModelsProvider(Project project) {
+        myProject = project;
+    }
 
-  @Override
-  @Nonnull
-  public Module[] getModules() {
-    return ModuleManager.getInstance(myProject).getModules();
-  }
+    @Nonnull
+    @Override
+    @RequiredReadAction
+    public Module[] getModules() {
+        return ModuleManager.getInstance(myProject).getModules();
+    }
 
-  @Override
-  public VirtualFile[] getContentRoots(Module module) {
-    return ModuleRootManager.getInstance(module).getContentRoots();
-  }
+    @Override
+    public VirtualFile[] getContentRoots(Module module) {
+        return ModuleRootManager.getInstance(module).getContentRoots();
+    }
 }

@@ -32,88 +32,87 @@ import org.jetbrains.idea.maven.dom.MavenDomElement;
  * </pre>
  */
 public interface MavenDomNotifier extends MavenDomElement {
+    /**
+     * Returns the value of the type child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:type documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the type child.
+     */
+    @Nonnull
+    GenericDomValue<String> getType();
 
-  /**
-   * Returns the value of the type child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:type documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the type child.
-   */
-  @Nonnull
-  GenericDomValue<String> getType();
+    /**
+     * Returns the value of the sendOnError child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:sendOnError documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the sendOnError child.
+     */
+    @Nonnull
+    GenericDomValue<Boolean> getSendOnError();
 
-  /**
-   * Returns the value of the sendOnError child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:sendOnError documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the sendOnError child.
-   */
-  @Nonnull
-  GenericDomValue<Boolean> getSendOnError();
+    /**
+     * Returns the value of the sendOnFailure child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:sendOnFailure documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the sendOnFailure child.
+     */
+    @Nonnull
+    GenericDomValue<Boolean> getSendOnFailure();
 
-  /**
-   * Returns the value of the sendOnFailure child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:sendOnFailure documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the sendOnFailure child.
-   */
-  @Nonnull
-  GenericDomValue<Boolean> getSendOnFailure();
+    /**
+     * Returns the value of the sendOnSuccess child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:sendOnSuccess documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the sendOnSuccess child.
+     */
+    @Nonnull
+    GenericDomValue<Boolean> getSendOnSuccess();
 
-  /**
-   * Returns the value of the sendOnSuccess child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:sendOnSuccess documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the sendOnSuccess child.
-   */
-  @Nonnull
-  GenericDomValue<Boolean> getSendOnSuccess();
+    /**
+     * Returns the value of the sendOnWarning child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:sendOnWarning documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the sendOnWarning child.
+     */
+    @Nonnull
+    GenericDomValue<Boolean> getSendOnWarning();
 
-  /**
-   * Returns the value of the sendOnWarning child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:sendOnWarning documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the sendOnWarning child.
-   */
-  @Nonnull
-  GenericDomValue<Boolean> getSendOnWarning();
+    /**
+     * Returns the value of the address child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:address documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the address child.
+     */
+    @Nonnull
+    GenericDomValue<String> getAddress();
 
-  /**
-   * Returns the value of the address child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:address documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the address child.
-   */
-  @Nonnull
-  GenericDomValue<String> getAddress();
-
-  /**
-   * Returns the value of the configuration child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:configuration documentation</h3>
-   * 0.0.0+
-   * </pre>
-   *
-   * @return the value of the configuration child.
-   */
-  @Nonnull
-  MavenDomElement getConfiguration();
+    /**
+     * Returns the value of the configuration child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:configuration documentation</h3>
+     * 0.0.0+
+     * </pre>
+     *
+     * @return the value of the configuration child.
+     */
+    @Nonnull
+    MavenDomElement getConfiguration();
 }

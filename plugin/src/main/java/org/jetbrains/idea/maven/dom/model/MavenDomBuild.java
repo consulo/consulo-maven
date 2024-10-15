@@ -35,86 +35,85 @@ import org.jetbrains.idea.maven.dom.references.MavenDirectoryPathReferenceConver
  * </pre>
  */
 public interface MavenDomBuild extends MavenDomBuildBase {
+    /**
+     * Returns the value of the sourceDirectory child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:sourceDirectory documentation</h3>
+     * 3.0.0+
+     * </pre>
+     *
+     * @return the value of the sourceDirectory child.
+     */
+    @Nonnull
+    @Required(value = false, nonEmpty = true)
+    @Convert(value = MavenDirectoryPathReferenceConverter.class, soft = false)
+    GenericDomValue<PathReference> getSourceDirectory();
 
-  /**
-   * Returns the value of the sourceDirectory child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:sourceDirectory documentation</h3>
-   * 3.0.0+
-   * </pre>
-   *
-   * @return the value of the sourceDirectory child.
-   */
-  @Nonnull
-  @Required(value = false, nonEmpty = true)
-  @Convert(value = MavenDirectoryPathReferenceConverter.class, soft = false)
-  GenericDomValue<PathReference> getSourceDirectory();
+    /**
+     * Returns the value of the scriptSourceDirectory child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:scriptSourceDirectory documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the scriptSourceDirectory child.
+     */
+    @Nonnull
+    @Required(value = false, nonEmpty = true)
+    @Convert(value = MavenDirectoryPathReferenceConverter.class, soft = false)
+    GenericDomValue<PathReference> getScriptSourceDirectory();
 
-  /**
-   * Returns the value of the scriptSourceDirectory child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:scriptSourceDirectory documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the scriptSourceDirectory child.
-   */
-  @Nonnull
-  @Required(value = false, nonEmpty = true)
-  @Convert(value = MavenDirectoryPathReferenceConverter.class, soft = false)
-  GenericDomValue<PathReference> getScriptSourceDirectory();
+    /**
+     * Returns the value of the testSourceDirectory child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:testSourceDirectory documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the testSourceDirectory child.
+     */
+    @Nonnull
+    @Required(value = false, nonEmpty = true)
+    @Convert(value = MavenDirectoryPathReferenceConverter.class, soft = false)
+    GenericDomValue<PathReference> getTestSourceDirectory();
 
-  /**
-   * Returns the value of the testSourceDirectory child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:testSourceDirectory documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the testSourceDirectory child.
-   */
-  @Nonnull
-  @Required(value = false, nonEmpty = true)
-  @Convert(value = MavenDirectoryPathReferenceConverter.class, soft = false)
-  GenericDomValue<PathReference> getTestSourceDirectory();
+    /**
+     * Returns the value of the outputDirectory child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:outputDirectory documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the outputDirectory child.
+     */
+    @Nonnull
+    @Required(value = false, nonEmpty = true)
+    @Convert(value = MavenDirectoryPathReferenceConverter.class, soft = true)
+    GenericDomValue<PathReference> getOutputDirectory();
 
-  /**
-   * Returns the value of the outputDirectory child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:outputDirectory documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the outputDirectory child.
-   */
-  @Nonnull
-  @Required(value = false, nonEmpty = true)
-  @Convert(value = MavenDirectoryPathReferenceConverter.class, soft = true)
-  GenericDomValue<PathReference> getOutputDirectory();
+    /**
+     * Returns the value of the testOutputDirectory child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:testOutputDirectory documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the testOutputDirectory child.
+     */
+    @Nonnull
+    @Required(value = false, nonEmpty = true)
+    @Convert(value = MavenDirectoryPathReferenceConverter.class, soft = true)
+    GenericDomValue<PathReference> getTestOutputDirectory();
 
-  /**
-   * Returns the value of the testOutputDirectory child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:testOutputDirectory documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the testOutputDirectory child.
-   */
-  @Nonnull
-  @Required(value = false, nonEmpty = true)
-  @Convert(value = MavenDirectoryPathReferenceConverter.class, soft = true)
-  GenericDomValue<PathReference> getTestOutputDirectory();
-
-  /**
-   * Returns the value of the extensions child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:extensions documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the extensions child.
-   */
-  @Nonnull
-  MavenDomExtensions getExtensions();
+    /**
+     * Returns the value of the extensions child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:extensions documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the extensions child.
+     */
+    @Nonnull
+    MavenDomExtensions getExtensions();
 }

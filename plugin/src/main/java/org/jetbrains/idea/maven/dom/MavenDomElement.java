@@ -20,6 +20,5 @@ import consulo.xml.util.xml.JavaNameStrategy;
 import consulo.xml.util.xml.NameStrategy;
 
 @NameStrategy(JavaNameStrategy.class)
-public interface MavenDomElement extends DomElement
-{
+public interface MavenDomElement extends DomElement {
 }

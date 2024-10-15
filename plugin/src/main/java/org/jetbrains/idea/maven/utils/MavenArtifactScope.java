@@ -21,13 +21,20 @@ import javax.annotation.Nullable;
  * @author Konstantin Bulenkov
  */
 public enum MavenArtifactScope {
-  COMPILE, PROVIDED, RUNTIME, TEST, SYSTEM, IMPORT;
+    COMPILE,
+    PROVIDED,
+    RUNTIME,
+    TEST,
+    SYSTEM,
+    IMPORT;
 
-  @Nullable
-  public static MavenArtifactScope fromString(String name) {
-    for (MavenArtifactScope scope : MavenArtifactScope.values()) {
-      if (scope.name().equalsIgnoreCase(name)) return scope;
+    @Nullable
+    public static MavenArtifactScope fromString(String name) {
+        for (MavenArtifactScope scope : MavenArtifactScope.values()) {
+            if (scope.name().equalsIgnoreCase(name)) {
+                return scope;
+            }
+        }
+        return null;
     }
-    return null;
-  }
 }

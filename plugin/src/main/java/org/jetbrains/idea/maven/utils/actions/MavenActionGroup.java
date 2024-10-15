@@ -15,20 +15,23 @@
  */
 package org.jetbrains.idea.maven.utils.actions;
 
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.action.AnActionEvent;
 import consulo.ui.ex.action.DefaultActionGroup;
 import consulo.application.dumb.DumbAware;
+import jakarta.annotation.Nonnull;
 
 public class MavenActionGroup extends DefaultActionGroup implements DumbAware {
-  @Override
-  public void update(AnActionEvent e) {
-    super.update(e);
-    boolean available = isAvailable(e);
-    e.getPresentation().setEnabled(available);
-    e.getPresentation().setVisible(available);
-  }
+    @Override
+    @RequiredUIAccess
+    public void update(@Nonnull AnActionEvent e) {
+        super.update(e);
+        boolean available = isAvailable(e);
+        e.getPresentation().setEnabled(available);
+        e.getPresentation().setVisible(available);
+    }
 
-  protected boolean isAvailable(AnActionEvent e) {
-    return !MavenActionUtil.getMavenProjects(e.getDataContext()).isEmpty();
-  }
+    protected boolean isAvailable(AnActionEvent e) {
+        return !MavenActionUtil.getMavenProjects(e.getDataContext()).isEmpty();
+    }
 }

@@ -37,69 +37,68 @@ import org.jetbrains.idea.maven.dom.references.MavenPathReferenceConverter;
  * </pre>
  */
 public interface MavenDomResource extends MavenDomElement {
+    /**
+     * Returns the value of the targetPath child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:targetPath documentation</h3>
+     * 3.0.0+
+     * </pre>
+     *
+     * @return the value of the targetPath child.
+     */
+    @Nonnull
+    @Required(value = false, nonEmpty = true)
+    @Convert(value = MavenPathReferenceConverter.class, soft = true)
+    GenericDomValue<PathReference> getTargetPath();
 
-  /**
-   * Returns the value of the targetPath child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:targetPath documentation</h3>
-   * 3.0.0+
-   * </pre>
-   *
-   * @return the value of the targetPath child.
-   */
-  @Nonnull
-  @Required(value = false, nonEmpty = true)
-  @Convert(value = MavenPathReferenceConverter.class, soft = true)
-  GenericDomValue<PathReference> getTargetPath();
+    /**
+     * Returns the value of the filtering child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:filtering documentation</h3>
+     * 3.0.0+
+     * </pre>
+     *
+     * @return the value of the filtering child.
+     */
+    @Nonnull
+    @Required(value = false, nonEmpty = true)
+    GenericDomValue<Boolean> getFiltering();
 
-  /**
-   * Returns the value of the filtering child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:filtering documentation</h3>
-   * 3.0.0+
-   * </pre>
-   *
-   * @return the value of the filtering child.
-   */
-  @Nonnull
-  @Required(value = false, nonEmpty = true)
-  GenericDomValue<Boolean> getFiltering();
+    /**
+     * Returns the value of the directory child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:directory documentation</h3>
+     * 3.0.0+
+     * </pre>
+     *
+     * @return the value of the directory child.
+     */
+    @Nonnull
+    @Required(value = false, nonEmpty = true)
+    @Convert(value = MavenDirectoryPathReferenceConverter.class, soft = true)
+    GenericDomValue<PathReference> getDirectory();
 
-  /**
-   * Returns the value of the directory child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:directory documentation</h3>
-   * 3.0.0+
-   * </pre>
-   *
-   * @return the value of the directory child.
-   */
-  @Nonnull
-  @Required(value = false, nonEmpty = true)
-  @Convert(value = MavenDirectoryPathReferenceConverter.class, soft = true)
-  GenericDomValue<PathReference> getDirectory();
+    /**
+     * Returns the value of the includes child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:includes documentation</h3>
+     * 3.0.0+
+     * </pre>
+     *
+     * @return the value of the includes child.
+     */
+    @Nonnull
+    MavenDomIncludes getIncludes();
 
-  /**
-   * Returns the value of the includes child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:includes documentation</h3>
-   * 3.0.0+
-   * </pre>
-   *
-   * @return the value of the includes child.
-   */
-  @Nonnull
-  MavenDomIncludes getIncludes();
-
-  /**
-   * Returns the value of the excludes child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:excludes documentation</h3>
-   * 3.0.0+
-   * </pre>
-   *
-   * @return the value of the excludes child.
-   */
-  @Nonnull
-  MavenDomExcludes getExcludes();
+    /**
+     * Returns the value of the excludes child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:excludes documentation</h3>
+     * 3.0.0+
+     * </pre>
+     *
+     * @return the value of the excludes child.
+     */
+    @Nonnull
+    MavenDomExcludes getExcludes();
 }

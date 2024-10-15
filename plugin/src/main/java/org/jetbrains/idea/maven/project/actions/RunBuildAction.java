@@ -28,43 +28,41 @@ import org.jetbrains.idea.maven.utils.actions.MavenActionUtil;
 import javax.annotation.Nonnull;
 import java.util.List;
 
-public class RunBuildAction extends MavenAction
-{
-	@Override
-	protected boolean isAvailable(AnActionEvent e)
-	{
-		return super.isAvailable(e) && checkOrPerform(e.getDataContext(), false);
-	}
+public class RunBuildAction extends MavenAction {
+    @Override
+    protected boolean isAvailable(AnActionEvent e) {
+        return super.isAvailable(e) && checkOrPerform(e.getDataContext(), false);
+    }
 
-	@RequiredUIAccess
-	@Override
-	public void actionPerformed(@Nonnull AnActionEvent e)
-	{
-		checkOrPerform(e.getDataContext(), true);
-	}
+    @RequiredUIAccess
+    @Override
+    public void actionPerformed(@Nonnull AnActionEvent e) {
+        checkOrPerform(e.getDataContext(), true);
+    }
 
-	private static boolean checkOrPerform(DataContext context, boolean perform)
-	{
-		final List<String> goals = context.getData(MavenDataKeys.MAVEN_GOALS);
-		if(goals == null || goals.isEmpty())
-		{
-			return false;
-		}
+    private static boolean checkOrPerform(DataContext context, boolean perform) {
+        final List<String> goals = context.getData(MavenDataKeys.MAVEN_GOALS);
+        if (goals == null || goals.isEmpty()) {
+            return false;
+        }
 
-		final MavenProject project = MavenActionUtil.getMavenProject(context);
-		if(project == null)
-		{
-			return false;
-		}
+        final MavenProject project = MavenActionUtil.getMavenProject(context);
+        if (project == null) {
+            return false;
+        }
 
-		if(!perform)
-		{
-			return true;
-		}
+        if (!perform) {
+            return true;
+        }
 
-		final MavenRunnerParameters params = new MavenRunnerParameters(true, project.getDirectory(), goals, MavenActionUtil.getProjectsManager(context).getExplicitProfiles());
-		MavenRunConfigurationType.runConfiguration(MavenActionUtil.getProject(context), params, null);
+        final MavenRunnerParameters params = new MavenRunnerParameters(
+            true,
+            project.getDirectory(),
+            goals,
+            MavenActionUtil.getProjectsManager(context).getExplicitProfiles()
+        );
+        MavenRunConfigurationType.runConfiguration(MavenActionUtil.getProject(context), params, null);
 
-		return true;
-	}
+        return true;
+    }
 }

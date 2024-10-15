@@ -22,7 +22,8 @@ import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import java.util.List;
 
 public class ReimportProjectAction extends MavenProjectsAction {
-  protected void perform(MavenProjectsManager manager, List<MavenProject> mavenProjects, AnActionEvent e) {
-    manager.forceUpdateProjects(mavenProjects);
-  }
+    @Override
+    protected void perform(MavenProjectsManager manager, List<MavenProject> mavenProjects, AnActionEvent e) {
+        manager.forceUpdateProjects(mavenProjects);
+    }
 }

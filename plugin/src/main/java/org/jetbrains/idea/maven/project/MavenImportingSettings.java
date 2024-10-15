@@ -25,387 +25,317 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-public class MavenImportingSettings implements Cloneable
-{
-	private static final String PROCESS_RESOURCES_PHASE = "process-resources";
-	public static final String[] UPDATE_FOLDERS_PHASES = new String[]{
-			"generate-sources",
-			"process-sources",
-			"generate-resources",
-			PROCESS_RESOURCES_PHASE,
-			"generate-test-sources",
-			"process-test-sources",
-			"generate-test-resources",
-			"process-test-resources"
-	};
-	public static final String UPDATE_FOLDERS_DEFAULT_PHASE = PROCESS_RESOURCES_PHASE;
+public class MavenImportingSettings implements Cloneable {
+    private static final String PROCESS_RESOURCES_PHASE = "process-resources";
+    public static final String[] UPDATE_FOLDERS_PHASES = new String[]{
+        "generate-sources",
+        "process-sources",
+        "generate-resources",
+        PROCESS_RESOURCES_PHASE,
+        "generate-test-sources",
+        "process-test-sources",
+        "generate-test-resources",
+        "process-test-resources"
+    };
+    public static final String UPDATE_FOLDERS_DEFAULT_PHASE = PROCESS_RESOURCES_PHASE;
 
-	private boolean lookForNested = false;
+    private boolean lookForNested = false;
 
-	private boolean importAutomatically = false;
-	private boolean createModulesForAggregators = true;
-	private boolean createModuleGroups = false;
-	private boolean excludeTargetFolder = true;
-	private boolean keepSourceFolders = true;
-	private boolean useMavenOutput = true;
-	private String updateFoldersOnImportPhase = UPDATE_FOLDERS_DEFAULT_PHASE;
+    private boolean importAutomatically = false;
+    private boolean createModulesForAggregators = true;
+    private boolean createModuleGroups = false;
+    private boolean excludeTargetFolder = true;
+    private boolean keepSourceFolders = true;
+    private boolean useMavenOutput = true;
+    private String updateFoldersOnImportPhase = UPDATE_FOLDERS_DEFAULT_PHASE;
 
-	private boolean downloadSourcesAutomatically = false;
-	private boolean downloadDocsAutomatically = false;
+    private boolean downloadSourcesAutomatically = false;
+    private boolean downloadDocsAutomatically = false;
 
-	private GeneratedSourcesFolder generatedSourcesFolder = GeneratedSourcesFolder.SUBFOLDER;
+    private GeneratedSourcesFolder generatedSourcesFolder = GeneratedSourcesFolder.SUBFOLDER;
 
-	private String dependencyTypes = "jar, test-jar, maven-plugin, ejb, ejb-client, jboss-har, jboss-sar, war, ear, bundle";
-	private Set<String> myDependencyTypesAsSet;
+    private String dependencyTypes = "jar, test-jar, maven-plugin, ejb, ejb-client, jboss-har, jboss-sar, war, ear, bundle";
+    private Set<String> myDependencyTypesAsSet;
 
-	private List<Listener> myListeners = Lists.newLockFreeCopyOnWriteList();
+    private List<Listener> myListeners = Lists.newLockFreeCopyOnWriteList();
 
-	public enum GeneratedSourcesFolder
-	{
-		IGNORE("Don't detect"),
-		//AUTODETECT("Detect automatically"),
-		GENERATED_SOURCE_FOLDER("target/generated-sources"),
-		SUBFOLDER("subdirectories of \"target/generated-sources\"");
+    public enum GeneratedSourcesFolder {
+        IGNORE("Don't detect"),
+        //AUTODETECT("Detect automatically"),
+        GENERATED_SOURCE_FOLDER("target/generated-sources"),
+        SUBFOLDER("subdirectories of \"target/generated-sources\"");
 
-		public final String title;
+        public final String title;
 
-		GeneratedSourcesFolder(String title)
-		{
-			this.title = title;
-		}
-	}
+        GeneratedSourcesFolder(String title) {
+            this.title = title;
+        }
+    }
 
-	@Nonnull
-	@Deprecated
-	@DeprecationInfo("Always return empty string")
-	public String getDedicatedModuleDir()
-	{
-		return "";
-	}
+    @Nonnull
+    @Deprecated
+    @DeprecationInfo("Always return empty string")
+    public String getDedicatedModuleDir() {
+        return "";
+    }
 
-	public boolean isLookForNested()
-	{
-		return lookForNested;
-	}
+    public boolean isLookForNested() {
+        return lookForNested;
+    }
 
-	public void setLookForNested(boolean lookForNested)
-	{
-		this.lookForNested = lookForNested;
-	}
+    public void setLookForNested(boolean lookForNested) {
+        this.lookForNested = lookForNested;
+    }
 
-	public boolean isImportAutomatically()
-	{
-		return importAutomatically;
-	}
+    public boolean isImportAutomatically() {
+        return importAutomatically;
+    }
 
-	public void setImportAutomatically(boolean importAutomatically)
-	{
-		this.importAutomatically = importAutomatically;
-		fireAutoImportChanged();
-	}
+    public void setImportAutomatically(boolean importAutomatically) {
+        this.importAutomatically = importAutomatically;
+        fireAutoImportChanged();
+    }
 
-	@Nonnull
-	public String getDependencyTypes()
-	{
-		return dependencyTypes;
-	}
+    @Nonnull
+    public String getDependencyTypes() {
+        return dependencyTypes;
+    }
 
-	public void setDependencyTypes(@Nonnull String dependencyTypes)
-	{
-		this.dependencyTypes = dependencyTypes;
-		myDependencyTypesAsSet = null;
-	}
+    public void setDependencyTypes(@Nonnull String dependencyTypes) {
+        this.dependencyTypes = dependencyTypes;
+        myDependencyTypesAsSet = null;
+    }
 
-	@Nonnull
-	public Set<String> getDependencyTypesAsSet()
-	{
-		if(myDependencyTypesAsSet == null)
-		{
-			Set<String> res = new LinkedHashSet<String>();
+    @Nonnull
+    public Set<String> getDependencyTypesAsSet() {
+        if (myDependencyTypesAsSet == null) {
+            Set<String> res = new LinkedHashSet<>();
 
-			for(String type : StringUtil.tokenize(dependencyTypes, " \n\r\t,;"))
-			{
-				res.add(type);
-			}
+            for (String type : StringUtil.tokenize(dependencyTypes, " \n\r\t,;")) {
+                res.add(type);
+            }
 
-			myDependencyTypesAsSet = res;
-		}
-		return myDependencyTypesAsSet;
-	}
+            myDependencyTypesAsSet = res;
+        }
+        return myDependencyTypesAsSet;
+    }
 
-	public boolean isCreateModuleGroups()
-	{
-		return createModuleGroups;
-	}
+    public boolean isCreateModuleGroups() {
+        return createModuleGroups;
+    }
 
-	public void setCreateModuleGroups(boolean createModuleGroups)
-	{
-		this.createModuleGroups = createModuleGroups;
-		fireCreateModuleGroupsChanged();
-	}
+    public void setCreateModuleGroups(boolean createModuleGroups) {
+        this.createModuleGroups = createModuleGroups;
+        fireCreateModuleGroupsChanged();
+    }
 
-	public boolean isCreateModulesForAggregators()
-	{
-		return createModulesForAggregators;
-	}
+    public boolean isCreateModulesForAggregators() {
+        return createModulesForAggregators;
+    }
 
-	public void setCreateModulesForAggregators(boolean createModulesForAggregators)
-	{
-		this.createModulesForAggregators = createModulesForAggregators;
-		fireCreateModuleForAggregatorsChanged();
-	}
+    public void setCreateModulesForAggregators(boolean createModulesForAggregators) {
+        this.createModulesForAggregators = createModulesForAggregators;
+        fireCreateModuleForAggregatorsChanged();
+    }
 
-	public boolean isKeepSourceFolders()
-	{
-		return keepSourceFolders;
-	}
+    public boolean isKeepSourceFolders() {
+        return keepSourceFolders;
+    }
 
-	public void setKeepSourceFolders(boolean keepSourceFolders)
-	{
-		this.keepSourceFolders = keepSourceFolders;
-	}
+    public void setKeepSourceFolders(boolean keepSourceFolders) {
+        this.keepSourceFolders = keepSourceFolders;
+    }
 
-	public boolean isExcludeTargetFolder()
-	{
-		return excludeTargetFolder;
-	}
+    public boolean isExcludeTargetFolder() {
+        return excludeTargetFolder;
+    }
 
-	public void setExcludeTargetFolder(boolean excludeTargetFolder)
-	{
-		this.excludeTargetFolder = excludeTargetFolder;
-	}
+    public void setExcludeTargetFolder(boolean excludeTargetFolder) {
+        this.excludeTargetFolder = excludeTargetFolder;
+    }
 
-	public boolean isUseMavenOutput()
-	{
-		return useMavenOutput;
-	}
+    public boolean isUseMavenOutput() {
+        return useMavenOutput;
+    }
 
-	public void setUseMavenOutput(boolean useMavenOutput)
-	{
-		this.useMavenOutput = useMavenOutput;
-	}
+    public void setUseMavenOutput(boolean useMavenOutput) {
+        this.useMavenOutput = useMavenOutput;
+    }
 
-	public String getUpdateFoldersOnImportPhase()
-	{
-		return updateFoldersOnImportPhase;
-	}
+    public String getUpdateFoldersOnImportPhase() {
+        return updateFoldersOnImportPhase;
+    }
 
-	public void setUpdateFoldersOnImportPhase(String updateFoldersOnImportPhase)
-	{
-		this.updateFoldersOnImportPhase = updateFoldersOnImportPhase;
-	}
+    public void setUpdateFoldersOnImportPhase(String updateFoldersOnImportPhase) {
+        this.updateFoldersOnImportPhase = updateFoldersOnImportPhase;
+    }
 
-	public boolean isDownloadSourcesAutomatically()
-	{
-		return downloadSourcesAutomatically;
-	}
+    public boolean isDownloadSourcesAutomatically() {
+        return downloadSourcesAutomatically;
+    }
 
-	public void setDownloadSourcesAutomatically(boolean Value)
-	{
-		this.downloadSourcesAutomatically = Value;
-	}
+    public void setDownloadSourcesAutomatically(boolean Value) {
+        this.downloadSourcesAutomatically = Value;
+    }
 
-	public boolean isDownloadDocsAutomatically()
-	{
-		return downloadDocsAutomatically;
-	}
+    public boolean isDownloadDocsAutomatically() {
+        return downloadDocsAutomatically;
+    }
 
-	public void setDownloadDocsAutomatically(boolean value)
-	{
-		this.downloadDocsAutomatically = value;
-	}
+    public void setDownloadDocsAutomatically(boolean value) {
+        this.downloadDocsAutomatically = value;
+    }
 
-	@Property
-	@Nonnull
-	public GeneratedSourcesFolder getGeneratedSourcesFolder()
-	{
-		return generatedSourcesFolder;
-	}
+    @Property
+    @Nonnull
+    public GeneratedSourcesFolder getGeneratedSourcesFolder() {
+        return generatedSourcesFolder;
+    }
 
-	public void setGeneratedSourcesFolder(GeneratedSourcesFolder generatedSourcesFolder)
-	{
-		if(generatedSourcesFolder == null)
-		{
-			return; // null may come from deserializator
-		}
+    public void setGeneratedSourcesFolder(GeneratedSourcesFolder generatedSourcesFolder) {
+        if (generatedSourcesFolder == null) {
+            return; // null may come from deserializator
+        }
 
-		this.generatedSourcesFolder = generatedSourcesFolder;
-	}
+        this.generatedSourcesFolder = generatedSourcesFolder;
+    }
 
-	@Override
-	public boolean equals(Object o)
-	{
-		if(this == o)
-		{
-			return true;
-		}
-		if(o == null || getClass() != o.getClass())
-		{
-			return false;
-		}
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
-		MavenImportingSettings that = (MavenImportingSettings) o;
+        MavenImportingSettings that = (MavenImportingSettings)o;
 
-		if(createModuleGroups != that.createModuleGroups)
-		{
-			return false;
-		}
-		if(createModulesForAggregators != that.createModulesForAggregators)
-		{
-			return false;
-		}
-		if(importAutomatically != that.importAutomatically)
-		{
-			return false;
-		}
-		if(!dependencyTypes.equals(that.dependencyTypes))
-		{
-			return false;
-		}
-		if(downloadDocsAutomatically != that.downloadDocsAutomatically)
-		{
-			return false;
-		}
-		if(downloadSourcesAutomatically != that.downloadSourcesAutomatically)
-		{
-			return false;
-		}
-		if(lookForNested != that.lookForNested)
-		{
-			return false;
-		}
-		if(keepSourceFolders != that.keepSourceFolders)
-		{
-			return false;
-		}
-		if(excludeTargetFolder != that.excludeTargetFolder)
-		{
-			return false;
-		}
-		if(useMavenOutput != that.useMavenOutput)
-		{
-			return false;
-		}
-		if(generatedSourcesFolder != that.generatedSourcesFolder)
-		{
-			return false;
-		}
-		if(updateFoldersOnImportPhase != null ? !updateFoldersOnImportPhase.equals(that.updateFoldersOnImportPhase) : that.updateFoldersOnImportPhase != null)
-		{
-			return false;
-		}
+        if (createModuleGroups != that.createModuleGroups) {
+            return false;
+        }
+        if (createModulesForAggregators != that.createModulesForAggregators) {
+            return false;
+        }
+        if (importAutomatically != that.importAutomatically) {
+            return false;
+        }
+        if (!dependencyTypes.equals(that.dependencyTypes)) {
+            return false;
+        }
+        if (downloadDocsAutomatically != that.downloadDocsAutomatically) {
+            return false;
+        }
+        if (downloadSourcesAutomatically != that.downloadSourcesAutomatically) {
+            return false;
+        }
+        if (lookForNested != that.lookForNested) {
+            return false;
+        }
+        if (keepSourceFolders != that.keepSourceFolders) {
+            return false;
+        }
+        if (excludeTargetFolder != that.excludeTargetFolder) {
+            return false;
+        }
+        if (useMavenOutput != that.useMavenOutput) {
+            return false;
+        }
+        if (generatedSourcesFolder != that.generatedSourcesFolder) {
+            return false;
+        }
+        return updateFoldersOnImportPhase != null
+            ? updateFoldersOnImportPhase.equals(that.updateFoldersOnImportPhase)
+            : that.updateFoldersOnImportPhase == null;
+    }
 
-		return true;
-	}
+    @Override
+    public int hashCode() {
+        int result = 0;
 
-	@Override
-	public int hashCode()
-	{
-		int result = 0;
+        if (lookForNested) {
+            result++;
+        }
+        result <<= 1;
+        if (importAutomatically) {
+            result++;
+        }
+        result <<= 1;
+        if (createModulesForAggregators) {
+            result++;
+        }
+        result <<= 1;
+        if (createModuleGroups) {
+            result++;
+        }
+        result <<= 1;
+        if (keepSourceFolders) {
+            result++;
+        }
+        result <<= 1;
+        if (useMavenOutput) {
+            result++;
+        }
+        result <<= 1;
+        if (downloadSourcesAutomatically) {
+            result++;
+        }
+        result <<= 1;
+        if (downloadDocsAutomatically) {
+            result++;
+        }
+        result <<= 1;
 
-		if(lookForNested)
-		{
-			result++;
-		}
-		result <<= 1;
-		if(importAutomatically)
-		{
-			result++;
-		}
-		result <<= 1;
-		if(createModulesForAggregators)
-		{
-			result++;
-		}
-		result <<= 1;
-		if(createModuleGroups)
-		{
-			result++;
-		}
-		result <<= 1;
-		if(keepSourceFolders)
-		{
-			result++;
-		}
-		result <<= 1;
-		if(useMavenOutput)
-		{
-			result++;
-		}
-		result <<= 1;
-		if(downloadSourcesAutomatically)
-		{
-			result++;
-		}
-		result <<= 1;
-		if(downloadDocsAutomatically)
-		{
-			result++;
-		}
-		result <<= 1;
+        result = 31 * result + (updateFoldersOnImportPhase != null ? updateFoldersOnImportPhase.hashCode() : 0);
+        result = 31 * result + generatedSourcesFolder.hashCode();
+        result = 31 * result + dependencyTypes.hashCode();
 
-		result = 31 * result + (updateFoldersOnImportPhase != null ? updateFoldersOnImportPhase.hashCode() : 0);
-		result = 31 * result + generatedSourcesFolder.hashCode();
-		result = 31 * result + dependencyTypes.hashCode();
+        return result;
+    }
 
-		return result;
-	}
+    @Override
+    public MavenImportingSettings clone() {
+        try {
+            MavenImportingSettings result = (MavenImportingSettings)super.clone();
+            result.myListeners = Lists.newLockFreeCopyOnWriteList();
+            return result;
+        }
+        catch (CloneNotSupportedException e) {
+            throw new Error(e);
+        }
+    }
 
-	@Override
-	public MavenImportingSettings clone()
-	{
-		try
-		{
-			MavenImportingSettings result = (MavenImportingSettings) super.clone();
-			result.myListeners = Lists.newLockFreeCopyOnWriteList();
-			return result;
-		}
-		catch(CloneNotSupportedException e)
-		{
-			throw new Error(e);
-		}
-	}
+    public void addListener(Listener l) {
+        myListeners.add(l);
+    }
 
-	public void addListener(Listener l)
-	{
-		myListeners.add(l);
-	}
+    public void removeListener(Listener l) {
+        myListeners.remove(l);
+    }
 
-	public void removeListener(Listener l)
-	{
-		myListeners.remove(l);
-	}
+    private void fireAutoImportChanged() {
+        for (Listener each : myListeners) {
+            each.autoImportChanged();
+        }
+    }
 
-	private void fireAutoImportChanged()
-	{
-		for(Listener each : myListeners)
-		{
-			each.autoImportChanged();
-		}
-	}
+    private void fireCreateModuleGroupsChanged() {
+        for (Listener each : myListeners) {
+            each.createModuleGroupsChanged();
+        }
+    }
 
-	private void fireCreateModuleGroupsChanged()
-	{
-		for(Listener each : myListeners)
-		{
-			each.createModuleGroupsChanged();
-		}
-	}
+    private void fireCreateModuleForAggregatorsChanged() {
+        for (Listener each : myListeners) {
+            each.createModuleForAggregatorsChanged();
+        }
+    }
 
-	private void fireCreateModuleForAggregatorsChanged()
-	{
-		for(Listener each : myListeners)
-		{
-			each.createModuleForAggregatorsChanged();
-		}
-	}
+    public interface Listener {
+        void autoImportChanged();
 
-	public interface Listener
-	{
-		void autoImportChanged();
+        void createModuleGroupsChanged();
 
-		void createModuleGroupsChanged();
-
-		void createModuleForAggregatorsChanged();
-	}
+        void createModuleForAggregatorsChanged();
+    }
 }

@@ -20,6 +20,7 @@
 package org.jetbrains.idea.maven.dom.model;
 
 import javax.annotation.Nonnull;
+
 import org.jetbrains.idea.maven.dom.MavenDomElement;
 
 import java.util.List;
@@ -28,19 +29,18 @@ import java.util.List;
  * http://maven.apache.org/POM/4.0.0:resourcesElemType interface.
  */
 public interface MavenDomResources extends MavenDomElement {
+    /**
+     * Returns the list of resource children.
+     *
+     * @return the list of resource children.
+     */
+    @Nonnull
+    List<MavenDomResource> getResources();
 
-  /**
-   * Returns the list of resource children.
-   *
-   * @return the list of resource children.
-   */
-  @Nonnull
-  List<MavenDomResource> getResources();
-
-  /**
-   * Adds new child to the list of resource children.
-   *
-   * @return created child
-   */
-  MavenDomResource addResource();
+    /**
+     * Adds new child to the list of resource children.
+     *
+     * @return created child
+     */
+    MavenDomResource addResource();
 }

@@ -20,6 +20,7 @@
 package org.jetbrains.idea.maven.dom.model;
 
 import javax.annotation.Nonnull;
+
 import org.jetbrains.idea.maven.dom.MavenDomElement;
 
 import java.util.List;
@@ -28,19 +29,18 @@ import java.util.List;
  * http://maven.apache.org/POM/4.0.0:mailingListsElemType interface.
  */
 public interface MavenDomMailingLists extends MavenDomElement {
+    /**
+     * Returns the list of mailingList children.
+     *
+     * @return the list of mailingList children.
+     */
+    @Nonnull
+    List<MavenDomMailingList> getMailingLists();
 
-  /**
-   * Returns the list of mailingList children.
-   *
-   * @return the list of mailingList children.
-   */
-  @Nonnull
-  List<MavenDomMailingList> getMailingLists();
-
-  /**
-   * Adds new child to the list of mailingList children.
-   *
-   * @return created child
-   */
-  MavenDomMailingList addMailingList();
+    /**
+     * Adds new child to the list of mailingList children.
+     *
+     * @return created child
+     */
+    MavenDomMailingList addMailingList();
 }

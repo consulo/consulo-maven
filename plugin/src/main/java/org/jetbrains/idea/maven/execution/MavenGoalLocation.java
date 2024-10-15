@@ -15,22 +15,23 @@
  */
 package org.jetbrains.idea.maven.execution;
 
+import consulo.annotation.access.RequiredReadAction;
 import consulo.execution.action.PsiLocation;
 import consulo.language.psi.PsiFile;
 import consulo.project.Project;
 
 import java.util.List;
 
-public class MavenGoalLocation extends PsiLocation<PsiFile>
-{
-  private final List<String> myGoals;
+public class MavenGoalLocation extends PsiLocation<PsiFile> {
+    private final List<String> myGoals;
 
-  public MavenGoalLocation(Project p, PsiFile file, List<String> goals) {
-    super(p, file);
-    myGoals = goals;
-  }
+    @RequiredReadAction
+    public MavenGoalLocation(Project p, PsiFile file, List<String> goals) {
+        super(p, file);
+        myGoals = goals;
+    }
 
-  public List<String> getGoals() {
-    return myGoals;
-  }
+    public List<String> getGoals() {
+        return myGoals;
+    }
 }

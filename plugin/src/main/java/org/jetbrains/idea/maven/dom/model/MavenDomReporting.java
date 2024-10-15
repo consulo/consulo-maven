@@ -35,41 +35,40 @@ import org.jetbrains.idea.maven.dom.references.MavenDirectoryPathReferenceConver
  * </pre>
  */
 public interface MavenDomReporting extends MavenDomElement {
+    /**
+     * Returns the value of the excludeDefaults child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:excludeDefaults documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the excludeDefaults child.
+     */
+    @Nonnull
+    GenericDomValue<Boolean> getExcludeDefaults();
 
-  /**
-   * Returns the value of the excludeDefaults child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:excludeDefaults documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the excludeDefaults child.
-   */
-  @Nonnull
-  GenericDomValue<Boolean> getExcludeDefaults();
+    /**
+     * Returns the value of the outputDirectory child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:outputDirectory documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the outputDirectory child.
+     */
+    @Nonnull
+    @Convert(value = MavenDirectoryPathReferenceConverter.class, soft = true)
+    GenericDomValue<PathReference> getOutputDirectory();
 
-  /**
-   * Returns the value of the outputDirectory child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:outputDirectory documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the outputDirectory child.
-   */
-  @Nonnull
-  @Convert(value = MavenDirectoryPathReferenceConverter.class, soft = true)
-  GenericDomValue<PathReference> getOutputDirectory();
-
-  /**
-   * Returns the value of the plugins child.
-   * <pre>
-   * <h3>Element http://maven.apache.org/POM/4.0.0:plugins documentation</h3>
-   * 4.0.0
-   * </pre>
-   *
-   * @return the value of the plugins child.
-   */
-  @Nonnull
-  MavenDomPlugins getPlugins();
+    /**
+     * Returns the value of the plugins child.
+     * <pre>
+     * <h3>Element http://maven.apache.org/POM/4.0.0:plugins documentation</h3>
+     * 4.0.0
+     * </pre>
+     *
+     * @return the value of the plugins child.
+     */
+    @Nonnull
+    MavenDomPlugins getPlugins();
 }
