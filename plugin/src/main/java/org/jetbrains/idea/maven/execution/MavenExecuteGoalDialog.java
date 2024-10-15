@@ -15,32 +15,22 @@
  */
 package org.jetbrains.idea.maven.execution;
 
-import java.util.Collection;
+import consulo.localize.LocalizeValue;
+import consulo.project.Project;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.swing.Action;
-
-import consulo.project.Project;
+import java.util.Collection;
 
 /**
  * @author Sergey Evdokimov
  */
-public class MavenExecuteGoalDialog extends MavenEditGoalDialog
-{
-	public MavenExecuteGoalDialog(@Nonnull Project project, @Nullable Collection<String> history)
-	{
-		super(project, history);
+public class MavenExecuteGoalDialog extends MavenEditGoalDialog {
+    public MavenExecuteGoalDialog(@Nonnull Project project, @Nullable Collection<String> history) {
+        super(project, history);
 
-		setTitle("Execute Maven Goal");
-	}
+        setTitle(LocalizeValue.localizeTODO("Execute Maven Goal"));
 
-	@Nonnull
-	@Override
-	protected Action getOKAction()
-	{
-		Action action = super.getOKAction();
-		action.putValue(Action.NAME, "&Execute");
-		return action;
-	}
+        getOKAction().setText(LocalizeValue.localizeTODO("&Execute"));
+    }
 }
