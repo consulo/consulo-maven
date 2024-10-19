@@ -15,6 +15,7 @@
  */
 package org.jetbrains.idea.maven.wizards;
 
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.awt.DialogWrapper;
 import consulo.ui.ex.awt.event.DocumentAdapter;
 import consulo.util.lang.StringUtil;
@@ -54,11 +55,13 @@ public class MavenAddArchetypeDialog extends DialogWrapper {
         doValidateInput();
     }
 
+    @Override
     protected JComponent createCenterPanel() {
         return myMainPanel;
     }
 
     @Override
+    @RequiredUIAccess
     public JComponent getPreferredFocusedComponent() {
         return myGroupIdField;
     }
@@ -69,7 +72,7 @@ public class MavenAddArchetypeDialog extends DialogWrapper {
     }
 
     private void doValidateInput() {
-        List<String> errors = new ArrayList<String>();
+        List<String> errors = new ArrayList<>();
         if (StringUtil.isEmptyOrSpaces(myGroupIdField.getText())) {
             errors.add("GroupId");
         }
@@ -81,7 +84,7 @@ public class MavenAddArchetypeDialog extends DialogWrapper {
         }
 
         if (errors.isEmpty()) {
-            setErrorText(null);
+            clearErrorText();
             getOKAction().setEnabled(true);
             return;
         }
