@@ -15,16 +15,15 @@
  */
 package org.jetbrains.idea.maven.navigator.actions;
 
+import consulo.execution.RunConfigurationEditor;
 import consulo.execution.RunManager;
 import consulo.execution.RunnerAndConfigurationSettings;
-import consulo.ide.impl.idea.execution.impl.EditConfigurationsDialog;
-import consulo.ui.ex.action.AnActionEvent;
 import consulo.project.Project;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.action.AnAction;
-import org.jetbrains.idea.maven.utils.MavenDataKeys;
-
+import consulo.ui.ex.action.AnActionEvent;
 import jakarta.annotation.Nonnull;
+import org.jetbrains.idea.maven.utils.MavenDataKeys;
 
 /**
  * @author Sergey Evdokimov
@@ -40,8 +39,9 @@ public class EditMavenRunConfigurationAction extends AnAction {
 
         RunManager.getInstance(project).setSelectedConfiguration(settings);
 
-        EditConfigurationsDialog dialog = new EditConfigurationsDialog(project);
-        dialog.show();
+        RunConfigurationEditor editor = RunConfigurationEditor.getInstance(project);
+
+        editor.editAll();
     }
 
     @RequiredUIAccess

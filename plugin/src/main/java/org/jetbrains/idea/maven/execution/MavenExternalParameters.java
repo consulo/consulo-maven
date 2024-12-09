@@ -24,9 +24,8 @@ import consulo.application.Application;
 import consulo.container.boot.ContainerPathManager;
 import consulo.content.bundle.Sdk;
 import consulo.content.bundle.SdkTable;
+import consulo.execution.RunConfigurationEditor;
 import consulo.execution.RunManager;
-import consulo.ide.impl.idea.execution.impl.EditConfigurationsDialog;
-import consulo.ide.impl.idea.util.PathUtil;
 import consulo.ide.setting.ShowSettingsUtil;
 import consulo.java.execution.configurations.OwnJavaParameters;
 import consulo.localize.LocalizeValue;
@@ -41,6 +40,7 @@ import consulo.project.Project;
 import consulo.project.ui.notification.Notification;
 import consulo.project.ui.notification.event.NotificationListener;
 import consulo.ui.annotation.RequiredUIAccess;
+import consulo.util.io.ClassPathUtil;
 import consulo.util.io.FileUtil;
 import consulo.util.lang.StringUtil;
 import consulo.virtualFileSystem.encoding.EncodingManager;
@@ -221,8 +221,8 @@ public class MavenExternalParameters {
         }
 
         List<String> classpath = new ArrayList<>(2);
-        classpath.add(PathUtil.getJarPathForClass(MavenModuleMap.class));
-        classpath.add(PathUtil.getJarPathForClass(marker));
+        classpath.add(ClassPathUtil.getJarPathForClass(MavenModuleMap.class));
+        classpath.add(ClassPathUtil.getJarPathForClass(marker));
         return classpath;
     }
 
@@ -555,8 +555,10 @@ public class MavenExternalParameters {
         @RequiredUIAccess
         protected void hyperlinkClicked() {
             Project project = myRunConfiguration.getProject();
-            EditConfigurationsDialog dialog = new EditConfigurationsDialog(project);
-            dialog.show();
+
+            RunConfigurationEditor editor = RunConfigurationEditor.getInstance(project);
+
+            editor.editAll();
         }
     }
 
