@@ -18,19 +18,18 @@ package org.jetbrains.idea.maven.navigator.actions;
 import consulo.application.dumb.DumbAware;
 import consulo.execution.ProgramRunnerUtil;
 import consulo.execution.RunnerAndConfigurationSettings;
-import consulo.execution.RunnerRegistry;
 import consulo.execution.executor.Executor;
 import consulo.execution.executor.ExecutorRegistry;
 import consulo.execution.runner.ProgramRunner;
+import consulo.execution.runner.RunnerRegistry;
 import consulo.project.Project;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.action.AnAction;
 import consulo.ui.ex.action.AnActionEvent;
 import consulo.ui.ex.action.Constraints;
 import consulo.ui.ex.action.DefaultActionGroup;
-import org.jetbrains.idea.maven.utils.MavenDataKeys;
-
 import jakarta.annotation.Nonnull;
+import org.jetbrains.idea.maven.utils.MavenDataKeys;
 
 /**
  * @author Sergey Evdokimov
