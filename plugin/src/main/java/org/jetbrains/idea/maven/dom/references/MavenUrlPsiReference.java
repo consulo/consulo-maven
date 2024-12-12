@@ -16,11 +16,10 @@
 package org.jetbrains.idea.maven.dom.references;
 
 import consulo.annotation.access.RequiredReadAction;
-import consulo.ide.impl.idea.ide.BrowserUtil;
 import consulo.document.util.TextRange;
 import consulo.language.impl.psi.FakePsiElement;
 import consulo.language.psi.PsiElement;
-import jakarta.annotation.Nonnull;
+import consulo.webBrowser.BrowserUtil;
 
 public class MavenUrlPsiReference extends MavenPsiReference {
     public MavenUrlPsiReference(PsiElement element, String text, TextRange range) {
@@ -47,12 +46,5 @@ public class MavenUrlPsiReference extends MavenPsiReference {
                 BrowserUtil.launchBrowser(myText);
             }
         };
-    }
-
-    @Nonnull
-    @Override
-    @RequiredReadAction
-    public Object[] getVariants() {
-        return EMPTY_ARRAY;
     }
 }
