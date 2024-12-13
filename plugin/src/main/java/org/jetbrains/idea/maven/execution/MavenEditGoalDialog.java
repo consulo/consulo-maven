@@ -23,6 +23,7 @@ import consulo.language.editor.ui.awt.EditorTextField;
 import consulo.language.editor.ui.awt.StringComboboxEditor;
 import consulo.language.plain.PlainTextFileType;
 import consulo.maven.rt.server.common.model.MavenConstants;
+import consulo.platform.base.icon.PlatformIconGroup;
 import consulo.project.Project;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.awt.*;
@@ -102,7 +103,7 @@ public class MavenEditGoalDialog extends DialogWrapper {
 
         MavenProjectsManager projectsManager = MavenProjectsManager.getInstance(myProject);
 
-        showProjectTreeButton.setIcon(TargetAWT.to(AllIcons.Actions.Module));
+        showProjectTreeButton.setIcon(TargetAWT.to(PlatformIconGroup.nodesModule()));
         MavenSelectProjectPopup.attachToWorkingDirectoryField(
             projectsManager,
             workDirectoryField.getTextField(),
