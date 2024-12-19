@@ -438,7 +438,9 @@ public class MavenProjectsTree {
         update(managedFiles, true, force, explicitProfiles, projectReader, generalSettings, process);
 
         List<VirtualFile> obsoleteFiles = getRootProjectsFiles();
-        obsoleteFiles.removeAll(managedFiles);
+        if (!obsoleteFiles.isEmpty()) {
+            obsoleteFiles.removeAll(managedFiles);
+        }
         delete(projectReader, obsoleteFiles, explicitProfiles, generalSettings, process);
     }
 
