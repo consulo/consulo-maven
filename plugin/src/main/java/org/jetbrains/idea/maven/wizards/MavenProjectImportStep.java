@@ -18,73 +18,42 @@ package org.jetbrains.idea.maven.wizards;
 import consulo.configurable.Configurable;
 import consulo.configurable.ConfigurationException;
 import consulo.disposer.Disposable;
-import consulo.ide.newModule.ui.NamePathComponent;
+import consulo.fileChooser.FileChooserDescriptorFactory;
 import consulo.ide.setting.ShowSettingsUtil;
 import consulo.maven.importProvider.MavenImportModuleContext;
+import consulo.ui.Button;
 import consulo.ui.Component;
 import consulo.ui.annotation.RequiredUIAccess;
+import consulo.ui.ex.FileChooserTextBoxBuilder;
+import consulo.ui.ex.awtUnsafe.TargetAWT;
 import consulo.ui.ex.wizard.WizardStep;
+import consulo.ui.layout.DockLayout;
+import consulo.ui.util.LabeledBuilder;
 import consulo.util.io.FileUtil;
 import consulo.virtualFileSystem.VirtualFile;
+import jakarta.annotation.Nonnull;
 import org.jetbrains.annotations.Nls;
+import org.jetbrains.idea.maven.localize.MavenProjectLocalize;
 import org.jetbrains.idea.maven.project.*;
 
-import jakarta.annotation.Nonnull;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 public class MavenProjectImportStep implements WizardStep<MavenImportModuleContext> {
     private final JPanel myPanel;
-    private final NamePathComponent myRootPathComponent;
+    private FileChooserTextBoxBuilder.Controller myRootPathController;
     private final MavenImportingSettingsForm myImportingSettingsForm;
     private final MavenImportModuleContext myContext;
 
+    private String myRootPath;
+
+    @RequiredUIAccess
     public MavenProjectImportStep(MavenImportModuleContext context) {
         myContext = context;
 
         myImportingSettingsForm = new MavenImportingSettingsForm(true, context.isNewProject());
 
-        myRootPathComponent = new NamePathComponent("",
-            ProjectBundle.message("maven.import.label.select.root"),
-            ProjectBundle.message("maven.import.title.select.root"),
-            "",
-            false,
-            false
-        );
-
-        JButton envSettingsButton = new JButton(ProjectBundle.message("maven.import.environment.settings"));
-        envSettingsButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                ShowSettingsUtil.getInstance().editConfigurable(myPanel, new MavenEnvironmentConfigurable());
-            }
-        });
-
-        myPanel = new JPanel(new GridBagLayout());
-
-        GridBagConstraints c = new GridBagConstraints();
-        c.gridx = 0;
-        c.gridy = 0;
-        c.weightx = 1;
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.insets = new Insets(4, 4, 0, 4);
-
-        myPanel.add(myRootPathComponent, c);
-
-        c.gridy = 1;
-        c.insets = new Insets(4, 4, 0, 4);
-        myPanel.add(myImportingSettingsForm.createComponent(), c);
-
-        c.gridy = 2;
-        c.fill = GridBagConstraints.NONE;
-        c.anchor = GridBagConstraints.NORTHEAST;
-        c.weighty = 1;
-        c.insets = new Insets(4 + envSettingsButton.getPreferredSize().height, 4, 4, 4);
-        myPanel.add(envSettingsButton, c);
-
-        myRootPathComponent.setNameComponentVisible(false);
+        myPanel = new JPanel(new BorderLayout());
     }
 
     @RequiredUIAccess
@@ -98,45 +67,74 @@ public class MavenProjectImportStep implements WizardStep<MavenImportModuleConte
     @Nonnull
     @Override
     public JComponent getSwingComponent(@Nonnull MavenImportModuleContext context, @Nonnull Disposable disposable) {
+        myRootPathController = FileChooserTextBoxBuilder.create(context.getProject())
+            .uiDisposable(disposable)
+            .fileChooserDescriptor(FileChooserDescriptorFactory.createSingleFolderDescriptor())
+            .dialogTitle(MavenProjectLocalize.mavenImportTitleSelectRoot())
+            .build();
+
+        if (myRootPath != null) {
+            myRootPathController.setValue(myRootPath);
+        }
+
+        myPanel.add(TargetAWT.to(LabeledBuilder.filled(MavenProjectLocalize.mavenImportLabelSelectRoot(), myRootPathController.getComponent())), BorderLayout.NORTH);
+
+        myPanel.add(myImportingSettingsForm.createComponent(), BorderLayout.CENTER);
+
+        Button envSettingsButton = Button.create(MavenProjectLocalize.mavenImportEnvironmentSettings(), e -> {
+            ShowSettingsUtil.getInstance().editConfigurable(myPanel, new MavenEnvironmentConfigurable());
+        });
+
+        DockLayout bottom = DockLayout.create();
+        bottom.right(envSettingsButton);
+
+        myPanel.add(TargetAWT.to(bottom), BorderLayout.SOUTH);
+
         return myPanel;
     }
 
     @Override
+    @RequiredUIAccess
+    public JComponent getSwingPreferredFocusedComponent() {
+        return (JComponent) TargetAWT.to(myRootPathController.getComponent());
+    }
+
+    @Override
+    @RequiredUIAccess
     public void onStepEnter(@Nonnull MavenImportModuleContext mavenImportModuleContext) {
-        if (!myRootPathComponent.isPathChangedByUser()) {
-            final VirtualFile rootDirectory = myContext.getRootDirectory();
-            final String path;
-            if (rootDirectory != null) {
-                path = rootDirectory.getPath();
-            }
-            else {
-                path = myContext.getPath();
-            }
-            if (path != null) {
-                myRootPathComponent.setPath(FileUtil.toSystemDependentName(path));
-                myRootPathComponent.getPathComponent().selectAll();
-            }
+        final VirtualFile rootDirectory = myContext.getRootDirectory();
+
+        String path;
+        if (rootDirectory != null) {
+            path = rootDirectory.getPath();
         }
+        else {
+            path = myContext.getPath();
+        }
+
+        path = FileUtil.toSystemDependentName(path);
+        if (myRootPathController != null) {
+            myRootPathController.setValue(path);
+        } else {
+            myRootPath = path;
+        }
+
         myImportingSettingsForm.setData(getImportingSettings());
     }
 
     @Override
+    @RequiredUIAccess
     public void onStepLeave(@Nonnull MavenImportModuleContext mavenImportModuleContext) {
         MavenImportingSettings settings = getImportingSettings();
         myImportingSettingsForm.getData(settings);
-        suggestProjectNameAndPath(settings.getDedicatedModuleDir(), myRootPathComponent.getPath());
-        myContext.setRootDirectory(myContext.getProject(), myRootPathComponent.getPath());
+        suggestProjectNameAndPath(settings.getDedicatedModuleDir(), myRootPathController.getValue());
+        myContext.setRootDirectory(myContext.getProject(), myRootPathController.getValue());
     }
 
     protected void suggestProjectNameAndPath(final String alternativePath, final String path) {
         myContext.setPath(alternativePath != null && alternativePath.length() > 0 ? alternativePath : path);
         final String global = FileUtil.toSystemIndependentName(path);
         myContext.setName(global.substring(global.lastIndexOf("/") + 1));
-    }
-
-    @Override
-    public JComponent getSwingPreferredFocusedComponent() {
-        return myRootPathComponent.getPathComponent();
     }
 
     private MavenGeneralSettings getGeneralSettings() {
