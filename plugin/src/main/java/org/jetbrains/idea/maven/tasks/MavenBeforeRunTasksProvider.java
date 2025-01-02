@@ -117,7 +117,7 @@ public class MavenBeforeRunTasksProvider extends BeforeRunTaskProvider<MavenBefo
     @RequiredUIAccess
     @Override
     public AsyncResult<Void> configureTask(RunConfiguration runConfiguration, MavenBeforeRunTask task) {
-        MavenEditGoalDialog dialog = new MavenEditGoalDialog(myProject, Arrays.asList("aaa", "adasdas"));
+        MavenEditGoalDialog dialog = new MavenEditGoalDialog(myProject);
 
         dialog.setTitle(MavenTasksLocalize.mavenTasksSelectGoalTitle());
 

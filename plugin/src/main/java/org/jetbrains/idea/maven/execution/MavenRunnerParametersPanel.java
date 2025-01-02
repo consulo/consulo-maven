@@ -36,11 +36,12 @@ import consulo.ui.ex.awt.JBLabel;
 import consulo.ui.ex.awt.UIUtil;
 import consulo.ui.ex.awtUnsafe.TargetAWT;
 import consulo.virtualFileSystem.VirtualFile;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import org.jetbrains.idea.maven.execution.cmd.ParametersListLexer;
 import org.jetbrains.idea.maven.localize.MavenRunnerLocalize;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 
-import jakarta.annotation.Nonnull;
 import javax.swing.*;
 import java.awt.*;
 import java.util.LinkedHashMap;
@@ -52,7 +53,9 @@ import java.util.Map;
  */
 public class MavenRunnerParametersPanel {
     private EditorTextField myGoalsEditor;
+    @Nullable
     private EditorTextField myProfilesEditor;
+    @Nullable
     private JCheckBox myResolveToWorkspaceCheckBox;
 
     private FileChooserTextBoxBuilder.Controller myWorkingDirectory;
@@ -60,6 +63,11 @@ public class MavenRunnerParametersPanel {
 
     @RequiredUIAccess
     public MavenRunnerParametersPanel(@Nonnull final Project project) {
+        this(project, true, true);
+    }
+
+    @RequiredUIAccess
+    public MavenRunnerParametersPanel(@Nonnull final Project project, boolean withResolveLocal, boolean withProfiles) {
         FileChooserTextBoxBuilder workDirBuilder = FileChooserTextBoxBuilder.create(project);
         workDirBuilder.dialogTitle(MavenRunnerLocalize.mavenSelectMavenProjectFile());
         workDirBuilder.fileChooserDescriptor(new FileChooserDescriptor(false, true, false, false, false, false) {
@@ -72,7 +80,7 @@ public class MavenRunnerParametersPanel {
 
         myWorkingDirectory = workDirBuilder.build();
 
-        JComponent workTextField = (JComponent)TargetAWT.to(myWorkingDirectory.getComponent());
+        JComponent workTextField = (JComponent) TargetAWT.to(myWorkingDirectory.getComponent());
         if (workTextField instanceof JTextField jTextField) {
             // TODO [VISTALL] dirty hack with old UI form builder which change filling by cols option
             jTextField.setColumns(0);
@@ -115,22 +123,26 @@ public class MavenRunnerParametersPanel {
             myGoalsEditor = new MavenArgumentsCompletionProvider(project).createEditor(project);
             myFormBuilder.addLabeledComponent("Command line", myGoalsEditor);
 
-            myProfilesEditor = profilesCompletionProvider.createEditor(project);
-            myFormBuilder.addLabeledComponent("Profiles (separated with space)", myProfilesEditor);
-            JLabel label = new JBLabel("add prefix '-' to disable profile, e.g. '-test'");
-            label.setFont(UIUtil.getLabelFont(UIUtil.FontSize.SMALL));
-            label.setForeground(JBColor.GRAY);
+            if (withProfiles) {
+                myProfilesEditor = profilesCompletionProvider.createEditor(project);
+                myFormBuilder.addLabeledComponent("Profiles (separated with space)", myProfilesEditor);
+                JLabel label = new JBLabel("add prefix '-' to disable profile, e.g. '-test'");
+                label.setFont(UIUtil.getLabelFont(UIUtil.FontSize.SMALL));
+                label.setForeground(JBColor.GRAY);
 
-            myFormBuilder.addComponentToRightColumn(label);
+                myFormBuilder.addComponentToRightColumn(label);
+            }
         }
 
-        myResolveToWorkspaceCheckBox = new JBCheckBox("Resolve Workspace artifacts");
-        myResolveToWorkspaceCheckBox.setToolTipText(
-            "In case of multi-project workspace, dependencies will be looked for in the workspace first, " +
-                "and only after that in local repository."
-        );
+        if (withResolveLocal) {
+            myResolveToWorkspaceCheckBox = new JBCheckBox("Resolve Workspace artifacts");
+            myResolveToWorkspaceCheckBox.setToolTipText(
+                "In case of multi-project workspace, dependencies will be looked for in the workspace first, " +
+                    "and only after that in local repository."
+            );
 
-        myFormBuilder.addComponent(myResolveToWorkspaceCheckBox);
+            myFormBuilder.addComponent(myResolveToWorkspaceCheckBox);
+        }
 
         myWorkingDirectory.getComponent().addFirstExtension(new TextBoxWithExtensions.Extension(
             false,
@@ -149,6 +161,14 @@ public class MavenRunnerParametersPanel {
         return myFormBuilder.getPanel();
     }
 
+    public EditorTextField getGoalsEditor() {
+        return myGoalsEditor;
+    }
+
+    public FileChooserTextBoxBuilder.Controller getWorkingDirectory() {
+        return myWorkingDirectory;
+    }
+
     public void disposeUIResources() {
     }
 
@@ -160,46 +180,55 @@ public class MavenRunnerParametersPanel {
     protected void setData(final MavenRunnerParameters data) {
         data.setWorkingDirPath(myWorkingDirectory.getValue());
         data.setGoals(ParametersListUtil.parse(myGoalsEditor.getText()));
-        data.setResolveToWorkspace(myResolveToWorkspaceCheckBox.isSelected());
+        if (myResolveToWorkspaceCheckBox != null) {
+            data.setResolveToWorkspace(myResolveToWorkspaceCheckBox.isSelected());
+        }
 
-        Map<String, Boolean> profilesMap = new LinkedHashMap<>();
+        if (myProfilesEditor != null) {
+            Map<String, Boolean> profilesMap = new LinkedHashMap<>();
 
-        List<String> profiles = ParametersListUtil.parse(myProfilesEditor.getText());
+            List<String> profiles = ParametersListUtil.parse(myProfilesEditor.getText());
 
-        for (String profile : profiles) {
-            Boolean isEnabled = true;
-            if (profile.startsWith("-") || profile.startsWith("!")) {
-                profile = profile.substring(1);
-                if (profile.isEmpty()) {
-                    continue;
+            for (String profile : profiles) {
+                Boolean isEnabled = true;
+                if (profile.startsWith("-") || profile.startsWith("!")) {
+                    profile = profile.substring(1);
+                    if (profile.isEmpty()) {
+                        continue;
+                    }
+
+                    isEnabled = false;
                 }
 
-                isEnabled = false;
+                profilesMap.put(profile, isEnabled);
             }
-
-            profilesMap.put(profile, isEnabled);
+            data.setProfilesMap(profilesMap);
         }
-        data.setProfilesMap(profilesMap);
     }
 
     @RequiredUIAccess
     protected void getData(final MavenRunnerParameters data) {
         myWorkingDirectory.setValue(data.getWorkingDirPath());
         myGoalsEditor.setText(ParametersList.join(data.getGoals()));
-        myResolveToWorkspaceCheckBox.setSelected(data.isResolveToWorkspace());
 
-        ParametersList parametersList = new ParametersList();
-
-        for (Map.Entry<String, Boolean> entry : data.getProfilesMap().entrySet()) {
-            String profileName = entry.getKey();
-
-            if (!entry.getValue()) {
-                profileName = '-' + profileName;
-            }
-
-            parametersList.add(profileName);
+        if (myResolveToWorkspaceCheckBox != null) {
+            myResolveToWorkspaceCheckBox.setSelected(data.isResolveToWorkspace());
         }
 
-        myProfilesEditor.setText(parametersList.getParametersString());
+        if (myProfilesEditor != null) {
+            ParametersList parametersList = new ParametersList();
+
+            for (Map.Entry<String, Boolean> entry : data.getProfilesMap().entrySet()) {
+                String profileName = entry.getKey();
+
+                if (!entry.getValue()) {
+                    profileName = '-' + profileName;
+                }
+
+                parametersList.add(profileName);
+            }
+
+            myProfilesEditor.setText(parametersList.getParametersString());
+        }
     }
 }
