@@ -49,6 +49,7 @@
 		<module>maven3-server-common</module>
 		<module>maven30-server-impl</module>
 		<module>maven32-server-impl</module>
+		<module>maven-event-listener</module>
 
 		<module>plugin</module>
 	</modules>
