@@ -71,8 +71,7 @@ public class MavenRepositoryServicesManager implements PersistentStateComponent<
             return ArrayUtil.toStringArray(configured);
         }
         return new String[]{
-            "http://oss.sonatype.org/service/local/",
-            "http://repo.jfrog.org/artifactory/api/",
+            "https://oss.sonatype.org/service/local/",
             "https://repository.jboss.org/nexus/service/local/"
         };
     }
