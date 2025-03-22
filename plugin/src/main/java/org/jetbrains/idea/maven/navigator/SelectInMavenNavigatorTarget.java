@@ -16,6 +16,7 @@
 package org.jetbrains.idea.maven.navigator;
 
 import consulo.annotation.component.ExtensionImpl;
+import consulo.localize.LocalizeValue;
 import consulo.module.Module;
 import consulo.module.content.ProjectRootManager;
 import consulo.project.ui.view.SelectInContext;
@@ -23,6 +24,8 @@ import consulo.project.ui.view.SelectInTarget;
 import consulo.project.ui.wm.ToolWindowManager;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.virtualFileSystem.VirtualFile;
+import jakarta.annotation.Nonnull;
+import org.jetbrains.idea.maven.localize.MavenLocalize;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 
@@ -57,9 +60,10 @@ public class SelectInMavenNavigatorTarget implements SelectInTarget {
         return MavenProjectsNavigator.TOOL_WINDOW_ID;
     }
 
+    @Nonnull
     @Override
-    public String toString() {
-        return MavenProjectsNavigator.TOOL_WINDOW_ID;
+    public LocalizeValue getActionText() {
+        return MavenLocalize.mavenName();
     }
 
     @Override
