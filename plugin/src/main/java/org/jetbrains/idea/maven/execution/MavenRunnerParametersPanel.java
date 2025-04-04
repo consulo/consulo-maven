@@ -20,16 +20,18 @@ import consulo.language.editor.completion.CompletionResultSet;
 import consulo.language.editor.completion.lookup.LookupElementBuilder;
 import consulo.language.editor.ui.awt.EditorTextField;
 import consulo.language.editor.ui.awt.TextFieldCompletionProvider;
+import consulo.localize.LocalizeValue;
 import consulo.maven.icon.MavenIconGroup;
 import consulo.maven.rt.server.common.model.MavenConstants;
 import consulo.process.cmd.ParametersList;
 import consulo.process.cmd.ParametersListUtil;
 import consulo.project.Project;
-import consulo.ui.TextBoxWithExtensions;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.FileChooserTextBoxBuilder;
 import consulo.ui.ex.JBColor;
 import consulo.ui.ex.RelativePoint;
+import consulo.ui.ex.action.AnActionEvent;
+import consulo.ui.ex.action.DumbAwareAction;
 import consulo.ui.ex.awt.FormBuilder;
 import consulo.ui.ex.awt.JBCheckBox;
 import consulo.ui.ex.awt.JBLabel;
@@ -78,14 +80,24 @@ public class MavenRunnerParametersPanel {
             }
         });
 
-        myWorkingDirectory = workDirBuilder.build();
+        workDirBuilder.firstActions(new DumbAwareAction(LocalizeValue.localizeTODO("Maven Module"),
+            LocalizeValue.of(),
+            MavenIconGroup.mavenlogo()
+        ) {
+            @RequiredUIAccess
+            @Override
+            public void actionPerformed(@Nonnull AnActionEvent anActionEvent) {
+                MavenProjectsManager manager = MavenProjectsManager.getInstance(project);
 
-        JComponent workTextField = (JComponent) TargetAWT.to(myWorkingDirectory.getComponent());
-        if (workTextField instanceof JTextField jTextField) {
-            // TODO [VISTALL] dirty hack with old UI form builder which change filling by cols option
-            jTextField.setColumns(0);
-        }
-        myFormBuilder.addLabeledComponent("Working directory", workTextField);
+                MavenSelectProjectPopup.buildPopup(manager, p -> myWorkingDirectory.setValue(p.getDirectory()))
+                    .show(new RelativePoint(MouseInfo.getPointerInfo().getLocation()));
+            }
+        });
+
+        myWorkingDirectory = workDirBuilder.build();
+        myWorkingDirectory.getComponent().setVisibleLength(0);
+
+        myFormBuilder.addLabeledComponent("Working directory", TargetAWT.to(myWorkingDirectory.getComponent()));
 
         if (!project.isDefault()) {
             TextFieldCompletionProvider profilesCompletionProvider = new TextFieldCompletionProvider(true) {
@@ -143,17 +155,6 @@ public class MavenRunnerParametersPanel {
 
             myFormBuilder.addComponent(myResolveToWorkspaceCheckBox);
         }
-
-        myWorkingDirectory.getComponent().addFirstExtension(new TextBoxWithExtensions.Extension(
-            false,
-            MavenIconGroup.mavenlogotransparent(),
-            MavenIconGroup.mavenlogo(),
-            clickEvent -> MavenSelectProjectPopup.buildPopup(
-                    MavenProjectsManager.getInstance(project),
-                    mavenProject -> myWorkingDirectory.setValue(mavenProject.getDirectory())
-                )
-                .show(new RelativePoint(MouseInfo.getPointerInfo().getLocation()))
-        ));
     }
 
     @Nonnull
