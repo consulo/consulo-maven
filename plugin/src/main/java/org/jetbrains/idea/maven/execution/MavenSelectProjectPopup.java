@@ -15,7 +15,6 @@
  */
 package org.jetbrains.idea.maven.execution;
 
-import consulo.application.Application;
 import consulo.ide.impl.ui.impl.PopupChooserBuilder;
 import consulo.maven.icon.MavenIconGroup;
 import consulo.ui.annotation.RequiredUIAccess;
@@ -25,18 +24,14 @@ import consulo.ui.ex.awt.tree.Tree;
 import consulo.ui.ex.popup.JBPopup;
 import consulo.ui.ex.popup.JBPopupFactory;
 import consulo.util.lang.ref.SimpleReference;
-import jakarta.annotation.Nullable;
+import jakarta.annotation.Nonnull;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.utils.MavenProjectNamer;
 
-import jakarta.annotation.Nonnull;
-
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
