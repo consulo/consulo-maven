@@ -47,47 +47,6 @@ import java.util.function.Consumer;
  * @author Sergey Evdokimov
  */
 public class MavenSelectProjectPopup {
-    public static void attachToWorkingDirectoryField(
-        @Nonnull final MavenProjectsManager projectsManager,
-        final JTextField workingDirectoryField,
-        final JButton showModulesButton,
-        @Nullable final JComponent focusAfterSelection
-    ) {
-        attachToButton(
-            projectsManager,
-            showModulesButton,
-            project -> {
-                workingDirectoryField.setText(project.getDirectory());
-
-                if (focusAfterSelection != null) {
-                    Application.get().invokeLater(() -> {
-                        if (workingDirectoryField.hasFocus()) {
-                            focusAfterSelection.requestFocus();
-                        }
-                    });
-                }
-            }
-        );
-
-        workingDirectoryField.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyPressed(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_DOWN) {
-                    e.consume();
-                    showModulesButton.doClick();
-                }
-            }
-        });
-    }
-
-    public static void attachToButton(
-        @Nonnull final MavenProjectsManager projectsManager,
-        @Nonnull final JButton button,
-        @Nonnull final Consumer<MavenProject> callback
-    ) {
-        button.addActionListener(e -> buildPopup(projectsManager, callback).showUnderneathOf(button));
-    }
-
     @Nonnull
     public static JBPopup buildPopup(MavenProjectsManager projectsManager, @Nonnull final Consumer<MavenProject> callback) {
         List<MavenProject> projectList = projectsManager.getProjects();
