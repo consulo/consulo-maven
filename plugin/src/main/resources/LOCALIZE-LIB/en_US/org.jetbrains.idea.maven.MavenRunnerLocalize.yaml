@@ -1,64 +1,132 @@
-maven.execution.aborted:
-  text: Maven execution aborted by user
-maven.execution.finished:
-  text: Maven execution finished
-maven.execution.terminated.abnormally:
-  text: Maven execution terminated abnormally (exit code {0})
-external.executor.caption:
-  text: Executing external Maven
-external.startup.failed:
-  text: 'Cannot start Maven: {0}'
-external.maven.home.no.default:
-  text: No valid Maven installation found. Either set the home directory in the configuration dialog or set the M2_HOME environment variable on your system.
-external.maven.home.no.default.with.fix:
-  text: No valid Maven installation found. Either set the home directory in the <a href="#">configuration dialog</a> or set the M2_HOME environment variable on your system.
-external.maven.home.does.not.exist:
-  text: Specified Maven home directory ({0}) does not exist
-external.maven.home.does.not.exist.with.fix:
-  text: Specified Maven home directory ({0}) does not exist. <a href="#">Configure Maven home</a>
-external.maven.home.invalid:
-  text: '{0} is not a valid Maven home directory'
-external.maven.home.invalid.with.fix:
-  text: '{0} is not a valid Maven home directory. <a href="#">Configure Maven home</a>'
-embedded.executor.caption:
-  text: Executing Maven - using embedded Maven
-embedded.cannot.create:
-  text: Cannot create Maven Embedder
 embedded.build.failed:
-  text: BUILD FAILED
-output.pause.resume:
-  text: Pause/Resume Output
-output.resume:
-  text: Resume Output
-output.pause:
-  text: Pause Output
+    text: BUILD FAILED
+embedded.cannot.create:
+    text: Cannot create Maven Embedder
+embedded.executor.caption:
+    text: Executing Maven - using embedded Maven
 error.general:
-  text: Maven 2 Integration plugin error
-maven.tab.runner:
-  text: Runner
-maven.select.maven.home.directory:
-  text: Select Maven home directory
-maven.running:
-  text: Running
+    text: Maven 2 Integration plugin error
+external.executor.caption:
+    text: Executing external Maven
+external.maven.home.does.not.exist:
+    text: Specified Maven home directory ({0}) does not exist
+external.maven.home.does.not.exist.with.fix:
+    text: Specified Maven home directory ({0}) does not exist. <a href="#">Configure Maven home</a>
+external.maven.home.invalid:
+    text: '{0} is not a valid Maven home directory'
+external.maven.home.invalid.with.fix:
+    text: '{0} is not a valid Maven home directory. <a href="#">Configure Maven home</a>'
+external.maven.home.no.default:
+    text: No valid Maven installation found. Either set the home directory in the configuration dialog or set the M2_HOME environment variable on your system.
+external.maven.home.no.default.with.fix:
+    text: No valid Maven installation found. Either set the home directory in the <a href="#">configuration dialog</a> or set the M2_HOME environment variable on your system.
+external.startup.failed:
+    text: 'Cannot start Maven: {0}'
+maven.execution.aborted:
+    text: Maven execution aborted by user
+maven.execution.finished:
+    text: Maven execution finished
+maven.execution.terminated.abnormally:
+    text: Maven execution terminated abnormally (exit code {0})
 maven.java.home.env:
-  text: Use JAVA_HOME
-maven.java.home.undefined:
-  text: JAVA_HOME environment variable not defined
+    text: Use JAVA_HOME
 maven.java.home.invalid:
-  text: JAVA_HOME environment vairable does not point to valid JRE ({0})
+    text: JAVA_HOME environment vairable does not point to valid JRE ({0})
+maven.java.home.undefined:
+    text: JAVA_HOME environment variable not defined
 maven.java.not.found:
-  text: Cannot find JRE ''{0}''
-maven.java.not.resolved:
-  text: JRE is not resolved for current maven distribution
+    text: Cannot find JRE ''{0}''
 maven.java.not.found.default.config:
-  text: Cannot find JRE ''{0}''. You can specify JRE to run maven goals in Settings -> Maven -> Runner
-maven.run.configuration.name:
-  text: Maven
+    text: Cannot find JRE ''{0}''. You can specify JRE to run maven goals in Settings -> Maven -> Runner
+maven.java.not.resolved:
+    text: JRE is not resolved for current maven distribution
+maven.options.description.B:
+    text: Run in non-interactive (batch) mode (disables output color)
+maven.options.description.C:
+    text: Fail the build if checksums don't match
+maven.options.description.D:
+    text: Define a system property
+maven.options.description.N:
+    text: Do not recurse into sub-projects
+maven.options.description.P:
+    text: Comma-delimited list of profiles to activate
+maven.options.description.T:
+    text: Thread count, for instance 2.0C where C is core multiplied
+maven.options.description.U:
+    text: Forces a check for missing releases and updated snapshots on remote repositories
+maven.options.description.V:
+    text: Display version information WITHOUT stopping build
+maven.options.description.X:
+    text: Produce execution debug output
+maven.options.description.am:
+    text: If project list is specified, also build projects required by the list
+maven.options.description.amd:
+    text: If project list is specified, also build projects that depend on projects on the list
+maven.options.description.cpu:
+    text: Ineffective, only kept for backward compatibility
+maven.options.description.e:
+    text: Produce execution error messages
+maven.options.description.emp:
+    text: Encrypt master security password
+maven.options.description.ep:
+    text: Encrypt server password
+maven.options.description.f:
+    text: Force the use of an alternate POM file (or directory with pom.xml)
+maven.options.description.fae:
+    text: Only fail the build afterwards; allow all non-impacted builds to continue
+maven.options.description.ff:
+    text: Stop at first failure in reactorized builds
+maven.options.description.fn:
+    text: NEVER fail the build, regardless of project result
+maven.options.description.gs:
+    text: Alternate path for the global settings file
+maven.options.description.gt:
+    text: Alternate path for the global toolchains file
+maven.options.description.h:
+    text: Display help information
+maven.options.description.l:
+    text: Log file where all build output will go (disables output color)
+maven.options.description.llr:
+    text: Use Maven 2 Legacy Local Repository behaviour, ie no use of _remote.repositories. Can also be activated by using -Dmaven.legacyLocalRepo=true
+maven.options.description.npr:
+    text: Ineffective, only kept for backward compatibility
+maven.options.description.npu:
+    text: Ineffective, only kept for backward compatibility
+maven.options.description.nsu:
+    text: Suppress SNAPSHOT updates
+maven.options.description.o:
+    text: Work offline
+maven.options.description.pl:
+    text: Comma-delimited list of specified reactor projects to build instead of all projects. A project can be specified by [groupId]:artifactId or by its relative path
+maven.options.description.q:
+    text: Quiet output - only show errors
+maven.options.description.rf:
+    text: Resume reactor from specified project
+maven.options.description.s:
+    text: Alternate path for the user settings file
+maven.options.description.up:
+    text: Ineffective, only kept for backward compatibility
 maven.run.configuration.description:
-  text: Maven build
-maven.select.maven.project.file:
-  text: Select Maven project file
-maven.runner.parameters.title:
-  text: Parameters
+    text: Maven build
 maven.run.configuration.error.file.not.found:
-  text: pom.xml not found in the specified working directory.
+    text: pom.xml not found in the specified working directory.
+maven.run.configuration.name:
+    text: Maven
+maven.runner.parameters.title:
+    text: Parameters
+maven.running:
+    text: Running
+maven.select.maven.home.directory:
+    text: Select Maven home directory
+maven.select.maven.project.file:
+    text: Select Maven project file
+maven.tab.runner:
+    text: Runner
+output.pause:
+    text: Pause Output
+output.pause.resume:
+    text: Pause/Resume Output
+output.resume:
+    text: Resume Output
+popup.title.maven.goals:
+    text: Maven Goals

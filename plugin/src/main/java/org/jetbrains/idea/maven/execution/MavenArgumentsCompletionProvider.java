@@ -1,145 +1,68 @@
+// Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.idea.maven.execution;
 
+import consulo.application.dumb.DumbAware;
 import consulo.language.editor.completion.CompletionResultSet;
 import consulo.language.editor.completion.lookup.LookupElement;
 import consulo.project.Project;
-import org.apache.commons.cli.OptionBuilder;
+import jakarta.annotation.Nonnull;
+import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.jetbrains.idea.maven.execution.cmd.CommandLineCompletionProvider;
+import org.jetbrains.idea.maven.localize.MavenLocalize;
+import org.jetbrains.idea.maven.localize.MavenRunnerLocalize;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.utils.MavenUtil;
 
-import jakarta.annotation.Nonnull;
 import java.util.List;
 
-/**
- * @author Sergey Evdokimov
- */
-@SuppressWarnings("AccessStaticViaInstance")
-public class MavenArgumentsCompletionProvider extends CommandLineCompletionProvider {
+public class MavenArgumentsCompletionProvider extends CommandLineCompletionProvider implements DumbAware {
+
     private static final Options ourOptions;
 
     static {
         // Copy pasted from org.apache.maven.cli.CLIManager.<init>()
 
         Options options = new Options();
-        options.addOption(OptionBuilder.withLongOpt("help").withDescription("Display help information").create('h'));
+        options.addOption(Option.builder("h").longOpt("help").desc(MavenRunnerLocalize.mavenOptionsDescriptionH().get()).build());
+        options.addOption(Option.builder("f").longOpt("file").hasArg().desc(MavenRunnerLocalize.mavenOptionsDescriptionF().get()).build());
+        options.addOption(Option.builder("D").longOpt("define").hasArg().desc(MavenRunnerLocalize.mavenOptionsDescriptionD().get()).build());
+        options.addOption(Option.builder("o").longOpt("offline").desc(MavenRunnerLocalize.mavenOptionsDescriptionO().get()).build());
+        options.addOption(Option.builder("v").longOpt("version").desc(MavenRunnerLocalize.mavenOptionsDescriptionV().get()).build());
+        options.addOption(Option.builder("q").longOpt("quiet").desc(MavenRunnerLocalize.mavenOptionsDescriptionQ().get()).build());
+        options.addOption(Option.builder("X").longOpt("debug").desc(MavenRunnerLocalize.mavenOptionsDescriptionX().get()).build());
+        options.addOption(Option.builder("e").longOpt("errors").desc(MavenRunnerLocalize.mavenOptionsDescriptionE().get()).build());
+        options.addOption(Option.builder("N").longOpt("non-recursive").desc(MavenRunnerLocalize.mavenOptionsDescriptionN().get()).build());
+        options.addOption(Option.builder("U").longOpt("update-snapshots")
+            .desc(MavenLocalize.mavenSettingsGeneralUpdateSnapshotsTooltip().get()).build());
         options.addOption(
-            OptionBuilder.withLongOpt("file")
-                .hasArg()
-                .withDescription("Force the use of an alternate POM file (or directory with pom.xml).")
-                .create('f')
-        );
-        options.addOption(OptionBuilder.withLongOpt("define").hasArg().withDescription("Define a system property").create('D'));
-        options.addOption(OptionBuilder.withLongOpt("offline").withDescription("Work offline").create('o'));
-        options.addOption(OptionBuilder.withLongOpt("version").withDescription("Display version information").create('v'));
-        options.addOption(OptionBuilder.withLongOpt("quiet").withDescription("Quiet output - only show errors").create('q'));
-        options.addOption(OptionBuilder.withLongOpt("debug").withDescription("Produce execution debug output").create('X'));
-        options.addOption(OptionBuilder.withLongOpt("errors").withDescription("Produce execution error messages").create('e'));
-        options.addOption(OptionBuilder.withLongOpt("non-recursive").withDescription("Do not recurse into sub-projects").create('N'));
+            Option.builder("P").longOpt("activate-profiles").desc(MavenRunnerLocalize.mavenOptionsDescriptionP().get()).hasArg().build());
+        options.addOption(Option.builder("B").longOpt("batch-mode").desc(MavenRunnerLocalize.mavenOptionsDescriptionB().get()).build());
+        options
+            .addOption(Option.builder("nsu").longOpt("no-snapshot-updates").desc(MavenRunnerLocalize.mavenOptionsDescriptionNsu().get()).build());
+        options.addOption(Option.builder("C").longOpt("strict-checksums").desc(MavenRunnerLocalize.mavenOptionsDescriptionC().get()).build());
+        options.addOption(Option.builder("c").longOpt("lax-checksums").desc(MavenRunnerLocalize.mavenOptionsDescriptionC().get()).build());
+        options.addOption(Option.builder("s").longOpt("settings").desc(MavenRunnerLocalize.mavenOptionsDescriptionS().get()).hasArg().build());
         options.addOption(
-            OptionBuilder.withLongOpt("update-snapshots")
-                .withDescription("Forces a check for updated releases and snapshots on remote repositories")
-                .create('U')
-        );
+            Option.builder("gs").longOpt("global-settings").desc(MavenRunnerLocalize.mavenOptionsDescriptionGs().get()).hasArg().build());
+        options.addOption(Option.builder("t").longOpt("toolchains").desc(MavenRunnerLocalize.mavenOptionsDescriptionT().get()).hasArg().build());
+        options.addOption(Option.builder("ff").longOpt("fail-fast").desc(MavenRunnerLocalize.mavenOptionsDescriptionFf().get()).build());
+        options.addOption(Option.builder("fae").longOpt("fail-at-end").desc(MavenRunnerLocalize.mavenOptionsDescriptionFae().get()).build());
+        options.addOption(Option.builder("fn").longOpt("fail-never").desc(MavenRunnerLocalize.mavenOptionsDescriptionFn().get()).build());
+        options
+            .addOption(Option.builder("rf").longOpt("resume-from").hasArg().desc(MavenRunnerLocalize.mavenOptionsDescriptionRf().get()).build());
+        options.addOption(Option.builder("pl").longOpt("projects").desc(MavenRunnerLocalize.mavenOptionsDescriptionPl().get()).hasArg().build());
+        options.addOption(Option.builder("am").longOpt("also-make").desc(MavenRunnerLocalize.mavenOptionsDescriptionAm().get()).build());
+        options
+            .addOption(Option.builder("amd").longOpt("also-make-dependents").desc(MavenRunnerLocalize.mavenOptionsDescriptionAmd().get()).build());
+        options.addOption(Option.builder("l").longOpt("log-file").hasArg().desc(MavenRunnerLocalize.mavenOptionsDescriptionL().get()).build());
+        options.addOption(Option.builder("V").longOpt("show-version").desc(MavenRunnerLocalize.mavenOptionsDescriptionV().get()).build());
         options.addOption(
-            OptionBuilder.withLongOpt("activate-profiles")
-                .withDescription("Comma-delimited list of profiles to activate")
-                .hasArg()
-                .create('P')
-        );
-        options.addOption(OptionBuilder.withLongOpt("batch-mode").withDescription("Run in non-interactive (batch) mode").create('B'));
-        options.addOption(OptionBuilder.withLongOpt("no-snapshot-updates").withDescription("Suppress SNAPSHOT updates").create("nsu"));
+            Option.builder("emp").longOpt("encrypt-master-password").hasArg().desc(MavenRunnerLocalize.mavenOptionsDescriptionEmp().get())
+                .build());
         options.addOption(
-            OptionBuilder.withLongOpt("strict-checksums").withDescription("Fail the build if checksums don't match").create('C')
-        );
-        options.addOption(OptionBuilder.withLongOpt("lax-checksums").withDescription("Warn if checksums don't match").create('c'));
-        options.addOption(
-            OptionBuilder.withLongOpt("settings")
-                .withDescription("Alternate path for the user settings file")
-                .hasArg()
-                .create('s')
-        );
-        options.addOption(
-            OptionBuilder.withLongOpt("global-settings")
-                .withDescription("Alternate path for the global settings file")
-                .hasArg()
-                .create("gs")
-        );
-        options.addOption(
-            OptionBuilder.withLongOpt("toolchains")
-                .withDescription("Alternate path for the user toolchains file")
-                .hasArg()
-                .create('t')
-        );
-        options.addOption(
-            OptionBuilder.withLongOpt("fail-fast")
-                .withDescription("Stop at first failure in reactorized builds")
-                .create("ff")
-        );
-        options.addOption(
-            OptionBuilder.withLongOpt("fail-at-end")
-                .withDescription("Only fail the build afterwards; allow all non-impacted builds to continue")
-                .create("fae"));
-        options.addOption(
-            OptionBuilder.withLongOpt("fail-never")
-                .withDescription("NEVER fail the build, regardless of project result")
-                .create("fn")
-        );
-        options.addOption(
-            OptionBuilder.withLongOpt("resume-from")
-                .hasArg()
-                .withDescription("Resume reactor from specified project")
-                .create("rf")
-        );
-        options.addOption(
-            OptionBuilder.withLongOpt("projects")
-                .withDescription(
-                    "Comma-delimited list of specified reactor projects to build instead of all projects. " +
-                        "A project can be specified by [groupId]:artifactId or by its relative path."
-                )
-                .hasArg()
-                .create("pl")
-        );
-        options.addOption(
-            OptionBuilder.withLongOpt("also-make")
-                .withDescription("If project list is specified, also build projects required by the list")
-                .create("am")
-        );
-        options.addOption(
-            OptionBuilder.withLongOpt("also-make-dependents")
-                .withDescription("If project list is specified, also build projects that depend on projects on the list")
-                .create("amd")
-        );
-        options.addOption(
-            OptionBuilder.withLongOpt("log-file")
-                .hasArg()
-                .withDescription("Log file to where all build output will go.")
-                .create("l")
-        );
-        options.addOption(
-            OptionBuilder.withLongOpt("show-version")
-                .withDescription("Display version information WITHOUT stopping build")
-                .create('V')
-        );
-        options.addOption(
-            OptionBuilder.withLongOpt("encrypt-master-password")
-                .hasArg()
-                .withDescription("Encrypt master security password")
-                .create("emp")
-        );
-        options.addOption(
-            OptionBuilder.withLongOpt("encrypt-password")
-                .hasArg()
-                .withDescription("Encrypt server password")
-                .create("ep")
-        );
-        options.addOption(
-            OptionBuilder.withLongOpt("threads")
-                .hasArg()
-                .withDescription("Thread count, for instance 2.0C where C is core multiplied")
-                .create("T")
-        );
+            Option.builder("ep").longOpt("encrypt-password").hasArg().desc(MavenRunnerLocalize.mavenOptionsDescriptionEp().get()).build());
+        options.addOption(Option.builder("T").longOpt("threads").hasArg().desc(MavenRunnerLocalize.mavenOptionsDescriptionT().get()).build());
 
         ourOptions = options;
     }

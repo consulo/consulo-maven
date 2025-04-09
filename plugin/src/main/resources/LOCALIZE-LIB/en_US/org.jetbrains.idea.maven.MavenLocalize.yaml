@@ -1,4 +1,6 @@
-maven.name:
-  text: Maven
 group.Maven.DownloadAllGroupPopup.text:
-  text: Download Sources and/or Documentation
+    text: Download Sources and/or Documentation
+maven.name:
+    text: Maven
+maven.settings.general.update.snapshots.tooltip:
+    text: Forces a check for updated releases and snapshots on remote repositories
