@@ -2,7 +2,6 @@ package org.jetbrains.idea.maven.dom.refactorings.introduce;
 
 import consulo.application.ReadAction;
 import consulo.application.Result;
-import consulo.application.util.function.Processor;
 import consulo.codeEditor.Editor;
 import consulo.dataContext.DataContext;
 import consulo.document.util.TextRange;
@@ -29,14 +28,15 @@ import consulo.virtualFileSystem.archive.ArchiveFileSystem;
 import consulo.virtualFileSystem.util.VirtualFileUtil;
 import consulo.xml.psi.XmlElementVisitor;
 import consulo.xml.psi.xml.*;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import org.jetbrains.idea.maven.dom.MavenDomProjectProcessorUtils;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
 import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
 import org.jetbrains.idea.maven.dom.model.MavenDomProperties;
 
-import jakarta.annotation.Nonnull;
-import jakarta.annotation.Nullable;
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 public class IntroducePropertyAction extends BaseRefactoringAction {
@@ -285,7 +285,7 @@ public class IntroducePropertyAction extends BaseRefactoringAction {
                     Set<UsageInfo> usages = new HashSet<>();
 
                     @Override
-                    public void generate(final Processor<Usage> processor) {
+                    public void generate(final Predicate<Usage> processor) {
                         ReadAction.run(() -> {
                             collectUsages(myModel);
                             for (MavenDomProjectModel model : MavenDomProjectProcessorUtils.getChildrenProjects(myModel)) {
@@ -293,7 +293,7 @@ public class IntroducePropertyAction extends BaseRefactoringAction {
                             }
 
                             for (UsageInfo usage : usages) {
-                                processor.process(UsageInfo2UsageAdapter.CONVERTER.apply(usage));
+                                processor.test(UsageInfo2UsageAdapter.CONVERTER.apply(usage));
                             }
                         });
                     }

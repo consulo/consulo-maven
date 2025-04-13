@@ -15,20 +15,19 @@
  */
 package org.jetbrains.idea.maven.services.nexus;
 
-import consulo.util.lang.Comparing;
-import consulo.util.lang.StringUtil;
-import jakarta.xml.bind.JAXBException;
-import jakarta.xml.bind.UnmarshalException;
 import consulo.maven.rt.server.common.model.MavenArtifactInfo;
 import consulo.maven.rt.server.common.model.MavenRepositoryInfo;
+import consulo.util.lang.Comparing;
+import consulo.util.lang.StringUtil;
+import jakarta.annotation.Nonnull;
+import jakarta.xml.bind.JAXBException;
+import jakarta.xml.bind.UnmarshalException;
 import org.jetbrains.idea.maven.services.MavenRepositoryService;
 
-import jakarta.annotation.Nonnull;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author Gregory.Shrago
@@ -83,7 +82,9 @@ public class NexusRepositoryService extends MavenRepositoryService {
     public List<MavenArtifactInfo> findArtifacts(@Nonnull String url, @Nonnull MavenArtifactInfo template) throws IOException {
         try {
             final String packaging = StringUtil.notNullize(template.getPackaging());
-            final String name = StringUtil.join(Arrays.asList(template.getGroupId(), template.getArtifactId(), template.getVersion()), ":");
+            String name = Stream.of(template.getGroupId(), template.getArtifactId(), template.getVersion())
+                .filter(Objects::nonNull)
+                .collect(Collectors.joining(":"));
             final SearchResults results = new Endpoint.DataIndex(url).getArtifactlistAsSearchResults(
                 name,
                 template.getGroupId(),
