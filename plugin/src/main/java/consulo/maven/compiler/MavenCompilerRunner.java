@@ -19,6 +19,7 @@ import jakarta.annotation.Nonnull;
 import jakarta.inject.Inject;
 import org.jetbrains.idea.maven.execution.MavenRunner;
 import org.jetbrains.idea.maven.execution.MavenRunnerParameters;
+import org.jetbrains.idea.maven.localize.MavenLocalize;
 import org.jetbrains.idea.maven.localize.MavenTasksLocalize;
 import org.jetbrains.idea.maven.project.MaveOverrideCompilerPolicy;
 import org.jetbrains.idea.maven.project.MavenGeneralSettings;
@@ -45,19 +46,20 @@ public class MavenCompilerRunner implements CompilerRunner {
         myModuleExtensionHelper = moduleExtensionHelper;
     }
 
-    // @Override
+    @Nonnull
+    @Override
     public Image getBuildIcon() {
-        return MavenIconGroup.mavenlogo();
+        return MavenIconGroup.mavenbuild();
     }
 
     @Nonnull
     @Override
     public LocalizeValue getName() {
-        return LocalizeValue.localizeTODO("Maven");
+        return MavenLocalize.mavenName();
     }
 
     @Override
-    public boolean isAvailable(CompileContextEx compileContextEx) {
+    public boolean isAvailable() {
         if (!myModuleExtensionHelper.hasModuleExtension(MavenModuleExtension.class)) {
             return false;
         }
