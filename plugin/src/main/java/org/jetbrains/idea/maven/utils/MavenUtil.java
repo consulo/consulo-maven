@@ -767,7 +767,7 @@ public class MavenUtil {
 
         List<LookupElement> res = new ArrayList<>(goals.size());
         for (String goal : goals) {
-            res.add(LookupElementBuilder.create(goal).withIcon(PlatformIconGroup.nodesTask()));
+            res.add(LookupElementBuilder.create(goal).withIcon(PlatformIconGroup.nodesTarget()));
         }
 
         return res;

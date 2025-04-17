@@ -1049,7 +1049,7 @@ public class MavenProjectsStructure extends SimpleTreeStructure {
             myMavenProject = findParent(ProjectNode.class).getMavenProject();
             myGoal = goal;
             myDisplayName = displayName;
-            setIcon(PlatformIconGroup.nodesTask());
+            setIcon(PlatformIconGroup.nodesTarget());
         }
 
         public MavenProject getMavenProject() {
@@ -1133,7 +1133,7 @@ public class MavenProjectsStructure extends SimpleTreeStructure {
             for (String goal : PHASES) {
                 myGoalNodes.add(new StandardGoalNode(this, goal));
             }
-            setIcon(MavenIcons.PhasesClosed);
+            setIcon(PlatformIconGroup.nodesConfigfolder());
         }
 
         @Override
@@ -1165,7 +1165,7 @@ public class MavenProjectsStructure extends SimpleTreeStructure {
 
         public PluginsNode(ProjectNode parent) {
             super(parent);
-            setIcon(MavenIcons.PhasesClosed);
+            setIcon(PlatformIconGroup.nodesConfigfolder());
         }
 
         @Override
@@ -1500,7 +1500,7 @@ public class MavenProjectsStructure extends SimpleTreeStructure {
 
         public RunConfigurationsNode(ProjectNode parent) {
             super(parent);
-            setIcon(PlatformIconGroup.nodesTask());
+            setIcon(PlatformIconGroup.nodesTarget());
         }
 
         @Override
