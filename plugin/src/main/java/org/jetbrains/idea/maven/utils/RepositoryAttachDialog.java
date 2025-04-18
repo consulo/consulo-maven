@@ -35,13 +35,12 @@ import consulo.util.io.FileUtil;
 import consulo.util.lang.Comparing;
 import consulo.util.lang.Pair;
 import consulo.util.lang.StringUtil;
-import consulo.util.lang.function.Condition;
+import consulo.util.lang.function.Predicates;
 import consulo.util.lang.xml.XmlStringUtil;
 import consulo.virtualFileSystem.VirtualFile;
+import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.jetbrains.idea.maven.utils.library.RepositoryAttachHandler;
-
-import jakarta.annotation.Nonnull;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -317,7 +316,7 @@ public class RepositoryAttachDialog extends DialogWrapper {
         final MavenRepositoryInfo repository = artifactAndRepo == null ? null : artifactAndRepo.second;
         return repository != null
             ? Collections.singletonList(repository)
-            : ContainerUtil.findAll(myRepositories.values(), Condition.NOT_NULL);
+            : ContainerUtil.findAll(myRepositories.values(), Predicates.notNull());
     }
 
     private boolean isValidCoordinateSelected() {

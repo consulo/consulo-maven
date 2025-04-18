@@ -17,13 +17,13 @@
 
 package org.jetbrains.idea.maven.project;
 
-import consulo.application.AllIcons;
 import consulo.content.bundle.Sdk;
 import consulo.content.bundle.SdkTable;
 import consulo.disposer.Disposable;
 import consulo.fileChooser.FileChooserDescriptorFactory;
 import consulo.maven.bundle.MavenBundleType;
 import consulo.module.ui.awt.SdkComboBox;
+import consulo.platform.base.icon.PlatformIconGroup;
 import consulo.ui.ex.awt.LabeledComponent;
 import consulo.ui.ex.awt.PanelWithAnchor;
 import consulo.ui.ex.awt.TextFieldWithBrowseButton;
@@ -32,7 +32,7 @@ import consulo.ui.ex.awt.event.DocumentAdapter;
 import consulo.ui.ex.awt.util.Alarm;
 import consulo.util.lang.Comparing;
 import consulo.util.lang.StringUtil;
-import consulo.util.lang.function.Conditions;
+import consulo.util.lang.function.Predicates;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.jetbrains.idea.maven.localize.MavenProjectLocalize;
@@ -65,10 +65,10 @@ public class MavenEnvironmentForm implements PanelWithAnchor {
     public MavenEnvironmentForm() {
         myMavenBundleBox = new SdkComboBox(
             SdkTable.getInstance(),
-            Conditions.equalTo(MavenBundleType.getInstance()),
+            Predicates.equalTo(MavenBundleType.getInstance()),
             null,
             "Auto Select",
-            AllIcons.Actions.FindPlain
+            PlatformIconGroup.actionsFind()
         );
 
         DocumentAdapter listener = new DocumentAdapter() {

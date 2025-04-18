@@ -17,16 +17,16 @@ package org.jetbrains.idea.maven.utils;
 
 import consulo.application.progress.EmptyProgressIndicator;
 import consulo.application.progress.ProgressIndicator;
-import consulo.localize.LocalizeValue;
-import consulo.util.lang.function.Condition;
 import consulo.component.ProcessCanceledException;
+import consulo.localize.LocalizeValue;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 
 public class MavenProgressIndicator {
     private ProgressIndicator myIndicator;
-    private final List<Condition<MavenProgressIndicator>> myCancelConditions = new ArrayList<>();
+    private final List<Predicate<MavenProgressIndicator>> myCancelConditions = new ArrayList<>();
 
     public MavenProgressIndicator() {
         this(new MyEmptyProgressIndicator());
@@ -85,11 +85,11 @@ public class MavenProgressIndicator {
         myIndicator.cancel();
     }
 
-    public synchronized void addCancelCondition(Condition<MavenProgressIndicator> condition) {
+    public synchronized void addCancelCondition(Predicate<MavenProgressIndicator> condition) {
         myCancelConditions.add(condition);
     }
 
-    public synchronized void removeCancelCondition(Condition<MavenProgressIndicator> condition) {
+    public synchronized void removeCancelCondition(Predicate<MavenProgressIndicator> condition) {
         myCancelConditions.remove(condition);
     }
 
@@ -97,8 +97,8 @@ public class MavenProgressIndicator {
         if (myIndicator.isCanceled()) {
             return true;
         }
-        for (Condition<MavenProgressIndicator> each : myCancelConditions) {
-            if (each.value(this)) {
+        for (Predicate<MavenProgressIndicator> each : myCancelConditions) {
+            if (each.test(this)) {
                 return true;
             }
         }

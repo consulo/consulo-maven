@@ -18,12 +18,15 @@ package org.jetbrains.idea.maven.project;
 import consulo.application.Application;
 import consulo.application.util.Semaphore;
 import consulo.project.Project;
-import consulo.util.lang.function.Condition;
 import org.jetbrains.idea.maven.execution.SoutMavenConsole;
-import org.jetbrains.idea.maven.utils.*;
+import org.jetbrains.idea.maven.utils.MavenLog;
+import org.jetbrains.idea.maven.utils.MavenProcessCanceledException;
+import org.jetbrains.idea.maven.utils.MavenProgressIndicator;
+import org.jetbrains.idea.maven.utils.MavenUtil;
 
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.function.Predicate;
 
 public class MavenProjectsProcessor {
     private final Project myProject;
@@ -101,7 +104,7 @@ public class MavenProjectsProcessor {
             myTitle,
             myCancellable,
             indicator -> {
-                Condition<MavenProgressIndicator> condition = mavenProgressIndicator -> isStopped;
+                Predicate<MavenProgressIndicator> condition = mavenProgressIndicator -> isStopped;
                 indicator.addCancelCondition(condition);
                 try {
                     doProcessPendingTasks(indicator, task);
