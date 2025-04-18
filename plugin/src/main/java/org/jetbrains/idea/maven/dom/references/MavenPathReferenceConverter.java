@@ -8,8 +8,7 @@ import consulo.language.psi.*;
 import consulo.language.psi.path.FileReference;
 import consulo.language.psi.path.FileReferenceSet;
 import consulo.platform.Platform;
-import consulo.util.lang.function.Condition;
-import consulo.util.lang.function.Conditions;
+import consulo.util.lang.function.Predicates;
 import consulo.virtualFileSystem.LocalFileSystem;
 import consulo.virtualFileSystem.VirtualFile;
 import consulo.xml.psi.impl.source.xml.XmlFileImpl;
@@ -18,42 +17,43 @@ import consulo.xml.util.xml.DomElement;
 import consulo.xml.util.xml.DomUtil;
 import consulo.xml.util.xml.GenericDomValue;
 import consulo.xml.util.xml.converters.PathReferenceConverter;
+import jakarta.annotation.Nonnull;
 import org.jetbrains.idea.maven.dom.MavenPropertyResolver;
 import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
 
-import jakarta.annotation.Nonnull;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Objects;
+import java.util.function.Predicate;
 
 /**
  * @author Sergey Evdokimov
  */
 public class MavenPathReferenceConverter extends PathReferenceConverter {
-    private final Condition<PsiFileSystemItem> myCondition;
+    private final Predicate<PsiFileSystemItem> myCondition;
 
     public MavenPathReferenceConverter() {
-        this(Conditions.alwaysTrue());
+        this(Predicates.alwaysTrue());
     }
 
-    public MavenPathReferenceConverter(@Nonnull Condition<PsiFileSystemItem> condition) {
+    public MavenPathReferenceConverter(@Nonnull Predicate<PsiFileSystemItem> condition) {
         myCondition = condition;
     }
 
     @RequiredReadAction
     public static PsiReference[] createReferences(
-        final DomElement genericDomValue,
+        DomElement genericDomValue,
         PsiElement element,
-        @Nonnull final Condition<PsiFileSystemItem> fileFilter
+        @Nonnull Predicate<PsiFileSystemItem> fileFilter
     ) {
         return createReferences(genericDomValue, element, fileFilter, false);
     }
 
     @RequiredReadAction
     public static PsiReference[] createReferences(
-        final DomElement genericDomValue,
+        DomElement genericDomValue,
         PsiElement element,
-        @Nonnull final Condition<PsiFileSystemItem> fileFilter,
+        @Nonnull Predicate<PsiFileSystemItem> fileFilter,
         boolean isAbsolutePath
     ) {
         TextRange range = ElementManipulators.getValueTextRange(element);
@@ -61,11 +61,10 @@ public class MavenPathReferenceConverter extends PathReferenceConverter {
 
         FileReferenceSet set =
             new FileReferenceSet(text, element, range.getStartOffset(), null, Platform.current().fs().isCaseSensitive(), false) {
-
                 private MavenDomProjectModel model;
 
                 @Override
-                public Condition<PsiFileSystemItem> getReferenceCompletionFilter() {
+                public Predicate<PsiFileSystemItem> getReferenceCompletionFilter() {
                     return fileFilter;
                 }
 
@@ -191,7 +190,7 @@ public class MavenPathReferenceConverter extends PathReferenceConverter {
     @Nonnull
     @Override
     @RequiredReadAction
-    public PsiReference[] createReferences(final GenericDomValue genericDomValue, PsiElement element, ConvertContext context) {
+    public PsiReference[] createReferences(GenericDomValue genericDomValue, PsiElement element, ConvertContext context) {
         return createReferences(genericDomValue, element, myCondition);
     }
 

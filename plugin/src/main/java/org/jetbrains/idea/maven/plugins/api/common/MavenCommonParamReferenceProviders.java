@@ -24,7 +24,7 @@ import consulo.language.psi.PsiReferenceBase;
 import consulo.language.psi.path.FileReferenceSet;
 import consulo.language.util.ProcessingContext;
 import consulo.util.io.CharsetToolkit;
-import consulo.util.lang.function.Condition;
+import consulo.util.lang.function.Predicates;
 import org.jetbrains.idea.maven.dom.model.MavenDomConfiguration;
 import org.jetbrains.idea.maven.dom.references.MavenDependencyReferenceProvider;
 import org.jetbrains.idea.maven.dom.references.MavenPathReferenceConverter;
@@ -51,7 +51,7 @@ public class MavenCommonParamReferenceProviders {
             @Nonnull MavenDomConfiguration domCfg,
             @Nonnull ProcessingContext context
         ) {
-            return MavenPathReferenceConverter.createReferences(domCfg, element, Condition.TRUE);
+            return MavenPathReferenceConverter.createReferences(domCfg, element, Predicates.alwaysTrue());
         }
     }
 
