@@ -1,14 +1,16 @@
 package consulo.maven.bundle;
 
 import consulo.annotation.component.ExtensionImpl;
-import consulo.application.util.SystemInfo;
+import consulo.application.Application;
 import consulo.content.OrderRootType;
 import consulo.content.base.BinariesOrderRootType;
 import consulo.content.bundle.Sdk;
 import consulo.content.bundle.SdkModificator;
 import consulo.content.bundle.SdkType;
 import consulo.logging.Logger;
+import consulo.maven.icon.MavenIconGroup;
 import consulo.platform.Platform;
+import consulo.platform.PlatformOperatingSystem;
 import consulo.ui.image.Image;
 import consulo.util.lang.StringUtil;
 import consulo.util.lang.SystemProperties;
@@ -16,7 +18,6 @@ import consulo.virtualFileSystem.LocalFileSystem;
 import consulo.virtualFileSystem.VirtualFile;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
-import org.jetbrains.idea.maven.MavenIcons;
 import org.jetbrains.idea.maven.utils.MavenUtil;
 
 import java.io.File;
@@ -33,7 +34,7 @@ import java.util.Set;
 public class MavenBundleType extends SdkType {
     @Nonnull
     public static MavenBundleType getInstance() {
-        return EP_NAME.findExtensionOrFail(MavenBundleType.class);
+        return Application.get().getExtensionPoint(SdkType.class).findExtensionOrFail(MavenBundleType.class);
     }
 
     private static final Logger LOG = Logger.getInstance(MavenBundleType.class);
@@ -60,7 +61,8 @@ public class MavenBundleType extends SdkType {
             }
         }
 
-        if (SystemInfo.isMac) {
+        PlatformOperatingSystem os = Platform.current().os();
+        if (os.isMac()) {
             File home = fromBrew();
             if (home != null) {
                 paths.add(home.getPath());
@@ -70,7 +72,7 @@ public class MavenBundleType extends SdkType {
                 paths.add(home.getPath());
             }
         }
-        else if (SystemInfo.isLinux) {
+        else if (os.isLinux()) {
             File home = new File("/usr/share/maven");
             if (MavenUtil.isValidMavenHome(home)) {
                 paths.add(home.getPath());
@@ -194,9 +196,9 @@ public class MavenBundleType extends SdkType {
         return "Maven";
     }
 
-    @Nullable
+    @Nonnull
     @Override
     public Image getIcon() {
-        return MavenIcons.MavenLogo;
+        return MavenIconGroup.mavenlogo();
     }
 }

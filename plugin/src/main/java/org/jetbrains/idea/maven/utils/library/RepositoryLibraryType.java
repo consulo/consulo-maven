@@ -16,6 +16,7 @@
 package org.jetbrains.idea.maven.utils.library;
 
 import consulo.annotation.component.ExtensionImpl;
+import consulo.application.Application;
 import consulo.content.library.LibraryType;
 import consulo.content.library.NewLibraryConfiguration;
 import consulo.content.library.PersistentLibraryKind;
@@ -46,7 +47,7 @@ public class RepositoryLibraryType extends LibraryType<RepositoryLibraryProperti
         };
 
     public static RepositoryLibraryType getInstance() {
-        return EP_NAME.findExtension(RepositoryLibraryType.class);
+        return Application.get().getExtensionPoint(RepositoryLibraryType.class).findExtensionOrFail(RepositoryLibraryType.class);
     }
 
     public RepositoryLibraryType() {
