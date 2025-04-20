@@ -46,8 +46,9 @@ public class RepositoryLibraryType extends LibraryType<RepositoryLibraryProperti
             }
         };
 
+    @Nonnull
     public static RepositoryLibraryType getInstance() {
-        return Application.get().getExtensionPoint(RepositoryLibraryType.class).findExtensionOrFail(RepositoryLibraryType.class);
+        return Application.get().getExtensionPoint(LibraryType.class).findExtensionOrFail(RepositoryLibraryType.class);
     }
 
     public RepositoryLibraryType() {
