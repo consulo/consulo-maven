@@ -7,6 +7,7 @@ import consulo.container.plugin.PluginManager;
 import consulo.content.bundle.Sdk;
 
 import jakarta.annotation.Nonnull;
+
 import java.io.File;
 
 /**
@@ -14,27 +15,23 @@ import java.io.File;
  * @since 2020-01-17
  */
 @ExtensionImpl
-public class MavenPredefinedBundlesProvider extends PredefinedBundlesProvider
-{
-	@Override
-	public void createBundles(@Nonnull Context context)
-	{
-		File pluginPath = PluginManager.getPluginPath(MavenBundleType.class);
-		MavenBundleType type = MavenBundleType.getInstance();
+public class MavenPredefinedBundlesProvider extends PredefinedBundlesProvider {
+    @Override
+    public void createBundles(@Nonnull Context context) {
+        File pluginPath = PluginManager.getPluginPath(MavenBundleType.class);
+        MavenBundleType type = MavenBundleType.getInstance();
 
-		for(File file : pluginPath.listFiles())
-		{
-			if(type.isValidSdkHome(file.getPath()))
-			{
-				Sdk sdk = context.createSdk(type, file.getPath());
+        for (File file : pluginPath.listFiles()) {
+            if (type.isValidSdkHome(file.getPath())) {
+                Sdk sdk = context.createSdk(type, file.getPath());
 
-				SdkModificator sdkModificator = sdk.getSdkModificator();
-				sdkModificator.setVersionString(type.getVersionString(sdk));
-				sdkModificator.setHomePath(file.getPath());
-				sdkModificator.commitChanges();
+                SdkModificator sdkModificator = sdk.getSdkModificator();
+                sdkModificator.setVersionString(type.getVersionString(sdk));
+                sdkModificator.setHomePath(file.getPath());
+                sdkModificator.commitChanges();
 
-				type.setupSdkPaths(sdk);
-			}
-		}
-	}
+                type.setupSdkPaths(sdk);
+            }
+        }
+    }
 }
