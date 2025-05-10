@@ -15,9 +15,10 @@
  */
 package org.jetbrains.idea.maven.dom;
 
+import com.intellij.java.language.psi.CommonClassNames;
+import consulo.annotation.access.RequiredReadAction;
 import consulo.annotation.component.ExtensionImpl;
 import consulo.application.util.matcher.NameUtil;
-import consulo.java.language.module.util.JavaClassNames;
 import consulo.language.psi.PsiElement;
 import consulo.util.dataholder.Key;
 import consulo.util.lang.StringUtil;
@@ -31,6 +32,7 @@ import consulo.xml.util.xml.reflect.DomExtender;
 import consulo.xml.util.xml.reflect.DomExtension;
 import consulo.xml.util.xml.reflect.DomExtensionsRegistrar;
 import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import org.jetbrains.idea.maven.dom.converters.MavenDomConvertersRegistry;
 import org.jetbrains.idea.maven.dom.converters.MavenPluginCustomParameterValueConverter;
 import org.jetbrains.idea.maven.dom.model.MavenDomConfiguration;
@@ -40,7 +42,6 @@ import org.jetbrains.idea.maven.dom.plugin.MavenDomMojo;
 import org.jetbrains.idea.maven.dom.plugin.MavenDomParameter;
 import org.jetbrains.idea.maven.dom.plugin.MavenDomPluginModel;
 
-import jakarta.annotation.Nullable;
 import java.lang.annotation.Annotation;
 import java.util.*;
 
@@ -50,8 +51,8 @@ public class MavenPluginConfigurationDomExtender extends DomExtender<MavenDomCon
 
     private static final Set<String> COLLECTIONS_TYPE_NAMES = Set.of(
         "java.util.Collection",
-        JavaClassNames.JAVA_UTIL_SET,
-        JavaClassNames.JAVA_UTIL_LIST,
+        CommonClassNames.JAVA_UTIL_SET,
+        CommonClassNames.JAVA_UTIL_LIST,
         "java.util.ArrayList",
         "java.util.HashSet",
         "java.util.LinkedList"
@@ -64,6 +65,7 @@ public class MavenPluginConfigurationDomExtender extends DomExtender<MavenDomCon
     }
 
     @Override
+    @RequiredReadAction
     public void registerExtensions(@Nonnull MavenDomConfiguration config, @Nonnull DomExtensionsRegistrar r) {
         MavenDomPluginModel pluginModel = MavenPluginDomUtil.getMavenPluginModel(config);
         if (pluginModel == null) {
