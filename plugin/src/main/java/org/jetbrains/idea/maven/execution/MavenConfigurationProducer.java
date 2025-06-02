@@ -85,7 +85,7 @@ public class MavenConfigurationProducer extends RuntimeConfigurationProducer {
     }
 
     @Override
-    public int compareTo(Object o) {
+    public int compareTo(RuntimeConfigurationProducer o) {
         return PREFERED;
     }
 }
