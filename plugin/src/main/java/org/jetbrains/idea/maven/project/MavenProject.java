@@ -39,6 +39,7 @@ import org.jetbrains.idea.maven.utils.*;
 
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
+
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -317,6 +318,15 @@ public class MavenProject {
 
     public boolean hasReadingProblems() {
         return !myState.myReadingProblems.isEmpty();
+    }
+
+    @Nullable
+    public String getConfigFileError() {
+        return myState.myReadingProblems.stream()
+            .filter(t -> t.getPath().endsWith(MavenConstants.MAVEN_CONFIG_RELATIVE_PATH))
+            .map(MavenProjectProblem::getDescription)
+            .findFirst()
+            .orElse(null);
     }
 
     @Nullable

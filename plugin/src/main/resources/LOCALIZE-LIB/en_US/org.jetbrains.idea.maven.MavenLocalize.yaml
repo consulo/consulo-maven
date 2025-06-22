@@ -4,3 +4,5 @@ maven.name:
     text: Maven
 maven.settings.general.update.snapshots.tooltip:
     text: Forces a check for updated releases and snapshots on remote repositories
+filetype.maven.config.description:
+    text: Maven project configuration
