@@ -1500,7 +1500,7 @@ public class MavenProjectsStructure extends SimpleTreeStructure {
 
         public RunConfigurationsNode(ProjectNode parent) {
             super(parent);
-            setIcon(PlatformIconGroup.nodesTarget());
+            setIcon(PlatformIconGroup.actionsExecute());
         }
 
         @Override
