@@ -19,11 +19,11 @@ import consulo.configurable.ConfigurationException;
 import consulo.configurable.SearchableConfigurable;
 import consulo.configurable.UnnamedConfigurable;
 import consulo.disposer.Disposable;
+import consulo.localize.LocalizeValue;
 import consulo.project.Project;
 import consulo.ui.annotation.RequiredUIAccess;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
-import org.jetbrains.annotations.Nls;
 import org.jetbrains.idea.maven.localize.MavenProjectLocalize;
 import org.jetbrains.idea.maven.server.MavenServerManager;
 
@@ -115,10 +115,10 @@ public class MavenImportingConfigurable implements SearchableConfigurable {
         }
     }
 
+    @Nonnull
     @Override
-    @Nls
-    public String getDisplayName() {
-        return MavenProjectLocalize.mavenTabImporting().get();
+    public LocalizeValue getDisplayName() {
+        return MavenProjectLocalize.mavenTabImporting();
     }
 
     @Override

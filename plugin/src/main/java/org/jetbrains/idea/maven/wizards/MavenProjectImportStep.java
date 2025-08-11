@@ -20,6 +20,7 @@ import consulo.configurable.ConfigurationException;
 import consulo.disposer.Disposable;
 import consulo.fileChooser.FileChooserDescriptorFactory;
 import consulo.ide.setting.ShowSettingsUtil;
+import consulo.localize.LocalizeValue;
 import consulo.maven.importProvider.MavenImportModuleContext;
 import consulo.ui.Button;
 import consulo.ui.Component;
@@ -32,9 +33,11 @@ import consulo.ui.util.LabeledBuilder;
 import consulo.util.io.FileUtil;
 import consulo.virtualFileSystem.VirtualFile;
 import jakarta.annotation.Nonnull;
-import org.jetbrains.annotations.Nls;
 import org.jetbrains.idea.maven.localize.MavenProjectLocalize;
-import org.jetbrains.idea.maven.project.*;
+import org.jetbrains.idea.maven.project.MavenEnvironmentForm;
+import org.jetbrains.idea.maven.project.MavenGeneralSettings;
+import org.jetbrains.idea.maven.project.MavenImportingSettings;
+import org.jetbrains.idea.maven.project.MavenImportingSettingsForm;
 
 import javax.swing.*;
 import java.awt.*;
@@ -148,10 +151,10 @@ public class MavenProjectImportStep implements WizardStep<MavenImportModuleConte
     class MavenEnvironmentConfigurable implements Configurable {
         MavenEnvironmentForm myForm = new MavenEnvironmentForm();
 
+        @Nonnull
         @Override
-        @Nls
-        public String getDisplayName() {
-            return ProjectBundle.message("maven.import.environment.settings.title");
+        public LocalizeValue getDisplayName() {
+            return MavenProjectLocalize.mavenImportEnvironmentSettingsTitle();
         }
 
         @RequiredUIAccess

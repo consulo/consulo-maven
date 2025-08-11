@@ -19,6 +19,7 @@ import consulo.configurable.Configurable;
 import consulo.configurable.ConfigurationException;
 import consulo.configurable.SearchableConfigurable;
 import consulo.disposer.Disposable;
+import consulo.localize.LocalizeValue;
 import consulo.project.Project;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.awt.ElementsChooser;
@@ -95,8 +96,8 @@ public class MavenIgnoredFilesConfigurable implements SearchableConfigurable, Co
     }
 
     @Override
-    public String getDisplayName() {
-        return MavenProjectLocalize.mavenTabIgnoredFiles().get();
+    public LocalizeValue getDisplayName() {
+        return MavenProjectLocalize.mavenTabIgnoredFiles();
     }
 
     @Nullable
@@ -109,10 +110,5 @@ public class MavenIgnoredFilesConfigurable implements SearchableConfigurable, Co
     @Override
     public String getId() {
         return getHelpTopic();
-    }
-
-    @Override
-    public Runnable enableSearch(String option) {
-        return null;
     }
 }

@@ -3,6 +3,7 @@ package org.jetbrains.idea.maven.execution;
 import consulo.configurable.Configurable;
 import consulo.configurable.ConfigurationException;
 import consulo.configurable.SearchableConfigurable;
+import consulo.localize.LocalizeValue;
 import consulo.project.Project;
 import consulo.ui.annotation.RequiredUIAccess;
 import jakarta.annotation.Nonnull;
@@ -42,8 +43,8 @@ public abstract class MavenRunnerConfigurable extends MavenRunnerPanel implement
     }
 
     @Override
-    public String getDisplayName() {
-        return MavenRunnerLocalize.mavenTabRunner().get();
+    public LocalizeValue getDisplayName() {
+        return MavenRunnerLocalize.mavenTabRunner();
     }
 
     @Nullable

@@ -31,11 +31,11 @@ import consulo.util.lang.Pair;
 import consulo.util.lang.StringUtil;
 import jakarta.annotation.Nonnull;
 import org.jetbrains.idea.maven.execution.*;
+import org.jetbrains.idea.maven.localize.MavenLocalize;
 import org.jetbrains.idea.maven.localize.MavenRunnerLocalize;
 import org.jetbrains.idea.maven.project.MavenGeneralSettings;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
-import org.jetbrains.idea.maven.utils.MavenSettings;
 import org.jetbrains.idea.maven.utils.MavenUtil;
 
 import javax.swing.event.HyperlinkEvent;
@@ -103,7 +103,7 @@ public class MavenExecuteGoalAction extends DumbAwareAction {
                     @Override
                     @RequiredUIAccess
                     protected void hyperlinkActivated(@Nonnull Notification notification, @Nonnull HyperlinkEvent e) {
-                        ShowSettingsUtil.getInstance().showSettingsDialog(project, MavenSettings.DISPLAY_NAME);
+                        ShowSettingsUtil.getInstance().showSettingsDialog(project, MavenLocalize.mavenName().get());
                     }
                 }
             );

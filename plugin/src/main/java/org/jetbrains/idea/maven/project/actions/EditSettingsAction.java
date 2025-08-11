@@ -15,11 +15,11 @@
  */
 package org.jetbrains.idea.maven.project.actions;
 
+import consulo.ide.setting.ShowSettingsUtil;
 import consulo.project.Project;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.action.AnActionEvent;
-import consulo.ide.setting.ShowSettingsUtil;
-import org.jetbrains.idea.maven.utils.MavenSettings;
+import org.jetbrains.idea.maven.localize.MavenLocalize;
 import org.jetbrains.idea.maven.utils.actions.MavenAction;
 import org.jetbrains.idea.maven.utils.actions.MavenActionUtil;
 
@@ -32,6 +32,6 @@ public class EditSettingsAction extends MavenAction {
 
     @RequiredUIAccess
     protected static void showSettingsFor(Project project) {
-        ShowSettingsUtil.getInstance().showSettingsDialog(project, MavenSettings.DISPLAY_NAME);
+        ShowSettingsUtil.getInstance().showSettingsDialog(project, MavenLocalize.mavenName().get());
     }
 }

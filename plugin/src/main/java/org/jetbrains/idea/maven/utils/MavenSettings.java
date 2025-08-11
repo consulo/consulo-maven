@@ -21,6 +21,7 @@ import consulo.configurable.ConfigurationException;
 import consulo.configurable.ProjectConfigurable;
 import consulo.configurable.SearchableConfigurable;
 import consulo.disposer.Disposable;
+import consulo.localize.LocalizeValue;
 import consulo.project.Project;
 import consulo.ui.annotation.RequiredUIAccess;
 import jakarta.annotation.Nonnull;
@@ -29,6 +30,7 @@ import org.jetbrains.idea.maven.execution.MavenRunner;
 import org.jetbrains.idea.maven.execution.MavenRunnerConfigurable;
 import org.jetbrains.idea.maven.execution.MavenRunnerSettings;
 import org.jetbrains.idea.maven.indices.MavenRepositoriesConfigurable;
+import org.jetbrains.idea.maven.localize.MavenLocalize;
 import org.jetbrains.idea.maven.project.*;
 
 import jakarta.annotation.Nullable;
@@ -38,8 +40,6 @@ import java.util.List;
 
 @ExtensionImpl
 public class MavenSettings implements SearchableConfigurable.Parent, ProjectConfigurable {
-    public static final String DISPLAY_NAME = "Maven";
-
     private final Project myProject;
     private final MavenGeneralConfigurable myConfigurable;
     private final List<Configurable> myChildren;
@@ -49,6 +49,12 @@ public class MavenSettings implements SearchableConfigurable.Parent, ProjectConf
         myProject = project;
 
         myConfigurable = new MavenGeneralConfigurable() {
+            @Nonnull
+            @Override
+            public LocalizeValue getDisplayName() {
+                return LocalizeValue.empty();
+            }
+
             @Override
             protected MavenGeneralSettings getState() {
                 return MavenProjectsManager.getInstance(myProject).getGeneralSettings();
@@ -135,8 +141,8 @@ public class MavenSettings implements SearchableConfigurable.Parent, ProjectConf
 
     @Nonnull
     @Override
-    public String getDisplayName() {
-        return DISPLAY_NAME;
+    public LocalizeValue getDisplayName() {
+        return MavenLocalize.mavenName();
     }
 
     @Override

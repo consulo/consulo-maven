@@ -23,6 +23,7 @@ import consulo.configurable.ConfigurationException;
 import consulo.configurable.SearchableConfigurable;
 import consulo.disposer.Disposable;
 import consulo.disposer.Disposer;
+import consulo.localize.LocalizeValue;
 import consulo.project.Project;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.InputValidator;
@@ -219,8 +220,8 @@ public class MavenRepositoriesConfigurable extends BaseConfigurable implements S
     }
 
     @Override
-    public String getDisplayName() {
-        return MavenIndicesLocalize.mavenRepositoriesTitle().get();
+    public LocalizeValue getDisplayName() {
+        return MavenIndicesLocalize.mavenRepositoriesTitle();
     }
 
     @Override
