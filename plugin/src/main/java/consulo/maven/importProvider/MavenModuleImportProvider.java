@@ -4,6 +4,7 @@ import consulo.annotation.access.RequiredReadAction;
 import consulo.annotation.component.ExtensionImpl;
 import consulo.ide.moduleImport.ModuleImportProvider;
 import consulo.ide.newModule.ui.UnifiedProjectOrModuleNameStep;
+import consulo.localize.LocalizeValue;
 import consulo.maven.rt.server.common.model.MavenConstants;
 import consulo.maven.rt.server.common.model.MavenExplicitProfiles;
 import consulo.module.ModifiableModuleModel;
@@ -44,20 +45,14 @@ public class MavenModuleImportProvider implements ModuleImportProvider<MavenImpo
 
     @Nonnull
     @Override
-    public String getName() {
-        return MavenProjectLocalize.mavenName().get();
+    public LocalizeValue getName() {
+        return MavenProjectLocalize.mavenName();
     }
 
     @Nonnull
     @Override
     public Image getIcon() {
         return MavenIcons.MavenLogo;
-    }
-
-    @Nonnull
-    @Override
-    public String getFileSample() {
-        return "<b>Maven</b> project file (pom.xml)";
     }
 
     @Override
