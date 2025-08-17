@@ -3,7 +3,6 @@ package org.jetbrains.idea.maven.dom.references;
 
 import consulo.annotation.access.RequiredReadAction;
 import consulo.document.util.TextRange;
-import consulo.ide.impl.idea.openapi.vfs.VfsUtil;
 import consulo.language.psi.*;
 import consulo.language.psi.path.FileReference;
 import consulo.language.psi.path.FileReferenceSet;
@@ -11,6 +10,7 @@ import consulo.platform.Platform;
 import consulo.util.lang.function.Predicates;
 import consulo.virtualFileSystem.LocalFileSystem;
 import consulo.virtualFileSystem.VirtualFile;
+import consulo.virtualFileSystem.util.VirtualFileUtil;
 import consulo.xml.psi.impl.source.xml.XmlFileImpl;
 import consulo.xml.util.xml.ConvertContext;
 import consulo.xml.util.xml.DomElement;
@@ -173,7 +173,7 @@ public class MavenPathReferenceConverter extends PathReferenceConverter {
                     return FileReferenceSet.ABSOLUTE_TOP_LEVEL.apply(file);
                 }
 
-                virtualFile = VfsUtil.getRootFile(virtualFile);
+                virtualFile = VirtualFileUtil.getRootFile(virtualFile);
                 PsiDirectory root = file.getManager().findDirectory(virtualFile);
 
                 if (root == null) {

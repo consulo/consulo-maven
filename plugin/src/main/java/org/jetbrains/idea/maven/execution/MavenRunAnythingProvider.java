@@ -2,7 +2,6 @@ package org.jetbrains.idea.maven.execution;
 
 import consulo.annotation.component.ExtensionImpl;
 import consulo.dataContext.DataContext;
-import consulo.ide.impl.idea.ide.actions.runAnything.RunAnythingUtil;
 import consulo.ide.impl.idea.ide.actions.runAnything.groups.RunAnythingCompletionGroup;
 import consulo.ide.runAnything.RunAnythingCommandLineProvider;
 import consulo.ide.runAnything.RunAnythingContext;
@@ -12,6 +11,7 @@ import consulo.maven.icon.MavenIconGroup;
 import consulo.maven.rt.server.common.model.MavenConstants;
 import consulo.maven.rt.server.common.model.MavenExplicitProfiles;
 import consulo.maven.rt.server.common.model.MavenId;
+import consulo.project.Project;
 import consulo.ui.image.Image;
 import jakarta.annotation.Nonnull;
 import org.jetbrains.idea.maven.localize.MavenRunnerLocalize;
@@ -95,7 +95,7 @@ public class MavenRunAnythingProvider extends RunAnythingCommandLineProvider {
 
     @Override
     public boolean run(DataContext dataContext, CommandLine commandLine) {
-        var project = RunAnythingUtil.fetchProject(dataContext);
+        Project project = dataContext.getRequiredData(Project.KEY);
         RunAnythingContext context = dataContext.getData(RunAnythingProvider.EXECUTING_CONTEXT);
         if (context == null) {
             context = new RunAnythingContext.ProjectContext(project);
@@ -160,7 +160,7 @@ public class MavenRunAnythingProvider extends RunAnythingCommandLineProvider {
     }
 
     private List<String> completeCustomGoals(DataContext dataContext, CommandLine commandLine) {
-        var project = RunAnythingUtil.fetchProject(dataContext);
+        Project project = dataContext.getRequiredData(Project.KEY);
         RunAnythingContext context = dataContext.getData(RunAnythingProvider.EXECUTING_CONTEXT);
         if (context == null) {
             context = new RunAnythingContext.ProjectContext(project);
