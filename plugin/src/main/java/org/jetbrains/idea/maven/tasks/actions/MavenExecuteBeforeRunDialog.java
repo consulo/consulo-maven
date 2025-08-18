@@ -15,7 +15,7 @@
  */
 package org.jetbrains.idea.maven.tasks.actions;
 
-import consulo.ide.impl.idea.execution.impl.BaseExecuteBeforeRunDialog;
+import consulo.execution.ui.awt.BaseExecuteBeforeRunDialog;
 import consulo.project.Project;
 import consulo.util.dataholder.Key;
 import org.jetbrains.idea.maven.localize.MavenTasksLocalize;
