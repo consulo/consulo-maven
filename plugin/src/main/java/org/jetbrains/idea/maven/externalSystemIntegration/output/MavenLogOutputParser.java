@@ -3,9 +3,9 @@ package org.jetbrains.idea.maven.externalSystemIntegration.output;
 
 import consulo.build.ui.event.BuildEvent;
 import consulo.build.ui.event.BuildEventFactory;
+import consulo.build.ui.output.BuildOutputInstantReader;
+import consulo.build.ui.output.BuildOutputParser;
 import consulo.externalSystem.model.task.ExternalSystemTaskId;
-import consulo.ide.impl.idea.build.output.BuildOutputInstantReader;
-import consulo.ide.impl.idea.build.output.BuildOutputParser;
 import consulo.util.lang.StringUtil;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
