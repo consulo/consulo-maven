@@ -16,6 +16,7 @@
 package org.jetbrains.idea.maven.execution;
 
 import consulo.fileChooser.FileChooserDescriptor;
+import consulo.fileChooser.FileChooserTextBoxBuilder;
 import consulo.language.editor.completion.CompletionResultSet;
 import consulo.language.editor.completion.lookup.LookupElementBuilder;
 import consulo.language.editor.ui.awt.EditorTextField;
@@ -27,7 +28,6 @@ import consulo.process.cmd.ParametersList;
 import consulo.process.cmd.ParametersListUtil;
 import consulo.project.Project;
 import consulo.ui.annotation.RequiredUIAccess;
-import consulo.ui.ex.FileChooserTextBoxBuilder;
 import consulo.ui.ex.JBColor;
 import consulo.ui.ex.RelativePoint;
 import consulo.ui.ex.action.AnActionEvent;
