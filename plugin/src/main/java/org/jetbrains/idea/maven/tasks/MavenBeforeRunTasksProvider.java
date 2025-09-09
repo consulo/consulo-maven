@@ -23,6 +23,7 @@ import consulo.document.FileDocumentManager;
 import consulo.execution.BeforeRunTaskProvider;
 import consulo.execution.configuration.RunConfiguration;
 import consulo.execution.runner.ExecutionEnvironment;
+import consulo.localize.LocalizeValue;
 import consulo.maven.icon.MavenIconGroup;
 import consulo.maven.rt.server.common.model.MavenExplicitProfiles;
 import consulo.process.cmd.ParametersListUtil;
@@ -67,8 +68,8 @@ public class MavenBeforeRunTasksProvider extends BeforeRunTaskProvider<MavenBefo
 
     @Nonnull
     @Override
-    public String getName() {
-        return MavenTasksLocalize.mavenTasksBeforeRunEmpty().get();
+    public LocalizeValue getName() {
+        return MavenTasksLocalize.mavenTasksBeforeRunEmpty();
     }
 
     @Override
@@ -78,14 +79,14 @@ public class MavenBeforeRunTasksProvider extends BeforeRunTaskProvider<MavenBefo
 
     @Nonnull
     @Override
-    public String getDescription(MavenBeforeRunTask task) {
+    public LocalizeValue getDescription(MavenBeforeRunTask task) {
         MavenProject mavenProject = getMavenProject(task);
         if (mavenProject == null) {
-            return MavenTasksLocalize.mavenTasksBeforeRunEmpty().get();
+            return MavenTasksLocalize.mavenTasksBeforeRunEmpty();
         }
 
         String desc = mavenProject.getDisplayName() + ": " + StringUtil.notNullize(task.getGoal()).trim();
-        return MavenTasksLocalize.mavenTasksBeforeRun(desc).get();
+        return MavenTasksLocalize.mavenTasksBeforeRun(desc);
     }
 
     @Nullable
