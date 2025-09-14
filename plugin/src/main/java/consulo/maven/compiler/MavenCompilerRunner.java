@@ -19,6 +19,7 @@ import jakarta.annotation.Nonnull;
 import jakarta.inject.Inject;
 import org.jetbrains.idea.maven.execution.MavenRunner;
 import org.jetbrains.idea.maven.execution.MavenRunnerParameters;
+import org.jetbrains.idea.maven.execution.MavenRunnerSettings;
 import org.jetbrains.idea.maven.localize.MavenLocalize;
 import org.jetbrains.idea.maven.localize.MavenTasksLocalize;
 import org.jetbrains.idea.maven.project.MaveOverrideCompilerPolicy;
@@ -81,8 +82,6 @@ public class MavenCompilerRunner implements CompilerRunner {
 
         CompileScope compileScope = context.getCompileScope();
         List<String> goals = new ArrayList<>();
-        // do not allow run tests while compilation
-        goals.add("-DskipTests=true");
         switch (generalSettings.getOverrideCompilePolicy()) {
             case BY_COMPILE:
                 goals.add("compile");
@@ -138,7 +137,11 @@ public class MavenCompilerRunner implements CompilerRunner {
 
         MavenRunner mavenRunner = MavenRunner.getInstance(context.getProject());
 
-        if (!mavenRunner.runBatch(Collections.singletonList(params), null, null, MavenTasksLocalize.mavenTasksExecuting().get(), indicator)) {
+        MavenRunnerSettings settings = MavenRunner.getInstance(myProject).getSettings().clone();
+        // do not allow run tests while compilation
+        settings.setSkipTests(true);
+
+        if (!mavenRunner.runBatch(Collections.singletonList(params), null, settings, MavenTasksLocalize.mavenTasksExecuting().get(), indicator)) {
             context.addMessage(CompilerMessageCategory.ERROR, "Compilation failed", null, -1, -1);
         }
 
