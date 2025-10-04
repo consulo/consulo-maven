@@ -301,7 +301,7 @@ public class MavenFoldersImporter {
                 continue;
             }
 
-            myModel.addSourceFolder(dir.getPath(), typeProvider, true, generated);
+            myModel.addSourceFolder(f.getPath(), typeProvider, true, generated);
         }
     }
 
