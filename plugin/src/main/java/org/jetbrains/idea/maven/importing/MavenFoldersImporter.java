@@ -39,12 +39,12 @@ import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.utils.Path;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class MavenFoldersImporter {
+    private record PathWithGenerated(Path path, ContentFolderTypeProvider type, boolean generated) {
+    }
+
     private final MavenProject myMavenProject;
     private final MavenImportingSettings myImportingSettings;
     private final MavenRootModelAdapter myModel;
@@ -55,7 +55,7 @@ public class MavenFoldersImporter {
 
         WriteAction.runAndWait(() ->
         {
-            List<ModifiableRootModel> rootModels = new ArrayList<ModifiableRootModel>();
+            List<ModifiableRootModel> rootModels = new ArrayList<>();
             for (Module each : ModuleManager.getInstance(project).getModules()) {
                 MavenProject mavenProject = manager.findProject(each);
                 if (mavenProject == null) {
@@ -94,57 +94,77 @@ public class MavenFoldersImporter {
     }
 
     private void config(boolean updateTargetFoldersOnly) {
+        List<MavenImporter> importers = MavenImporter.getSuitableImporters(myMavenProject);
+
         if (!updateTargetFoldersOnly) {
             if (!myImportingSettings.isKeepSourceFolders()) {
                 myModel.clearSourceFolders();
             }
-            configSourceFolders();
+
+            configSourceFolders(importers);
+
             configOutputFolders();
         }
-        configGeneratedAndExcludedFolders();
+
+        configGeneratedAndExcludedFolders(importers);
     }
 
-    private void configSourceFolders() {
-        MultiMap<ContentFolderTypeProvider, String> temp = new MultiMap<ContentFolderTypeProvider, String>();
+    private void configSourceFolders(@Nonnull List<MavenImporter> importers) {
+        MultiMap<ContentFolderTypeProvider, String> contentFolders = new MultiMap<>();
 
-        temp.putValues(ProductionContentFolderTypeProvider.getInstance(), myMavenProject.getSources());
-        temp.putValues(TestContentFolderTypeProvider.getInstance(), myMavenProject.getTestSources());
+        contentFolders.putValues(ProductionContentFolderTypeProvider.getInstance(), myMavenProject.getSources());
+        contentFolders.putValues(TestContentFolderTypeProvider.getInstance(), myMavenProject.getTestSources());
 
-        for (MavenImporter each : MavenImporter.getSuitableImporters(myMavenProject)) {
-            each.collectContentFolders(myMavenProject, temp);
+        Set<String> generatedPaths = new HashSet<>();
+
+        for (MavenImporter each : importers) {
+            each.collectContentFolders(myMavenProject, (contentFolderTypeProvider, sourceFolderPath) -> {
+                contentFolders.putValue(contentFolderTypeProvider, sourceFolderPath);
+
+                return new MavenContentFolder() {
+                    @Nonnull
+                    @Override
+                    public MavenContentFolder setGenerated() {
+                        generatedPaths.add(sourceFolderPath);
+                        return this;
+                    }
+                };
+            });
         }
 
         for (MavenResource each : myMavenProject.getResources()) {
             String directory = each.getDirectory();
             // do not allow override it
-            if (temp.containsScalarValue(directory)) {
+            if (contentFolders.containsScalarValue(directory)) {
                 continue;
             }
-            temp.putValue(ProductionResourceContentFolderTypeProvider.getInstance(), directory);
+            contentFolders.putValue(ProductionResourceContentFolderTypeProvider.getInstance(), directory);
         }
 
         for (MavenResource each : myMavenProject.getTestResources()) {
             String directory = each.getDirectory();
             // do not allow override it
-            if (temp.containsScalarValue(directory)) {
+            if (contentFolders.containsScalarValue(directory)) {
                 continue;
             }
-            temp.putValue(TestResourceContentFolderTypeProvider.getInstance(), directory);
+            contentFolders.putValue(TestResourceContentFolderTypeProvider.getInstance(), directory);
         }
 
-        addBuilderHelperPaths("add-source", ProductionContentFolderTypeProvider.getInstance(), temp);
-        addBuilderHelperPaths("add-test-source", TestContentFolderTypeProvider.getInstance(), temp);
+        addBuilderHelperPaths("add-source", ProductionContentFolderTypeProvider.getInstance(), contentFolders);
+        addBuilderHelperPaths("add-test-source", TestContentFolderTypeProvider.getInstance(), contentFolders);
 
-        MultiMap<ContentFolderTypeProvider, Path> allFolders = new MultiMap<ContentFolderTypeProvider, Path>();
+        MultiMap<ContentFolderTypeProvider, PathWithGenerated> allFolders = new MultiMap<>();
 
-        for (Map.Entry<ContentFolderTypeProvider, Collection<String>> entry : temp.entrySet()) {
+        for (Map.Entry<ContentFolderTypeProvider, Collection<String>> entry : contentFolders.entrySet()) {
+            ContentFolderTypeProvider type = entry.getKey();
+
             for (String path : entry.getValue()) {
-                allFolders.putValue(entry.getKey(), myModel.toPath(path));
+                allFolders.putValue(type, new PathWithGenerated(myModel.toPath(path), type, generatedPaths.contains(path)));
             }
         }
 
-        for (Pair<Path, ContentFolderTypeProvider> each : normalize(allFolders)) {
-            myModel.addSourceFolder(each.first.getPath(), each.second, false);
+        for (PathWithGenerated each : normalize(allFolders)) {
+            myModel.addSourceFolder(each.path().getPath(), each.type(), each.generated());
         }
     }
 
@@ -161,23 +181,28 @@ public class MavenFoldersImporter {
     }
 
     @Nonnull
-    private static List<Pair<Path, ContentFolderTypeProvider>> normalize(@Nonnull MultiMap<ContentFolderTypeProvider, Path> folders) {
-        List<Pair<Path, ContentFolderTypeProvider>> result = new ArrayList<Pair<Path, ContentFolderTypeProvider>>(folders.size());
-        for (Map.Entry<ContentFolderTypeProvider, Collection<Path>> entry : folders.entrySet()) {
-            for (Path path : entry.getValue()) {
-                addSourceFolder(path, entry.getKey(), result);
+    private static List<PathWithGenerated> normalize(@Nonnull MultiMap<ContentFolderTypeProvider, PathWithGenerated> folders) {
+        List<PathWithGenerated> result = new ArrayList<>(folders.size());
+        for (Map.Entry<ContentFolderTypeProvider, Collection<PathWithGenerated>> entry : folders.entrySet()) {
+            for (PathWithGenerated pathWithGenerated : entry.getValue()) {
+                addSourceFolder(pathWithGenerated.path(), pathWithGenerated.type(), pathWithGenerated.generated(), result);
             }
         }
         return result;
     }
 
-    private static void addSourceFolder(Path path, ContentFolderTypeProvider provider, List<Pair<Path, ContentFolderTypeProvider>> result) {
-        for (Pair<Path, ContentFolderTypeProvider> eachExisting : result) {
-            if (MavenRootModelAdapter.isEqualOrAncestor(eachExisting.first.getPath(), path.getPath()) || MavenRootModelAdapter.isEqualOrAncestor(path.getPath(), eachExisting.first.getPath())) {
+    private static void addSourceFolder(Path path,
+                                        ContentFolderTypeProvider provider,
+                                        boolean generatedFolder,
+                                        List<PathWithGenerated> result) {
+        for (PathWithGenerated eachExisting : result) {
+            if (MavenRootModelAdapter.isEqualOrAncestor(eachExisting.path().getPath(), path.getPath())
+                || MavenRootModelAdapter.isEqualOrAncestor(path.getPath(), eachExisting.path().getPath())) {
                 return;
             }
         }
-        result.add(new Pair<Path, ContentFolderTypeProvider>(path, provider));
+
+        result.add(new PathWithGenerated(path, provider, generatedFolder));
     }
 
     private void configOutputFolders() {
@@ -188,7 +213,7 @@ public class MavenFoldersImporter {
         myModel.addExcludedFolder(myMavenProject.getTestOutputDirectory());
     }
 
-    private void configGeneratedAndExcludedFolders() {
+    private void configGeneratedAndExcludedFolders(@Nonnull List<MavenImporter> importers) {
         File targetDir = new File(myMavenProject.getBuildDirectory());
 
         String generatedDir = myMavenProject.getGeneratedSourcesDirectory(false);
@@ -211,10 +236,10 @@ public class MavenFoldersImporter {
                 }
 
                 if (FileUtil.pathsEqual(generatedDir, f.getPath())) {
-                    configGeneratedSourceFolder(f, ProductionContentFolderTypeProvider.getInstance());
+                    configGeneratedSourceFolder(importers, f, ProductionContentFolderTypeProvider.getInstance());
                 }
                 else if (FileUtil.pathsEqual(generatedDirTest, f.getPath())) {
-                    configGeneratedSourceFolder(f, TestContentFolderTypeProvider.getInstance());
+                    configGeneratedSourceFolder(importers, f, TestContentFolderTypeProvider.getInstance());
                 }
                 else {
                     if (myImportingSettings.isExcludeTargetFolder()) {
@@ -227,11 +252,12 @@ public class MavenFoldersImporter {
             }
         }
 
-        List<String> facetExcludes = new ArrayList<String>();
-        for (MavenImporter each : MavenImporter.getSuitableImporters(myMavenProject)) {
-            each.collectExcludedFolders(myMavenProject, facetExcludes);
+        List<String> excludedDirectories = new ArrayList<>();
+        for (MavenImporter each : importers) {
+            each.collectExcludedFolders(myMavenProject, excludedDirectories::add);
         }
-        for (String eachFolder : facetExcludes) {
+
+        for (String eachFolder : excludedDirectories) {
             myModel.unregisterAll(eachFolder, true, true);
             myModel.addExcludedFolder(eachFolder);
         }
@@ -245,29 +271,51 @@ public class MavenFoldersImporter {
         }
     }
 
-    private void configGeneratedSourceFolder(@Nonnull File targetDir, ContentFolderTypeProvider typeProvider) {
+    private void configGeneratedSourceFolder(@Nonnull List<MavenImporter> importers,
+                                             @Nonnull File targetDir,
+                                             @Nonnull ContentFolderTypeProvider typeProvider) {
         switch (myImportingSettings.getGeneratedSourcesFolder()) {
             case GENERATED_SOURCE_FOLDER:
-                myModel.addSourceFolder(targetDir.getPath(), typeProvider, true, true);
+                if (!isExcludeGenerationSourceFolder(importers, targetDir, typeProvider)) {
+                    myModel.addSourceFolder(targetDir.getPath(), typeProvider, true, true);
+                }
                 break;
             case SUBFOLDER:
-                addAllSubDirsAsSources(targetDir, typeProvider, true);
+                addAllSubDirsAsSources(importers, targetDir, typeProvider, true);
                 break;
             case IGNORE:
                 break; // Ignore.
         }
     }
 
-    private void addAsSourceFolder(@Nonnull File dir, ContentFolderTypeProvider typeProvider, boolean generated) {
-        myModel.addSourceFolder(dir.getPath(), typeProvider, true, generated);
+    private void addAllSubDirsAsSources(@Nonnull List<MavenImporter> importers,
+                                        @Nonnull File dir,
+                                        @Nonnull ContentFolderTypeProvider typeProvider,
+                                        boolean generated) {
+        for (File f : getChildren(dir)) {
+            if (!f.isDirectory()) {
+                continue;
+            }
+
+            if (isExcludeGenerationSourceFolder(importers, f, typeProvider)) {
+                continue;
+            }
+
+            myModel.addSourceFolder(dir.getPath(), typeProvider, true, generated);
+        }
     }
 
-    private void addAllSubDirsAsSources(@Nonnull File dir, ContentFolderTypeProvider typeProvider, boolean generated) {
-        for (File f : getChildren(dir)) {
-            if (f.isDirectory()) {
-                addAsSourceFolder(f, typeProvider, generated);
+
+    private boolean isExcludeGenerationSourceFolder(@Nonnull List<MavenImporter> importers,
+                                                    @Nonnull File targetDir,
+                                                    @Nonnull ContentFolderTypeProvider typeProvider) {
+        for (MavenImporter importer : importers) {
+            if (importer.isExcludedGenerationSourceFolder(myMavenProject, targetDir.getPath(), typeProvider)) {
+                return true;
             }
         }
+
+        return false;
     }
 
     private static File[] getChildren(File dir) {

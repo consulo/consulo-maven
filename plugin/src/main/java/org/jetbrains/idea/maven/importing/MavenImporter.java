@@ -17,10 +17,8 @@ package org.jetbrains.idea.maven.importing;
 
 import consulo.annotation.component.ComponentScope;
 import consulo.annotation.component.ExtensionAPI;
-import consulo.component.extension.ExtensionPointName;
+import consulo.application.Application;
 import consulo.content.ContentFolderTypeProvider;
-import consulo.language.content.ProductionContentFolderTypeProvider;
-import consulo.language.content.TestContentFolderTypeProvider;
 import consulo.maven.rt.server.common.model.MavenArtifact;
 import consulo.maven.rt.server.common.server.NativeMavenProjectHolder;
 import consulo.module.Module;
@@ -29,142 +27,88 @@ import consulo.module.extension.ModuleExtension;
 import consulo.module.extension.MutableModuleExtension;
 import consulo.project.Project;
 import consulo.util.collection.MultiMap;
-import consulo.util.collection.SmartList;
 import consulo.util.lang.Pair;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import org.jetbrains.idea.maven.project.*;
 import org.jetbrains.idea.maven.server.MavenEmbedderWrapper;
 import org.jetbrains.idea.maven.utils.MavenProcessCanceledException;
 
-import jakarta.annotation.Nullable;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiFunction;
+import java.util.function.Consumer;
 
 @ExtensionAPI(ComponentScope.APPLICATION)
-public abstract class MavenImporter
-{
-	public static ExtensionPointName<MavenImporter> EP_NAME = ExtensionPointName.create(MavenImporter.class);
+public abstract class MavenImporter {
+    public static List<MavenImporter> getSuitableImporters(MavenProject p) {
+        return Application.get().getExtensionPoint(MavenImporter.class).collectFiltered(importer -> importer.isApplicable(p));
+    }
 
-	public static List<MavenImporter> getSuitableImporters(MavenProject p)
-	{
-		final List<MavenImporter> result = new ArrayList<>();
-		for(MavenImporter importer : EP_NAME.getExtensionList())
-		{
-			if(importer.isApplicable(p))
-			{
-				result.add(importer);
-			}
-		}
-		return result;
-	}
+    public abstract boolean isApplicable(MavenProject mavenProject);
 
-	public abstract boolean isApplicable(MavenProject mavenProject);
+    @Nullable
+    protected String getId() {
+        return null;
+    }
 
-	@Nullable
-	protected String getId()
-	{
-		return null;
-	}
+    public void getSupportedPackagings(Collection<String> result) {
+    }
 
-	public void getSupportedPackagings(Collection<String> result)
-	{
-	}
+    public void getSupportedDependencyTypes(Collection<String> result, SupportedRequestType type) {
+    }
 
-	public void getSupportedDependencyTypes(Collection<String> result, SupportedRequestType type)
-	{
-	}
+    public void getSupportedDependencyScopes(Collection<String> result) {
+    }
 
-	public void getSupportedDependencyScopes(Collection<String> result)
-	{
-	}
+    @Nullable
+    public Pair<String, String> getExtraArtifactClassifierAndExtension(MavenArtifact artifact, MavenExtraArtifactType type) {
+        return null;
+    }
 
-	@Nullable
-	public Pair<String, String> getExtraArtifactClassifierAndExtension(MavenArtifact artifact, MavenExtraArtifactType type)
-	{
-		return null;
-	}
+    public void resolve(Project project,
+                        MavenProject mavenProject,
+                        NativeMavenProjectHolder nativeMavenProject,
+                        MavenEmbedderWrapper embedder,
+                        ResolveContext resolveContext) throws MavenProcessCanceledException {
+    }
 
-	public void resolve(Project project,
-			MavenProject mavenProject,
-			NativeMavenProjectHolder nativeMavenProject,
-			MavenEmbedderWrapper embedder,
-			ResolveContext resolveContext) throws MavenProcessCanceledException
-	{
-	}
+    public abstract void preProcess(Module module, MavenProject mavenProject, MavenProjectChanges changes, MavenModifiableModelsProvider modifiableModelsProvider);
 
-	public abstract void preProcess(consulo.module.Module module, MavenProject mavenProject, MavenProjectChanges changes, MavenModifiableModelsProvider modifiableModelsProvider);
+    public abstract void process(MavenModifiableModelsProvider modifiableModelsProvider,
+                                 Module module,
+                                 MavenRootModelAdapter rootModel,
+                                 MavenProjectsTree mavenModel,
+                                 MavenProject mavenProject,
+                                 MavenProjectChanges changes,
+                                 Map<MavenProject, String> mavenProjectToModuleName,
+                                 List<MavenProjectsProcessorTask> postTasks);
 
-	public abstract void process(MavenModifiableModelsProvider modifiableModelsProvider,
-			Module module,
-			MavenRootModelAdapter rootModel,
-			MavenProjectsTree mavenModel,
-			MavenProject mavenProject,
-			MavenProjectChanges changes,
-			Map<MavenProject, String> mavenProjectToModuleName,
-			List<MavenProjectsProcessorTask> postTasks);
+    @SuppressWarnings("unchecked")
+    public <T extends ModuleExtension<T>> T enableModuleExtension(Module module, MavenModifiableModelsProvider modelsProvider, Class<T> clazz) {
+        final ModifiableRootModel rootModel = modelsProvider.getRootModel(module);
 
-	@SuppressWarnings("unchecked")
-	public <T extends ModuleExtension<T>> T enableModuleExtension(consulo.module.Module module, MavenModifiableModelsProvider modelsProvider, Class<T> clazz)
-	{
-		final ModifiableRootModel rootModel = modelsProvider.getRootModel(module);
+        final MutableModuleExtension<T> extensionWithoutCheck = (MutableModuleExtension<T>) rootModel.getExtensionWithoutCheck(clazz);
 
-		final MutableModuleExtension<T> extensionWithoutCheck = (MutableModuleExtension<T>) rootModel.getExtensionWithoutCheck(clazz);
+        extensionWithoutCheck.setEnabled(true);
 
-		extensionWithoutCheck.setEnabled(true);
+        return (T) extensionWithoutCheck;
+    }
 
-		return (T) extensionWithoutCheck;
-	}
+    public boolean processChangedModulesOnly() {
+        return true;
+    }
 
-	public boolean processChangedModulesOnly()
-	{
-		return true;
-	}
+    public void collectContentFolders(MavenProject mavenProject, BiFunction<ContentFolderTypeProvider, String, MavenContentFolder> folderAcceptor) {
+    }
 
-	public void collectContentFolders(MavenProject mavenProject, MultiMap<ContentFolderTypeProvider, String> result)
-	{
-		List<String> list = new SmartList<String>();
+    public void collectExcludedFolders(@Nonnull MavenProject mavenProject, @Nonnull Consumer<String> pathAcceptor) {
+    }
 
-		collectSourceFolders(mavenProject, list);
-
-		for(String s : list)
-		{
-			result.putValue(ProductionContentFolderTypeProvider.getInstance(), s);
-		}
-
-		list.clear();
-
-		collectTestFolders(mavenProject, list);
-
-		for(String s : list)
-		{
-			result.putValue(TestContentFolderTypeProvider.getInstance(), s);
-		}
-
-		list.clear();
-
-		/*collectExcludedFolders(mavenProject, list);
-
-		for(String s : list)
-		{
-			result.putValue(ExcludedContentFolderTypeProvider.getInstance(), s);
-		}
-
-		list.clear();  */
-	}
-
-	@Deprecated
-	public void collectSourceFolders(MavenProject mavenProject, List<String> result)
-	{
-	}
-
-	@Deprecated
-	public void collectTestFolders(MavenProject mavenProject, List<String> result)
-	{
-	}
-
-	//@Deprecated
-	public void collectExcludedFolders(MavenProject mavenProject, List<String> result)
-	{
-	}
+    public boolean isExcludedGenerationSourceFolder(@Nonnull MavenProject mavenProject,
+                                                    @Nonnull String sourcePath,
+                                                    @Nonnull ContentFolderTypeProvider typeProvider) {
+        return false;
+    }
 }
