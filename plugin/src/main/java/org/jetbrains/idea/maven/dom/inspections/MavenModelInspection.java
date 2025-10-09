@@ -16,6 +16,7 @@
 package org.jetbrains.idea.maven.dom.inspections;
 
 import consulo.annotation.component.ExtensionImpl;
+import consulo.localize.LocalizeValue;
 import consulo.virtualFileSystem.VirtualFile;
 import consulo.xml.util.xml.DomUtil;
 import consulo.xml.util.xml.GenericDomValue;
@@ -34,14 +35,14 @@ public class MavenModelInspection extends BasicDomElementsInspection<MavenDomPro
 
     @Nonnull
     @Override
-    public String getGroupDisplayName() {
-        return MavenDomLocalize.inspectionGroup().get();
+    public LocalizeValue getGroupDisplayName() {
+        return MavenDomLocalize.inspectionGroup();
     }
 
     @Nonnull
     @Override
-    public String getDisplayName() {
-        return MavenDomLocalize.inspectionName().get();
+    public LocalizeValue getDisplayName() {
+        return MavenDomLocalize.inspectionName();
     }
 
     @Nonnull

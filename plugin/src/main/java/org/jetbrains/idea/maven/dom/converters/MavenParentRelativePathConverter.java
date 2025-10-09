@@ -21,6 +21,7 @@ import consulo.language.editor.inspection.ProblemDescriptor;
 import consulo.language.psi.PsiElement;
 import consulo.language.psi.PsiFile;
 import consulo.language.psi.PsiReference;
+import consulo.localize.LocalizeValue;
 import consulo.maven.rt.server.common.model.MavenConstants;
 import consulo.maven.rt.server.common.model.MavenId;
 import consulo.project.Project;
@@ -112,14 +113,8 @@ public class MavenParentRelativePathConverter extends ResolvingConverter<PsiFile
 
         @Nonnull
         @Override
-        public String getName() {
-            return MavenDomLocalize.fixParentPath().get();
-        }
-
-        @Nonnull
-        @Override
-        public String getFamilyName() {
-            return MavenDomLocalize.inspectionGroup().get();
+        public LocalizeValue getName() {
+            return MavenDomLocalize.fixParentPath();
         }
 
         @Override

@@ -18,6 +18,7 @@ package org.jetbrains.idea.maven.dom.annotator;
 import consulo.language.editor.annotation.HighlightSeverity;
 import consulo.language.editor.inspection.LocalQuickFix;
 import consulo.language.editor.inspection.ProblemDescriptor;
+import consulo.localize.LocalizeValue;
 import consulo.maven.rt.server.common.model.MavenProjectProblem;
 import consulo.navigation.OpenFileDescriptorFactory;
 import consulo.project.Project;
@@ -92,19 +93,13 @@ public class MavenDomAnnotator implements DomElementsAnnotator {
 
         @Nonnull
         @Override
-        public String getName() {
-            return MavenDomLocalize.fixOpenFile(myFile.getName()).get();
-        }
-
-        @Nonnull
-        @Override
-        public String getFamilyName() {
-            return MavenDomLocalize.inspectionGroup().get();
+        public LocalizeValue getName() {
+            return MavenDomLocalize.fixOpenFile(myFile.getName());
         }
 
         @Override
         public void applyFix(@Nonnull Project project, @Nonnull ProblemDescriptor descriptor) {
-            OpenFileDescriptorFactory.getInstance(project).builder(myFile).build().navigate(true);
+            OpenFileDescriptorFactory.getInstance(project).newBuilder(myFile).build().navigate(true);
         }
     }
 }

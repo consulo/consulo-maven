@@ -29,6 +29,7 @@ import consulo.language.psi.PsiManager;
 import consulo.language.psi.PsiUtilCore;
 import consulo.language.psi.util.PsiTreeUtil;
 import consulo.language.util.IncorrectOperationException;
+import consulo.localize.LocalizeValue;
 import consulo.project.Project;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.virtualFileSystem.VirtualFile;
@@ -52,8 +53,8 @@ public class ChooseFileIntentionAction implements IntentionAction {
 
     @Nonnull
     @Override
-    public String getText() {
-        return MavenDomLocalize.intentionChooseFile().get();
+    public LocalizeValue getText() {
+        return MavenDomLocalize.intentionChooseFile();
     }
 
     @Override

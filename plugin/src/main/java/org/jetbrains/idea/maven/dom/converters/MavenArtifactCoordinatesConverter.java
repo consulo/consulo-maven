@@ -162,14 +162,8 @@ public abstract class MavenArtifactCoordinatesConverter extends ResolvingConvert
     private static class MyUpdateIndicesFix implements LocalQuickFix {
         @Nonnull
         @Override
-        public String getFamilyName() {
-            return MavenDomLocalize.inspectionGroup().get();
-        }
-
-        @Nonnull
-        @Override
-        public String getName() {
-            return MavenDomLocalize.fixUpdateIndices().get();
+        public LocalizeValue getName() {
+            return MavenDomLocalize.fixUpdateIndices();
         }
 
         @Override

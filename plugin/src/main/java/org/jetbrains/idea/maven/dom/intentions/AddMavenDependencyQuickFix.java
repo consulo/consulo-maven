@@ -23,6 +23,7 @@ import consulo.language.editor.intention.LowPriorityAction;
 import consulo.language.editor.intention.SyntheticIntentionAction;
 import consulo.language.psi.PsiFile;
 import consulo.language.util.IncorrectOperationException;
+import consulo.localize.LocalizeValue;
 import consulo.maven.rt.server.common.model.MavenId;
 import consulo.project.Project;
 import consulo.xml.util.xml.DomUtil;
@@ -49,8 +50,8 @@ public class AddMavenDependencyQuickFix implements SyntheticIntentionAction, Low
 
     @Nonnull
     @Override
-    public String getText() {
-        return "Add Maven Dependency...";
+    public LocalizeValue getText() {
+        return LocalizeValue.localizeTODO("Add Maven Dependency...");
     }
 
     @Override

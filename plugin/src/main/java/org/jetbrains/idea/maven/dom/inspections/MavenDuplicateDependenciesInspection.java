@@ -20,6 +20,7 @@ import consulo.annotation.component.ExtensionImpl;
 import consulo.application.util.function.Processor;
 import consulo.language.editor.annotation.HighlightSeverity;
 import consulo.language.editor.rawHighlight.HighlightDisplayLevel;
+import consulo.localize.LocalizeValue;
 import consulo.util.lang.Comparing;
 import consulo.util.lang.StringUtil;
 import consulo.virtualFileSystem.VirtualFile;
@@ -220,14 +221,14 @@ public class MavenDuplicateDependenciesInspection extends BasicDomElementsInspec
 
     @Nonnull
     @Override
-    public String getGroupDisplayName() {
-        return MavenDomLocalize.inspectionGroup().get();
+    public LocalizeValue getGroupDisplayName() {
+        return MavenDomLocalize.inspectionGroup();
     }
 
     @Nonnull
     @Override
-    public String getDisplayName() {
-        return MavenDomLocalize.inspectionDuplicateDependenciesName().get();
+    public LocalizeValue getDisplayName() {
+        return MavenDomLocalize.inspectionDuplicateDependenciesName();
     }
 
     @Nonnull

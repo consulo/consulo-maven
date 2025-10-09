@@ -25,6 +25,7 @@ import consulo.language.editor.inspection.ProblemDescriptor;
 import consulo.language.psi.PsiElement;
 import consulo.language.psi.PsiFile;
 import consulo.language.psi.PsiManager;
+import consulo.localize.LocalizeValue;
 import consulo.maven.rt.server.common.model.MavenConstants;
 import consulo.maven.rt.server.common.model.MavenId;
 import consulo.project.Project;
@@ -127,16 +128,10 @@ public class MavenModulePsiReference extends MavenPsiReference implements LocalQ
 
         @Nonnull
         @Override
-        public String getName() {
+        public LocalizeValue getName() {
             return myWithParent
-                ? MavenDomLocalize.fixCreateModuleWithParent().get()
-                : MavenDomLocalize.fixCreateModule().get();
-        }
-
-        @Nonnull
-        @Override
-        public String getFamilyName() {
-            return MavenDomLocalize.inspectionGroup().get();
+                ? MavenDomLocalize.fixCreateModuleWithParent()
+                : MavenDomLocalize.fixCreateModule();
         }
 
         @Override

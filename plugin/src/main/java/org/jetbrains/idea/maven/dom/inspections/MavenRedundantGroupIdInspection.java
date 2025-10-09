@@ -11,6 +11,7 @@ import consulo.language.editor.inspection.scheme.InspectionManager;
 import consulo.language.editor.rawHighlight.HighlightDisplayLevel;
 import consulo.language.psi.PsiElement;
 import consulo.language.psi.PsiFile;
+import consulo.localize.LocalizeValue;
 import consulo.project.Project;
 import consulo.xml.codeInspection.XmlSuppressableInspectionTool;
 import consulo.xml.psi.xml.XmlFile;
@@ -31,14 +32,14 @@ import jakarta.annotation.Nullable;
 public class MavenRedundantGroupIdInspection extends XmlSuppressableInspectionTool {
     @Nonnull
     @Override
-    public String getGroupDisplayName() {
-        return MavenDomLocalize.inspectionGroup().get();
+    public LocalizeValue getGroupDisplayName() {
+        return MavenDomLocalize.inspectionGroup();
     }
 
     @Nonnull
     @Override
-    public String getDisplayName() {
-        return MavenDomLocalize.inspectionRedundantGroupidName().get();
+    public LocalizeValue getDisplayName() {
+        return MavenDomLocalize.inspectionRedundantGroupidName();
     }
 
     @Nonnull
@@ -72,7 +73,7 @@ public class MavenRedundantGroupIdInspection extends XmlSuppressableInspectionTo
                     if (groupId.equals(parentGroupId)) {
                         XmlTag xmlTag = projectModel.getGroupId().getXmlTag();
 
-                        LocalQuickFix fix = new LocalQuickFixBase("Remove unnecessary <groupId>") {
+                        LocalQuickFix fix = new LocalQuickFixBase(LocalizeValue.localizeTODO("Remove unnecessary <groupId>")) {
                             @Override
                             @RequiredReadAction
                             public void applyFix(@Nonnull Project project, @Nonnull ProblemDescriptor descriptor) {
