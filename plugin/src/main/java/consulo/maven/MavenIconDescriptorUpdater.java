@@ -15,37 +15,48 @@
  */
 package consulo.maven;
 
-import consulo.annotation.component.ExtensionImpl;
-import consulo.language.icon.IconDescriptorUpdater;
-import consulo.language.psi.PsiFile;
-import consulo.project.DumbService;
-import consulo.language.psi.PsiElement;
 import consulo.annotation.access.RequiredReadAction;
+import consulo.annotation.component.ExtensionImpl;
 import consulo.language.icon.IconDescriptor;
+import consulo.language.icon.IconDescriptorUpdater;
+import consulo.language.psi.PsiElement;
+import consulo.language.psi.PsiFile;
+import consulo.maven.icon.MavenIconGroup;
+import consulo.project.DumbService;
 import consulo.virtualFileSystem.VirtualFile;
-import org.jetbrains.idea.maven.MavenIcons;
-import org.jetbrains.idea.maven.project.MavenProjectsManager;
-
 import jakarta.annotation.Nonnull;
+import jakarta.inject.Inject;
+import jakarta.inject.Provider;
+import org.jetbrains.idea.maven.project.MavenProjectsManager;
 
 /**
  * @author VISTALL
  * @since 15:13/20.07.13
  */
 @ExtensionImpl(order = "after xml")
-public class MavenIconDescriptorUpdater implements IconDescriptorUpdater
-{
-  @RequiredReadAction
-  @Override
-  public void updateIcon(@Nonnull IconDescriptor iconDescriptor, @Nonnull PsiElement element, int flags) {
-    if(element instanceof PsiFile && !DumbService.getInstance(element.getProject()).isDumb()) {
-      final VirtualFile virtualFile = ((PsiFile)element).getVirtualFile();
-      if(virtualFile == null) {
-        return;
-      }
-      if (MavenProjectsManager.getInstance(element.getProject()).findProject(virtualFile) != null) {
-        iconDescriptor.setMainIcon((MavenIcons.MavenLogo));
-      }
+public class MavenIconDescriptorUpdater implements IconDescriptorUpdater {
+    private final Provider<DumbService> myDumbServiceProvider;
+    private final Provider<MavenProjectsManager> myMavenProjectsManagerProvider;
+
+    @Inject
+    public MavenIconDescriptorUpdater(Provider<DumbService> dumbServiceProvider,
+                                      Provider<MavenProjectsManager> mavenProjectsManagerProvider) {
+        myDumbServiceProvider = dumbServiceProvider;
+        myMavenProjectsManagerProvider = mavenProjectsManagerProvider;
     }
-  }
+
+    @RequiredReadAction
+    @Override
+    public void updateIcon(@Nonnull IconDescriptor iconDescriptor, @Nonnull PsiElement element, int flags) {
+        if (element instanceof PsiFile && !myDumbServiceProvider.get().isDumb()) {
+            final VirtualFile virtualFile = ((PsiFile) element).getVirtualFile();
+            if (virtualFile == null) {
+                return;
+            }
+
+            if (myMavenProjectsManagerProvider.get().findProject(virtualFile) != null) {
+                iconDescriptor.setMainIcon(MavenIconGroup.mavenlogo());
+            }
+        }
+    }
 }
