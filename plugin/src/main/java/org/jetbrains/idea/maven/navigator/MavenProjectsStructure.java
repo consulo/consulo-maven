@@ -22,6 +22,7 @@ import consulo.execution.ProgramRunnerUtil;
 import consulo.execution.RunManager;
 import consulo.execution.RunnerAndConfigurationSettings;
 import consulo.execution.executor.DefaultRunExecutor;
+import consulo.maven.icon.MavenIconGroup;
 import consulo.maven.rt.server.common.model.*;
 import consulo.navigation.Navigatable;
 import consulo.navigation.NavigatableAdapter;
@@ -829,7 +830,7 @@ public class MavenProjectsStructure extends SimpleTreeStructure {
             myModulesNode = new ModulesNode(this);
             myRunConfigurationsNode = new RunConfigurationsNode(this);
 
-            setIcon(MavenIcons.MavenProject);
+            setIcon(MavenIconGroup.modulesclosed());
             updateProject();
         }
 
