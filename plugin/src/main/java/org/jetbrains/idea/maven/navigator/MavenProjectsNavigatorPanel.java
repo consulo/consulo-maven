@@ -43,6 +43,7 @@ import consulo.virtualFileSystem.util.VirtualFileUtil;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.jetbrains.idea.maven.execution.MavenGoalLocation;
+import org.jetbrains.idea.maven.navigator.structure.*;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.utils.MavenDataKeys;
@@ -99,7 +100,7 @@ public class MavenProjectsNavigatorPanel extends SimpleToolWindowPanel implement
         myTree.addMouseListener(new PopupHandler() {
             @Override
             public void invokePopup(final Component comp, final int x, final int y) {
-                final String id = getMenuId(getSelectedNodes(MavenProjectsStructure.MavenSimpleNode.class));
+                final String id = getMenuId(getSelectedNodes(MavenSimpleNode.class));
                 if (id != null) {
                     final ActionGroup actionGroup = (ActionGroup)actionManager.getAction(id);
                     if (actionGroup != null) {
@@ -109,9 +110,9 @@ public class MavenProjectsNavigatorPanel extends SimpleToolWindowPanel implement
             }
 
             @Nullable
-            private String getMenuId(Collection<? extends MavenProjectsStructure.MavenSimpleNode> nodes) {
+            private String getMenuId(Collection<? extends MavenSimpleNode> nodes) {
                 String id = null;
-                for (MavenProjectsStructure.MavenSimpleNode node : nodes) {
+                for (MavenSimpleNode node : nodes) {
                     String menuId = node.getMenuId();
                     if (menuId == null) {
                         return null;
@@ -171,14 +172,14 @@ public class MavenProjectsNavigatorPanel extends SimpleToolWindowPanel implement
     }
 
     private VirtualFile extractVirtualFile() {
-        for (MavenProjectsStructure.MavenSimpleNode each : getSelectedNodes(MavenProjectsStructure.MavenSimpleNode.class)) {
+        for (MavenSimpleNode each : getSelectedNodes(MavenSimpleNode.class)) {
             VirtualFile file = each.getVirtualFile();
             if (file != null && file.isValid()) {
                 return file;
             }
         }
 
-        final MavenProjectsStructure.ProjectNode projectNode = getContextProjectNode();
+        final ProjectNode projectNode = getContextProjectNode();
         if (projectNode == null) {
             return null;
         }
@@ -191,7 +192,7 @@ public class MavenProjectsNavigatorPanel extends SimpleToolWindowPanel implement
 
     private Object extractVirtualFiles() {
         final List<VirtualFile> files = new ArrayList<>();
-        for (MavenProjectsStructure.MavenSimpleNode each : getSelectedNodes(MavenProjectsStructure.MavenSimpleNode.class)) {
+        for (MavenSimpleNode each : getSelectedNodes(MavenSimpleNode.class)) {
             VirtualFile file = each.getVirtualFile();
             if (file != null && file.isValid()) {
                 files.add(file);
@@ -202,7 +203,7 @@ public class MavenProjectsNavigatorPanel extends SimpleToolWindowPanel implement
 
     private Object extractNavigatables() {
         final List<Navigatable> navigatables = new ArrayList<>();
-        for (MavenProjectsStructure.MavenSimpleNode each : getSelectedNodes(MavenProjectsStructure.MavenSimpleNode.class)) {
+        for (MavenSimpleNode each : getSelectedNodes(MavenSimpleNode.class)) {
             Navigatable navigatable = each.getNavigatable();
             if (navigatable != null) {
                 navigatables.add(navigatable);
@@ -228,7 +229,7 @@ public class MavenProjectsNavigatorPanel extends SimpleToolWindowPanel implement
     }
 
     private List<String> extractGoals(boolean qualifiedGoals) {
-        final MavenProjectsStructure.ProjectNode projectNode = getSelectedProjectNode();
+        final ProjectNode projectNode = getSelectedProjectNode();
         if (projectNode != null) {
             MavenProject project = projectNode.getMavenProject();
             String goal = project.getDefaultGoal();
@@ -238,12 +239,12 @@ public class MavenProjectsNavigatorPanel extends SimpleToolWindowPanel implement
             }
         }
         else {
-            final List<MavenProjectsStructure.GoalNode> nodes = getSelectedNodes(MavenProjectsStructure.GoalNode.class);
+            final List<GoalNode> nodes = getSelectedNodes(GoalNode.class);
             if (MavenProjectsStructure.getCommonProjectNode(nodes) == null) {
                 return null;
             }
             final List<String> goals = new ArrayList<>();
-            for (MavenProjectsStructure.GoalNode node : nodes) {
+            for (GoalNode node : nodes) {
                 goals.add(qualifiedGoals ? node.getGoal() : node.getName());
             }
             Collections.sort(goals, myGoalOrderComparator);
@@ -253,9 +254,9 @@ public class MavenProjectsNavigatorPanel extends SimpleToolWindowPanel implement
     }
 
     private Object extractProfiles() {
-        final List<MavenProjectsStructure.ProfileNode> nodes = getSelectedNodes(MavenProjectsStructure.ProfileNode.class);
+        final List<ProfileNode> nodes = getSelectedNodes(ProfileNode.class);
         final Map<String, MavenProfileKind> profiles = new HashMap<>();
-        for (MavenProjectsStructure.ProfileNode node : nodes) {
+        for (ProfileNode node : nodes) {
             profiles.put(node.getProfileName(), node.getState());
         }
         return profiles;
@@ -264,47 +265,47 @@ public class MavenProjectsNavigatorPanel extends SimpleToolWindowPanel implement
     private Set<MavenArtifact> extractDependencies() {
         Set<MavenArtifact> result = new HashSet<>();
 
-        List<MavenProjectsStructure.ProjectNode> projectNodes = getSelectedProjectNodes();
+        List<ProjectNode> projectNodes = getSelectedProjectNodes();
         if (!projectNodes.isEmpty()) {
-            for (MavenProjectsStructure.ProjectNode each : projectNodes) {
+            for (ProjectNode each : projectNodes) {
                 result.addAll(each.getMavenProject().getDependencies());
             }
             return result;
         }
 
-        List<MavenProjectsStructure.BaseDependenciesNode> nodes = getSelectedNodes(MavenProjectsStructure.BaseDependenciesNode.class);
-        for (MavenProjectsStructure.BaseDependenciesNode each : nodes) {
-            if (each instanceof MavenProjectsStructure.DependenciesNode) {
+        List<BaseDependenciesNode> nodes = getSelectedNodes(BaseDependenciesNode.class);
+        for (BaseDependenciesNode each : nodes) {
+            if (each instanceof DependenciesNode) {
                 result.addAll(each.getMavenProject().getDependencies());
             }
             else {
-                result.add(((MavenProjectsStructure.DependencyNode)each).getArtifact());
+                result.add(((DependencyNode)each).getArtifact());
             }
         }
         return result;
     }
 
-    private <T extends MavenProjectsStructure.MavenSimpleNode> List<T> getSelectedNodes(Class<T> aClass) {
+    private <T extends MavenSimpleNode> List<T> getSelectedNodes(Class<T> aClass) {
         return MavenProjectsStructure.getSelectedNodes(myTree, aClass);
     }
 
-    private List<MavenProjectsStructure.ProjectNode> getSelectedProjectNodes() {
-        return getSelectedNodes(MavenProjectsStructure.ProjectNode.class);
+    private List<ProjectNode> getSelectedProjectNodes() {
+        return getSelectedNodes(ProjectNode.class);
     }
 
     @Nullable
-    private MavenProjectsStructure.ProjectNode getSelectedProjectNode() {
-        final List<MavenProjectsStructure.ProjectNode> projectNodes = getSelectedProjectNodes();
+    private ProjectNode getSelectedProjectNode() {
+        final List<ProjectNode> projectNodes = getSelectedProjectNodes();
         return projectNodes.size() == 1 ? projectNodes.get(0) : null;
     }
 
     @Nullable
-    private MavenProjectsStructure.ProjectNode getContextProjectNode() {
-        MavenProjectsStructure.ProjectNode projectNode = getSelectedProjectNode();
+    private ProjectNode getContextProjectNode() {
+        ProjectNode projectNode = getSelectedProjectNode();
         if (projectNode != null) {
             return projectNode;
         }
-        return MavenProjectsStructure.getCommonProjectNode(getSelectedNodes(MavenProjectsStructure.MavenSimpleNode.class));
+        return MavenProjectsStructure.getCommonProjectNode(getSelectedNodes(MavenSimpleNode.class));
     }
 
     private static class MyTransferHandler extends TransferHandler {

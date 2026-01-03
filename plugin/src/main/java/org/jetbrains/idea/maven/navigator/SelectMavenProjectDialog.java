@@ -20,6 +20,8 @@ import consulo.ui.ex.awt.tree.SimpleNode;
 
 import consulo.project.Project;
 import jakarta.annotation.Nonnull;
+import org.jetbrains.idea.maven.navigator.structure.MavenSimpleNode;
+import org.jetbrains.idea.maven.navigator.structure.ProjectNode;
 import org.jetbrains.idea.maven.project.MavenProject;
 
 import javax.swing.*;
@@ -32,8 +34,8 @@ public class SelectMavenProjectDialog extends SelectFromMavenProjectsDialog {
         super(
             project,
             "Select Maven Project",
-            MavenProjectsStructure.ProjectNode.class,
-            node -> node instanceof MavenProjectsStructure.ProjectNode projectNode && projectNode.getMavenProject() == current
+            ProjectNode.class,
+            node -> node instanceof ProjectNode projectNode && projectNode.getMavenProject() == current
         );
 
         init();
@@ -59,10 +61,10 @@ public class SelectMavenProjectDialog extends SelectFromMavenProjectsDialog {
             node = null;
         }
 
-        if (node instanceof MavenProjectsStructure.MavenSimpleNode mavenSimpleNode) {
-            node = mavenSimpleNode.findParent(MavenProjectsStructure.ProjectNode.class);
+        if (node instanceof MavenSimpleNode mavenSimpleNode) {
+            node = mavenSimpleNode.findParent(ProjectNode.class);
         }
-        myResult = node instanceof MavenProjectsStructure.ProjectNode projectNode ? projectNode.getMavenProject() : null;
+        myResult = node instanceof ProjectNode projectNode ? projectNode.getMavenProject() : null;
 
         super.doOKAction();
     }

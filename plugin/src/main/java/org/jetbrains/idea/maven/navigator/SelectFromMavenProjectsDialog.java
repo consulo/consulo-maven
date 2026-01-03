@@ -20,6 +20,8 @@ import consulo.ui.ex.awt.DialogWrapper;
 import consulo.ui.ex.awt.ScrollPaneFactory;
 import consulo.ui.ex.awt.tree.SimpleNode;
 import consulo.ui.ex.awt.tree.SimpleTree;
+import org.jetbrains.idea.maven.navigator.structure.MavenProjectsStructure;
+import org.jetbrains.idea.maven.navigator.structure.MavenSimpleNode;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.tasks.MavenShortcutsManager;
 import org.jetbrains.idea.maven.tasks.MavenTasksManager;
@@ -37,7 +39,7 @@ public class SelectFromMavenProjectsDialog extends DialogWrapper {
     public SelectFromMavenProjectsDialog(
         Project project,
         String title,
-        final Class<? extends MavenProjectsStructure.MavenSimpleNode> nodeClass,
+        final Class<? extends MavenSimpleNode> nodeClass,
         NodeSelector selector
     ) {
         super(project, false);

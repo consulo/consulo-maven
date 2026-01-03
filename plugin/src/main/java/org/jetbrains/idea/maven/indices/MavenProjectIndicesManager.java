@@ -57,7 +57,7 @@ public class MavenProjectIndicesManager extends MavenSimpleProjectComponent {
     private final MergingUpdateQueue myUpdateQueue;
 
     public static MavenProjectIndicesManager getInstance(Project p) {
-        return p.getComponent(MavenProjectIndicesManager.class);
+        return p.getInstance(MavenProjectIndicesManager.class);
     }
 
     @Inject
@@ -127,7 +127,7 @@ public class MavenProjectIndicesManager extends MavenSimpleProjectComponent {
         return MavenProjectsManager.getInstance(myProject).getLocalRepository();
     }
 
-    private Set<Pair<String, String>> collectRemoteRepositoriesIdsAndUrls() {
+    public Set<Pair<String, String>> collectRemoteRepositoriesIdsAndUrls() {
         Set<Pair<String, String>> result = new HashSet<>();
         Set<MavenRemoteRepository> remoteRepositories = new HashSet<>(getMavenProjectManager().getRemoteRepositories());
         for (MavenRepositoryProvider repositoryProvider : MavenRepositoryProvider.EP_NAME.getExtensionList()) {

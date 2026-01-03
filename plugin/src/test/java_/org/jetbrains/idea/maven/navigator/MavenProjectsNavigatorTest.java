@@ -22,6 +22,8 @@ import java.util.List;
 import org.jetbrains.idea.maven.MavenImportingTestCase;
 import consulo.maven.rt.server.common.model.MavenExplicitProfiles;
 import consulo.virtualFileSystem.VirtualFile;
+import org.jetbrains.idea.maven.navigator.structure.MavenProjectsStructure;
+import org.jetbrains.idea.maven.navigator.structure.ProjectNode;
 
 public abstract class MavenProjectsNavigatorTest extends MavenImportingTestCase {
   private MavenProjectsNavigator myNavigator;
@@ -241,14 +243,14 @@ public abstract class MavenProjectsNavigatorTest extends MavenImportingTestCase 
     myNavigator.setShowIgnored(true);
     assertEquals(1, getRootNodes().size());
     assertEquals(1, myStructure.getRootElement().getChildren().length);
-    MavenProjectsStructure.ProjectNode projectNode = (MavenProjectsStructure.ProjectNode)myStructure.getRootElement().getChildren()[0];
+    ProjectNode projectNode = (ProjectNode)myStructure.getRootElement().getChildren()[0];
     assertEquals(myProjectPom, projectNode.getVirtualFile());
     assertEquals(1, projectNode.getModulesNode().getProjectNodesInTests().size());
 
     myNavigator.setShowIgnored(false);
     assertEquals(2, getRootNodes().size());
     assertEquals(1, myStructure.getRootElement().getChildren().length); // only one of them is visible
-    projectNode = (MavenProjectsStructure.ProjectNode)myStructure.getRootElement().getChildren()[0];
+    projectNode = (ProjectNode)myStructure.getRootElement().getChildren()[0];
     assertEquals(m, projectNode.getVirtualFile());
     assertEquals(0, projectNode.getModulesNode().getProjectNodesInTests().size());
   }
@@ -321,7 +323,7 @@ public abstract class MavenProjectsNavigatorTest extends MavenImportingTestCase 
     waitForReadingCompletion();
   }
 
-  private List<MavenProjectsStructure.ProjectNode> getRootNodes() {
+  private List<ProjectNode> getRootNodes() {
     return myStructure.getRootElement().getProjectNodesInTests();
   }
 }
