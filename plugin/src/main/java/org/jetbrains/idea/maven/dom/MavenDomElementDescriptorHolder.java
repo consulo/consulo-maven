@@ -113,7 +113,7 @@ public class MavenDomElementDescriptorHolder {
             result = CachedValuesManager.getManager(myProject).createCachedValue(
                 () -> CachedValueProvider.Result.create(
                     doCreateDescriptor(kind),
-                    PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT
+                    PsiModificationTracker.MODIFICATION_COUNT
                 ),
                 false
             );
