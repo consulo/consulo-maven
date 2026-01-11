@@ -80,8 +80,9 @@ public class MavenRunnerParametersPanel {
             }
         });
 
-        workDirBuilder.firstActions(new DumbAwareAction(LocalizeValue.localizeTODO("Maven Module"),
-            LocalizeValue.of(),
+        workDirBuilder.firstActions(new DumbAwareAction(
+            LocalizeValue.localizeTODO("Maven Module"),
+            LocalizeValue.empty(),
             MavenIconGroup.mavenlogo()
         ) {
             @RequiredUIAccess
