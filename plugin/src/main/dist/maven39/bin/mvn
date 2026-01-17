@@ -127,9 +127,13 @@ find_maven_basedir() {
 (
   basedir=`find_file_argument_basedir "$@"`
   wdir="${basedir}"
-  while [ "$wdir" != '/' ] ; do
+  while :
+  do
     if [ -d "$wdir"/.mvn ] ; then
       basedir=$wdir
+      break
+    fi
+    if [ "$wdir" = '/' ] ; then
       break
     fi
     wdir=`cd "$wdir/.."; pwd`
@@ -191,6 +195,15 @@ export MAVEN_PROJECTBASEDIR
 # work with both Windows and non-Windows executions.
 MAVEN_CMD_LINE_ARGS="$MAVEN_CONFIG $@"
 export MAVEN_CMD_LINE_ARGS
+
+# MNG-8248
+if "$JAVACMD" --enable-native-access=ALL-UNNAMED -version >/dev/null 2>&1; then
+  MAVEN_OPTS="--enable-native-access=ALL-UNNAMED $MAVEN_OPTS"
+  # MNG-8169
+  if $mingw ; then
+    MAVEN_OPTS="--add-opens java.base/java.lang=ALL-UNNAMED $MAVEN_OPTS"
+  fi
+fi
 
 exec "$JAVACMD" \
   $MAVEN_OPTS \

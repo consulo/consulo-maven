@@ -33,6 +33,10 @@
 @REM enable echoing my setting MAVEN_BATCH_ECHO to 'on'
 @if "%MAVEN_BATCH_ECHO%"=="on" echo %MAVEN_BATCH_ECHO%
 
+@REM Clear/define a variable for any options to be inserted via script
+@REM We want to avoid trying to parse the external MAVEN_OPTS variable
+SET INTERNAL_MAVEN_OPTS=
+
 @REM Execute a user defined script before this one
 if not "%MAVEN_SKIP_RC%"=="" goto skipRcPre
 @REM check for pre script, once with legacy .bat ending and once with .cmd ending
@@ -166,11 +170,21 @@ for /F "usebackq delims=" %%a in ("%MAVEN_PROJECTBASEDIR%\.mvn\jvm.config") do s
 
 :endReadAdditionalConfig
 
+@REM do not let MAVEN_PROJECTBASEDIR end with a single backslash which would escape the double quote. This happens when .mvn at drive root.
+if "_%MAVEN_PROJECTBASEDIR:~-1%"=="_\" set "MAVEN_PROJECTBASEDIR=%MAVEN_PROJECTBASEDIR%\"
+
 for %%i in ("%MAVEN_HOME%"\boot\plexus-classworlds-*) do set CLASSWORLDS_JAR="%%i"
 set CLASSWORLDS_LAUNCHER=org.codehaus.plexus.classworlds.launcher.Launcher
 
+@REM MNG-8248
+"%JAVACMD%" --enable-native-access=ALL-UNNAMED -version >nul 2>&1
+if ERRORLEVEL 1 goto skipEnableNativeAccess
+set "INTERNAL_MAVEN_OPTS=--enable-native-access=ALL-UNNAMED %INTERNAL_MAVEN_OPTS%"
+:skipEnableNativeAccess
+
 "%JAVACMD%" ^
   %JVM_CONFIG_MAVEN_PROPS% ^
+  %INTERNAL_MAVEN_OPTS% ^
   %MAVEN_OPTS% ^
   %MAVEN_DEBUG_OPTS% ^
   -classpath %CLASSWORLDS_JAR% ^
@@ -199,4 +213,4 @@ if "%MAVEN_BATCH_PAUSE%"=="on" pause
 
 if "%MAVEN_TERMINATE_CMD%"=="on" exit %ERROR_CODE%
 
-cmd /C exit /B %ERROR_CODE%
+exit /b %ERROR_CODE%
