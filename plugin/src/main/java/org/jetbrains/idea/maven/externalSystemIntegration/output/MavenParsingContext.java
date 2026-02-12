@@ -37,6 +37,10 @@ public class MavenParsingContext {
         this.ideaProject = runConfiguration.getProject();
     }
 
+    public MavenRunConfiguration getRunConfiguration() {
+        return runConfiguration;
+    }
+
     public Function<String, String> getTargetFileMapper() {
         return targetFileMapper;
     }
@@ -45,8 +49,20 @@ public class MavenParsingContext {
         return myTaskId;
     }
 
+    public Project getIdeaProject() {
+        return ideaProject;
+    }
+
+    public List<String> getProjectsInReactor() {
+        return projectsInReactor;
+    }
+
     public void setProjectsInReactor(List<String> projectsInReactor) {
         this.projectsInReactor = projectsInReactor;
+    }
+
+    public CopyOnWriteArrayList<String> getStartedProjects() {
+        return startedProjects;
     }
 
     @Deprecated
