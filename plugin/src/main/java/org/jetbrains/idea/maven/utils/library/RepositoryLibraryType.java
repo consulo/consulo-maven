@@ -77,12 +77,12 @@ public class RepositoryLibraryType extends LibraryType<RepositoryLibraryProperti
 
     @Override
     public String getDescription(@Nonnull RepositoryLibraryProperties properties) {
-        final String mavenIdKey = properties.getMavenId();
+        String mavenIdKey = properties.getMavenId();
         return "Library " + (mavenIdKey != null ? mavenIdKey + " " : "") + "from Maven repository";
     }
 
     @Override
     public Image getIcon() {
-        return MavenIconGroup.mavenlogotransparent();
+        return MavenIconGroup.library();
     }
 }
