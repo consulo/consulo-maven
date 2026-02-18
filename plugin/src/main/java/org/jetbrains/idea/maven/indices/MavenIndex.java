@@ -151,26 +151,6 @@ public class MavenIndex {
     }
 
     private static NotNexusIndexer initNotNexusIndexer(Kind kind, String repositoryPathOrUrl) {
-        if (kind == Kind.REMOTE) {
-            try {
-                URL url = new URL(repositoryPathOrUrl);
-
-                String host = url.getHost();
-                if (host != null) {
-                    List<String> path = StringUtil.split(StringUtil.trimStart(url.getPath(), "/"), "/");
-                    if (host.equals("dl.bintray.com")) {
-                        if (path.size() > 1) {
-                            return new BintrayIndexer(path.get(0), path.get(1));
-                        }
-                    }
-                    else if (host.endsWith(".bintray.com") && !path.isEmpty()) {
-                        return new BintrayIndexer(StringUtil.trimEnd(host, ".bintray.com"), path.get(0));
-                    }
-                }
-            }
-            catch (MalformedURLException ignored) {
-            }
-        }
         return null;
     }
 
