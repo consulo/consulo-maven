@@ -7,20 +7,19 @@ import consulo.content.base.BinariesOrderRootType;
 import consulo.content.bundle.Sdk;
 import consulo.content.bundle.SdkModificator;
 import consulo.content.bundle.SdkType;
-import consulo.logging.Logger;
 import consulo.maven.icon.MavenIconGroup;
 import consulo.platform.Platform;
 import consulo.platform.PlatformOperatingSystem;
-import consulo.ui.image.Image;
 import consulo.util.lang.StringUtil;
-import consulo.util.lang.SystemProperties;
 import consulo.virtualFileSystem.LocalFileSystem;
 import consulo.virtualFileSystem.VirtualFile;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
+import org.jetbrains.idea.maven.localize.MavenLocalize;
 import org.jetbrains.idea.maven.utils.MavenUtil;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashSet;
@@ -37,10 +36,8 @@ public class MavenBundleType extends SdkType {
         return Application.get().getExtensionPoint(SdkType.class).findExtensionOrFail(MavenBundleType.class);
     }
 
-    private static final Logger LOG = Logger.getInstance(MavenBundleType.class);
-
     public MavenBundleType() {
-        super("MVN_BUNDLE");
+        super("MVN_BUNDLE", MavenLocalize.mavenName(), MavenIconGroup.mavenlogo());
     }
 
     @Nonnull
@@ -52,16 +49,16 @@ public class MavenBundleType extends SdkType {
     @Nonnull
     @Override
     public Collection<String> suggestHomePaths() {
+        Platform platform = Platform.current();
+
         Set<String> paths = new LinkedHashSet<>();
-        String userHome = SystemProperties.getUserHome();
-        if (!StringUtil.isEmptyOrSpaces(userHome)) {
-            final File underUserHome = new File(userHome, MavenUtil.M2_DIR);
-            if (MavenUtil.isValidMavenHome(underUserHome)) {
-                paths.add(underUserHome.getPath());
-            }
+        Path userHome = platform.user().homePath();
+        Path underUserHome = userHome.resolve(MavenUtil.M2_DIR);
+        if (MavenUtil.isValidMavenHome(underUserHome.toFile())) {
+            paths.add(underUserHome.toAbsolutePath().toString());
         }
 
-        PlatformOperatingSystem os = Platform.current().os();
+        PlatformOperatingSystem os = platform.os();
         if (os.isMac()) {
             File home = fromBrew();
             if (home != null) {
@@ -178,27 +175,6 @@ public class MavenBundleType extends SdkType {
     @Override
     public String getVersionString(String sdkHome) {
         String mavenVersion = MavenUtil.getMavenVersion(sdkHome);
-        if (mavenVersion != null) {
-            return mavenVersion;
-        }
-        return "0.0.0";
-    }
-
-    @Override
-    @Nonnull
-    public String suggestSdkName(String currentSdkName, String sdkHome) {
-        return getPresentableName() + " " + getVersionString(sdkHome);
-    }
-
-    @Nonnull
-    @Override
-    public String getPresentableName() {
-        return "Maven";
-    }
-
-    @Nonnull
-    @Override
-    public Image getIcon() {
-        return MavenIconGroup.mavenlogo();
+        return mavenVersion != null ? mavenVersion : "0.0.0";
     }
 }
