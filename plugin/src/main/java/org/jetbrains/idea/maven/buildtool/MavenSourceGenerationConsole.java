@@ -1,10 +1,11 @@
 // Copyright 2000-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
 package org.jetbrains.idea.maven.buildtool;
 
-import com.intellij.build.events.impl.SuccessResultImpl;
+import consulo.application.Application;
+import consulo.build.ui.event.BuildEventFactory;
 import consulo.project.Project;
 import jakarta.annotation.Nonnull;
-import org.jetbrains.idea.maven.execution.MavenConsoleBundle;
+import org.jetbrains.idea.maven.execution.RunnerBundle;
 
 /**
  * An instance of this class is not supposed to be reused
@@ -18,7 +19,7 @@ public class MavenSourceGenerationConsole extends MavenSyncConsoleBase {
     @Override
     @Nonnull
     protected String getTitle() {
-        return MavenConsoleBundle.message("maven.generate.sources.title");
+        return RunnerBundle.message("maven.generate.sources.title");
     }
 
     @Override
@@ -28,10 +29,12 @@ public class MavenSourceGenerationConsole extends MavenSyncConsoleBase {
     }
 
     public void startSourceGeneration(@Nonnull String folder) {
-        startTask(MavenConsoleBundle.message("maven.generate.sources.task", folder));
+        startTask(RunnerBundle.message("maven.generate.sources.task", folder));
     }
 
     public void finishSourceGeneration(@Nonnull String folder) {
-        completeTask(MavenConsoleBundle.message("maven.generate.sources.task", folder), new SuccessResultImpl());
+        BuildEventFactory eventFactory = Application.get().getInstance(BuildEventFactory.class);
+
+        completeTask(RunnerBundle.message("maven.generate.sources.task", folder), eventFactory.createSuccessResult());
     }
 }

@@ -103,7 +103,7 @@ public class MavenProjectReader {
 
     private RawModelReadResult doReadProjectModel(VirtualFile file, boolean headerOnly) {
         MavenModel result = new MavenModel();
-        Collection<MavenProjectProblem> problems = MavenProjectProblem.createProblemsList();
+        Collection<MavenProjectProblem> problems = new ArrayList<>();
         HashSet<String> alwaysOnProfiles = new HashSet<>();
 
         Element xmlProject = readXml(file, problems, MavenProjectProblem.ProblemType.SYNTAX);
@@ -275,7 +275,7 @@ public class MavenProjectReader {
         if (mySettingsProfilesCache == null) {
 
             List<MavenProfile> settingsProfiles = new ArrayList<>();
-            Collection<MavenProjectProblem> settingsProblems = MavenProjectProblem.createProblemsList();
+            Collection<MavenProjectProblem> settingsProblems = new ArrayList<>();
             Set<String> settingsAlwaysOnProfiles = new HashSet<>();
 
             for (VirtualFile each : generalSettings.getEffectiveSettingsFiles()) {
@@ -428,7 +428,8 @@ public class MavenProjectReader {
             problems.add(MavenProjectProblem.createProblem(
                 file.getPath(),
                 MavenProjectLocalize.mavenProjectProblemRecursiveinheritance().get(),
-                MavenProjectProblem.ProblemType.PARENT
+                MavenProjectProblem.ProblemType.PARENT,
+                true
             ));
             return model;
         }
@@ -442,7 +443,8 @@ public class MavenProjectReader {
                     problems.add(MavenProjectProblem.createProblem(
                         file.getPath(),
                         MavenProjectLocalize.mavenProjectProblemSelfinheritance().get(),
-                        MavenProjectProblem.ProblemType.PARENT
+                        MavenProjectProblem.ProblemType.PARENT,
+                        true
                     ));
                     return model;
                 }
@@ -451,6 +453,7 @@ public class MavenProjectReader {
 
             Pair<VirtualFile, RawModelReadResult> parentModelWithProblems =
                 new MavenParentProjectFileProcessor<Pair<VirtualFile, RawModelReadResult>>() {
+                    @Override
                     @Nullable
                     protected VirtualFile findManagedFile(@Nonnull MavenId id) {
                         return locator.findProjectFile(id);
@@ -490,7 +493,8 @@ public class MavenProjectReader {
                 problems.add(MavenProjectProblem.createProblem(
                     parentModelWithProblems.first.getPath(),
                     MavenProjectLocalize.mavenProjectProblemParenthasproblems(parentModel.getMavenId()).get(),
-                    MavenProjectProblem.ProblemType.PARENT
+                    MavenProjectProblem.ProblemType.PARENT,
+                    true
                 ));
             }
 
@@ -598,11 +602,13 @@ public class MavenProjectReader {
         final MavenProjectProblem.ProblemType type
     ) {
         return MavenJDOMUtil.read(file, new MavenJDOMUtil.ErrorHandler() {
+            @Override
             public void onReadError(IOException e) {
                 MavenLog.LOG.warn("Cannot read the pom file: " + e);
-                problems.add(MavenProjectProblem.createProblem(file.getPath(), e.getMessage(), type));
+                problems.add(MavenProjectProblem.createProblem(file.getPath(), e.getMessage(), type, true));
             }
 
+            @Override
             public void onSyntaxError() {
                 problems.add(MavenProjectProblem.createSyntaxProblem(file.getPath(), type));
             }

@@ -1,4 +1,4 @@
-// Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
+// Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
 package org.jetbrains.idea.maven.externalSystemIntegration.output;
 
 import consulo.build.ui.event.BuildEvent;
@@ -10,6 +10,8 @@ import consulo.util.lang.StringUtil;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.jetbrains.idea.maven.execution.MavenRunConfiguration;
+import org.jetbrains.idea.maven.externalSystemIntegration.output.parsers.Maven3SpyOutputExtractor;
+import org.jetbrains.idea.maven.externalSystemIntegration.output.parsers.Maven4SpyOutputExtractor;
 import org.jetbrains.idea.maven.externalSystemIntegration.output.parsers.MavenSpyOutputParser;
 import org.jetbrains.idea.maven.externalSystemIntegration.output.parsers.MavenTaskFailedResultImpl;
 
@@ -17,9 +19,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-
 public class MavenLogOutputParser implements BuildOutputParser {
-    private final BuildEventFactory myBuildEventFactory;
 
     private final List<MavenLoggedEventParser> myRegisteredEvents;
     private final ExternalSystemTaskId myTaskId;
@@ -27,23 +27,28 @@ public class MavenLogOutputParser implements BuildOutputParser {
     private final MavenSpyOutputParser mavenSpyOutputParser;
     private final MavenParsingContext myParsingContext;
 
+    private final BuildEventFactory myBuildEventFactory;
+
     public MavenLogOutputParser(@Nonnull BuildEventFactory buildEventFactory,
                                 @Nonnull MavenRunConfiguration runConfiguration,
                                 @Nonnull ExternalSystemTaskId taskId,
-                                @Nonnull List<MavenLoggedEventParser> registeredEvents) {
-        this(buildEventFactory, runConfiguration, taskId, Function.identity(), registeredEvents);
+                                @Nonnull List<MavenLoggedEventParser> registeredEvents,
+                                boolean useWrapperedLogging) {
+        this(buildEventFactory, runConfiguration, taskId, Function.identity(), registeredEvents, useWrapperedLogging);
     }
 
     public MavenLogOutputParser(@Nonnull BuildEventFactory buildEventFactory,
                                 @Nonnull MavenRunConfiguration runConfiguration,
                                 @Nonnull ExternalSystemTaskId taskId,
                                 @Nonnull Function<String, String> targetFileMapper,
-                                @Nonnull List<MavenLoggedEventParser> registeredEvents) {
-        myRegisteredEvents = registeredEvents;
+                                @Nonnull List<MavenLoggedEventParser> registeredEvents,
+                                boolean useWrapperedLogging) {
         myBuildEventFactory = buildEventFactory;
+        myRegisteredEvents = registeredEvents;
         myTaskId = taskId;
         myParsingContext = new MavenParsingContext(runConfiguration, taskId, targetFileMapper);
-        mavenSpyOutputParser = new MavenSpyOutputParser(myParsingContext, buildEventFactory);
+        mavenSpyOutputParser =
+            new MavenSpyOutputParser(myParsingContext, useWrapperedLogging ? new Maven4SpyOutputExtractor() : new Maven3SpyOutputExtractor());
     }
 
     public synchronized void finish(Consumer<? super BuildEvent> messageConsumer) {
@@ -74,11 +79,9 @@ public class MavenLogOutputParser implements BuildOutputParser {
         if (line == null || StringUtil.isEmptyOrSpaces(line)) {
             return false;
         }
-        if (MavenSpyOutputParser.isSpyLog(line)) {
+        if (mavenSpyOutputParser.isSpyLog(line)) {
             mavenSpyOutputParser.processLine(line, messageConsumer);
-            if (myParsingContext.getSessionEnded()) {
-                completeParsers(messageConsumer);
-            }
+            if (myParsingContext.getSessionEnded()) completeParsers(messageConsumer);
             return true;
         }
         else {
@@ -132,16 +135,14 @@ public class MavenLogOutputParser implements BuildOutputParser {
                 reader.pushBack();
             }
 
-            @Nullable
             @Override
-            public MavenLogEntry readLine() {
+            public @Nullable MavenLogEntry readLine() {
                 return nextLine(reader.readLine());
             }
         };
     }
 
-    @Nullable
-    private static MavenLogEntryReader.MavenLogEntry nextLine(String line) {
+    private static @Nullable MavenLogEntryReader.MavenLogEntry nextLine(String line) {
         if (line == null) {
             return null;
         }

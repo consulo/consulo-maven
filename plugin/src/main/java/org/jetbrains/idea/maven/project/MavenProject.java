@@ -776,7 +776,7 @@ public class MavenProject {
     }
 
     private static MavenProjectProblem createDependencyProblem(VirtualFile file, String description) {
-        return new MavenProjectProblem(file.getPath(), description, MavenProjectProblem.ProblemType.DEPENDENCY);
+        return new MavenProjectProblem(file.getPath(), description, MavenProjectProblem.ProblemType.DEPENDENCY, true);
     }
 
     private static boolean isParentResolved(State state) {

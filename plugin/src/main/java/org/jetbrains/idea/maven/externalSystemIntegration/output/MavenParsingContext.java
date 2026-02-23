@@ -1,6 +1,7 @@
 // Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.idea.maven.externalSystemIntegration.output;
 
+import consulo.build.ui.event.BuildEventFactory;
 import consulo.externalSystem.model.task.ExternalSystemTaskId;
 import consulo.project.Project;
 import consulo.util.collection.primitive.ints.ConcurrentIntObjectMap;
@@ -28,13 +29,20 @@ public class MavenParsingContext {
     private final ConcurrentIntObjectMap<ArrayList<MavenExecutionEntry>> context = IntMaps.newConcurrentIntObjectHashMap();
     private int lastAddedThreadId = 0;
 
+    private final BuildEventFactory myBuildEventFactory;
+
     public MavenParsingContext(MavenRunConfiguration runConfiguration,
-                               ExternalSystemTaskId myTaskId,
+                               ExternalSystemTaskId taskId,
                                Function<String, String> targetFileMapper) {
         this.runConfiguration = runConfiguration;
-        this.myTaskId = myTaskId;
+        myTaskId = taskId;
         this.targetFileMapper = targetFileMapper;
         this.ideaProject = runConfiguration.getProject();
+        myBuildEventFactory = runConfiguration.getProject().getApplication().getInstance(BuildEventFactory.class);
+    }
+
+    public BuildEventFactory getBuildEventFactory() {
+        return myBuildEventFactory;
     }
 
     public MavenRunConfiguration getRunConfiguration() {

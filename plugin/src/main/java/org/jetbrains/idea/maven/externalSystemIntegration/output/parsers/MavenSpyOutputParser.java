@@ -1,4 +1,4 @@
-// Copyright 2000-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
+// Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
 package org.jetbrains.idea.maven.externalSystemIntegration.output.parsers;
 
 import consulo.build.ui.event.BuildEvent;
@@ -14,27 +14,32 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public class MavenSpyOutputParser {
-    public static final String PREFIX = "[IJ]-";
+    public static final String PREFIX_MAVEN_3 = "[IJ]-";
+    public static final String PREFIX_MAVEN_4 = "[INFO] [stdout] [IJ]-";
     private static final String SEPARATOR = "-[IJ]-";
     private static final String NEWLINE = "-[N]-";
     private static final String DOWNLOAD_DEPENDENCIES_NAME = "dependencies";
     private final Set<String> downloadingMap = new HashSet<>();
     private final MavenParsingContext myContext;
-    @Nonnull
-    private final BuildEventFactory myBuildEventFactory;
+    private final SpyOutputExtractor myExtractor;
+    private final BuildEventFactory myFactory;
 
-    public static boolean isSpyLog(String s) {
-        return s != null && s.startsWith(PREFIX);
+    public boolean isSpyLog(String s) {
+        return myExtractor.isSpyLog(s);
     }
 
-    public MavenSpyOutputParser(@Nonnull MavenParsingContext context, @Nonnull BuildEventFactory buildEventFactory) {
+    public MavenSpyOutputParser(@Nonnull MavenParsingContext context, SpyOutputExtractor extractor) {
         myContext = context;
-        myBuildEventFactory = buildEventFactory;
+        myExtractor = extractor;
+        myFactory = context.getBuildEventFactory();
     }
 
     public void processLine(@Nonnull String spyLine,
                             @Nonnull Consumer<? super BuildEvent> messageConsumer) {
-        String line = spyLine.substring(PREFIX.length());
+        String line = myExtractor.extract(spyLine);
+        if (line == null) {
+            return;
+        }
         try {
             int threadSeparatorIdx = line.indexOf('-');
             if (threadSeparatorIdx < 0) {
@@ -90,7 +95,7 @@ public class MavenSpyOutputParser {
                 }
                 else {
                     messageConsumer
-                        .accept(myBuildEventFactory.createStartEvent(execution.getId(), execution.getParentId(), System.currentTimeMillis(), execution.getName()));
+                        .accept(myFactory.createStartEvent(execution.getId(), execution.getParentId(), System.currentTimeMillis(), execution.getName()));
                 }
             }
             case MOJO_STARTED -> {
@@ -110,8 +115,8 @@ public class MavenSpyOutputParser {
                 }
                 else {
                     messageConsumer.accept(
-                        myBuildEventFactory.createFinishEvent(mojoExecution.getId(), mojoExecution.getParentId(), System.currentTimeMillis(), mojoExecution.getName(),
-                            new MavenTaskFailedResultImpl(parameters.get("error"), myBuildEventFactory)));
+                        myFactory.createFinishEvent(mojoExecution.getId(), mojoExecution.getParentId(), System.currentTimeMillis(), mojoExecution.getName(),
+                            new MavenTaskFailedResultImpl(parameters.get("error"), myFactory)));
                     mojoExecution.complete();
                 }
             }
@@ -180,7 +185,7 @@ public class MavenSpyOutputParser {
 
         messageConsumer
             .accept(
-                myBuildEventFactory.createStartEvent(getDownloadId(artifactCoord), parent.getId(), System.currentTimeMillis(), artifactCoord));
+                myFactory.createStartEvent(getDownloadId(artifactCoord), parent.getId(), System.currentTimeMillis(), artifactCoord));
     }
 
     private void artifactResolved(int threadId, Map<String, String> parameters, Consumer<? super BuildEvent> messageConsumer) {
@@ -194,27 +199,26 @@ public class MavenSpyOutputParser {
             if (error != null) {
                 if (downloadingMap.remove(artifactCoord)) {
                     messageConsumer
-                        .accept(myBuildEventFactory.createFinishEvent(getDownloadId(artifactCoord), parent.getId(), System.currentTimeMillis(), artifactCoord,
-                            myBuildEventFactory.createFailureResult(error, null)));
+                        .accept(myFactory.createFinishEvent(getDownloadId(artifactCoord), parent.getId(), System.currentTimeMillis(), artifactCoord,
+                            myFactory.createFailureResult(error, null)));
                 }
                 else {
                     Object eventId = new Object();
                     messageConsumer
-                        .accept(myBuildEventFactory.createStartEvent(eventId, parent.getId(), System.currentTimeMillis(), error));
+                        .accept(myFactory.createStartEvent(eventId, parent.getId(), System.currentTimeMillis(), error));
                     messageConsumer
-                        .accept(myBuildEventFactory.createFinishEvent(eventId, parent.getId(), System.currentTimeMillis(), error, myBuildEventFactory.createFailureResult()));
+                        .accept(myFactory.createFinishEvent(eventId, parent.getId(), System.currentTimeMillis(), error, myFactory.createFailureResult()));
                 }
             }
             else {
                 messageConsumer
-                    .accept(myBuildEventFactory.createFinishEvent(getDownloadId(artifactCoord), parent.getId(), System.currentTimeMillis(), artifactCoord,
-                        myBuildEventFactory.createSuccessResult(false)));
+                    .accept(myFactory.createFinishEvent(getDownloadId(artifactCoord), parent.getId(), System.currentTimeMillis(), artifactCoord,
+                        myFactory.createSuccessResult(false)));
             }
         }
     }
 
-    @Nonnull
-    private static String getDownloadId(String artifactCoord) {
+    private static @Nonnull String getDownloadId(String artifactCoord) {
         return "download" + artifactCoord;
     }
 
@@ -242,8 +246,9 @@ public class MavenSpyOutputParser {
             MavenLog.LOG.warn("Error parsing maven log");
             return;
         }
-        messageConsumer.accept(myBuildEventFactory.createFinishEvent(execution.getId(), execution.getParentId(), System.currentTimeMillis(), execution.getName(),
-            myBuildEventFactory.createSkippedResult()));
+        messageConsumer
+            .accept(myFactory.createFinishEvent(execution.getId(), execution.getParentId(), System.currentTimeMillis(), execution.getName(),
+                myFactory.createSkippedResult()));
         execution.complete();
     }
 
@@ -252,7 +257,9 @@ public class MavenSpyOutputParser {
             MavenLog.LOG.warn("Error parsing maven log");
             return;
         }
-        messageConsumer.accept(myBuildEventFactory.createStartEvent(execution.getId(), execution.getParentId(), System.currentTimeMillis(), execution.getName()));
+        messageConsumer
+            .accept(
+                myFactory.createStartEvent(execution.getId(), execution.getParentId(), System.currentTimeMillis(), execution.getName()));
     }
 
     private void doError(Consumer<? super BuildEvent> messageConsumer,
@@ -263,8 +270,8 @@ public class MavenSpyOutputParser {
             return;
         }
         messageConsumer
-            .accept(myBuildEventFactory.createFinishEvent(execution.getId(), execution.getParentId(), System.currentTimeMillis(), execution.getName(),
-                new MavenTaskFailedResultImpl(errorMessage, myBuildEventFactory)));
+            .accept(myFactory.createFinishEvent(execution.getId(), execution.getParentId(), System.currentTimeMillis(), execution.getName(),
+                new MavenTaskFailedResultImpl(errorMessage, myFactory)));
         execution.complete();
     }
 
@@ -273,8 +280,10 @@ public class MavenSpyOutputParser {
             MavenLog.LOG.warn("Error parsing maven log");
             return;
         }
-        messageConsumer.accept(myBuildEventFactory.createFinishEvent(execution.getId(), execution.getParentId(), System.currentTimeMillis(), execution.getName(),
-            myBuildEventFactory.createSuccessResult()));
+        messageConsumer
+            .accept(
+                myFactory.createFinishEvent(execution.getId(), execution.getParentId(), System.currentTimeMillis(), execution.getName(),
+                    myFactory.createSuccessResult()));
         execution.complete();
     }
 
@@ -282,11 +291,11 @@ public class MavenSpyOutputParser {
         context.setSessionEnded(true);
         if (context.getProjectFailure()) {
             messageConsumer
-                .accept(myBuildEventFactory.createFinishBuildEvent(context.getMyTaskId(), null, System.currentTimeMillis(), "", myBuildEventFactory.createFailureResult()));
+                .accept(myFactory.createFinishBuildEvent(context.getMyTaskId(), null, System.currentTimeMillis(), "", myFactory.createFailureResult()));
         }
         else {
             messageConsumer
-                .accept(myBuildEventFactory.createFinishBuildEvent(context.getMyTaskId(), null, System.currentTimeMillis(), "", myBuildEventFactory.createSuccessResult()));
+                .accept(myFactory.createFinishBuildEvent(context.getMyTaskId(), null, System.currentTimeMillis(), "", myFactory.createSuccessResult()));
         }
     }
 }

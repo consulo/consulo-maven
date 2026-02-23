@@ -27,6 +27,7 @@ import consulo.component.ProcessCanceledException;
 import consulo.container.boot.ContainerPathManager;
 import consulo.content.bundle.Sdk;
 import consulo.content.bundle.SdkTable;
+import consulo.externalSystem.model.ProjectSystemId;
 import consulo.fileEditor.FileEditorManager;
 import consulo.fileTemplate.FileTemplate;
 import consulo.fileTemplate.FileTemplateManager;
@@ -43,6 +44,7 @@ import consulo.language.psi.PsiManager;
 import consulo.language.util.ModuleUtilCore;
 import consulo.maven.MavenNotificationGroup;
 import consulo.maven.bundle.MavenBundleType;
+import consulo.maven.icon.MavenIconGroup;
 import consulo.maven.rt.server.common.model.MavenConstants;
 import consulo.maven.rt.server.common.model.MavenId;
 import consulo.maven.rt.server.common.model.MavenPlugin;
@@ -72,6 +74,7 @@ import consulo.virtualFileSystem.LocalFileSystem;
 import consulo.virtualFileSystem.VirtualFile;
 import consulo.virtualFileSystem.archive.ArchiveVfsUtil;
 import consulo.virtualFileSystem.util.VirtualFileUtil;
+import org.jetbrains.idea.maven.localize.MavenLocalize;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.server.MavenServerManager;
@@ -98,6 +101,13 @@ import java.util.regex.PatternSyntaxException;
 import java.util.zip.CRC32;
 
 public class MavenUtil {
+    public static final ProjectSystemId SYSTEM_ID = new ProjectSystemId(
+        "MAVEN",
+        MavenLocalize.mavenName(),
+        MavenIconGroup.mavenlogo(),
+        MavenIconGroup.modulesclosed()
+    );
+
     public static final String SETTINGS_XML = "settings.xml";
     public static final String DOT_M2_DIR = ".m2";
     public static final String PROP_USER_HOME = "user.home";

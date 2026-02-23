@@ -1,14 +1,15 @@
 // Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
 package org.jetbrains.idea.maven.execution.run;
 
+import consulo.process.BaseProcessHandler;
 import consulo.process.ProcessHandler;
 import consulo.process.event.ProcessListener;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 
 import java.io.OutputStream;
 
-class MavenHandlerFilterSpyWrapper implements ProcessHandler, MavenSpyFilter {
+class MavenHandlerFilterSpyWrapper extends BaseProcessHandler implements MavenSpyFilter {
     private final ProcessHandler myOriginalHandler;
     private final boolean myWithLoggingOutputStream;
     private final boolean myStopWinCmd;
@@ -65,12 +66,12 @@ class MavenHandlerFilterSpyWrapper implements ProcessHandler, MavenSpyFilter {
     }
 
     @Override
-    public void addProcessListener(@NotNull ProcessListener listener) {
+    public void addProcessListener(@Nonnull ProcessListener listener) {
         myOriginalHandler.addProcessListener(filtered(listener, this, myWithLoggingOutputStream, myStopWinCmd));
     }
 
-    @Override
-    public void addProcessListener(final @NotNull ProcessListener listener, @NotNull Disposable parentDisposable) {
-        myOriginalHandler.addProcessListener(filtered(listener, this, myWithLoggingOutputStream, myStopWinCmd), parentDisposable);
-    }
+//    @Override
+//    public void addProcessListener(final @NotNull ProcessListener listener, @NotNull Disposable parentDisposable) {
+//        myOriginalHandler.addProcessListener(filtered(listener, this, myWithLoggingOutputStream, myStopWinCmd), parentDisposable);
+//    }
 }

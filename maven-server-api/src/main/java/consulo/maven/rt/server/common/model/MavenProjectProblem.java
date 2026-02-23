@@ -1,96 +1,121 @@
-/*
- * Copyright 2000-2010 JetBrains s.r.o.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
 package consulo.maven.rt.server.common.model;
+
+import jakarta.annotation.Nullable;
 
 import java.io.File;
 import java.io.Serializable;
 import java.text.MessageFormat;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedHashSet;
+import java.util.Objects;
 
 public class MavenProjectProblem implements Serializable {
-  public enum ProblemType {
-    SYNTAX, STRUCTURE, DEPENDENCY, PARENT, SETTINGS_OR_PROFILES
-  }
+    //todo: this enum values are write-only now
+    public enum ProblemType {
+        SYNTAX,
+        STRUCTURE,
+        DEPENDENCY,
+        PARENT,
+        SETTINGS_OR_PROFILES,
+        REPOSITORY
+    }
 
-  private final String myPath;
-  private final String myDescription;
-  private final ProblemType myType;
+    private final boolean myIsError;
+    private final String myPath;
+    private final String myDescription;
+    private final ProblemType myType;
+    private final Exception st;
+    private final @Nullable MavenArtifact myMavenArtifact;
 
-  public static MavenProjectProblem createStructureProblem(String path, String description) {
-    return createProblem(path, description, MavenProjectProblem.ProblemType.STRUCTURE);
-  }
+    public static MavenProjectProblem createStructureProblem(String path, String description, boolean isError) {
+        return createProblem(path, description, ProblemType.STRUCTURE, isError);
+    }
 
-  public static MavenProjectProblem createSyntaxProblem(String path, MavenProjectProblem.ProblemType type) {
-    return createProblem(path, MessageFormat.format("''{0}'' has syntax errors", new File(path).getName()) , type);
-  }
+    public static MavenProjectProblem createStructureProblem(String path, String description) {
+        return createProblem(path, description, ProblemType.STRUCTURE, true);
+    }
 
-  public static MavenProjectProblem createProblem(String path, String description, MavenProjectProblem.ProblemType type) {
-    return new MavenProjectProblem(path, description, type);
-  }
+    public static MavenProjectProblem createSyntaxProblem(String path, ProblemType type) {
+        return createProblem(path, MessageFormat.format("''{0}'' has syntax errors", new File(path).getName()), type, true);
+    }
 
-  public static Collection<MavenProjectProblem> createProblemsList() {
-    return createProblemsList(Collections.<MavenProjectProblem>emptySet());
-  }
+    public static MavenProjectProblem createProblem(String path,
+                                                    String description,
+                                                    ProblemType type,
+                                                    boolean isError) {
+        return new MavenProjectProblem(path, description, type, isError);
+    }
 
-  public static Collection<MavenProjectProblem> createProblemsList(Collection<MavenProjectProblem> copyThis) {
-    return new LinkedHashSet<MavenProjectProblem>(copyThis);
-  }
+    public static MavenProjectProblem createRepositoryProblem(String path,
+                                                              String description,
+                                                              boolean isError,
+                                                              MavenArtifact mavenArtifact) {
+        return new MavenProjectProblem(path, description, ProblemType.REPOSITORY, isError, mavenArtifact);
+    }
 
-  public MavenProjectProblem(String path, String description, ProblemType type) {
-    myPath = path;
-    myDescription = description;
-    myType = type;
-  }
+    public static MavenProjectProblem createUnresolvedArtifactProblem(String path,
+                                                                      String description,
+                                                                      boolean isError,
+                                                                      MavenArtifact mavenArtifact) {
+        return new MavenProjectProblem(path, description, ProblemType.DEPENDENCY, isError, mavenArtifact);
+    }
 
-  public String getPath() {
-    return myPath;
-  }
+    public MavenProjectProblem(String path, String description, ProblemType type, boolean isError) {
+        this(path, description, type, isError, null);
+    }
 
-  public String getDescription() {
-    return myDescription;
-  }
+    public MavenProjectProblem(String path, String description, ProblemType type, boolean isError, MavenArtifact mavenArtifact) {
+        myPath = path;
+        myDescription = description;
+        myType = type;
+        myIsError = isError;
+        myMavenArtifact = mavenArtifact;
+        st = new Exception();
+    }
 
-  public ProblemType getType() {
-    return myType;
-  }
+    public String getPath() {
+        return myPath;
+    }
 
-  @Override
-  public String toString() {
-    return myType + ":" + myDescription + ":" + myPath;
-  }
+    public boolean isError() {
+        return myIsError;
+    }
 
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    public @Nullable String getDescription() {
+        return myDescription;
+    }
 
-    MavenProjectProblem that = (MavenProjectProblem)o;
+    public ProblemType getType() {
+        return myType;
+    }
 
-    if (!myDescription.equals(that.myDescription)) return false;
-    if (myType != that.myType) return false;
-    if (!myPath.equals(that.myPath)) return false;
+    public @Nullable MavenArtifact getMavenArtifact() {
+        return myMavenArtifact;
+    }
 
-    return true;
-  }
+    @Override
+    public String toString() {
+        return myType + ":" + myDescription + ":" + myPath;
+    }
 
-  public int hashCode() {
-    int result = myPath.hashCode();
-    result = 31 * result + myDescription.hashCode();
-    result = 31 * result + myType.hashCode();
-    return result;
-  }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        MavenProjectProblem that = (MavenProjectProblem) o;
+
+        if (!Objects.equals(myDescription, that.myDescription)) return false;
+        if (myType != that.myType) return false;
+        if (!Objects.equals(myPath, that.myPath)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = myPath != null ? myPath.hashCode() : 0;
+        result = 31 * result + (myDescription != null ? myDescription.hashCode() : 0);
+        result = 31 * result + (myType != null ? myType.hashCode() : 0);
+        return result;
+    }
 }

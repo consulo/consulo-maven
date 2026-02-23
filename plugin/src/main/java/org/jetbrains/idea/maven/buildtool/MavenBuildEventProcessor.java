@@ -1,80 +1,100 @@
 // Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
 package org.jetbrains.idea.maven.buildtool;
 
-import com.intellij.build.BuildDescriptor;
-import com.intellij.build.BuildProgressListener;
-import com.intellij.build.events.StartBuildEvent;
-import com.intellij.build.events.impl.StartBuildEventImpl;
-import com.intellij.build.output.BuildOutputInstantReaderImpl;
-import com.intellij.execution.process.AnsiEscapeDecoder;
-import com.intellij.execution.process.ProcessOutputType;
-import com.intellij.openapi.externalSystem.model.task.ExternalSystemTaskId;
-import com.intellij.openapi.util.Key;
-import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import consulo.application.Application;
+import consulo.build.ui.BuildDescriptor;
+import consulo.build.ui.event.BuildEventFactory;
+import consulo.build.ui.event.StartBuildEvent;
+import consulo.build.ui.output.BuildOutputInstantReader;
+import consulo.build.ui.output.BuildOutputService;
+import consulo.build.ui.progress.BuildProgressListener;
+import consulo.externalSystem.model.task.ExternalSystemTaskId;
+import consulo.process.ProcessOutputType;
+import consulo.process.util.AnsiEscapeDecoder;
+import consulo.util.dataholder.Key;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import org.jetbrains.idea.maven.execution.MavenRunConfiguration;
 import org.jetbrains.idea.maven.externalSystemIntegration.output.MavenLogOutputParser;
 import org.jetbrains.idea.maven.externalSystemIntegration.output.MavenOutputParserProvider;
 import org.jetbrains.idea.maven.externalSystemIntegration.output.MavenParsingContext;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.function.Function;
 
-@ApiStatus.Experimental
 public class MavenBuildEventProcessor implements AnsiEscapeDecoder.ColoredTextAcceptor {
-  private final @NotNull BuildProgressListener myBuildProgressListener;
-  private final @NotNull BuildOutputInstantReaderImpl myInstantReader;
-  private final @NotNull MavenLogOutputParser myParser;
-  private boolean closed = false;
-  private final BuildDescriptor myDescriptor;
-  private final @NotNull Function<MavenParsingContext, StartBuildEvent> myStartBuildEventSupplier;
+    private final @Nonnull BuildProgressListener myBuildProgressListener;
+    private final @Nonnull BuildOutputInstantReader.Primary myInstantReader;
+    private final @Nonnull MavenLogOutputParser myParser;
+    private boolean closed = false;
+    private final BuildDescriptor myDescriptor;
+    private final @Nonnull Function<MavenParsingContext, StartBuildEvent> myStartBuildEventSupplier;
 
-  public MavenBuildEventProcessor(@NotNull MavenRunConfiguration runConfiguration,
-                                  @NotNull BuildProgressListener buildProgressListener,
-                                  @NotNull BuildDescriptor descriptor,
-                                  @NotNull ExternalSystemTaskId taskId,
-                                  @NotNull Function<String, String> targetFileMapper,
-                                  @Nullable Function<MavenParsingContext, StartBuildEvent> startBuildEventSupplier,
-                                  boolean useWrapperedLogging) {
+    public MavenBuildEventProcessor(@Nonnull MavenRunConfiguration runConfiguration,
+                                    @Nonnull BuildProgressListener buildProgressListener,
+                                    @Nonnull BuildDescriptor descriptor,
+                                    @Nonnull ExternalSystemTaskId taskId,
+                                    @Nonnull Function<String, String> targetFileMapper,
+                                    @Nullable Function<MavenParsingContext, StartBuildEvent> startBuildEventSupplier,
+                                    boolean useWrapperedLogging) {
 
-    myBuildProgressListener = buildProgressListener;
-    myDescriptor = descriptor;
-    myStartBuildEventSupplier = startBuildEventSupplier != null
-                                ? startBuildEventSupplier : ctx -> new StartBuildEventImpl(myDescriptor, "");
+        myBuildProgressListener = buildProgressListener;
+        myDescriptor = descriptor;
 
-    myParser = MavenOutputParserProvider.createMavenOutputParser(runConfiguration, taskId, targetFileMapper, useWrapperedLogging);
+        Application application = Application.get();
 
-    myInstantReader = new BuildOutputInstantReaderImpl(
-      taskId, taskId,
-      myBuildProgressListener,
-      Collections.singletonList(myParser));
-  }
+        BuildEventFactory buildEventFactory = application.getInstance(BuildEventFactory.class);
 
-  public synchronized void finish() {
-    myParser.finish(e -> myBuildProgressListener.onEvent(myDescriptor.getId(), e));
-    myInstantReader.close();
-    closed = true;
-  }
+        myStartBuildEventSupplier = startBuildEventSupplier != null
+            ? startBuildEventSupplier : ctx -> buildEventFactory.createStartBuildEvent(myDescriptor, "");
 
-  public void start() {
-    StartBuildEvent startEvent = myStartBuildEventSupplier.apply(getParsingContext());
+        myParser = MavenOutputParserProvider.createMavenOutputParser(buildEventFactory, runConfiguration, taskId, targetFileMapper, useWrapperedLogging);
 
-    myBuildProgressListener.onEvent(myDescriptor.getId(), startEvent);
-  }
+        BuildOutputService buildOutputService = application.getInstance(BuildOutputService.class);
 
-  public synchronized void onTextAvailable(String text, boolean stdError) {
-    if (!closed) {
-      myInstantReader.append(text);
+        myInstantReader = buildOutputService.createBuildOutputInstantReader(
+            taskId,
+            taskId,
+            myBuildProgressListener,
+            Collections.singletonList(myParser)
+        );
     }
-  }
 
-  public MavenParsingContext getParsingContext() {
-    return myParser.getParsingContext();
-  }
+    public synchronized void finish() {
+        myParser.finish(e -> myBuildProgressListener.onEvent(myDescriptor.getId(), e));
+        try {
+            myInstantReader.close();
+        }
+        catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        closed = true;
+    }
 
-  @Override
-  public void coloredTextAvailable(@NotNull String text, @NotNull Key outputType) {
-    onTextAvailable(text, ProcessOutputType.isStderr(outputType));
-  }
+    public void start() {
+        StartBuildEvent startEvent = myStartBuildEventSupplier.apply(getParsingContext());
+
+        myBuildProgressListener.onEvent(myDescriptor.getId(), startEvent);
+    }
+
+    public synchronized void onTextAvailable(String text, boolean stdError) {
+        if (!closed) {
+            try {
+                myInstantReader.append(text);
+            }
+            catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    public MavenParsingContext getParsingContext() {
+        return myParser.getParsingContext();
+    }
+
+    @Override
+    public void coloredTextAvailable(@Nonnull String text, @Nonnull Key outputType) {
+        onTextAvailable(text, ProcessOutputType.isStderr(outputType));
+    }
 }

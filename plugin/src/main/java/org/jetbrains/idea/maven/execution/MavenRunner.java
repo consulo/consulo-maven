@@ -30,9 +30,10 @@ import consulo.component.persist.State;
 import consulo.component.persist.Storage;
 import consulo.component.persist.StoragePathMacros;
 import consulo.document.FileDocumentManager;
-import consulo.ide.ServiceManager;
 import consulo.logging.Logger;
 import consulo.project.Project;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import org.jetbrains.idea.maven.project.MavenConsole;
@@ -41,8 +42,6 @@ import org.jetbrains.idea.maven.project.MavenGeneralSettings;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.utils.MavenLog;
 
-import jakarta.annotation.Nonnull;
-import jakarta.annotation.Nullable;
 import java.util.List;
 
 @State(name = "MavenRunner", storages = {@Storage(file = StoragePathMacros.WORKSPACE_FILE)})
@@ -56,7 +55,7 @@ public class MavenRunner implements PersistentStateComponent<MavenRunnerSettings
     private final Project myProject;
 
     public static MavenRunner getInstance(Project project) {
-        return ServiceManager.getService(project, MavenRunner.class);
+        return project.getInstance(MavenRunner.class);
     }
 
     @Inject

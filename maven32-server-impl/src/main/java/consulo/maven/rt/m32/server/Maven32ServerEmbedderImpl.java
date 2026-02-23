@@ -911,7 +911,7 @@ public class Maven32ServerEmbedderImpl extends Maven3ServerEmbedder {
 
     @Nonnull
     private MavenServerExecutionResult createExecutionResult(File file, MavenExecutionResult result, DependencyNode rootNode) throws RemoteException {
-        Collection<MavenProjectProblem> problems = MavenProjectProblem.createProblemsList();
+        Collection<MavenProjectProblem> problems = new ArrayList<MavenProjectProblem>();
         Set<MavenId> unresolvedArtifacts = new HashSet<MavenId>();
 
         validate(file, result.getExceptions(), problems, unresolvedArtifacts);

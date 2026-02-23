@@ -29,7 +29,10 @@ public abstract class BuildErrorNotification implements MavenLoggedEventParser {
     private final NotificationGroup myMessageGroup;
     private final BuildEventFactory myBuildEventFactory;
 
-    protected BuildErrorNotification(@NonNls String language, @NonNls String extension, NotificationGroup messageGroup, BuildEventFactory buildEventFactory) {
+    protected BuildErrorNotification(@NonNls String language,
+                                     @NonNls String extension,
+                                     NotificationGroup messageGroup,
+                                     BuildEventFactory buildEventFactory) {
         myLanguage = language;
         myExtension = extension;
         myMessageGroup = messageGroup;

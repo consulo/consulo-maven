@@ -47,9 +47,12 @@ import consulo.util.lang.Pair;
 import consulo.util.lang.ref.Ref;
 import consulo.virtualFileSystem.VirtualFile;
 import consulo.virtualFileSystem.VirtualFileManager;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import org.jetbrains.annotations.TestOnly;
+import org.jetbrains.idea.maven.buildtool.MavenSyncConsole;
 import org.jetbrains.idea.maven.importing.MavenDefaultModifiableModelsProvider;
 import org.jetbrains.idea.maven.importing.MavenFoldersImporter;
 import org.jetbrains.idea.maven.importing.MavenModifiableModelsProvider;
@@ -60,12 +63,11 @@ import org.jetbrains.idea.maven.utils.MavenMergingUpdateQueue;
 import org.jetbrains.idea.maven.utils.MavenSimpleProjectComponent;
 import org.jetbrains.idea.maven.utils.MavenUtil;
 
-import jakarta.annotation.Nonnull;
-import jakarta.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 
@@ -111,6 +113,8 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
     private ModificationTracker myModificationTracker;
 
     private MavenWorkspaceSettings myWorkspaceSettings;
+
+    private final AtomicReference<MavenSyncConsole> mySyncConsole = new AtomicReference<>();
 
     public static MavenProjectsManager getInstance(Project p) {
         return p.getComponent(MavenProjectsManager.class);
@@ -163,6 +167,13 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 
     public File getLocalRepository() {
         return getGeneralSettings().getEffectiveLocalRepository();
+    }
+
+    public MavenSyncConsole getSyncConsole() {
+        if (null == mySyncConsole.get()) {
+            mySyncConsole.compareAndSet(null, new MavenSyncConsole(myProject));
+        }
+        return mySyncConsole.get();
     }
 
     public void doInit() {

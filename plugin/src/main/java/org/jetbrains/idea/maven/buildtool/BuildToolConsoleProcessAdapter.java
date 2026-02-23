@@ -3,9 +3,9 @@ package org.jetbrains.idea.maven.buildtool;
 
 import consulo.process.event.ProcessAdapter;
 import consulo.process.event.ProcessEvent;
-import consulo.process.internal.AnsiEscapeDecoder;
+import consulo.process.util.AnsiEscapeDecoder;
 import consulo.util.dataholder.Key;
-import org.jetbrains.annotations.NotNull;
+import jakarta.annotation.Nonnull;
 import org.jetbrains.idea.maven.execution.MavenSpyEventsBuffer;
 
 public class BuildToolConsoleProcessAdapter extends ProcessAdapter {
@@ -23,17 +23,17 @@ public class BuildToolConsoleProcessAdapter extends ProcessAdapter {
   }
 
   @Override
-  public void startNotified(@NotNull ProcessEvent event) {
+  public void startNotified(@Nonnull ProcessEvent event) {
     myEventParser.start();
   }
 
   @Override
-  public void onTextAvailable(@NotNull ProcessEvent event, @NotNull Key outputType) {
+  public void onTextAvailable(@Nonnull ProcessEvent event, @Nonnull Key outputType) {
     myMavenSpyEventsBuffer.addText(event.getText(), outputType);
   }
 
   @Override
-  public void processTerminated(@NotNull ProcessEvent event) {
+  public void processTerminated(@Nonnull ProcessEvent event) {
     myEventParser.finish();
   }
 }

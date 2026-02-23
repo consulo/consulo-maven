@@ -1,15 +1,16 @@
 // Copyright 2000-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
 package org.jetbrains.idea.maven.buildtool;
 
-import com.intellij.build.DefaultBuildDescriptor;
-import com.intellij.build.SyncViewManager;
-import com.intellij.build.events.EventResult;
-import com.intellij.build.events.MessageEvent;
-import com.intellij.build.events.impl.*;
-import com.intellij.openapi.externalSystem.model.task.ExternalSystemTaskId;
-import com.intellij.openapi.externalSystem.model.task.ExternalSystemTaskType;
-import com.intellij.openapi.util.registry.Registry;
 import consulo.application.Application;
+import consulo.application.util.registry.Registry;
+import consulo.build.ui.DefaultBuildDescriptor;
+import consulo.build.ui.SyncViewManager;
+import consulo.build.ui.event.BuildEventFactory;
+import consulo.build.ui.event.EventResult;
+import consulo.build.ui.event.FailureResult;
+import consulo.build.ui.event.MessageEvent;
+import consulo.externalSystem.model.task.ExternalSystemTaskId;
+import consulo.externalSystem.model.task.ExternalSystemTaskType;
 import consulo.maven.rt.server.common.server.MavenArtifactEvent;
 import consulo.maven.rt.server.common.server.MavenServerConsoleEvent;
 import consulo.maven.rt.server.common.server.MavenServerConsoleIndicator;
@@ -18,7 +19,6 @@ import consulo.util.lang.ExceptionUtil;
 import consulo.util.lang.Pair;
 import consulo.util.lang.StringUtil;
 import jakarta.annotation.Nonnull;
-import org.jetbrains.idea.maven.execution.SyncBundle;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.utils.MavenLog;
 import org.jetbrains.idea.maven.utils.MavenUtil;
@@ -40,7 +40,8 @@ public abstract class MavenSyncConsoleBase implements MavenEventHandler {
     }
 
     private enum OutputType {
-        NORMAL, ERROR
+        NORMAL,
+        ERROR
     }
 
     protected final Project myProject;
@@ -48,11 +49,13 @@ public abstract class MavenSyncConsoleBase implements MavenEventHandler {
     private final LinkedHashSet<Pair<ExternalSystemTaskId, String>> myStartedSet = new LinkedHashSet<>();
     private final SyncViewManager progressListener;
     private boolean hasErrors = false;
+    private BuildEventFactory myFactory;
 
     protected MavenSyncConsoleBase(@Nonnull Project project) {
         this.myProject = project;
         this.myTaskId = createTaskId();
         this.progressListener = project.getInstance(SyncViewManager.class);
+        myFactory = project.getApplication().getInstance(BuildEventFactory.class);
     }
 
     @Nonnull
@@ -70,13 +73,13 @@ public abstract class MavenSyncConsoleBase implements MavenEventHandler {
         DefaultBuildDescriptor descriptor = new DefaultBuildDescriptor(myTaskId, getTitle(), myProject.getBasePath(), System.currentTimeMillis());
         descriptor.setActivateToolWindowWhenFailed(true);
         descriptor.setActivateToolWindowWhenAdded(false);
-        progressListener.onEvent(myTaskId, new StartBuildEventImpl(descriptor, getMessage()));
+        progressListener.onEvent(myTaskId, myFactory.createStartBuildEvent(descriptor, getMessage()));
     }
 
     protected void startTask(@Nonnull ExternalSystemTaskId parentId, @Nonnull String taskName) {
         debugLog("Maven task: start " + taskName);
         if (myStartedSet.add(Pair.create(parentId, taskName))) {
-            progressListener.onEvent(myTaskId, new StartEventImpl(taskName, parentId, System.currentTimeMillis(), taskName));
+            progressListener.onEvent(myTaskId, myFactory.createStartEvent(taskName, parentId, System.currentTimeMillis(), taskName));
         }
     }
 
@@ -85,11 +88,11 @@ public abstract class MavenSyncConsoleBase implements MavenEventHandler {
     }
 
     protected void completeTask(@Nonnull ExternalSystemTaskId parentId, @Nonnull String taskName, @Nonnull EventResult result) {
-        hasErrors = hasErrors || result instanceof FailureResultImpl;
+        hasErrors = hasErrors || result instanceof FailureResult;
 
         debugLog("Maven task: complete " + taskName + " with " + result);
         if (myStartedSet.remove(Pair.create(parentId, taskName))) {
-            progressListener.onEvent(myTaskId, new FinishEventImpl(taskName, parentId, System.currentTimeMillis(), taskName, result));
+            progressListener.onEvent(myTaskId, myFactory.createFinishBuildEvent(taskName, parentId, System.currentTimeMillis(), taskName, result));
         }
     }
 
@@ -98,8 +101,7 @@ public abstract class MavenSyncConsoleBase implements MavenEventHandler {
     }
 
     public void addError(@Nonnull String message) {
-        String group = SyncBundle.message("build.event.title.error");
-        progressListener.onEvent(myTaskId, new MessageEventImpl(myTaskId, MessageEvent.Kind.ERROR, group, message, message));
+        progressListener.onEvent(myTaskId, myFactory.createMessageEvent(myTaskId, MessageEvent.Kind.ERROR, MavenBuildNotification.BUILD_ERROR, message, message));
     }
 
     public void finish() {
@@ -107,10 +109,10 @@ public abstract class MavenSyncConsoleBase implements MavenEventHandler {
         Collections.reverse(tasks);
         debugLog("Tasks " + tasks + " are not completed! Force complete");
         for (Pair<ExternalSystemTaskId, String> task : tasks) {
-            completeTask(task.getFirst(), task.getSecond(), new DerivedResultImpl());
+            completeTask(task.getFirst(), task.getSecond(), myFactory.createDerivedResult());
         }
-        progressListener.onEvent(myTaskId, new FinishBuildEventImpl(myTaskId, null, System.currentTimeMillis(), "",
-            hasErrors ? new FailureResultImpl() : new DerivedResultImpl()));
+        progressListener.onEvent(myTaskId, myFactory.createFinishBuildEvent(myTaskId, null, System.currentTimeMillis(), "",
+            hasErrors ? myFactory.createFailureResult() : myFactory.createDerivedResult()));
     }
 
     @Override
@@ -169,7 +171,7 @@ public abstract class MavenSyncConsoleBase implements MavenEventHandler {
             return;
         }
         String toPrint = text.endsWith("\n") ? text : text + "\n";
-        progressListener.onEvent(myTaskId, new OutputBuildEventImpl(myTaskId, toPrint, stdout));
+        progressListener.onEvent(myTaskId, myFactory.createOutputBuildEvent(myTaskId, toPrint, stdout));
     }
 
     private void debugLog(String s) {
