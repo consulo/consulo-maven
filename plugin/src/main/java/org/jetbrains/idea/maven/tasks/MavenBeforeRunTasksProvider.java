@@ -73,7 +73,7 @@ public class MavenBeforeRunTasksProvider extends BeforeRunTaskProvider<MavenBefo
     }
 
     @Override
-    public Image getIcon() {
+    public Image getIcon(@Nonnull RunConfiguration runConfiguration) {
         return MavenIconGroup.mavenlogo();
     }
 

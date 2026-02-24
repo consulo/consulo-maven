@@ -3,9 +3,12 @@ package consulo.maven.compiler;
 import consulo.annotation.component.ExtensionImpl;
 import consulo.application.progress.ProgressIndicator;
 import consulo.application.progress.ProgressManager;
+import consulo.build.ui.progress.BuildProgress;
+import consulo.build.ui.progress.BuildProgressDescriptor;
 import consulo.compiler.*;
 import consulo.compiler.scope.CompileScope;
 import consulo.compiler.util.ModuleCompilerUtil;
+import consulo.dataContext.DataContext;
 import consulo.localize.LocalizeValue;
 import consulo.maven.icon.MavenIconGroup;
 import consulo.maven.module.extension.MavenModuleExtension;
@@ -38,6 +41,8 @@ import java.util.List;
  */
 @ExtensionImpl
 public class MavenCompilerRunner implements CompilerRunner {
+    private static final YesResult YES = new YesResult(MavenIconGroup.mavenbuild());
+
     private final Project myProject;
     private final ModuleExtensionHelper myModuleExtensionHelper;
 
@@ -49,28 +54,27 @@ public class MavenCompilerRunner implements CompilerRunner {
 
     @Nonnull
     @Override
-    public Image getBuildIcon() {
-        return MavenIconGroup.mavenbuild();
-    }
-
-    @Nonnull
-    @Override
     public LocalizeValue getName() {
         return MavenLocalize.mavenName();
     }
 
+    @Nonnull
     @Override
-    public boolean isAvailable() {
+    public Result checkAvailable(@Nonnull DataContext dataContext) {
         if (!myModuleExtensionHelper.hasModuleExtension(MavenModuleExtension.class)) {
-            return false;
+            return NO;
         }
 
         MavenGeneralSettings generalSettings = MavenProjectsManager.getInstance(myProject).getGeneralSettings();
-        return generalSettings.getOverrideCompilePolicy() != MaveOverrideCompilerPolicy.DISABLED;
+        if (generalSettings.getOverrideCompilePolicy() == MaveOverrideCompilerPolicy.DISABLED) {
+            return NO;
+        }
+
+        return YES;
     }
 
     @Override
-    public boolean build(CompileDriver compileDriver, CompileContextEx context, boolean isRebuild, boolean forceCompile, boolean onlyCheckStatus) throws ExitException {
+    public boolean build(CompileDriver compileDriver, CompileContextEx context, BuildProgress<BuildProgressDescriptor> buildProgress, boolean isRebuild, boolean forceCompile, boolean onlyCheckStatus) throws ExitException {
         MavenGeneralSettings generalSettings = MavenProjectsManager.getInstance(myProject).getGeneralSettings();
         if (generalSettings.getOverrideCompilePolicy() == MaveOverrideCompilerPolicy.DISABLED) {
             // must be never entered due #isAvailable() check
