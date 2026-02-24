@@ -363,6 +363,8 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
 
         addDir(classpath, new File(libDir, "maven3-server-lib"), f -> true);
 
+        classpath.add(new File(pluginPath, "maven-event-listener.jar"));
+
         if (currentMavenVersion == null || StringUtil.compareVersionNumbers(currentMavenVersion, "3.1") < 0) {
             mainClassRef.set(MAIN_CLASS_V3);
 

@@ -17,6 +17,7 @@ package org.jetbrains.idea.maven.project;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.ImmutableBiMap;
+import consulo.annotation.DeprecationInfo;
 import consulo.maven.rt.server.common.server.MavenServerConsole;
 import consulo.process.ProcessHandler;
 import org.jetbrains.idea.maven.execution.MavenExecutionOptions;
@@ -24,6 +25,8 @@ import org.jetbrains.idea.maven.localize.MavenRunnerLocalize;
 
 import java.text.MessageFormat;
 
+@Deprecated
+@DeprecationInfo("Use MavenSyncConsole")
 public abstract class MavenConsole {
     private static final String LINE_SEPARATOR = System.lineSeparator();
 

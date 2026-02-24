@@ -193,9 +193,6 @@ public class MavenRunner implements PersistentStateComponent<MavenRunnerSettings
     }
 
     private MavenConsole createConsole() {
-        if (Application.get().isUnitTestMode()) {
-            return new SoutMavenConsole();
-        }
         return new MavenConsoleImpl("Maven Goal", myProject);
     }
 

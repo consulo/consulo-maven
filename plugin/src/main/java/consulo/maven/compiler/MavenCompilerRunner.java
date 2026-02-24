@@ -1,11 +1,13 @@
 package consulo.maven.compiler;
 
 import consulo.annotation.component.ExtensionImpl;
+import consulo.application.ApplicationManager;
 import consulo.application.progress.ProgressIndicator;
 import consulo.application.progress.ProgressManager;
 import consulo.compiler.*;
 import consulo.compiler.scope.CompileScope;
 import consulo.compiler.util.ModuleCompilerUtil;
+import consulo.document.FileDocumentManager;
 import consulo.localize.LocalizeValue;
 import consulo.maven.icon.MavenIconGroup;
 import consulo.maven.module.extension.MavenModuleExtension;
@@ -13,10 +15,16 @@ import consulo.maven.rt.server.common.model.MavenExplicitProfiles;
 import consulo.maven.rt.server.common.model.MavenId;
 import consulo.module.Module;
 import consulo.module.extension.ModuleExtensionHelper;
+import consulo.process.ProcessHandler;
+import consulo.process.event.ProcessEvent;
+import consulo.process.event.ProcessListener;
 import consulo.project.Project;
 import consulo.ui.image.Image;
 import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import jakarta.inject.Inject;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.idea.maven.execution.MavenRunConfigurationType;
 import org.jetbrains.idea.maven.execution.MavenRunner;
 import org.jetbrains.idea.maven.execution.MavenRunnerParameters;
 import org.jetbrains.idea.maven.execution.MavenRunnerSettings;
@@ -26,7 +34,6 @@ import org.jetbrains.idea.maven.project.MaveOverrideCompilerPolicy;
 import org.jetbrains.idea.maven.project.MavenGeneralSettings;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
-import org.jetbrains.idea.maven.tasks.TasksBundle;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -146,5 +153,39 @@ public class MavenCompilerRunner implements CompilerRunner {
         }
 
         return true;
+    }
+
+    public static void runBatch(@NotNull Project project,
+                                @NotNull MavenRunner mavenRunner,
+                                @NotNull String title,
+                                @NotNull List<MavenRunnerParameters> commands,
+                                @Nullable ProjectTaskNotification callback) {
+
+        ApplicationManager.getApplication().invokeAndWait(() -> {
+
+
+            FileDocumentManager.getInstance().saveAllDocuments();
+            for (MavenRunnerParameters command : commands) {
+                MavenRunConfigurationType.runConfiguration(project, command, null, null, descriptor -> {
+                    if (callback == null) {
+                        return;
+                    }
+                    ProcessHandler handler = descriptor.getProcessHandler();
+                    if (handler != null) {
+                        handler.addProcessListener(new ProcessListener() {
+                            @Override
+                            public void processTerminated(@NotNull ProcessEvent event) {
+                                if (event.getExitCode() == 0) {
+                                    callback.finished(new ProjectTaskResult(false, 0, 0));
+                                }
+                                else {
+                                    callback.finished(new ProjectTaskResult(true, 0, 0));
+                                }
+                            }
+                        });
+                    }
+                }, true);
+            }
+        });
     }
 }

@@ -15,10 +15,7 @@
  */
 package org.jetbrains.idea.maven.execution;
 
-import com.intellij.java.execution.configurations.JavaCommandLineState;
 import consulo.annotation.access.RequiredReadAction;
-import consulo.execution.DefaultExecutionResult;
-import consulo.execution.ExecutionResult;
 import consulo.execution.configuration.ConfigurationFactory;
 import consulo.execution.configuration.LocatableConfigurationBase;
 import consulo.execution.configuration.RunConfiguration;
@@ -29,27 +26,22 @@ import consulo.execution.configuration.ui.SettingsEditorGroup;
 import consulo.execution.executor.Executor;
 import consulo.execution.localize.ExecutionLocalize;
 import consulo.execution.runner.ExecutionEnvironment;
-import consulo.execution.runner.ProgramRunner;
 import consulo.java.debugger.impl.GenericDebugRunnerConfiguration;
 import consulo.java.execution.configurations.OwnJavaParameters;
 import consulo.module.Module;
 import consulo.process.ExecutionException;
-import consulo.process.ProcessHandler;
-import consulo.process.ProcessHandlerBuilder;
-import consulo.process.event.ProcessEvent;
-import consulo.process.event.ProcessListener;
 import consulo.project.Project;
-import consulo.project.ui.wm.ToolWindowId;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.util.xml.serializer.InvalidDataException;
 import consulo.util.xml.serializer.WriteExternalException;
 import consulo.util.xml.serializer.XmlSerializer;
-import org.jdom.Element;
-import org.jetbrains.idea.maven.localize.MavenRunnerLocalize;
-import org.jetbrains.idea.maven.project.*;
-
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
+import org.jdom.Element;
+import org.jetbrains.idea.maven.localize.MavenProjectLocalize;
+import org.jetbrains.idea.maven.localize.MavenRunnerLocalize;
+import org.jetbrains.idea.maven.project.MavenGeneralSettings;
+import org.jetbrains.idea.maven.project.MavenGeneralSettingsEditor;
 
 public class MavenRunConfiguration extends LocatableConfigurationBase implements GenericDebugRunnerConfiguration {
     private MavenSettings mySettings;
@@ -73,7 +65,7 @@ public class MavenRunConfiguration extends LocatableConfigurationBase implements
         SettingsEditorGroup<MavenRunConfiguration> group = new SettingsEditorGroup<>();
 
         group.addEditor(MavenRunnerLocalize.mavenRunnerParametersTitle().get(), new MavenRunnerParametersSettingEditor(getProject()));
-        group.addEditor(ProjectBundle.message("maven.tab.general"), new MavenGeneralSettingsEditor(getProject()));
+        group.addEditor(MavenProjectLocalize.mavenTabGeneral().get(), new MavenGeneralSettingsEditor(getProject()));
         group.addEditor(MavenRunnerLocalize.mavenTabRunner().get(), new MavenRunnerSettingsEditor(getProject()));
         group.addEditor(ExecutionLocalize.logsTabTitle().get(), new LogConfigurationPanel<>());
         return group;
@@ -92,50 +84,7 @@ public class MavenRunConfiguration extends LocatableConfigurationBase implements
 
     @Override
     public RunProfileState getState(@Nonnull final Executor executor, @Nonnull final ExecutionEnvironment env) throws ExecutionException {
-        JavaCommandLineState state = new JavaCommandLineState(env) {
-            @Override
-            @RequiredReadAction
-            protected OwnJavaParameters createJavaParameters() throws ExecutionException {
-                return MavenRunConfiguration.this.createJavaParameters(env.getProject());
-            }
-
-            @Nonnull
-            @Override
-            public ExecutionResult execute(@Nonnull Executor executor, @Nonnull ProgramRunner runner) throws ExecutionException {
-                DefaultExecutionResult res = (DefaultExecutionResult)super.execute(executor, runner);
-                if (executor.getId().equals(ToolWindowId.RUN) && MavenResumeAction.isApplicable(env.getProject(), getJavaParameters(),
-                    MavenRunConfiguration.this
-                )) {
-                    MavenResumeAction resumeAction = new MavenResumeAction(res.getProcessHandler(), runner, env);
-                    res.setRestartActions(resumeAction);
-                }
-                return res;
-            }
-
-            @Override
-            protected void buildProcessHandler(@Nonnull ProcessHandlerBuilder builder) throws ExecutionException {
-                super.buildProcessHandler(builder);
-
-                builder.shouldDestroyProcessRecursively(true);
-            }
-
-            @Override
-            protected void setupProcessHandler(@Nonnull ProcessHandler handler) {
-                super.setupProcessHandler(handler);
-                handler.addProcessListener(new ProcessListener() {
-                    @Override
-                    public void processTerminated(ProcessEvent event) {
-                        updateProjectsFolders();
-                    }
-                });
-            }
-        };
-        state.setConsoleBuilder(MavenConsoleImpl.createConsoleBuilder(getProject()));
-        return state;
-    }
-
-    private void updateProjectsFolders() {
-        MavenProjectsManager.getInstance(getProject()).updateProjectTargetFolders();
+        return new MavenCommandLineState(env, this);
     }
 
     @Override

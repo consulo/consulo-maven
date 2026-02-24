@@ -16,6 +16,7 @@
 package org.jetbrains.idea.maven.project;
 
 import com.intellij.java.execution.filters.ExceptionFilters;
+import consulo.annotation.DeprecationInfo;
 import consulo.application.util.SystemInfo;
 import consulo.execution.ui.console.*;
 import consulo.language.psi.scope.GlobalSearchScope;
@@ -41,6 +42,8 @@ import jakarta.annotation.Nullable;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+@Deprecated
+@DeprecationInfo("Use MavenSyncConsole")
 public class MavenConsoleImpl extends MavenConsole {
     private static final Key<MavenConsoleImpl> CONSOLE_KEY = Key.create("MAVEN_CONSOLE_KEY");
 

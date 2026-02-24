@@ -15,12 +15,15 @@
  */
 package org.jetbrains.idea.maven.execution;
 
+import consulo.annotation.DeprecationInfo;
 import consulo.process.ProcessHandler;
 import consulo.process.event.ProcessAdapter;
 import consulo.process.event.ProcessEvent;
 import consulo.util.dataholder.Key;
 import org.jetbrains.idea.maven.project.MavenConsole;
 
+@Deprecated
+@DeprecationInfo("Use MavenSyncConsole")
 public class SoutMavenConsole extends MavenConsole {
     public SoutMavenConsole() {
         super(MavenExecutionOptions.LoggingLevel.DEBUG, true);

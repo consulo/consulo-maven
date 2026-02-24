@@ -17,6 +17,7 @@ package org.jetbrains.idea.maven.execution;
 
 import com.intellij.java.execution.impl.DefaultJavaProgramRunner;
 import consulo.annotation.component.ExtensionImpl;
+import consulo.application.ApplicationManager;
 import consulo.compiler.execution.CompileStepBeforeRun;
 import consulo.compiler.execution.CompileStepBeforeRunNoErrorCheck;
 import consulo.execution.BeforeRunTask;
@@ -39,14 +40,18 @@ import consulo.util.dataholder.Key;
 import consulo.util.lang.StringUtil;
 import consulo.virtualFileSystem.LocalFileSystem;
 import consulo.virtualFileSystem.VirtualFile;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.idea.maven.execution.build.DelegateBuildRunner;
 import org.jetbrains.idea.maven.localize.MavenRunnerLocalize;
 import org.jetbrains.idea.maven.project.MavenGeneralSettings;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
+import org.jetbrains.idea.maven.project.MavenWorkspaceSettingsComponent;
 import org.jetbrains.idea.maven.utils.MavenUtil;
 
-import jakarta.annotation.Nonnull;
-import jakarta.annotation.Nullable;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -54,6 +59,8 @@ import java.util.List;
  */
 @ExtensionImpl
 public class MavenRunConfigurationType implements ConfigurationType {
+    private static final Key<Boolean> IS_DELEGATE_BUILD = Key.create("IS_DELEGATE_BUILD");
+
     private final ConfigurationFactory myFactory;
     private static final int MAX_NAME_LENGTH = 40;
 
@@ -114,6 +121,11 @@ public class MavenRunConfigurationType implements ConfigurationType {
                 }
             }
         };
+    }
+
+    public static boolean isDelegate(ExecutionEnvironment environment) {
+        Boolean res = IS_DELEGATE_BUILD.get(environment);
+        return res != null && res;
     }
 
     @Nonnull
@@ -243,5 +255,57 @@ public class MavenRunConfigurationType implements ConfigurationType {
         runConfiguration.setRunnerSettings(runnerSettings);
 
         return settings;
+    }
+
+    public static @NotNull RunnerAndConfigurationSettings createRunnerAndConfigurationSettings(@Nullable MavenGeneralSettings generalSettings,
+                                                                                               @Nullable MavenRunnerSettings runnerSettings,
+                                                                                               @NotNull MavenRunnerParameters params,
+                                                                                               @NotNull Project project,
+                                                                                               @NotNull String name,
+                                                                                               boolean isDelegate) {
+        MavenRunConfigurationType type = ConfigurationTypeUtil.findConfigurationType(MavenRunConfigurationType.class);
+
+        RunnerAndConfigurationSettings settings = RunManager.getInstance(project).createRunConfiguration(name, type.myFactory);
+        MavenRunConfiguration runConfiguration = (MavenRunConfiguration) settings.getConfiguration();
+        if (isDelegate) {
+            RunManager.getInstance(project).setBeforeRunTasks(runConfiguration, List.of(), false);
+        }
+        MavenGeneralSettings generalSettingsToRun =
+            generalSettings != null ? generalSettings : MavenWorkspaceSettingsComponent.getInstance(project).getSettings().generalSettings;
+        MavenRunnerSettings runnerSettingsToRun = runnerSettings != null ? runnerSettings : MavenRunner.getInstance(project).getState();
+        runConfiguration.setRunnerParameters(params);
+        runConfiguration.setGeneralSettings(generalSettingsToRun);
+        runConfiguration.setRunnerSettings(runnerSettingsToRun);
+        return settings;
+    }
+
+    public static void runConfiguration(Project project,
+                                        @NotNull MavenRunnerParameters params,
+                                        @Nullable MavenGeneralSettings settings,
+                                        @Nullable MavenRunnerSettings runnerSettings,
+                                        @Nullable ProgramRunner.Callback callback,
+                                        boolean isDelegateBuild) {
+
+        RunnerAndConfigurationSettings configSettings = createRunnerAndConfigurationSettings(settings,
+            runnerSettings,
+            params,
+            project,
+            generateName(project, params),
+            isDelegateBuild
+        );
+
+        ProgramRunner runner = isDelegateBuild ? DelegateBuildRunner.Util.getDelegateRunner() : DefaultJavaProgramRunner.getInstance();
+        Executor executor = DefaultRunExecutor.getRunExecutorInstance();
+        ExecutionEnvironment environment = new ExecutionEnvironment(executor, runner, configSettings, project);
+        environment.putUserData(IS_DELEGATE_BUILD, isDelegateBuild);
+        environment.setCallback(callback);
+        ApplicationManager.getApplication().invokeAndWait(() -> {
+            try {
+                runner.execute(environment);
+            }
+            catch (ExecutionException e) {
+                MavenUtil.showError(project, RunnerBundle.message("notification.title.failed.to.execute.maven.goal"), e);
+            }
+        });
     }
 }

@@ -331,7 +331,7 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
     }
 
     private void listenForProjectsTreeChanges() {
-        myProjectsTree.addListener(new MavenProjectsTree.ListenerAdapter() {
+        myProjectsTree.addListener(new MavenProjectsTree.Listener() {
             @Override
             public void projectsIgnoredStateChanged(List<MavenProject> ignored, List<MavenProject> unignored, boolean fromImport) {
                 if (!fromImport) {

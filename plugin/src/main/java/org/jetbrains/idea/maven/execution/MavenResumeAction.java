@@ -37,6 +37,7 @@ import consulo.ui.ex.action.AnActionEvent;
 import consulo.ui.ex.awt.Messages;
 import consulo.util.dataholder.Key;
 import jakarta.annotation.Nullable;
+import org.jetbrains.idea.maven.externalSystemIntegration.output.MavenParsingContext;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 
@@ -87,15 +88,13 @@ public class MavenResumeAction extends AnAction {
     public MavenResumeAction(
         ProcessHandler processHandler,
         ProgramRunner runner,
-        ExecutionEnvironment environment
-    ) {
+        ExecutionEnvironment environment,
+        MavenParsingContext parsingContext) {
         super("Resume build from specified module", null, AllIcons.RunConfigurations.RerunFailedTests);
         myRunner = runner;
         myEnvironment = environment;
 
         final MavenRunConfiguration runConfiguration = (MavenRunConfiguration) environment.getRunProfile();
-
-        getTemplatePresentation().setEnabled(false);
 
         processHandler.addProcessListener(new ProcessAdapter() {
             @Override
