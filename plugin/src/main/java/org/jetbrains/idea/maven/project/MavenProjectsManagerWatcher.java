@@ -23,7 +23,6 @@ import consulo.document.Document;
 import consulo.document.FileDocumentManager;
 import consulo.document.event.DocumentAdapter;
 import consulo.document.event.DocumentEvent;
-import consulo.ide.impl.idea.openapi.fileEditor.impl.FileDocumentManagerImpl;
 import consulo.language.psi.PsiDocumentManager;
 import consulo.maven.rt.server.common.model.MavenConstants;
 import consulo.maven.rt.server.common.model.MavenExplicitProfiles;
@@ -173,7 +172,7 @@ public class MavenProjectsManagerWatcher {
                             () -> WriteAction.run(() -> {
                                 for (Document each : copy) {
                                     PsiDocumentManager.getInstance(myProject).commitDocument(each);
-                                    ((FileDocumentManagerImpl)FileDocumentManager.getInstance()).saveDocument(each, false);
+                                    FileDocumentManager.getInstance().saveDocument(each, false);
                                 }
                             })
                         );
