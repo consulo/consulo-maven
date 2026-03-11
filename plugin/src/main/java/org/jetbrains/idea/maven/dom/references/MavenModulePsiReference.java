@@ -17,7 +17,6 @@ package org.jetbrains.idea.maven.dom.references;
 
 import consulo.annotation.access.RequiredReadAction;
 import consulo.document.util.TextRange;
-import consulo.ide.impl.idea.util.PathUtil;
 import consulo.language.editor.completion.lookup.LookupElementBuilder;
 import consulo.language.editor.inspection.LocalQuickFix;
 import consulo.language.editor.inspection.LocalQuickFixProvider;
@@ -30,6 +29,7 @@ import consulo.maven.rt.server.common.model.MavenConstants;
 import consulo.maven.rt.server.common.model.MavenId;
 import consulo.project.Project;
 import consulo.util.io.FileUtil;
+import consulo.util.io.PathUtil;
 import consulo.util.lang.Comparing;
 import consulo.virtualFileSystem.VirtualFile;
 import consulo.virtualFileSystem.util.VirtualFileUtil;
