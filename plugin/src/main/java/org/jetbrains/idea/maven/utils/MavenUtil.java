@@ -30,7 +30,6 @@ import consulo.content.bundle.SdkTable;
 import consulo.fileEditor.FileEditorManager;
 import consulo.fileTemplate.FileTemplate;
 import consulo.fileTemplate.FileTemplateManager;
-import consulo.ide.impl.idea.openapi.util.io.JarUtil;
 import consulo.ide.impl.idea.openapi.vfs.VfsUtil;
 import consulo.ide.impl.idea.util.DisposeAwareRunnable;
 import consulo.java.language.module.extension.JavaModuleExtension;
@@ -50,6 +49,7 @@ import consulo.maven.rt.server.common.server.MavenServerUtil;
 import consulo.module.Module;
 import consulo.navigation.OpenFileDescriptor;
 import consulo.navigation.OpenFileDescriptorFactory;
+import consulo.platform.Platform;
 import consulo.platform.base.icon.PlatformIconGroup;
 import consulo.process.cmd.ParametersList;
 import consulo.project.DumbService;
@@ -64,10 +64,10 @@ import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.image.ImageKey;
 import consulo.util.collection.ContainerUtil;
 import consulo.util.io.FileUtil;
+import consulo.util.io.JarUtil;
 import consulo.util.lang.Comparing;
 import consulo.util.lang.Pair;
 import consulo.util.lang.StringUtil;
-import consulo.util.lang.SystemProperties;
 import consulo.virtualFileSystem.LocalFileSystem;
 import consulo.virtualFileSystem.VirtualFile;
 import consulo.virtualFileSystem.archive.ArchiveVfsUtil;
@@ -641,7 +641,7 @@ public class MavenUtil {
 
     @Nonnull
     public static File resolveM2Dir() {
-        return new File(SystemProperties.getUserHome(), DOT_M2_DIR);
+        return new File(Platform.current().user().homePath().toString(), DOT_M2_DIR);
     }
 
     @Nonnull
@@ -671,14 +671,14 @@ public class MavenUtil {
     @Nonnull
     public static File doResolveLocalRepository(@Nullable File userSettingsFile, @Nullable File globalSettingsFile) {
         if (userSettingsFile != null) {
-            final String fromUserSettings = getRepositoryFromSettings(userSettingsFile);
+            String fromUserSettings = getRepositoryFromSettings(userSettingsFile);
             if (!StringUtil.isEmpty(fromUserSettings)) {
                 return new File(fromUserSettings);
             }
         }
 
         if (globalSettingsFile != null) {
-            final String fromGlobalSettings = getRepositoryFromSettings(globalSettingsFile);
+            String fromGlobalSettings = getRepositoryFromSettings(globalSettingsFile);
             if (!StringUtil.isEmpty(fromGlobalSettings)) {
                 return new File(fromGlobalSettings);
             }
@@ -688,7 +688,7 @@ public class MavenUtil {
     }
 
     @Nullable
-    public static String getRepositoryFromSettings(final File file) {
+    public static String getRepositoryFromSettings(File file) {
         try {
             byte[] bytes = Files.readAllBytes(file.toPath());
             return expandProperties(MavenJDOMUtil.findChildValueByPath(MavenJDOMUtil.read(bytes, null), "localRepository", null));
