@@ -1,6 +1,8 @@
 package org.jetbrains.idea.maven.execution;
 
 import com.intellij.java.execution.configurations.JavaCommandLineState;
+import com.intellij.java.execution.configurations.RemoteConnection;
+import com.intellij.java.execution.configurations.RemoteConnectionCreator;
 import consulo.annotation.access.RequiredReadAction;
 import consulo.application.util.SystemInfo;
 import consulo.build.ui.BuildDescriptor;
@@ -48,8 +50,9 @@ import java.util.function.Function;
  * @author VISTALL
  * @since 2026-02-23
  */
-public class MavenCommandLineState extends JavaCommandLineState {
+public class MavenCommandLineState extends JavaCommandLineState implements RemoteConnectionCreator {
     private final MavenRunConfiguration myConfiguration;
+    private RemoteConnectionCreator myRemoteConnectionCreator;
 
     public MavenCommandLineState(@Nonnull ExecutionEnvironment environment, MavenRunConfiguration configuration) {
         super(environment);
@@ -191,6 +194,29 @@ public class MavenCommandLineState extends JavaCommandLineState {
             }
             return startBuildEvent;
         };
+    }
+
+    private RemoteConnectionCreator getRemoteConnectionCreator() {
+        if (myRemoteConnectionCreator == null) {
+            try {
+                myRemoteConnectionCreator = myConfiguration.createRemoteConnectionCreator(getJavaParameters());
+            }
+            catch (ExecutionException e) {
+                throw new RuntimeException("Cannot create java parameters", e);
+            }
+        }
+        return myRemoteConnectionCreator;
+    }
+
+    @Override
+    @Nullable
+    public RemoteConnection createRemoteConnection(ExecutionEnvironment environment) {
+        return getRemoteConnectionCreator().createRemoteConnection(environment);
+    }
+
+    @Override
+    public boolean isPollConnection() {
+        return getRemoteConnectionCreator().isPollConnection();
     }
 
     public boolean useMaven4() {

@@ -15,6 +15,7 @@
  */
 package org.jetbrains.idea.maven.execution;
 
+import com.intellij.java.execution.configurations.RemoteConnectionCreator;
 import consulo.annotation.access.RequiredReadAction;
 import consulo.execution.configuration.ConfigurationFactory;
 import consulo.execution.configuration.LocatableConfigurationBase;
@@ -148,6 +149,10 @@ public class MavenRunConfiguration extends LocatableConfigurationBase implements
     @Override
     public String suggestedName() {
         return MavenRunConfigurationType.generateName(getProject(), mySettings.myRunnerParameters);
+    }
+
+    public RemoteConnectionCreator createRemoteConnectionCreator(OwnJavaParameters javaParameters) {
+        return new MavenExtRemoteConnectionCreator(javaParameters, this);
     }
 
     public static class MavenSettings implements Cloneable {
