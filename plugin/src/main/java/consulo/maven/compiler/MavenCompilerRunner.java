@@ -1,11 +1,18 @@
 package consulo.maven.compiler;
 
+import com.intellij.java.execution.impl.DefaultJavaProgramRunner;
 import consulo.annotation.component.ExtensionImpl;
-import consulo.application.progress.ProgressIndicator;
-import consulo.application.progress.ProgressManager;
+import consulo.application.ApplicationManager;
+import consulo.application.ReadAction;
+import consulo.build.ui.progress.BuildProgress;
+import consulo.build.ui.progress.BuildProgressDescriptor;
 import consulo.compiler.*;
 import consulo.compiler.scope.CompileScope;
 import consulo.compiler.util.ModuleCompilerUtil;
+import consulo.dataContext.DataContext;
+import consulo.execution.RunnerAndConfigurationSettings;
+import consulo.execution.executor.DefaultRunExecutor;
+import consulo.execution.runner.ExecutionEnvironment;
 import consulo.localize.LocalizeValue;
 import consulo.maven.icon.MavenIconGroup;
 import consulo.maven.module.extension.MavenModuleExtension;
@@ -13,24 +20,33 @@ import consulo.maven.rt.server.common.model.MavenExplicitProfiles;
 import consulo.maven.rt.server.common.model.MavenId;
 import consulo.module.Module;
 import consulo.module.extension.ModuleExtensionHelper;
+import consulo.process.ExecutionException;
+import consulo.process.ProcessHandler;
+import consulo.process.ProcessOutputType;
+import consulo.process.event.ProcessAdapter;
+import consulo.process.event.ProcessEvent;
+import consulo.process.event.ProcessListener;
 import consulo.project.Project;
-import consulo.ui.image.Image;
+import consulo.util.dataholder.Key;
 import jakarta.annotation.Nonnull;
 import jakarta.inject.Inject;
+import org.jetbrains.idea.maven.execution.MavenCommandLineState;
+import org.jetbrains.idea.maven.execution.MavenRunConfiguration;
+import org.jetbrains.idea.maven.execution.MavenRunConfigurationType;
 import org.jetbrains.idea.maven.execution.MavenRunner;
 import org.jetbrains.idea.maven.execution.MavenRunnerParameters;
 import org.jetbrains.idea.maven.execution.MavenRunnerSettings;
 import org.jetbrains.idea.maven.localize.MavenLocalize;
-import org.jetbrains.idea.maven.localize.MavenTasksLocalize;
 import org.jetbrains.idea.maven.project.MaveOverrideCompilerPolicy;
 import org.jetbrains.idea.maven.project.MavenGeneralSettings;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
-import org.jetbrains.idea.maven.tasks.TasksBundle;
+import org.jetbrains.idea.maven.utils.MavenLog;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author VISTALL
@@ -134,52 +150,66 @@ public class MavenCompilerRunner implements CompilerRunner {
         MavenRunnerParameters params = new MavenRunnerParameters(true, mavenProject.getDirectory(), goals, explicitProfiles);
         params.setResolveToWorkspace(true);
 
-        ProgressIndicator indicator = ProgressManager.getGlobalProgressIndicator();
-
-        MavenRunner mavenRunner = MavenRunner.getInstance(context.getProject());
-
         MavenRunnerSettings settings = MavenRunner.getInstance(myProject).getSettings().clone();
         // do not allow run tests while compilation
         settings.setSkipTests(true);
 
-        if (!mavenRunner.runBatch(Collections.singletonList(params), null, settings, MavenTasksLocalize.mavenTasksExecuting().get(), indicator)) {
-            context.addMessage(CompilerMessageCategory.ERROR, "Compilation failed", null, -1, -1);
+        // Create run configuration to get a MavenCommandLineState for process creation.
+        // We start the process directly and pipe its output to the compiler's buildProgress
+        // to avoid creating a duplicate Build ToolWindow session.
+        RunnerAndConfigurationSettings configSettings =
+            MavenRunConfigurationType.createRunnerAndConfigurationSettings(null, settings, params, myProject);
+        MavenRunConfiguration runConfig = (MavenRunConfiguration) configSettings.getConfiguration();
+        ExecutionEnvironment env = new ExecutionEnvironment(
+            DefaultRunExecutor.getRunExecutorInstance(),
+            DefaultJavaProgramRunner.getInstance(),
+            configSettings,
+            myProject
+        );
+        MavenCommandLineState commandState = new MavenCommandLineState(env, runConfig);
+
+        CountDownLatch latch = new CountDownLatch(1);
+
+        ProcessHandler processHandler = null;
+
+        try {
+            processHandler = ReadAction.compute(() -> commandState.startMavenProcess());
+        }
+        catch (ExecutionException e) {
+            context.addMessage(CompilerMessageCategory.ERROR, e.getMessage(), null, -1, -1);
+            return false;
+        }
+
+        if (processHandler == null) {
+            context.addMessage(CompilerMessageCategory.ERROR, "Failed to start Maven process", null, -1, -1);
+            return true;
+        }
+
+        processHandler.addProcessListener(new ProcessListener() {
+            @Override
+            public void onTextAvailable(@Nonnull ProcessEvent event, @Nonnull Key outputType) {
+                buildProgress.output(event.getText(), !ProcessOutputType.isStderr(outputType));
+            }
+
+            @Override
+            public void processTerminated(@Nonnull ProcessEvent event) {
+                latch.countDown();
+
+                if (event.getExitCode() != 0) {
+                    buildProgress.finish();
+                }
+            }
+        });
+
+        processHandler.startNotify();
+
+        try {
+            latch.await();
+        }
+        catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
         }
 
         return true;
-    }
-
-    public static void runBatch(@NotNull Project project,
-                                @NotNull MavenRunner mavenRunner,
-                                @NotNull String title,
-                                @NotNull List<MavenRunnerParameters> commands,
-                                @Nullable ProjectTaskNotification callback) {
-
-        ApplicationManager.getApplication().invokeAndWait(() -> {
-
-
-            FileDocumentManager.getInstance().saveAllDocuments();
-            for (MavenRunnerParameters command : commands) {
-                MavenRunConfigurationType.runConfiguration(project, command, null, null, descriptor -> {
-                    if (callback == null) {
-                        return;
-                    }
-                    ProcessHandler handler = descriptor.getProcessHandler();
-                    if (handler != null) {
-                        handler.addProcessListener(new ProcessListener() {
-                            @Override
-                            public void processTerminated(@NotNull ProcessEvent event) {
-                                if (event.getExitCode() == 0) {
-                                    callback.finished(new ProjectTaskResult(false, 0, 0));
-                                }
-                                else {
-                                    callback.finished(new ProjectTaskResult(true, 0, 0));
-                                }
-                            }
-                        });
-                    }
-                }, true);
-            }
-        });
     }
 }

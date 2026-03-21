@@ -51,7 +51,7 @@ import java.util.function.Function;
 public class MavenCommandLineState extends JavaCommandLineState {
     private final MavenRunConfiguration myConfiguration;
 
-    protected MavenCommandLineState(@Nonnull ExecutionEnvironment environment, MavenRunConfiguration configuration) {
+    public MavenCommandLineState(@Nonnull ExecutionEnvironment environment, MavenRunConfiguration configuration) {
         super(environment);
         myConfiguration = configuration;
     }
@@ -142,7 +142,7 @@ public class MavenCommandLineState extends JavaCommandLineState {
         AnAction[] actions = new AnAction[]{BuildTreeFilters.createFilteringActionsGroup(buildView)};
         DefaultExecutionResult res = new DefaultExecutionResult(buildView, processHandler, actions);
         List<AnAction> restartActions = new ArrayList<>();
-        // TODO restartActions.add(new JvmToggleAutoTestAction());
+        restartActions.add(new MavenRebuildAction(getEnvironment()));
 
         if (MavenResumeAction.isApplicable(getEnvironment().getProject(), getJavaParameters(), myConfiguration)) {
             MavenResumeAction resumeAction =
@@ -169,7 +169,7 @@ public class MavenCommandLineState extends JavaCommandLineState {
         boolean withResumeAction = MavenResumeAction.isApplicable(getEnvironment().getProject(), getJavaParameters(), myConfiguration);
         MavenBuildEventProcessor eventProcessor =
             new MavenBuildEventProcessor(myConfiguration, viewManager, descriptor, taskId,
-                targetFileMapper, getStartBuildEventSupplier(runner, processHandler, startBuildEvent, withResumeAction),
+                targetFileMapper, getStartBuildEventSupplier(runner, processHandler, descriptor, startBuildEvent, withResumeAction),
                 useMaven4()
             );
 
@@ -181,22 +181,28 @@ public class MavenCommandLineState extends JavaCommandLineState {
 
     private @NotNull Function<MavenParsingContext, StartBuildEvent> getStartBuildEventSupplier(@NotNull ProgramRunner runner,
                                                                                                ProcessHandler processHandler,
+                                                                                               DefaultBuildDescriptor descriptor,
                                                                                                StartBuildEvent startBuildEvent,
                                                                                                boolean withResumeAction) {
-        return mavenParsingContext -> {
-            // TODO !
+        return ctx -> {
+            descriptor.withRestartAction(new MavenRebuildAction(getEnvironment()));
+            if (withResumeAction) {
+                descriptor.withRestartAction(new MavenResumeAction(processHandler, runner, getEnvironment(), ctx));
+            }
             return startBuildEvent;
         };
-        //        return ctx ->
-//            withResumeAction ? startBuildEvent
-//                .withRestartActions(new MavenRebuildAction(getEnvironment()),
-//                    new MavenResumeAction(processHandler, runner, getEnvironment(),
-//                        ctx))
-//                : startBuildEvent.withRestartActions(new MavenRebuildAction(getEnvironment()));
     }
 
     public boolean useMaven4() {
         return false;
+    }
+
+    /**
+     * Starts the Maven process and returns the ProcessHandler.
+     * Called by MavenCompilerRunner to pipe output directly to the compiler's BuildProgress.
+     */
+    public ProcessHandler startMavenProcess() throws ExecutionException {
+        return startProcess();
     }
 
     @Override

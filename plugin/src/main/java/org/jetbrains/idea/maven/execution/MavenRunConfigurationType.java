@@ -295,7 +295,7 @@ public class MavenRunConfigurationType implements ConfigurationType {
             isDelegateBuild
         );
 
-        ProgramRunner runner = isDelegateBuild ? DelegateBuildRunner.Util.getDelegateRunner() : DefaultJavaProgramRunner.getInstance();
+        ProgramRunner runner = isDelegateBuild ? DelegateBuildRunner.getDelegateRunner() : DefaultJavaProgramRunner.getInstance();
         Executor executor = DefaultRunExecutor.getRunExecutorInstance();
         ExecutionEnvironment environment = new ExecutionEnvironment(executor, runner, configSettings, project);
         environment.putUserData(IS_DELEGATE_BUILD, isDelegateBuild);
