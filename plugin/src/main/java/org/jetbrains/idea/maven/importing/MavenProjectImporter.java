@@ -41,6 +41,7 @@ import consulo.util.lang.StringUtil;
 import consulo.virtualFileSystem.LocalFileSystem;
 import consulo.virtualFileSystem.VirtualFile;
 import jakarta.annotation.Nullable;
+import org.jetbrains.idea.maven.buildtool.MavenSyncConsole;
 import org.jetbrains.idea.maven.importing.configurers.MavenModuleConfigurer;
 import org.jetbrains.idea.maven.project.*;
 import org.jetbrains.idea.maven.utils.MavenProcessCanceledException;
@@ -402,7 +403,7 @@ public class MavenProjectImporter
 			postTasks.add(new MavenProjectsProcessorTask()
 			{
 				@Override
-				public void perform(Project project, MavenEmbeddersManager embeddersManager, MavenConsole console, MavenProgressIndicator indicator) throws MavenProcessCanceledException
+				public void perform(Project project, MavenEmbeddersManager embeddersManager, MavenSyncConsole console, MavenProgressIndicator indicator) throws MavenProcessCanceledException
 				{
 					indicator.setText("Refreshing files...");
 					doRefreshFiles(files);

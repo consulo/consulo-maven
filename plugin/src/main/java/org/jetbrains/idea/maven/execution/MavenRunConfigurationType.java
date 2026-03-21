@@ -128,6 +128,10 @@ public class MavenRunConfigurationType implements ConfigurationType {
         return res != null && res;
     }
 
+    public static void setDelegate(ExecutionEnvironment environment) {
+        environment.putUserData(IS_DELEGATE_BUILD, true);
+    }
+
     @Nonnull
     @Override
     public LocalizeValue getDisplayName() {

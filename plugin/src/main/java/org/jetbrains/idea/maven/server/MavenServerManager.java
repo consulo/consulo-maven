@@ -68,7 +68,7 @@ import jakarta.inject.Singleton;
 import org.apache.lucene.search.Query;
 import org.jdom.Document;
 import org.jetbrains.idea.maven.execution.MavenExecutionOptions;
-import org.jetbrains.idea.maven.project.MavenConsole;
+import org.jetbrains.idea.maven.buildtool.MavenSyncConsole;
 import org.jetbrains.idea.maven.project.MavenGeneralSettings;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.utils.MavenLog;
@@ -480,9 +480,9 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
         return result;
     }
 
-    public static MavenServerConsole wrapAndExport(final MavenConsole console) {
+    public static MavenServerConsole wrapAndExport(final MavenSyncConsole console) {
         try {
-            RemoteMavenServerConsole result = new RemoteMavenServerConsole(console);
+            RemoteMavenServerSyncConsole result = new RemoteMavenServerSyncConsole(console);
             UnicastRemoteObject.exportObject(result, 0);
             return result;
         }
@@ -642,10 +642,10 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
         }
     }
 
-    private static class RemoteMavenServerConsole extends MavenRemoteObject implements MavenServerConsole {
-        private final MavenConsole myConsole;
+    private static class RemoteMavenServerSyncConsole extends MavenRemoteObject implements MavenServerConsole {
+        private final MavenSyncConsole myConsole;
 
-        public RemoteMavenServerConsole(MavenConsole console) {
+        public RemoteMavenServerSyncConsole(MavenSyncConsole console) {
             myConsole = console;
         }
 

@@ -16,17 +16,23 @@
 package org.jetbrains.idea.maven.tasks;
 
 import consulo.annotation.component.ExtensionImpl;
-import consulo.application.progress.ProgressIndicator;
-import consulo.application.progress.Task;
 import consulo.dataContext.DataContext;
 import consulo.document.FileDocumentManager;
 import consulo.execution.BeforeRunTaskProvider;
+import consulo.execution.RunnerAndConfigurationSettings;
 import consulo.execution.configuration.RunConfiguration;
+import consulo.execution.executor.DefaultRunExecutor;
+import consulo.execution.executor.Executor;
 import consulo.execution.runner.ExecutionEnvironment;
+import consulo.execution.runner.ProgramRunner;
 import consulo.localize.LocalizeValue;
 import consulo.maven.icon.MavenIconGroup;
 import consulo.maven.rt.server.common.model.MavenExplicitProfiles;
+import consulo.process.ExecutionException;
+import consulo.process.ProcessHandler;
 import consulo.process.cmd.ParametersListUtil;
+import consulo.process.event.ProcessEvent;
+import consulo.process.event.ProcessListener;
 import consulo.project.Project;
 import consulo.ui.UIAccess;
 import consulo.ui.annotation.RequiredUIAccess;
@@ -36,18 +42,17 @@ import consulo.util.dataholder.Key;
 import consulo.util.lang.StringUtil;
 import consulo.virtualFileSystem.LocalFileSystem;
 import consulo.virtualFileSystem.VirtualFile;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import jakarta.inject.Inject;
 import org.jetbrains.idea.maven.execution.MavenEditGoalDialog;
-import org.jetbrains.idea.maven.execution.MavenRunner;
+import org.jetbrains.idea.maven.execution.MavenRunConfigurationType;
 import org.jetbrains.idea.maven.execution.MavenRunnerParameters;
+import org.jetbrains.idea.maven.execution.build.DelegateBuildRunner;
 import org.jetbrains.idea.maven.localize.MavenTasksLocalize;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 
-import jakarta.annotation.Nonnull;
-import jakarta.annotation.Nullable;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 @ExtensionImpl
@@ -167,60 +172,65 @@ public class MavenBeforeRunTasksProvider extends BeforeRunTaskProvider<MavenBefo
         ExecutionEnvironment env,
         MavenBeforeRunTask task
     ) {
+        final Project project = context.getData(Project.KEY);
+        final MavenProject mavenProject = getMavenProject(task);
+
+        if (project == null || project.isDisposed() || mavenProject == null) {
+            return AsyncResult.rejected();
+        }
+
+        final MavenExplicitProfiles explicitProfiles = MavenProjectsManager.getInstance(project).getExplicitProfiles();
+
+        MavenRunnerParameters params = new MavenRunnerParameters(
+            true,
+            mavenProject.getDirectory(),
+            ParametersListUtil.parse(task.getGoal()),
+            explicitProfiles
+        );
+
+        RunnerAndConfigurationSettings configSettings =
+            MavenRunConfigurationType.createRunnerAndConfigurationSettings(null, null, params, project);
+        ProgramRunner runner = DelegateBuildRunner.getDelegateRunner();
+        Executor executor = DefaultRunExecutor.getRunExecutorInstance();
+        ExecutionEnvironment environment = new ExecutionEnvironment(executor, runner, configSettings, project);
+        environment.setExecutionId(env.getExecutionId());
+        MavenRunConfigurationType.setDelegate(environment);
+
+        if (!runner.canRun(executor.getId(), environment.getRunProfile())) {
+            return AsyncResult.rejected();
+        }
+
         AsyncResult<Void> result = AsyncResult.undefined();
+
         uiAccess.give(() -> {
-            final Project project = context.getData(Project.KEY);
-            final MavenProject mavenProject = getMavenProject(task);
-
-            if (project == null || project.isDisposed() || mavenProject == null) {
-                result.setRejected();
-                return;
-            }
-
             FileDocumentManager.getInstance().saveAllDocuments();
 
-            final MavenExplicitProfiles explicitProfiles = MavenProjectsManager.getInstance(project).getExplicitProfiles();
-            final MavenRunner mavenRunner = MavenRunner.getInstance(project);
-
-            new Task.Backgroundable(project, MavenTasksLocalize.mavenTasksExecuting().get(), true) {
-                @Override
-                public void run(@Nonnull ProgressIndicator indicator) {
-                    boolean value = false;
-                    try {
-                        MavenRunnerParameters params = new MavenRunnerParameters(true,
-                            mavenProject.getDirectory(),
-                            ParametersListUtil.parse(task.getGoal()),
-                            explicitProfiles
-                        );
-
-                        value = mavenRunner.runBatch(
-                            Collections.singletonList(params),
-                            null,
-                            null,
-                            MavenTasksLocalize.mavenTasksExecuting().get(),
-                            indicator
-                        );
-                    }
-                    finally {
-                        if (value) {
-                            result.setDone();
+            environment.setCallback(descriptor -> {
+                ProcessHandler processHandler = descriptor != null ? descriptor.getProcessHandler() : null;
+                if (processHandler != null) {
+                    processHandler.addProcessListener(new ProcessListener() {
+                        @Override
+                        public void processTerminated(@Nonnull ProcessEvent event) {
+                            if (event.getExitCode() == 0) {
+                                result.setDone();
+                            }
+                            else {
+                                result.setRejected();
+                            }
                         }
-                        else {
-                            result.setRejected();
-                        }
-                    }
+                    });
                 }
+                else {
+                    result.setRejected();
+                }
+            });
 
-                @Override
-                public boolean shouldStartInBackground() {
-                    return MavenRunner.getInstance(project).getSettings().isRunMavenInBackground();
-                }
-
-                @Override
-                public void processSentToBackground() {
-                    MavenRunner.getInstance(project).getSettings().setRunMavenInBackground(true);
-                }
-            }.queue();
+            try {
+                runner.execute(environment);
+            }
+            catch (ExecutionException e) {
+                result.setRejected();
+            }
         }).doWhenRejectedWithThrowable(result::rejectWithThrowable);
 
         return result;

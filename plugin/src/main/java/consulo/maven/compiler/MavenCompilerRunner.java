@@ -1,18 +1,12 @@
 package consulo.maven.compiler;
 
-import com.intellij.java.execution.impl.DefaultJavaProgramRunner;
 import consulo.annotation.component.ExtensionImpl;
-import consulo.application.ApplicationManager;
-import consulo.application.ReadAction;
 import consulo.build.ui.progress.BuildProgress;
 import consulo.build.ui.progress.BuildProgressDescriptor;
 import consulo.compiler.*;
 import consulo.compiler.scope.CompileScope;
 import consulo.compiler.util.ModuleCompilerUtil;
 import consulo.dataContext.DataContext;
-import consulo.execution.RunnerAndConfigurationSettings;
-import consulo.execution.executor.DefaultRunExecutor;
-import consulo.execution.runner.ExecutionEnvironment;
 import consulo.localize.LocalizeValue;
 import consulo.maven.icon.MavenIconGroup;
 import consulo.maven.module.extension.MavenModuleExtension;
@@ -20,18 +14,12 @@ import consulo.maven.rt.server.common.model.MavenExplicitProfiles;
 import consulo.maven.rt.server.common.model.MavenId;
 import consulo.module.Module;
 import consulo.module.extension.ModuleExtensionHelper;
-import consulo.process.ExecutionException;
 import consulo.process.ProcessHandler;
-import consulo.process.ProcessOutputType;
 import consulo.process.event.ProcessAdapter;
 import consulo.process.event.ProcessEvent;
-import consulo.process.event.ProcessListener;
 import consulo.project.Project;
-import consulo.util.dataholder.Key;
 import jakarta.annotation.Nonnull;
 import jakarta.inject.Inject;
-import org.jetbrains.idea.maven.execution.MavenCommandLineState;
-import org.jetbrains.idea.maven.execution.MavenRunConfiguration;
 import org.jetbrains.idea.maven.execution.MavenRunConfigurationType;
 import org.jetbrains.idea.maven.execution.MavenRunner;
 import org.jetbrains.idea.maven.execution.MavenRunnerParameters;
@@ -41,7 +29,6 @@ import org.jetbrains.idea.maven.project.MaveOverrideCompilerPolicy;
 import org.jetbrains.idea.maven.project.MavenGeneralSettings;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
-import org.jetbrains.idea.maven.utils.MavenLog;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -154,60 +141,49 @@ public class MavenCompilerRunner implements CompilerRunner {
         // do not allow run tests while compilation
         settings.setSkipTests(true);
 
-        // Create run configuration to get a MavenCommandLineState for process creation.
-        // We start the process directly and pipe its output to the compiler's buildProgress
-        // to avoid creating a duplicate Build ToolWindow session.
-        RunnerAndConfigurationSettings configSettings =
-            MavenRunConfigurationType.createRunnerAndConfigurationSettings(null, settings, params, myProject);
-        MavenRunConfiguration runConfig = (MavenRunConfiguration) configSettings.getConfiguration();
-        ExecutionEnvironment env = new ExecutionEnvironment(
-            DefaultRunExecutor.getRunExecutorInstance(),
-            DefaultJavaProgramRunner.getInstance(),
-            configSettings,
-            myProject
-        );
-        MavenCommandLineState commandState = new MavenCommandLineState(env, runConfig);
-
         CountDownLatch latch = new CountDownLatch(1);
+        AtomicBoolean success = new AtomicBoolean(true);
 
-        ProcessHandler processHandler = null;
-
-        try {
-            processHandler = ReadAction.compute(() -> commandState.startMavenProcess());
-        }
-        catch (ExecutionException e) {
-            context.addMessage(CompilerMessageCategory.ERROR, e.getMessage(), null, -1, -1);
-            return false;
-        }
-
-        if (processHandler == null) {
-            context.addMessage(CompilerMessageCategory.ERROR, "Failed to start Maven process", null, -1, -1);
-            return true;
-        }
-
-        processHandler.addProcessListener(new ProcessListener() {
-            @Override
-            public void onTextAvailable(@Nonnull ProcessEvent event, @Nonnull Key outputType) {
-                buildProgress.output(event.getText(), !ProcessOutputType.isStderr(outputType));
-            }
-
-            @Override
-            public void processTerminated(@Nonnull ProcessEvent event) {
-                latch.countDown();
-
-                if (event.getExitCode() != 0) {
-                    buildProgress.fail();
+        // Use the delegate-build path: MavenCommandLineState.doDelegateBuildExecute() routes output
+        // through BuildViewManager with full spy-event parsing (structured tree in Build ToolWindow).
+        MavenRunConfigurationType.runConfiguration(
+            myProject, params, null, settings,
+            descriptor -> {
+                if (descriptor == null) {
+                    success.set(false);
+                    latch.countDown();
+                    return;
                 }
-            }
-        });
-
-        processHandler.startNotify();
+                ProcessHandler handler = descriptor.getProcessHandler();
+                if (handler == null) {
+                    success.set(false);
+                    latch.countDown();
+                    return;
+                }
+                handler.addProcessListener(new ProcessAdapter() {
+                    @Override
+                    public void processTerminated(@Nonnull ProcessEvent event) {
+                        success.set(event.getExitCode() == 0);
+                        latch.countDown();
+                    }
+                });
+                // Safety: process may already be terminated before listener was added
+                if (handler.isProcessTerminated()) {
+                    latch.countDown();
+                }
+            },
+            true  // isDelegateBuild → doDelegateBuildExecute() → BuildViewManager
+        );
 
         try {
             latch.await();
         }
         catch (InterruptedException e) {
             Thread.currentThread().interrupt();
+        }
+
+        if (!success.get()) {
+            context.addMessage(CompilerMessageCategory.ERROR, "Maven compilation failed", null, -1, -1);
         }
 
         return true;

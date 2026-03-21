@@ -19,6 +19,7 @@ import jakarta.annotation.Nullable;
 
 import consulo.project.Project;
 import consulo.virtualFileSystem.VirtualFile;
+import org.jetbrains.idea.maven.buildtool.MavenSyncConsole;
 import org.jetbrains.idea.maven.utils.MavenProcessCanceledException;
 import org.jetbrains.idea.maven.utils.MavenProgressIndicator;
 
@@ -62,7 +63,7 @@ public class MavenProjectsProcessorReadingTask implements MavenProjectsProcessor
     public void perform(
         Project project,
         MavenEmbeddersManager embeddersManager,
-        MavenConsole console,
+        MavenSyncConsole console,
         MavenProgressIndicator indicator
     ) throws MavenProcessCanceledException {
         if (myFilesToUpdate == null) {

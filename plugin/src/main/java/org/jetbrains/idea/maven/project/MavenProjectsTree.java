@@ -38,6 +38,7 @@ import org.jdom.Element;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 import org.jetbrains.annotations.TestOnly;
+import org.jetbrains.idea.maven.buildtool.MavenSyncConsole;
 import org.jetbrains.idea.maven.dom.references.MavenFilteredPropertyPsiReferenceProvider;
 import org.jetbrains.idea.maven.localize.MavenProjectLocalize;
 import org.jetbrains.idea.maven.server.MavenEmbedderWrapper;
@@ -1291,7 +1292,7 @@ public class MavenProjectsTree {
         @Nonnull MavenProject mavenProject,
         @Nonnull MavenGeneralSettings generalSettings,
         @Nonnull MavenEmbeddersManager embeddersManager,
-        @Nonnull MavenConsole console,
+        @Nonnull MavenSyncConsole console,
         @Nonnull MavenProgressIndicator process
     ) throws MavenProcessCanceledException {
         resolve(project, mavenProject, generalSettings, embeddersManager, console, new ResolveContext(), process);
@@ -1302,7 +1303,7 @@ public class MavenProjectsTree {
         @Nonnull MavenProject mavenProject,
         @Nonnull MavenGeneralSettings generalSettings,
         @Nonnull MavenEmbeddersManager embeddersManager,
-        @Nonnull MavenConsole console,
+        @Nonnull MavenSyncConsole console,
         @Nonnull ResolveContext context,
         @Nonnull MavenProgressIndicator process
     ) throws MavenProcessCanceledException {
@@ -1327,7 +1328,7 @@ public class MavenProjectsTree {
         @Nonnull MavenProject mavenProject,
         @Nonnull NativeMavenProjectHolder nativeMavenProject,
         @Nonnull MavenEmbeddersManager embeddersManager,
-        @Nonnull MavenConsole console,
+        @Nonnull MavenSyncConsole console,
         @Nonnull MavenProgressIndicator process
     ) throws MavenProcessCanceledException {
         MavenEmbedderWrapper embedder = embeddersManager.getEmbedder(MavenEmbeddersManager.FOR_PLUGINS_RESOLVE);
@@ -1370,7 +1371,7 @@ public class MavenProjectsTree {
         @Nonnull final MavenProject mavenProject,
         @Nonnull final MavenImportingSettings importingSettings,
         @Nonnull final MavenEmbeddersManager embeddersManager,
-        @Nonnull final MavenConsole console,
+        @Nonnull final MavenSyncConsole console,
         @Nonnull final MavenProgressIndicator process
     ) throws MavenProcessCanceledException {
         executeWithEmbedder(
@@ -1399,7 +1400,7 @@ public class MavenProjectsTree {
         boolean downloadSources,
         boolean downloadDocs,
         @Nonnull MavenEmbeddersManager embeddersManager,
-        @Nonnull MavenConsole console,
+        @Nonnull MavenSyncConsole console,
         @Nonnull MavenProgressIndicator process
     ) throws MavenProcessCanceledException {
         MavenEmbedderWrapper embedder = embeddersManager.getEmbedder(MavenEmbeddersManager.FOR_DOWNLOAD);
@@ -1423,7 +1424,7 @@ public class MavenProjectsTree {
         @Nonnull MavenProject mavenProject,
         @Nonnull MavenEmbeddersManager embeddersManager,
         @Nonnull Key embedderKind,
-        @Nonnull MavenConsole console,
+        @Nonnull MavenSyncConsole console,
         @Nonnull MavenProgressIndicator process,
         @Nonnull EmbedderTask task
     ) throws MavenProcessCanceledException {

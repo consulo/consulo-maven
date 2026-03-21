@@ -20,13 +20,17 @@ import consulo.application.progress.ProgressIndicator;
 import consulo.component.ProcessCanceledException;
 import consulo.localize.LocalizeValue;
 
+import jakarta.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 public class MavenProgressIndicator {
     private ProgressIndicator myIndicator;
     private final List<Predicate<MavenProgressIndicator>> myCancelConditions = new ArrayList<>();
+    @Nullable
+    private Consumer<String> myTextConsumer;
 
     public MavenProgressIndicator() {
         this(new MyEmptyProgressIndicator());
@@ -34,6 +38,10 @@ public class MavenProgressIndicator {
 
     public MavenProgressIndicator(ProgressIndicator i) {
         myIndicator = i;
+    }
+
+    public synchronized void setTextConsumer(@Nullable Consumer<String> textConsumer) {
+        myTextConsumer = textConsumer;
     }
 
     public synchronized void setIndicator(ProgressIndicator i) {
@@ -55,10 +63,19 @@ public class MavenProgressIndicator {
     @Deprecated
     public synchronized void setText(String text) {
         myIndicator.setText(text);
+        if (myTextConsumer != null && text != null && !text.isEmpty()) {
+            myTextConsumer.accept(text);
+        }
     }
 
     public synchronized void setText(LocalizeValue text) {
         myIndicator.setTextValue(text);
+        if (myTextConsumer != null) {
+            String value = text.getValue();
+            if (value != null && !value.isEmpty()) {
+                myTextConsumer.accept(value);
+            }
+        }
     }
 
     public synchronized void setText2(String text) {

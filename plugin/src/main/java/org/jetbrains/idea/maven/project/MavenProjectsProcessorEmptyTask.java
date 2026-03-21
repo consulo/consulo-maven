@@ -16,6 +16,7 @@
 package org.jetbrains.idea.maven.project;
 
 import consulo.project.Project;
+import org.jetbrains.idea.maven.buildtool.MavenSyncConsole;
 import org.jetbrains.idea.maven.utils.MavenProcessCanceledException;
 import org.jetbrains.idea.maven.utils.MavenProgressIndicator;
 
@@ -25,7 +26,7 @@ public class MavenProjectsProcessorEmptyTask extends MavenProjectsProcessorBasic
     }
 
     @Override
-    public void perform(Project project, MavenEmbeddersManager embeddersManager, MavenConsole console, MavenProgressIndicator indicator)
+    public void perform(Project project, MavenEmbeddersManager embeddersManager, MavenSyncConsole console, MavenProgressIndicator indicator)
         throws MavenProcessCanceledException {
         throw new UnsupportedOperationException();
     }

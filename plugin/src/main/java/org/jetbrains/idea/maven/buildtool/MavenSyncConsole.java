@@ -3,12 +3,16 @@ package org.jetbrains.idea.maven.buildtool;
 
 import consulo.application.Application;
 import consulo.application.util.registry.Registry;
+import consulo.process.ProcessHandler;
 import consulo.build.ui.DefaultBuildDescriptor;
 import consulo.build.ui.FilePosition;
 import consulo.build.ui.SyncViewManager;
 import consulo.build.ui.event.*;
 import consulo.build.ui.issue.BuildIssue;
+import consulo.build.ui.issue.BuildIssueQuickFix;
 import consulo.build.ui.progress.BuildProgressListener;
+import consulo.dataContext.DataProvider;
+import consulo.navigation.Navigatable;
 import consulo.externalSystem.issue.BuildIssueException;
 import consulo.externalSystem.model.task.ExternalSystemTaskId;
 import consulo.externalSystem.model.task.ExternalSystemTaskType;
@@ -58,11 +62,6 @@ public class MavenSyncConsole implements MavenEventHandler, MavenBuildIssueHandl
         LEVEL_TO_PREFIX.put(MavenServerConsoleIndicator.LEVEL_FATAL, "FATAL_ERROR");
     }
 
-    private enum OutputType {
-        NORMAL,
-        ERROR
-    }
-
     private final Project myProject;
     private final BuildProgressListener mySyncView;
     private ExternalSystemTaskId mySyncId;
@@ -81,6 +80,20 @@ public class MavenSyncConsole implements MavenEventHandler, MavenBuildIssueHandl
         mySyncView = project.getInstance(SyncViewManager.class);
         mySyncId = createTaskId();
         myFactory = project.getApplication().getInstance(BuildEventFactory.class);
+    }
+
+    public boolean canPause() {
+        return false;
+    }
+
+    public boolean isOutputPaused() {
+        return false;
+    }
+
+    public void setOutputPaused(boolean outputPaused) {
+    }
+
+    public void attachToProcess(ProcessHandler processHandler) {
     }
 
     public static class RescheduledMavenDownloadJobException extends CancellationException {
@@ -431,6 +444,9 @@ public class MavenSyncConsole implements MavenEventHandler, MavenBuildIssueHandl
     }
 
     private synchronized void doFinish(boolean showFullSyncQuickFix) {
+        if (!started || finished) {
+            return;
+        }
         if (syncTransactionStarted) {
             debugLog("Maven sync: sync transaction is still not finished, postpone build finish event");
             return;
@@ -459,33 +475,44 @@ public class MavenSyncConsole implements MavenEventHandler, MavenBuildIssueHandl
 
     private void attachFullSyncQuickFix() {
         try {
-            // TODO !
-//            mySyncView.onEvent(mySyncId, myFactory.createBuildIssueEvent(mySyncId, new BuildIssue() {
-//                @Override
-//                @Nonnull
-//                public String getTitle() {
-//                    return "Sync Finished";
-//                }
-//
-//                @Override
-//                @Nonnull
-//                public String getDescription() {
-//                    return "Sync finished. If there is something wrong with the project model, <a href=\"" +
-//                        MavenFullSyncQuickFix.ID + "\">reload all projects</a>\n";
-//                }
-//
-//                @Override
-//                @Nonnull
-//                public List<BuildIssueQuickFix> getQuickFixes() {
-//                    return Collections.singletonList(new MavenFullSyncQuickFix());
-//                }
-//
-//                @Override
-//                @Nullable
-//                public Navigatable getNavigatable(@Nonnull Project project) {
-//                    return null;
-//                }
-//            }, MessageEvent.Kind.INFO));
+            final String quickFixId = "maven.full.sync";
+            mySyncView.onEvent(mySyncId, myFactory.createBuildIssueEvent(mySyncId, new BuildIssue() {
+                @Override
+                @Nonnull
+                public String getTitle() {
+                    return "Sync Finished";
+                }
+
+                @Override
+                @Nonnull
+                public String getDescription() {
+                    return "Sync finished. If there is something wrong with the project model, <a href=\"" +
+                        quickFixId + "\">reload all projects</a>\n";
+                }
+
+                @Override
+                @Nonnull
+                public List<BuildIssueQuickFix> getQuickFixes() {
+                    return Collections.singletonList(new BuildIssueQuickFix() {
+                        @Override
+                        public String getId() {
+                            return quickFixId;
+                        }
+
+                        @Override
+                        public java.util.concurrent.CompletableFuture<?> runQuickFix(Project project, DataProvider dataProvider) {
+                            MavenProjectsManager.getInstance(project).forceUpdateAllProjectsOrFindAllAvailablePomFiles();
+                            return java.util.concurrent.CompletableFuture.completedFuture(null);
+                        }
+                    });
+                }
+
+                @Override
+                @Nullable
+                public Navigatable getNavigatable(@Nonnull Project project) {
+                    return null;
+                }
+            }, MessageEvent.Kind.INFO));
         }
         catch (Exception ignored) {
         }
@@ -495,32 +522,43 @@ public class MavenSyncConsole implements MavenEventHandler, MavenBuildIssueHandl
         try {
             MavenGeneralSettings generalSettings = MavenWorkspaceSettingsComponent.getInstance(myProject).getSettings().generalSettings;
             if (hasUnresolved && generalSettings.isWorkOffline()) {
-                // TODO
-//                mySyncView.onEvent(mySyncId, myFactory.createBuildIssueEvent(mySyncId, new BuildIssue() {
-//                    @Override
-//                    @Nonnull
-//                    public String getTitle() {
-//                        return "Dependency Resolution Failed";
-//                    }
-//
-//                    @Override
-//                    @Nonnull
-//                    public String getDescription() {
-//                        return "<a href=\"" + OffMavenOfflineModeQuickFix.ID + "\">Switch Off Offline Mode</a>\n";
-//                    }
-//
-//                    @Override
-//                    @Nonnull
-//                    public List<BuildIssueQuickFix> getQuickFixes() {
-//                        return Collections.singletonList(new OffMavenOfflineModeQuickFix());
-//                    }
-//
-//                    @Override
-//                    @Nullable
-//                    public Navigatable getNavigatable(@Nonnull Project project) {
-//                        return null;
-//                    }
-//                }, MessageEvent.Kind.ERROR));
+                final String quickFixId = "maven.offline.disable";
+                mySyncView.onEvent(mySyncId, myFactory.createBuildIssueEvent(mySyncId, new BuildIssue() {
+                    @Override
+                    @Nonnull
+                    public String getTitle() {
+                        return "Dependency Resolution Failed";
+                    }
+
+                    @Override
+                    @Nonnull
+                    public String getDescription() {
+                        return "<a href=\"" + quickFixId + "\">Switch Off Offline Mode</a>\n";
+                    }
+
+                    @Override
+                    @Nonnull
+                    public List<BuildIssueQuickFix> getQuickFixes() {
+                        return Collections.singletonList(new BuildIssueQuickFix() {
+                            @Override
+                            public String getId() {
+                                return quickFixId;
+                            }
+
+                            @Override
+                            public java.util.concurrent.CompletableFuture<?> runQuickFix(Project project, DataProvider dataProvider) {
+                                MavenWorkspaceSettingsComponent.getInstance(project).getSettings().generalSettings.setWorkOffline(false);
+                                return java.util.concurrent.CompletableFuture.completedFuture(null);
+                            }
+                        });
+                    }
+
+                    @Override
+                    @Nullable
+                    public Navigatable getNavigatable(@Nonnull Project project) {
+                        return null;
+                    }
+                }, MessageEvent.Kind.WARNING));
             }
         }
         catch (Exception ignored) {
@@ -530,16 +568,41 @@ public class MavenSyncConsole implements MavenEventHandler, MavenBuildIssueHandl
     private synchronized void showArtifactBuildIssue(@Nonnull String keyPrefix,
                                                      @Nonnull String dependency,
                                                      @Nullable String errorMessage) {
-//        doIfImportInProcess(() -> {
-//            hasErrors = true;
-//            hasUnresolved = true;
-//            String umbrellaString = SyncBundle.message(keyPrefix + ".resolve");
-//            String errorString = SyncBundle.message(keyPrefix + ".resolve.error", dependency);
-//            startTask(mySyncId, umbrellaString);
-//            BuildIssue buildIssue = DownloadArtifactBuildIssue.getIssue(errorString, errorMessage != null ? errorMessage : errorString);
-//            mySyncView.onEvent(mySyncId, myFactory.createBuildIssueEvent(umbrellaString, buildIssue, MessageEvent.Kind.ERROR));
-//            addText(mySyncId, errorString, false);
-//        });
+        doIfImportInProcess(() -> {
+            hasErrors = true;
+            hasUnresolved = true;
+            String umbrellaString = SyncBundle.message(keyPrefix + ".resolve");
+            String errorString = SyncBundle.message(keyPrefix + ".resolve.error", dependency);
+            startTask(mySyncId, umbrellaString);
+            String details = errorMessage != null ? errorMessage : errorString;
+            BuildIssue buildIssue = new BuildIssue() {
+                @Override
+                @Nonnull
+                public String getTitle() {
+                    return errorString;
+                }
+
+                @Override
+                @Nonnull
+                public String getDescription() {
+                    return details;
+                }
+
+                @Override
+                @Nonnull
+                public List<BuildIssueQuickFix> getQuickFixes() {
+                    return Collections.emptyList();
+                }
+
+                @Override
+                @Nullable
+                public Navigatable getNavigatable(@Nonnull Project project) {
+                    return null;
+                }
+            };
+            mySyncView.onEvent(mySyncId, myFactory.createBuildIssueEvent(umbrellaString, buildIssue, MessageEvent.Kind.ERROR));
+            addText(mySyncId, errorString, false);
+        });
     }
 
     public void showArtifactBuildIssue(@Nonnull MavenServerConsoleIndicator.ResolveType type,
@@ -715,36 +778,34 @@ public class MavenSyncConsole implements MavenEventHandler, MavenBuildIssueHandl
         }
     }
 
-    private void printMessage(int level, @Nonnull String string, @Nullable Throwable throwable) {
+    public void printException(@Nonnull Throwable throwable) {
+        printMessage(MavenServerConsoleIndicator.LEVEL_ERROR, "Embedded build failed", throwable);
+    }
+
+    public void printMessage(int level, @Nonnull String string, @Nullable Throwable throwable) {
         if (isSuppressed(level)) {
             return;
         }
 
-        OutputType type = OutputType.NORMAL;
-        if (throwable != null || level == MavenServerConsoleIndicator.LEVEL_WARN
-            || level == MavenServerConsoleIndicator.LEVEL_ERROR
-            || level == MavenServerConsoleIndicator.LEVEL_FATAL) {
-            type = OutputType.ERROR;
-        }
+        boolean stdout = throwable == null
+            && level != MavenServerConsoleIndicator.LEVEL_WARN
+            && level != MavenServerConsoleIndicator.LEVEL_ERROR
+            && level != MavenServerConsoleIndicator.LEVEL_FATAL;
 
-        doPrint(composeLine(level, string), type);
+        addText(composeLine(level, string), stdout);
 
         if (throwable != null) {
             String throwableText = ExceptionUtil.getThrowableText(throwable);
             if (Registry.is("maven.print.import.stacktraces") || Application.get().isUnitTestMode()) {
-                doPrint(LINE_SEPARATOR + composeLine(MavenServerConsoleIndicator.LEVEL_ERROR, throwableText), type);
+                addText(LINE_SEPARATOR + composeLine(MavenServerConsoleIndicator.LEVEL_ERROR, throwableText), false);
             }
             else {
-                doPrint(LINE_SEPARATOR + composeLine(MavenServerConsoleIndicator.LEVEL_ERROR, throwable.getMessage()), type);
+                addText(LINE_SEPARATOR + composeLine(MavenServerConsoleIndicator.LEVEL_ERROR, throwable.getMessage()), false);
             }
         }
     }
 
-    private void doPrint(@Nonnull String text, @Nonnull OutputType type) {
-        addText(text, type == OutputType.NORMAL);
-    }
-
-    private boolean isSuppressed(int level) {
+    public boolean isSuppressed(int level) {
         return level < MavenProjectsManager.getInstance(myProject).getGeneralSettings().getOutputLevel().getLevel();
     }
 

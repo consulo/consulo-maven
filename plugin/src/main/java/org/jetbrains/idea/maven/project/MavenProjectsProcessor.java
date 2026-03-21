@@ -18,7 +18,6 @@ package org.jetbrains.idea.maven.project;
 import consulo.application.Application;
 import consulo.application.util.Semaphore;
 import consulo.project.Project;
-import org.jetbrains.idea.maven.execution.SoutMavenConsole;
 import org.jetbrains.idea.maven.utils.MavenLog;
 import org.jetbrains.idea.maven.utils.MavenProcessCanceledException;
 import org.jetbrains.idea.maven.utils.MavenProgressIndicator;
@@ -104,12 +103,15 @@ public class MavenProjectsProcessor {
             myTitle,
             myCancellable,
             indicator -> {
+                indicator.setTextConsumer(text ->
+                    MavenProjectsManager.getInstance(myProject).getSyncConsole().addText(text, true));
                 Predicate<MavenProgressIndicator> condition = mavenProgressIndicator -> isStopped;
                 indicator.addCancelCondition(condition);
                 try {
                     doProcessPendingTasks(indicator, task);
                 }
                 finally {
+                    indicator.setTextConsumer(null);
                     indicator.removeCancelCondition(condition);
                 }
             }
@@ -131,7 +133,7 @@ public class MavenProjectsProcessor {
                 indicator.setFraction(counter / (double)(counter + remained));
 
                 try {
-                    task.perform(myProject, myEmbeddersManager, new SoutMavenConsole(), indicator);
+                    task.perform(myProject, myEmbeddersManager, MavenProjectsManager.getInstance(myProject).getSyncConsole(), indicator);
                 }
                 catch (MavenProcessCanceledException e) {
                     throw e;

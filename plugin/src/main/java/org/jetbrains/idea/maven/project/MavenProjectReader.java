@@ -23,6 +23,7 @@ import consulo.util.lang.Pair;
 import consulo.virtualFileSystem.VirtualFile;
 import jakarta.annotation.Nonnull;
 import org.jdom.Element;
+import org.jetbrains.idea.maven.buildtool.MavenSyncConsole;
 import org.jetbrains.idea.maven.localize.MavenProjectLocalize;
 import org.jetbrains.idea.maven.server.MavenEmbedderWrapper;
 import org.jetbrains.idea.maven.server.MavenServerManager;
@@ -569,7 +570,7 @@ public class MavenProjectReader {
         MavenImportingSettings importingSettings,
         VirtualFile file,
         MavenExplicitProfiles profiles,
-        MavenConsole console
+        MavenSyncConsole console
     ) throws MavenProcessCanceledException {
         try {
             List<String> goals = Collections.singletonList(importingSettings.getUpdateFoldersOnImportPhase());

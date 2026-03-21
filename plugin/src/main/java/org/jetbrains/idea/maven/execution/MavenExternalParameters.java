@@ -22,6 +22,7 @@ import com.intellij.java.language.LanguageLevel;
 import consulo.annotation.access.RequiredReadAction;
 import consulo.application.Application;
 import consulo.container.boot.ContainerPathManager;
+import consulo.container.plugin.PluginManager;
 import consulo.content.bundle.Sdk;
 import consulo.content.bundle.SdkTable;
 import consulo.execution.RunConfigurationEditor;
@@ -142,6 +143,16 @@ public class MavenExternalParameters {
         }
 
         addVMParameters(params.getVMParametersList(), mavenHome, runnerSettings);
+
+        // Add maven spy agent so build output shows sub-nodes (project/mojo events) in Build ToolWindow
+        File pluginPath = PluginManager.getPluginPath(MavenExternalParameters.class);
+        File spyJar = new File(pluginPath, "maven-event-listener.jar");
+        if (spyJar.exists()) {
+            String existingExtPath = params.getVMParametersList().getPropertyValue("maven.ext.class.path");
+            if (existingExtPath == null || existingExtPath.isEmpty()) {
+                params.getVMParametersList().addProperty("maven.ext.class.path", spyJar.getAbsolutePath());
+            }
+        }
 
         File confFile = MavenUtil.getMavenConfFile(new File(mavenHome));
         if (!confFile.isFile()) {

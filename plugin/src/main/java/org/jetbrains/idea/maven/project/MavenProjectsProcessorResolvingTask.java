@@ -19,6 +19,7 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
 import consulo.project.Project;
+import org.jetbrains.idea.maven.buildtool.MavenSyncConsole;
 import org.jetbrains.idea.maven.utils.MavenProcessCanceledException;
 import org.jetbrains.idea.maven.utils.MavenProgressIndicator;
 
@@ -47,7 +48,7 @@ public class MavenProjectsProcessorResolvingTask extends MavenProjectsProcessorB
     public void perform(
         Project project,
         MavenEmbeddersManager embeddersManager,
-        MavenConsole console,
+        MavenSyncConsole console,
         MavenProgressIndicator indicator
     ) throws MavenProcessCanceledException {
         myTree.resolve(project, myMavenProject, myGeneralSettings, embeddersManager, console, myContext, indicator);

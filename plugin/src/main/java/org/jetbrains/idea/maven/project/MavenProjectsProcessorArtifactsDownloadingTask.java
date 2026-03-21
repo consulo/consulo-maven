@@ -20,6 +20,7 @@ import consulo.application.Application;
 import consulo.maven.rt.server.common.model.MavenArtifact;
 import consulo.project.Project;
 import consulo.virtualFileSystem.VirtualFileManager;
+import org.jetbrains.idea.maven.buildtool.MavenSyncConsole;
 import org.jetbrains.idea.maven.utils.MavenProcessCanceledException;
 import org.jetbrains.idea.maven.utils.MavenProgressIndicator;
 
@@ -53,7 +54,7 @@ public class MavenProjectsProcessorArtifactsDownloadingTask implements MavenProj
     public void perform(
         final Project project,
         MavenEmbeddersManager embeddersManager,
-        MavenConsole console,
+        MavenSyncConsole console,
         MavenProgressIndicator indicator
     ) throws MavenProcessCanceledException {
         MavenArtifactDownloader.DownloadResult result = myTree.downloadSourcesAndJavadocs(project,

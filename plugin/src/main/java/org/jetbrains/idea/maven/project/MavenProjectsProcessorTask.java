@@ -16,6 +16,7 @@
 package org.jetbrains.idea.maven.project;
 
 import consulo.project.Project;
+import org.jetbrains.idea.maven.buildtool.MavenSyncConsole;
 import org.jetbrains.idea.maven.utils.MavenProcessCanceledException;
 import org.jetbrains.idea.maven.utils.MavenProgressIndicator;
 
@@ -23,7 +24,7 @@ public interface MavenProjectsProcessorTask {
     void perform(
         Project project,
         MavenEmbeddersManager embeddersManager,
-        MavenConsole console,
+        MavenSyncConsole console,
         MavenProgressIndicator indicator
     ) throws MavenProcessCanceledException;
 }

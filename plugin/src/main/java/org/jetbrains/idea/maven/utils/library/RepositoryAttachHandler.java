@@ -46,7 +46,7 @@ import consulo.util.lang.ref.Ref;
 import consulo.virtualFileSystem.VirtualFile;
 import consulo.virtualFileSystem.VirtualFileManager;
 import consulo.virtualFileSystem.util.VirtualFileUtil;
-import org.jetbrains.idea.maven.execution.SoutMavenConsole;
+import org.jetbrains.idea.maven.buildtool.MavenSyncConsole;
 import org.jetbrains.idea.maven.importing.MavenExtraArtifactType;
 import org.jetbrains.idea.maven.project.MavenEmbeddersManager;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
@@ -322,7 +322,8 @@ public class RepositoryAttachHandler {
         MavenEmbeddersManager manager = MavenProjectsManager.getInstance(project).getEmbeddersManager();
         MavenEmbedderWrapper embedder = manager.getEmbedder(MavenEmbeddersManager.FOR_DOWNLOAD);
         try {
-            embedder.customizeForResolve(new SoutMavenConsole(), new MavenProgressIndicator(indicator));
+            MavenSyncConsole syncConsole = MavenProjectsManager.getInstance(project).getSyncConsole();
+            embedder.customizeForResolve(syncConsole, new MavenProgressIndicator(indicator));
             final List<MavenRemoteRepository> remoteRepositories = convertRepositories(repositories);
             final List<MavenArtifact> firstResult = embedder.resolveTransitively(
                 Collections.singletonList(new MavenArtifactInfo(mavenId, "jar", null)), remoteRepositories);

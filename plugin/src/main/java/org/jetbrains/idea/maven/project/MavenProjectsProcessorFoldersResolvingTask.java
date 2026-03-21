@@ -19,6 +19,7 @@ import jakarta.annotation.Nonnull;
 
 import consulo.project.Project;
 import jakarta.annotation.Nullable;
+import org.jetbrains.idea.maven.buildtool.MavenSyncConsole;
 import org.jetbrains.idea.maven.utils.MavenProcessCanceledException;
 import org.jetbrains.idea.maven.utils.MavenProgressIndicator;
 
@@ -40,7 +41,7 @@ public class MavenProjectsProcessorFoldersResolvingTask extends MavenProjectsPro
     }
 
     @Override
-    public void perform(Project project, MavenEmbeddersManager embeddersManager, MavenConsole console, MavenProgressIndicator indicator)
+    public void perform(Project project, MavenEmbeddersManager embeddersManager, MavenSyncConsole console, MavenProgressIndicator indicator)
         throws MavenProcessCanceledException {
         myTree.resolveFolders(myMavenProject, myImportingSettings, embeddersManager, console, indicator);
         if (myOnCompletion != null) {

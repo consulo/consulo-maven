@@ -769,6 +769,12 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
         MavenUtil.runWhenInitialized(
             myProject,
             () -> {
+                if (forceImportAndResolve) {
+                    // Open the sync session before reading starts so that reading-phase
+                    // progress text (from MavenProgressIndicator.setText) is captured.
+                    // If the session is already open this is a no-op.
+                    getSyncConsole().startImport(true);
+                }
                 if (projects == null) {
                     myWatcher.scheduleUpdateAll(forceUpdate, forceImportAndResolve).notify(promise);
                 }
@@ -790,7 +796,7 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
      * if project is closed)
      */
     public AsyncResult<List<Module>> scheduleImportAndResolve() {
-        // scheduleImport will be called after the scheduleResolve process has finished
+        // startImport is now deferred to scheduleResolve(), where we can check if there is actual work
         AsyncResult<List<Module>> promise = scheduleResolve();
         fireImportAndResolveScheduled();
         return promise;
@@ -805,6 +811,26 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
                 toResolve = new LinkedHashSet<>(myProjectsToResolve);
                 myProjectsToResolve.clear();
             }
+
+            if (toResolve.isEmpty()) {
+                // Nothing to resolve. If there are pending imports (e.g. from folder/plugin callbacks)
+                // run them silently without opening a new sync session. If truly nothing to do,
+                // just complete the promise so callers are not left hanging.
+                if (hasScheduledProjects()) {
+                    scheduleImport().notify(result);
+                }
+                else {
+                    // Close any session that was opened early (e.g. for reading-phase output) but
+                    // turned out to have nothing to resolve or import.
+                    getSyncConsole().finishImport();
+                    result.setDone(Collections.<Module>emptyList());
+                }
+                return;
+            }
+
+            // There IS work to do — open (or join) the sync session now.
+            getSyncConsole().startImport(true);
+
             final ResolveContext context = new ResolveContext();
 
             Iterator<MavenProject> it = toResolve.iterator();
@@ -815,6 +841,7 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
                         scheduleImport().notify(result);
                     }
                     else {
+                        getSyncConsole().finishImport();
                         result.setDone(Collections.<Module>emptyList());
                     }
                 };
@@ -1145,7 +1172,14 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
         }
 
         if (postTasks.get() != null /*may be null if importing is cancelled*/) {
-            schedulePostImportTasks(postTasks.get());
+            // Defer finishImport until all post-tasks complete so their output is visible in the sync view
+            List<MavenProjectsProcessorTask> allTasks = new ArrayList<>(postTasks.get());
+            allTasks.add((proj, embedders, console, indicator) -> console.finishImport());
+            schedulePostImportTasks(allTasks);
+        }
+        else {
+            // No post-tasks (or import cancelled): close the sync session immediately
+            getSyncConsole().finishImport();
         }
 
         // do not block user too often

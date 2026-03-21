@@ -30,6 +30,7 @@ import consulo.util.lang.StringUtil;
 import consulo.virtualFileSystem.LocalFileSystem;
 import consulo.virtualFileSystem.VirtualFile;
 import org.jdom.Element;
+import org.jetbrains.idea.maven.buildtool.MavenSyncConsole;
 import org.jetbrains.idea.maven.importing.MavenExtraArtifactType;
 import org.jetbrains.idea.maven.importing.MavenImporter;
 import org.jetbrains.idea.maven.localize.MavenProjectLocalize;
@@ -693,7 +694,7 @@ public class MavenProject {
     public Pair<Boolean, MavenProjectChanges> resolveFolders(
         @Nonnull MavenEmbedderWrapper embedder,
         @Nonnull MavenImportingSettings importingSettings,
-        @Nonnull MavenConsole console
+        @Nonnull MavenSyncConsole console
     ) throws MavenProcessCanceledException {
         MavenProjectReaderResult result =
             MavenProjectReader.generateSources(embedder, importingSettings, getFile(), getActivatedProfilesIds(), console);

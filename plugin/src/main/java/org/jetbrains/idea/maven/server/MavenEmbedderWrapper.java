@@ -18,7 +18,7 @@ package org.jetbrains.idea.maven.server;
 import consulo.virtualFileSystem.VirtualFile;
 import consulo.maven.rt.server.common.model.*;
 import consulo.maven.rt.server.common.server.*;
-import org.jetbrains.idea.maven.project.MavenConsole;
+import org.jetbrains.idea.maven.buildtool.MavenSyncConsole;
 import org.jetbrains.idea.maven.utils.MavenLog;
 import org.jetbrains.idea.maven.utils.MavenProcessCanceledException;
 import org.jetbrains.idea.maven.utils.MavenProgressIndicator;
@@ -49,7 +49,7 @@ public abstract class MavenEmbedderWrapper extends RemoteObjectWrapper<MavenServ
         }
     }
 
-    public void customizeForResolve(MavenConsole console, MavenProgressIndicator indicator) {
+    public void customizeForResolve(MavenSyncConsole console, MavenProgressIndicator indicator) {
         setCustomization(console, indicator, null, false, false);
         perform((Retriable<Object>)() -> {
             doCustomize();
@@ -59,7 +59,7 @@ public abstract class MavenEmbedderWrapper extends RemoteObjectWrapper<MavenServ
 
     public void customizeForResolve(
         MavenWorkspaceMap workspaceMap,
-        MavenConsole console,
+        MavenSyncConsole console,
         MavenProgressIndicator indicator,
         boolean alwaysUpdateSnapshot
     ) {
@@ -70,7 +70,7 @@ public abstract class MavenEmbedderWrapper extends RemoteObjectWrapper<MavenServ
         });
     }
 
-    public void customizeForStrictResolve(MavenWorkspaceMap workspaceMap, MavenConsole console, MavenProgressIndicator indicator) {
+    public void customizeForStrictResolve(MavenWorkspaceMap workspaceMap, MavenSyncConsole console, MavenProgressIndicator indicator) {
         setCustomization(console, indicator, workspaceMap, true, false);
         perform((Retriable<Object>)() -> {
             doCustomize();
@@ -280,7 +280,7 @@ public abstract class MavenEmbedderWrapper extends RemoteObjectWrapper<MavenServ
     }
 
     private synchronized void setCustomization(
-        MavenConsole console, MavenProgressIndicator indicator,
+        MavenSyncConsole console, MavenProgressIndicator indicator,
         MavenWorkspaceMap workspaceMap,
         boolean failOnUnresolvedDependency,
         boolean alwaysUpdateSnapshot
