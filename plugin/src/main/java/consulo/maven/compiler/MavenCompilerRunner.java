@@ -196,7 +196,7 @@ public class MavenCompilerRunner implements CompilerRunner {
                 latch.countDown();
 
                 if (event.getExitCode() != 0) {
-                    buildProgress.finish();
+                    buildProgress.fail();
                 }
             }
         });
