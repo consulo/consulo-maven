@@ -32,7 +32,7 @@ public class ExecRemoteConnectionCreator implements MavenRemoteConnectionCreator
 
         String port;
         try {
-            port = DebuggerUtils.getInstance().findAvailableDebugAddress(DebuggerSettings.SOCKET_TRANSPORT).address();
+            port = DebuggerUtils.getInstance().findAvailableDebugAddress(true);
         }
         catch (ExecutionException e) {
             return null;
