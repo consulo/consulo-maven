@@ -1,13 +1,11 @@
 package consulo.maven.compiler;
 
 import consulo.annotation.component.ExtensionImpl;
-import consulo.application.ApplicationManager;
 import consulo.application.progress.ProgressIndicator;
 import consulo.application.progress.ProgressManager;
 import consulo.compiler.*;
 import consulo.compiler.scope.CompileScope;
 import consulo.compiler.util.ModuleCompilerUtil;
-import consulo.document.FileDocumentManager;
 import consulo.localize.LocalizeValue;
 import consulo.maven.icon.MavenIconGroup;
 import consulo.maven.module.extension.MavenModuleExtension;
@@ -15,16 +13,10 @@ import consulo.maven.rt.server.common.model.MavenExplicitProfiles;
 import consulo.maven.rt.server.common.model.MavenId;
 import consulo.module.Module;
 import consulo.module.extension.ModuleExtensionHelper;
-import consulo.process.ProcessHandler;
-import consulo.process.event.ProcessEvent;
-import consulo.process.event.ProcessListener;
 import consulo.project.Project;
 import consulo.ui.image.Image;
 import jakarta.annotation.Nonnull;
-import jakarta.annotation.Nullable;
 import jakarta.inject.Inject;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.idea.maven.execution.MavenRunConfigurationType;
 import org.jetbrains.idea.maven.execution.MavenRunner;
 import org.jetbrains.idea.maven.execution.MavenRunnerParameters;
 import org.jetbrains.idea.maven.execution.MavenRunnerSettings;
@@ -34,6 +26,7 @@ import org.jetbrains.idea.maven.project.MaveOverrideCompilerPolicy;
 import org.jetbrains.idea.maven.project.MavenGeneralSettings;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
+import org.jetbrains.idea.maven.tasks.TasksBundle;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -45,6 +38,8 @@ import java.util.List;
  */
 @ExtensionImpl
 public class MavenCompilerRunner implements CompilerRunner {
+    private static final YesResult YES = new YesResult(MavenIconGroup.mavenbuild());
+
     private final Project myProject;
     private final ModuleExtensionHelper myModuleExtensionHelper;
 
@@ -56,28 +51,27 @@ public class MavenCompilerRunner implements CompilerRunner {
 
     @Nonnull
     @Override
-    public Image getBuildIcon() {
-        return MavenIconGroup.mavenbuild();
-    }
-
-    @Nonnull
-    @Override
     public LocalizeValue getName() {
         return MavenLocalize.mavenName();
     }
 
+    @Nonnull
     @Override
-    public boolean isAvailable() {
+    public Result checkAvailable(@Nonnull DataContext dataContext) {
         if (!myModuleExtensionHelper.hasModuleExtension(MavenModuleExtension.class)) {
-            return false;
+            return NO;
         }
 
         MavenGeneralSettings generalSettings = MavenProjectsManager.getInstance(myProject).getGeneralSettings();
-        return generalSettings.getOverrideCompilePolicy() != MaveOverrideCompilerPolicy.DISABLED;
+        if (generalSettings.getOverrideCompilePolicy() == MaveOverrideCompilerPolicy.DISABLED) {
+            return NO;
+        }
+
+        return YES;
     }
 
     @Override
-    public boolean build(CompileDriver compileDriver, CompileContextEx context, boolean isRebuild, boolean forceCompile, boolean onlyCheckStatus) throws ExitException {
+    public boolean build(CompileDriver compileDriver, CompileContextEx context, BuildProgress<BuildProgressDescriptor> buildProgress, boolean isRebuild, boolean forceCompile, boolean onlyCheckStatus) throws ExitException {
         MavenGeneralSettings generalSettings = MavenProjectsManager.getInstance(myProject).getGeneralSettings();
         if (generalSettings.getOverrideCompilePolicy() == MaveOverrideCompilerPolicy.DISABLED) {
             // must be never entered due #isAvailable() check

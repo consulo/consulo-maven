@@ -56,6 +56,7 @@ import consulo.ui.ex.action.AnAction;
 import consulo.util.collection.ContainerUtil;
 import consulo.util.collection.Lists;
 import consulo.util.io.ClassPathUtil;
+import consulo.util.io.FileUtil;
 import consulo.util.lang.Comparing;
 import consulo.util.lang.ShutDownTracker;
 import consulo.util.lang.StringUtil;
@@ -382,19 +383,13 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
 
     private static void addJarFromClass(List<File> files, Class<?> clazz) {
         String jarPathForClass = ClassPathUtil.getJarPathForClass(clazz);
-        if (jarPathForClass == null) {
-            throw new RuntimeException("No path for class: " + clazz);
-        }
+
         files.add(new File(jarPathForClass));
     }
 
     private static void addMavenLibs(List<File> classpath, File mavenHome) {
         addDir(classpath, new File(mavenHome, "lib"), f -> !f.getName().contains("maven-slf4j-provider"));
-        File bootFolder = new File(mavenHome, "boot");
-        File[] classworldsJars = bootFolder.listFiles((dir, name) -> StringUtil.contains(name, "classworlds"));
-        if (classworldsJars != null) {
-            Collections.addAll(classpath, classworldsJars);
-        }
+        addDir(classpath, new File(mavenHome, "boot"), file -> true);
     }
 
     private static void addDir(List<File> classpath, File dir, Predicate<File> filter) {
