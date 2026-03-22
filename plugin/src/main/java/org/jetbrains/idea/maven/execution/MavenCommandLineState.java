@@ -38,7 +38,9 @@ import org.jetbrains.idea.maven.buildtool.BuildToolConsoleProcessAdapter;
 import org.jetbrains.idea.maven.buildtool.MavenBuildEventProcessor;
 import org.jetbrains.idea.maven.execution.run.MavenBuildHandlerFilterSpyWrapper;
 import org.jetbrains.idea.maven.externalSystemIntegration.output.MavenParsingContext;
+import consulo.util.lang.StringUtil;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
+import org.jetbrains.idea.maven.server.MavenServerManager;
 import org.jetbrains.idea.maven.utils.MavenLog;
 import org.jetbrains.idea.maven.utils.MavenUtil;
 
@@ -220,7 +222,8 @@ public class MavenCommandLineState extends JavaCommandLineState implements Remot
     }
 
     public boolean useMaven4() {
-        return false;
+        String version = MavenServerManager.getInstance().getCurrentMavenVersion();
+        return version != null && StringUtil.compareVersionNumbers(version, "4.0") >= 0;
     }
 
     /**

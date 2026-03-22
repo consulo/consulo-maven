@@ -33,6 +33,7 @@ open module org.jetbrains.idea.maven
 	requires org.jetbrains.idea.maven.server.m3.common;
 	requires org.jetbrains.idea.maven.server.m30;
 	requires org.jetbrains.idea.maven.server.m32;
+	requires org.jetbrains.idea.maven.server.m40;
 
 	// TODO remove in future
 	requires consulo.ide.impl;

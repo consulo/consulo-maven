@@ -137,6 +137,11 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>org.jetbrains.idea.maven-maven4.server.impl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>org.jetbrains.idea.maven-artifact.resolver.common</artifactId>
             <version>${project.version}</version>
         </dependency>

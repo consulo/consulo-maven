@@ -41,6 +41,7 @@ import consulo.java.language.bundle.JavaSdkTypeUtil;
 import consulo.maven.rt.m3.common.MavenServer3CommonMarkerRt;
 import consulo.maven.rt.m3.server.MavenServer30MarkerRt;
 import consulo.maven.rt.m32.server.MavenServer32MarkerRt;
+import consulo.maven.rt.m40.server.MavenServer40MarkerRt;
 import consulo.maven.rt.server.common.MavenServerApiMarkerRt;
 import consulo.maven.rt.server.common.model.MavenExplicitProfiles;
 import consulo.maven.rt.server.common.model.MavenModel;
@@ -90,6 +91,7 @@ import java.util.function.Predicate;
 public class MavenServerManager extends RemoteObjectWrapper<MavenServer> implements PersistentStateComponent<MavenServerManager.State> {
     private static final String MAIN_CLASS_V3 = "consulo.maven.rt.m3.server.RemoteMavenServer";
     private static final String MAIN_CLASS_V32 = "consulo.maven.rt.m32.server.RemoteMavenServer";
+    private static final String MAIN_CLASS_V40 = "consulo.maven.rt.m40.server.RemoteMavenServer";
 
     private static final String DEFAULT_VM_OPTIONS = "-Xmx512m";
 
@@ -366,7 +368,12 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
 
         classpath.add(new File(pluginPath, "maven-event-listener.jar"));
 
-        if (currentMavenVersion == null || StringUtil.compareVersionNumbers(currentMavenVersion, "3.1") < 0) {
+        if (currentMavenVersion != null && StringUtil.compareVersionNumbers(currentMavenVersion, "4.0") >= 0) {
+            mainClassRef.set(MAIN_CLASS_V40);
+
+            addJarFromClass(classpath, MavenServer40MarkerRt.class);
+        }
+        else if (currentMavenVersion == null || StringUtil.compareVersionNumbers(currentMavenVersion, "3.1") < 0) {
             mainClassRef.set(MAIN_CLASS_V3);
 
             addJarFromClass(classpath, MavenServer30MarkerRt.class);
