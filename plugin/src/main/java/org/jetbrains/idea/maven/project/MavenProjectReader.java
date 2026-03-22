@@ -36,13 +36,14 @@ import jakarta.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static consulo.util.lang.StringUtil.isEmptyOrSpaces;
 
 public class MavenProjectReader {
     private static final String UNKNOWN = MavenId.UNKNOWN_VALUE;
 
-    private final Map<VirtualFile, RawModelReadResult> myRawModelsCache = new HashMap<>();
+    private final Map<VirtualFile, RawModelReadResult> myRawModelsCache = new ConcurrentHashMap<>();
     private SettingsProfilesCache mySettingsProfilesCache;
 
     public MavenProjectReaderResult readProject(
@@ -80,11 +81,7 @@ public class MavenProjectReader {
         Set<VirtualFile> recursionGuard,
         MavenProjectReaderProjectLocator locator
     ) {
-        RawModelReadResult cachedModel = myRawModelsCache.get(file);
-        if (cachedModel == null) {
-            cachedModel = doReadProjectModel(file, false);
-            myRawModelsCache.put(file, cachedModel);
-        }
+        RawModelReadResult cachedModel = myRawModelsCache.computeIfAbsent(file, f -> doReadProjectModel(f, false));
 
         // todo modifying cached model and problems here??????
         MavenModel model = cachedModel.model;

@@ -23,7 +23,13 @@ import org.jetbrains.idea.maven.buildtool.MavenSyncConsole;
 import org.jetbrains.idea.maven.utils.MavenProcessCanceledException;
 import org.jetbrains.idea.maven.utils.MavenProgressIndicator;
 
-public class MavenProjectsProcessorResolvingTask extends MavenProjectsProcessorBasicTask {
+import java.util.Collection;
+
+public class MavenProjectsProcessorResolvingTask implements MavenProjectsProcessorTask {
+    @Nonnull
+    private final Collection<MavenProject> myProjects;
+    @Nonnull
+    private final MavenProjectsTree myTree;
     @Nonnull
     private final MavenGeneralSettings myGeneralSettings;
     @Nullable
@@ -32,13 +38,14 @@ public class MavenProjectsProcessorResolvingTask extends MavenProjectsProcessorB
     private final ResolveContext myContext;
 
     public MavenProjectsProcessorResolvingTask(
-        @Nonnull MavenProject project,
+        @Nonnull Collection<MavenProject> projects,
         @Nonnull MavenProjectsTree tree,
         @Nonnull MavenGeneralSettings generalSettings,
         @Nullable Runnable onCompletion,
         @Nonnull ResolveContext context
     ) {
-        super(project, tree);
+        myProjects = projects;
+        myTree = tree;
         myGeneralSettings = generalSettings;
         myOnCompletion = onCompletion;
         myContext = context;
@@ -51,7 +58,7 @@ public class MavenProjectsProcessorResolvingTask extends MavenProjectsProcessorB
         MavenSyncConsole console,
         MavenProgressIndicator indicator
     ) throws MavenProcessCanceledException {
-        myTree.resolve(project, myMavenProject, myGeneralSettings, embeddersManager, console, myContext, indicator);
+        myTree.resolveAll(project, myProjects, myGeneralSettings, embeddersManager, console, myContext, indicator);
         if (myOnCompletion != null) {
             myOnCompletion.run();
         }

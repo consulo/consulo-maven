@@ -833,27 +833,23 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 
             final ResolveContext context = new ResolveContext();
 
-            Iterator<MavenProject> it = toResolve.iterator();
-            while (it.hasNext()) {
-                MavenProject each = it.next();
-                Runnable onCompletion = it.hasNext() ? null : () -> {
-                    if (hasScheduledProjects()) {
-                        scheduleImport().notify(result);
-                    }
-                    else {
-                        getSyncConsole().finishImport();
-                        result.setDone(Collections.<Module>emptyList());
-                    }
-                };
+            Runnable onCompletion = () -> {
+                if (hasScheduledProjects()) {
+                    scheduleImport().notify(result);
+                }
+                else {
+                    getSyncConsole().finishImport();
+                    result.setDone(Collections.<Module>emptyList());
+                }
+            };
 
-                myResolvingProcessor.scheduleTask(new MavenProjectsProcessorResolvingTask(
-                    each,
-                    myProjectsTree,
-                    getGeneralSettings(),
-                    onCompletion,
-                    context
-                ));
-            }
+            myResolvingProcessor.scheduleTask(new MavenProjectsProcessorResolvingTask(
+                toResolve,
+                myProjectsTree,
+                getGeneralSettings(),
+                onCompletion,
+                context
+            ));
         });
         return result;
     }
