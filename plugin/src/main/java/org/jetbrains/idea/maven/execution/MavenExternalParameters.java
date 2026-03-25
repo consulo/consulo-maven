@@ -31,6 +31,7 @@ import consulo.ide.setting.ShowSettingsUtil;
 import consulo.java.execution.configurations.OwnJavaParameters;
 import consulo.localize.LocalizeValue;
 import consulo.logging.Logger;
+import consulo.maven.rt.server.common.model.MavenConstants;
 import consulo.maven.rt.server.common.server.MavenServerUtil;
 import consulo.maven.util.MavenJdkUtil;
 import consulo.module.Module;
@@ -61,6 +62,8 @@ import org.jetbrains.idea.maven.utils.MavenUtil;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.*;
 
 /**
@@ -135,11 +138,23 @@ public class MavenExternalParameters {
 
         params.setJdk(jdk);
 
+        File mavenBasedir = MavenServerUtil.findMavenBasedir(parameters.getWorkingDirFile());
+
         if (StringUtil.compareVersionNumbers(mavenVersion, "3.3") >= 0) {
-            params.getVMParametersList().addProperty(
-                "maven.multiModuleProjectDirectory",
-                MavenServerUtil.findMavenBasedir(parameters.getWorkingDirFile()).getPath()
-            );
+            params.getVMParametersList().addProperty("maven.multiModuleProjectDirectory", mavenBasedir.getPath());
+        }
+
+        if (mavenBasedir.exists()) {
+            File jvmConfig = new File(mavenBasedir, MavenConstants.JVM_CONFIG_RELATIVE_PATH);
+            if (jvmConfig.exists()) {
+                try {
+                    List<String> jvmOptions = Files.readAllLines(jvmConfig.toPath(), StandardCharsets.UTF_8);
+                    params.getVMParametersList().addAll(jvmOptions);
+                }
+                catch (IOException e) {
+                    LOG.error(e);
+                }
+            }
         }
 
         addVMParameters(params.getVMParametersList(), mavenHome, runnerSettings);

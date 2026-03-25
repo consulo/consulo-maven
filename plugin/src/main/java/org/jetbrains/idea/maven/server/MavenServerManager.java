@@ -321,7 +321,10 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
 
                 GeneralCommandLine commandLine = OwnJdkUtil.setupJVMCommandLine(params);
 
-                return ProcessHandlerBuilder.create(commandLine).shouldDestroyProcessRecursively(false).silentReader().build();
+                return ProcessHandlerBuilder.create(commandLine)
+                    .shouldDestroyProcessRecursively(false)
+                    .silentReader()
+                    .build();
             }
         };
     }
