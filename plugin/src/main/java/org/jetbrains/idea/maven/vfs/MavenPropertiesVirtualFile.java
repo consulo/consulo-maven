@@ -16,10 +16,11 @@
 package org.jetbrains.idea.maven.vfs;
 
 import consulo.util.lang.StringUtil;
+import consulo.virtualFileSystem.BaseVirtualFile;
 import consulo.virtualFileSystem.VirtualFile;
 import consulo.virtualFileSystem.VirtualFileSystem;
 import consulo.virtualFileSystem.util.VirtualFileUtil;
-import jakarta.annotation.Nonnull;
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,7 +29,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
 
-public class MavenPropertiesVirtualFile extends VirtualFile {
+public class MavenPropertiesVirtualFile extends BaseVirtualFile {
     private final String myPath;
     private final VirtualFileSystem myFS;
     private final byte[] myContent;
@@ -52,41 +53,47 @@ public class MavenPropertiesVirtualFile extends VirtualFile {
         return builder.toString().getBytes();
     }
 
-    @Nonnull
+    @Override
     public String getName() {
         return myPath;
     }
 
-    @Nonnull
+    @Override
     public VirtualFileSystem getFileSystem() {
         return myFS;
     }
 
+    @Override
     public String getPath() {
         return myPath;
     }
 
+    @Override
     public boolean isWritable() {
         return false;
     }
 
+    @Override
     public boolean isDirectory() {
         return false;
     }
 
+    @Override
     public boolean isValid() {
         return true;
     }
 
-    public VirtualFile getParent() {
+    @Override
+    public @Nullable VirtualFile getParent() {
         return null;
     }
 
-    public VirtualFile[] getChildren() {
+    @Override
+    public VirtualFile @Nullable [] getChildren() {
         return null;
     }
 
-    @Nonnull
+    @Override
     public byte[] contentsToByteArray() throws IOException {
         if (myContent == null) {
             throw new IOException();
@@ -94,6 +101,7 @@ public class MavenPropertiesVirtualFile extends VirtualFile {
         return myContent;
     }
 
+    @Override
     public long getTimeStamp() {
         return -1;
     }
@@ -103,18 +111,21 @@ public class MavenPropertiesVirtualFile extends VirtualFile {
         return myContent.hashCode();
     }
 
+    @Override
     public long getLength() {
         return myContent.length;
     }
 
+    @Override
     public void refresh(boolean asynchronous, boolean recursive, Runnable postRunnable) {
     }
 
+    @Override
     public InputStream getInputStream() throws IOException {
         return VirtualFileUtil.byteStreamSkippingBOM(myContent, this);
     }
 
-    @Nonnull
+    @Override
     public OutputStream getOutputStream(Object requestor, long newModificationStamp, long newTimeStamp) throws IOException {
         throw new UnsupportedOperationException();
     }
