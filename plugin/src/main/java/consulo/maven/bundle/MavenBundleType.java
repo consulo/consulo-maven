@@ -48,6 +48,12 @@ public class MavenBundleType extends SdkType {
 
     @Nonnull
     @Override
+    public Set<String> getEnvironmentVariables(@Nonnull Platform platform) {
+        return Set.of(MavenUtil.ENV_M2_HOME);
+    }
+
+    @Nonnull
+    @Override
     public Collection<String> suggestHomePaths() {
         Platform platform = Platform.current();
 
