@@ -14,17 +14,17 @@
  *  limitations under the License.
  * =========================================================================
  */
-
 package org.jetbrains.idea.maven.execution;
 
 import com.intellij.java.language.projectRoots.JavaSdkType;
-import consulo.application.AllIcons;
 import consulo.content.bundle.SdkModel;
 import consulo.disposer.Disposable;
 import consulo.execution.ui.awt.EnvironmentVariablesComponent;
 import consulo.execution.ui.awt.RawCommandLineEditor;
 import consulo.ide.setting.ShowSettingsUtil;
+import consulo.localize.LocalizeValue;
 import consulo.module.ui.awt.SdkComboBox;
+import consulo.platform.base.icon.PlatformIconGroup;
 import consulo.project.Project;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.awt.IdeBorderFactory;
@@ -57,7 +57,7 @@ public class MavenRunnerPanel {
     }
 
     @RequiredUIAccess
-    public JComponent createComponent(@Nonnull Disposable uiDiposable) {
+    public JComponent createComponent(@Nonnull Disposable uiDisposable) {
         JPanel panel = new JPanel(new GridBagLayout());
 
         GridBagConstraints c = new GridBagConstraints();
@@ -100,8 +100,8 @@ public class MavenRunnerPanel {
             sdksModel,
             it -> it instanceof JavaSdkType,
             null,
-            "Auto Select",
-            AllIcons.Actions.FindPlain
+            LocalizeValue.localizeTODO("Auto Select"),
+            PlatformIconGroup.actionsFind()
         );
 
         jdkLabel.setLabelFor(myJdkCombo);
@@ -135,7 +135,7 @@ public class MavenRunnerPanel {
 
         collectProperties();
         propertiesPanel.add(myPropertiesPanel = new MavenPropertiesPanel(myProperties), BorderLayout.CENTER);
-        myPropertiesPanel.getEmptyText().setText("No properties defined");
+        myPropertiesPanel.getEmptyText().setText(LocalizeValue.localizeTODO("No properties defined"));
 
         c.gridx = 0;
         c.gridy++;

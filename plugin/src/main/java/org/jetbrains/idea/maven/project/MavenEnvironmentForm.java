@@ -14,13 +14,13 @@
  *  limitations under the License.
  * =========================================================================
  */
-
 package org.jetbrains.idea.maven.project;
 
 import consulo.content.bundle.Sdk;
 import consulo.content.bundle.SdkTable;
 import consulo.disposer.Disposable;
 import consulo.fileChooser.FileChooserDescriptorFactory;
+import consulo.localize.LocalizeValue;
 import consulo.maven.bundle.MavenBundleType;
 import consulo.module.ui.awt.SdkComboBox;
 import consulo.platform.base.icon.PlatformIconGroup;
@@ -67,7 +67,7 @@ public class MavenEnvironmentForm implements PanelWithAnchor {
             SdkTable.getInstance(),
             Predicates.equalTo(MavenBundleType.getInstance()),
             null,
-            "Auto Select",
+            LocalizeValue.localizeTODO("Auto Select"),
             PlatformIconGroup.actionsFind()
         );
 
@@ -180,7 +180,7 @@ public class MavenEnvironmentForm implements PanelWithAnchor {
 
     private static interface PathProvider {
         default String getPath() {
-            final File file = getFile();
+            File file = getFile();
             return file == null ? "" : file.getPath();
         }
 
@@ -197,8 +197,8 @@ public class MavenEnvironmentForm implements PanelWithAnchor {
         private String overrideText;
 
         public PathOverrider(
-            final LabeledComponent<TextFieldWithBrowseButton> component,
-            final JCheckBox checkBox,
+            LabeledComponent<TextFieldWithBrowseButton> component,
+            JCheckBox checkBox,
             DocumentListener docListener,
             PathProvider pathProvider
         ) {
@@ -210,7 +210,7 @@ public class MavenEnvironmentForm implements PanelWithAnchor {
         }
 
         private void update() {
-            final boolean override = checkBox.isSelected();
+            boolean override = checkBox.isSelected();
             if (Comparing.equal(isOverridden, override)) {
                 return;
             }
