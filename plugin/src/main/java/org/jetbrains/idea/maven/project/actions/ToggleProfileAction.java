@@ -48,7 +48,7 @@ public class ToggleProfileAction extends MavenAction {
             case EXPLICIT -> MavenProjectLocalize.mavenProfileActivate();
             default -> MavenProjectLocalize.mavenProfileDefault();
         };
-        e.getPresentation().setTextValue(text);
+        e.getPresentation().setText(text);
     }
 
     @Override

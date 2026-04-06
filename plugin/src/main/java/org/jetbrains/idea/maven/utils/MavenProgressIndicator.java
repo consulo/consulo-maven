@@ -45,8 +45,8 @@ public class MavenProgressIndicator {
     }
 
     public synchronized void setIndicator(ProgressIndicator i) {
-        i.setTextValue(myIndicator.getTextValue());
-        i.setText2Value(myIndicator.getText2Value());
+        i.setText(myIndicator.getTextValue());
+        i.setText2(myIndicator.getText2Value());
         if (!i.isIndeterminate()) {
             i.setFraction(myIndicator.getFraction());
         }
@@ -69,12 +69,9 @@ public class MavenProgressIndicator {
     }
 
     public synchronized void setText(LocalizeValue text) {
-        myIndicator.setTextValue(text);
-        if (myTextConsumer != null) {
-            String value = text.getValue();
-            if (value != null && !value.isEmpty()) {
-                myTextConsumer.accept(value);
-            }
+        myIndicator.setText(text);
+        if (myTextConsumer != null && text.isNotEmpty()) {
+            myTextConsumer.accept(text.get());
         }
     }
 

@@ -15,6 +15,7 @@
  */
 package org.jetbrains.idea.maven.wizards;
 
+import consulo.localize.LocalizeValue;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.awt.DialogWrapper;
 import consulo.ui.ex.awt.event.DocumentAdapter;
@@ -36,7 +37,7 @@ public class MavenAddArchetypeDialog extends DialogWrapper {
 
     public MavenAddArchetypeDialog(Component parent) {
         super(parent, false);
-        setTitle("Add Archetype");
+        setTitle(LocalizeValue.localizeTODO("Add Archetype"));
 
         init();
 

@@ -78,10 +78,10 @@ public class RepositoryAttachDialog extends DialogWrapper {
         myProject = project;
         myManaged = managed;
         myProgressIcon.suspend();
-        myCaptionLabel.setText(
-            XmlStringUtil.wrapInHtml(StringUtil.escapeXml("enter keyword, pattern or class name to search by or Maven coordinates," +
-                "i.e. 'springframework', 'Logger' or 'org.hibernate:hibernate-core:3.5.0.GA':")
-            ));
+        myCaptionLabel.setText(XmlStringUtil.wrapInHtml(XmlStringUtil.escapeText(
+            "enter keyword, pattern or class name to search by or Maven coordinates," +
+                "i.e. 'springframework', 'Logger' or 'org.hibernate:hibernate-core:3.5.0.GA':"
+        )));
         myInfoLabel.setPreferredSize(new Dimension(
             myInfoLabel.getFontMetrics(myInfoLabel.getFont()).stringWidth("Showing: 1000"),
             myInfoLabel.getPreferredSize().height
@@ -92,7 +92,7 @@ public class RepositoryAttachDialog extends DialogWrapper {
         myCombobox = myComboComponent.getComboBox();
         myCombobox.setModel(new CollectionComboBoxModel(myShownItems, null));
         myCombobox.setEditable(true);
-        final JTextField textField = (JTextField)myCombobox.getEditor().getEditorComponent();
+        final JTextField textField = (JTextField) myCombobox.getEditor().getEditorComponent();
         textField.setColumns(20);
         if (initialFilter != null) {
             textField.setText(initialFilter);
@@ -114,9 +114,9 @@ public class RepositoryAttachDialog extends DialogWrapper {
                 performSearch();
             }
             else {
-                final String item = (String)myCombobox.getSelectedItem();
+                final String item = (String) myCombobox.getSelectedItem();
                 if (StringUtil.isNotEmpty(item)) {
-                    ((JTextField)myCombobox.getEditor().getEditorComponent()).setText(item);
+                    ((JTextField) myCombobox.getEditor().getEditorComponent()).setText(item);
                 }
             }
         });
@@ -170,7 +170,7 @@ public class RepositoryAttachDialog extends DialogWrapper {
 
     private void updateComboboxSelection(boolean force) {
         final String prevFilter = myFilterString;
-        final JTextComponent field = (JTextComponent)myCombobox.getEditor().getEditorComponent();
+        final JTextComponent field = (JTextComponent) myCombobox.getEditor().getEditorComponent();
         final int caret = field.getCaretPosition();
         myFilterString = field.getText();
 
@@ -182,7 +182,7 @@ public class RepositoryAttachDialog extends DialogWrapper {
 
         myInUpdate = true;
         final boolean itemSelected = myCoordinates.containsKey(myFilterString) &&
-            Comparing.strEqual((String)myCombobox.getSelectedItem(), myFilterString, false);
+            Comparing.strEqual((String) myCombobox.getSelectedItem(), myFilterString, false);
         final boolean filtered;
         if (itemSelected) {
             myShownItems.addAll(myCoordinates.keySet());
@@ -206,7 +206,7 @@ public class RepositoryAttachDialog extends DialogWrapper {
             myCombobox.setSelectedItem(null);
         }
         Collections.sort(myShownItems);
-        ((CollectionComboBoxModel)myCombobox.getModel()).update();
+        ((CollectionComboBoxModel) myCombobox.getModel()).update();
         myInUpdate = false;
         field.setText(myFilterString);
         field.setCaretPosition(caret);
@@ -325,7 +325,7 @@ public class RepositoryAttachDialog extends DialogWrapper {
     }
 
     public String getCoordinateText() {
-        final JTextField field = (JTextField)myCombobox.getEditor().getEditorComponent();
+        final JTextField field = (JTextField) myCombobox.getEditor().getEditorComponent();
         return field.getText();
     }
 

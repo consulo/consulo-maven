@@ -20,9 +20,7 @@ public class MavenRebuildAction extends AnAction {
     @Override
     @RequiredUIAccess
     public void update(@Nonnull AnActionEvent event) {
-        event.getPresentation().setTextValue(
-            ExecutionLocalize.rerunConfigurationActionName(myEnvironment.getRunProfile().getName())
-        );
+        event.getPresentation().setText(ExecutionLocalize.rerunConfigurationActionName(myEnvironment.getRunProfile().getName()));
         event.getPresentation().setIcon(PlatformIconGroup.actionsRestart());
     }
 
