@@ -16,6 +16,7 @@
 package org.jetbrains.idea.maven.indices;
 
 import consulo.application.Application;
+import consulo.localize.LocalizeValue;
 import consulo.maven.rt.server.common.model.MavenId;
 import consulo.project.Project;
 import consulo.ui.annotation.RequiredUIAccess;
@@ -106,10 +107,10 @@ public class MavenArtifactSearchDialog extends DialogWrapper {
 
         initComponents(project, initialText, classMode);
 
-        setTitle("Maven Artifact Search");
+        setTitle(LocalizeValue.localizeTODO("Maven Artifact Search"));
         updateOkButtonState();
         init();
-        setOKButtonText("Add");
+        setOKButtonText(LocalizeValue.localizeTODO("Add"));
 
         myArtifactsPanel.scheduleSearch();
         myClassesPanel.scheduleSearch();

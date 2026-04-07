@@ -36,18 +36,18 @@ public class ToggleIgnoredProjectsAction extends MavenAction {
             return;
         }
 
-        final DataContext context = e.getDataContext();
+        DataContext context = e.getDataContext();
         MavenProjectsManager projectsManager = MavenActionUtil.getProjectsManager(context);
         List<MavenProject> projects = MavenActionUtil.getMavenProjects(context);
 
         if (isIgnoredInSettings(projectsManager, projects)) {
-            e.getPresentation().setTextValue(MavenProjectLocalize.mavenIgnoreEdit());
+            e.getPresentation().setText(MavenProjectLocalize.mavenIgnoreEdit());
         }
         else if (isIgnored(projectsManager, projects)) {
-            e.getPresentation().setTextValue(MavenProjectLocalize.mavenUnignore());
+            e.getPresentation().setText(MavenProjectLocalize.mavenUnignore());
         }
         else {
-            e.getPresentation().setTextValue(MavenProjectLocalize.mavenIgnore());
+            e.getPresentation().setText(MavenProjectLocalize.mavenIgnore());
         }
     }
 

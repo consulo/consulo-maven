@@ -15,6 +15,7 @@
  */
 package org.jetbrains.idea.maven.indices;
 
+import consulo.localize.LocalizeValue;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.awt.DialogWrapper;
 import consulo.virtualFileSystem.VirtualFileManager;
@@ -31,7 +32,7 @@ public class EditMavenIndexDialog extends DialogWrapper {
 
     public EditMavenIndexDialog(String url) {
         super(false);
-        setTitle("Edit Maven Repository");
+        setTitle(LocalizeValue.localizeTODO("Edit Maven Repository"));
         myUrlField.setText(url.length() == 0 ? "http://" : url);
         init();
     }

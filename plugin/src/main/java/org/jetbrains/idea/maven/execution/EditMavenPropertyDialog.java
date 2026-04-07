@@ -15,6 +15,7 @@
  */
 package org.jetbrains.idea.maven.execution;
 
+import consulo.localize.LocalizeValue;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.awt.DialogWrapper;
 import consulo.util.collection.ArrayUtil;
@@ -37,7 +38,7 @@ public class EditMavenPropertyDialog extends DialogWrapper {
 
     public EditMavenPropertyDialog(@Nullable Pair<String, String> value, Map<String, String> availableProperties) {
         super(false);
-        setTitle(value == null ? "Add Maven Property" : "Edit Maven Property");
+        setTitle(LocalizeValue.localizeTODO(value == null ? "Add Maven Property" : "Edit Maven Property"));
 
         myAvailableProperties = availableProperties;
 
