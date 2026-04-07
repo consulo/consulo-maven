@@ -29,7 +29,7 @@ import consulo.language.psi.PsiUtilCore;
 import consulo.project.Project;
 import consulo.ui.ex.awt.DialogWrapper;
 import consulo.util.lang.Pair;
-import consulo.xml.psi.xml.XmlElement;
+import consulo.xml.language.psi.XmlElement;
 import consulo.xml.util.xml.DomUtil;
 import jakarta.annotation.Nullable;
 import org.jetbrains.idea.maven.dom.DependencyConflictId;

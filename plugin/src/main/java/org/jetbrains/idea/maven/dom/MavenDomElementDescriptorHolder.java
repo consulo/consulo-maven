@@ -16,7 +16,6 @@
 
 package org.jetbrains.idea.maven.dom;
 
-import com.intellij.xml.XmlElementDescriptor;
 import com.intellij.xml.impl.schema.XmlNSDescriptorImpl;
 import consulo.annotation.access.RequiredReadAction;
 import consulo.annotation.component.ComponentScope;
@@ -33,9 +32,10 @@ import consulo.logging.Logger;
 import consulo.project.Project;
 import consulo.virtualFileSystem.VirtualFile;
 import consulo.virtualFileSystem.util.VirtualFileUtil;
+import consulo.xml.descriptor.XmlElementDescriptor;
 import consulo.xml.javaee.ExternalResourceManager;
-import consulo.xml.psi.xml.XmlFile;
-import consulo.xml.psi.xml.XmlTag;
+import consulo.xml.language.psi.XmlFile;
+import consulo.xml.language.psi.XmlTag;
 import jakarta.annotation.Nonnull;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;

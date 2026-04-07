@@ -24,7 +24,7 @@ import consulo.language.psi.PsiReferenceProvider;
 import consulo.language.util.ProcessingContext;
 import consulo.util.lang.StringUtil;
 import consulo.virtualFileSystem.VirtualFile;
-import consulo.xml.psi.xml.XmlTag;
+import consulo.xml.language.psi.XmlTag;
 import consulo.xml.util.xml.DomElement;
 import consulo.xml.util.xml.DomManager;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;

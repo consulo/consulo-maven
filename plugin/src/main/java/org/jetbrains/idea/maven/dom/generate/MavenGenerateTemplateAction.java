@@ -3,7 +3,7 @@ package org.jetbrains.idea.maven.dom.generate;
 import consulo.codeEditor.Editor;
 import consulo.language.psi.PsiFile;
 import consulo.project.Project;
-import consulo.xml.psi.xml.XmlFile;
+import consulo.xml.language.psi.XmlFile;
 import consulo.xml.util.xml.DomElement;
 import consulo.xml.util.xml.ElementPresentationManager;
 import consulo.xml.util.xml.ui.actions.generate.GenerateDomElementAction;

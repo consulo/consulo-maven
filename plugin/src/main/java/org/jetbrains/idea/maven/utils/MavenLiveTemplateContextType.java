@@ -22,7 +22,7 @@ import consulo.language.editor.template.context.TemplateActionContext;
 import consulo.language.psi.PsiElement;
 import consulo.language.psi.PsiFile;
 import consulo.language.psi.util.PsiTreeUtil;
-import consulo.xml.psi.xml.XmlText;
+import consulo.xml.language.psi.XmlText;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
 import org.jetbrains.idea.maven.localize.MavenLocalize;
 

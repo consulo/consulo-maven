@@ -15,10 +15,10 @@
  */
 package org.jetbrains.idea.maven.dom;
 
-import com.intellij.xml.XmlElementDescriptor;
 import consulo.annotation.component.ExtensionImpl;
+import consulo.xml.descriptor.XmlElementDescriptor;
+import consulo.xml.language.psi.XmlTag;
 import consulo.xml.psi.impl.source.xml.XmlElementDescriptorProvider;
-import consulo.xml.psi.xml.XmlTag;
 
 @ExtensionImpl
 public class MavenDomElementDescriptorProvider implements XmlElementDescriptorProvider {

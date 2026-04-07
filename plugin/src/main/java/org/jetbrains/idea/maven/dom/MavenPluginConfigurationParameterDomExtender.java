@@ -17,7 +17,7 @@ package org.jetbrains.idea.maven.dom;
 
 import consulo.annotation.component.ExtensionImpl;
 import consulo.language.editor.completion.CompletionUtilCore;
-import consulo.xml.psi.xml.XmlAttribute;
+import consulo.xml.language.psi.XmlAttribute;
 import consulo.xml.util.xml.XmlName;
 import consulo.xml.util.xml.reflect.DomExtender;
 import consulo.xml.util.xml.reflect.DomExtensionsRegistrar;

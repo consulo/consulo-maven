@@ -15,7 +15,7 @@
  */
 package org.jetbrains.idea.maven.dom;
 
-import consulo.xml.psi.xml.XmlFile;
+import consulo.xml.language.psi.XmlFile;
 import consulo.xml.util.xml.DomFileDescription;
 import consulo.xml.util.xml.highlighting.DomElementsAnnotator;
 import org.jetbrains.idea.maven.dom.annotator.MavenDomAnnotator;

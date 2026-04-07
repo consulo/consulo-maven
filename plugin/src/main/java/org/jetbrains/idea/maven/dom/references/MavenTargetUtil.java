@@ -23,7 +23,7 @@ import consulo.language.psi.PsiElement;
 import consulo.language.psi.PsiFile;
 import consulo.language.psi.util.PsiTreeUtil;
 import consulo.ui.annotation.RequiredUIAccess;
-import consulo.xml.psi.xml.XmlTag;
+import consulo.xml.language.psi.XmlTag;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
 
 import java.util.Set;

@@ -25,7 +25,7 @@ import consulo.language.psi.PsiElement;
 import consulo.language.psi.PsiFile;
 import consulo.language.psi.PsiManager;
 import consulo.util.lang.StringUtil;
-import consulo.xml.lang.xml.XMLLanguage;
+import consulo.xml.language.XMLLanguage;
 import jakarta.annotation.Nonnull;
 
 import jakarta.annotation.Nullable;

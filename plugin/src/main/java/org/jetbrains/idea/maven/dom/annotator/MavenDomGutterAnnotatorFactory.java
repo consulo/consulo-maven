@@ -4,7 +4,7 @@ import consulo.annotation.component.ExtensionImpl;
 import consulo.language.Language;
 import consulo.language.editor.annotation.Annotator;
 import consulo.language.editor.annotation.AnnotatorFactory;
-import consulo.xml.lang.xml.XMLLanguage;
+import consulo.xml.language.XMLLanguage;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 

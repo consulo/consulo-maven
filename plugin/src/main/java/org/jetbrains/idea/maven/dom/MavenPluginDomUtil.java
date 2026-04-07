@@ -24,7 +24,7 @@ import consulo.util.lang.StringUtil;
 import consulo.virtualFileSystem.LocalFileSystem;
 import consulo.virtualFileSystem.VirtualFile;
 import consulo.virtualFileSystem.archive.ArchiveVfsUtil;
-import consulo.xml.psi.xml.XmlElement;
+import consulo.xml.language.psi.XmlElement;
 import consulo.xml.util.xml.DomElement;
 import jakarta.annotation.Nullable;
 import org.jetbrains.idea.maven.dom.model.MavenDomConfiguration;

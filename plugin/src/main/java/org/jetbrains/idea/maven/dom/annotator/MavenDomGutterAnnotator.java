@@ -29,7 +29,7 @@ import consulo.ui.image.Image;
 import consulo.util.collection.ContainerUtil;
 import consulo.util.lang.StringUtil;
 import consulo.xml.codeInsight.navigation.DomNavigationGutterIconBuilder;
-import consulo.xml.psi.xml.XmlTag;
+import consulo.xml.language.psi.XmlTag;
 import consulo.xml.util.xml.DomElement;
 import consulo.xml.util.xml.DomManager;
 import org.jetbrains.idea.maven.dom.MavenDomProjectProcessorUtils;

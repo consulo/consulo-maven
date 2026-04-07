@@ -4,7 +4,7 @@ import consulo.annotation.access.RequiredReadAction;
 import consulo.navigation.Navigatable;
 import consulo.navigation.NavigatableAdapter;
 import consulo.util.lang.Comparing;
-import consulo.xml.psi.xml.XmlElement;
+import consulo.xml.language.psi.XmlElement;
 import jakarta.annotation.Nullable;
 import org.jetbrains.idea.maven.MavenIcons;
 import org.jetbrains.idea.maven.dom.MavenPluginDomUtil;

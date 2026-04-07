@@ -22,10 +22,10 @@ import consulo.language.pattern.PlatformPatterns;
 import consulo.language.psi.*;
 import consulo.language.util.ProcessingContext;
 import consulo.maven.plugin.MavenPluginDescriptorParam;
-import consulo.xml.lang.xml.XMLLanguage;
+import consulo.xml.language.XMLLanguage;
+import consulo.xml.language.psi.XmlText;
+import consulo.xml.language.psi.XmlTokenType;
 import consulo.xml.patterns.XmlPatterns;
-import consulo.xml.psi.xml.XmlText;
-import consulo.xml.psi.xml.XmlTokenType;
 import org.jetbrains.idea.maven.dom.model.MavenDomConfiguration;
 
 import jakarta.annotation.Nonnull;

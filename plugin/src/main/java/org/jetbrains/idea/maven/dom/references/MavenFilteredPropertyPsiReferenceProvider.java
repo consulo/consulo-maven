@@ -23,7 +23,7 @@ import consulo.language.psi.PsiReferenceProvider;
 import consulo.language.util.ProcessingContext;
 import consulo.util.dataholder.Key;
 import consulo.util.lang.StringUtil;
-import consulo.xml.psi.xml.XmlAttribute;
+import consulo.xml.language.psi.XmlAttribute;
 import org.jdom.Element;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
 import org.jetbrains.idea.maven.dom.MavenPropertyResolver;

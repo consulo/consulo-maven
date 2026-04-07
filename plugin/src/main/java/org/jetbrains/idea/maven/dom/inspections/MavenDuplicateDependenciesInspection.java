@@ -24,7 +24,7 @@ import consulo.localize.LocalizeValue;
 import consulo.util.lang.Comparing;
 import consulo.util.lang.StringUtil;
 import consulo.virtualFileSystem.VirtualFile;
-import consulo.xml.psi.xml.XmlTag;
+import consulo.xml.language.psi.XmlTag;
 import consulo.xml.util.xml.DomFileElement;
 import consulo.xml.util.xml.highlighting.BasicDomElementsInspection;
 import consulo.xml.util.xml.highlighting.DomElementAnnotationHolder;
