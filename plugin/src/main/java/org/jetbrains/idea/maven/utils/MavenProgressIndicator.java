@@ -45,8 +45,8 @@ public class MavenProgressIndicator {
     }
 
     public synchronized void setIndicator(ProgressIndicator i) {
-        i.setText(myIndicator.getTextValue());
-        i.setText2(myIndicator.getText2Value());
+        i.setText(myIndicator.getText());
+        i.setText2(myIndicator.getText2());
         if (!i.isIndeterminate()) {
             i.setFraction(myIndicator.getFraction());
         }
@@ -62,10 +62,7 @@ public class MavenProgressIndicator {
 
     @Deprecated
     public synchronized void setText(String text) {
-        myIndicator.setText(text);
-        if (myTextConsumer != null && text != null && !text.isEmpty()) {
-            myTextConsumer.accept(text);
-        }
+        setText(LocalizeValue.ofNullable(text));
     }
 
     public synchronized void setText(LocalizeValue text) {
@@ -132,27 +129,27 @@ public class MavenProgressIndicator {
     }
 
     private static class MyEmptyProgressIndicator extends EmptyProgressIndicator {
-        private String myText;
-        private String myText2;
+        private LocalizeValue myText;
+        private LocalizeValue myText2;
         private double myFraction;
 
         @Override
         public void setText(String text) {
-            myText = text;
+            myText = LocalizeValue.ofNullable(text);
         }
 
         @Override
-        public String getText() {
+        public LocalizeValue getText() {
             return myText;
         }
 
         @Override
         public void setText2(String text) {
-            myText2 = text;
+            myText2 = LocalizeValue.ofNullable(text);
         }
 
         @Override
-        public String getText2() {
+        public LocalizeValue getText2() {
             return myText2;
         }
 
