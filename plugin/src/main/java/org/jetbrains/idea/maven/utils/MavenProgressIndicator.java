@@ -129,8 +129,8 @@ public class MavenProgressIndicator {
     }
 
     private static class MyEmptyProgressIndicator extends EmptyProgressIndicator {
-        private LocalizeValue myText;
-        private LocalizeValue myText2;
+        private LocalizeValue myText = LocalizeValue.empty();
+        private LocalizeValue myText2 = LocalizeValue.empty();
         private double myFraction;
 
         @Override
