@@ -17,7 +17,7 @@ package org.jetbrains.idea.maven.dom.converters;
 
 import jakarta.annotation.Nonnull;
 
-import consulo.xml.util.xml.DomElement;
+import consulo.xml.dom.DomElement;
 
 /**
  * @author Sergey Evdokimov

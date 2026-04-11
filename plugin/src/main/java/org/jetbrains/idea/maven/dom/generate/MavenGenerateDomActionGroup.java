@@ -16,7 +16,7 @@
 package org.jetbrains.idea.maven.dom.generate;
 
 import consulo.ui.ex.action.DefaultActionGroup;
-import consulo.xml.util.xml.DomElement;
+import consulo.xml.dom.DomElement;
 import org.jetbrains.idea.maven.dom.model.*;
 import org.jetbrains.idea.maven.localize.MavenDomLocalize;
 

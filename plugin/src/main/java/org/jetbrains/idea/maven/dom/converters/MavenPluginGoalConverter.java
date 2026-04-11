@@ -16,9 +16,9 @@
 package org.jetbrains.idea.maven.dom.converters;
 
 import consulo.language.psi.PsiElement;
-import consulo.xml.util.xml.ConvertContext;
-import consulo.xml.util.xml.DomElement;
-import consulo.xml.util.xml.ResolvingConverter;
+import consulo.xml.dom.ConvertContext;
+import consulo.xml.dom.DomElement;
+import consulo.xml.dom.ResolvingConverter;
 import org.jetbrains.idea.maven.dom.MavenPluginDomUtil;
 import org.jetbrains.idea.maven.dom.plugin.MavenDomMojo;
 import org.jetbrains.idea.maven.dom.plugin.MavenDomPluginModel;

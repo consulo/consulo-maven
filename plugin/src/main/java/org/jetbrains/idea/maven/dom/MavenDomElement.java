@@ -15,9 +15,9 @@
  */
 package org.jetbrains.idea.maven.dom;
 
-import consulo.xml.util.xml.DomElement;
-import consulo.xml.util.xml.JavaNameStrategy;
-import consulo.xml.util.xml.NameStrategy;
+import consulo.xml.dom.DomElement;
+import consulo.xml.dom.JavaNameStrategy;
+import consulo.xml.dom.NameStrategy;
 
 @NameStrategy(JavaNameStrategy.class)
 public interface MavenDomElement extends DomElement {

@@ -21,8 +21,8 @@ import jakarta.annotation.Nullable;
 import consulo.codeEditor.Editor;
 import consulo.project.Project;
 import consulo.language.psi.PsiFile;
-import consulo.xml.util.xml.DomElement;
-import consulo.xml.util.xml.DomUtil;
+import consulo.xml.dom.DomElement;
+import consulo.xml.dom.DomUtil;
 import consulo.xml.util.xml.actions.generate.AbstractDomGenerateProvider;
 import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
 

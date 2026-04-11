@@ -16,7 +16,7 @@
 package org.jetbrains.idea.maven.dom;
 
 import consulo.annotation.component.ExtensionImpl;
-import consulo.xml.util.xml.DomFileDescription;
+import consulo.xml.dom.DomFileDescription;
 import org.jetbrains.idea.maven.dom.plugin.MavenDomPluginModel;
 
 @ExtensionImpl

@@ -15,8 +15,8 @@
  */
 package org.jetbrains.idea.maven.dom.model;
 
-import consulo.xml.util.xml.Convert;
-import consulo.xml.util.xml.GenericDomValue;
+import consulo.xml.dom.Convert;
+import consulo.xml.dom.GenericDomValue;
 import org.jetbrains.idea.maven.dom.converters.MavenPluginGoalConverter;
 
 @Convert(MavenPluginGoalConverter.class)

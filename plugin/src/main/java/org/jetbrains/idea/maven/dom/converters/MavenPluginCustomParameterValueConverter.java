@@ -21,9 +21,9 @@ import com.intellij.java.language.psi.PsiClass;
 import com.intellij.java.language.psi.util.PsiTypesUtil;
 import consulo.language.psi.scope.GlobalSearchScope;
 import consulo.project.Project;
-import consulo.xml.util.xml.Converter;
-import consulo.xml.util.xml.GenericDomValue;
-import consulo.xml.util.xml.WrappingConverter;
+import consulo.xml.dom.Converter;
+import consulo.xml.dom.GenericDomValue;
+import consulo.xml.dom.WrappingConverter;
 import jakarta.annotation.Nonnull;
 
 public class MavenPluginCustomParameterValueConverter extends WrappingConverter {

@@ -25,7 +25,7 @@ import consulo.maven.plugin.MavenPluginDescriptorParam;
 import consulo.xml.language.XMLLanguage;
 import consulo.xml.language.psi.XmlText;
 import consulo.xml.language.psi.XmlTokenType;
-import consulo.xml.patterns.XmlPatterns;
+import consulo.xml.language.psi.pattern.XmlPatterns;
 import org.jetbrains.idea.maven.dom.model.MavenDomConfiguration;
 
 import jakarta.annotation.Nonnull;

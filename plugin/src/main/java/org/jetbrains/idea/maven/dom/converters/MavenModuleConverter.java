@@ -20,7 +20,7 @@ import consulo.language.psi.PsiElement;
 import consulo.language.psi.PsiFile;
 import consulo.language.psi.PsiReference;
 import consulo.virtualFileSystem.VirtualFile;
-import consulo.xml.util.xml.ConvertContext;
+import consulo.xml.dom.ConvertContext;
 import jakarta.annotation.Nullable;
 import org.jetbrains.idea.maven.dom.references.MavenModulePsiReference;
 

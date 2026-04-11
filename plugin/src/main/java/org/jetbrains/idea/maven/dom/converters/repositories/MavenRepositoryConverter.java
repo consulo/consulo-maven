@@ -25,9 +25,9 @@ import consulo.util.lang.StringUtil;
 import consulo.language.psi.ElementManipulators;
 import consulo.language.editor.completion.lookup.LookupElement;
 import consulo.language.editor.completion.lookup.LookupElementBuilder;
-import consulo.xml.util.xml.ConvertContext;
-import consulo.xml.util.xml.GenericDomValue;
-import consulo.xml.util.xml.ResolvingConverter;
+import consulo.xml.dom.ConvertContext;
+import consulo.xml.dom.GenericDomValue;
+import consulo.xml.dom.ResolvingConverter;
 
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;

@@ -19,10 +19,10 @@
 
 package org.jetbrains.idea.maven.dom.model;
 
-import consulo.xml.util.xml.Convert;
-import consulo.xml.util.xml.GenericDomValue;
-import consulo.xml.util.xml.Required;
-import consulo.xml.util.xml.SubTag;
+import consulo.xml.dom.Convert;
+import consulo.xml.dom.GenericDomValue;
+import consulo.xml.dom.Required;
+import consulo.xml.dom.SubTag;
 import org.jetbrains.idea.maven.dom.MavenDomElement;
 import org.jetbrains.idea.maven.dom.converters.MavenModelVersionConverter;
 import org.jetbrains.idea.maven.dom.converters.MavenPackagingConverter;

@@ -15,8 +15,8 @@
  */
 package org.jetbrains.idea.maven.dom.model;
 
-import consulo.xml.util.xml.CustomChildren;
-import consulo.xml.util.xml.GenericDomValue;
+import consulo.xml.dom.CustomChildren;
+import consulo.xml.dom.GenericDomValue;
 
 import java.util.List;
 

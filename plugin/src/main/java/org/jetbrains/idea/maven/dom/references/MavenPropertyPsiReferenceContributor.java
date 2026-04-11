@@ -21,8 +21,8 @@ import consulo.language.pattern.ElementPattern;
 import consulo.language.pattern.PlatformPatterns;
 import consulo.language.psi.PsiReferenceContributor;
 import consulo.language.psi.PsiReferenceRegistrar;
-import consulo.xml.patterns.DomPatterns;
-import consulo.xml.patterns.XmlPatterns;
+import consulo.xml.dom.pattern.DomPatterns;
+import consulo.xml.language.psi.pattern.XmlPatterns;
 import org.jetbrains.idea.maven.dom.model.MavenDomProperties;
 
 import jakarta.annotation.Nonnull;

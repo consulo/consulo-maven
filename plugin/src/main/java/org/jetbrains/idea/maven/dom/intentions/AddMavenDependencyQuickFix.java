@@ -26,7 +26,7 @@ import consulo.language.util.IncorrectOperationException;
 import consulo.localize.LocalizeValue;
 import consulo.maven.rt.server.common.model.MavenId;
 import consulo.project.Project;
-import consulo.xml.util.xml.DomUtil;
+import consulo.xml.dom.DomUtil;
 import jakarta.annotation.Nullable;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
 import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;

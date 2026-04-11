@@ -26,7 +26,7 @@ import consulo.project.Project;
 import consulo.util.lang.Comparing;
 import consulo.xml.language.psi.XmlElement;
 import consulo.xml.language.psi.XmlFile;
-import consulo.xml.util.xml.DomUtil;
+import consulo.xml.dom.DomUtil;
 import consulo.xml.util.xml.ui.actions.generate.GenerateDomElementAction;
 import jakarta.annotation.Nullable;
 import org.jetbrains.idea.maven.dom.DependencyConflictId;

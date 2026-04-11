@@ -21,7 +21,7 @@ import consulo.codeEditor.Editor;
 import consulo.language.editor.WriteCommandAction;
 import consulo.maven.icon.MavenIconGroup;
 import consulo.ui.annotation.RequiredUIAccess;
-import consulo.xml.util.xml.DomUtil;
+import consulo.xml.dom.DomUtil;
 import consulo.xml.util.xml.ui.actions.generate.GenerateDomElementAction;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
 import org.jetbrains.idea.maven.dom.model.MavenDomParent;

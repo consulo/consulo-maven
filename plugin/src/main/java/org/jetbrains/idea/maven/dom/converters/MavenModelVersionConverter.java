@@ -16,7 +16,7 @@
 package org.jetbrains.idea.maven.dom.converters;
 
 import consulo.localize.LocalizeValue;
-import consulo.xml.util.xml.ConvertContext;
+import consulo.xml.dom.ConvertContext;
 
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;

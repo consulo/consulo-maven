@@ -25,7 +25,7 @@ import consulo.maven.rt.server.common.model.MavenConstants;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.project.SupportedRequestType;
-import consulo.xml.util.xml.ConvertContext;
+import consulo.xml.dom.ConvertContext;
 
 public class MavenDependencyTypeConverter extends MavenProjectConstantListConverter {
     public MavenDependencyTypeConverter() {

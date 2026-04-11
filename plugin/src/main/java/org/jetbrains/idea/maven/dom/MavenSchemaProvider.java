@@ -20,8 +20,8 @@ import consulo.virtualFileSystem.VirtualFile;
 import consulo.virtualFileSystem.util.VirtualFileUtil;
 import consulo.xml.javaee.ExternalResourceManager;
 import consulo.xml.javaee.ExternalResourceManagerEx;
-import consulo.xml.javaee.ResourceRegistrar;
-import consulo.xml.javaee.StandardResourceProvider;
+import consulo.xml.standardResource.ResourceRegistrar;
+import consulo.xml.standardResource.StandardResourceProvider;
 import jakarta.annotation.Nonnull;
 
 import java.util.List;

@@ -10,8 +10,8 @@ import consulo.maven.rt.server.common.model.MavenId;
 import consulo.xml.language.psi.XmlTag;
 import consulo.xml.language.psi.XmlText;
 import consulo.xml.language.psi.XmlTokenType;
-import consulo.xml.util.xml.DomElement;
-import consulo.xml.util.xml.DomManager;
+import consulo.xml.dom.DomElement;
+import consulo.xml.dom.DomManager;
 import jakarta.annotation.Nonnull;
 import org.jetbrains.idea.maven.dom.model.*;
 

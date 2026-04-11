@@ -16,7 +16,7 @@
 package org.jetbrains.idea.maven.dom.converters;
 
 import consulo.util.lang.StringUtil;
-import consulo.xml.util.xml.ConvertContext;
+import consulo.xml.dom.ConvertContext;
 import org.jetbrains.idea.maven.indices.MavenProjectIndicesManager;
 import consulo.maven.rt.server.common.model.MavenId;
 

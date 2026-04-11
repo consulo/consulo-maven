@@ -20,9 +20,9 @@
 package org.jetbrains.idea.maven.dom.model;
 
 import consulo.language.psi.PsiFile;
-import consulo.xml.util.xml.Convert;
-import consulo.xml.util.xml.GenericDomValue;
-import consulo.xml.util.xml.Required;
+import consulo.xml.dom.Convert;
+import consulo.xml.dom.GenericDomValue;
+import consulo.xml.dom.Required;
 
 import jakarta.annotation.Nonnull;
 import org.jetbrains.idea.maven.dom.MavenDomElement;

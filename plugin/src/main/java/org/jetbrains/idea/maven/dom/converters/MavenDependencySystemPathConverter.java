@@ -22,10 +22,10 @@ import consulo.language.psi.PsiFile;
 import consulo.language.psi.PsiReference;
 import consulo.virtualFileSystem.LocalFileSystem;
 import consulo.virtualFileSystem.VirtualFile;
-import consulo.xml.util.xml.ConvertContext;
-import consulo.xml.util.xml.CustomReferenceConverter;
-import consulo.xml.util.xml.GenericDomValue;
-import consulo.xml.util.xml.ResolvingConverter;
+import consulo.xml.dom.ConvertContext;
+import consulo.xml.dom.CustomReferenceConverter;
+import consulo.xml.dom.GenericDomValue;
+import consulo.xml.dom.ResolvingConverter;
 import jakarta.annotation.Nullable;
 import org.jetbrains.idea.maven.dom.references.MavenPathReferenceConverter;
 

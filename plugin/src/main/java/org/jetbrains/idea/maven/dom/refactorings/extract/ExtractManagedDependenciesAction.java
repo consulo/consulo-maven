@@ -30,7 +30,7 @@ import consulo.project.Project;
 import consulo.ui.ex.awt.DialogWrapper;
 import consulo.util.lang.Pair;
 import consulo.xml.language.psi.XmlElement;
-import consulo.xml.util.xml.DomUtil;
+import consulo.xml.dom.DomUtil;
 import jakarta.annotation.Nullable;
 import org.jetbrains.idea.maven.dom.DependencyConflictId;
 import org.jetbrains.idea.maven.dom.MavenDomProjectProcessorUtils;

@@ -19,7 +19,7 @@ import consulo.annotation.component.ExtensionImpl;
 import consulo.maven.rt.server.common.model.MavenConstants;
 import consulo.virtualFileSystem.fileType.FileTypeConsumer;
 import consulo.virtualFileSystem.fileType.FileTypeFactory;
-import consulo.xml.ide.highlighter.XmlFileType;
+import consulo.xml.language.XmlFileType;
 
 import jakarta.annotation.Nonnull;
 
