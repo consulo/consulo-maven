@@ -1,3 +1,5 @@
+build.event.message.out.memory:
+    text: Out of memory
 embedded.build.failed:
     text: BUILD FAILED
 embedded.cannot.create:
