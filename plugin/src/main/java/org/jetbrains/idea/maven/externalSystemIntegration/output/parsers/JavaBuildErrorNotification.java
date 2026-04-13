@@ -9,7 +9,8 @@ import jakarta.inject.Inject;
 
 @ExtensionImpl
 public final class JavaBuildErrorNotification extends BuildErrorNotification {
-    public static final NotificationGroup JAVA_COMPILER = NotificationGroup.balloonGroup("build.event.title.java.compiler", LocalizeValue.localizeTODO("Javac"));
+    public static final NotificationGroup JAVA_COMPILER =
+        NotificationGroup.balloonGroup("build.event.title.java.compiler", LocalizeValue.localizeTODO("Javac"));
 
     @Inject
     public JavaBuildErrorNotification(BuildEventFactory buildEventFactory) {

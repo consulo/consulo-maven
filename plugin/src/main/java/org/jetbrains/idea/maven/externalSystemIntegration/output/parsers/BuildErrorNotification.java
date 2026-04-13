@@ -7,14 +7,13 @@ import consulo.build.ui.event.BuildEventFactory;
 import consulo.build.ui.event.MessageEvent;
 import consulo.project.ui.notification.NotificationGroup;
 import consulo.util.io.FileUtil;
-import org.jetbrains.annotations.NonNls;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
-import org.jetbrains.idea.maven.execution.RunnerBundle;
 import org.jetbrains.idea.maven.externalSystemIntegration.output.LogMessageType;
 import org.jetbrains.idea.maven.externalSystemIntegration.output.MavenLogEntryReader;
 import org.jetbrains.idea.maven.externalSystemIntegration.output.MavenLoggedEventParser;
 import org.jetbrains.idea.maven.externalSystemIntegration.output.MavenParsingContext;
+import org.jetbrains.idea.maven.localize.MavenRunnerLocalize;
 
 import java.io.File;
 import java.util.function.Consumer;
@@ -29,10 +28,12 @@ public abstract class BuildErrorNotification implements MavenLoggedEventParser {
     private final NotificationGroup myMessageGroup;
     private final BuildEventFactory myBuildEventFactory;
 
-    protected BuildErrorNotification(@NonNls String language,
-                                     @NonNls String extension,
-                                     NotificationGroup messageGroup,
-                                     BuildEventFactory buildEventFactory) {
+    protected BuildErrorNotification(
+        String language,
+        String extension,
+        NotificationGroup messageGroup,
+        BuildEventFactory buildEventFactory
+    ) {
         myLanguage = language;
         myExtension = extension;
         myMessageGroup = messageGroup;
@@ -45,16 +46,22 @@ public abstract class BuildErrorNotification implements MavenLoggedEventParser {
     }
 
     @Override
-    public boolean checkLogLine(@Nonnull Object parentId,
-                                @Nonnull MavenParsingContext parsingContext,
-                                @Nonnull MavenLogEntryReader.MavenLogEntry logLine,
-                                @Nonnull MavenLogEntryReader logEntryReader,
-                                @Nonnull Consumer<? super BuildEvent> messageConsumer) {
-
+    public boolean checkLogLine(
+        @Nonnull Object parentId,
+        @Nonnull MavenParsingContext parsingContext,
+        @Nonnull MavenLogEntryReader.MavenLogEntry logLine,
+        @Nonnull MavenLogEntryReader logEntryReader,
+        @Nonnull Consumer<? super BuildEvent> messageConsumer
+    ) {
         String line = logLine.getLine();
         if (line.endsWith("java.lang.OutOfMemoryError")) {
-            messageConsumer.accept(myBuildEventFactory.createMessageEvent(parentId, MessageEvent.Kind.ERROR, myMessageGroup,
-                RunnerBundle.message("build.event.message.out.memory"), line));
+            messageConsumer.accept(myBuildEventFactory.createMessageEvent(
+                parentId,
+                MessageEvent.Kind.ERROR,
+                myMessageGroup,
+                MavenRunnerLocalize.buildEventMessageOutMemory().get(),
+                line
+            ));
             return true;
         }
         int fileNameIdx = line.indexOf("." + myExtension + ":");
@@ -85,9 +92,14 @@ public abstract class BuildErrorNotification implements MavenLoggedEventParser {
         }
 
         String errorMessage = getErrorMessage(position, message);
-        messageConsumer
-            .accept(myBuildEventFactory.createFileMessageEvent(parentId, MessageEvent.Kind.ERROR, myMessageGroup, errorMessage, errorMessage,
-                position));
+        messageConsumer.accept(myBuildEventFactory.createFileMessageEvent(
+            parentId,
+            MessageEvent.Kind.ERROR,
+            myMessageGroup,
+            errorMessage,
+            errorMessage,
+            position
+        ));
         return true;
     }
 
