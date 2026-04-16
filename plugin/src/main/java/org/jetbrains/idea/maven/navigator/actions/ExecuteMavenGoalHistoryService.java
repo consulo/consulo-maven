@@ -22,7 +22,7 @@ import consulo.component.persist.PersistentStateComponent;
 import consulo.component.persist.State;
 import consulo.component.persist.Storage;
 import consulo.component.persist.StoragePathMacros;
-import consulo.ide.ServiceManager;
+import consulo.application.Application;
 import consulo.project.Project;
 import jakarta.annotation.Nullable;
 import jakarta.inject.Singleton;
@@ -44,7 +44,7 @@ import java.util.List;
 public class ExecuteMavenGoalHistoryService implements PersistentStateComponent<String[]> {
     @Nonnull
     public static ExecuteMavenGoalHistoryService getInstance(@Nonnull Project project) {
-        return ServiceManager.getService(project, ExecuteMavenGoalHistoryService.class);
+        return project.getInstance(ExecuteMavenGoalHistoryService.class);
     }
 
     private static final int MAX_HISTORY_LENGTH = 20;

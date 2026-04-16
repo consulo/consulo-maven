@@ -24,7 +24,7 @@ import consulo.application.progress.ProgressIndicator;
 import consulo.application.progress.Task;
 import consulo.application.util.BackgroundTaskQueue;
 import consulo.disposer.Disposable;
-import consulo.ide.ServiceManager;
+import consulo.application.Application;
 import consulo.maven.rt.server.common.model.MavenArchetype;
 import consulo.maven.rt.server.common.server.MavenServerDownloadListener;
 import consulo.project.Project;
@@ -84,7 +84,7 @@ public class MavenIndicesManager implements Disposable {
     private volatile List<MavenArchetype> myUserArchetypes = new ArrayList<>();
 
     public static MavenIndicesManager getInstance() {
-        return ServiceManager.getService(MavenIndicesManager.class);
+        return Application.get().getInstance(MavenIndicesManager.class);
     }
 
     @Inject

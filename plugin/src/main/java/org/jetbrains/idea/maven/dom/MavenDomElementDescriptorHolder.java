@@ -24,7 +24,7 @@ import consulo.annotation.component.ServiceImpl;
 import consulo.application.util.CachedValue;
 import consulo.application.util.CachedValueProvider;
 import consulo.application.util.CachedValuesManager;
-import consulo.ide.ServiceManager;
+import consulo.application.Application;
 import consulo.language.psi.PsiFile;
 import consulo.language.psi.PsiManager;
 import consulo.language.psi.PsiModificationTracker;
@@ -84,7 +84,7 @@ public class MavenDomElementDescriptorHolder {
     }
 
     public static MavenDomElementDescriptorHolder getInstance(@Nonnull Project project) {
-        return ServiceManager.getService(project, MavenDomElementDescriptorHolder.class);
+        return project.getInstance(MavenDomElementDescriptorHolder.class);
     }
 
     @Nullable

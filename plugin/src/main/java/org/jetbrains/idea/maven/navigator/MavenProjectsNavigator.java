@@ -26,7 +26,7 @@ import consulo.component.persist.StoragePathMacros;
 import consulo.disposer.Disposable;
 import consulo.execution.event.RunManagerListener;
 import consulo.execution.event.RunManagerListenerEvent;
-import consulo.ide.ServiceManager;
+import consulo.application.Application;
 import consulo.maven.rt.server.common.server.NativeMavenProjectHolder;
 import consulo.platform.base.icon.PlatformIconGroup;
 import consulo.project.Project;
@@ -83,7 +83,7 @@ public class MavenProjectsNavigator extends MavenSimpleProjectComponent implemen
 
     @Nonnull
     public static MavenProjectsNavigator getInstance(Project project) {
-        return ServiceManager.getService(project, MavenProjectsNavigator.class);
+        return project.getInstance(MavenProjectsNavigator.class);
     }
 
     @Inject

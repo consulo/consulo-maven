@@ -33,7 +33,7 @@ import consulo.execution.configuration.CommandLineState;
 import consulo.execution.configuration.RunProfileState;
 import consulo.execution.executor.Executor;
 import consulo.execution.runner.ProgramRunner;
-import consulo.ide.ServiceManager;
+import consulo.application.Application;
 import consulo.ide.impl.idea.execution.rmi.RemoteProcessSupport;
 import consulo.java.execution.OwnSimpleJavaParameters;
 import consulo.java.execution.projectRoots.OwnJdkUtil;
@@ -116,7 +116,7 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
     }
 
     public static MavenServerManager getInstance() {
-        return ServiceManager.getService(MavenServerManager.class);
+        return Application.get().getInstance(MavenServerManager.class);
     }
 
     public MavenServerManager() {

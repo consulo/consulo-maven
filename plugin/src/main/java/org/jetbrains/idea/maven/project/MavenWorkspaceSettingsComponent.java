@@ -22,7 +22,7 @@ import consulo.component.persist.PersistentStateComponent;
 import consulo.component.persist.State;
 import consulo.component.persist.Storage;
 import consulo.component.persist.StoragePathMacros;
-import consulo.ide.ServiceManager;
+import consulo.application.Application;
 import consulo.maven.rt.server.common.model.MavenExplicitProfiles;
 import consulo.project.Project;
 import jakarta.annotation.Nonnull;
@@ -44,7 +44,7 @@ public class MavenWorkspaceSettingsComponent implements PersistentStateComponent
     }
 
     public static MavenWorkspaceSettingsComponent getInstance(Project project) {
-        return ServiceManager.getService(project, MavenWorkspaceSettingsComponent.class);
+        return project.getInstance(MavenWorkspaceSettingsComponent.class);
     }
 
     @Override

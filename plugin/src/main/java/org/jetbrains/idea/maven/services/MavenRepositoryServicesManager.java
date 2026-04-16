@@ -22,7 +22,7 @@ import consulo.component.persist.PersistentStateComponent;
 import consulo.component.persist.State;
 import consulo.component.persist.Storage;
 import consulo.component.persist.StoragePathMacros;
-import consulo.ide.ServiceManager;
+import consulo.application.Application;
 import consulo.maven.rt.server.common.model.MavenArtifactInfo;
 import consulo.maven.rt.server.common.model.MavenRepositoryInfo;
 import consulo.util.collection.ArrayUtil;
@@ -54,7 +54,7 @@ public class MavenRepositoryServicesManager implements PersistentStateComponent<
 
     @Nonnull
     public static MavenRepositoryServicesManager getInstance() {
-        return ServiceManager.getService(MavenRepositoryServicesManager.class);
+        return Application.get().getInstance(MavenRepositoryServicesManager.class);
     }
 
     @Nonnull

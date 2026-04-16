@@ -18,7 +18,7 @@ package org.jetbrains.idea.maven.dom.converters.repositories;
 import consulo.annotation.component.ComponentScope;
 import consulo.annotation.component.ServiceAPI;
 import consulo.annotation.component.ServiceImpl;
-import consulo.ide.ServiceManager;
+import consulo.application.Application;
 import consulo.util.xml.serializer.XmlSerializer;
 import jakarta.inject.Singleton;
 import org.jetbrains.idea.maven.dom.converters.repositories.beans.RepositoriesBean;
@@ -38,7 +38,7 @@ import java.util.Set;
 @Singleton
 public class MavenRepositoriesProvider {
     public static MavenRepositoriesProvider getInstance() {
-        return ServiceManager.getService(MavenRepositoriesProvider.class);
+        return Application.get().getInstance(MavenRepositoriesProvider.class);
     }
 
     final Map<String, RepositoryBeanInfo> myRepositoriesMap = new HashMap<>();

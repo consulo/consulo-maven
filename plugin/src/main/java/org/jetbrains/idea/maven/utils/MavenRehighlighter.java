@@ -20,7 +20,7 @@ import consulo.annotation.component.ServiceAPI;
 import consulo.annotation.component.ServiceImpl;
 import consulo.application.ReadAction;
 import consulo.fileEditor.FileEditorManager;
-import consulo.ide.ServiceManager;
+import consulo.application.Application;
 import consulo.document.Document;
 import consulo.document.FileDocumentManager;
 import consulo.language.psi.PsiFile;
@@ -122,7 +122,7 @@ public class MavenRehighlighter extends MavenSimpleProjectComponent {
             if (project.isDisposed()) {
                 return;
             }
-            ServiceManager.getService(project, MavenRehighlighter.class).myQueue.queue(new MyUpdate(project, mavenProject));
+            project.getInstance(MavenRehighlighter.class).myQueue.queue(new MyUpdate(project, mavenProject));
         });
     }
 
