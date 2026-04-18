@@ -15,38 +15,38 @@
  */
 package org.jetbrains.idea.maven.execution;
 
+import com.intellij.testFramework.PsiTestUtil;
+import consulo.compiler.ModuleCompilerPathsManager;
+import consulo.ide.impl.idea.openapi.module.impl.scopes.LibraryRuntimeClasspathScope;
+import consulo.ide.impl.idea.openapi.module.impl.scopes.ModuleWithDependenciesScope;
+import consulo.ide.impl.idea.openapi.roots.ModuleRootModificationUtil;
+import consulo.ide.impl.idea.openapi.roots.impl.LibraryScopeCache;
+import consulo.java.execution.configurations.OwnJavaParameters;
+import consulo.language.editor.WriteCommandAction;
+import consulo.language.psi.scope.GlobalSearchScope;
+import consulo.module.Module;
+import consulo.module.ModuleManager;
+import consulo.module.content.ProjectRootManager;
+import consulo.module.content.layer.OrderEnumerator;
+import consulo.roots.impl.ProductionContentFolderTypeProvider;
+import consulo.roots.impl.TestContentFolderTypeProvider;
+import consulo.util.io.FileUtil;
+import consulo.util.lang.StringUtil;
+import consulo.virtualFileSystem.LocalFileSystem;
+import consulo.virtualFileSystem.VirtualFile;
+import consulo.virtualFileSystem.VirtualFileManager;
+import consulo.virtualFileSystem.util.PathsList;
+import consulo.virtualFileSystem.util.VirtualFileUtil;
+import jakarta.annotation.Nullable;
+import org.jetbrains.idea.maven.MavenImportingTestCase;
+import org.jetbrains.idea.maven.importing.MavenModuleImporter;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-
-import consulo.module.ModuleManager;
-import consulo.virtualFileSystem.VirtualFileManager;
-import consulo.virtualFileSystem.util.PathsList;
-import jakarta.annotation.Nullable;
-import org.jetbrains.idea.maven.MavenImportingTestCase;
-import org.jetbrains.idea.maven.importing.MavenModuleImporter;
-import consulo.language.editor.WriteCommandAction;
-import consulo.module.Module;
-import consulo.ide.impl.idea.openapi.module.impl.scopes.LibraryRuntimeClasspathScope;
-import consulo.ide.impl.idea.openapi.module.impl.scopes.ModuleWithDependenciesScope;
-import consulo.ide.impl.idea.openapi.roots.ModuleRootModificationUtil;
-import consulo.module.content.layer.OrderEnumerator;
-import consulo.module.content.ProjectRootManager;
-import consulo.ide.impl.idea.openapi.roots.impl.LibraryScopeCache;
-import consulo.ide.impl.idea.openapi.util.io.FileUtil;
-import consulo.util.lang.StringUtil;
-import consulo.virtualFileSystem.LocalFileSystem;
-import consulo.ide.impl.idea.openapi.vfs.VfsUtil;
-import consulo.virtualFileSystem.VirtualFile;
-import consulo.language.psi.scope.GlobalSearchScope;
-import com.intellij.testFramework.PsiTestUtil;
-import consulo.compiler.ModuleCompilerPathsManager;
-import consulo.java.execution.configurations.OwnJavaParameters;
-import consulo.roots.impl.ProductionContentFolderTypeProvider;
-import consulo.roots.impl.TestContentFolderTypeProvider;
 
 public abstract class MavenClasspathsAndSearchScopesTest extends MavenImportingTestCase
 {
@@ -736,7 +736,7 @@ public abstract class MavenClasspathsAndSearchScopesTest extends MavenImportingT
 			return;
 		}
 
-		File file = new File(FileUtil.toSystemDependentName(VfsUtil.urlToPath(url)));
+		File file = new File(FileUtil.toSystemDependentName(VirtualFileUtil.urlToPath(url)));
 		if(file.exists())
 		{
 			return;

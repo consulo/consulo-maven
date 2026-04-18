@@ -33,9 +33,9 @@ import com.intellij.openapi.roots.*;
 import consulo.ide.impl.idea.openapi.roots.impl.libraries.ProjectLibraryTable;
 import consulo.ui.ex.awt.Messages;
 import consulo.ui.ex.awt.internal.TestDialog;
-import consulo.ide.impl.idea.openapi.util.io.FileUtil;
+import consulo.util.io.FileUtil;
 import consulo.util.lang.StringUtil;
-import consulo.ide.impl.idea.openapi.vfs.VfsUtil;
+import consulo.virtualFileSystem.util.VirtualFileUtil;
 import consulo.virtualFileSystem.VirtualFile;
 import com.intellij.testFramework.IdeaTestUtil;
 import com.intellij.util.PathUtil;
@@ -115,7 +115,7 @@ public abstract class MavenImportingTestCase extends MavenTestCase
 
 		for(int i = 0; i < expectedRoots.length; i++)
 		{
-			expectedRoots[i] = VfsUtil.pathToUrl(expectedRoots[i]);
+			expectedRoots[i] = VirtualFileUtil.pathToUrl(expectedRoots[i]);
 		}
 
 		assertUnorderedPathsAreEqual(actual, Arrays.asList(expectedRoots));
@@ -182,7 +182,7 @@ public abstract class MavenImportingTestCase extends MavenTestCase
 
 	private static String getAbsolutePath(String path)
 	{
-		path = VfsUtil.urlToPath(path);
+		path = VirtualFileUtil.urlToPath(path);
 		path = PathUtil.getCanonicalPath(path);
 		return FileUtil.toSystemIndependentName(path);
 	}
@@ -381,7 +381,7 @@ public abstract class MavenImportingTestCase extends MavenTestCase
 	{
 		for(ContentEntry e : getContentRoots(moduleName))
 		{
-			if(e.getUrl().equals(VfsUtil.pathToUrl(path)))
+			if(e.getUrl().equals(VirtualFileUtil.pathToUrl(path)))
 			{
 				return e;
 			}

@@ -15,15 +15,15 @@
  */
 package org.jetbrains.idea.maven.execution;
 
-import consulo.application.util.Semaphore;
-import consulo.execution.runner.ProgramRunner;
-import consulo.process.event.ProcessAdapter;
-import consulo.execution.ui.RunContentDescriptor;
 import consulo.application.WriteAction;
-import consulo.ide.impl.idea.openapi.vfs.VfsUtil;
-import consulo.ui.ex.awt.UIUtil;
+import consulo.application.util.Semaphore;
 import consulo.disposer.Disposer;
+import consulo.execution.runner.ProgramRunner;
+import consulo.execution.ui.RunContentDescriptor;
+import consulo.process.event.ProcessAdapter;
 import consulo.process.event.ProcessEvent;
+import consulo.ui.ex.awt.UIUtil;
+import consulo.virtualFileSystem.util.VirtualFileUtil;
 import org.jetbrains.idea.maven.MavenImportingTestCase;
 
 import javax.swing.*;
@@ -53,7 +53,7 @@ public abstract class MavenExecutionTest extends MavenImportingTestCase
 			return;
 		}
 
-		VfsUtil.saveText(createProjectSubFile("src/main/java/A.java"), "public class A {}");
+		VirtualFileUtil.saveText(createProjectSubFile("src/main/java/A.java"), "public class A {}");
 
 		WriteAction.run(() ->
 		{

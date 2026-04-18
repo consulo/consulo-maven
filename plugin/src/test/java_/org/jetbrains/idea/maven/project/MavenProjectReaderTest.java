@@ -15,18 +15,18 @@
  */
 package org.jetbrains.idea.maven.project;
 
-import consulo.application.WriteAction;
-import consulo.language.editor.WriteCommandAction;
-import consulo.application.util.SystemInfo;
-import consulo.ide.impl.idea.openapi.util.io.FileUtil;
-import consulo.ide.impl.idea.openapi.vfs.VfsUtil;
-import consulo.virtualFileSystem.VirtualFile;
 import com.intellij.testFramework.PlatformTestUtil;
-import consulo.util.collection.ArrayUtil;
+import consulo.application.WriteAction;
+import consulo.application.util.SystemInfo;
 import consulo.ide.impl.idea.util.Function;
-import consulo.util.collection.ContainerUtil;
+import consulo.language.editor.WriteCommandAction;
 import consulo.maven.rt.server.common.idea.maven.model.*;
 import consulo.maven.rt.server.common.model.*;
+import consulo.util.collection.ArrayUtil;
+import consulo.util.collection.ContainerUtil;
+import consulo.util.io.FileUtil;
+import consulo.virtualFileSystem.VirtualFile;
+import consulo.virtualFileSystem.util.VirtualFileUtil;
 import org.jetbrains.idea.maven.MavenTestCase;
 
 import java.io.File;
@@ -263,7 +263,7 @@ public abstract class MavenProjectReaderTest extends MavenTestCase
 			VirtualFile res = myProjectRoot.createChildData(this, "pom.xml");
 			return res;
 		});
-		VfsUtil.saveText(file, "<project>" +
+		VirtualFileUtil.saveText(file, "<project>" +
 				"  <groupId>test</groupId>" +
 				"  <artifactId>project</artifactId>" +
 				"  <version>1</version>" +
@@ -329,7 +329,7 @@ public abstract class MavenProjectReaderTest extends MavenTestCase
 			VirtualFile res = myProjectRoot.createChildData(this, "pom.xml");
 			return res;
 		});
-		VfsUtil.saveText(file, "<project>" +
+		VirtualFileUtil.saveText(file, "<project>" +
 				"  <modelVersion>1.2.3</modelVersion>" +
 				"  <groupId>test</groupId>" +
 				"  <artifactId>project</artifactId>" +

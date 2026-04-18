@@ -19,7 +19,8 @@ import consulo.application.Application;
 import consulo.application.Result;
 import consulo.document.Document;
 import consulo.document.FileDocumentManager;
-import consulo.ide.impl.idea.openapi.util.io.FileUtil;
+import consulo.util.io.FilePermissionCopier;
+import consulo.util.io.FileUtil;
 import consulo.language.codeStyle.CodeStyleManager;
 import consulo.language.editor.WriteCommandAction;
 import consulo.language.editor.util.EditorHelper;
@@ -198,7 +199,7 @@ public class MavenModuleBuilderHelper {
     private void generateFromArchetype(final Project project, final VirtualFile pom) {
         final File workingDir;
         try {
-            workingDir = FileUtil.createTempDirectory("archetype", "tmp");
+            workingDir = consulo.ide.impl.idea.openapi.util.io.FileUtil.createTempDirectory("archetype", "tmp");
             workingDir.deleteOnExit();
         }
         catch (IOException e) {
@@ -243,7 +244,11 @@ public class MavenModuleBuilderHelper {
 
     private void copyGeneratedFiles(File workingDir, VirtualFile pom, Project project) {
         try {
-            FileUtil.copyDir(new File(workingDir, myProjectId.getArtifactId()), new File(pom.getParent().getPath()));
+            FileUtil.copyDir(
+                new File(workingDir, myProjectId.getArtifactId()),
+                new File(pom.getParent().getPath()),
+                FilePermissionCopier.BY_NIO2
+            );
         }
         catch (IOException e) {
             showError(project, e);

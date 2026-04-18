@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.List;
 
 import consulo.content.library.LibraryTablesRegistrar;
+import consulo.util.io.FileUtil;
 import org.jetbrains.idea.maven.MavenCustomRepositoryHelper;
 import org.jetbrains.idea.maven.MavenImportingTestCase;
 import consulo.maven.rt.server.common.model.MavenId;
@@ -35,7 +36,6 @@ import consulo.content.OrderRootType;
 import consulo.ide.impl.idea.openapi.roots.impl.libraries.ProjectLibraryTable;
 import consulo.content.library.Library;
 import consulo.content.library.LibraryTable;
-import consulo.ide.impl.idea.openapi.util.io.FileUtil;
 import consulo.virtualFileSystem.VirtualFile;
 
 public abstract class DependenciesImportingTest extends MavenImportingTestCase {
