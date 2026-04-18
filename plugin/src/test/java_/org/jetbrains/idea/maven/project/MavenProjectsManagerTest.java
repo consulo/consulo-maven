@@ -25,6 +25,7 @@ import consulo.module.Module;
 import consulo.module.content.ModuleRootManager;
 import consulo.module.content.layer.orderEntry.LibraryOrderEntry;
 import consulo.module.content.layer.orderEntry.OrderEntry;
+import consulo.util.io.FileUtil;
 import org.jetbrains.idea.maven.MavenImportingTestCase;
 import org.jetbrains.idea.maven.importing.MavenRootModelAdapter;
 import consulo.maven.rt.server.common.model.MavenExplicitProfiles;
@@ -34,7 +35,6 @@ import consulo.language.editor.WriteCommandAction;
 import consulo.module.ModuleManager;
 import consulo.module.content.layer.ModifiableRootModel;
 import consulo.util.lang.Pair;
-import consulo.ide.impl.idea.openapi.util.io.FileUtil;
 import consulo.virtualFileSystem.VirtualFile;
 import consulo.ide.impl.idea.util.FileContentUtil;
 

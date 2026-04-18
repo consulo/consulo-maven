@@ -1,6 +1,6 @@
 /**
  * @author VISTALL
- * @since 20/01/2023
+ * @since 2023-01-20
  */
 open module org.jetbrains.idea.maven
 {
@@ -33,6 +33,7 @@ open module org.jetbrains.idea.maven
 	requires consulo.navigation.api;
 	requires consulo.http.api;
 	requires consulo.web.browser.api;
+	requires consulo.util.io;
 	requires consulo.util.rmi;
 
 	requires com.intellij.xml;

@@ -18,10 +18,10 @@ package org.jetbrains.idea.maven.dom;
 import consulo.codeEditor.Editor;
 import consulo.document.Document;
 import consulo.document.FileDocumentManager;
-import consulo.language.editor.intention.IntentionAction;
 import consulo.fileEditor.FileEditorManager;
-import consulo.ide.impl.idea.openapi.vfs.VfsUtil;
+import consulo.language.editor.intention.IntentionAction;
 import consulo.virtualFileSystem.VirtualFile;
+import consulo.virtualFileSystem.util.VirtualFileUtil;
 
 public abstract class MavenModuleCompletionAndResolutionTest extends MavenDomWithIndicesTestCase {
   private static final String CREATE_MODULE_INTENTION = MavenDomBundle.message("fix.create.module");
@@ -520,7 +520,7 @@ public abstract class MavenModuleCompletionAndResolutionTest extends MavenDomWit
 
     importProject(parentPom);
 
-    VfsUtil.saveText(parentPom, createPomXml(
+    VirtualFileUtil.saveText(parentPom, createPomXml(
                                 "<groupId>test</groupId>" +
                                 "<artifactId>project</artifactId>" +
                                 "<version>1</version>" +

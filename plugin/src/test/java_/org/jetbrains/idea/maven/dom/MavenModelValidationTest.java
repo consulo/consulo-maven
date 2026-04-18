@@ -15,8 +15,8 @@
  */
 package org.jetbrains.idea.maven.dom;
 
-import consulo.ide.impl.idea.openapi.vfs.VfsUtil;
 import consulo.virtualFileSystem.VirtualFile;
+import consulo.virtualFileSystem.util.VirtualFileUtil;
 
 public abstract class MavenModelValidationTest extends MavenDomWithIndicesTestCase {
   @Override
@@ -43,7 +43,7 @@ public abstract class MavenModelValidationTest extends MavenDomWithIndicesTestCa
   }
 
   public void testUnderstandingProjectSchemaWithoutNamespace() throws Exception {
-    VfsUtil.saveText(myProjectPom,
+    VirtualFileUtil.saveText(myProjectPom,
                      "<project>" +
                      "  <dep<caret>" +
                      "</project>");
@@ -70,7 +70,7 @@ public abstract class MavenModelValidationTest extends MavenDomWithIndicesTestCa
   }
 
   public void testAbsentModelVersion() throws Throwable {
-    VfsUtil.saveText(myProjectPom,
+    VirtualFileUtil.saveText(myProjectPom,
                      "<<error descr=\"'modelVersion' child tag should be defined\">project</error> xmlns=\"http://maven.apache.org/POM/4.0.0\"" +
                      "         xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"" +
                      "         xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">" +
@@ -80,7 +80,7 @@ public abstract class MavenModelValidationTest extends MavenDomWithIndicesTestCa
   }
 
   public void testAbsentArtifactId() throws Throwable {
-    VfsUtil.saveText(myProjectPom,
+    VirtualFileUtil.saveText(myProjectPom,
                      "<<error descr=\"'artifactId' child tag should be defined\">project</error> xmlns=\"http://maven.apache.org/POM/4.0.0\"" +
                      "         xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"" +
                      "         xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">" +
@@ -90,7 +90,7 @@ public abstract class MavenModelValidationTest extends MavenDomWithIndicesTestCa
   }
 
   public void testUnknownModelVersion() throws Throwable {
-    VfsUtil.saveText(myProjectPom,
+    VirtualFileUtil.saveText(myProjectPom,
                      "<project xmlns=\"http://maven.apache.org/POM/4.0.0\"" +
                      "         xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"" +
                      "         xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">" +
@@ -108,7 +108,7 @@ public abstract class MavenModelValidationTest extends MavenDomWithIndicesTestCa
   }
 
   public void testAddingSettingsXmlReadingProblemsToProjectTag() throws Exception {
-    VfsUtil.saveText(myProjectPom,
+    VirtualFileUtil.saveText(myProjectPom,
                      "<project>" +
                      "  <modelVersion>4.0.0</modelVersion>" +
                      "  <groupId>test</groupId>" +
@@ -119,7 +119,7 @@ public abstract class MavenModelValidationTest extends MavenDomWithIndicesTestCa
 
     readProjects();
 
-    VfsUtil.saveText(myProjectPom,
+    VirtualFileUtil.saveText(myProjectPom,
                      "<<error descr=\"'settings.xml' has syntax errors\">project</error>>" +
                      "  <modelVersion>4.0.0</modelVersion>" +
                      "  <groupId>test</groupId>" +
@@ -130,7 +130,7 @@ public abstract class MavenModelValidationTest extends MavenDomWithIndicesTestCa
   }
 
   public void testAddingProfilesXmlReadingProblemsToProjectTag() throws Exception {
-    VfsUtil.saveText(myProjectPom,
+    VirtualFileUtil.saveText(myProjectPom,
                      "<project>" +
                      "  <modelVersion>4.0.0</modelVersion>" +
                      "  <groupId>test</groupId>" +
@@ -141,7 +141,7 @@ public abstract class MavenModelValidationTest extends MavenDomWithIndicesTestCa
 
     readProjects();
 
-    VfsUtil.saveText(myProjectPom,
+    VirtualFileUtil.saveText(myProjectPom,
                      "<<error descr=\"'profiles.xml' has syntax errors\">project</error>>" +
                      "  <modelVersion>4.0.0</modelVersion>" +
                      "  <groupId>test</groupId>" +
@@ -152,7 +152,7 @@ public abstract class MavenModelValidationTest extends MavenDomWithIndicesTestCa
   }
 
   public void testAddingStructureReadingProblemsToParentTag() throws Exception {
-    VfsUtil.saveText(myProjectPom,
+    VirtualFileUtil.saveText(myProjectPom,
                      "<project>" +
                      "  <modelVersion>4.0.0</modelVersion>" +
                      "  <groupId>test</groupId>" +
@@ -167,7 +167,7 @@ public abstract class MavenModelValidationTest extends MavenDomWithIndicesTestCa
 
     readProjects();
 
-    VfsUtil.saveText(myProjectPom,
+    VirtualFileUtil.saveText(myProjectPom,
                      "<project>" +
                      "  <modelVersion>4.0.0</modelVersion>" +
                      "  <groupId>test</groupId>" +
@@ -189,7 +189,7 @@ public abstract class MavenModelValidationTest extends MavenDomWithIndicesTestCa
                     "<version>1</version>" +
                     "<<<");
 
-    VfsUtil.saveText(myProjectPom,
+    VirtualFileUtil.saveText(myProjectPom,
                      "<project>" +
                      "  <modelVersion>4.0.0</modelVersion>" +
                      "  <groupId>test</groupId>" +
@@ -204,7 +204,7 @@ public abstract class MavenModelValidationTest extends MavenDomWithIndicesTestCa
                      "</project>");
     readProjects();
 
-    VfsUtil.saveText(myProjectPom,
+    VirtualFileUtil.saveText(myProjectPom,
                      "<project>" +
                      "  <modelVersion>4.0.0</modelVersion>" +
                      "  <groupId>test</groupId>" +
@@ -221,7 +221,7 @@ public abstract class MavenModelValidationTest extends MavenDomWithIndicesTestCa
   }
 
   public void testDoNotAddReadingSyntaxProblemsToProjectTag() throws Exception {
-    VfsUtil.saveText(myProjectPom,
+    VirtualFileUtil.saveText(myProjectPom,
                      "<project>" +
                      "  <modelVersion>4.0.0</modelVersion>" +
                      "  <groupId>test</groupId>" +
@@ -232,7 +232,7 @@ public abstract class MavenModelValidationTest extends MavenDomWithIndicesTestCa
 
     readProjects();
 
-    VfsUtil.saveText(myProjectPom,
+    VirtualFileUtil.saveText(myProjectPom,
                      "<project>" +
                      "  <modelVersion>4.0.0</modelVersion>" +
                      "  <groupId>test</groupId>" +
@@ -244,7 +244,7 @@ public abstract class MavenModelValidationTest extends MavenDomWithIndicesTestCa
   }
 
   public void testDoNotAddDependencyAndModuleProblemsToProjectTag() throws Exception {
-    VfsUtil.saveText(myProjectPom,
+    VirtualFileUtil.saveText(myProjectPom,
                      "<project>" +
                      "  <modelVersion>4.0.0</modelVersion>" +
                      "  <groupId>test</groupId>" +
@@ -264,7 +264,7 @@ public abstract class MavenModelValidationTest extends MavenDomWithIndicesTestCa
 
     readProjects();
 
-    VfsUtil.saveText(myProjectPom,
+    VirtualFileUtil.saveText(myProjectPom,
                      "<project>" +
                      "  <modelVersion>4.0.0</modelVersion>" +
                      "  <groupId>test</groupId>" +

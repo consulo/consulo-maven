@@ -15,17 +15,17 @@
  */
 package org.jetbrains.idea.maven.compiler;
 
-import consulo.language.file.FileTypeManager;
-import consulo.virtualFileSystem.fileType.UnknownFileType;
-import consulo.ide.impl.idea.openapi.util.io.FileUtil;
-import consulo.ide.impl.idea.openapi.vfs.VfsUtil;
-import consulo.virtualFileSystem.VirtualFile;
 import consulo.application.WriteAction;
+import consulo.language.file.FileTypeManager;
+import consulo.maven.rt.server.common.model.MavenExplicitProfiles;
 import consulo.roots.impl.ProductionContentFolderTypeProvider;
+import consulo.util.io.FileUtil;
+import consulo.virtualFileSystem.VirtualFile;
+import consulo.virtualFileSystem.fileType.UnknownFileType;
+import consulo.virtualFileSystem.util.VirtualFileUtil;
 import org.jetbrains.idea.maven.MavenImportingTestCase;
 import org.jetbrains.idea.maven.importing.MavenDefaultModifiableModelsProvider;
 import org.jetbrains.idea.maven.importing.MavenRootModelAdapter;
-import consulo.maven.rt.server.common.model.MavenExplicitProfiles;
 
 import java.io.File;
 import java.io.IOException;
@@ -632,7 +632,7 @@ public abstract class ResourceFilteringTest extends MavenImportingTestCase
 		compileModules("project");
 		assertResult("target/classes/file.properties", "value=1");
 
-		VfsUtil.saveText(filter, "xxx=2");
+		VirtualFileUtil.saveText(filter, "xxx=2");
 		compileModules("project");
 		assertResult("target/classes/file.properties", "value=2");
 	}
@@ -1090,6 +1090,6 @@ public abstract class ResourceFilteringTest extends MavenImportingTestCase
 	{
 		File file = new File(pomFile.getParent().getPath(), relativePath);
 		assertTrue("file not found: " + relativePath, file.exists());
-		return new String(FileUtil.loadFileText(file));
+		return FileUtil.loadFile(file);
 	}
 }

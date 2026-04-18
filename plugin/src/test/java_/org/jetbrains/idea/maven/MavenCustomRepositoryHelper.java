@@ -19,7 +19,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 
-import consulo.ide.impl.idea.openapi.util.io.FileUtil;
+import consulo.util.io.FilePermissionCopier;
+import consulo.util.io.FileUtil;
 import consulo.virtualFileSystem.LocalFileSystem;
 
 public class MavenCustomRepositoryHelper {
@@ -40,7 +41,7 @@ public class MavenCustomRepositoryHelper {
 
   public void addTestData(String relativePath) throws IOException {
     File to = new File(myWorkingData, relativePath);
-    FileUtil.copyDir(new File(getOriginalTestDataPath(), relativePath), to);
+    FileUtil.copyDir(new File(getOriginalTestDataPath(), relativePath), to, FilePermissionCopier.BY_NIO2);
     LocalFileSystem.getInstance().refreshIoFiles(Collections.singleton(to));
   }
 
@@ -66,8 +67,8 @@ public class MavenCustomRepositoryHelper {
     File from = new File(getTestDataPath(fromRelativePath));
     File to = new File(getTestDataPath(toRelativePath));
 
-    if (from.isDirectory()) FileUtil.copyDir(from, to);
-    else FileUtil.copy(from, to);
+    if (from.isDirectory()) FileUtil.copyDir(from, to, FilePermissionCopier.BY_NIO2);
+    else FileUtil.copy(from, to, FilePermissionCopier.BY_NIO2);
 
     LocalFileSystem.getInstance().refreshIoFiles(Collections.singleton(to));
   }
