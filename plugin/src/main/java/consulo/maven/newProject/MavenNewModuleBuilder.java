@@ -21,7 +21,7 @@ import java.util.function.Consumer;
  * @author VISTALL
  * @since 2019-10-06
  */
-@ExtensionImpl
+@ExtensionImpl(id = "maven", order = "after jvm")
 public class MavenNewModuleBuilder implements NewModuleBuilder
 {
 	@Override
