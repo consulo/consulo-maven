@@ -15,18 +15,18 @@
  */
 package org.jetbrains.idea.maven.dom;
 
+import consulo.application.ApplicationManager;
 import consulo.document.Document;
+import consulo.document.FileDocumentManager;
+import consulo.language.codeStyle.CodeStyleManager;
+import consulo.language.psi.PsiFile;
 import consulo.language.psi.PsiManager;
+import consulo.undoRedo.CommandProcessor;
+import consulo.util.lang.IncorrectOperationException;
+import consulo.virtualFileSystem.util.VirtualFileUtil;
 import org.jetbrains.idea.maven.MavenImportingTestCase;
 import org.jetbrains.idea.maven.dom.model.MavenDomDependency;
 import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
-import consulo.application.ApplicationManager;
-import consulo.undoRedo.CommandProcessor;
-import consulo.document.FileDocumentManager;
-import consulo.ide.impl.idea.openapi.vfs.VfsUtil;
-import consulo.language.psi.PsiFile;
-import consulo.language.codeStyle.CodeStyleManager;
-import consulo.util.lang.IncorrectOperationException;
 
 public abstract class MavenModelReadingAndWritingTest extends MavenImportingTestCase {
   @Override
@@ -72,7 +72,7 @@ public abstract class MavenModelReadingAndWritingTest extends MavenImportingTest
                     "    <artifactId>bar</artifactId>\r\n" +
                     "    <version>baz</version>\r\n" +
                     "</project>",
-                    VfsUtil.loadText(myProjectPom));
+                    VirtualFileUtil.loadText(myProjectPom));
   }
 
   public void testAddingADependency() throws Exception {
@@ -108,7 +108,7 @@ public abstract class MavenModelReadingAndWritingTest extends MavenImportingTest
                     "            <version>version</version>\r\n" +
                     "        </dependency>\r\n" +
                     "    </dependencies>\r\n" +
-                    "</project>", VfsUtil.loadText(myProjectPom));
+                    "</project>", VirtualFileUtil.loadText(myProjectPom));
   }
 
   private MavenDomProjectModel getDomModel() {

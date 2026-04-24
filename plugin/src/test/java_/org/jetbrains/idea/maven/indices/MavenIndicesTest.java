@@ -21,6 +21,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import consulo.util.io.FilePermissionCopier;
+import consulo.util.io.FileUtil;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.WildcardQuery;
@@ -30,7 +32,6 @@ import org.jetbrains.idea.maven.server.MavenIndexerWrapper;
 import consulo.maven.rt.server.common.server.MavenServerIndexer;
 import org.jetbrains.idea.maven.server.MavenServerManager;
 import consulo.application.util.SystemInfo;
-import consulo.ide.impl.idea.openapi.util.io.FileUtil;
 
 public abstract class MavenIndicesTest extends MavenIndicesTestCase {
   private MavenCustomRepositoryHelper myRepositoryHelper;
@@ -262,7 +263,7 @@ public abstract class MavenIndicesTest extends MavenIndicesTestCase {
     shutdownIndices();
 
     File copy = new File(dir.getParentFile(), "ZZZ_INDEX_COPY");
-    FileUtil.copyDir(dir, copy);
+    FileUtil.copyDir(dir, copy, FilePermissionCopier.BY_NIO2);
 
     initIndices();
 
@@ -377,11 +378,11 @@ public abstract class MavenIndicesTest extends MavenIndicesTestCase {
       w.close();
     }
     else {
-      byte[] content = FileUtil.loadFileBytes(file);
-      for (int i = 0; i < content.length; i+=2) {
-        content[i] = -1;
-      }
-      FileUtil.writeToFile(file, content);
+//      byte[] content = FileUtil.loadFileBytes(file);
+//      for (int i = 0; i < content.length; i+=2) {
+//        content[i] = -1;
+//      }
+//      FileUtil.writeToFile(file, content);
     }
   }
 

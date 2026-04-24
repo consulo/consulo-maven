@@ -15,11 +15,16 @@
  */
 package org.jetbrains.idea.maven.wizards;
 
+import consulo.annotation.access.RequiredReadAction;
+import consulo.annotation.access.RequiredWriteAction;
 import consulo.application.Application;
 import consulo.application.Result;
+import consulo.application.util.TempFileService;
 import consulo.document.Document;
 import consulo.document.FileDocumentManager;
-import consulo.ide.impl.idea.openapi.util.io.FileUtil;
+import consulo.ui.annotation.RequiredUIAccess;
+import consulo.util.io.FilePermissionCopier;
+import consulo.util.io.FileUtil;
 import consulo.language.codeStyle.CodeStyleManager;
 import consulo.language.editor.WriteCommandAction;
 import consulo.language.editor.util.EditorHelper;
@@ -47,8 +52,10 @@ import org.jetbrains.idea.maven.utils.MavenLog;
 import org.jetbrains.idea.maven.utils.MavenUtil;
 
 import jakarta.annotation.Nonnull;
+
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Map;
 
@@ -74,7 +81,7 @@ public class MavenModuleBuilderHelper {
         boolean inheritVersion,
         MavenArchetype archetype,
         Map<String, String> propertiesToCreateByArtifact,
-        String commaneName
+        String commandName
     ) {
         myProjectId = projectId;
         myAggregatorProject = aggregatorProject;
@@ -83,14 +90,16 @@ public class MavenModuleBuilderHelper {
         myInheritVersion = inheritVersion;
         myArchetype = archetype;
         myPropertiesToCreateByArtifact = propertiesToCreateByArtifact;
-        myCommandName = commaneName;
+        myCommandName = commandName;
     }
 
+    @RequiredUIAccess
     public void configure(final Project project, final VirtualFile root, final boolean isInteractive) {
         PsiFile[] psiFiles =
             myAggregatorProject != null ? new PsiFile[]{getPsiFile(project, myAggregatorProject.getFile())} : PsiFile.EMPTY_ARRAY;
-        final VirtualFile pom = new WriteCommandAction<VirtualFile>(project, myCommandName, psiFiles) {
+        VirtualFile pom = new WriteCommandAction<VirtualFile>(project, myCommandName, psiFiles) {
             @Override
+            @RequiredUIAccess
             protected void run(Result<VirtualFile> result) throws Throwable {
                 VirtualFile file;
                 try {
@@ -135,8 +144,10 @@ public class MavenModuleBuilderHelper {
         }
 
         // execute when current dialog is closed (e.g. Project Structure)
-        MavenUtil.invokeLater(project, Application.get().getNoneModalityState(), new Runnable() {
-            public void run() {
+        MavenUtil.invokeLater(
+            project,
+            Application.get().getNoneModalityState(),
+            () -> {
                 if (!pom.isValid()) {
                     return;
                 }
@@ -146,15 +157,18 @@ public class MavenModuleBuilderHelper {
                     generateFromArchetype(project, pom);
                 }
             }
-        });
+        );
     }
 
+    @RequiredUIAccess
     private void updateProjectPom(final Project project, final VirtualFile pom) {
         if (myParentProject == null) {
             return;
         }
 
         new WriteCommandAction.Simple(project, myCommandName) {
+            @Override
+            @RequiredWriteAction
             protected void run() throws Throwable {
                 MavenDomProjectModel model = MavenDomUtil.getMavenDomProjectModel(project, pom);
                 if (model == null) {
@@ -191,15 +205,15 @@ public class MavenModuleBuilderHelper {
         }.execute();
     }
 
+    @RequiredReadAction
     private PsiFile getPsiFile(Project project, VirtualFile pom) {
         return PsiManager.getInstance(project).findFile(pom);
     }
 
-    private void generateFromArchetype(final Project project, final VirtualFile pom) {
-        final File workingDir;
+    private void generateFromArchetype(Project project, VirtualFile pom) {
+        Path workingDir;
         try {
-            workingDir = FileUtil.createTempDirectory("archetype", "tmp");
-            workingDir.deleteOnExit();
+            workingDir = project.getApplication().getInstance(TempFileService.class).createTempDirectory("archetype", "tmp");
         }
         catch (IOException e) {
             showError(project, e);
@@ -208,11 +222,10 @@ public class MavenModuleBuilderHelper {
 
         MavenRunnerParameters params = new MavenRunnerParameters(
             false,
-            workingDir.getPath(),
+            workingDir.toString(),
             Collections.singletonList("org.apache.maven.plugins:maven-archetype-plugin:RELEASE:generate"),
             Collections.<String>emptyList()
         );
-
 
         MavenRunner runner = MavenRunner.getInstance(project);
         MavenRunnerSettings settings = runner.getState().clone();
@@ -233,17 +246,18 @@ public class MavenModuleBuilderHelper {
         runner.run(
             params,
             settings,
-            new Runnable() {
-                public void run() {
-                    copyGeneratedFiles(workingDir, pom, project);
-                }
-            }
+            () -> copyGeneratedFiles(workingDir, pom, project)
         );
     }
 
-    private void copyGeneratedFiles(File workingDir, VirtualFile pom, Project project) {
+    @RequiredUIAccess
+    private void copyGeneratedFiles(Path workingDir, VirtualFile pom, Project project) {
         try {
-            FileUtil.copyDir(new File(workingDir, myProjectId.getArtifactId()), new File(pom.getParent().getPath()));
+            FileUtil.copyDir(
+                new File(workingDir.toFile(), myProjectId.getArtifactId()),
+                new File(pom.getParent().getPath()),
+                FilePermissionCopier.BY_NIO2
+            );
         }
         catch (IOException e) {
             showError(project, e);

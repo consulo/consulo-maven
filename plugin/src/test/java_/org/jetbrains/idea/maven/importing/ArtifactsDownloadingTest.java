@@ -15,16 +15,16 @@
  */
 package org.jetbrains.idea.maven.importing;
 
+import consulo.maven.rt.server.common.model.MavenArtifact;
+import consulo.maven.rt.server.common.model.MavenId;
+import consulo.util.io.FileUtil;
+import consulo.virtualFileSystem.util.VirtualFileUtil;
+import org.jetbrains.idea.maven.project.MavenArtifactDownloader;
+import org.jetbrains.idea.maven.project.MavenProject;
+
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
-
-import consulo.maven.rt.server.common.model.MavenArtifact;
-import consulo.maven.rt.server.common.model.MavenId;
-import org.jetbrains.idea.maven.project.MavenArtifactDownloader;
-import org.jetbrains.idea.maven.project.MavenProject;
-import consulo.ide.impl.idea.openapi.util.io.FileUtil;
-import consulo.ide.impl.idea.openapi.vfs.VfsUtil;
 
 public abstract class ArtifactsDownloadingTest extends ArtifactsDownloadingTestCase {
   public void testJavadocsAndSources() throws Exception {
@@ -181,7 +181,7 @@ public abstract class ArtifactsDownloadingTest extends ArtifactsDownloadingTestC
                            "<mirrors>" +
                            "  <mirror>" +
                            "    <id>central</id>" +
-                           "    <url>" + VfsUtil.pathToUrl(remoteRepo) + "</url>" +
+                           "    <url>" + VirtualFileUtil.pathToUrl(remoteRepo) + "</url>" +
                            "    <mirrorOf>*</mirrorOf>" +
                            "  </mirror>" +
                            "</mirrors>" +

@@ -22,12 +22,12 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import consulo.util.io.FileUtil;
 import org.jetbrains.idea.maven.MavenImportingTestCase;
 import consulo.maven.rt.server.common.model.MavenArtifactNode;
 import consulo.maven.rt.server.common.model.MavenPlugin;
 import consulo.maven.rt.server.common.model.MavenRemoteRepository;
 import org.jetbrains.idea.maven.utils.MavenJDOMUtil;
-import consulo.ide.impl.idea.openapi.util.io.FileUtil;
 import consulo.util.lang.StringUtil;
 import consulo.virtualFileSystem.VirtualFile;
 
@@ -391,8 +391,7 @@ public abstract class MavenProjectTest extends MavenImportingTestCase {
                   "  </plugins>" +
                   "</build>");
 
-    assertEquals(getProjectPath() + "/target",
-                 FileUtil.toSystemIndependentName(findPluginConfig("group", "id", "one")));
+    assertEquals(getProjectPath() + "/target", FileUtil.toSystemIndependentName(findPluginConfig("group", "id", "one")));
   }
 
   public void testPluginConfigurationWithColons() throws Exception {

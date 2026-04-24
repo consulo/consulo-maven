@@ -15,9 +15,9 @@
  */
 package org.jetbrains.idea.maven.importing
 
+import consulo.virtualFileSystem.VirtualFile
+import consulo.virtualFileSystem.util.VirtualFileUtil
 import org.jetbrains.idea.maven.MavenImportingTestCase
-import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.openapi.vfs.VfsUtil
 
 /**
  * @author Sergey Evdokimov
@@ -40,7 +40,7 @@ class EncodingImportingTest extends MavenImportingTestCase {
 </properties>
 """)
 
-    def loadedText = VfsUtil.loadText(file)
+    def loadedText = VirtualFileUtil.loadText(file)
 
     assert loadedText == new String(text, "koi8-r")
   }
@@ -68,7 +68,7 @@ class EncodingImportingTest extends MavenImportingTestCase {
   </build>
 """)
 
-    def loadedText = VfsUtil.loadText(file)
+    def loadedText = VirtualFileUtil.loadText(file)
 
     assert loadedText == new String(text, "koi8-r")
   }

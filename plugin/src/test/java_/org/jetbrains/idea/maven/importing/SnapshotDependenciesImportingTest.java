@@ -18,8 +18,8 @@ package org.jetbrains.idea.maven.importing;
 import java.io.File;
 import java.io.IOException;
 
+import consulo.util.io.FileUtil;
 import org.jetbrains.idea.maven.MavenImportingTestCase;
-import consulo.ide.impl.idea.openapi.util.io.FileUtil;
 import consulo.virtualFileSystem.VirtualFile;
 
 public abstract class SnapshotDependenciesImportingTest extends MavenImportingTestCase {

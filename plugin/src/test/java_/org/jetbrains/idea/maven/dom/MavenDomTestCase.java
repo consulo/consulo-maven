@@ -15,53 +15,48 @@
  */
 package org.jetbrains.idea.maven.dom;
 
-import consulo.codeEditor.Editor;
-import consulo.language.editor.CodeInsightSettings;
-import consulo.ide.impl.idea.codeInsight.documentation.DocumentationManager;
-import consulo.ide.impl.idea.codeInsight.highlighting.HighlightUsagesHandler;
-import consulo.language.editor.documentation.DocumentationProvider;
-import consulo.language.editor.intention.IntentionAction;
-import consulo.language.editor.completion.lookup.LookupElement;
-import consulo.ide.impl.find.PsiElement2UsageTargetAdapter;
-import consulo.dataContext.DataProvider;
-import consulo.language.editor.LangDataKeys;
-import consulo.language.editor.PlatformDataKeys;
-import consulo.codeEditor.markup.RangeHighlighter;
-import consulo.ide.impl.idea.openapi.vfs.VfsUtilCore;
-import consulo.language.editor.refactoring.rename.PsiElementRenameHandler;
-import consulo.language.psi.PsiManager;
-import consulo.language.psi.PsiReference;
-import consulo.language.psi.search.ReferencesSearch;
-import consulo.language.psi.util.PsiTreeUtil;
-import consulo.usage.UsageTargetUtil;
-import consulo.virtualFileSystem.VirtualFile;
-import consulo.language.psi.PsiElement;
-import consulo.language.psi.PsiFile;
-import consulo.language.psi.PsiMultiReference;
 import com.intellij.psi.xml.XmlTag;
-import consulo.language.editor.refactoring.rename.RenameHandler;
-import consulo.language.editor.refactoring.rename.RenameHandlerRegistry;
-import consulo.language.editor.refactoring.util.CommonRefactoringUtil;
 import com.intellij.testFramework.MapDataContext;
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture;
 import com.intellij.testFramework.fixtures.CodeInsightTestUtil;
 import com.intellij.testFramework.fixtures.IdeaTestFixtureFactory;
 import com.intellij.testFramework.fixtures.impl.CodeInsightTestFixtureImpl;
-import consulo.usage.UsageTarget;
-import consulo.ide.impl.idea.util.Function;
-import consulo.util.collection.ContainerUtil;
-import consulo.language.editor.TargetElementUtil;
+import consulo.codeEditor.Editor;
+import consulo.codeEditor.markup.RangeHighlighter;
 import consulo.codeInsight.TargetElementUtilEx;
+import consulo.dataContext.DataProvider;
+import consulo.ide.impl.find.PsiElement2UsageTargetAdapter;
+import consulo.ide.impl.idea.codeInsight.documentation.DocumentationManager;
+import consulo.ide.impl.idea.codeInsight.highlighting.HighlightUsagesHandler;
+import consulo.ide.impl.idea.util.Function;
+import consulo.language.editor.CodeInsightSettings;
+import consulo.language.editor.LangDataKeys;
+import consulo.language.editor.PlatformDataKeys;
+import consulo.language.editor.TargetElementUtil;
+import consulo.language.editor.completion.lookup.LookupElement;
+import consulo.language.editor.documentation.DocumentationProvider;
+import consulo.language.editor.intention.IntentionAction;
+import consulo.language.editor.refactoring.rename.PsiElementRenameHandler;
+import consulo.language.editor.refactoring.rename.RenameHandler;
+import consulo.language.editor.refactoring.rename.RenameHandlerRegistry;
+import consulo.language.editor.refactoring.util.CommonRefactoringUtil;
+import consulo.language.psi.*;
+import consulo.language.psi.search.ReferencesSearch;
+import consulo.language.psi.util.PsiTreeUtil;
+import consulo.usage.UsageTarget;
+import consulo.usage.UsageTargetUtil;
+import consulo.util.collection.ContainerUtil;
 import consulo.util.dataholder.Key;
 import consulo.util.lang.Comparing;
+import consulo.virtualFileSystem.VirtualFile;
+import consulo.virtualFileSystem.util.VirtualFileUtil;
+import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.idea.maven.MavenImportingTestCase;
 import org.jetbrains.idea.maven.dom.inspections.MavenModelInspection;
 import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
 import org.jetbrains.idea.maven.dom.references.MavenPsiElementWrapper;
-
-import jakarta.annotation.Nonnull;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -224,7 +219,7 @@ public abstract class MavenDomTestCase extends MavenImportingTestCase
 	@Nullable
 	protected PsiReference getReference(VirtualFile file, @Nonnull String referenceText) throws IOException
 	{
-		String text = VfsUtilCore.loadText(file);
+		String text = VirtualFileUtil.loadText(file);
 		int index = text.indexOf(referenceText);
 		assert index >= 0;
 
@@ -236,7 +231,7 @@ public abstract class MavenDomTestCase extends MavenImportingTestCase
 	@Nullable
 	protected PsiReference getReference(VirtualFile file, @Nonnull String referenceText, int index) throws IOException
 	{
-		String text = VfsUtilCore.loadText(file);
+		String text = VirtualFileUtil.loadText(file);
 		int k = -1;
 
 		do

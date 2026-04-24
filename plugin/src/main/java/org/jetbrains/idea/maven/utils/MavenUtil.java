@@ -31,7 +31,6 @@ import consulo.externalSystem.model.ProjectSystemId;
 import consulo.fileEditor.FileEditorManager;
 import consulo.fileTemplate.FileTemplate;
 import consulo.fileTemplate.FileTemplateManager;
-import consulo.ide.impl.idea.openapi.vfs.VfsUtil;
 import consulo.ide.impl.idea.util.DisposeAwareRunnable;
 import consulo.java.language.module.extension.JavaModuleExtension;
 import consulo.language.editor.completion.lookup.LookupElement;
@@ -74,6 +73,8 @@ import consulo.virtualFileSystem.LocalFileSystem;
 import consulo.virtualFileSystem.VirtualFile;
 import consulo.virtualFileSystem.archive.ArchiveVfsUtil;
 import consulo.virtualFileSystem.util.VirtualFileUtil;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import org.jetbrains.idea.maven.localize.MavenLocalize;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
@@ -83,8 +84,6 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 import org.xml.sax.helpers.DefaultHandler;
 
-import jakarta.annotation.Nonnull;
-import jakarta.annotation.Nullable;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -353,7 +352,7 @@ public class MavenUtil {
                 VirtualFile parentModulePath = parentFile.getParent();
 
                 if (!Comparing.equal(modulePath.getParent(), parentModulePath)) {
-                    String relativePath = VfsUtil.getPath(file, parentModulePath, '/');
+                    String relativePath = VirtualFileUtil.getPath(file, parentModulePath, '/');
                     if (relativePath != null) {
                         if (relativePath.endsWith("/")) {
                             relativePath = relativePath.substring(0, relativePath.length() - 1);

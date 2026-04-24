@@ -23,11 +23,11 @@ import java.util.List;
 
 import consulo.maven.rt.server.common.model.MavenExplicitProfiles;
 import consulo.maven.rt.server.common.server.NativeMavenProjectHolder;
+import consulo.util.io.FileUtil;
 import consulo.util.lang.StringUtil;
 import org.jetbrains.idea.maven.utils.MavenUtil;
 import consulo.language.editor.WriteCommandAction;
 import consulo.util.lang.Pair;
-import consulo.ide.impl.idea.openapi.util.io.FileUtil;
 import consulo.virtualFileSystem.VirtualFile;
 import com.intellij.testFramework.PlatformTestUtil;
 import consulo.ide.impl.idea.util.Function;

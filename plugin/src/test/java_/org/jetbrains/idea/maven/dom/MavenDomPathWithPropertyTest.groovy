@@ -15,8 +15,7 @@
  */
 package org.jetbrains.idea.maven.dom
 
-import com.intellij.openapi.vfs.VfsUtil
-import com.intellij.psi.PsiManager
+import consulo.language.psi.PsiManager
 
 /**
  * @author Sergey Evdokimov

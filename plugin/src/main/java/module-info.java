@@ -1,39 +1,41 @@
 /**
  * @author VISTALL
- * @since 20/01/2023
+ * @since 2023-01-20
  */
-open module org.jetbrains.idea.maven
-{
+open module org.jetbrains.idea.maven {
 	requires consulo.ide.api;
 
 	// platform small deps
+	requires consulo.application.api;
+	requires consulo.compiler.api;
+	requires consulo.compiler.artifact.api;
+	requires consulo.configurable.api;
+	requires consulo.build.ui.api;
+	requires consulo.diff.api;
+	requires consulo.execution.api;
+	requires consulo.execution.debug.api;
+	requires consulo.external.system.api;
+	requires consulo.file.editor.api;
+	requires consulo.file.template.api;
+	requires consulo.find.api;
+	requires consulo.http.api;
 	requires consulo.language.editor.refactoring.api;
 	requires consulo.language.editor.ui.api;
 	requires consulo.language.editor.impl;
 	requires consulo.language.impl;
 	requires consulo.language.code.style.ui.api;
-	requires consulo.execution.api;
-	requires consulo.execution.debug.api;
-	requires consulo.compiler.api;
-	requires consulo.compiler.artifact.api;
-	requires consulo.configurable.api;
-	requires consulo.diff.api;
-	requires consulo.find.api;
-	requires consulo.usage.api;
-	requires consulo.file.template.api;
-	requires consulo.file.editor.api;
-	requires consulo.project.ui.view.api;
 	requires consulo.module.ui.api;
+	requires consulo.navigation.api;
+	requires consulo.process.api;
+	requires consulo.project.api;
+	requires consulo.project.ui.view.api;
 	requires consulo.ui.ex.api;
 	requires consulo.ui.ex.awt.api;
-	requires consulo.process.api;
-	requires consulo.build.ui.api;
-	requires consulo.external.system.api;
-	requires consulo.version.control.system.api;
-	requires consulo.navigation.api;
-	requires consulo.http.api;
-	requires consulo.web.browser.api;
+	requires consulo.usage.api;
+	requires consulo.util.io;
 	requires consulo.util.rmi;
+	requires consulo.version.control.system.api;
+	requires consulo.web.browser.api;
 
 	requires com.intellij.xml;
 
