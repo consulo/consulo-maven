@@ -16,38 +16,17 @@
 
 package org.jetbrains.idea.maven.utils;
 
-import consulo.annotation.component.ComponentScope;
-import consulo.annotation.component.ServiceAPI;
-import consulo.annotation.component.ServiceImpl;
-import consulo.application.macro.PathMacros;
-import jakarta.inject.Inject;
-import jakarta.inject.Singleton;
+import consulo.annotation.component.ExtensionImpl;
+import consulo.application.macro.PathMacroContributor;
 
-import java.io.File;
+import java.util.Map;
 
-@Singleton
-@ServiceAPI(value = ComponentScope.APPLICATION, lazy = false)
-@ServiceImpl
-public class MavenEnvironmentRegistrar {
+@ExtensionImpl
+public class MavenEnvironmentRegistrar implements PathMacroContributor {
     private static final String MAVEN_REPOSITORY = "MAVEN_REPOSITORY";
 
-    @Inject
-    public MavenEnvironmentRegistrar(PathMacros macros) {
-        registerPathVariable(macros);
-    }
-
-    private void registerPathVariable(PathMacros macros) {
-        File repository = MavenUtil.resolveLocalRepository(null, null, null);
-
-        for (String each : macros.getAllMacroNames()) {
-            String path = macros.getValue(each);
-            if (path == null) {
-                continue;
-            }
-            if (new File(path).equals(repository)) {
-                return;
-            }
-        }
-        macros.setMacro(MAVEN_REPOSITORY, repository.getPath());
+    @Override
+    public void registerPathMacros(Map<String, String> map, Map<String, String> legacyNotUsed) {
+        map.put(MAVEN_REPOSITORY, MavenUtil.resolveLocalRepository(null, null, null).getPath());
     }
 }
