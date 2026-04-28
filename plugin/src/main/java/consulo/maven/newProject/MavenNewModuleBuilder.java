@@ -27,7 +27,7 @@ public class MavenNewModuleBuilder implements NewModuleBuilder
 	@Override
 	public void setupContext(@Nonnull NewModuleContext newModuleContext)
 	{
-		newModuleContext.get("jvm").add("From Maven", MavenIconGroup.mavenlogo(), new NewModuleBuilderProcessor<MavenNewModuleContext>()
+		newModuleContext.get("jvm").add("Maven Archetype", MavenIconGroup.mavenlogo(), new NewModuleBuilderProcessor<MavenNewModuleContext>()
 		{
 			@Nonnull
 			@Override
