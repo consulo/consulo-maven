@@ -2,13 +2,13 @@ package consulo.maven.importProvider;
 
 import consulo.annotation.access.RequiredReadAction;
 import consulo.annotation.component.ExtensionImpl;
-import consulo.ide.moduleImport.ModuleImportProvider;
-import consulo.ide.newModule.ui.UnifiedProjectOrModuleNameStep;
 import consulo.localize.LocalizeValue;
 import consulo.maven.rt.server.common.model.MavenConstants;
 import consulo.maven.rt.server.common.model.MavenExplicitProfiles;
 import consulo.module.ModifiableModuleModel;
 import consulo.module.Module;
+import consulo.module.creation.importing.ModuleImportProvider;
+import consulo.module.creation.ui.UnifiedProjectOrModuleNameStep;
 import consulo.project.Project;
 import consulo.ui.ex.wizard.WizardStep;
 import consulo.ui.image.Image;

@@ -2,13 +2,13 @@ package consulo.maven.newProject;
 
 import consulo.annotation.access.RequiredReadAction;
 import consulo.annotation.component.ExtensionImpl;
-import consulo.ide.newModule.NewModuleBuilder;
-import consulo.ide.newModule.NewModuleBuilderProcessor;
-import consulo.ide.newModule.NewModuleContext;
-import consulo.ide.newModule.ui.UnifiedProjectOrModuleNameStep;
 import consulo.maven.icon.MavenIconGroup;
 import consulo.module.content.layer.ContentEntry;
 import consulo.module.content.layer.ModifiableRootModel;
+import consulo.module.creation.scratch.NewModuleBuilder;
+import consulo.module.creation.scratch.NewModuleBuilderProcessor;
+import consulo.module.creation.scratch.NewModuleContext;
+import consulo.module.creation.ui.UnifiedProjectOrModuleNameStep;
 import consulo.project.Project;
 import consulo.ui.ex.wizard.WizardStep;
 import org.jetbrains.idea.maven.wizards.MavenModuleWizardStep;

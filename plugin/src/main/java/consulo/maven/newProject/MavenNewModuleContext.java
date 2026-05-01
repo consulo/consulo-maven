@@ -1,9 +1,9 @@
 package consulo.maven.newProject;
 
 import consulo.application.dumb.DumbAwareRunnable;
-import consulo.ide.newModule.NewModuleWizardContextBase;
 import consulo.maven.rt.server.common.model.MavenArchetype;
 import consulo.maven.rt.server.common.model.MavenId;
+import consulo.module.creation.NewModuleWizardContextBase;
 import consulo.project.Project;
 import consulo.virtualFileSystem.LocalFileSystem;
 import consulo.virtualFileSystem.VirtualFile;
