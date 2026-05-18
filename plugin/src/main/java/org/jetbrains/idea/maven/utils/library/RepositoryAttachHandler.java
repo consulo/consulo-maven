@@ -171,15 +171,15 @@ public class RepositoryAttachHandler {
                 final String url = VirtualFileUtil.getUrlForLibraryRoot(toFile);
                 final VirtualFile file = manager.refreshAndFindFileByUrl(url);
                 if (file != null) {
-                    OrderRootType rootType;
+                    String rootType;
                     if (MavenExtraArtifactType.DOCS.getDefaultClassifier().equals(each.getClassifier())) {
-                        rootType = DocumentationOrderRootType.getInstance();
+                        rootType = DocumentationOrderRootType.ID;
                     }
                     else if (MavenExtraArtifactType.SOURCES.getDefaultClassifier().equals(each.getClassifier())) {
-                        rootType = SourcesOrderRootType.getInstance();
+                        rootType = SourcesOrderRootType.ID;
                     }
                     else {
-                        rootType = BinariesOrderRootType.getInstance();
+                        rootType = BinariesOrderRootType.ID;
                     }
                     result.add(new OrderRoot(file, rootType));
                 }

@@ -52,7 +52,7 @@ public interface MavenModifiableModelsProvider extends MavenModelsProvider {
   Library.ModifiableModel getLibraryModel(Library library);
 
   @Nonnull
-  String[] getLibraryUrls(@Nonnull Library library, @Nonnull OrderRootType type);
+  String[] getLibraryUrls(@Nonnull Library library, @Nonnull String type);
 
   void commit();
 

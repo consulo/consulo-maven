@@ -128,4 +128,5 @@ open module org.jetbrains.idea.maven {
 	exports org.jetbrains.idea.maven.utils.library;
 	exports org.jetbrains.idea.maven.vfs;
 	exports org.jetbrains.idea.maven.wizards;
+	
 }

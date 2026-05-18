@@ -157,7 +157,7 @@ public class MavenBundleType extends SdkType {
                 if (jarFile.getName().endsWith(".jar")) {
                     VirtualFile file = LocalFileSystem.getInstance().findFileByIoFile(jarFile);
                     if (file != null) {
-                        sdkModificator.addRoot(file, BinariesOrderRootType.getInstance());
+                        sdkModificator.addRoot(file, BinariesOrderRootType.ID);
                     }
                 }
             }
@@ -167,8 +167,8 @@ public class MavenBundleType extends SdkType {
     }
 
     @Override
-    public boolean isRootTypeApplicable(OrderRootType type) {
-        return type == BinariesOrderRootType.getInstance();
+    public boolean isRootTypeApplicable(String type) {
+        return BinariesOrderRootType.ID.equals(type);
     }
 
     @Nullable

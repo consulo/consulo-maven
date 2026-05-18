@@ -100,7 +100,7 @@ public abstract class MavenBaseModifiableModelsProvider implements MavenModifiab
 
   @Nonnull
   @Override
-  public String[] getLibraryUrls(@Nonnull Library library, @Nonnull OrderRootType type) {
+  public String[] getLibraryUrls(@Nonnull Library library, @Nonnull String type) {
     final Library.ModifiableModel model = myLibraryModels.get(library);
     if (model != null) {
       return model.getUrls(type);
