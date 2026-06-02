@@ -1,20 +1,20 @@
-maven.repositories.title:
-  text: Repositories
-maven.index.url:
-  text: URL
 maven.index.type:
-  text: Type
+    text: Type
 maven.index.updated:
-  text: Updated
-maven.index.updated.never:
-  text: Never
+    text: Updated
 maven.index.updated.error:
-  text: Error
+    text: Error
+maven.index.updated.never:
+    text: Never
+maven.index.url:
+    text: URL
 maven.indices.updating:
-  text: Updating Maven Repository Indices...
+    text: Updating Maven Repository Indices...
 maven.indices.updating.index:
-  text: Updating [{0}] {1}
+    text: Updating [{0}] {1}
+maven.repositories.title:
+    text: Repositories
 repository.plugin.corrupt:
-  text: '{0} not a Maven 2 plugin file'
+    text: '{0} not a Maven 2 plugin file'
 repository.plugin.title:
-  text: Opening Maven plugin file
+    text: Opening Maven plugin file

@@ -1,0 +1,107 @@
+{
+  "lockVersion" : 1,
+  "server" : "https://i.verbaria.org/",
+  "project" : "consulo-maven",
+  "projectVersion" : "master",
+  "generatedAt" : "2026-06-02T20:58:44.100401805Z",
+  "documents" : {
+    "org.jetbrains.idea.maven.MavenDomLocalize" : {
+      "source" : {
+        "revision" : 1,
+        "sig" : "0e44d19cfe7a06b41b4c0987b8785c18"
+      },
+      "translations" : {
+        "en-US" : {
+          "sig" : "ab72607951f3fcbbcd38465d6aa4af74",
+          "state" : "Approved",
+          "total" : 34,
+          "translators" : [ "Valery Semenchuk <vistall.valeriy@gmail.com>" ]
+        }
+      }
+    },
+    "org.jetbrains.idea.maven.MavenIndicesLocalize" : {
+      "source" : {
+        "revision" : 1,
+        "sig" : "a59999389f1b35dc3b51ba2ddcd14860"
+      },
+      "translations" : {
+        "en-US" : {
+          "sig" : "b34c3ab3ba5dff1806c454fd62e34633",
+          "state" : "Approved",
+          "total" : 10,
+          "translators" : [ "Valery Semenchuk <vistall.valeriy@gmail.com>" ]
+        }
+      }
+    },
+    "org.jetbrains.idea.maven.MavenLocalize" : {
+      "source" : {
+        "revision" : 1,
+        "sig" : "2857a03af264c77f27502a91a83f399d"
+      },
+      "translations" : {
+        "en-US" : {
+          "sig" : "229f7e37f09e49bf016aeb1b8150a0fd",
+          "state" : "Approved",
+          "total" : 4,
+          "translators" : [ "Valery Semenchuk <vistall.valeriy@gmail.com>" ]
+        }
+      }
+    },
+    "org.jetbrains.idea.maven.MavenProjectLocalize" : {
+      "source" : {
+        "revision" : 1,
+        "sig" : "e18dbe18d45c3cc89eeaa0d1b709bc3a"
+      },
+      "translations" : {
+        "en-US" : {
+          "sig" : "183515fc19b70249565a05290928c974",
+          "state" : "Approved",
+          "total" : 91,
+          "translators" : [ "Valery Semenchuk <vistall.valeriy@gmail.com>" ]
+        }
+      }
+    },
+    "org.jetbrains.idea.maven.MavenRunnerLocalize" : {
+      "source" : {
+        "revision" : 1,
+        "sig" : "252e5f23f1879906ede9488c9a7223d1"
+      },
+      "translations" : {
+        "en-US" : {
+          "sig" : "8f62ab28647f3f0b01922ecb7f00d726",
+          "state" : "Approved",
+          "total" : 67,
+          "translators" : [ "Valery Semenchuk <vistall.valeriy@gmail.com>" ]
+        }
+      }
+    },
+    "org.jetbrains.idea.maven.MavenSyncLocalize" : {
+      "source" : {
+        "revision" : 1,
+        "sig" : "500b3fbd2bcffa21f0704cfa8e93c80c"
+      },
+      "translations" : {
+        "en-US" : {
+          "sig" : "1167dbc8fc1bf0de13c0f79356afadd2",
+          "state" : "Approved",
+          "total" : 93,
+          "translators" : [ "Valery Semenchuk <vistall.valeriy@gmail.com>" ]
+        }
+      }
+    },
+    "org.jetbrains.idea.maven.MavenTasksLocalize" : {
+      "source" : {
+        "revision" : 1,
+        "sig" : "e92ed80d5cc1a45560999ba007eecc2a"
+      },
+      "translations" : {
+        "en-US" : {
+          "sig" : "91a32fbdfd1a2818f22b96da0dcd3722",
+          "state" : "Approved",
+          "total" : 9,
+          "translators" : [ "Valery Semenchuk <vistall.valeriy@gmail.com>" ]
+        }
+      }
+    }
+  }
+}
