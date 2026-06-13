@@ -14,6 +14,7 @@ import consulo.module.Module;
 import consulo.module.content.ModuleRootManager;
 import consulo.project.Project;
 import consulo.virtualFileSystem.VirtualFile;
+import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import jakarta.inject.Inject;
 import jakarta.inject.Provider;
@@ -21,98 +22,85 @@ import org.jdom.Element;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 
-import jakarta.annotation.Nonnull;
-
 /**
  * @author VISTALL
  * @since 26/04/2023
  */
 @ExtensionImpl
-public class MavenModuleFinder extends PsiElementFinder
-{
-	private final Project myProject;
-	private final PsiManager myPsiManager;
-	private final Provider<MavenProjectsManager> myMavenProjectsManager;
+public class MavenModuleFinder extends PsiElementFinder {
+    private final Project myProject;
+    private final PsiManager myPsiManager;
+    private final Provider<MavenProjectsManager> myMavenProjectsManager;
 
-	@Inject
-	public MavenModuleFinder(Project project, PsiManager psiManager, Provider<MavenProjectsManager> mavenProjectsManager)
-	{
-		myProject = project;
-		myPsiManager = psiManager;
-		myMavenProjectsManager = mavenProjectsManager;
-	}
+    @Inject
+    public MavenModuleFinder(Project project, PsiManager psiManager, Provider<MavenProjectsManager> mavenProjectsManager) {
+        myProject = project;
+        myPsiManager = psiManager;
+        myMavenProjectsManager = mavenProjectsManager;
+    }
 
-	@Nullable
-	@Override
-	public PsiJavaModule findModule(@Nonnull VirtualFile file)
-	{
-		Module module = ModuleUtilCore.findModuleForFile(file, myProject);
-		if(module == null)
-		{
-			return null;
-		}
+    @Nullable
+    @Override
+    public PsiJavaModule findModule(@Nonnull VirtualFile file) {
+        Module module = ModuleUtilCore.findModuleForFile(file, myProject);
+        if (module == null) {
+            return null;
+        }
 
-		MavenModuleExtension extension = module.getExtension(MavenModuleExtension.class);
-		if(extension == null)
-		{
-			return null;
-		}
+        MavenModuleExtension extension = module.getExtension(MavenModuleExtension.class);
+        if (extension == null) {
+            return null;
+        }
 
-		MavenProjectsManager mavenProjectsManager = myMavenProjectsManager.get();
+        MavenProjectsManager mavenProjectsManager = myMavenProjectsManager.get();
 
-		MavenProject project = mavenProjectsManager.findProject(module);
-		if(project == null)
-		{
-			return null;
-		}
+        MavenProject project = mavenProjectsManager.findProject(module);
+        if (project == null) {
+            return null;
+        }
 
-		MavenPlugin plugin = project.findPlugin("org.apache.maven.plugins", "maven-jar-plugin");
-		if(plugin == null)
-		{
-			return null;
-		}
+        MavenPlugin plugin = project.findPlugin("org.apache.maven.plugins", "maven-jar-plugin");
+        if (plugin == null) {
+            return null;
+        }
 
-		Element configurationElement = plugin.getConfigurationElement();
-		if(configurationElement == null)
-		{
-			return null;
-		}
+        Element configurationElement = plugin.getConfigurationElement();
+        if (configurationElement == null) {
+            return null;
+        }
 
-		Element archiveElement = configurationElement.getChild("archive");
-		if(archiveElement == null)
-		{
-			return null;
-		}
+        Element archiveElement = configurationElement.getChild("archive");
+        if (archiveElement == null) {
+            return null;
+        }
 
-		Element manifestEntries = archiveElement.getChild("manifestEntries");
-		if(manifestEntries == null)
-		{
-			return null;
-		}
+        Element manifestEntries = archiveElement.getChild("manifestEntries");
+        if (manifestEntries == null) {
+            return null;
+        }
 
-		String moduleName = manifestEntries.getChildTextTrim(PsiJavaModule.AUTO_MODULE_NAME);
+        String moduleName = manifestEntries.getChildTextTrim(PsiJavaModule.AUTO_MODULE_NAME);
 
-		if(moduleName == null)
-		{
-			return null;
-		}
+        if (moduleName == null) {
+            return null;
+        }
 
-		VirtualFile[] contentFolderFiles = ModuleRootManager.getInstance(module).getContentFolderFiles(LanguageContentFolderScopes.onlyProduction());
+        VirtualFile[] contentFolderFiles = ModuleRootManager.getInstance(module).getContentFolderFiles(LanguageContentFolderScopes.onlyProduction());
+        if (contentFolderFiles.length != 1) {
+            return null;
+        }
+        return new MavenJavaModule(myPsiManager, moduleName, project.getFile(), contentFolderFiles[0]);
+    }
 
-		return new MavenJavaModule(myPsiManager, moduleName, project.getFile(), contentFolderFiles);
-	}
+    @Nullable
+    @Override
+    public PsiClass findClass(@Nonnull String qualifiedName, @Nonnull GlobalSearchScope scope) {
+        return null;
+    }
 
-	@Nullable
-	@Override
-	public PsiClass findClass(@Nonnull String qualifiedName, @Nonnull GlobalSearchScope scope)
-	{
-		return null;
-	}
-
-	@Nonnull
-	@Override
-	public PsiClass[] findClasses(@Nonnull String qualifiedName, @Nonnull GlobalSearchScope scope)
-	{
-		return PsiClass.EMPTY_ARRAY;
-	}
+    @Nonnull
+    @Override
+    public PsiClass[] findClasses(@Nonnull String qualifiedName, @Nonnull GlobalSearchScope scope) {
+        return PsiClass.EMPTY_ARRAY;
+    }
 }
