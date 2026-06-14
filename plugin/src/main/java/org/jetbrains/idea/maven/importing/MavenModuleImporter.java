@@ -49,6 +49,7 @@ import org.jetbrains.idea.maven.project.*;
 import org.jetbrains.idea.maven.utils.MavenUtil;
 import org.jetbrains.idea.maven.utils.library.RepositoryLibraryProperties;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -108,6 +109,8 @@ public class MavenModuleImporter {
             javaModuleExtension.setBytecodeVersion(bytecodeVersion);
         }
 
+        configureManifestAttributes(javaModuleExtension);
+
         LanguageLevel languageLevel = configureLanguageLevel();
 
         configureJavaSdk(languageLevel, javaModuleExtension, session);
@@ -120,6 +123,21 @@ public class MavenModuleImporter {
 
         configFolders();
         configDependencies();
+    }
+
+    private void configureManifestAttributes(JavaMutableModuleExtensionImpl javaModuleExtension) {
+        Element pluginConfiguration = myMavenProject.getPluginConfiguration("org.apache.maven.plugins", "maven-jar-plugin");
+        Element archive = pluginConfiguration != null ? pluginConfiguration.getChild("archive") : null;
+        Element manifestEntries = archive != null ? archive.getChild("manifestEntries") : null;
+        if (manifestEntries == null) {
+            return;
+        }
+
+        LinkedHashMap<String, String> attributes = new LinkedHashMap<>();
+        for (Element entry : manifestEntries.getChildren()) {
+            attributes.put(entry.getName(), entry.getText());
+        }
+        javaModuleExtension.setManifestAttributes(attributes);
     }
 
     private LanguageLevel configureLanguageLevel() {
