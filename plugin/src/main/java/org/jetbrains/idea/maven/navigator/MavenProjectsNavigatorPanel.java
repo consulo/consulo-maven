@@ -17,7 +17,7 @@ package org.jetbrains.idea.maven.navigator;
 
 import consulo.annotation.access.RequiredReadAction;
 import consulo.application.HelpManager;
-import consulo.dataContext.DataProvider;
+import consulo.dataContext.DataSink;
 import consulo.execution.action.Location;
 import consulo.language.psi.PsiFile;
 import consulo.language.psi.PsiManager;
@@ -52,10 +52,10 @@ import org.jetbrains.idea.maven.utils.actions.MavenActionUtil;
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
-import java.util.List;
 import java.util.*;
+import java.util.List;
 
-public class MavenProjectsNavigatorPanel extends SimpleToolWindowPanel implements DataProvider {
+public class MavenProjectsNavigatorPanel extends SimpleToolWindowPanel {
     private final Project myProject;
     private final SimpleTree myTree;
 
@@ -87,7 +87,7 @@ public class MavenProjectsNavigatorPanel extends SimpleToolWindowPanel implement
 
         final ActionManager actionManager = ActionManager.getInstance();
         ActionToolbar actionToolbar = actionManager.createActionToolbar("Maven Navigator Toolbar",
-            (DefaultActionGroup)actionManager.getAction("Maven.NavigatorActionsToolbar"),
+            (DefaultActionGroup) actionManager.getAction("Maven.NavigatorActionsToolbar"),
             true
         );
 
@@ -102,7 +102,7 @@ public class MavenProjectsNavigatorPanel extends SimpleToolWindowPanel implement
             public void invokePopup(final Component comp, final int x, final int y) {
                 final String id = getMenuId(getSelectedNodes(MavenSimpleNode.class));
                 if (id != null) {
-                    final ActionGroup actionGroup = (ActionGroup)actionManager.getAction(id);
+                    final ActionGroup actionGroup = (ActionGroup) actionManager.getAction(id);
                     if (actionGroup != null) {
                         actionManager.createActionPopupMenu("", actionGroup).getComponent().show(comp, x, y);
                     }
@@ -130,45 +130,18 @@ public class MavenProjectsNavigatorPanel extends SimpleToolWindowPanel implement
     }
 
     @Override
-    @Nullable
-    public Object getData(@Nonnull Key<?> dataId) {
-        if (HelpManager.HELP_ID == dataId) {
-            return "reference.toolWindows.mavenProjects";
-        }
-
-        if (Project.KEY == dataId) {
-            return myProject;
-        }
-
-        if (VirtualFile.KEY == dataId) {
-            return extractVirtualFile();
-        }
-        if (VirtualFile.KEY_OF_ARRAY == dataId) {
-            return extractVirtualFiles();
-        }
-
-        if (Location.DATA_KEY == dataId) {
-            return extractLocation();
-        }
-        if (Navigatable.KEY_OF_ARRAY == dataId) {
-            return extractNavigatables();
-        }
-
-        if (MavenDataKeys.MAVEN_GOALS == dataId) {
-            return extractGoals(true);
-        }
-        if (MavenDataKeys.MAVEN_PROFILES == dataId) {
-            return extractProfiles();
-        }
-
-        if (MavenDataKeys.MAVEN_DEPENDENCIES == dataId) {
-            return extractDependencies();
-        }
-        if (MavenDataKeys.MAVEN_PROJECTS_TREE == dataId) {
-            return myTree;
-        }
-
-        return super.getData(dataId);
+    public void uiDataSnapshot(DataSink sink) {
+        sink.set(HelpManager.HELP_ID, "reference.toolWindows.mavenProjects");
+        sink.set(Project.KEY, myProject);
+        sink.lazy(VirtualFile.KEY, this::extractVirtualFile);
+        sink.lazy(VirtualFile.KEY_OF_ARRAY, this::extractVirtualFiles);
+        sink.lazy(Location.DATA_KEY, this::extractLocation);
+        sink.lazy(Navigatable.KEY_OF_ARRAY, this::extractNavigatables);
+        sink.lazy(MavenDataKeys.MAVEN_GOALS, () -> extractGoals(true));
+        sink.lazy(MavenDataKeys.MAVEN_PROFILES, this::extractProfiles);
+        sink.lazy(MavenDataKeys.MAVEN_DEPENDENCIES, this::extractDependencies);
+        sink.set(MavenDataKeys.MAVEN_PROJECTS_TREE, myTree);
+        super.uiDataSnapshot(sink);
     }
 
     private VirtualFile extractVirtualFile() {
@@ -190,7 +163,7 @@ public class MavenProjectsNavigatorPanel extends SimpleToolWindowPanel implement
         return file;
     }
 
-    private Object extractVirtualFiles() {
+    private VirtualFile[] extractVirtualFiles() {
         final List<VirtualFile> files = new ArrayList<>();
         for (MavenSimpleNode each : getSelectedNodes(MavenSimpleNode.class)) {
             VirtualFile file = each.getVirtualFile();
@@ -201,7 +174,7 @@ public class MavenProjectsNavigatorPanel extends SimpleToolWindowPanel implement
         return files.isEmpty() ? null : VirtualFileUtil.toVirtualFileArray(files);
     }
 
-    private Object extractNavigatables() {
+    private Navigatable[] extractNavigatables() {
         final List<Navigatable> navigatables = new ArrayList<>();
         for (MavenSimpleNode each : getSelectedNodes(MavenSimpleNode.class)) {
             Navigatable navigatable = each.getNavigatable();
@@ -213,7 +186,7 @@ public class MavenProjectsNavigatorPanel extends SimpleToolWindowPanel implement
     }
 
     @RequiredReadAction
-    private Object extractLocation() {
+    private Location<?> extractLocation() {
         VirtualFile file = extractVirtualFile();
         if (file == null) {
             return null;
@@ -253,7 +226,7 @@ public class MavenProjectsNavigatorPanel extends SimpleToolWindowPanel implement
         return null;
     }
 
-    private Object extractProfiles() {
+    private Map<String, MavenProfileKind> extractProfiles() {
         final List<ProfileNode> nodes = getSelectedNodes(ProfileNode.class);
         final Map<String, MavenProfileKind> profiles = new HashMap<>();
         for (ProfileNode node : nodes) {
@@ -279,7 +252,7 @@ public class MavenProjectsNavigatorPanel extends SimpleToolWindowPanel implement
                 result.addAll(each.getMavenProject().getDependencies());
             }
             else {
-                result.add(((DependencyNode)each).getArtifact());
+                result.add(((DependencyNode) each).getArtifact());
             }
         }
         return result;
