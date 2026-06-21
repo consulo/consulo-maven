@@ -4,19 +4,15 @@ package org.jetbrains.idea.maven.externalSystemIntegration.output;
 import consulo.util.collection.SmartList;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
-import org.jetbrains.annotations.TestOnly;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.function.Predicate;
 
 public interface MavenLogEntryReader {
-
     void pushBack();
 
     @Nullable
     MavenLogEntry readLine();
-
 
     /**
      * Read lines while predicate is true
@@ -41,7 +37,6 @@ public interface MavenLogEntryReader {
      */
     default MavenLogEntry findFirst(Predicate<MavenLogEntry> logEntryPredicate) {
         MavenLogEntry result;
-        MavenLogEntry next;
         while ((result = readLine()) != null) {
             if (logEntryPredicate.test(result)) {
                 return result;
@@ -50,22 +45,11 @@ public interface MavenLogEntryReader {
         return null;
     }
 
-    class MavenLogEntry {
-        @Nullable
-        final LogMessageType myType;
-        @Nonnull
-        final String myLine;
-
-        @TestOnly
-        MavenLogEntry(@Nonnull String line, LogMessageType type) {
-            myLine = line;
-            myType = type;
-        }
-
-        MavenLogEntry(@Nonnull String line) {
-            line = clearProgressCarriageReturns(line);
-            myType = LogMessageType.determine(line);
-            myLine = clearLine(myType, line);
+    public record MavenLogEntry(@Nullable LogMessageType type, @Nonnull String line) {
+        public MavenLogEntry(@Nonnull String line) {
+            String trimmedLine = clearProgressCarriageReturns(line);
+            LogMessageType type = LogMessageType.determine(trimmedLine);
+            this(type, clearLine(type, clearProgressCarriageReturns(trimmedLine)));
         }
 
         @Nonnull
@@ -80,33 +64,9 @@ public interface MavenLogEntryReader {
             return type == null ? line : type.clearLine(line);
         }
 
-        @Nullable
-        public LogMessageType getType() {
-            return myType;
-        }
-
-        @Nonnull
-        public String getLine() {
-            return myLine;
-        }
-
         @Override
         public String toString() {
-            return myType == null ? myLine : "[" + myType.toString() + "] " + myLine;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            MavenLogEntry entry = (MavenLogEntry) o;
-            return myType == entry.myType &&
-                myLine.equals(entry.myLine);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(myType, myLine);
+            return type() == null ? line() : "[" + type() + "] " + line();
         }
     }
 }

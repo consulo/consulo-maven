@@ -104,7 +104,7 @@ public class MavenProjectsProcessor {
             myCancellable,
             indicator -> {
                 indicator.setTextConsumer(text ->
-                    MavenProjectsManager.getInstance(myProject).getSyncConsole().addText(text, true));
+                    MavenProjectsManager.getInstance(myProject).getSyncConsole().addText(text.get(), true));
                 Predicate<MavenProgressIndicator> condition = mavenProgressIndicator -> isStopped;
                 indicator.addCancelCondition(condition);
                 try {

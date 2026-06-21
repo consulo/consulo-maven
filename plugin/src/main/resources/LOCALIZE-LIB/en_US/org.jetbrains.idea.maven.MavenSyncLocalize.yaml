@@ -14,8 +14,6 @@ importing.jdk.changed.description:
     text: JDK for importer {0} not found and was changed to {1}. <br>Consider Maven settings to change importer JDK
 is.not.correct.maven.home.reverting.to.embedded:
     text: '{0} is not correct maven home, reverting to embedded'
-log.level.and.message:
-    text: '[{0}] {1}'
 maven.cannot.reconnect:
     text: 'Cannot connect to the Maven process. If the problem persists, check network and local machine settings. See this article for details: https://intellij-support.jetbrains.com/hc/en-us/articles/360014262940'
 maven.core.plexus.init.issue.description:

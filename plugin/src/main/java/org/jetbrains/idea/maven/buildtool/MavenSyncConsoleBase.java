@@ -15,11 +15,13 @@ import consulo.localize.LocalizeValue;
 import consulo.maven.rt.server.common.server.MavenArtifactEvent;
 import consulo.maven.rt.server.common.server.MavenServerConsoleEvent;
 import consulo.maven.rt.server.common.server.MavenServerConsoleIndicator;
+import consulo.platform.Platform;
 import consulo.project.Project;
 import consulo.util.lang.ExceptionUtil;
 import consulo.util.lang.Pair;
 import consulo.util.lang.StringUtil;
 import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.utils.MavenLog;
 import org.jetbrains.idea.maven.utils.MavenUtil;
@@ -28,34 +30,32 @@ import java.text.MessageFormat;
 import java.util.*;
 
 public abstract class MavenSyncConsoleBase implements MavenEventHandler {
-    private static final String LINE_SEPARATOR = System.lineSeparator();
+    private static final LocalizeValue LINE_SEPARATOR = LocalizeValue.of(Platform.current().os().lineSeparator().getSeparatorString());
 
-    private static final Map<Integer, String> LEVEL_TO_PREFIX = new HashMap<>();
-
-    static {
-        LEVEL_TO_PREFIX.put(MavenServerConsoleIndicator.LEVEL_DEBUG, "DEBUG");
-        LEVEL_TO_PREFIX.put(MavenServerConsoleIndicator.LEVEL_INFO, "INFO");
-        LEVEL_TO_PREFIX.put(MavenServerConsoleIndicator.LEVEL_WARN, "WARNING");
-        LEVEL_TO_PREFIX.put(MavenServerConsoleIndicator.LEVEL_ERROR, "ERROR");
-        LEVEL_TO_PREFIX.put(MavenServerConsoleIndicator.LEVEL_FATAL, "FATAL_ERROR");
-    }
+    private static final Map<Integer, String> LEVEL_TO_PREFIX = Map.of(
+        MavenServerConsoleIndicator.LEVEL_DEBUG, "DEBUG",
+        MavenServerConsoleIndicator.LEVEL_INFO, "INFO",
+        MavenServerConsoleIndicator.LEVEL_WARN, "WARNING",
+        MavenServerConsoleIndicator.LEVEL_ERROR, "ERROR",
+        MavenServerConsoleIndicator.LEVEL_FATAL, "FATAL_ERROR"
+    );
 
     private enum OutputType {
         NORMAL,
         ERROR
     }
 
-    protected final Project myProject;
+    private final Project myProject;
     private final ExternalSystemTaskId myTaskId;
     private final SequencedSet<Pair<ExternalSystemTaskId, LocalizeValue>> myStartedSet = new LinkedHashSet<>();
     private final SyncViewManager progressListener;
     private boolean hasErrors = false;
-    private BuildEventFactory myFactory;
+    private final BuildEventFactory myFactory;
 
     protected MavenSyncConsoleBase(@Nonnull Project project) {
-        this.myProject = project;
-        this.myTaskId = createTaskId();
-        this.progressListener = project.getInstance(SyncViewManager.class);
+        myProject = project;
+        myTaskId = createTaskId();
+        progressListener = project.getInstance(SyncViewManager.class);
         myFactory = project.getApplication().getInstance(BuildEventFactory.class);
     }
 
@@ -153,7 +153,8 @@ public abstract class MavenSyncConsoleBase implements MavenEventHandler {
         }
 
         OutputType type = OutputType.NORMAL;
-        if (throwable != null || level == MavenServerConsoleIndicator.LEVEL_WARN
+        if (throwable != null
+            || level == MavenServerConsoleIndicator.LEVEL_WARN
             || level == MavenServerConsoleIndicator.LEVEL_ERROR
             || level == MavenServerConsoleIndicator.LEVEL_FATAL) {
             type = OutputType.ERROR;
@@ -176,12 +177,9 @@ public abstract class MavenSyncConsoleBase implements MavenEventHandler {
         return level < MavenProjectsManager.getInstance(myProject).getGeneralSettings().getOutputLevel().getLevel();
     }
 
-    private String composeLine(int level, String message) {
-        return MessageFormat.format("[{0}] {1}", getPrefixByLevel(level), message);
-    }
-
-    private String getPrefixByLevel(int level) {
-        return LEVEL_TO_PREFIX.get(level);
+    @Nonnull
+    private String composeLine(int level, @Nullable String message) {
+        return MessageFormat.format("[{0}] {1}", LEVEL_TO_PREFIX.getOrDefault(level, "???"), message);
     }
 
     private void doPrint(@Nonnull String text, @Nonnull OutputType type) {
@@ -193,11 +191,11 @@ public abstract class MavenSyncConsoleBase implements MavenEventHandler {
         progressListener.onEvent(myTaskId, myFactory.createOutputBuildEvent(myTaskId, toPrint, stdout));
     }
 
-    private void debugLog(String s) {
+    private static void debugLog(@Nonnull String s) {
         debugLog(s, null);
     }
 
-    private void debugLog(String s, Throwable exception) {
+    private static void debugLog(@Nonnull String s, @Nullable Throwable exception) {
         MavenLog.LOG.debug(s, exception);
     }
 }
