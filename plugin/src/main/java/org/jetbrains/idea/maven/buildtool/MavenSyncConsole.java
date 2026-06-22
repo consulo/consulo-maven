@@ -894,7 +894,7 @@ public class MavenSyncConsole implements MavenEventHandler, MavenBuildIssueHandl
 
     @Nonnull
     private LocalizeValue composeLine(int level, @Nonnull LocalizeValue message) {
-        return MavenSyncLocalize.logLevelAndMessage(LEVEL_TO_PREFIX.get(level), message);
+        return MavenSyncLocalize.logLevelAndMessage(LEVEL_TO_PREFIX.getOrDefault(level, "???"), message);
     }
 
     private static void debugLog(@Nonnull String s) {
