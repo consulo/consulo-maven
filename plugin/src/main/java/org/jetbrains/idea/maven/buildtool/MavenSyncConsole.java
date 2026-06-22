@@ -209,11 +209,11 @@ public class MavenSyncConsole implements MavenEventHandler, MavenBuildIssueHandl
     }
 
     public synchronized void addText(@Nonnull LocalizeValue text, boolean stdout) {
-        doIfImportInProcess(() -> addText(mySyncId, text, stdout));
+        addText(mySyncId, text, stdout);
     }
 
     public synchronized void addWrapperProgressText(@Nonnull LocalizeValue text) {
-        doIfImportInProcess(() -> addText(MavenSyncLocalize.mavenSyncWrapper(), text, true));
+        addText(MavenSyncLocalize.mavenSyncWrapper(), text, true);
     }
 
     private synchronized void addText(@Nonnull Object parentId, @Nonnull LocalizeValue text, boolean stdout) {
