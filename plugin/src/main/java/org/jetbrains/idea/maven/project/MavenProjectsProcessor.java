@@ -79,7 +79,7 @@ public class MavenProjectsProcessor {
             return;
         }
 
-        final Semaphore semaphore = new Semaphore();
+        Semaphore semaphore = new Semaphore();
         semaphore.down();
         scheduleTask((project, embeddersManager, console, indicator) -> semaphore.up());
 
@@ -97,7 +97,7 @@ public class MavenProjectsProcessor {
         }
     }
 
-    private void startProcessing(final MavenProjectsProcessorTask task) {
+    private void startProcessing(MavenProjectsProcessorTask task) {
         MavenUtil.runInBackground(
             myProject,
             myTitle,

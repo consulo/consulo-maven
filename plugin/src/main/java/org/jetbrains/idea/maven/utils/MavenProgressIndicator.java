@@ -30,7 +30,7 @@ public class MavenProgressIndicator {
     private ProgressIndicator myIndicator;
     private final List<Predicate<MavenProgressIndicator>> myCancelConditions = new ArrayList<>();
     @Nullable
-    private Consumer<String> myTextConsumer;
+    private Consumer<LocalizeValue> myTextConsumer;
 
     public MavenProgressIndicator() {
         this(new MyEmptyProgressIndicator());
@@ -40,7 +40,7 @@ public class MavenProgressIndicator {
         myIndicator = i;
     }
 
-    public synchronized void setTextConsumer(@Nullable Consumer<String> textConsumer) {
+    public synchronized void setTextConsumer(@Nullable Consumer<LocalizeValue> textConsumer) {
         myTextConsumer = textConsumer;
     }
 
@@ -68,7 +68,7 @@ public class MavenProgressIndicator {
     public synchronized void setText(LocalizeValue text) {
         myIndicator.setText(text);
         if (myTextConsumer != null && text.isNotEmpty()) {
-            myTextConsumer.accept(text.get());
+            myTextConsumer.accept(text);
         }
     }
 

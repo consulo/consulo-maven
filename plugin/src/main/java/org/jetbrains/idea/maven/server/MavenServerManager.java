@@ -20,6 +20,7 @@ import com.intellij.java.language.projectRoots.JavaSdkVersion;
 import consulo.annotation.component.ComponentScope;
 import consulo.annotation.component.ServiceAPI;
 import consulo.annotation.component.ServiceImpl;
+import consulo.application.Application;
 import consulo.component.persist.PersistentStateComponent;
 import consulo.component.persist.State;
 import consulo.component.persist.Storage;
@@ -33,11 +34,11 @@ import consulo.execution.configuration.CommandLineState;
 import consulo.execution.configuration.RunProfileState;
 import consulo.execution.executor.Executor;
 import consulo.execution.runner.ProgramRunner;
-import consulo.application.Application;
 import consulo.ide.impl.idea.execution.rmi.RemoteProcessSupport;
 import consulo.java.execution.OwnSimpleJavaParameters;
 import consulo.java.execution.projectRoots.OwnJdkUtil;
 import consulo.java.language.bundle.JavaSdkTypeUtil;
+import consulo.localize.LocalizeValue;
 import consulo.maven.rt.m3.common.MavenServer3CommonMarkerRt;
 import consulo.maven.rt.m3.server.MavenServer30MarkerRt;
 import consulo.maven.rt.m32.server.MavenServer32MarkerRt;
@@ -57,26 +58,24 @@ import consulo.ui.ex.action.AnAction;
 import consulo.util.collection.ContainerUtil;
 import consulo.util.collection.Lists;
 import consulo.util.io.ClassPathUtil;
-import consulo.util.io.FileUtil;
 import consulo.util.lang.Comparing;
 import consulo.util.lang.ShutDownTracker;
 import consulo.util.lang.StringUtil;
 import consulo.util.lang.ref.SimpleReference;
 import consulo.util.rmi.RemoteServer;
 import consulo.util.xml.serializer.annotation.Attribute;
+import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import jakarta.inject.Singleton;
 import org.apache.lucene.search.Query;
 import org.jdom.Document;
-import org.jetbrains.idea.maven.execution.MavenExecutionOptions;
 import org.jetbrains.idea.maven.buildtool.MavenSyncConsole;
+import org.jetbrains.idea.maven.execution.MavenExecutionOptions;
 import org.jetbrains.idea.maven.project.MavenGeneralSettings;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.utils.MavenLog;
 import org.jetbrains.idea.maven.utils.MavenProgressIndicator;
 import org.jetbrains.idea.maven.utils.MavenUtil;
-
-import jakarta.annotation.Nonnull;
 
 import java.io.File;
 import java.rmi.RemoteException;
@@ -248,9 +247,9 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
                     }
                 }
 
-                final String currentMavenVersion = getCurrentMavenVersion();
+                String currentMavenVersion = getCurrentMavenVersion();
 
-                final Sdk jdk = getSdkForRun(MavenJdkUtil.getDefaultRunLevel(currentMavenVersion));
+                Sdk jdk = getSdkForRun(MavenJdkUtil.getDefaultRunLevel(currentMavenVersion));
                 if (jdk == null) {
                     throw new IllegalArgumentException("JDK is not found");
                 }
@@ -264,7 +263,7 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
 
                 params.getVMParametersList().addProperty(MavenServerEmbedder.MAVEN_EMBEDDER_VERSION, currentMavenVersion);
 
-                final List<String> classPath = new ArrayList<>();
+                List<String> classPath = new ArrayList<>();
 
                 classPath.add(ClassPathUtil.getJarPathForClass(RemoteServer.class)); // consulo-util-rmi
                 classPath.add(ClassPathUtil.getJarPathForClass(Document.class)); // jdom
@@ -355,7 +354,7 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
 
     @Nonnull
     public List<File> collectClassPathAndLibsFolder(SimpleReference<String> mainClassRef) {
-        final String currentMavenVersion = getCurrentMavenVersion();
+        String currentMavenVersion = getCurrentMavenVersion();
         File mavenHome = getCurrentMavenHomeFile();
 
         File pluginPath = PluginManager.getPluginPath(getClass());
@@ -443,19 +442,19 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
         };
     }
 
-    public MavenModel interpolateAndAlignModel(final MavenModel model, final File basedir) {
+    public MavenModel interpolateAndAlignModel(MavenModel model, File basedir) {
         return perform((Retriable<MavenModel>)() -> getOrCreateWrappee().interpolateAndAlignModel(model, basedir));
     }
 
-    public MavenModel assembleInheritance(final MavenModel model, final MavenModel parentModel) {
+    public MavenModel assembleInheritance(MavenModel model, MavenModel parentModel) {
         return perform((Retriable<MavenModel>)() -> getOrCreateWrappee().assembleInheritance(model, parentModel));
     }
 
     public ProfileApplicationResult applyProfiles(
-        final MavenModel model,
-        final File basedir,
-        final MavenExplicitProfiles explicitProfiles,
-        final Collection<String> alwaysOnProfiles
+        MavenModel model,
+        File basedir,
+        MavenExplicitProfiles explicitProfiles,
+        Collection<String> alwaysOnProfiles
     ) {
         return perform((Retriable<ProfileApplicationResult>)() -> getOrCreateWrappee().applyProfiles(
             model,
@@ -490,7 +489,7 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
         return result;
     }
 
-    public static MavenServerConsole wrapAndExport(final MavenSyncConsole console) {
+    public static MavenServerConsole wrapAndExport(MavenSyncConsole console) {
         try {
             RemoteMavenServerSyncConsole result = new RemoteMavenServerSyncConsole(console);
             UnicastRemoteObject.exportObject(result, 0);
@@ -501,7 +500,7 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
         }
     }
 
-    public static MavenServerProgressIndicator wrapAndExport(final MavenProgressIndicator process) {
+    public static MavenServerProgressIndicator wrapAndExport(MavenProgressIndicator process) {
         try {
             RemoteMavenServerProgressIndicator result = new RemoteMavenServerProgressIndicator(process);
             UnicastRemoteObject.exportObject(result, 0);
@@ -512,7 +511,7 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
         }
     }
 
-    public static MavenServerIndicesProcessor wrapAndExport(final MavenIndicesProcessor processor) {
+    public static MavenServerIndicesProcessor wrapAndExport(MavenIndicesProcessor processor) {
         try {
             RemoteMavenServerIndicesProcessor result = new RemoteMavenServerIndicesProcessor(processor);
             UnicastRemoteObject.exportObject(result, 0);
@@ -661,7 +660,7 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
 
         @Override
         public void printMessage(int level, String message, Throwable throwable) {
-            myConsole.printMessage(level, message, throwable);
+            myConsole.printMessage(level, LocalizeValue.of(message), throwable);
         }
     }
 
