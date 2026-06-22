@@ -3,6 +3,7 @@ package org.jetbrains.idea.maven.buildtool;
 
 import consulo.application.Application;
 import consulo.application.util.registry.Registry;
+import consulo.platform.Platform;
 import consulo.process.ProcessHandler;
 import consulo.build.ui.DefaultBuildDescriptor;
 import consulo.build.ui.FilePosition;
@@ -48,19 +49,18 @@ public class MavenSyncConsole implements MavenEventHandler, MavenBuildIssueHandl
     public static final int EXIT_CODE_OK = 0;
     public static final int EXIT_CODE_SIGTERM = 143;
 
-    private static final String LINE_SEPARATOR = System.lineSeparator();
-    private static final Map<Integer, String> LEVEL_TO_PREFIX = new HashMap<>();
+    private static final String LINE_SEPARATOR = Platform.current().os().lineSeparator().getSeparatorString();
+    private static final Map<Integer, String> LEVEL_TO_PREFIX = Map.of(
+        MavenServerConsoleIndicator.LEVEL_DEBUG, "DEBUG",
+        MavenServerConsoleIndicator.LEVEL_INFO, "INFO",
+        MavenServerConsoleIndicator.LEVEL_WARN, "WARNING",
+        MavenServerConsoleIndicator.LEVEL_ERROR, "ERROR",
+        MavenServerConsoleIndicator.LEVEL_FATAL, "FATAL_ERROR"
+    );
+
     private static final Set<String> JAVADOC_AND_SOURCE_CLASSIFIERS = Set.of("javadoc", "sources", "test-javadoc", "test-sources");
     private static final Pattern POSITION_FROM_DESCRIPTION_PATTERN = Pattern.compile("@(\\d+):(\\d+)");
     private static final Pattern POSITION_FROM_PATH_PATTERN = Pattern.compile(":(\\d+):(\\d+)");
-
-    static {
-        LEVEL_TO_PREFIX.put(MavenServerConsoleIndicator.LEVEL_DEBUG, "DEBUG");
-        LEVEL_TO_PREFIX.put(MavenServerConsoleIndicator.LEVEL_INFO, "INFO");
-        LEVEL_TO_PREFIX.put(MavenServerConsoleIndicator.LEVEL_WARN, "WARNING");
-        LEVEL_TO_PREFIX.put(MavenServerConsoleIndicator.LEVEL_ERROR, "ERROR");
-        LEVEL_TO_PREFIX.put(MavenServerConsoleIndicator.LEVEL_FATAL, "FATAL_ERROR");
-    }
 
     private final Project myProject;
     private final BuildProgressListener mySyncView;
@@ -433,14 +433,11 @@ public class MavenSyncConsole implements MavenEventHandler, MavenBuildIssueHandl
 
     @Nonnull
     private String getKeyPrefix(@Nonnull MavenServerConsoleIndicator.ResolveType type) {
-        switch (type) {
-            case PLUGIN:
-                return "maven.sync.plugins";
-            case DEPENDENCY:
-                return "maven.sync.dependencies";
-            default:
-                return "maven.sync.dependencies";
-        }
+        return switch (type) {
+            case PLUGIN -> "maven.sync.plugins";
+            case DEPENDENCY -> "maven.sync.dependencies";
+            default -> "maven.sync.dependencies";
+        };
     }
 
     private synchronized void doFinish(boolean showFullSyncQuickFix) {
