@@ -261,7 +261,7 @@ public class MavenSyncConsole implements MavenEventHandler, MavenBuildIssueHandl
         @Nullable FilePosition filePosition
     ) {
         doIfImportInProcess(() -> {
-            LocalizeValue issueId = LocalizeValue.join(text.get() + description.get() + LocalizeValue.of(String.valueOf(filePosition)));
+            LocalizeValue issueId = LocalizeValue.join(text, description, LocalizeValue.of(String.valueOf(filePosition)));
             if (!newIssue(issueId)) {
                 return;
             }

@@ -660,7 +660,7 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
 
         @Override
         public void printMessage(int level, String message, Throwable throwable) {
-            myConsole.printMessage(level, LocalizeValue.of(message), throwable);
+            myConsole.printMessage(level, LocalizeValue.ofNullable(message), throwable);
         }
     }
 
