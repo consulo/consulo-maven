@@ -3,8 +3,6 @@ package org.jetbrains.idea.maven.buildtool;
 
 import consulo.application.Application;
 import consulo.application.util.registry.Registry;
-import consulo.platform.Platform;
-import consulo.process.ProcessHandler;
 import consulo.build.ui.DefaultBuildDescriptor;
 import consulo.build.ui.FilePosition;
 import consulo.build.ui.SyncViewManager;
@@ -13,23 +11,24 @@ import consulo.build.ui.issue.BuildIssue;
 import consulo.build.ui.issue.BuildIssueQuickFix;
 import consulo.build.ui.progress.BuildProgressListener;
 import consulo.dataContext.DataProvider;
-import consulo.navigation.Navigatable;
 import consulo.externalSystem.issue.BuildIssueException;
 import consulo.externalSystem.model.task.ExternalSystemTaskId;
 import consulo.externalSystem.model.task.ExternalSystemTaskType;
+import consulo.localize.LocalizeValue;
 import consulo.maven.rt.server.common.model.MavenProjectProblem;
 import consulo.maven.rt.server.common.server.MavenArtifactEvent;
 import consulo.maven.rt.server.common.server.MavenServerConsoleEvent;
 import consulo.maven.rt.server.common.server.MavenServerConsoleIndicator;
+import consulo.navigation.Navigatable;
+import consulo.platform.Platform;
+import consulo.process.ProcessHandler;
 import consulo.project.Project;
 import consulo.project.ui.notification.NotificationGroup;
 import consulo.util.lang.ExceptionUtil;
 import consulo.util.lang.Pair;
-import consulo.util.lang.StringUtil;
 import consulo.virtualFileSystem.VirtualFile;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
-import org.jetbrains.idea.maven.execution.SyncBundle;
 import org.jetbrains.idea.maven.localize.MavenProjectLocalize;
 import org.jetbrains.idea.maven.localize.MavenSyncLocalize;
 import org.jetbrains.idea.maven.project.MavenGeneralSettings;
@@ -39,17 +38,77 @@ import org.jetbrains.idea.maven.utils.MavenLog;
 import org.jetbrains.idea.maven.utils.MavenUtil;
 
 import java.io.File;
-import java.text.MessageFormat;
 import java.util.*;
 import java.util.concurrent.CancellationException;
+import java.util.concurrent.CompletableFuture;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class MavenSyncConsole implements MavenEventHandler, MavenBuildIssueHandler {
+    enum ResolveDescriptor {
+        DEPENDENCY {
+            @Override
+            public LocalizeValue getTaskName() {
+                return MavenSyncLocalize.mavenSyncDependenciesResolve();
+            }
+
+            @Override
+            public LocalizeValue getDownloadingMessage() {
+                return MavenSyncLocalize.mavenSyncDependenciesDownload();
+            }
+
+            @Override
+            public LocalizeValue getErrorMessage(String dependency) {
+                return MavenSyncLocalize.mavenSyncDependenciesResolveError(dependency);
+            }
+
+            @Override
+            public LocalizeValue getDownloadingMessage(String dependency) {
+                return MavenSyncLocalize.mavenSyncDependenciesArtifactDownload(dependency);
+            }
+        },
+        PLUGIN {
+            @Override
+            public LocalizeValue getTaskName() {
+                return MavenSyncLocalize.mavenSyncPluginsResolve();
+            }
+
+            @Override
+            public LocalizeValue getDownloadingMessage() {
+                return MavenSyncLocalize.mavenSyncPluginsDownload();
+            }
+
+            @Override
+            public LocalizeValue getErrorMessage(String dependency) {
+                return MavenSyncLocalize.mavenSyncPluginsResolveError(dependency);
+            }
+
+            @Override
+            public LocalizeValue getDownloadingMessage(String dependency) {
+                return MavenSyncLocalize.mavenSyncPluginsArtifactDownload(dependency);
+            }
+        };
+
+        abstract public LocalizeValue getTaskName();
+
+        abstract public LocalizeValue getDownloadingMessage();
+
+        abstract public LocalizeValue getDownloadingMessage(String dependency);
+
+        abstract public LocalizeValue getErrorMessage(String dependency);
+
+        public static ResolveDescriptor of(MavenServerConsoleIndicator.ResolveType type) {
+            return switch (type) {
+                case DEPENDENCY -> DEPENDENCY;
+                case PLUGIN -> PLUGIN;
+            };
+        }
+    }
+
     public static final int EXIT_CODE_OK = 0;
     public static final int EXIT_CODE_SIGTERM = 143;
 
-    private static final String LINE_SEPARATOR = Platform.current().os().lineSeparator().getSeparatorString();
+    private static final LocalizeValue LINE_SEPARATOR = LocalizeValue.of(Platform.current().os().lineSeparator().getSeparatorString());
     private static final Map<Integer, String> LEVEL_TO_PREFIX = Map.of(
         MavenServerConsoleIndicator.LEVEL_DEBUG, "DEBUG",
         MavenServerConsoleIndicator.LEVEL_INFO, "INFO",
@@ -70,9 +129,9 @@ public class MavenSyncConsole implements MavenEventHandler, MavenBuildIssueHandl
     private boolean syncTransactionStarted = false;
     private boolean hasErrors = false;
     private boolean hasUnresolved = false;
-    private final Set<String> shownIssues = new HashSet<>();
+    private final Set<LocalizeValue> shownIssues = new HashSet<>();
     private final List<Runnable> myPostponed = new ArrayList<>();
-    private LinkedHashSet<Pair<Object, String>> myStartedSet = new LinkedHashSet<>();
+    private LinkedHashSet<Pair<Object, LocalizeValue>> myStartedSet = new LinkedHashSet<>();
     private final BuildEventFactory myFactory;
 
     public MavenSyncConsole(@Nonnull Project project) {
@@ -123,7 +182,10 @@ public class MavenSyncConsole implements MavenEventHandler, MavenBuildIssueHandl
         descriptor.setActivateToolWindowWhenAdded(false);
         // TODO ! descriptor.setNavigateToError(explicit ? ThreeState.YES : ThreeState.NO);
 
-        mySyncView.onEvent(mySyncId, myFactory.createStartBuildEvent(descriptor, MavenSyncLocalize.mavenSyncProjectTitle(myProject.getName()).get()));
+        mySyncView.onEvent(
+            mySyncId,
+            myFactory.createStartBuildEvent(descriptor, MavenSyncLocalize.mavenSyncProjectTitle(myProject.getName()).get())
+        );
         debugLog("maven sync: started importing " + myProject);
 
         for (Runnable action : myPostponed) {
@@ -142,32 +204,34 @@ public class MavenSyncConsole implements MavenEventHandler, MavenBuildIssueHandl
         return mySyncId;
     }
 
-    public void addText(@Nonnull String text) {
+    public void addText(@Nonnull LocalizeValue text) {
         addText(text, true);
     }
 
-    public synchronized void addText(@Nonnull String text, boolean stdout) {
-        doIfImportInProcess(() -> addText(mySyncId, text, stdout));
+    public synchronized void addText(@Nonnull LocalizeValue text, boolean stdout) {
+        addText(mySyncId, text, stdout);
     }
 
-    public synchronized void addWrapperProgressText(@Nonnull String text) {
-        doIfImportInProcess(() -> addText(MavenSyncLocalize.mavenSyncWrapper().get(), text, true));
+    public synchronized void addWrapperProgressText(@Nonnull LocalizeValue text) {
+        addText(MavenSyncLocalize.mavenSyncWrapper(), text, true);
     }
 
-    private synchronized void addText(@Nonnull Object parentId, @Nonnull String text, boolean stdout) {
+    private synchronized void addText(@Nonnull Object parentId, @Nonnull LocalizeValue text, boolean stdout) {
         doIfImportInProcess(() -> {
-            if (StringUtil.isEmpty(text)) {
+            if (text.isEmpty()) {
                 return;
             }
-            String toPrint = text.endsWith("\n") ? text : text + "\n";
-            mySyncView.onEvent(mySyncId, myFactory.createOutputBuildEvent(parentId, toPrint, stdout));
+            mySyncView.onEvent(
+                mySyncId,
+                myFactory.createOutputBuildEvent(parentId, text.map(str -> str.endsWith("\n") ? str : str + "\n").get(), stdout)
+            );
         });
     }
 
     public synchronized void addBuildEvent(@Nonnull BuildEvent buildEvent) {
         doIfImportInProcess(() -> {
-            if (buildEvent instanceof BuildIssueEvent) {
-                addBuildIssue(((BuildIssueEvent) buildEvent).getIssue(), ((BuildIssueEvent) buildEvent).getKind());
+            if (buildEvent instanceof BuildIssueEvent buildIssueEvent) {
+                addBuildIssue(buildIssueEvent.getIssue(), buildIssueEvent.getKind());
             }
             else {
                 mySyncView.onEvent(mySyncId, buildEvent);
@@ -175,14 +239,15 @@ public class MavenSyncConsole implements MavenEventHandler, MavenBuildIssueHandl
         });
     }
 
-    public synchronized void addWarning(@Nonnull String text, @Nonnull String description) {
+    public synchronized void addWarning(@Nonnull LocalizeValue text, @Nonnull LocalizeValue description) {
         addWarning(text, description, null);
     }
 
     @Override
     public void addBuildIssue(@Nonnull BuildIssue issue, @Nonnull MessageEvent.Kind kind) {
         doIfImportInProcessOrPostpone(() -> {
-            if (!newIssue(issue.getTitle() + issue.getDescription())) {
+            LocalizeValue issueId = LocalizeValue.join(issue.getTitle(), issue.getDescription());
+            if (!newIssue(issueId)) {
                 return;
             }
             mySyncView.onEvent(mySyncId, myFactory.createBuildIssueEvent(mySyncId, issue, kind));
@@ -190,9 +255,14 @@ public class MavenSyncConsole implements MavenEventHandler, MavenBuildIssueHandl
         });
     }
 
-    public synchronized void addWarning(@Nonnull String text, @Nonnull String description, @Nullable FilePosition filePosition) {
+    public synchronized void addWarning(
+        @Nonnull LocalizeValue text,
+        @Nonnull LocalizeValue description,
+        @Nullable FilePosition filePosition
+    ) {
         doIfImportInProcess(() -> {
-            if (!newIssue(text + description + filePosition)) {
+            LocalizeValue issueId = LocalizeValue.join(text, description, LocalizeValue.of(String.valueOf(filePosition)));
+            if (!newIssue(issueId)) {
                 return;
             }
             if (filePosition == null) {
@@ -200,8 +270,8 @@ public class MavenSyncConsole implements MavenEventHandler, MavenBuildIssueHandl
                     mySyncId,
                     MessageEvent.Kind.WARNING,
                     MavenBuildNotification.COMPILER,
-                    text,
-                    description
+                    text.get(),
+                    description.get()
                 ));
             }
             else {
@@ -209,16 +279,16 @@ public class MavenSyncConsole implements MavenEventHandler, MavenBuildIssueHandl
                     mySyncId,
                     MessageEvent.Kind.WARNING,
                     MavenBuildNotification.COMPILER,
-                    text,
-                    description,
+                    text.get(),
+                    description.get(),
                     filePosition
                 ));
             }
         });
     }
 
-    private boolean newIssue(@Nonnull String s) {
-        return shownIssues.add(s);
+    private boolean newIssue(@Nonnull LocalizeValue issueId) {
+        return shownIssues.add(issueId);
     }
 
     public synchronized void finishImport() {
@@ -246,12 +316,15 @@ public class MavenSyncConsole implements MavenEventHandler, MavenBuildIssueHandl
             debugLog("Maven sync: sync transaction is still not finished, postpone build finish event");
             return;
         }
-        List<Pair<Object, String>> tasks = new ArrayList<>(myStartedSet);
+        List<Pair<Object, LocalizeValue>> tasks = new ArrayList<>(myStartedSet);
         Collections.reverse(tasks);
         debugLog("Tasks " + tasks + " are not completed! Force complete");
-        for (Pair<Object, String> task : tasks) {
-            completeTask(task.getFirst(), task.getSecond(),
-                myFactory.createFailureResult(MavenSyncLocalize.mavenSyncFailureTerminated(exitCode).get()));
+        for (Pair<Object, LocalizeValue> task : tasks) {
+            completeTask(
+                task.getFirst(),
+                task.getSecond(),
+                myFactory.newFailure().message(MavenSyncLocalize.mavenSyncFailureTerminated(exitCode)).createResult()
+            );
         }
 
         mySyncView.onEvent(mySyncId, myFactory.createFinishBuildEvent(
@@ -259,7 +332,7 @@ public class MavenSyncConsole implements MavenEventHandler, MavenBuildIssueHandl
             null,
             System.currentTimeMillis(),
             "",
-            myFactory.createFailureResult(MavenSyncLocalize.mavenSyncFailureTerminated(exitCode).get())
+            myFactory.newFailure().message(MavenSyncLocalize.mavenSyncFailureTerminated(exitCode)).createResult()
         ));
         finished = true;
         started = false;
@@ -269,7 +342,7 @@ public class MavenSyncConsole implements MavenEventHandler, MavenBuildIssueHandl
         if (!started || finished) {
             startImport(true);
         }
-        startTask(mySyncId, MavenSyncLocalize.mavenSyncWrapper().get());
+        startTask(mySyncId, MavenSyncLocalize.mavenSyncWrapper());
     }
 
     public synchronized void finishWrapperResolving() {
@@ -305,20 +378,20 @@ public class MavenSyncConsole implements MavenEventHandler, MavenBuildIssueHandl
 //                }
 //            }, MessageEvent.Kind.WARNING);
         }
-        completeTask(mySyncId, MavenSyncLocalize.mavenSyncWrapper().get(), myFactory.createSuccessResult());
+        completeTask(mySyncId, MavenSyncLocalize.mavenSyncWrapper(), myFactory.createSuccessResult());
     }
 
     public synchronized void notifyReadingProblems(@Nonnull VirtualFile file) {
         doIfImportInProcess(() -> {
             debugLog("reading problems in " + file);
             hasErrors = true;
-            String desc = MavenSyncLocalize.mavenSyncFailureErrorReadingFile(file.getPath()).get();
+            LocalizeValue desc = MavenSyncLocalize.mavenSyncFailureErrorReadingFile(file.getPath());
             mySyncView.onEvent(mySyncId, myFactory.createFileMessageEvent(
                 mySyncId,
                 MessageEvent.Kind.ERROR,
                 MavenBuildNotification.BUILD_ERROR,
-                desc,
-                desc,
+                desc.get(),
+                desc.get(),
                 new FilePosition(new File(file.getPath()), -1, -1)
             ));
         });
@@ -332,9 +405,14 @@ public class MavenSyncConsole implements MavenEventHandler, MavenBuildIssueHandl
         }
         else if (e instanceof CancellationException) {
             // a normal cancellation happened
-            String message = MavenProjectLocalize.mavenDownloadingCancelled().get();
-            messageEvent = myFactory.createMessageEvent(mySyncId, MessageEvent.Kind.INFO,
-                MavenBuildNotification.BUILD_ERROR, message, message);
+            LocalizeValue message = MavenProjectLocalize.mavenDownloadingCancelled();
+            messageEvent = myFactory.createMessageEvent(
+                mySyncId,
+                MessageEvent.Kind.INFO,
+                MavenBuildNotification.BUILD_ERROR,
+                message.get(),
+                message.get()
+            );
         }
         else {
             hasErrors = true;
@@ -431,15 +509,6 @@ public class MavenSyncConsole implements MavenEventHandler, MavenBuildIssueHandl
         }
     }
 
-    @Nonnull
-    private String getKeyPrefix(@Nonnull MavenServerConsoleIndicator.ResolveType type) {
-        return switch (type) {
-            case PLUGIN -> "maven.sync.plugins";
-            case DEPENDENCY -> "maven.sync.dependencies";
-            default -> "maven.sync.dependencies";
-        };
-    }
-
     private synchronized void doFinish(boolean showFullSyncQuickFix) {
         if (!started || finished) {
             return;
@@ -448,10 +517,10 @@ public class MavenSyncConsole implements MavenEventHandler, MavenBuildIssueHandl
             debugLog("Maven sync: sync transaction is still not finished, postpone build finish event");
             return;
         }
-        List<Pair<Object, String>> tasks = new ArrayList<>(myStartedSet);
+        List<Pair<Object, LocalizeValue>> tasks = new ArrayList<>(myStartedSet);
         Collections.reverse(tasks);
         debugLog("Tasks " + tasks + " are not completed! Force complete");
-        for (Pair<Object, String> task : tasks) {
+        for (Pair<Object, LocalizeValue> task : tasks) {
             completeTask(task.getFirst(), task.getSecond(), myFactory.createDerivedResult());
         }
         mySyncView.onEvent(mySyncId, myFactory.createFinishBuildEvent(
@@ -459,7 +528,7 @@ public class MavenSyncConsole implements MavenEventHandler, MavenBuildIssueHandl
             null,
             System.currentTimeMillis(),
             "",
-            hasErrors ? myFactory.createFailureResult() : myFactory.createDerivedResult()
+            hasErrors ? myFactory.newFailure().createResult() : myFactory.createDerivedResult()
         ));
 
         attachOfflineQuickFix();
@@ -476,15 +545,17 @@ public class MavenSyncConsole implements MavenEventHandler, MavenBuildIssueHandl
             mySyncView.onEvent(mySyncId, myFactory.createBuildIssueEvent(mySyncId, new BuildIssue() {
                 @Override
                 @Nonnull
-                public String getTitle() {
-                    return "Sync Finished";
+                public LocalizeValue getTitle() {
+                    return LocalizeValue.localizeTODO("Sync Finished");
                 }
 
                 @Override
                 @Nonnull
-                public String getDescription() {
-                    return "Sync finished. If there is something wrong with the project model, <a href=\"" +
-                        quickFixId + "\">reload all projects</a>\n";
+                public LocalizeValue getDescription() {
+                    return LocalizeValue.localizeTODO(
+                        "Sync finished. If there is something wrong with the project model, <a href=\"" +
+                            quickFixId + "\">reload all projects</a>\n"
+                    );
                 }
 
                 @Override
@@ -497,9 +568,9 @@ public class MavenSyncConsole implements MavenEventHandler, MavenBuildIssueHandl
                         }
 
                         @Override
-                        public java.util.concurrent.CompletableFuture<?> runQuickFix(Project project, DataProvider dataProvider) {
+                        public CompletableFuture<?> runQuickFix(Project project, DataProvider dataProvider) {
                             MavenProjectsManager.getInstance(project).forceUpdateAllProjectsOrFindAllAvailablePomFiles();
-                            return java.util.concurrent.CompletableFuture.completedFuture(null);
+                            return CompletableFuture.completedFuture(null);
                         }
                     });
                 }
@@ -523,14 +594,14 @@ public class MavenSyncConsole implements MavenEventHandler, MavenBuildIssueHandl
                 mySyncView.onEvent(mySyncId, myFactory.createBuildIssueEvent(mySyncId, new BuildIssue() {
                     @Override
                     @Nonnull
-                    public String getTitle() {
-                        return "Dependency Resolution Failed";
+                    public LocalizeValue getTitle() {
+                        return LocalizeValue.localizeTODO("Dependency Resolution Failed");
                     }
 
                     @Override
                     @Nonnull
-                    public String getDescription() {
-                        return "<a href=\"" + quickFixId + "\">Switch Off Offline Mode</a>\n";
+                    public LocalizeValue getDescription() {
+                        return LocalizeValue.localizeTODO("<a href=\"" + quickFixId + "\">Switch Off Offline Mode</a>\n");
                     }
 
                     @Override
@@ -543,9 +614,9 @@ public class MavenSyncConsole implements MavenEventHandler, MavenBuildIssueHandl
                             }
 
                             @Override
-                            public java.util.concurrent.CompletableFuture<?> runQuickFix(Project project, DataProvider dataProvider) {
+                            public CompletableFuture<?> runQuickFix(Project project, DataProvider dataProvider) {
                                 MavenWorkspaceSettingsComponent.getInstance(project).getSettings().generalSettings.setWorkOffline(false);
-                                return java.util.concurrent.CompletableFuture.completedFuture(null);
+                                return CompletableFuture.completedFuture(null);
                             }
                         });
                     }
@@ -562,26 +633,28 @@ public class MavenSyncConsole implements MavenEventHandler, MavenBuildIssueHandl
         }
     }
 
-    private synchronized void showArtifactBuildIssue(@Nonnull String keyPrefix,
-                                                     @Nonnull String dependency,
-                                                     @Nullable String errorMessage) {
+    private synchronized void showArtifactBuildIssue(
+        @Nonnull ResolveDescriptor resolveDescriptor,
+        @Nonnull String dependency,
+        @Nonnull LocalizeValue errorMessage
+    ) {
         doIfImportInProcess(() -> {
             hasErrors = true;
             hasUnresolved = true;
-            String umbrellaString = SyncBundle.message(keyPrefix + ".resolve");
-            String errorString = SyncBundle.message(keyPrefix + ".resolve.error", dependency);
-            startTask(mySyncId, umbrellaString);
-            String details = errorMessage != null ? errorMessage : errorString;
+            LocalizeValue actionText = resolveDescriptor.getTaskName();
+            LocalizeValue error = resolveDescriptor.getErrorMessage(dependency);
+            startTask(mySyncId, actionText);
+            LocalizeValue details = errorMessage.orIfEmpty(error);
             BuildIssue buildIssue = new BuildIssue() {
                 @Override
                 @Nonnull
-                public String getTitle() {
-                    return errorString;
+                public LocalizeValue getTitle() {
+                    return error;
                 }
 
                 @Override
                 @Nonnull
-                public String getDescription() {
+                public LocalizeValue getDescription() {
                     return details;
                 }
 
@@ -597,120 +670,126 @@ public class MavenSyncConsole implements MavenEventHandler, MavenBuildIssueHandl
                     return null;
                 }
             };
-            mySyncView.onEvent(mySyncId, myFactory.createBuildIssueEvent(umbrellaString, buildIssue, MessageEvent.Kind.ERROR));
-            addText(mySyncId, errorString, false);
+            mySyncView.onEvent(mySyncId, myFactory.createBuildIssueEvent(actionText, buildIssue, MessageEvent.Kind.ERROR));
+            addText(mySyncId, error, false);
         });
     }
 
-    public void showArtifactBuildIssue(@Nonnull MavenServerConsoleIndicator.ResolveType type,
-                                       @Nonnull String dependency,
-                                       @Nullable String errorMessage) {
-        showArtifactBuildIssue(getKeyPrefix(type), dependency, errorMessage);
+    public void showArtifactBuildIssue(
+        @Nonnull MavenServerConsoleIndicator.ResolveType type,
+        @Nonnull String dependency,
+        @Nonnull LocalizeValue errorMessage
+    ) {
+        showArtifactBuildIssue(ResolveDescriptor.of(type), dependency, errorMessage);
     }
 
     public synchronized void showBuildIssue(@Nonnull BuildIssue buildIssue) {
         doIfImportInProcess(() -> {
             hasErrors = true;
             hasUnresolved = true;
-            String key = getKeyPrefix(MavenServerConsoleIndicator.ResolveType.DEPENDENCY);
-            startTask(mySyncId, key);
-            mySyncView.onEvent(mySyncId, myFactory.createBuildIssueEvent(key, buildIssue, MessageEvent.Kind.ERROR));
+            ResolveDescriptor resolveDescriptor = ResolveDescriptor.of(MavenServerConsoleIndicator.ResolveType.DEPENDENCY);
+            startTask(mySyncId, resolveDescriptor.getTaskName());
+            mySyncView.onEvent(mySyncId, myFactory.createBuildIssueEvent(resolveDescriptor, buildIssue, MessageEvent.Kind.ERROR));
         });
     }
 
     public synchronized void showBuildIssue(@Nonnull BuildIssue buildIssue, @Nonnull MessageEvent.Kind kind) {
         doIfImportInProcess(() -> {
             hasErrors = hasErrors || kind == MessageEvent.Kind.ERROR;
-            String key = getKeyPrefix(MavenServerConsoleIndicator.ResolveType.DEPENDENCY);
-            startTask(mySyncId, key);
-            mySyncView.onEvent(mySyncId, myFactory.createBuildIssueEvent(key, buildIssue, kind));
+            ResolveDescriptor resolveDescriptor = ResolveDescriptor.of(MavenServerConsoleIndicator.ResolveType.DEPENDENCY);
+            startTask(mySyncId, resolveDescriptor.getTaskName());
+            mySyncView.onEvent(mySyncId, myFactory.createBuildIssueEvent(resolveDescriptor, buildIssue, kind));
         });
     }
 
-    private synchronized void startTask(@Nonnull Object parentId, @Nonnull String taskName) {
+    private synchronized void startTask(@Nonnull Object parentId, @Nonnull LocalizeValue taskName) {
         doIfImportInProcess(() -> {
             debugLog("Maven sync: start " + taskName);
             if (myStartedSet.add(Pair.create(parentId, taskName))) {
-                mySyncView.onEvent(mySyncId, myFactory.createStartEvent(taskName, parentId, System.currentTimeMillis(), taskName));
+                mySyncView.onEvent(mySyncId, myFactory.createStartEvent(taskName, parentId, System.currentTimeMillis(), taskName.get()));
             }
         });
     }
 
-    private synchronized void completeTask(@Nonnull Object parentId, @Nonnull String taskName, @Nonnull EventResult result) {
+    private synchronized void completeTask(@Nonnull Object parentId, @Nonnull LocalizeValue taskName, @Nonnull EventResult result) {
         doIfImportInProcess(() -> {
             hasErrors = hasErrors || result instanceof FailureResult;
 
             debugLog("Maven sync: complete " + taskName + " with " + result);
             if (myStartedSet.remove(Pair.create(parentId, taskName))) {
-                mySyncView.onEvent(mySyncId, myFactory.createFinishEvent(taskName, parentId, System.currentTimeMillis(), taskName, result));
+                mySyncView.onEvent(
+                    mySyncId,
+                    myFactory.createFinishEvent(taskName, parentId, System.currentTimeMillis(), taskName.get(), result)
+                );
             }
         });
     }
 
     public void finishPluginResolution() {
-        completeUmbrellaEvents(getKeyPrefix(MavenServerConsoleIndicator.ResolveType.PLUGIN));
+        completeUmbrellaEvents(ResolveDescriptor.of(MavenServerConsoleIndicator.ResolveType.PLUGIN));
     }
 
     public void finishArtifactsDownload() {
-        completeUmbrellaEvents(getKeyPrefix(MavenServerConsoleIndicator.ResolveType.DEPENDENCY));
+        completeUmbrellaEvents(ResolveDescriptor.of(MavenServerConsoleIndicator.ResolveType.DEPENDENCY));
     }
 
-    private synchronized void completeUmbrellaEvents(@Nonnull String keyPrefix) {
+    private synchronized void completeUmbrellaEvents(@Nonnull ResolveDescriptor resolveDescriptor) {
         doIfImportInProcess(() -> {
-            String taskName = SyncBundle.message(keyPrefix + ".resolve");
+            LocalizeValue taskName = resolveDescriptor.getTaskName();
             completeTask(mySyncId, taskName, myFactory.createDerivedResult());
         });
     }
 
-    private synchronized void downloadEventStarted(@Nonnull String keyPrefix, @Nonnull String dependency) {
+    private synchronized void downloadEventStarted(@Nonnull ResolveDescriptor resolveDescriptor, @Nonnull String dependency) {
         doIfImportInProcess(() -> {
-            String downloadString = SyncBundle.message(keyPrefix + ".download");
-            String downloadArtifactString = SyncBundle.message(keyPrefix + ".artifact.download", dependency);
+            LocalizeValue downloadString = resolveDescriptor.getDownloadingMessage();
+            LocalizeValue downloadArtifactString = resolveDescriptor.getDownloadingMessage(dependency);
             startTask(mySyncId, downloadString);
             startTask(downloadString, downloadArtifactString);
         });
     }
 
-    private synchronized void downloadEventCompleted(@Nonnull String keyPrefix, @Nonnull String dependency) {
+    private synchronized void downloadEventCompleted(@Nonnull ResolveDescriptor resolveDescriptor, @Nonnull String dependency) {
         doIfImportInProcess(() -> {
-            String downloadString = SyncBundle.message(keyPrefix + ".download");
-            String downloadArtifactString = SyncBundle.message(keyPrefix + ".artifact.download", dependency);
-            addText(downloadArtifactString, downloadArtifactString, true);
-            completeTask(downloadString, downloadArtifactString, myFactory.createSuccessResult(false));
+            LocalizeValue downloadingArtifactMessage = resolveDescriptor.getDownloadingMessage(dependency);
+            addText(downloadingArtifactMessage, downloadingArtifactMessage, true);
+            completeTask(resolveDescriptor.getDownloadingMessage(), downloadingArtifactMessage, myFactory.createSuccessResult(false));
         });
     }
 
-    private synchronized void downloadEventFailed(@Nonnull String keyPrefix,
-                                                  @Nonnull String dependency,
-                                                  @Nonnull String error,
-                                                  @Nullable String stackTrace) {
+    private synchronized void downloadEventFailed(
+        @Nonnull ResolveDescriptor resolveDescriptor,
+        @Nonnull String dependency,
+        @Nonnull LocalizeValue error,
+        @Nullable String stackTrace
+    ) {
         doIfImportInProcess(() -> {
-            String downloadString = SyncBundle.message(keyPrefix + ".download");
-            String downloadArtifactString = SyncBundle.message(keyPrefix + ".artifact.download", dependency);
+            LocalizeValue downloadingMessage = resolveDescriptor.getDownloadingMessage();
+            LocalizeValue downloadingArtifactMessage = resolveDescriptor.getDownloadingMessage(dependency);
 
             if (isJavadocOrSource(dependency)) {
-                addText(downloadArtifactString, MavenSyncLocalize.mavenSyncFailureDependencyNotFound(dependency).get(), true);
-                completeTask(downloadString, downloadArtifactString, new MessageEventResult() {
+                addText(downloadingArtifactMessage, MavenSyncLocalize.mavenSyncFailureDependencyNotFound(dependency), true);
+                completeTask(downloadingMessage, downloadingArtifactMessage, new MessageEventResult() {
                     @Override
                     public MessageEvent.Kind getKind() {
                         return MessageEvent.Kind.WARNING;
                     }
 
                     @Override
-                    @Nullable
-                    public String getDetails() {
-                        return MavenSyncLocalize.mavenSyncFailureDependencyNotFound(dependency).get();
+                    @Nonnull
+                    public LocalizeValue getDetails() {
+                        return MavenSyncLocalize.mavenSyncFailureDependencyNotFound(dependency);
                     }
                 });
             }
             else {
                 if (stackTrace != null && Registry.is("maven.spy.events.debug")) {
-                    addText(downloadArtifactString, stackTrace, false);
+                    addText(downloadingArtifactMessage, LocalizeValue.of(stackTrace), false);
                 }
                 else {
-                    addText(downloadArtifactString, error, true);
+                    addText(downloadingArtifactMessage, error, true);
                 }
-                completeTask(downloadString, downloadArtifactString, myFactory.createFailureResult(error));
+                completeTask(downloadingMessage, downloadingArtifactMessage, myFactory.newFailure().message(error).createResult());
             }
         });
     }
@@ -752,18 +831,13 @@ public class MavenSyncConsole implements MavenEventHandler, MavenBuildIssueHandl
     @Override
     public synchronized void handleDownloadEvents(@Nonnull List<MavenArtifactEvent> downloadEvents) {
         for (MavenArtifactEvent e : downloadEvents) {
-            String key = getKeyPrefix(e.getResolveType());
+            ResolveDescriptor resolveDescriptor = ResolveDescriptor.of(e.getResolveType());
             String id = e.getDependencyId();
             switch (e.getArtifactEventType()) {
-                case DOWNLOAD_STARTED:
-                    downloadEventStarted(key, id);
-                    break;
-                case DOWNLOAD_COMPLETED:
-                    downloadEventCompleted(key, id);
-                    break;
-                case DOWNLOAD_FAILED:
-                    downloadEventFailed(key, id, e.getErrorMessage(), e.getStackTrace());
-                    break;
+                case DOWNLOAD_STARTED -> downloadEventStarted(resolveDescriptor, id);
+                case DOWNLOAD_COMPLETED -> downloadEventCompleted(resolveDescriptor, id);
+                case DOWNLOAD_FAILED ->
+                    downloadEventFailed(resolveDescriptor, id, LocalizeValue.ofNullable(e.getErrorMessage()), e.getStackTrace());
             }
         }
     }
@@ -771,15 +845,15 @@ public class MavenSyncConsole implements MavenEventHandler, MavenBuildIssueHandl
     @Override
     public void handleConsoleEvents(@Nonnull List<MavenServerConsoleEvent> consoleEvents) {
         for (MavenServerConsoleEvent e : consoleEvents) {
-            printMessage(e.getLevel(), e.getMessage(), e.getThrowable());
+            printMessage(e.getLevel(), LocalizeValue.ofNullable(e.getMessage()), e.getThrowable());
         }
     }
 
     public void printException(@Nonnull Throwable throwable) {
-        printMessage(MavenServerConsoleIndicator.LEVEL_ERROR, "Embedded build failed", throwable);
+        printMessage(MavenServerConsoleIndicator.LEVEL_ERROR, LocalizeValue.localizeTODO("Embedded build failed"), throwable);
     }
 
-    public void printMessage(int level, @Nonnull String string, @Nullable Throwable throwable) {
+    public void printMessage(int level, @Nonnull LocalizeValue message, @Nullable Throwable throwable) {
         if (isSuppressed(level)) {
             return;
         }
@@ -789,15 +863,27 @@ public class MavenSyncConsole implements MavenEventHandler, MavenBuildIssueHandl
             && level != MavenServerConsoleIndicator.LEVEL_ERROR
             && level != MavenServerConsoleIndicator.LEVEL_FATAL;
 
-        addText(composeLine(level, string), stdout);
+        addText(composeLine(level, message), stdout);
 
         if (throwable != null) {
             String throwableText = ExceptionUtil.getThrowableText(throwable);
             if (Registry.is("maven.print.import.stacktraces") || Application.get().isUnitTestMode()) {
-                addText(LINE_SEPARATOR + composeLine(MavenServerConsoleIndicator.LEVEL_ERROR, throwableText), false);
+                addText(
+                    LocalizeValue.join(
+                        LINE_SEPARATOR,
+                        composeLine(MavenServerConsoleIndicator.LEVEL_ERROR, LocalizeValue.of(throwableText))
+                    ),
+                    false
+                );
             }
             else {
-                addText(LINE_SEPARATOR + composeLine(MavenServerConsoleIndicator.LEVEL_ERROR, throwable.getMessage()), false);
+                addText(
+                    LocalizeValue.join(
+                        LINE_SEPARATOR,
+                        composeLine(MavenServerConsoleIndicator.LEVEL_ERROR, LocalizeValue.ofNullable(throwable.getMessage()))
+                    ),
+                    false
+                );
             }
         }
     }
@@ -807,13 +893,8 @@ public class MavenSyncConsole implements MavenEventHandler, MavenBuildIssueHandl
     }
 
     @Nonnull
-    private String composeLine(int level, @Nullable String message) {
-        return MessageFormat.format("[{0}] {1}", getPrefixByLevel(level), message);
-    }
-
-    @Nullable
-    private String getPrefixByLevel(int level) {
-        return LEVEL_TO_PREFIX.get(level);
+    private LocalizeValue composeLine(int level, @Nonnull LocalizeValue message) {
+        return MavenSyncLocalize.logLevelAndMessage(LEVEL_TO_PREFIX.getOrDefault(level, "???"), message);
     }
 
     private static void debugLog(@Nonnull String s) {
