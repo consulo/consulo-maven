@@ -3,7 +3,7 @@
   "server" : "https://i.verbaria.org/",
   "project" : "consulo-maven",
   "projectVersion" : "master",
-  "generatedAt" : "2026-06-22T15:06:19.090348170Z",
+  "generatedAt" : "2026-06-23T07:50:20.051854598Z",
   "documents" : {
     "org.jetbrains.idea.maven.MavenDomLocalize" : {
       "source" : {
@@ -32,7 +32,7 @@
     },
     "org.jetbrains.idea.maven.MavenSyncLocalize" : {
       "source" : {
-        "revision" : 1
+        "revision" : 2
       }
     },
     "org.jetbrains.idea.maven.MavenTasksLocalize" : {
