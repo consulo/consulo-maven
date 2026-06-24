@@ -30,6 +30,10 @@ maven.execution.finished:
     text: Maven execution finished
 maven.execution.terminated.abnormally:
     text: Maven execution terminated abnormally (exit code {0})
+maven.generate.sources.task:
+    text: Generating Sources in {0}
+maven.generate.sources.title:
+    text: Generate Sources
 maven.java.home.env:
     text: Use JAVA_HOME
 maven.java.home.invalid:

@@ -174,7 +174,7 @@ public class MavenSyncConsole implements MavenEventHandler, MavenBuildIssueHandl
 
         DefaultBuildDescriptor descriptor = new DefaultBuildDescriptor(
             mySyncId,
-            MavenSyncLocalize.mavenSyncTitle().get(),
+            MavenSyncLocalize.mavenSyncTitle(),
             myProject.getBasePath(),
             System.currentTimeMillis()
         );
@@ -184,7 +184,7 @@ public class MavenSyncConsole implements MavenEventHandler, MavenBuildIssueHandl
 
         mySyncView.onEvent(
             mySyncId,
-            myFactory.createStartBuildEvent(descriptor, MavenSyncLocalize.mavenSyncProjectTitle(myProject.getName()).get())
+            myFactory.createStartBuildEvent(descriptor, MavenSyncLocalize.mavenSyncProjectTitle(myProject.getName()))
         );
         debugLog("maven sync: started importing " + myProject);
 
@@ -270,8 +270,8 @@ public class MavenSyncConsole implements MavenEventHandler, MavenBuildIssueHandl
                     mySyncId,
                     MessageEvent.Kind.WARNING,
                     MavenBuildNotification.COMPILER,
-                    text.get(),
-                    description.get()
+                    text,
+                    description
                 ));
             }
             else {
@@ -279,8 +279,8 @@ public class MavenSyncConsole implements MavenEventHandler, MavenBuildIssueHandl
                     mySyncId,
                     MessageEvent.Kind.WARNING,
                     MavenBuildNotification.COMPILER,
-                    text.get(),
-                    description.get(),
+                    text,
+                    description,
                     filePosition
                 ));
             }
@@ -331,7 +331,7 @@ public class MavenSyncConsole implements MavenEventHandler, MavenBuildIssueHandl
             mySyncId,
             null,
             System.currentTimeMillis(),
-            "",
+            LocalizeValue.empty(),
             myFactory.newFailure().message(MavenSyncLocalize.mavenSyncFailureTerminated(exitCode)).createResult()
         ));
         finished = true;
@@ -390,8 +390,8 @@ public class MavenSyncConsole implements MavenEventHandler, MavenBuildIssueHandl
                 mySyncId,
                 MessageEvent.Kind.ERROR,
                 MavenBuildNotification.BUILD_ERROR,
-                desc.get(),
-                desc.get(),
+                desc,
+                desc,
                 new FilePosition(new File(file.getPath()), -1, -1)
             ));
         });
@@ -410,8 +410,8 @@ public class MavenSyncConsole implements MavenEventHandler, MavenBuildIssueHandl
                 mySyncId,
                 MessageEvent.Kind.INFO,
                 MavenBuildNotification.BUILD_ERROR,
-                message.get(),
-                message.get()
+                message,
+                message
             );
         }
         else {
@@ -431,12 +431,12 @@ public class MavenSyncConsole implements MavenEventHandler, MavenBuildIssueHandl
                 : MavenBuildNotification.BUILD_WARN;
             MessageEvent.Kind kind = problem.isError() ? MessageEvent.Kind.ERROR : MessageEvent.Kind.WARNING;
             FilePosition position = getFilePosition(problem);
-            String message = problem.getDescription() != null
-                ? problem.getDescription()
-                : MavenSyncLocalize.mavenSyncFailureErrorUndefinedMessage().get();
-            String detailedMessage = problem.getDescription() != null
-                ? problem.getDescription()
-                : MavenSyncLocalize.mavenSyncFailureErrorUndefinedDetailedMessage(problem.getPath()).get();
+            LocalizeValue message = problem.getDescription() != null
+                ? LocalizeValue.of(problem.getDescription())
+                : MavenSyncLocalize.mavenSyncFailureErrorUndefinedMessage();
+            LocalizeValue detailedMessage = problem.getDescription() != null
+                ? LocalizeValue.of(problem.getDescription())
+                : MavenSyncLocalize.mavenSyncFailureErrorUndefinedDetailedMessage(problem.getPath());
             FileMessageEvent eventImpl = myFactory.createFileMessageEvent(mySyncId, kind, group, message, detailedMessage, position);
             mySyncView.onEvent(mySyncId, eventImpl);
         });
@@ -527,7 +527,7 @@ public class MavenSyncConsole implements MavenEventHandler, MavenBuildIssueHandl
             mySyncId,
             null,
             System.currentTimeMillis(),
-            "",
+            LocalizeValue.empty(),
             hasErrors ? myFactory.newFailure().createResult() : myFactory.createDerivedResult()
         ));
 
@@ -706,7 +706,7 @@ public class MavenSyncConsole implements MavenEventHandler, MavenBuildIssueHandl
         doIfImportInProcess(() -> {
             debugLog("Maven sync: start " + taskName);
             if (myStartedSet.add(Pair.create(parentId, taskName))) {
-                mySyncView.onEvent(mySyncId, myFactory.createStartEvent(taskName, parentId, System.currentTimeMillis(), taskName.get()));
+                mySyncView.onEvent(mySyncId, myFactory.createStartEvent(taskName, parentId, System.currentTimeMillis(), taskName));
             }
         });
     }
@@ -719,7 +719,7 @@ public class MavenSyncConsole implements MavenEventHandler, MavenBuildIssueHandl
             if (myStartedSet.remove(Pair.create(parentId, taskName))) {
                 mySyncView.onEvent(
                     mySyncId,
-                    myFactory.createFinishEvent(taskName, parentId, System.currentTimeMillis(), taskName.get(), result)
+                    myFactory.createFinishEvent(taskName, parentId, System.currentTimeMillis(), taskName, result)
                 );
             }
         });

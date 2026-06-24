@@ -5,6 +5,7 @@ import consulo.application.Application;
 import consulo.build.ui.event.BuildEventFactory;
 import consulo.build.ui.event.MessageEvent;
 import consulo.externalSystem.model.task.ExternalSystemTaskId;
+import consulo.localize.LocalizeValue;
 import consulo.process.ExecutionException;
 import consulo.project.Project;
 import consulo.project.ui.notification.NotificationGroup;
@@ -21,9 +22,7 @@ final class MessageEventUtils {
     }
 
     @Nonnull
-    static MessageEvent createMessageEvent(@Nonnull Project project,
-                                           @Nonnull ExternalSystemTaskId taskId,
-                                           @Nonnull Throwable e) {
+    static MessageEvent createMessageEvent(@Nonnull Project project, @Nonnull ExternalSystemTaskId taskId, @Nonnull Throwable e) {
         Throwable error = e;
         NotificationGroup group = MavenBuildNotification.BUILD_ERROR;
 
@@ -34,27 +33,24 @@ final class MessageEventUtils {
             error = executionException != null ? executionException : csse;
         }
 
-        String message = getExceptionText(project, error);
-        return Application.get().getInstance(BuildEventFactory.class).createMessageEvent(taskId, MessageEvent.Kind.ERROR, group, message, message);
+        LocalizeValue message = getExceptionText(project, error);
+        return Application.get().getInstance(BuildEventFactory.class)
+            .createMessageEvent(taskId, MessageEvent.Kind.ERROR, group, message, message);
     }
 
     @Nonnull
-    private static String getExceptionText(@Nonnull Project project, @Nonnull Throwable e) {
+    private static LocalizeValue getExceptionText(@Nonnull Project project, @Nonnull Throwable e) {
         MavenGeneralSettings generalSettings = MavenWorkspaceSettingsComponent.getInstance(project).getSettings().generalSettings;
 
         if (generalSettings != null && generalSettings.isPrintErrorStackTraces()) {
-            return ExceptionUtil.getThrowableText(e);
+            return LocalizeValue.of(ExceptionUtil.getThrowableText(e));
         }
 
         String localizedMessage = e.getLocalizedMessage();
         if (localizedMessage != null && !localizedMessage.isEmpty()) {
-            return localizedMessage;
+            return LocalizeValue.of(localizedMessage);
         }
 
-        String message = e.getMessage();
-        if (StringUtil.isEmpty(message)) {
-            return MavenSyncLocalize.buildEventTitleError().get();
-        }
-        return message;
+        return LocalizeValue.ofNullable(e.getMessage()).orIfEmpty(MavenSyncLocalize.buildEventTitleError());
     }
 }

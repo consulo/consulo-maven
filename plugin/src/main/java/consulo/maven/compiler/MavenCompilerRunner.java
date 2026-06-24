@@ -183,7 +183,7 @@ public class MavenCompilerRunner implements CompilerRunner {
         }
 
         if (!success.get()) {
-            context.addMessage(CompilerMessageCategory.ERROR, "Maven compilation failed", null, -1, -1);
+            context.newError(LocalizeValue.localizeTODO("Maven compilation failed")).add();
         }
 
         return true;

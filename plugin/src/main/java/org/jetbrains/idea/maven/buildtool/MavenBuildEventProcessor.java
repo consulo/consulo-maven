@@ -9,6 +9,7 @@ import consulo.build.ui.output.BuildOutputInstantReader;
 import consulo.build.ui.output.BuildOutputService;
 import consulo.build.ui.progress.BuildProgressListener;
 import consulo.externalSystem.model.task.ExternalSystemTaskId;
+import consulo.localize.LocalizeValue;
 import consulo.process.ProcessOutputType;
 import consulo.process.util.AnsiEscapeDecoder;
 import consulo.util.dataholder.Key;
@@ -47,7 +48,8 @@ public class MavenBuildEventProcessor implements AnsiEscapeDecoder.ColoredTextAc
         BuildEventFactory buildEventFactory = application.getInstance(BuildEventFactory.class);
 
         myStartBuildEventSupplier = startBuildEventSupplier != null
-            ? startBuildEventSupplier : ctx -> buildEventFactory.createStartBuildEvent(myDescriptor, "");
+            ? startBuildEventSupplier
+            : ctx -> buildEventFactory.createStartBuildEvent(myDescriptor, LocalizeValue.empty());
 
         myParser = MavenOutputParserProvider.createMavenOutputParser(buildEventFactory, runConfiguration, taskId, targetFileMapper, useWrapperedLogging);
 

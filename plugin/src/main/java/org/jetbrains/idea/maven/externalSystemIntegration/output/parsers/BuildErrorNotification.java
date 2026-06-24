@@ -5,6 +5,7 @@ import consulo.build.ui.FilePosition;
 import consulo.build.ui.event.BuildEvent;
 import consulo.build.ui.event.BuildEventFactory;
 import consulo.build.ui.event.MessageEvent;
+import consulo.localize.LocalizeValue;
 import consulo.project.ui.notification.NotificationGroup;
 import consulo.util.io.FileUtil;
 import jakarta.annotation.Nonnull;
@@ -59,8 +60,8 @@ public abstract class BuildErrorNotification implements MavenLoggedEventParser {
                 parentId,
                 MessageEvent.Kind.ERROR,
                 myMessageGroup,
-                MavenRunnerLocalize.buildEventMessageOutMemory().get(),
-                line
+                MavenRunnerLocalize.buildEventMessageOutMemory(),
+                LocalizeValue.of(line)
             ));
             return true;
         }
@@ -83,7 +84,7 @@ public abstract class BuildErrorNotification implements MavenLoggedEventParser {
         FilePosition position;
 
         if (matcher == null) {
-            position = new FilePosition(parsedFile, 0, 0);
+            position = new FilePosition(parsedFile);
             message = lineWithPosition;
         }
         else {
@@ -91,7 +92,7 @@ public abstract class BuildErrorNotification implements MavenLoggedEventParser {
             message = lineWithPosition.substring(matcher.end());
         }
 
-        String errorMessage = getErrorMessage(position, message);
+        LocalizeValue errorMessage = getErrorMessage(position, message);
         messageConsumer.accept(myBuildEventFactory.createFileMessageEvent(
             parentId,
             MessageEvent.Kind.ERROR,
@@ -116,14 +117,14 @@ public abstract class BuildErrorNotification implements MavenLoggedEventParser {
     }
 
     @Nonnull
-    private static String getErrorMessage(@Nonnull FilePosition position, @Nonnull String message) {
+    private static LocalizeValue getErrorMessage(@Nonnull FilePosition position, @Nonnull String message) {
         message = message.trim();
         while (message.startsWith(":") || message.startsWith("]") || message.startsWith(")")) {
             message = message.substring(1);
         }
         message = message.trim();
 
-        return message;
+        return LocalizeValue.of(message);
     }
 
     @Nonnull
@@ -135,7 +136,7 @@ public abstract class BuildErrorNotification implements MavenLoggedEventParser {
             return new FilePosition(toTest, atoi(matcher.group(1)) - 1, 0);
         }
         else {
-            return new FilePosition(toTest, 0, 0);
+            return new FilePosition(toTest);
         }
     }
 

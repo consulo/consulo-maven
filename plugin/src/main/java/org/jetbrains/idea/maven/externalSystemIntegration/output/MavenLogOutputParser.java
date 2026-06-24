@@ -6,6 +6,7 @@ import consulo.build.ui.event.BuildEventFactory;
 import consulo.build.ui.output.BuildOutputInstantReader;
 import consulo.build.ui.output.BuildOutputParser;
 import consulo.externalSystem.model.task.ExternalSystemTaskId;
+import consulo.localize.LocalizeValue;
 import consulo.util.lang.StringUtil;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
@@ -55,7 +56,13 @@ public class MavenLogOutputParser implements BuildOutputParser {
         completeParsers(messageConsumer);
 
         if (!myParsingContext.getSessionEnded()) {
-            messageConsumer.accept(myBuildEventFactory.createFinishBuildEvent(myTaskId, null, System.currentTimeMillis(), "", new MavenTaskFailedResultImpl(null, myBuildEventFactory)));
+            messageConsumer.accept(myBuildEventFactory.createFinishBuildEvent(
+                myTaskId,
+                null,
+                System.currentTimeMillis(),
+                LocalizeValue.empty(),
+                new MavenTaskFailedResultImpl(null, myBuildEventFactory)
+            ));
         }
     }
 
@@ -106,7 +113,13 @@ public class MavenLogOutputParser implements BuildOutputParser {
         if (!myParsingContext.getProjectFailure()) {
             if (line.contains("[ERROR]")) {
                 myParsingContext.setProjectFailure(true);
-                messageConsumer.accept(myBuildEventFactory.createFinishBuildEvent(myTaskId, null, System.currentTimeMillis(), "", myBuildEventFactory.createFailureResult()));
+                messageConsumer.accept(myBuildEventFactory.createFinishBuildEvent(
+                    myTaskId,
+                    null,
+                    System.currentTimeMillis(),
+                    LocalizeValue.empty(),
+                    myBuildEventFactory.newFailure().createResult()
+                ));
             }
         }
     }

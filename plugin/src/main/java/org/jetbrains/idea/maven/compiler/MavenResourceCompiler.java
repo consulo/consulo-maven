@@ -22,6 +22,7 @@ import consulo.compiler.*;
 import consulo.compiler.scope.CompileScope;
 import consulo.compiler.util.CompilerUtil;
 import consulo.index.io.data.IOUtil;
+import consulo.localize.LocalizeValue;
 import consulo.maven.rt.server.common.model.MavenResource;
 import consulo.module.Module;
 import consulo.module.ModuleManager;
@@ -262,8 +263,9 @@ public class MavenResourceCompiler implements ClassPostProcessingCompiler {
                 }
             }
             catch (IOException e) {
-                String url = VirtualFileUtil.pathToUrl(mavenProject.getFile().getPath());
-                context.addMessage(CompilerMessageCategory.WARNING, "Maven: Cannot read the filter. " + e.getMessage(), url, -1, -1);
+                context.newWarning(LocalizeValue.localizeTODO("Maven: Cannot read the filter. " + e.getMessage()))
+                    .url(VirtualFileUtil.pathToUrl(mavenProject.getFile().getPath()))
+                    .add();
             }
         }
 
@@ -285,13 +287,7 @@ public class MavenResourceCompiler implements ClassPostProcessingCompiler {
     ) {
         String outputDir = CompilerPaths.getModuleOutputPath(module, tests);
         if (outputDir == null) {
-            context.addMessage(
-                CompilerMessageCategory.ERROR,
-                "Maven: Module '" + module.getName() + "'output is not specified",
-                null,
-                -1,
-                -1
-            );
+            context.newError(LocalizeValue.localizeTODO("Maven: Module '" + module.getName() + "'output is not specified")).add();
             return;
         }
 
@@ -460,12 +456,11 @@ public class MavenResourceCompiler implements ClassPostProcessingCompiler {
 
                 boolean shouldFilter = eachItem.isFiltered();
                 if (shouldFilter && sourceFile.length() > 10 * 1024 * 1024) {
-                    context.addMessage(CompilerMessageCategory.WARNING,
-                        "Maven: File is too big to be filtered. Most likely it is a binary file and should be excluded from filtering.",
-                        sourceVirtualFile.getPath(),
-                        -1,
-                        -1
-                    );
+                    context.newWarning(LocalizeValue.localizeTODO(
+                            "Maven: File is too big to be filtered. Most likely it is a binary file and should be excluded from filtering."
+                        ))
+                        .url(sourceVirtualFile.getPath())
+                        .add();
                     shouldFilter = false;
                 }
 
@@ -497,13 +492,9 @@ public class MavenResourceCompiler implements ClassPostProcessingCompiler {
             }
             catch (IOException e) {
                 MavenLog.LOG.info(e);
-                context.addMessage(
-                    CompilerMessageCategory.ERROR,
-                    "Maven: Cannot process resource file: " + e.getMessage(),
-                    sourceVirtualFile.getPath(),
-                    -1,
-                    -1
-                );
+                context.newError(LocalizeValue.localizeTODO("Maven: Cannot process resource file: " + e.getMessage()))
+                    .url(sourceVirtualFile.getPath())
+                    .add();
             }
         }
         CompilerUtil.refreshIOFiles(filesToRefresh);

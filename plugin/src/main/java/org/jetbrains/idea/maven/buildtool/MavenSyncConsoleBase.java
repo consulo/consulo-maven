@@ -11,6 +11,7 @@ import consulo.build.ui.event.FailureResult;
 import consulo.build.ui.event.MessageEvent;
 import consulo.externalSystem.model.task.ExternalSystemTaskId;
 import consulo.externalSystem.model.task.ExternalSystemTaskType;
+import consulo.localize.LocalizeValue;
 import consulo.maven.rt.server.common.server.MavenArtifactEvent;
 import consulo.maven.rt.server.common.server.MavenServerConsoleEvent;
 import consulo.maven.rt.server.common.server.MavenServerConsoleIndicator;
@@ -46,7 +47,7 @@ public abstract class MavenSyncConsoleBase implements MavenEventHandler {
 
     protected final Project myProject;
     private final ExternalSystemTaskId myTaskId;
-    private final LinkedHashSet<Pair<ExternalSystemTaskId, String>> myStartedSet = new LinkedHashSet<>();
+    private final SequencedSet<Pair<ExternalSystemTaskId, LocalizeValue>> myStartedSet = new LinkedHashSet<>();
     private final SyncViewManager progressListener;
     private boolean hasErrors = false;
     private BuildEventFactory myFactory;
@@ -59,10 +60,10 @@ public abstract class MavenSyncConsoleBase implements MavenEventHandler {
     }
 
     @Nonnull
-    protected abstract String getTitle();
+    protected abstract LocalizeValue getTitle();
 
     @Nonnull
-    protected abstract String getMessage();
+    protected abstract LocalizeValue getMessage();
 
     @Nonnull
     protected ExternalSystemTaskId createTaskId() {
@@ -70,49 +71,67 @@ public abstract class MavenSyncConsoleBase implements MavenEventHandler {
     }
 
     public void start() {
-        DefaultBuildDescriptor descriptor = new DefaultBuildDescriptor(myTaskId, getTitle(), myProject.getBasePath(), System.currentTimeMillis());
+        DefaultBuildDescriptor descriptor = new DefaultBuildDescriptor(
+            myTaskId,
+            getTitle(),
+            myProject.getBasePath(),
+            System.currentTimeMillis()
+        );
         descriptor.setActivateToolWindowWhenFailed(true);
         descriptor.setActivateToolWindowWhenAdded(false);
         progressListener.onEvent(myTaskId, myFactory.createStartBuildEvent(descriptor, getMessage()));
     }
 
-    protected void startTask(@Nonnull ExternalSystemTaskId parentId, @Nonnull String taskName) {
+    protected void startTask(@Nonnull ExternalSystemTaskId parentId, @Nonnull LocalizeValue taskName) {
         debugLog("Maven task: start " + taskName);
         if (myStartedSet.add(Pair.create(parentId, taskName))) {
             progressListener.onEvent(myTaskId, myFactory.createStartEvent(taskName, parentId, System.currentTimeMillis(), taskName));
         }
     }
 
-    protected void startTask(@Nonnull String taskName) {
+    protected void startTask(@Nonnull LocalizeValue taskName) {
         startTask(myTaskId, taskName);
     }
 
-    protected void completeTask(@Nonnull ExternalSystemTaskId parentId, @Nonnull String taskName, @Nonnull EventResult result) {
+    protected void completeTask(@Nonnull ExternalSystemTaskId parentId, @Nonnull LocalizeValue taskName, @Nonnull EventResult result) {
         hasErrors = hasErrors || result instanceof FailureResult;
 
         debugLog("Maven task: complete " + taskName + " with " + result);
         if (myStartedSet.remove(Pair.create(parentId, taskName))) {
-            progressListener.onEvent(myTaskId, myFactory.createFinishBuildEvent(taskName, parentId, System.currentTimeMillis(), taskName, result));
+            progressListener.onEvent(
+                myTaskId,
+                myFactory.createFinishBuildEvent(taskName, parentId, System.currentTimeMillis(), taskName, result)
+            );
         }
     }
 
-    protected void completeTask(@Nonnull String taskName, @Nonnull EventResult result) {
+    protected void completeTask(@Nonnull LocalizeValue taskName, @Nonnull EventResult result) {
         completeTask(myTaskId, taskName, result);
     }
 
-    public void addError(@Nonnull String message) {
-        progressListener.onEvent(myTaskId, myFactory.createMessageEvent(myTaskId, MessageEvent.Kind.ERROR, MavenBuildNotification.BUILD_ERROR, message, message));
+    public void addError(@Nonnull LocalizeValue message) {
+        progressListener.onEvent(
+            myTaskId,
+            myFactory.createMessageEvent(myTaskId, MessageEvent.Kind.ERROR, MavenBuildNotification.BUILD_ERROR, message, message)
+        );
     }
 
     public void finish() {
-        List<Pair<ExternalSystemTaskId, String>> tasks = new ArrayList<>(myStartedSet);
+        List<Pair<ExternalSystemTaskId, LocalizeValue>> tasks = new ArrayList<>(myStartedSet);
         Collections.reverse(tasks);
         debugLog("Tasks " + tasks + " are not completed! Force complete");
-        for (Pair<ExternalSystemTaskId, String> task : tasks) {
+        for (Pair<ExternalSystemTaskId, LocalizeValue> task : tasks) {
             completeTask(task.getFirst(), task.getSecond(), myFactory.createDerivedResult());
         }
-        progressListener.onEvent(myTaskId, myFactory.createFinishBuildEvent(myTaskId, null, System.currentTimeMillis(), "",
-            hasErrors ? myFactory.createFailureResult() : myFactory.createDerivedResult()));
+        progressListener.onEvent(
+            myTaskId,
+            myFactory.createFinishBuildEvent(myTaskId,
+                null,
+                System.currentTimeMillis(),
+                LocalizeValue.empty(),
+                hasErrors ? myFactory.newFailure().createResult() : myFactory.createDerivedResult()
+            )
+        );
     }
 
     @Override

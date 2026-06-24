@@ -3,38 +3,38 @@ package org.jetbrains.idea.maven.buildtool;
 
 import consulo.application.Application;
 import consulo.build.ui.event.BuildEventFactory;
+import consulo.localize.LocalizeValue;
 import consulo.project.Project;
 import jakarta.annotation.Nonnull;
-import org.jetbrains.idea.maven.execution.RunnerBundle;
+import org.jetbrains.idea.maven.localize.MavenRunnerLocalize;
 
 /**
  * An instance of this class is not supposed to be reused
  */
 public class MavenSourceGenerationConsole extends MavenSyncConsoleBase {
-
     public MavenSourceGenerationConsole(@Nonnull Project project) {
         super(project);
     }
 
     @Override
     @Nonnull
-    protected String getTitle() {
-        return RunnerBundle.message("maven.generate.sources.title");
+    protected LocalizeValue getTitle() {
+        return MavenRunnerLocalize.mavenGenerateSourcesTitle();
     }
 
     @Override
     @Nonnull
-    protected String getMessage() {
-        return "";
+    protected LocalizeValue getMessage() {
+        return LocalizeValue.empty();
     }
 
     public void startSourceGeneration(@Nonnull String folder) {
-        startTask(RunnerBundle.message("maven.generate.sources.task", folder));
+        startTask(MavenRunnerLocalize.mavenGenerateSourcesTask(folder));
     }
 
     public void finishSourceGeneration(@Nonnull String folder) {
         BuildEventFactory eventFactory = Application.get().getInstance(BuildEventFactory.class);
 
-        completeTask(RunnerBundle.message("maven.generate.sources.task", folder), eventFactory.createSuccessResult());
+        completeTask(MavenRunnerLocalize.mavenGenerateSourcesTask(folder), eventFactory.createSuccessResult());
     }
 }
