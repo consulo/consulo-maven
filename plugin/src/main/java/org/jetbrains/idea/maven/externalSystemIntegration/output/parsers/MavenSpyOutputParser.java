@@ -3,6 +3,7 @@ package org.jetbrains.idea.maven.externalSystemIntegration.output.parsers;
 
 import consulo.build.ui.event.BuildEvent;
 import consulo.build.ui.event.BuildEventFactory;
+import consulo.localize.LocalizeValue;
 import consulo.util.lang.StringUtil;
 import jakarta.annotation.Nonnull;
 import org.jetbrains.idea.maven.externalSystemIntegration.output.MavenParsingContext;
@@ -34,8 +35,10 @@ public class MavenSpyOutputParser {
         myFactory = context.getBuildEventFactory();
     }
 
-    public void processLine(@Nonnull String spyLine,
-                            @Nonnull Consumer<? super BuildEvent> messageConsumer) {
+    public void processLine(
+        @Nonnull String spyLine,
+        @Nonnull Consumer<? super BuildEvent> messageConsumer
+    ) {
         String line = myExtractor.extract(spyLine);
         if (line == null) {
             return;
@@ -78,10 +81,12 @@ public class MavenSpyOutputParser {
         }
     }
 
-    protected void parse(int threadId,
-                         MavenEventType type,
-                         Map<String, String> parameters,
-                         Consumer<? super BuildEvent> messageConsumer) {
+    protected void parse(
+        int threadId,
+        MavenEventType type,
+        Map<String, String> parameters,
+        Consumer<? super BuildEvent> messageConsumer
+    ) {
         switch (type) {
             case SESSION_STARTED -> {
                 List<String> projectsInReactor = getProjectsInReactor(parameters);
@@ -94,8 +99,12 @@ public class MavenSpyOutputParser {
                     MavenLog.LOG.debug("Not found for " + parameters);
                 }
                 else {
-                    messageConsumer
-                        .accept(myFactory.createStartEvent(execution.getId(), execution.getParentId(), System.currentTimeMillis(), execution.getName()));
+                    messageConsumer.accept(myFactory.createStartEvent(
+                        execution.getId(),
+                        execution.getParentId(),
+                        System.currentTimeMillis(),
+                        LocalizeValue.of(execution.getName())
+                    ));
                 }
             }
             case MOJO_STARTED -> {
@@ -114,9 +123,13 @@ public class MavenSpyOutputParser {
                     MavenLog.LOG.debug("Not found id for " + parameters);
                 }
                 else {
-                    messageConsumer.accept(
-                        myFactory.createFinishEvent(mojoExecution.getId(), mojoExecution.getParentId(), System.currentTimeMillis(), mojoExecution.getName(),
-                            new MavenTaskFailedResultImpl(parameters.get("error"), myFactory)));
+                    messageConsumer.accept(myFactory.createFinishEvent(
+                        mojoExecution.getId(),
+                        mojoExecution.getParentId(),
+                        System.currentTimeMillis(),
+                        LocalizeValue.of(mojoExecution.getName()),
+                        new MavenTaskFailedResultImpl(parameters.get("error"), myFactory)
+                    ));
                     mojoExecution.complete();
                 }
             }
@@ -145,9 +158,7 @@ public class MavenSpyOutputParser {
         }
     }
 
-    private void processErrorLogLine(String errorLine,
-                                     MavenEventType eventType,
-                                     Consumer<? super BuildEvent> messageConsumer) {
+    private void processErrorLogLine(String errorLine, MavenEventType eventType, Consumer<? super BuildEvent> messageConsumer) {
         if (errorLine == null) {
             return;
         }
@@ -183,9 +194,12 @@ public class MavenSpyOutputParser {
 
         MavenParsingContext.MavenExecutionEntry parent = startFakeDownloadNodeIfNotStarted(threadId, parameters, messageConsumer);
 
-        messageConsumer
-            .accept(
-                myFactory.createStartEvent(getDownloadId(artifactCoord), parent.getId(), System.currentTimeMillis(), artifactCoord));
+        messageConsumer.accept(myFactory.createStartEvent(
+            getDownloadId(artifactCoord),
+            parent.getId(),
+            System.currentTimeMillis(),
+            LocalizeValue.of(artifactCoord)
+        ));
     }
 
     private void artifactResolved(int threadId, Map<String, String> parameters, Consumer<? super BuildEvent> messageConsumer) {
@@ -193,27 +207,39 @@ public class MavenSpyOutputParser {
         if (artifactCoord == null) {
             return;
         }
-        String error = parameters.get("error");
-        if (error != null || downloadingMap.contains(artifactCoord)) {
+        LocalizeValue error = LocalizeValue.ofNullable(parameters.get("error"));
+        if (error.isNotEmpty() || downloadingMap.contains(artifactCoord)) {
             MavenParsingContext.MavenExecutionEntry parent = startFakeDownloadNodeIfNotStarted(threadId, parameters, messageConsumer);
-            if (error != null) {
+            if (error.isNotEmpty()) {
                 if (downloadingMap.remove(artifactCoord)) {
-                    messageConsumer
-                        .accept(myFactory.createFinishEvent(getDownloadId(artifactCoord), parent.getId(), System.currentTimeMillis(), artifactCoord,
-                            myFactory.createFailureResult(error, null)));
+                    messageConsumer.accept(myFactory.createFinishEvent(
+                        getDownloadId(artifactCoord),
+                        parent.getId(),
+                        System.currentTimeMillis(),
+                        LocalizeValue.of(artifactCoord),
+                        myFactory.newFailure().message(error).createResult()
+                    ));
                 }
                 else {
                     Object eventId = new Object();
-                    messageConsumer
-                        .accept(myFactory.createStartEvent(eventId, parent.getId(), System.currentTimeMillis(), error));
-                    messageConsumer
-                        .accept(myFactory.createFinishEvent(eventId, parent.getId(), System.currentTimeMillis(), error, myFactory.createFailureResult()));
+                    messageConsumer.accept(myFactory.createStartEvent(eventId, parent.getId(), System.currentTimeMillis(), error));
+                    messageConsumer.accept(myFactory.createFinishEvent(
+                        eventId,
+                        parent.getId(),
+                        System.currentTimeMillis(),
+                        error,
+                        myFactory.newFailure().createResult()
+                    ));
                 }
             }
             else {
-                messageConsumer
-                    .accept(myFactory.createFinishEvent(getDownloadId(artifactCoord), parent.getId(), System.currentTimeMillis(), artifactCoord,
-                        myFactory.createSuccessResult(false)));
+                messageConsumer.accept(myFactory.createFinishEvent(
+                    getDownloadId(artifactCoord),
+                    parent.getId(),
+                    System.currentTimeMillis(),
+                    LocalizeValue.of(artifactCoord),
+                    myFactory.createSuccessResult(false)
+                ));
             }
         }
     }
@@ -222,9 +248,11 @@ public class MavenSpyOutputParser {
         return "download" + artifactCoord;
     }
 
-    private MavenParsingContext.MavenExecutionEntry startFakeDownloadNodeIfNotStarted(int threadId,
-                                                                                      Map<String, String> parameters,
-                                                                                      Consumer<? super BuildEvent> messageConsumer) {
+    private MavenParsingContext.MavenExecutionEntry startFakeDownloadNodeIfNotStarted(
+        int threadId,
+        Map<String, String> parameters,
+        Consumer<? super BuildEvent> messageConsumer
+    ) {
         MavenParsingContext.NodeExecutionEntry parentMojo = myContext.getNode(threadId, DOWNLOAD_DEPENDENCIES_NAME, false);
         if (parentMojo != null) {
             return parentMojo;
@@ -246,9 +274,13 @@ public class MavenSpyOutputParser {
             MavenLog.LOG.warn("Error parsing maven log");
             return;
         }
-        messageConsumer
-            .accept(myFactory.createFinishEvent(execution.getId(), execution.getParentId(), System.currentTimeMillis(), execution.getName(),
-                myFactory.createSkippedResult()));
+        messageConsumer.accept(myFactory.createFinishEvent(
+            execution.getId(),
+            execution.getParentId(),
+            System.currentTimeMillis(),
+            LocalizeValue.of(execution.getName()),
+            myFactory.createSkippedResult()
+        ));
         execution.complete();
     }
 
@@ -257,21 +289,30 @@ public class MavenSpyOutputParser {
             MavenLog.LOG.warn("Error parsing maven log");
             return;
         }
-        messageConsumer
-            .accept(
-                myFactory.createStartEvent(execution.getId(), execution.getParentId(), System.currentTimeMillis(), execution.getName()));
+        messageConsumer.accept(myFactory.createStartEvent(
+            execution.getId(),
+            execution.getParentId(),
+            System.currentTimeMillis(),
+            LocalizeValue.of(execution.getName())
+        ));
     }
 
-    private void doError(Consumer<? super BuildEvent> messageConsumer,
-                         MavenParsingContext.MavenExecutionEntry execution,
-                         String errorMessage) {
+    private void doError(
+        Consumer<? super BuildEvent> messageConsumer,
+        MavenParsingContext.MavenExecutionEntry execution,
+        String errorMessage
+    ) {
         if (execution == null) {
             MavenLog.LOG.warn("Error parsing maven log");
             return;
         }
-        messageConsumer
-            .accept(myFactory.createFinishEvent(execution.getId(), execution.getParentId(), System.currentTimeMillis(), execution.getName(),
-                new MavenTaskFailedResultImpl(errorMessage, myFactory)));
+        messageConsumer.accept(myFactory.createFinishEvent(
+            execution.getId(),
+            execution.getParentId(),
+            System.currentTimeMillis(),
+            LocalizeValue.of(execution.getName()),
+            new MavenTaskFailedResultImpl(errorMessage, myFactory)
+        ));
         execution.complete();
     }
 
@@ -280,22 +321,35 @@ public class MavenSpyOutputParser {
             MavenLog.LOG.warn("Error parsing maven log");
             return;
         }
-        messageConsumer
-            .accept(
-                myFactory.createFinishEvent(execution.getId(), execution.getParentId(), System.currentTimeMillis(), execution.getName(),
-                    myFactory.createSuccessResult()));
+        messageConsumer.accept(myFactory.createFinishEvent(
+            execution.getId(),
+            execution.getParentId(),
+            System.currentTimeMillis(),
+            LocalizeValue.of(execution.getName()),
+            myFactory.createSuccessResult()
+        ));
         execution.complete();
     }
 
     private void doFinishSession(Consumer<? super BuildEvent> messageConsumer, MavenParsingContext context) {
         context.setSessionEnded(true);
         if (context.getProjectFailure()) {
-            messageConsumer
-                .accept(myFactory.createFinishBuildEvent(context.getMyTaskId(), null, System.currentTimeMillis(), "", myFactory.createFailureResult()));
+            messageConsumer.accept(myFactory.createFinishBuildEvent(
+                context.getMyTaskId(),
+                null,
+                System.currentTimeMillis(),
+                LocalizeValue.empty(),
+                myFactory.newFailure().createResult()
+            ));
         }
         else {
-            messageConsumer
-                .accept(myFactory.createFinishBuildEvent(context.getMyTaskId(), null, System.currentTimeMillis(), "", myFactory.createSuccessResult()));
+            messageConsumer.accept(myFactory.createFinishBuildEvent(
+                context.getMyTaskId(),
+                null,
+                System.currentTimeMillis(),
+                LocalizeValue.empty(),
+                myFactory.createSuccessResult()
+            ));
         }
     }
 }

@@ -23,6 +23,7 @@ import consulo.externalSystem.service.execution.ExternalSystemRunConfigurationVi
 import consulo.ide.impl.idea.build.BuildTreeFilters;
 import consulo.ide.impl.idea.build.BuildView;
 import consulo.java.execution.configurations.OwnJavaParameters;
+import consulo.localize.LocalizeValue;
 import consulo.process.ExecutionException;
 import consulo.process.ProcessHandler;
 import consulo.process.ProcessHandlerBuilder;
@@ -80,7 +81,7 @@ public class MavenCommandLineState extends JavaCommandLineState implements Remot
         };
 
         DefaultBuildDescriptor descriptor =
-            new DefaultBuildDescriptor(taskId, myConfiguration.getName(), workingDir, System.currentTimeMillis());
+            new DefaultBuildDescriptor(taskId, LocalizeValue.of(myConfiguration.getName()), workingDir, System.currentTimeMillis());
 
         final ProcessHandler processHandler = startProcess();
 
@@ -132,9 +133,15 @@ public class MavenCommandLineState extends JavaCommandLineState implements Remot
 
         BuildEventFactory eventFactory = getEnvironment().getProject().getApplication().getInstance(BuildEventFactory.class);
 
-        MavenBuildEventProcessor eventProcessor =
-            new MavenBuildEventProcessor(myConfiguration, buildView, descriptor, taskId, targetFileMapper, ctx ->
-                eventFactory.createStartBuildEvent(descriptor, ""), useMaven4());
+        MavenBuildEventProcessor eventProcessor = new MavenBuildEventProcessor(
+            myConfiguration,
+            buildView,
+            descriptor,
+            taskId,
+            targetFileMapper,
+            ctx -> eventFactory.createStartBuildEvent(descriptor, LocalizeValue.empty()),
+            useMaven4()
+        );
 
         processHandler.addProcessListener(new BuildToolConsoleProcessAdapter(eventProcessor));
         if (emulateTerminal()) {
@@ -170,7 +177,7 @@ public class MavenCommandLineState extends JavaCommandLineState implements Remot
         BuildViewManager viewManager = getEnvironment().getProject().getService(BuildViewManager.class);
         descriptor.withProcessHandler(new MavenBuildHandlerFilterSpyWrapper(processHandler, useMaven4(), false), null);
         descriptor.withExecutionEnvironment(getEnvironment());
-        StartBuildEvent startBuildEvent = eventFactory.createStartBuildEvent(descriptor, "");
+        StartBuildEvent startBuildEvent = eventFactory.createStartBuildEvent(descriptor, LocalizeValue.empty());
         boolean withResumeAction = MavenResumeAction.isApplicable(getEnvironment().getProject(), getJavaParameters(), myConfiguration);
         MavenBuildEventProcessor eventProcessor =
             new MavenBuildEventProcessor(myConfiguration, viewManager, descriptor, taskId,
