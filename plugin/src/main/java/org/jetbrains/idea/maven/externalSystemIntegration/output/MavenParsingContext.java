@@ -6,8 +6,10 @@ import consulo.externalSystem.model.task.ExternalSystemTaskId;
 import consulo.project.Project;
 import consulo.util.collection.primitive.ints.ConcurrentIntObjectMap;
 import consulo.util.collection.primitive.ints.IntMaps;
+import consulo.util.io.FileUtil;
 import org.jetbrains.idea.maven.execution.MavenRunConfiguration;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -16,28 +18,30 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 public class MavenParsingContext {
-    private final MavenRunConfiguration runConfiguration;
+    private final MavenRunConfiguration myRunConfiguration;
     private final ExternalSystemTaskId myTaskId;
-    private final Function<String, String> targetFileMapper;
+    private final Function<String, String> myTargetFileMapper;
 
-    private List<String> projectsInReactor;
-    private final CopyOnWriteArrayList<String> startedProjects = new CopyOnWriteArrayList<>();
-    private final Project ideaProject;
-    private volatile boolean sessionEnded = false;
-    private volatile boolean projectFailure = false;
+    private List<String> myProjectsInReactor;
+    private final CopyOnWriteArrayList<String> myStartedProjects = new CopyOnWriteArrayList<>();
+    private final Project myIdeaProject;
+    private volatile boolean mySessionEnded = false;
+    private volatile boolean myProjectFailure = false;
 
-    private final ConcurrentIntObjectMap<ArrayList<MavenExecutionEntry>> context = IntMaps.newConcurrentIntObjectHashMap();
-    private int lastAddedThreadId = 0;
+    private final ConcurrentIntObjectMap<List<MavenExecutionEntry>> myContext = IntMaps.newConcurrentIntObjectHashMap();
+    private int myLastAddedThreadId = 0;
 
     private final BuildEventFactory myBuildEventFactory;
 
-    public MavenParsingContext(MavenRunConfiguration runConfiguration,
-                               ExternalSystemTaskId taskId,
-                               Function<String, String> targetFileMapper) {
-        this.runConfiguration = runConfiguration;
+    public MavenParsingContext(
+        MavenRunConfiguration runConfiguration,
+        ExternalSystemTaskId taskId,
+        Function<String, String> targetFileMapper
+    ) {
+        myRunConfiguration = runConfiguration;
         myTaskId = taskId;
-        this.targetFileMapper = targetFileMapper;
-        this.ideaProject = runConfiguration.getProject();
+        myTargetFileMapper = targetFileMapper;
+        myIdeaProject = runConfiguration.getProject();
         myBuildEventFactory = runConfiguration.getProject().getApplication().getInstance(BuildEventFactory.class);
     }
 
@@ -46,11 +50,15 @@ public class MavenParsingContext {
     }
 
     public MavenRunConfiguration getRunConfiguration() {
-        return runConfiguration;
+        return myRunConfiguration;
     }
 
     public Function<String, String> getTargetFileMapper() {
-        return targetFileMapper;
+        return myTargetFileMapper;
+    }
+
+    public File toLocalFile(String logTargetFileName) {
+        return new File(FileUtil.toSystemDependentName(getTargetFileMapper().apply(logTargetFileName)));
     }
 
     public ExternalSystemTaskId getMyTaskId() {
@@ -58,49 +66,49 @@ public class MavenParsingContext {
     }
 
     public Project getIdeaProject() {
-        return ideaProject;
+        return myIdeaProject;
     }
 
     public List<String> getProjectsInReactor() {
-        return projectsInReactor;
+        return myProjectsInReactor;
     }
 
     public void setProjectsInReactor(List<String> projectsInReactor) {
-        this.projectsInReactor = projectsInReactor;
+        this.myProjectsInReactor = projectsInReactor;
     }
 
     public CopyOnWriteArrayList<String> getStartedProjects() {
-        return startedProjects;
+        return myStartedProjects;
     }
 
     @Deprecated
     public boolean getProjectFailure() {
-        return projectFailure;
+        return isProjectFailure();
     }
 
     public void setProjectFailure(boolean projectFailure) {
-        this.projectFailure = projectFailure;
+        this.myProjectFailure = projectFailure;
     }
 
     public boolean isProjectFailure() {
-        return projectFailure;
+        return myProjectFailure;
     }
 
     @Deprecated
     public boolean getSessionEnded() {
-        return sessionEnded;
+        return isSessionEnded();
     }
 
     public boolean isSessionEnded() {
-        return sessionEnded;
+        return mySessionEnded;
     }
 
     public void setSessionEnded(boolean sessionEnded) {
-        this.sessionEnded = sessionEnded;
+        this.mySessionEnded = sessionEnded;
     }
 
     public Object getLastId() {
-        ArrayList<MavenExecutionEntry> entries = context.get(lastAddedThreadId);
+        List<MavenExecutionEntry> entries = myContext.get(myLastAddedThreadId);
         if (entries == null || entries.isEmpty()) {
             return myTaskId;
         }
@@ -110,28 +118,28 @@ public class MavenParsingContext {
     }
 
     public List<MavenExecutionEntry> getAllEntriesReversed() {
-        ArrayList<MavenExecutionEntry> entries = context.get(lastAddedThreadId);
+        List<MavenExecutionEntry> entries = myContext.get(myLastAddedThreadId);
         return entries != null ? entries : new ArrayList<>();
     }
 
     public ProjectExecutionEntry getProject(int threadId, String id, boolean create) {
-        ProjectExecutionEntry currentProject = search(ProjectExecutionEntry.class, context.get(threadId),
-            e -> id == null || e.name.equals(id));
+        ProjectExecutionEntry currentProject =
+            search(ProjectExecutionEntry.class, myContext.get(threadId), e -> id == null || e.name.equals(id));
 
         if (currentProject == null && create) {
             currentProject = new ProjectExecutionEntry(id != null ? id : "", threadId);
-            startedProjects.add(removeVersion(currentProject));
+            myStartedProjects.add(removeVersion(currentProject));
             add(threadId, currentProject);
         }
         return currentProject;
     }
 
     private String removeVersion(ProjectExecutionEntry currentProject) {
-        String[] splitted = currentProject.name.split(":");
-        if (splitted.length < 3) {
+        String[] split = currentProject.name.split(":");
+        if (split.length < 3) {
             return currentProject.name;
         }
-        return splitted[0] + ":" + splitted[1];
+        return split[0] + ":" + split[1];
     }
 
     public ProjectExecutionEntry getProject(int threadId, Map<String, String> parameters, boolean create) {
@@ -146,7 +154,7 @@ public class MavenParsingContext {
         if (name == null) {
             return null;
         }
-        MojoExecutionEntry mojo = search(MojoExecutionEntry.class, context.get(threadId), e -> e.name.equals(name));
+        MojoExecutionEntry mojo = search(MojoExecutionEntry.class, myContext.get(threadId), e -> e.name.equals(name));
         if (mojo == null && create) {
             ProjectExecutionEntry currentProject = getProject(threadId, parameters, false);
             mojo = new MojoExecutionEntry(name, threadId, currentProject);
@@ -159,7 +167,7 @@ public class MavenParsingContext {
         if (name == null) {
             return null;
         }
-        NodeExecutionEntry node = search(NodeExecutionEntry.class, context.get(threadId), e -> e.name.equals(name));
+        NodeExecutionEntry node = search(NodeExecutionEntry.class, myContext.get(threadId), e -> e.name.equals(name));
 
         if (node == null && create) {
             MavenExecutionEntry parent = getNodeParent(threadId);
@@ -170,20 +178,20 @@ public class MavenParsingContext {
     }
 
     private MavenExecutionEntry getNodeParent(int threadId) {
-        MojoExecutionEntry mojo = search(MojoExecutionEntry.class, context.get(threadId));
+        MojoExecutionEntry mojo = search(MojoExecutionEntry.class, myContext.get(threadId));
         if (mojo == null) {
-            return search(ProjectExecutionEntry.class, context.get(threadId), e -> true);
+            return search(ProjectExecutionEntry.class, myContext.get(threadId), e -> true);
         }
         return mojo;
     }
 
     private void add(int id, MavenExecutionEntry entry) {
-        ArrayList<MavenExecutionEntry> entries = context.get(id);
+        List<MavenExecutionEntry> entries = myContext.get(id);
         if (entries == null) {
             entries = new ArrayList<>();
-            context.put(id, entries);
+            myContext.put(id, entries);
         }
-        lastAddedThreadId = id;
+        myLastAddedThreadId = id;
         entries.add(entry);
     }
 
@@ -226,7 +234,7 @@ public class MavenParsingContext {
         }
     }
 
-    private <T extends MavenExecutionEntry> T search(Class<T> klass, ArrayList<MavenExecutionEntry> entries) {
+    private <T extends MavenExecutionEntry> T search(Class<T> klass, List<MavenExecutionEntry> entries) {
         return search(klass, entries, e -> true);
     }
 
@@ -268,7 +276,7 @@ public class MavenParsingContext {
         public abstract Object getParentId();
 
         public void complete() {
-            ArrayList<MavenExecutionEntry> entries = MavenParsingContext.this.context.get(myThreadId);
+            List<MavenExecutionEntry> entries = MavenParsingContext.this.myContext.get(myThreadId);
             if (entries != null) {
                 entries.remove(this);
             }

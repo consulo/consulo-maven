@@ -24,6 +24,7 @@ import consulo.ide.impl.idea.build.BuildTreeFilters;
 import consulo.ide.impl.idea.build.BuildView;
 import consulo.java.execution.configurations.OwnJavaParameters;
 import consulo.localize.LocalizeValue;
+import consulo.platform.Platform;
 import consulo.process.ExecutionException;
 import consulo.process.ProcessHandler;
 import consulo.process.ProcessHandlerBuilder;
@@ -76,14 +77,13 @@ public class MavenCommandLineState extends JavaCommandLineState implements Remot
 
         String workingDir = getEnvironment().getProject().getBasePath();
 
-        Function<String, String> targetFileMapper = path -> {
-            return path != null && SystemInfo.isWindows && path.charAt(0) == '/' ? path.substring(1) : path;
-        };
+        Function<String, String> targetFileMapper =
+            path -> path != null && Platform.current().os().isWindows() && path.charAt(0) == '/' ? path.substring(1) : path;
 
         DefaultBuildDescriptor descriptor =
             new DefaultBuildDescriptor(taskId, LocalizeValue.of(myConfiguration.getName()), workingDir, System.currentTimeMillis());
 
-        final ProcessHandler processHandler = startProcess();
+        ProcessHandler processHandler = startProcess();
 
         if (MavenRunConfigurationType.isDelegate(getEnvironment())) {
             return doDelegateBuildExecute(executor, runner, taskId, descriptor, processHandler, targetFileMapper);
@@ -179,11 +179,15 @@ public class MavenCommandLineState extends JavaCommandLineState implements Remot
         descriptor.withExecutionEnvironment(getEnvironment());
         StartBuildEvent startBuildEvent = eventFactory.createStartBuildEvent(descriptor, LocalizeValue.empty());
         boolean withResumeAction = MavenResumeAction.isApplicable(getEnvironment().getProject(), getJavaParameters(), myConfiguration);
-        MavenBuildEventProcessor eventProcessor =
-            new MavenBuildEventProcessor(myConfiguration, viewManager, descriptor, taskId,
-                targetFileMapper, getStartBuildEventSupplier(runner, processHandler, descriptor, startBuildEvent, withResumeAction),
-                useMaven4()
-            );
+        MavenBuildEventProcessor eventProcessor = new MavenBuildEventProcessor(
+            myConfiguration,
+            viewManager,
+            descriptor,
+            taskId,
+            targetFileMapper,
+            getStartBuildEventSupplier(runner, processHandler, descriptor, startBuildEvent, withResumeAction),
+            useMaven4()
+        );
 
         processHandler.addProcessListener(new BuildToolConsoleProcessAdapter(eventProcessor));
         DefaultExecutionResult res = new DefaultExecutionResult(consoleView, processHandler, new DefaultActionGroup());

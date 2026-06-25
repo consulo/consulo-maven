@@ -4,31 +4,27 @@ package org.jetbrains.idea.maven.externalSystemIntegration.output;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public enum LogMessageType {
-    INFO("[INFO] "),
-    WARNING("[WARNING] "),
-    ERROR("[ERROR] ");
+    DEBUG,
+    INFO,
+    WARNING,
+    ERROR;
 
-    private final String myPrefix;
-    private final int myPrefixLength;
-
-    LogMessageType(final String prefix) {
-        myPrefix = prefix;
-        myPrefixLength = myPrefix.length();
-    }
+    private static final Pattern LOG_LEVEL_PATTERN = Pattern.compile("\\[(DEBUG|INFO|WARNING|ERROR)]\\s+");
 
     @Nonnull
     String clearLine(@Nonnull String line) {
-        return line.substring(myPrefixLength);
+        Matcher matcher = LOG_LEVEL_PATTERN.matcher(line);
+        matcher.find();
+        return line.substring(matcher.end());
     }
 
     @Nullable
     static LogMessageType determine(@Nonnull String line) {
-        for (LogMessageType type : LogMessageType.values()) {
-            if (line.startsWith(type.myPrefix)) {
-                return type;
-            }
-        }
-        return null;
+        Matcher matcher = LOG_LEVEL_PATTERN.matcher(line);
+        return matcher.find() ? LogMessageType.valueOf(matcher.group(1)) : null;
     }
 }

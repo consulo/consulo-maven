@@ -44,11 +44,11 @@ public abstract class MessageNotifier implements MavenLoggedEventParser {
                                 @Nonnull MavenLogEntryReader.MavenLogEntry logLine,
                                 @Nonnull MavenLogEntryReader logEntryReader,
                                 @Nonnull Consumer<? super BuildEvent> messageConsumer) {
-        String line = logLine.getLine();
+        String line = logLine.line();
 
-        List<MavenLogEntryReader.MavenLogEntry> toConcat = logEntryReader.readWhile(l -> l.getType() == myType);
+        List<MavenLogEntryReader.MavenLogEntry> toConcat = logEntryReader.readWhile(l -> l.type() == myType);
         LocalizeValue concatenated =
-            LocalizeValue.of(line + "\n" + StringUtil.join(toConcat, MavenLogEntryReader.MavenLogEntry::getLine, "\n"));
+            LocalizeValue.of(line + "\n" + StringUtil.join(toConcat, MavenLogEntryReader.MavenLogEntry::line, "\n"));
         LocalizeValue message = getMessage(line, toConcat);
         if (message.isNotEmpty() && myMessages.add(message)) {
             messageConsumer.accept(
@@ -66,10 +66,10 @@ public abstract class MessageNotifier implements MavenLoggedEventParser {
         if (!StringUtil.isEmptyOrSpaces(line)) {
             return LocalizeValue.of(line);
         }
-        MavenLogEntryReader.MavenLogEntry entry = ContainerUtil.find(toConcat, e -> !StringUtil.isEmptyOrSpaces(e.getLine()));
+        MavenLogEntryReader.MavenLogEntry entry = ContainerUtil.find(toConcat, e -> !StringUtil.isEmptyOrSpaces(e.line()));
 
         if (entry != null) {
-            return LocalizeValue.of(entry.getLine());
+            return LocalizeValue.of(entry.line());
         }
 
         return LocalizeValue.empty();

@@ -24,6 +24,8 @@ import java.util.regex.Pattern;
 public abstract class BuildErrorNotification implements MavenLoggedEventParser {
     private static final Pattern LINE_AND_COLUMN = Pattern.compile("[^\\d]+?(\\d+)[^\\d]+(\\d+)");
     private static final Pattern LINE_ONLY = Pattern.compile("[^\\d]+?(\\d+)");
+    private static final String MESSAGE_SKIP_CHARS = " \t:])";
+
     private final String myLanguage;
     private final String myExtension;
     private final NotificationGroup myMessageGroup;
@@ -54,7 +56,7 @@ public abstract class BuildErrorNotification implements MavenLoggedEventParser {
         @Nonnull MavenLogEntryReader logEntryReader,
         @Nonnull Consumer<? super BuildEvent> messageConsumer
     ) {
-        String line = logLine.getLine();
+        String line = logLine.line();
         if (line.endsWith("java.lang.OutOfMemoryError")) {
             messageConsumer.accept(myBuildEventFactory.createMessageEvent(
                 parentId,
@@ -69,15 +71,9 @@ public abstract class BuildErrorNotification implements MavenLoggedEventParser {
         if (fileNameIdx < 0) {
             return false;
         }
-        int fullFileNameIdx = line.indexOf(":", fileNameIdx);
-        if (fullFileNameIdx < 0) {
-            return false;
-        }
-        String targetFileNameWithoutExtension = line.substring(0, fileNameIdx);
-        String localFileNameWithoutExtension = parsingContext.getTargetFileMapper().apply(targetFileNameWithoutExtension);
-        String filename = FileUtil.toSystemDependentName(localFileNameWithoutExtension + "." + myExtension);
-
-        File parsedFile = new File(filename);
+        int fullFileNameIdx = line.indexOf(':', fileNameIdx);
+        String targetFileNameWithExtension = line.substring(0, fullFileNameIdx);
+        File parsedFile = parsingContext.toLocalFile(targetFileNameWithExtension);
         String lineWithPosition = line.substring(fullFileNameIdx);
         Matcher matcher = getMatcher(lineWithPosition);
         String message;
@@ -92,7 +88,7 @@ public abstract class BuildErrorNotification implements MavenLoggedEventParser {
             message = lineWithPosition.substring(matcher.end());
         }
 
-        LocalizeValue errorMessage = getErrorMessage(position, message);
+        LocalizeValue errorMessage = getErrorMessage(message);
         messageConsumer.accept(myBuildEventFactory.createFileMessageEvent(
             parentId,
             MessageEvent.Kind.ERROR,
@@ -117,14 +113,12 @@ public abstract class BuildErrorNotification implements MavenLoggedEventParser {
     }
 
     @Nonnull
-    private static LocalizeValue getErrorMessage(@Nonnull FilePosition position, @Nonnull String message) {
-        message = message.trim();
-        while (message.startsWith(":") || message.startsWith("]") || message.startsWith(")")) {
-            message = message.substring(1);
+    private static LocalizeValue getErrorMessage(@Nonnull String message) {
+        int i = 0, n = message.length();
+        while (i < n && MESSAGE_SKIP_CHARS.indexOf(message.charAt(i)) >= 0) {
+            i++;
         }
-        message = message.trim();
-
-        return LocalizeValue.of(message);
+        return LocalizeValue.of(message.substring(i).trim());
     }
 
     @Nonnull
