@@ -49,7 +49,7 @@ public interface MavenLogEntryReader {
         public MavenLogEntry(@Nonnull String line) {
             String trimmedLine = clearProgressCarriageReturns(line);
             LogMessageType type = LogMessageType.determine(trimmedLine);
-            this(type, clearLine(type, clearProgressCarriageReturns(trimmedLine)));
+            this(type, clearLine(type, trimmedLine));
         }
 
         @Nonnull
