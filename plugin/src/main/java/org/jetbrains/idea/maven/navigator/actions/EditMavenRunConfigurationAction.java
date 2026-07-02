@@ -22,13 +22,14 @@ import consulo.project.Project;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.action.AnAction;
 import consulo.ui.ex.action.AnActionEvent;
+import consulo.ui.ex.action.AnActionWithSyncUpdate;
 import jakarta.annotation.Nonnull;
 import org.jetbrains.idea.maven.utils.MavenDataKeys;
 
 /**
  * @author Sergey Evdokimov
  */
-public class EditMavenRunConfigurationAction extends AnAction {
+public class EditMavenRunConfigurationAction extends AnAction implements AnActionWithSyncUpdate {
     @RequiredUIAccess
     @Override
     public void actionPerformed(@Nonnull AnActionEvent e) {
@@ -44,7 +45,6 @@ public class EditMavenRunConfigurationAction extends AnAction {
         editor.editAll();
     }
 
-    @RequiredUIAccess
     @Override
     public void update(@Nonnull AnActionEvent e) {
         Project project = e.getData(Project.KEY);

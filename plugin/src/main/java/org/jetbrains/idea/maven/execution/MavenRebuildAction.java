@@ -8,9 +8,10 @@ import consulo.platform.base.icon.PlatformIconGroup;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.action.AnAction;
 import consulo.ui.ex.action.AnActionEvent;
+import consulo.ui.ex.action.AnActionWithSyncUpdate;
 import jakarta.annotation.Nonnull;
 
-public class MavenRebuildAction extends AnAction {
+public class MavenRebuildAction extends AnAction implements AnActionWithSyncUpdate {
     private final ExecutionEnvironment myEnvironment;
 
     public MavenRebuildAction(@Nonnull ExecutionEnvironment environment) {
@@ -18,7 +19,6 @@ public class MavenRebuildAction extends AnAction {
     }
 
     @Override
-    @RequiredUIAccess
     public void update(@Nonnull AnActionEvent event) {
         event.getPresentation().setText(ExecutionLocalize.rerunConfigurationActionName(myEnvironment.getRunProfile().getName()));
         event.getPresentation().setIcon(PlatformIconGroup.actionsRestart());

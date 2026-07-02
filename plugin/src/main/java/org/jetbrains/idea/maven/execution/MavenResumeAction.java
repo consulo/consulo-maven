@@ -34,6 +34,7 @@ import consulo.project.Project;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.action.AnAction;
 import consulo.ui.ex.action.AnActionEvent;
+import consulo.ui.ex.action.AnActionWithSyncUpdate;
 import consulo.ui.ex.awt.Messages;
 import consulo.util.dataholder.Key;
 import jakarta.annotation.Nullable;
@@ -50,7 +51,7 @@ import java.util.Set;
 /**
  * @author Sergey Evdokimov
  */
-public class MavenResumeAction extends AnAction {
+public class MavenResumeAction extends AnAction implements AnActionWithSyncUpdate {
 
     private static final Logger LOG = Logger.getInstance(MavenResumeAction.class);
 
@@ -299,7 +300,6 @@ public class MavenResumeAction extends AnAction {
     }
 
     @Override
-    @RequiredUIAccess
     public void update(@Nonnull AnActionEvent e) {
         if (myResumeFromModuleName != null && myResumeModuleId != null) {
             e.getPresentation().setEnabled(true);

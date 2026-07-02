@@ -24,17 +24,14 @@ import consulo.execution.runner.ProgramRunner;
 import consulo.execution.runner.RunnerRegistry;
 import consulo.project.Project;
 import consulo.ui.annotation.RequiredUIAccess;
-import consulo.ui.ex.action.AnAction;
-import consulo.ui.ex.action.AnActionEvent;
-import consulo.ui.ex.action.Constraints;
-import consulo.ui.ex.action.DefaultActionGroup;
+import consulo.ui.ex.action.*;
 import jakarta.annotation.Nonnull;
 import org.jetbrains.idea.maven.utils.MavenDataKeys;
 
 /**
  * @author Sergey Evdokimov
  */
-public class MavenRunConfigurationMenu extends DefaultActionGroup implements DumbAware {
+public class MavenRunConfigurationMenu extends DefaultActionGroup implements DumbAware, AnActionWithSyncUpdate {
     @Override
     @RequiredUIAccess
     public void update(@Nonnull AnActionEvent e) {
@@ -58,11 +55,9 @@ public class MavenRunConfigurationMenu extends DefaultActionGroup implements Dum
             AnAction action = new ExecuteMavenRunConfigurationAction(executors[i], runner != null, project, settings);
             addAction(action, Constraints.FIRST);
         }
-
-        super.update(e);
     }
 
-    private static class ExecuteMavenRunConfigurationAction extends AnAction {
+    private static class ExecuteMavenRunConfigurationAction extends AnAction implements AnActionWithSyncUpdate {
         private final Executor myExecutor;
         private final boolean myEnabled;
         private final Project myProject;
@@ -90,9 +85,7 @@ public class MavenRunConfigurationMenu extends DefaultActionGroup implements Dum
         }
 
         @Override
-        @RequiredUIAccess
         public void update(@Nonnull AnActionEvent e) {
-            super.update(e);
             e.getPresentation().setEnabled(myEnabled);
         }
     }

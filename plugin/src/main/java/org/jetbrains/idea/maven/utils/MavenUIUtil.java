@@ -15,15 +15,18 @@
  */
 package org.jetbrains.idea.maven.utils;
 
+import consulo.dataContext.DataContext;
 import consulo.dataContext.DataManager;
+import consulo.ui.UIAccess;
 import consulo.ui.annotation.RequiredUIAccess;
-import consulo.ui.ex.action.ActionManager;
-import consulo.ui.ex.action.AnAction;
-import consulo.ui.ex.action.AnActionEvent;
-import consulo.ui.ex.action.Presentation;
+import consulo.ui.ex.action.*;
 import consulo.ui.ex.awt.ElementsChooser;
 import consulo.ui.ex.awt.UIUtil;
 import consulo.ui.ex.awt.tree.SimpleTree;
+import consulo.util.concurrent.coroutine.Coroutine;
+import consulo.util.concurrent.coroutine.CoroutineContext;
+import consulo.util.concurrent.coroutine.CoroutineScope;
+import consulo.util.concurrent.coroutine.step.CodeExecution;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -42,11 +45,38 @@ public class MavenUIUtil {
         final ActionManager actionManager = ActionManager.getInstance();
         final AnAction action = actionManager.getAction(actionId);
         if (action != null) {
-            final Presentation presentation = new Presentation();
+            Presentation presentation = new Presentation();
+
+            DataContext context = DataManager.getInstance().getDataContext(e.getComponent());
+
             final AnActionEvent event =
-                new AnActionEvent(e, DataManager.getInstance().getDataContext(e.getComponent()), "", presentation, actionManager, 0);
-            action.update(event);
-            if (presentation.isEnabled()) {
+                new AnActionEvent(e, context, "", presentation, actionManager, 0);
+
+            UIAccess uiAccess = UIAccess.current();
+
+            Coroutine<?, ?> coroutine;
+            if (action instanceof AnActionWithAsyncUpdate asyncUpdate) {
+                coroutine = asyncUpdate.updateAsync(event);
+            }
+            else if (action instanceof AnActionWithSyncUpdate syncUpdate) {
+                coroutine = CodeExecution.run(() -> syncUpdate.update(event)).toCoroutine();
+            }
+            else {
+                coroutine = null;
+            }
+
+            if (coroutine != null) {
+                CoroutineContext coroutineContext = context.getRequiredData(CoroutineContext.KEY);
+
+                CoroutineScope scope = new CoroutineScope(coroutineContext);
+                scope.putCopyableUserData(UIAccess.KEY, uiAccess);
+                coroutine.runAsync(scope, null).onFinish(continuation -> {
+                    if (presentation.isEnabled()) {
+                        uiAccess.execute(() -> action.actionPerformed(event));
+                    }
+                });
+            }
+            else {
                 action.actionPerformed(event);
             }
         }
@@ -74,7 +104,7 @@ public class MavenUIUtil {
             final Component baseComponent =
                 baseRenderer.getTreeCellRendererComponent(tree1, value, selected, expanded, leaf, row, hasFocus);
 
-            final Object userObject = ((DefaultMutableTreeNode)value).getUserObject();
+            final Object userObject = ((DefaultMutableTreeNode) value).getUserObject();
             if (!handler.isVisible(userObject)) {
                 return baseComponent;
             }
@@ -137,7 +167,7 @@ public class MavenUIUtil {
     }
 
     private static boolean isCheckboxEnabledFor(TreePath path, CheckboxHandler handler) {
-        Object userObject = ((DefaultMutableTreeNode)path.getLastPathComponent()).getUserObject();
+        Object userObject = ((DefaultMutableTreeNode) path.getLastPathComponent()).getUserObject();
         return handler.isVisible(userObject);
     }
 

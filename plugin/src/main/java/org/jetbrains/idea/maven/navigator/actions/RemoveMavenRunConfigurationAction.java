@@ -21,6 +21,7 @@ import consulo.project.Project;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.action.AnAction;
 import consulo.ui.ex.action.AnActionEvent;
+import consulo.ui.ex.action.AnActionWithSyncUpdate;
 import consulo.ui.ex.awt.Messages;
 import consulo.ui.ex.awt.UIUtil;
 import org.jetbrains.idea.maven.utils.MavenDataKeys;
@@ -30,7 +31,7 @@ import jakarta.annotation.Nonnull;
 /**
  * @author Sergey Evdokimov
  */
-public class RemoveMavenRunConfigurationAction extends AnAction {
+public class RemoveMavenRunConfigurationAction extends AnAction implements AnActionWithSyncUpdate {
     @RequiredUIAccess
     @Override
     public void actionPerformed(@Nonnull AnActionEvent e) {
@@ -45,7 +46,6 @@ public class RemoveMavenRunConfigurationAction extends AnAction {
         }
     }
 
-    @RequiredUIAccess
     @Override
     public void update(@Nonnull AnActionEvent e) {
         Project project = e.getData(Project.KEY);
