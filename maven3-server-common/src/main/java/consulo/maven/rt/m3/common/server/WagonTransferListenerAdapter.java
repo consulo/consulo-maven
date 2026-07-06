@@ -36,7 +36,8 @@ public class WagonTransferListenerAdapter implements TransferListener
 		myIndicator = indicator;
 	}
 
-	public void transferInitiated(TransferEvent event)
+	@Override
+    public void transferInitiated(TransferEvent event)
 	{
 		checkCanceled();
 	}
@@ -56,7 +57,8 @@ public class WagonTransferListenerAdapter implements TransferListener
 		}
 	}
 
-	public void transferStarted(TransferEvent event)
+	@Override
+    public void transferStarted(TransferEvent event)
 	{
 		checkCanceled();
 
@@ -67,7 +69,8 @@ public class WagonTransferListenerAdapter implements TransferListener
 		updateProgress(resourceName, data);
 	}
 
-	public void transferProgress(TransferEvent event, byte[] bytes, int i)
+	@Override
+    public void transferProgress(TransferEvent event, byte[] bytes, int i)
 	{
 		checkCanceled();
 
@@ -77,7 +80,8 @@ public class WagonTransferListenerAdapter implements TransferListener
 		updateProgress(resourceName, data);
 	}
 
-	public void transferCompleted(TransferEvent event)
+	@Override
+    public void transferCompleted(TransferEvent event)
 	{
 		try
 		{
@@ -96,7 +100,8 @@ public class WagonTransferListenerAdapter implements TransferListener
 		updateProgress(resourceName, data);
 	}
 
-	public void transferError(TransferEvent event)
+	@Override
+    public void transferError(TransferEvent event)
 	{
 		checkCanceled();
 
@@ -109,7 +114,8 @@ public class WagonTransferListenerAdapter implements TransferListener
 		}
 	}
 
-	public void debug(String s)
+	@Override
+    public void debug(String s)
 	{
 		checkCanceled();
 	}

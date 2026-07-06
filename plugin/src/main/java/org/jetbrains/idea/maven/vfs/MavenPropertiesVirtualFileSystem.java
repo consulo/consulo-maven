@@ -52,6 +52,7 @@ public class MavenPropertiesVirtualFileSystem extends DummyFileSystem {
     }
 
     @Nonnull
+    @Override
     public String getProtocol() {
         return PROTOCOL;
     }
@@ -98,6 +99,7 @@ public class MavenPropertiesVirtualFileSystem extends DummyFileSystem {
     //  return false;
     //}
 
+    @Override
     public synchronized VirtualFile findFileByPath(@Nonnull @NonNls String path) {
         if (path.equals(SYSTEM_PROPERTIES_FILE)) {
             return getSystemPropertiesFile();

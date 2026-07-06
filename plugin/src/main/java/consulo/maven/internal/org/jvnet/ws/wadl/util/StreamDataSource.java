@@ -9,14 +9,6 @@
  * See the License for the specific language governing
  * permissions and limitations under the License.
  */
-
-/*
- * StreamDataSource.java
- *
- * Created on April 18, 2007, 3:28 PM
- *
- */
-
 package consulo.maven.internal.org.jvnet.ws.wadl.util;
 
 import jakarta.activation.DataSource;
@@ -26,11 +18,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 /**
- *
  * @author mh124079
+ * @since 2007-04-18
  */
 public class StreamDataSource implements DataSource {
-    
     String mediaType;
     InputStream in;
     
@@ -40,20 +31,23 @@ public class StreamDataSource implements DataSource {
         this.in = in;
     }
 
+    @Override
     public String getContentType() {
         return mediaType;
     }
 
+    @Override
     public InputStream getInputStream() throws IOException {
         return in;
     }
 
+    @Override
     public String getName() {
         return "stream";
     }
 
+    @Override
     public OutputStream getOutputStream() throws IOException {
         return null;
     }
-    
 }

@@ -29,6 +29,7 @@ import java.util.Collection;
 
 public class Maven32ServerImpl extends MavenRemoteObject implements MavenServer
 {
+  @Override
   public void set(MavenServerLogger logger, MavenServerDownloadListener downloadListener) throws RemoteException {
     try {
       Maven3ServerGlobals.set(logger, downloadListener);
@@ -38,6 +39,7 @@ public class Maven32ServerImpl extends MavenRemoteObject implements MavenServer
     }
   }
 
+  @Override
   public MavenServerEmbedder createEmbedder(MavenServerSettings settings) throws RemoteException {
     try {
       Maven32ServerEmbedderImpl result = new Maven32ServerEmbedderImpl(settings);
@@ -49,6 +51,7 @@ public class Maven32ServerImpl extends MavenRemoteObject implements MavenServer
     }
   }
 
+  @Override
   public MavenServerIndexer createIndexer() throws RemoteException {
     try {
       Maven3ServerIndexerImpl result = new Maven3ServerIndexerImpl(new Maven32ServerEmbedderImpl(new MavenServerSettings())) {
@@ -65,6 +68,7 @@ public class Maven32ServerImpl extends MavenRemoteObject implements MavenServer
     }
   }
 
+  @Override
   public MavenModel interpolateAndAlignModel(MavenModel model, File basedir) {
     try {
       return Maven32ServerEmbedderImpl.interpolateAndAlignModel(model, basedir);
@@ -74,6 +78,7 @@ public class Maven32ServerImpl extends MavenRemoteObject implements MavenServer
     }
   }
 
+  @Override
   public MavenModel assembleInheritance(MavenModel model, MavenModel parentModel) {
     try {
       return Maven32ServerEmbedderImpl.assembleInheritance(model, parentModel);
@@ -83,10 +88,11 @@ public class Maven32ServerImpl extends MavenRemoteObject implements MavenServer
     }
   }
 
+  @Override
   public ProfileApplicationResult applyProfiles(MavenModel model,
-												File basedir,
-												MavenExplicitProfiles explicitProfiles,
-												Collection<String> alwaysOnProfiles) {
+                                                File basedir,
+                                                MavenExplicitProfiles explicitProfiles,
+                                                Collection<String> alwaysOnProfiles) {
     try {
       return Maven32ServerEmbedderImpl.applyProfiles(model, basedir, explicitProfiles, alwaysOnProfiles);
     }

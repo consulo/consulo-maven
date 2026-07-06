@@ -15,7 +15,7 @@
  */
 package org.jetbrains.idea.maven.dom;
 
-import consulo.application.ApplicationManager;
+import consulo.application.Application;
 import consulo.document.Document;
 import consulo.document.FileDocumentManager;
 import consulo.language.codeStyle.CodeStyleManager;
@@ -50,16 +50,14 @@ public abstract class MavenModelReadingAndWritingTest extends MavenImportingTest
     CommandProcessor.getInstance().executeCommand(myProject, new Runnable() {
       @Override
       public void run() {
-        ApplicationManager.getApplication().runWriteAction(new Runnable() {
-          public void run() {
-            MavenDomProjectModel model = getDomModel();
+        Application.get().runWriteAction(() -> {
+          MavenDomProjectModel model = getDomModel();
 
-            model.getGroupId().setStringValue("foo");
-            model.getArtifactId().setStringValue("bar");
-            model.getVersion().setStringValue("baz");
+          model.getGroupId().setStringValue("foo");
+          model.getArtifactId().setStringValue("bar");
+          model.getVersion().setStringValue("baz");
 
-            formatAndSaveProjectPomDocument();
-          }
+          formatAndSaveProjectPomDocument();
         });
       }
     }, null, null);
@@ -79,17 +77,15 @@ public abstract class MavenModelReadingAndWritingTest extends MavenImportingTest
     CommandProcessor.getInstance().executeCommand(myProject, new Runnable() {
       @Override
       public void run() {
-        ApplicationManager.getApplication().runWriteAction(new Runnable() {
-          public void run() {
-            MavenDomProjectModel model = getDomModel();
+        Application.get().runWriteAction(() -> {
+          MavenDomProjectModel model = getDomModel();
 
-            MavenDomDependency d = model.getDependencies().addDependency();
-            d.getGroupId().setStringValue("group");
-            d.getArtifactId().setStringValue("artifact");
-            d.getVersion().setStringValue("version");
+          MavenDomDependency d = model.getDependencies().addDependency();
+          d.getGroupId().setStringValue("group");
+          d.getArtifactId().setStringValue("artifact");
+          d.getVersion().setStringValue("version");
 
-            formatAndSaveProjectPomDocument();
-          }
+          formatAndSaveProjectPomDocument();
         });
       }
     }, null, null);

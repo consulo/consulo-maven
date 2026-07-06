@@ -34,18 +34,22 @@ public class Maven40ServerConsoleLogger extends MavenRemoteObject implements Log
     }
   }
 
+  @Override
   public void debug(String string, Throwable throwable) {
     doPrint(MavenServerConsole.LEVEL_DEBUG, string, throwable);
   }
 
+  @Override
   public void info(String string, Throwable throwable) {
     doPrint(MavenServerConsole.LEVEL_INFO, string, throwable);
   }
 
+  @Override
   public void warn(String string, Throwable throwable) {
     doPrint(MavenServerConsole.LEVEL_WARN, string, throwable);
   }
 
+  @Override
   public void error(String string, Throwable throwable) {
     doPrint(MavenServerConsole.LEVEL_ERROR, string, throwable);
   }

@@ -43,18 +43,21 @@ public class MavenId implements Serializable, MavenCoordinate
 	}
 
 	@Nullable
+    @Override
 	public String getGroupId()
 	{
 		return myGroupId;
 	}
 
 	@Nullable
+    @Override
 	public String getArtifactId()
 	{
 		return myArtifactId;
 	}
 
 	@Nullable
+    @Override
 	public String getVersion()
 	{
 		return myVersion;

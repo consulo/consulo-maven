@@ -453,6 +453,7 @@ public class Maven32ServerEmbedderImpl extends Maven3ServerEmbedder {
         };
     }
 
+    @Override
     @SuppressWarnings({"unchecked"})
     public <T> T getComponent(Class<T> clazz, String roleHint) {
         try {
@@ -463,6 +464,7 @@ public class Maven32ServerEmbedderImpl extends Maven3ServerEmbedder {
         }
     }
 
+    @Override
     @SuppressWarnings({"unchecked"})
     public <T> T getComponent(Class<T> clazz) {
         try {
@@ -842,6 +844,7 @@ public class Maven32ServerEmbedderImpl extends Maven3ServerEmbedder {
         return lifecycleListeners;
     }
 
+    @Override
     public MavenExecutionRequest createRequest(File file, List<String> activeProfiles, List<String> inactiveProfiles, List<String> goals) throws RemoteException {
         //Properties executionProperties = myMavenSettings.getProperties();
         //if (executionProperties == null) {
@@ -1155,6 +1158,7 @@ public class Maven32ServerEmbedderImpl extends Maven3ServerEmbedder {
     }
 
     @Nonnull
+    @Override
     protected List<ArtifactRepository> convertRepositories(List<MavenRemoteRepository> repositories) throws RemoteException {
         List<ArtifactRepository> result = new ArrayList<ArtifactRepository>();
         for (MavenRemoteRepository each : repositories) {
@@ -1263,11 +1267,13 @@ public class Maven32ServerEmbedderImpl extends Maven3ServerEmbedder {
         myContainer.dispose();
     }
 
+    @Override
     public void clearCaches() throws RemoteException {
         // do nothing
     }
 
-    public void clearCachesFor(final MavenId projectId) throws RemoteException {
+    @Override
+    public void clearCachesFor(MavenId projectId) throws RemoteException {
         // do nothing
     }
 
@@ -1276,4 +1282,3 @@ public class Maven32ServerEmbedderImpl extends Maven3ServerEmbedder {
         return myLocalRepository;
     }
 }
-
