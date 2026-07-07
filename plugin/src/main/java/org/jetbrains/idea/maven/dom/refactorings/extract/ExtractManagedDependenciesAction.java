@@ -122,7 +122,8 @@ public class ExtractManagedDependenciesAction extends BaseRefactoringAction {
     }
 
     private static class MyRefactoringActionHandler implements RefactoringActionHandler {
-        public void invoke(@Nonnull final Project project, final Editor editor, PsiFile file, DataContext dataContext) {
+        @Override
+        public void invoke(@Nonnull final Project project, Editor editor, PsiFile file, DataContext dataContext) {
             Pair<MavenDomDependency, Set<MavenDomProjectModel>> depAndParents = findDependencyAndParent(file, editor);
             if (depAndParents == null) {
                 return;
@@ -247,19 +248,18 @@ public class ExtractManagedDependenciesAction extends BaseRefactoringAction {
             return null;
         }
 
-        private static Function<MavenDomProjectModel, Set<MavenDomDependency>> getOccurencesFunction(final MavenDomDependency dependency) {
-            return new Function<>() {
-                public Set<MavenDomDependency> apply(MavenDomProjectModel model) {
-                    DependencyConflictId dependencyId = DependencyConflictId.create(dependency);
-                    if (dependencyId == null) {
-                        return Collections.emptySet();
-                    }
-
-                    return MavenDomProjectProcessorUtils.searchDependencyUsages(model, dependencyId, Collections.singleton(dependency));
+        private static Function<MavenDomProjectModel, Set<MavenDomDependency>> getOccurencesFunction(MavenDomDependency dependency) {
+            return model -> {
+                DependencyConflictId dependencyId = DependencyConflictId.create(dependency);
+                if (dependencyId == null) {
+                    return Collections.emptySet();
                 }
+
+                return MavenDomProjectProcessorUtils.searchDependencyUsages(model, dependencyId, Collections.singleton(dependency));
             };
         }
 
+        @Override
         public void invoke(@Nonnull Project project, @Nonnull PsiElement[] elements, DataContext dataContext) {
         }
     }

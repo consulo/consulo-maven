@@ -7,7 +7,7 @@ import java.io.Closeable;
  * Implements {@link Closeable} just for using inside try(){}
  *
  * @author VISTALL
- * @since 20/01/2023
+ * @since 2023-01-20
  */
 public interface MavenPluginDescriptorBuilder extends Closeable
 {
@@ -17,5 +17,6 @@ public interface MavenPluginDescriptorBuilder extends Closeable
 	@Nonnull
 	MavenPluginDescriptorBuilder property(@Nonnull String... properties);
 
-	void close();
+	@Override
+    void close();
 }

@@ -17,7 +17,7 @@ package org.jetbrains.idea.maven.compiler;
 
 import java.io.File;
 
-import consulo.application.ApplicationManager;
+import consulo.application.Application;
 import consulo.language.editor.WriteCommandAction;
 import org.jetbrains.idea.maven.MavenImportingTestCase;
 import org.jetbrains.idea.maven.importing.MavenDefaultModifiableModelsProvider;
@@ -334,17 +334,12 @@ public abstract class ResourceCopyingTest extends MavenImportingTestCase
 
 		importProject("<groupId>test</groupId>" + "<artifactId>project</artifactId>" + "<version>1</version>");
 
-		ApplicationManager.getApplication().runWriteAction(new Runnable()
-		{
-			public void run()
-			{
-				MavenRootModelAdapter adapter = new MavenRootModelAdapter(myProjectsTree.findProject(myProjectPom), getModule("project"), new MavenDefaultModifiableModelsProvider(myProject));
-				adapter.addSourceFolder(myProjectRoot.findFileByRelativePath("src/main/resources").getPath(), ProductionContentFolderTypeProvider.getInstance(), false);
-				adapter.addSourceFolder(myProjectRoot.findFileByRelativePath("src/main/ideaRes").getPath(), ProductionContentFolderTypeProvider.getInstance(), false);
-				adapter.getRootModel().commit();
-			}
-		});
-
+		Application.get().runWriteAction(() -> {
+            MavenRootModelAdapter adapter = new MavenRootModelAdapter(myProjectsTree.findProject(myProjectPom), getModule("project"), new MavenDefaultModifiableModelsProvider(myProject));
+            adapter.addSourceFolder(myProjectRoot.findFileByRelativePath("src/main/resources").getPath(), ProductionContentFolderTypeProvider.getInstance(), false);
+            adapter.addSourceFolder(myProjectRoot.findFileByRelativePath("src/main/ideaRes").getPath(), ProductionContentFolderTypeProvider.getInstance(), false);
+            adapter.getRootModel().commit();
+        });
 
 		assertSources("project", "src/main/resources", "src/main/ideaRes");
 
@@ -431,19 +426,15 @@ public abstract class ResourceCopyingTest extends MavenImportingTestCase
 		assertCopied("output/file.xxx");
 	}
 
-	private void setModulesOutput(final VirtualFile output, final String... moduleNames)
+	private void setModulesOutput(VirtualFile output, String... moduleNames)
 	{
-		ApplicationManager.getApplication().runWriteAction(new Runnable()
-		{
-			public void run()
-			{
-				for(String each : moduleNames)
-				{
-					PsiTestUtil.setCompilerOutputPath(getModule(each), output.getUrl(), false);
-					PsiTestUtil.setCompilerOutputPath(getModule(each), output.getUrl(), true);
-				}
-			}
-		});
+		Application.get().runWriteAction(() -> {
+            for (String each : moduleNames)
+            {
+                PsiTestUtil.setCompilerOutputPath(getModule(each), output.getUrl(), false);
+                PsiTestUtil.setCompilerOutputPath(getModule(each), output.getUrl(), true);
+            }
+        });
 	}
 
 	public void testWebResources() throws Exception

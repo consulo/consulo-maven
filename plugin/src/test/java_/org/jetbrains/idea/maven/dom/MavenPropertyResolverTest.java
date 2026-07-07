@@ -15,8 +15,8 @@
  */
 package org.jetbrains.idea.maven.dom;
 
+import consulo.application.Application;
 import consulo.document.FileDocumentManager;
-import consulo.application.ApplicationManager;
 import consulo.document.Document;
 import consulo.language.psi.PsiDocumentManager;
 import consulo.module.Module;
@@ -258,18 +258,15 @@ public abstract class MavenPropertyResolverTest extends MavenImportingTestCase {
                   "<artifactId>project</artifactId>" +
                   "<version>1</version>");
 
-    final Document doc = FileDocumentManager.getInstance().getDocument(myProjectPom);
-    ApplicationManager.getApplication().runWriteAction(new Runnable() {
-      public void run() {
-        doc.setText(createPomXml("<groupId>test</groupId>" +
-                                 "<artifactId>project</artifactId>" +
-                                 "<version>2</version>" +
-
-                                 "<properties>" +
-                                 "  <uncomitted>value</uncomitted>" +
-                                 "</properties>"));
-      }
-    });
+    Document doc = FileDocumentManager.getInstance().getDocument(myProjectPom);
+    Application.get().runWriteAction(() -> doc.setText(createPomXml(
+        "<groupId>test</groupId>" +
+            "<artifactId>project</artifactId>" +
+            "<version>2</version>" +
+            "<properties>" +
+            "  <uncomitted>value</uncomitted>" +
+            "</properties>"
+    )));
 
     PsiDocumentManager.getInstance(myProject).commitDocument(doc);
 

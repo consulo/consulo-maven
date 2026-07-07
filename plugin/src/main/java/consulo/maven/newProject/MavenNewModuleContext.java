@@ -1,6 +1,5 @@
 package consulo.maven.newProject;
 
-import consulo.application.dumb.DumbAwareRunnable;
 import consulo.maven.rt.server.common.model.MavenArchetype;
 import consulo.maven.rt.server.common.model.MavenId;
 import consulo.module.creation.NewModuleWizardContextBase;
@@ -43,19 +42,15 @@ public class MavenNewModuleContext extends NewModuleWizardContextBase
 
 	public void registerMavenInitialize(@Nonnull Project project, @Nonnull VirtualFile root)
 	{
-		MavenUtil.runWhenInitialized(project, new DumbAwareRunnable()
-		{
-			public void run()
-			{
-				if(myEnvironmentForm != null)
-				{
-					myEnvironmentForm.setData(MavenProjectsManager.getInstance(project).getGeneralSettings());
-				}
+		MavenUtil.runWhenInitialized(project, () -> {
+            if(myEnvironmentForm != null)
+            {
+                myEnvironmentForm.setData(MavenProjectsManager.getInstance(project).getGeneralSettings());
+            }
 
-				new MavenModuleBuilderHelper(myProjectId, myAggregatorProject, myParentProject, myInheritGroupId,
-						myInheritVersion, myArchetype, myPropertiesToCreateByArtifact, "Create new Maven module").configure(project, root, false);
-			}
-		});
+            new MavenModuleBuilderHelper(myProjectId, myAggregatorProject, myParentProject, myInheritGroupId,
+                    myInheritVersion, myArchetype, myPropertiesToCreateByArtifact, "Create new Maven module").configure(project, root, false);
+        });
 	}
 
 	public MavenProject findPotentialParentProject(Project project)

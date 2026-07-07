@@ -39,14 +39,17 @@ public class MavenPropertiesPanel extends AddEditRemovePanel<Pair<String, String
         myAvailableProperties = availableProperties;
     }
 
+    @Override
     protected Pair<String, String> addItem() {
         return doAddOrEdit(null);
     }
 
+    @Override
     protected boolean removeItem(Pair<String, String> o) {
         return true;
     }
 
+    @Override
     protected Pair<String, String> editItem(@Nonnull Pair<String, String> o) {
         return doAddOrEdit(o);
     }

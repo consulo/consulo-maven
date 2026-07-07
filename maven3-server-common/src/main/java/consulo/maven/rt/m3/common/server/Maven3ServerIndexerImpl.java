@@ -442,6 +442,7 @@ public abstract class Maven3ServerIndexerImpl extends MavenRemoteObject implemen
 			p = indicator;
 		}
 
+        @Override
 		public void scanningStarted(IndexingContext ctx)
 		{
 			try
@@ -457,6 +458,7 @@ public abstract class Maven3ServerIndexerImpl extends MavenRemoteObject implemen
 			}
 		}
 
+        @Override
 		public void scanningFinished(IndexingContext ctx, ScanningResult result)
 		{
 			try
@@ -472,10 +474,12 @@ public abstract class Maven3ServerIndexerImpl extends MavenRemoteObject implemen
 			}
 		}
 
+        @Override
 		public void artifactError(ArtifactContext ac, Exception e)
 		{
 		}
 
+        @Override
 		public void artifactDiscovered(ArtifactContext ac)
 		{
 			try

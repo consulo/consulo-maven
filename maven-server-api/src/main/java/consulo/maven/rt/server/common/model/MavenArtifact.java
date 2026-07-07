@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package consulo.maven.rt.server.common.model;
 
 import java.io.File;
@@ -78,14 +77,17 @@ public class MavenArtifact implements Serializable, MavenCoordinate {
     myStubbed = stubbed;
   }
 
+  @Override
   public String getGroupId() {
     return myGroupId;
   }
 
+  @Override
   public String getArtifactId() {
     return myArtifactId;
   }
 
+  @Override
   public String getVersion() {
     return myVersion;
   }

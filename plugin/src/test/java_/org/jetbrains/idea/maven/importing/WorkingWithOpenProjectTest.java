@@ -17,7 +17,7 @@ package org.jetbrains.idea.maven.importing;
 
 import java.io.File;
 
-import consulo.application.ApplicationManager;
+import consulo.application.Application;
 import consulo.document.Document;
 import consulo.document.FileDocumentManager;
 import org.jetbrains.idea.maven.MavenImportingTestCase;
@@ -60,22 +60,19 @@ public abstract class WorkingWithOpenProjectTest extends MavenImportingTestCase 
     // cannot make it work die to order of document listeners
 
     myProjectsManager.listenForExternalChanges();
-    final Document d = FileDocumentManager.getInstance().getDocument(myProjectPom);
-    ApplicationManager.getApplication().runWriteAction(new Runnable() {
-      public void run() {
-        d.setText(createPomXml("<groupId>test</groupId>" +
-                               "<artifactId>project</artifactId>" +
-                               "<version>1</version>" +
-
-                               "<dependencies>" +
-                               "  <dependency>" +
-                               "    <groupId>junit</groupId>" +
-                               "    <artifactId>junit</artifactId>" +
-                               "    <version>4.0</version>" +
-                               "  </dependency>" +
-                               "</dependencies>"));
-      }
-    });
+    Document d = FileDocumentManager.getInstance().getDocument(myProjectPom);
+    Application.get().runWriteAction(() -> d.setText(createPomXml(
+        "<groupId>test</groupId>" +
+            "<artifactId>project</artifactId>" +
+            "<version>1</version>" +
+            "<dependencies>" +
+            "  <dependency>" +
+            "    <groupId>junit</groupId>" +
+            "    <artifactId>junit</artifactId>" +
+            "    <version>4.0</version>" +
+            "  </dependency>" +
+            "</dependencies>"
+    )));
 
     resolveDependenciesAndImport();
 

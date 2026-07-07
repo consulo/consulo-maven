@@ -17,7 +17,7 @@ package org.jetbrains.idea.maven.project;
 
 import java.io.File;
 
-import consulo.application.ApplicationManager;
+import consulo.application.Application;
 import org.jetbrains.idea.maven.MavenImportingTestCase;
 import org.jetbrains.idea.maven.importing.MavenDefaultModifiableModelsProvider;
 import org.jetbrains.idea.maven.importing.MavenFoldersImporter;
@@ -99,15 +99,11 @@ public abstract class MavenFoldersImporterTest extends MavenImportingTestCase
 		final File sourceDir = new File(myProjectRoot.getPath(), "target/src");
 		sourceDir.mkdirs();
 
-		ApplicationManager.getApplication().runWriteAction(new Runnable()
-		{
-			public void run()
-			{
-				MavenRootModelAdapter adapter = new MavenRootModelAdapter(myProjectsTree.findProject(myProjectPom), getModule("project"), new MavenDefaultModifiableModelsProvider(myProject));
-				adapter.addSourceFolder(sourceDir.getPath(), ProductionContentFolderTypeProvider.getInstance(), false);
-				adapter.getRootModel().commit();
-			}
-		});
+		Application.get().runWriteAction(() -> {
+            MavenRootModelAdapter adapter = new MavenRootModelAdapter(myProjectsTree.findProject(myProjectPom), getModule("project"), new MavenDefaultModifiableModelsProvider(myProject));
+            adapter.addSourceFolder(sourceDir.getPath(), ProductionContentFolderTypeProvider.getInstance(), false);
+            adapter.getRootModel().commit();
+        });
 
 
 		updateProjectFolders();
@@ -128,16 +124,11 @@ public abstract class MavenFoldersImporterTest extends MavenImportingTestCase
 	{
 		importProject("<groupId>test</groupId>" + "<artifactId>project</artifactId>" + "<version>1</version>");
 
-		ApplicationManager.getApplication().runWriteAction(new Runnable()
-		{
-			public void run()
-			{
-				MavenRootModelAdapter adapter = new MavenRootModelAdapter(myProjectsTree.findProject(myProjectPom), getModule("project"), new MavenDefaultModifiableModelsProvider(myProject));
-				adapter.useModuleOutput(new File(myProjectRoot.getPath(), "target/my-classes").getPath(), new File(myProjectRoot.getPath(), "target/my-test-classes").getPath());
-				adapter.getRootModel().commit();
-			}
-		});
-
+		Application.get().runWriteAction(() -> {
+            MavenRootModelAdapter adapter = new MavenRootModelAdapter(myProjectsTree.findProject(myProjectPom), getModule("project"), new MavenDefaultModifiableModelsProvider(myProject));
+            adapter.useModuleOutput(new File(myProjectRoot.getPath(), "target/my-classes").getPath(), new File(myProjectRoot.getPath(), "target/my-test-classes").getPath());
+            adapter.getRootModel().commit();
+        });
 
 		MavenFoldersImporter.updateProjectFolders(myProject, true);
 

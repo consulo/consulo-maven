@@ -23,6 +23,7 @@ public abstract class MavenUpdate extends Update {
         super(identity);
     }
 
+    @Override
     public final void run() {
         try {
             doRun();

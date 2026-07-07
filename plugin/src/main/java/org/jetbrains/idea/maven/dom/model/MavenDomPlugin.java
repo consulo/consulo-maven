@@ -13,10 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-// Generated on Mon Mar 17 18:02:09 MSK 2008
-// DTD/Schema  :    http://maven.apache.org/POM/4.0.0
-
 package org.jetbrains.idea.maven.dom.model;
 
 import consulo.xml.dom.GenericDomValue;
@@ -26,6 +22,9 @@ import org.jetbrains.idea.maven.dom.MavenDomElement;
 import jakarta.annotation.Nonnull;
 
 /**
+ * Generated on Mon Mar 17 18:02:09 MSK 2008
+ * DTD/Schema  :    http://maven.apache.org/POM/4.0.0
+ *
  * http://maven.apache.org/POM/4.0.0:Plugin interface.
  * <pre>
  * <h3>Type http://maven.apache.org/POM/4.0.0:Plugin documentation</h3>
@@ -33,9 +32,11 @@ import jakarta.annotation.Nonnull;
  * </pre>
  */
 public interface MavenDomPlugin extends MavenDomElement, MavenDomArtifactCoordinates {
+    @Override
     @Required(value = false, nonEmpty = true)
     GenericDomValue<String> getGroupId();
 
+    @Override
     @Required(value = false, nonEmpty = true)
     GenericDomValue<String> getVersion();
 
