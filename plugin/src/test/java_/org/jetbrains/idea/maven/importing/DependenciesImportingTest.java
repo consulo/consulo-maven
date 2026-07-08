@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import consulo.application.Application;
 import consulo.content.library.LibraryTablesRegistrar;
 import consulo.util.io.FileUtil;
 import org.jetbrains.idea.maven.MavenCustomRepositoryHelper;
@@ -27,7 +28,6 @@ import org.jetbrains.idea.maven.MavenImportingTestCase;
 import consulo.maven.rt.server.common.model.MavenId;
 import org.jetbrains.idea.maven.project.MavenProject;
 import consulo.application.AccessToken;
-import consulo.application.ApplicationManager;
 import consulo.application.WriteAction;
 import consulo.module.Module;
 import consulo.module.content.layer.orderEntry.DependencyScope;
@@ -2082,38 +2082,32 @@ public abstract class DependenciesImportingTest extends MavenImportingTestCase {
     }
   }
 
-  private void createAndAddProjectLibrary(final String moduleName, final String libraryName) {
-    ApplicationManager.getApplication().runWriteAction(new Runnable() {
-      public void run() {
-        Library lib = createProjectLibrary(libraryName);
-        ModuleRootModificationUtil.addDependency(getModule(moduleName), lib);
-      }
+  private void createAndAddProjectLibrary(String moduleName, String libraryName) {
+    Application.get().runWriteAction(() -> {
+      Library lib = createProjectLibrary(libraryName);
+      ModuleRootModificationUtil.addDependency(getModule(moduleName), lib);
     });
   }
 
-  private void clearLibraryRoots(final String libraryName, final OrderRootType... types) {
-    ApplicationManager.getApplication().runWriteAction(new Runnable() {
-      public void run() {
-        Library lib = ProjectLibraryTable.getInstance(myProject).getLibraryByName(libraryName);
-        Library.ModifiableModel model = lib.getModifiableModel();
-        for (OrderRootType eachType : types) {
-          for (String each : model.getUrls(eachType)) {
-            model.removeRoot(each, eachType);
-          }
+  private void clearLibraryRoots(String libraryName, OrderRootType... types) {
+    Application.get().runWriteAction(() -> {
+      Library lib = ProjectLibraryTable.getInstance(myProject).getLibraryByName(libraryName);
+      Library.ModifiableModel model = lib.getModifiableModel();
+      for (OrderRootType eachType : types) {
+        for (String each : model.getUrls(eachType)) {
+          model.removeRoot(each, eachType);
         }
-        model.commit();
       }
+      model.commit();
     });
   }
 
-  private void addLibraryRoot(final String libraryName, final OrderRootType type, final String path) {
-    ApplicationManager.getApplication().runWriteAction(new Runnable() {
-      public void run() {
-        Library lib = consulo.ide.impl.idea.openapi.roots.impl.libraries.ProjectLibraryTable.getInstance(myProject).getLibraryByName(libraryName);
-        Library.ModifiableModel model = lib.getModifiableModel();
-        model.addRoot(path, type);
-        model.commit();
-      }
+  private void addLibraryRoot(String libraryName, OrderRootType type, String path) {
+    Application.get().runWriteAction(() -> {
+      Library lib = consulo.ide.impl.idea.openapi.roots.impl.libraries.ProjectLibraryTable.getInstance(myProject).getLibraryByName(libraryName);
+      Library.ModifiableModel model = lib.getModifiableModel();
+      model.addRoot(path, type);
+      model.commit();
     });
   }
 
@@ -2146,13 +2140,11 @@ public abstract class DependenciesImportingTest extends MavenImportingTestCase {
                   "<artifactId>project</artifactId>" +
                   "<version>1</version>");
 
-    ApplicationManager.getApplication().runWriteAction(new Runnable() {
-      public void run() {
-        LibraryTable appTable = LibraryTablesRegistrar.getInstance().getLibraryTable();
-        Library lib = appTable.createLibrary("foo");
-        ModuleRootModificationUtil.addDependency(getModule("project"), lib);
-        appTable.removeLibrary(lib);
-      }
+    Application.get().runWriteAction(() -> {
+      LibraryTable appTable = LibraryTablesRegistrar.getInstance().getLibraryTable();
+      Library lib = appTable.createLibrary("foo");
+      ModuleRootModificationUtil.addDependency(getModule("project"), lib);
+      appTable.removeLibrary(lib);
     });
 
 

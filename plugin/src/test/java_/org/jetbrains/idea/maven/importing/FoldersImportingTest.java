@@ -18,12 +18,12 @@ package org.jetbrains.idea.maven.importing;
 import java.io.File;
 import java.io.IOException;
 
+import consulo.application.Application;
 import org.jetbrains.idea.maven.MavenCustomRepositoryHelper;
 import org.jetbrains.idea.maven.MavenImportingTestCase;
 import org.jetbrains.idea.maven.project.MavenImportingSettings;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.utils.Path;
-import consulo.application.ApplicationManager;
 import consulo.virtualFileSystem.VirtualFile;
 import consulo.roots.impl.ProductionContentFolderTypeProvider;
 
@@ -74,24 +74,21 @@ public abstract class FoldersImportingTest extends MavenImportingTestCase {
   }
 
   public void testDoesNotResetUserFolders() throws Exception {
-    final VirtualFile dir1 = createProjectSubDir("userSourceFolder");
-    final VirtualFile dir2 = createProjectSubDir("userExcludedFolder");
+    VirtualFile dir1 = createProjectSubDir("userSourceFolder");
+    VirtualFile dir2 = createProjectSubDir("userExcludedFolder");
 
     importProject("<groupId>test</groupId>" +
                   "<artifactId>project</artifactId>" +
                   "<version>1</version>");
 
-    ApplicationManager.getApplication().runWriteAction(new Runnable() {
-      public void run() {
-        MavenRootModelAdapter adapter = new MavenRootModelAdapter(myProjectsTree.findProject(myProjectPom),
-                                                                  getModule("project"),
-                                                                  new MavenDefaultModifiableModelsProvider(myProject));
-        adapter.addSourceFolder(dir1.getPath(), ProductionContentFolderTypeProvider.getInstance(), false);
-        adapter.addExcludedFolder(dir2.getPath());
-        adapter.getRootModel().commit();
-      }
+    Application.get().runWriteAction(() -> {
+      MavenRootModelAdapter adapter = new MavenRootModelAdapter(myProjectsTree.findProject(myProjectPom),
+                                                                getModule("project"),
+                                                                new MavenDefaultModifiableModelsProvider(myProject));
+      adapter.addSourceFolder(dir1.getPath(), ProductionContentFolderTypeProvider.getInstance(), false);
+      adapter.addExcludedFolder(dir2.getPath());
+      adapter.getRootModel().commit();
     });
-
 
     assertSources("project", "userSourceFolder");
     assertExcludes("project", "target", "userExcludedFolder");

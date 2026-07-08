@@ -15,6 +15,7 @@
  */
 package org.jetbrains.idea.maven.vfs;
 
+import consulo.annotation.access.RequiredReadAction;
 import consulo.annotation.component.ExtensionImpl;
 import consulo.ide.navigation.GotoFileContributor;
 import consulo.language.psi.PsiFile;
@@ -28,6 +29,7 @@ import jakarta.annotation.Nonnull;
 @ExtensionImpl
 public class MavenGotoPropertyFileContributor implements GotoFileContributor {
     @Nonnull
+    @Override
     public String[] getNames(Project project, boolean includeNonProjectItems) {
         if (!includeNonProjectItems) {
             return ArrayUtil.EMPTY_STRING_ARRAY;
@@ -36,6 +38,8 @@ public class MavenGotoPropertyFileContributor implements GotoFileContributor {
     }
 
     @Nonnull
+    @Override
+    @RequiredReadAction
     public NavigationItem[] getItemsByName(String name, String pattern, Project project, boolean includeNonProjectItems) {
         VirtualFile file = MavenPropertiesVirtualFileSystem.getInstance().findFileByPath(name);
         if (file != null) {

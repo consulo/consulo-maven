@@ -429,6 +429,7 @@ public class Maven30ServerEmbedderImpl extends Maven3ServerEmbedder {
             new OperatingSystemProfileActivator()};
     }
 
+    @Override
     @SuppressWarnings({"unchecked"})
     public <T> T getComponent(Class<T> clazz, String roleHint) {
         try {
@@ -439,6 +440,7 @@ public class Maven30ServerEmbedderImpl extends Maven3ServerEmbedder {
         }
     }
 
+    @Override
     @SuppressWarnings({"unchecked"})
     public <T> T getComponent(Class<T> clazz) {
         try {
@@ -509,6 +511,7 @@ public class Maven30ServerEmbedderImpl extends Maven3ServerEmbedder {
         }
     }
 
+    @Override
     public void customizeComponents() throws RemoteException {
         // replace some plexus components
         myContainer.addComponent(getComponent(ArtifactFactory.class, "ide"), ArtifactFactory.ROLE);
@@ -545,6 +548,7 @@ public class Maven30ServerEmbedderImpl extends Maven3ServerEmbedder {
         return MavenEffectivePomDumper.evaluateEffectivePom(this, file, activeProfiles, inactiveProfiles);
     }
 
+    @Override
     public void executeWithMavenSession(MavenExecutionRequest request, Runnable runnable) {
         DefaultMaven maven = (DefaultMaven) getComponent(Maven.class);
         RepositorySystemSession repositorySession = maven.newRepositorySession(request);
@@ -757,6 +761,7 @@ public class Maven30ServerEmbedderImpl extends Maven3ServerEmbedder {
     /**
      * adapted from {@link DefaultMaven#getLifecycleParticipants(Collection)}
      */
+    @Override
     public Collection<AbstractMavenLifecycleParticipant> getLifecycleParticipants(Collection<MavenProject> projects) {
         Collection<AbstractMavenLifecycleParticipant> lifecycleListeners = new LinkedHashSet<AbstractMavenLifecycleParticipant>();
 
@@ -795,6 +800,7 @@ public class Maven30ServerEmbedderImpl extends Maven3ServerEmbedder {
         return lifecycleListeners;
     }
 
+    @Override
     public MavenExecutionRequest createRequest(File file, List<String> activeProfiles, List<String> inactiveProfiles, List<String> goals)
         throws RemoteException {
         //Properties executionProperties = myMavenSettings.getProperties();
@@ -1053,6 +1059,7 @@ public class Maven30ServerEmbedderImpl extends Maven3ServerEmbedder {
     }
 
     @Nonnull
+    @Override
     protected List<ArtifactRepository> convertRepositories(List<MavenRemoteRepository> repositories) throws RemoteException {
         List<ArtifactRepository> result = new ArrayList<ArtifactRepository>();
         for (MavenRemoteRepository each : repositories) {
@@ -1152,11 +1159,13 @@ public class Maven30ServerEmbedderImpl extends Maven3ServerEmbedder {
         myContainer.dispose();
     }
 
+    @Override
     public void clearCaches() throws RemoteException {
         // do nothing
     }
 
-    public void clearCachesFor(final MavenId projectId) throws RemoteException {
+    @Override
+    public void clearCachesFor(MavenId projectId) throws RemoteException {
         // do nothing
     }
 

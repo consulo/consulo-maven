@@ -36,6 +36,7 @@ public abstract class MavenRepositoryService {
     @Nonnull
     public abstract List<MavenArtifactInfo> findArtifacts(@Nonnull String url, @Nonnull MavenArtifactInfo template) throws IOException;
 
+    @Override
     public final String toString() {
         return getDisplayName();
     }

@@ -13,10 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-// Generated on Mon Mar 17 18:02:09 MSK 2008
-// DTD/Schema  :    http://maven.apache.org/POM/4.0.0
-
 package org.jetbrains.idea.maven.dom.model;
 
 import consulo.xml.dom.Convert;
@@ -31,6 +27,9 @@ import org.jetbrains.idea.maven.dom.converters.MavenUrlConverter;
 import jakarta.annotation.Nonnull;
 
 /**
+ * Generated on Mon Mar 17 18:02:09 MSK 2008
+ * DTD/Schema  :    http://maven.apache.org/POM/4.0.0
+ *
  * http://maven.apache.org/POM/4.0.0:Model interface.
  * <pre>
  * <h3>Type http://maven.apache.org/POM/4.0.0:Model documentation</h3>
@@ -75,6 +74,7 @@ public interface MavenDomProjectModel extends MavenDomElement, MavenDomProjectMo
      * @return the value of the groupId child.
      */
     @Nonnull
+    @Override
     @Required(value = false, nonEmpty = true)
     GenericDomValue<String> getGroupId();
 
@@ -88,6 +88,7 @@ public interface MavenDomProjectModel extends MavenDomElement, MavenDomProjectMo
      * @return the value of the artifactId child.
      */
     @Nonnull
+    @Override
     @Required
     GenericDomValue<String> getArtifactId();
 
@@ -101,6 +102,7 @@ public interface MavenDomProjectModel extends MavenDomElement, MavenDomProjectMo
      * @return the value of the version child.
      */
     @Nonnull
+    @Override
     @Required(value = false, nonEmpty = true)
     GenericDomValue<String> getVersion();
 
@@ -275,6 +277,7 @@ public interface MavenDomProjectModel extends MavenDomElement, MavenDomProjectMo
     MavenDomOrganization getOrganization();
 
     @Nonnull
+    @Override
     MavenDomBuild getBuild();
 
     /**

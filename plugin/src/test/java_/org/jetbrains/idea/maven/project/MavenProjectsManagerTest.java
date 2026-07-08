@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import consulo.application.Application;
 import consulo.module.Module;
 import consulo.module.content.ModuleRootManager;
 import consulo.module.content.layer.orderEntry.LibraryOrderEntry;
@@ -30,7 +31,6 @@ import org.jetbrains.idea.maven.MavenImportingTestCase;
 import org.jetbrains.idea.maven.importing.MavenRootModelAdapter;
 import consulo.maven.rt.server.common.model.MavenExplicitProfiles;
 import consulo.maven.rt.server.common.server.NativeMavenProjectHolder;
-import consulo.application.ApplicationManager;
 import consulo.language.editor.WriteCommandAction;
 import consulo.module.ModuleManager;
 import consulo.module.content.layer.ModifiableRootModel;
@@ -941,18 +941,15 @@ public abstract class MavenProjectsManagerTest extends MavenImportingTestCase {
 
     createProjectSubDir("src/main/java");
 
-    ApplicationManager.getApplication().runWriteAction(new Runnable() {
-      public void run() {
-        ModifiableRootModel model = ModuleRootManager.getInstance(getModule("project")).getModifiableModel();
-        for (OrderEntry each : model.getOrderEntries()) {
-          if (each instanceof LibraryOrderEntry && MavenRootModelAdapter.isMavenLibrary(((LibraryOrderEntry)each).getLibrary())) {
-            model.removeOrderEntry(each);
-          }
+    Application.get().runWriteAction(() -> {
+      ModifiableRootModel model = ModuleRootManager.getInstance(getModule("project")).getModifiableModel();
+      for (OrderEntry each : model.getOrderEntries()) {
+        if (each instanceof LibraryOrderEntry libraryOrderEntry && MavenRootModelAdapter.isMavenLibrary(libraryOrderEntry.getLibrary())) {
+          model.removeOrderEntry(each);
         }
-        model.commit();
       }
+      model.commit();
     });
-
 
     assertSources("project");
     assertModuleLibDeps("project");

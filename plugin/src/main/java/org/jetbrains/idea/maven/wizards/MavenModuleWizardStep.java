@@ -491,6 +491,7 @@ public class MavenModuleWizardStep implements WizardStep<MavenNewModuleContext> 
     }
 
     private static class MyRenderer extends ColoredTreeCellRenderer {
+        @Override
         public void customizeCellRenderer(
             JTree tree,
             Object value,
