@@ -68,7 +68,7 @@ public class MavenUIUtil {
             if (coroutine != null) {
                 CoroutineContext coroutineContext = context.getRequiredData(CoroutineContext.KEY);
 
-                CoroutineScope scope = new CoroutineScope(coroutineContext);
+                CoroutineScope scope = CoroutineScope.of(coroutineContext);
                 scope.putCopyableUserData(UIAccess.KEY, uiAccess);
                 coroutine.runAsync(scope, null).onFinish(continuation -> {
                     if (presentation.isEnabled()) {
