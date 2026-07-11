@@ -19,10 +19,7 @@ import consulo.annotation.component.ComponentScope;
 import consulo.annotation.component.ServiceAPI;
 import consulo.annotation.component.ServiceImpl;
 import consulo.application.Application;
-import consulo.component.persist.PersistentStateComponent;
-import consulo.component.persist.State;
-import consulo.component.persist.Storage;
-import consulo.component.persist.StoragePathMacros;
+import consulo.component.persist.*;
 import consulo.disposer.Disposable;
 import consulo.execution.event.RunManagerListener;
 import consulo.execution.event.RunManagerListenerEvent;
@@ -39,8 +36,10 @@ import consulo.ui.ex.awt.tree.TreeState;
 import consulo.ui.ex.content.Content;
 import consulo.ui.ex.content.ContentFactory;
 import consulo.ui.ex.content.ContentManager;
+import consulo.ui.ex.coroutine.UIAction;
 import consulo.ui.ex.toolWindow.ToolWindow;
 import consulo.util.collection.ContainerUtil;
+import consulo.util.concurrent.coroutine.Coroutine;
 import consulo.util.lang.Pair;
 import consulo.util.xml.serializer.WriteExternalException;
 import jakarta.annotation.Nullable;
@@ -69,7 +68,7 @@ import java.util.List;
 @State(name = "MavenProjectNavigator", storages = {@Storage(StoragePathMacros.WORKSPACE_FILE)})
 @ServiceAPI(ComponentScope.PROJECT)
 @ServiceImpl
-public class MavenProjectsNavigator extends MavenSimpleProjectComponent implements PersistentStateComponent<MavenProjectsNavigatorState>, Disposable {
+public class MavenProjectsNavigator extends MavenSimpleProjectComponent implements PersistentStateComponentAsync<MavenProjectsNavigatorState>, Disposable {
     public static final String TOOL_WINDOW_ID = "Maven";
 
     private MavenProjectsNavigatorState myState = new MavenProjectsNavigatorState();
@@ -104,18 +103,19 @@ public class MavenProjectsNavigator extends MavenSimpleProjectComponent implemen
     }
 
     @Override
-    public MavenProjectsNavigatorState getState() {
-        Application.get().assertIsDispatchThread();
-        if (myStructure != null) {
-            try {
-                myState.treeState = new Element("root");
-                TreeState.createOn(myTree).writeExternal(myState.treeState);
+    public Coroutine<?, MavenProjectsNavigatorState> getStateAsync() {
+        return UIAction.apply(i -> {
+            if (myStructure != null) {
+                try {
+                    myState.treeState = new Element("root");
+                    TreeState.createOn(myTree).writeExternal(myState.treeState);
+                }
+                catch (WriteExternalException e) {
+                    MavenLog.LOG.warn(e);
+                }
             }
-            catch (WriteExternalException e) {
-                MavenLog.LOG.warn(e);
-            }
-        }
-        return myState;
+            return myState;
+        }).toCoroutine();
     }
 
     @Override
