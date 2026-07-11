@@ -102,23 +102,18 @@ public class RepositoryAttachHandler {
             dialog.getRepositories(),
             artifacts -> {
                 if (!artifacts.isEmpty()) {
-                    AccessToken accessToken = WriteAction.start();
-                    try {
-                        final List<OrderRoot> roots = createRoots(artifacts, copyTo);
-                        result.set(new NewLibraryConfiguration(
+                    WriteAction.run(() -> {});
+                    final List<OrderRoot> roots = createRoots(artifacts, copyTo);
+                    result.set(new NewLibraryConfiguration(
                             coord,
                             RepositoryLibraryType.getInstance(),
                             new RepositoryLibraryProperties(coord)
-                        ) {
-                            @Override
-                            public void addRoots(@Nonnull LibraryEditor editor) {
-                                editor.addRoots(roots);
-                            }
-                        });
-                    }
-                    finally {
-                        accessToken.finish();
-                    }
+                    ) {
+                        @Override
+                        public void addRoots(@Nonnull LibraryEditor editor) {
+                            editor.addRoots(roots);
+                        }
+                    });
 
                     final StringBuilder sb = new StringBuilder();
                     final String title = "The following files were downloaded:";
