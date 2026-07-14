@@ -12,6 +12,8 @@ import consulo.module.creation.ui.UnifiedProjectOrModuleNameStep;
 import consulo.project.Project;
 import consulo.ui.ex.wizard.WizardStep;
 import consulo.ui.image.Image;
+import consulo.util.concurrent.coroutine.Coroutine;
+import consulo.util.concurrent.coroutine.step.CodeExecution;
 import consulo.util.lang.StringUtil;
 import consulo.virtualFileSystem.VirtualFile;
 import consulo.virtualFileSystem.util.VirtualFileUtil;
@@ -111,37 +113,38 @@ public class MavenModuleImportProvider implements ModuleImportProvider<MavenImpo
         consumer.accept(new UnifiedProjectOrModuleNameStep<>(context));
     }
 
-    @RequiredReadAction
     @Override
-    public void process(@Nonnull MavenImportModuleContext context, @Nonnull Project project, @Nonnull ModifiableModuleModel modifiableModuleModel, @Nonnull Consumer<Module> consumer) {
-        MavenWorkspaceSettings settings = MavenWorkspaceSettingsComponent.getInstance(project).getSettings();
+    public Coroutine<Object, Object> process(@Nonnull MavenImportModuleContext context, @Nonnull Project project, @Nonnull ModifiableModuleModel modifiableModuleModel, @Nonnull Consumer<Module> consumer) {
+        return CodeExecution.run(i -> {
+            MavenWorkspaceSettings settings = MavenWorkspaceSettingsComponent.getInstance(project).getSettings();
 
-        settings.generalSettings = context.getGeneralSettings();
-        settings.importingSettings = context.getImportingSettings();
+            settings.generalSettings = context.getGeneralSettings();
+            settings.importingSettings = context.getImportingSettings();
 
-        String settingsFile = System.getProperty("idea.maven.import.settings.file");
-        if (!StringUtil.isEmptyOrSpaces(settingsFile)) {
-            settings.generalSettings.setUserSettingsFile(settingsFile.trim());
-        }
+            String settingsFile = System.getProperty("idea.maven.import.settings.file");
+            if (!StringUtil.isEmptyOrSpaces(settingsFile)) {
+                settings.generalSettings.setUserSettingsFile(settingsFile.trim());
+            }
 
-        MavenExplicitProfiles selectedProfiles = context.getSelectedProfiles();
+            MavenExplicitProfiles selectedProfiles = context.getSelectedProfiles();
 
-        String enabledProfilesList = System.getProperty("idea.maven.import.enabled.profiles");
-        String disabledProfilesList = System.getProperty("idea.maven.import.disabled.profiles");
-        if (enabledProfilesList != null || disabledProfilesList != null) {
-            selectedProfiles = selectedProfiles.clone();
-            appendProfilesFromString(selectedProfiles.getEnabledProfiles(), enabledProfilesList);
-            appendProfilesFromString(selectedProfiles.getDisabledProfiles(), disabledProfilesList);
-        }
+            String enabledProfilesList = System.getProperty("idea.maven.import.enabled.profiles");
+            String disabledProfilesList = System.getProperty("idea.maven.import.disabled.profiles");
+            if (enabledProfilesList != null || disabledProfilesList != null) {
+                selectedProfiles = selectedProfiles.clone();
+                appendProfilesFromString(selectedProfiles.getEnabledProfiles(), enabledProfilesList);
+                appendProfilesFromString(selectedProfiles.getDisabledProfiles(), disabledProfilesList);
+            }
 
-        MavenProjectsManager manager = MavenProjectsManager.getInstance(project);
-        manager.addManagedFilesWithProfiles(MavenUtil.collectFiles(context.mySelectedProjects), selectedProfiles);
-        manager.waitForReadingCompletion();
+            MavenProjectsManager manager = MavenProjectsManager.getInstance(project);
+            manager.addManagedFilesWithProfiles(MavenUtil.collectFiles(context.mySelectedProjects), selectedProfiles);
+            manager.waitForReadingCompletion();
 
-        List<Module> modules = manager.importProjects(new MavenDefaultModifiableModelsProvider(project));
-        for (Module module : modules) {
-            consumer.accept(module);
-        }
+            List<Module> modules = manager.importProjects(new MavenDefaultModifiableModelsProvider(project));
+            for (Module module : modules) {
+                consumer.accept(module);
+            }
+        }).toCoroutine();
     }
 
     private void appendProfilesFromString(Collection<String> selectedProfiles, String profilesList) {

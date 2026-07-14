@@ -203,6 +203,7 @@ public class MavenUtil {
         }
     }
 
+    @Deprecated
     public static void invokeAndWaitWriteAction(Project p, final Runnable r) {
         invokeAndWait(p, () -> Application.get().runWriteAction(r));
     }

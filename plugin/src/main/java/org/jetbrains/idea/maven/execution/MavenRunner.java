@@ -27,6 +27,7 @@ import consulo.logging.Logger;
 import consulo.process.ProcessHandler;
 import consulo.process.event.ProcessAdapter;
 import consulo.process.event.ProcessEvent;
+import consulo.process.event.ProcessListener;
 import consulo.project.Project;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
@@ -129,7 +130,7 @@ public class MavenRunner implements PersistentStateComponent<MavenRunnerSettings
                             latch.countDown();
                             return;
                         }
-                        handler.addProcessListener(new ProcessAdapter() {
+                        handler.addProcessListener(new ProcessListener() {
                             @Override
                             public void processTerminated(@Nonnull ProcessEvent event) {
                                 success.set(event.getExitCode() == 0);

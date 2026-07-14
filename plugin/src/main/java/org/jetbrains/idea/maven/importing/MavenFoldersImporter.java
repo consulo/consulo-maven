@@ -15,7 +15,7 @@
  */
 package org.jetbrains.idea.maven.importing;
 
-import consulo.application.WriteAction;
+import consulo.application.concurrent.coroutine.WriteLock;
 import consulo.content.ContentFolderTypeProvider;
 import consulo.language.content.ProductionContentFolderTypeProvider;
 import consulo.language.content.ProductionResourceContentFolderTypeProvider;
@@ -29,8 +29,8 @@ import consulo.module.content.layer.ModifiableRootModel;
 import consulo.project.Project;
 import consulo.util.collection.ArrayUtil;
 import consulo.util.collection.MultiMap;
+import consulo.util.concurrent.coroutine.Coroutine;
 import consulo.util.io.FileUtil;
-import consulo.util.lang.Pair;
 import jakarta.annotation.Nonnull;
 import org.jdom.Element;
 import org.jetbrains.idea.maven.project.MavenImportingSettings;
@@ -49,12 +49,11 @@ public class MavenFoldersImporter {
     private final MavenImportingSettings myImportingSettings;
     private final MavenRootModelAdapter myModel;
 
-    public static void updateProjectFolders(final Project project, final boolean updateTargetFoldersOnly) {
+    public static Coroutine<Object, Object> updateProjectFoldersCoroutine(final Project project, final boolean updateTargetFoldersOnly) {
         final MavenProjectsManager manager = MavenProjectsManager.getInstance(project);
         final MavenImportingSettings settings = manager.getImportingSettings();
 
-        WriteAction.runAndWait(() ->
-        {
+        return WriteLock.apply(i -> {
             List<ModifiableRootModel> rootModels = new ArrayList<>();
             for (Module each : ModuleManager.getInstance(project).getModules()) {
                 MavenProject mavenProject = manager.findProject(each);
@@ -80,7 +79,9 @@ public class MavenFoldersImporter {
                     ModifiableModelCommitter.getInstance(project).multiCommit(modelsArray, ModuleManager.getInstance(project).getModifiableModel());
                 }
             }
-        });
+
+            return null;
+        }).toCoroutine();
     }
 
     public MavenFoldersImporter(MavenProject mavenProject, MavenImportingSettings settings, MavenRootModelAdapter model) {

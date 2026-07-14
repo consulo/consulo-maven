@@ -41,6 +41,8 @@ import consulo.ui.ex.awt.util.Update;
 import consulo.util.collection.ContainerUtil;
 import consulo.util.collection.Lists;
 import consulo.util.concurrent.AsyncResult;
+import consulo.util.concurrent.coroutine.CoroutineScope;
+import consulo.util.concurrent.coroutine.step.CodeExecution;
 import consulo.util.io.FileUtil;
 import consulo.util.lang.ObjectUtil;
 import consulo.util.lang.Pair;
@@ -1099,8 +1101,6 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
     }
 
     private void waitForTasksCompletion(MavenProjectsProcessor processor) {
-        FileDocumentManager.getInstance().saveAllDocuments();
-
         myReadingProcessor.waitForCompletion();
         if (processor != null) {
             processor.waitForCompletion();
@@ -1108,14 +1108,13 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
     }
 
     public void updateProjectTargetFolders() {
-        Application.get().invokeLater(() -> {
-            if (myProject.isDisposed()) {
-                return;
-            }
+        if (myProject.isDisposed()) {
+            return;
+        }
 
-            MavenFoldersImporter.updateProjectFolders(myProject, true);
-            VirtualFileManager.getInstance().asyncRefresh(null);
-        });
+        MavenFoldersImporter.updateProjectFoldersCoroutine(myProject, true)
+            .then(CodeExecution.run(() -> VirtualFileManager.getInstance().asyncRefresh(null)))
+            .runAsync(CoroutineScope.of(myProject.coroutineContext()), null);
     }
 
     public List<Module> importProjects() {

@@ -18,6 +18,7 @@ package org.jetbrains.idea.maven.importing;
 import com.google.common.collect.ImmutableMap;
 import com.intellij.java.language.LanguageLevel;
 import consulo.application.ReadAction;
+import consulo.application.concurrent.coroutine.WriteLock;
 import consulo.content.OrderRootType;
 import consulo.content.base.BinariesOrderRootType;
 import consulo.content.base.DocumentationOrderRootType;
@@ -37,6 +38,7 @@ import consulo.module.content.layer.ModifiableRootModel;
 import consulo.module.content.layer.orderEntry.DependencyScope;
 import consulo.module.content.layer.orderEntry.LibraryOrderEntry;
 import consulo.module.content.layer.orderEntry.ModuleExtensionWithSdkOrderEntry;
+import consulo.util.concurrent.coroutine.CoroutineStep;
 import consulo.util.lang.StringUtil;
 import consulo.virtualFileSystem.VirtualFile;
 import consulo.virtualFileSystem.archive.ArchiveVfsUtil;
@@ -189,55 +191,45 @@ public class MavenModuleImporter {
     }
 
     public void preConfigFacets() {
-        MavenUtil.invokeAndWaitWriteAction(myModule.getProject(), new Runnable() {
-            @Override
-            public void run() {
-                if (myModule.isDisposed()) {
-                    return;
-                }
+        if (myModule.isDisposed()) {
+            return;
+        }
 
-                for (final MavenImporter importer : getSuitableImporters()) {
-                    final MavenProjectChanges changes;
-                    if (myMavenProjectChanges == null) {
-                        if (importer.processChangedModulesOnly()) {
-                            continue;
-                        }
-                        changes = MavenProjectChanges.NONE;
-                    }
-                    else {
-                        changes = myMavenProjectChanges;
-                    }
-
-                    importer.preProcess(myModule, myMavenProject, changes, myModifiableModelsProvider);
+        for (final MavenImporter importer : getSuitableImporters()) {
+            final MavenProjectChanges changes;
+            if (myMavenProjectChanges == null) {
+                if (importer.processChangedModulesOnly()) {
+                    continue;
                 }
+                changes = MavenProjectChanges.NONE;
             }
-        });
+            else {
+                changes = myMavenProjectChanges;
+            }
+
+            importer.preProcess(myModule, myMavenProject, changes, myModifiableModelsProvider);
+        }
     }
 
     public void configFacets(final List<MavenProjectsProcessorTask> postTasks) {
-        MavenUtil.invokeAndWaitWriteAction(myModule.getProject(), new Runnable() {
-            @Override
-            public void run() {
-                if (myModule.isDisposed()) {
-                    return;
-                }
+        if (myModule.isDisposed()) {
+            return;
+        }
 
-                for (final MavenImporter importer : getSuitableImporters()) {
-                    final MavenProjectChanges changes;
-                    if (myMavenProjectChanges == null) {
-                        if (importer.processChangedModulesOnly()) {
-                            continue;
-                        }
-                        changes = MavenProjectChanges.NONE;
-                    }
-                    else {
-                        changes = myMavenProjectChanges;
-                    }
-
-                    importer.process(myModifiableModelsProvider, myModule, myRootModelAdapter, myMavenTree, myMavenProject, changes, myMavenProjectToModuleName, postTasks);
+        for (final MavenImporter importer : getSuitableImporters()) {
+            final MavenProjectChanges changes;
+            if (myMavenProjectChanges == null) {
+                if (importer.processChangedModulesOnly()) {
+                    continue;
                 }
+                changes = MavenProjectChanges.NONE;
             }
-        });
+            else {
+                changes = myMavenProjectChanges;
+            }
+
+            importer.process(myModifiableModelsProvider, myModule, myRootModelAdapter, myMavenTree, myMavenProject, changes, myMavenProjectToModuleName, postTasks);
+        }
     }
 
     private List<MavenImporter> getSuitableImporters() {
@@ -249,8 +241,7 @@ public class MavenModuleImporter {
     }
 
     private void configDependencies() {
-        Set<String> dependencyTypesFromSettings = ReadAction.compute(() ->
-        {
+        Set<String> dependencyTypesFromSettings = ReadAction.compute(() ->{
             if (myModule.getProject().isDisposed()) {
                 return null;
             }
