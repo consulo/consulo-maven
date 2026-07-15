@@ -39,6 +39,7 @@ public class MavenProjectRunOnceExtension implements ProjectRunOnceExtension<Mav
     public void run(Maven maven) {
         MavenProjectsManager manager = MavenProjectsManager.getInstance(myProject);
 
+        manager.doInit(); // do init - activity can run after
         manager.scheduleImportAndResolve();
     }
 }
