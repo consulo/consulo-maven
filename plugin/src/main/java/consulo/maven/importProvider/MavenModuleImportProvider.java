@@ -9,6 +9,7 @@ import consulo.module.Module;
 import consulo.module.creation.importing.ModuleImportProvider;
 import consulo.module.creation.ui.UnifiedProjectOrModuleNameStep;
 import consulo.project.Project;
+import consulo.project.ProjectRunOneService;
 import consulo.project.startup.StartupManager;
 import consulo.ui.ex.wizard.WizardStep;
 import consulo.ui.image.Image;
@@ -143,9 +144,8 @@ public class MavenModuleImportProvider implements ModuleImportProvider<MavenImpo
             manager.addManagedFilesWithProfiles(MavenUtil.collectFiles(context.mySelectedProjects), selectedProfiles);
             manager.waitForReadingCompletion();
 
-            StartupManager.getInstance(project).registerPostStartupActivity(() -> {
-                manager.scheduleImportAndResolve();  // TODO not works
-            });
+            project.getInstance(ProjectRunOneService.class)
+                .register(MavenProjectRunOnceExtension.ID, new MavenProjectRunOnceExtension.Maven(""));
         }).toCoroutine();
     }
 
