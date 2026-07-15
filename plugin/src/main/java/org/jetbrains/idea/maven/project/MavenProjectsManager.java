@@ -18,13 +18,12 @@ package org.jetbrains.idea.maven.project;
 import consulo.annotation.component.ComponentScope;
 import consulo.annotation.component.ServiceAPI;
 import consulo.annotation.component.ServiceImpl;
-import consulo.application.Application;
 import consulo.application.ReadAction;
+import consulo.application.progress.ProgressBuilderFactory;
 import consulo.component.persist.*;
 import consulo.component.util.ModificationTracker;
 import consulo.disposer.Disposable;
 import consulo.disposer.Disposer;
-import consulo.document.FileDocumentManager;
 import consulo.language.util.ModuleUtilCore;
 import consulo.maven.module.extension.MavenModuleExtension;
 import consulo.maven.rt.server.common.model.*;
@@ -41,7 +40,9 @@ import consulo.ui.ex.awt.util.Update;
 import consulo.util.collection.ContainerUtil;
 import consulo.util.collection.Lists;
 import consulo.util.concurrent.AsyncResult;
+import consulo.util.concurrent.coroutine.Coroutine;
 import consulo.util.concurrent.coroutine.CoroutineScope;
+import consulo.util.concurrent.coroutine.step.CallSubroutine;
 import consulo.util.concurrent.coroutine.step.CodeExecution;
 import consulo.util.io.FileUtil;
 import consulo.util.lang.ObjectUtil;
@@ -68,6 +69,7 @@ import org.jetbrains.idea.maven.utils.MavenUtil;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
@@ -819,7 +821,14 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
                 // run them silently without opening a new sync session. If truly nothing to do,
                 // just complete the promise so callers are not left hanging.
                 if (hasScheduledProjects()) {
-                    scheduleImport().notify(result);
+                    scheduleImport().whenComplete((modules, throwable) -> {
+                        if (throwable != null) {
+                            result.rejectWithThrowable(throwable);
+                        }
+                        else {
+                            result.setDone(modules);
+                        }
+                    });
                 }
                 else {
                     // Close any session that was opened early (e.g. for reading-phase output) but
@@ -837,7 +846,14 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 
             Runnable onCompletion = () -> {
                 if (hasScheduledProjects()) {
-                    scheduleImport().notify(result);
+                    scheduleImport().whenComplete((modules, throwable) -> {
+                        if (throwable != null) {
+                            result.rejectWithThrowable(throwable);
+                        }
+                        else {
+                            result.setDone(modules);
+                        }
+                    });
                 }
                 else {
                     getSyncConsole().finishImport();
@@ -961,12 +977,19 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
         scheduleImport();
     }
 
-    private AsyncResult<List<Module>> scheduleImport() {
-        final AsyncResult<List<Module>> result = new AsyncResult<>();
+    private CompletableFuture<List<Module>> scheduleImport() {
+        final CompletableFuture<List<Module>> result = new CompletableFuture<>();
         runWhenFullyOpen(() -> myImportingQueue.queue(new Update(MavenProjectsManager.this) {
             @Override
             public void run() {
-                result.setDone(importProjects());
+                importProjects().whenComplete((v, throwable) -> {
+                    if (throwable != null) {
+                        result.completeExceptionally(throwable);
+                    }
+                    else {
+                        result.complete(Collections.<Module>emptyList());
+                    }
+                });
             }
         }));
         return result;
@@ -1117,11 +1140,11 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
             .runAsync(CoroutineScope.of(myProject.coroutineContext()), null);
     }
 
-    public List<Module> importProjects() {
+    public CompletableFuture<Void> importProjects() {
         return importProjects(new MavenDefaultModifiableModelsProvider(myProject));
     }
 
-    public List<consulo.module.Module> importProjects(final MavenModifiableModelsProvider modelsProvider) {
+    public CompletableFuture<Void> importProjects(final MavenModifiableModelsProvider modelsProvider) {
         final Map<MavenProject, MavenProjectChanges> projectsToImportWithChanges;
         final boolean importModuleGroupsRequired;
         synchronized (myImportingDataLock) {
@@ -1131,61 +1154,42 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
             myImportModuleGroupsRequired = false;
         }
 
-        final Ref<MavenProjectImporter> importer = new Ref<>();
-        final Ref<List<MavenProjectsProcessorTask>> postTasks = new Ref<>();
+        ProgressBuilderFactory factory = myProject.getApplication().getInstance(ProgressBuilderFactory.class);
+        return factory.newProgressBuilder(myProject, MavenProjectLocalize.mavenProjectImporting())
+            .execute(myProject.getUIAccess(), () -> Coroutine
+                .first(CallSubroutine.<Void, List<MavenProjectsProcessorTask>>call(() -> {
+                    MavenProjectImporter projectImporter = new MavenProjectImporter(
+                        myProject, myProjectsTree, getFileToModuleMapping(modelsProvider), projectsToImportWithChanges,
+                        importModuleGroupsRequired, modelsProvider, getImportingSettings()
+                    );
+                    return projectImporter.importProjectCoroutine();
+                }))
+                .then(CodeExecution.<List<MavenProjectsProcessorTask>, List<MavenProjectsProcessorTask>>apply((postTasks, continuation) -> {
+                    VirtualFileManager fm = VirtualFileManager.getInstance();
+                    if (isNormalProject()) {
+                        fm.asyncRefresh(null);
+                    }
+                    else {
+                        fm.syncRefresh();
+                    }
+                    return postTasks;
+                }))
+                .then(CodeExecution.<List<MavenProjectsProcessorTask>, Void>apply((postTasks, continuation) -> {
+                    if (postTasks != null /*may be null if importing is cancelled*/) {
+                        // Defer finishImport until all post-tasks complete so their output is visible in the sync view
+                        List<MavenProjectsProcessorTask> allTasks = new ArrayList<>(postTasks);
+                        allTasks.add((proj, embedders, console, indicator) -> console.finishImport());
+                        schedulePostImportTasks(allTasks);
+                    }
+                    else {
+                        // No post-tasks (or import cancelled): close the sync session immediately
+                        getSyncConsole().finishImport();
+                    }
 
-        final Runnable r = () ->
-        {
-            MavenProjectImporter projectImporter =
-                new MavenProjectImporter(myProject, myProjectsTree, getFileToModuleMapping(modelsProvider), projectsToImportWithChanges,
-                    importModuleGroupsRequired, modelsProvider, getImportingSettings()
-                );
-            importer.set(projectImporter);
-            postTasks.set(projectImporter.importProject());
-        };
-
-        // called from wizard or ui
-        if (Application.get().isDispatchThread()) {
-            r.run();
-        }
-        else {
-            MavenUtil.runInBackground(
-                myProject,
-                MavenProjectLocalize.mavenProjectImporting().get(),
-                false,
-                indicator -> r.run()
-            ).waitFor();
-        }
-
-
-        VirtualFileManager fm = VirtualFileManager.getInstance();
-        if (isNormalProject()) {
-            fm.asyncRefresh(null);
-        }
-        else {
-            fm.syncRefresh();
-        }
-
-        if (postTasks.get() != null /*may be null if importing is cancelled*/) {
-            // Defer finishImport until all post-tasks complete so their output is visible in the sync view
-            List<MavenProjectsProcessorTask> allTasks = new ArrayList<>(postTasks.get());
-            allTasks.add((proj, embedders, console, indicator) -> console.finishImport());
-            schedulePostImportTasks(allTasks);
-        }
-        else {
-            // No post-tasks (or import cancelled): close the sync session immediately
-            getSyncConsole().finishImport();
-        }
-
-        // do not block user too often
-        myImportingQueue.restartTimer();
-
-        MavenProjectImporter projectImporter = importer.get();
-        if (projectImporter == null) {
-            return Collections.emptyList();
-        }
-
-        return projectImporter.getCreatedModules();
+                    // do not block user too often
+                    myImportingQueue.restartTimer();
+                    return null;
+                })));
     }
 
     private static Map<VirtualFile, Module> getFileToModuleMapping(MavenModelsProvider modelsProvider) {

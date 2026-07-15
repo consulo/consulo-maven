@@ -1,6 +1,5 @@
 package consulo.maven.importProvider;
 
-import consulo.annotation.access.RequiredReadAction;
 import consulo.annotation.component.ExtensionImpl;
 import consulo.localize.LocalizeValue;
 import consulo.maven.rt.server.common.model.MavenConstants;
@@ -10,6 +9,7 @@ import consulo.module.Module;
 import consulo.module.creation.importing.ModuleImportProvider;
 import consulo.module.creation.ui.UnifiedProjectOrModuleNameStep;
 import consulo.project.Project;
+import consulo.project.startup.StartupManager;
 import consulo.ui.ex.wizard.WizardStep;
 import consulo.ui.image.Image;
 import consulo.util.concurrent.coroutine.Coroutine;
@@ -22,7 +22,10 @@ import jakarta.annotation.Nullable;
 import org.jetbrains.idea.maven.MavenIcons;
 import org.jetbrains.idea.maven.importing.MavenDefaultModifiableModelsProvider;
 import org.jetbrains.idea.maven.localize.MavenProjectLocalize;
-import org.jetbrains.idea.maven.project.*;
+import org.jetbrains.idea.maven.project.MavenProject;
+import org.jetbrains.idea.maven.project.MavenProjectsManager;
+import org.jetbrains.idea.maven.project.MavenWorkspaceSettings;
+import org.jetbrains.idea.maven.project.MavenWorkspaceSettingsComponent;
 import org.jetbrains.idea.maven.utils.MavenUtil;
 import org.jetbrains.idea.maven.wizards.MavenProjectImportStep;
 import org.jetbrains.idea.maven.wizards.SelectImportedProjectsStep;
@@ -140,10 +143,9 @@ public class MavenModuleImportProvider implements ModuleImportProvider<MavenImpo
             manager.addManagedFilesWithProfiles(MavenUtil.collectFiles(context.mySelectedProjects), selectedProfiles);
             manager.waitForReadingCompletion();
 
-            List<Module> modules = manager.importProjects(new MavenDefaultModifiableModelsProvider(project));
-            for (Module module : modules) {
-                consumer.accept(module);
-            }
+            StartupManager.getInstance(project).registerPostStartupActivity(() -> {
+                manager.scheduleImportAndResolve();  // TODO not works
+            });
         }).toCoroutine();
     }
 

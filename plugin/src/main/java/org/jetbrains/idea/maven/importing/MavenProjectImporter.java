@@ -36,11 +36,13 @@ import consulo.module.content.layer.orderEntry.LibraryOrderEntry;
 import consulo.module.content.layer.orderEntry.OrderEntry;
 import consulo.project.Project;
 import consulo.ui.ex.awt.Messages;
+import consulo.ui.ex.coroutine.UIAction;
 import consulo.util.collection.ArrayUtil;
 import consulo.util.collection.Stack;
+import consulo.util.concurrent.coroutine.Continuation;
 import consulo.util.concurrent.coroutine.Coroutine;
-import consulo.util.concurrent.coroutine.CoroutineScope;
-import consulo.util.concurrent.coroutine.CoroutineStep;
+import consulo.util.concurrent.coroutine.step.CodeExecution;
+import consulo.util.dataholder.Key;
 import consulo.util.lang.Pair;
 import consulo.util.lang.StringUtil;
 import consulo.virtualFileSystem.LocalFileSystem;
@@ -52,7 +54,6 @@ import org.jetbrains.idea.maven.localize.MavenProjectLocalize;
 import org.jetbrains.idea.maven.project.*;
 import org.jetbrains.idea.maven.utils.MavenProcessCanceledException;
 import org.jetbrains.idea.maven.utils.MavenProgressIndicator;
-import org.jetbrains.idea.maven.utils.MavenUtil;
 
 import java.io.File;
 import java.util.*;
@@ -76,6 +77,22 @@ public class MavenProjectImporter {
     private final Map<MavenProject, String> myMavenProjectToModuleName = new HashMap<>();
     private final Map<MavenProject, String> myMavenProjectToModulePath = new HashMap<>();
 
+    /**
+     * Progress state of {@link #importProjectCoroutine()}, stored in the {@link Continuation} user
+     * data so it is shared across the coroutine steps without extra instance fields.
+     */
+    private static final Key<ImportState> IMPORT_STATE = Key.create("maven.import.state");
+
+    private static class ImportState {
+        final List<MavenProjectsProcessorTask> postTasks = new ArrayList<>();
+        boolean hasChanges;
+        boolean projectsHaveChanges;
+        boolean failed;
+        List<Runnable> importWriteSteps;
+        List<Module> obsoleteModules;
+        boolean deleteConfirmed;
+    }
+
     public MavenProjectImporter(Project p,
                                 MavenProjectsTree projectsTree,
                                 Map<VirtualFile, Module> fileToModuleMapping,
@@ -94,63 +111,140 @@ public class MavenProjectImporter {
         myModuleModel = modelsProvider.getModuleModel();
     }
 
-    @Nullable
-    public List<MavenProjectsProcessorTask> importProject() {
-        List<MavenProjectsProcessorTask> postTasks = new ArrayList<>();
+    public Coroutine<Void, List<MavenProjectsProcessorTask>> importProjectCoroutine() {
+        return Coroutine
+            // background: prepare data and, if needed, the module-import write steps
+            .first(CodeExecution.<Void, Void>apply((input, continuation) -> {
+                ImportState state = new ImportState();
+                continuation.putUserData(IMPORT_STATE, state);
 
-        boolean hasChanges = false;
+                // in the case projects are changed during importing we must memorise them
+                myAllProjects = new LinkedHashSet<>(myProjectsTree.getProjects());
+                myAllProjects.addAll(myProjectsToImportWithChanges.keySet()); // some projects may already have been removed from the tree
 
-        // in the case projects are changed during importing we must memorise them
-        myAllProjects = new LinkedHashSet<>(myProjectsTree.getProjects());
-        myAllProjects.addAll(myProjectsToImportWithChanges.keySet()); // some projects may already have been removed from the tree
+                myProjectsToImportWithChanges = collectProjectsToImport(myProjectsToImportWithChanges);
 
-        myProjectsToImportWithChanges = collectProjectsToImport(myProjectsToImportWithChanges);
+                mapMavenProjectsToModulesAndNames();
 
-        mapMavenProjectsToModulesAndNames();
+                if (myProject.isDisposed()) {
+                    finishEarly(continuation, null);
+                    return null;
+                }
 
-        if (myProject.isDisposed()) {
-            return null;
-        }
+                state.projectsHaveChanges = projectsToImportHaveChanges();
+                if (state.projectsHaveChanges) {
+                    state.hasChanges = true;
+                    state.importWriteSteps = prepareImportModules(state.postTasks);
+                    scheduleRefreshResolvedArtifacts(state.postTasks);
+                }
+                return null;
+            }))
+            // write: commit the prepared module-import steps
+            .then(WriteLock.<Void, Void>apply((input, continuation) -> {
+                ImportState state = continuation.getUserData(IMPORT_STATE);
+                if (state.importWriteSteps != null) {
+                    for (Runnable step : state.importWriteSteps) {
+                        step.run();
+                    }
+                }
+                return null;
+            }))
+            // background: configure module groups and collect obsolete modules
+            .then(CodeExecution.<Void, Void>apply((input, continuation) -> {
+                ImportState state = continuation.getUserData(IMPORT_STATE);
 
-        final boolean projectsHaveChanges = projectsToImportHaveChanges();
-        if (projectsHaveChanges) {
-            hasChanges = true;
-            importModules(postTasks);
-            scheduleRefreshResolvedArtifacts(postTasks);
-        }
+                if (state.projectsHaveChanges || myImportModuleGroupsRequired) {
+                    state.hasChanges = true;
+                    configModuleGroups();
+                }
 
-        if (projectsHaveChanges || myImportModuleGroupsRequired) {
-            hasChanges = true;
-            configModuleGroups();
-        }
+                if (myProject.isDisposed()) {
+                    finishEarly(continuation, null);
+                    return null;
+                }
 
-        if (myProject.isDisposed()) {
-            return null;
-        }
+                try {
+                    state.obsoleteModules = collectObsoleteModules();
+                }
+                catch (ProcessCanceledException e) {
+                    throw e;
+                }
+                catch (Exception e) {
+                    LOG.error(e);
+                    state.failed = true;
+                }
+                return null;
+            }))
+            // write: de-mavenize obsolete modules before asking the user
+            .then(WriteLock.<Void, Void>apply((input, continuation) -> {
+                ImportState state = continuation.getUserData(IMPORT_STATE);
+                if (!state.failed && state.obsoleteModules != null && !state.obsoleteModules.isEmpty()) {
+                    try {
+                        setMavenizedModules(state.obsoleteModules, false);
+                    }
+                    catch (ProcessCanceledException e) {
+                        throw e;
+                    }
+                    catch (Exception e) {
+                        LOG.error(e);
+                        state.failed = true;
+                    }
+                }
+                return null;
+            }))
+            // UI: confirm deletion of obsolete modules
+            .then(UIAction.<Void, Void>apply((input, continuation) -> {
+                ImportState state = continuation.getUserData(IMPORT_STATE);
+                if (!state.failed && state.obsoleteModules != null && !state.obsoleteModules.isEmpty()) {
+                    int result = Messages.showYesNoDialog(myProject,
+                        MavenProjectLocalize.mavenImportMessageDeleteObsolete(formatModules(state.obsoleteModules)).get(),
+                        MavenProjectLocalize.mavenProjectImportTitle().get(), Messages.getQuestionIcon());
+                    state.deleteConfirmed = result != Messages.NO;
+                }
+                return null;
+            }))
+            // background: dispose confirmed obsolete modules and drop unused libraries
+            .then(CodeExecution.<Void, Void>apply((input, continuation) -> {
+                ImportState state = continuation.getUserData(IMPORT_STATE);
+                if (state.failed) {
+                    return null;
+                }
+                try {
+                    boolean modulesDeleted = false;
+                    if (state.obsoleteModules != null && !state.obsoleteModules.isEmpty() && state.deleteConfirmed) {
+                        for (Module each : state.obsoleteModules) {
+                            if (!each.isDisposed()) {
+                                myModuleModel.disposeModule(each);
+                            }
+                        }
+                        modulesDeleted = true;
+                    }
+                    state.hasChanges |= modulesDeleted;
+                    if (state.hasChanges) {
+                        removeUnusedProjectLibraries();
+                    }
+                }
+                catch (ProcessCanceledException e) {
+                    throw e;
+                }
+                catch (Exception e) {
+                    LOG.error(e);
+                    state.failed = true;
+                }
+                return null;
+            }))
+            // write: commit models and run configurers, or dispose on no-op / failure
+            .then(WriteLock.<Void, List<MavenProjectsProcessorTask>>apply((input, continuation) -> {
+                ImportState state = continuation.getUserData(IMPORT_STATE);
+                if (state.failed) {
+                    myModelsProvider.dispose();
+                    return null;
+                }
 
-        try {
-            boolean modulesDeleted = deleteObsoleteModules();
-            hasChanges |= modulesDeleted;
-            if (hasChanges) {
-                removeUnusedProjectLibraries();
-            }
-        }
-        catch (ProcessCanceledException e) {
-            throw e;
-        }
-        catch (Exception e) {
-            disposeModifiableModels();
-            LOG.error(e);
-            return null;
-        }
-
-        if (hasChanges) {
-            MavenUtil.invokeAndWaitWriteAction(myProject, new Runnable() {
-                @Override
-                public void run() {
+                if (state.hasChanges) {
                     myModelsProvider.commit();
 
-                    if (projectsHaveChanges) {
+                    if (state.projectsHaveChanges) {
                         removeOutdatedCompilerConfigSettings();
 
                         for (MavenProject mavenProject : myAllProjects) {
@@ -165,22 +259,17 @@ public class MavenProjectImporter {
                         }
                     }
                 }
-            });
-        }
-        else {
-            disposeModifiableModels();
-        }
+                else {
+                    myModelsProvider.dispose();
+                }
 
-        return postTasks;
+                return state.postTasks; 
+            }));
     }
 
-    private void disposeModifiableModels() {
-        MavenUtil.invokeAndWaitWriteAction(myProject, new Runnable() {
-            @Override
-            public void run() {
-                myModelsProvider.dispose();
-            }
-        });
+    @SuppressWarnings("unchecked")
+    private static void finishEarly(Continuation<?> continuation, @Nullable List<MavenProjectsProcessorTask> result) {
+        ((Continuation<List<MavenProjectsProcessorTask>>) continuation).finishEarly(result);
     }
 
     private boolean projectsToImportHaveChanges() {
@@ -249,36 +338,6 @@ public class MavenProjectImporter {
                 "' for Maven project " +
                 project.getMavenId().getDisplayString();
         }, "<br>");
-    }
-
-    private boolean deleteObsoleteModules() {
-        final List<Module> obsoleteModules = collectObsoleteModules();
-        if (obsoleteModules.isEmpty()) {
-            return false;
-        }
-
-        MavenUtil.invokeAndWaitWriteAction(myProject, () -> setMavenizedModules(obsoleteModules, false));
-
-        final int[] result = new int[1];
-        MavenUtil.invokeAndWait(myProject, myModelsProvider.getModalityStateForQuestionDialogs(), new Runnable() {
-            @Override
-            public void run() {
-                result[0] = Messages.showYesNoDialog(myProject, MavenProjectLocalize.mavenImportMessageDeleteObsolete(formatModules(obsoleteModules)).get(),
-                    MavenProjectLocalize.mavenProjectImportTitle().get(), Messages.getQuestionIcon());
-            }
-        });
-
-        if (result[0] == Messages.NO) {
-            return false;// NO
-        }
-
-        for (Module each : obsoleteModules) {
-            if (!each.isDisposed()) {
-                myModuleModel.disposeModule(each);
-            }
-        }
-
-        return true;
     }
 
     private List<Module> collectObsoleteModules() {
@@ -375,7 +434,7 @@ public class MavenProjectImporter {
         javacOptions.ADDITIONAL_OPTIONS_STRING = options;
     }
 
-    private void importModules(final List<MavenProjectsProcessorTask> tasks) {
+    private List<Runnable> prepareImportModules(final List<MavenProjectsProcessorTask> tasks) {
         Map<MavenProject, MavenProjectChanges> projectsWithChanges = myProjectsToImportWithChanges;
 
         Set<MavenProject> projectsWithNewlyCreatedModules = new HashSet<>();
@@ -414,41 +473,19 @@ public class MavenProjectImporter {
             }
         }
 
-        List<CoroutineStep<Object, Object>> steps = new ArrayList<>();
+        List<Runnable> steps = new ArrayList<>();
 
         for (MavenModuleImporter importer : importers) {
-            steps.add(WriteLock.apply(o -> {
-                importer.preConfigFacets();
-                return null;
-            }));
+            steps.add(importer::preConfigFacets);
         }
 
         for (MavenModuleImporter importer : importers) {
-            steps.add(WriteLock.apply(o -> {
-                importer.configFacets(tasks);
-                return null;
-            }));
+            steps.add(() -> importer.configFacets(tasks));
         }
 
-        steps.add(WriteLock.apply(o -> {
-            setMavenizedModules(modulesToMavenize, true);
-            return null;
-        }));
+        steps.add(() -> setMavenizedModules(modulesToMavenize, true));
 
-        Coroutine<Object, Object> coroutine = null;
-
-        for (CoroutineStep<Object, Object> step : steps) {
-            if (coroutine != null) {
-                coroutine = coroutine.then(step);
-            }
-            else {
-                coroutine = Coroutine.first(step);
-            }
-        }
-
-        if (coroutine != null) {
-            coroutine.runAsync(CoroutineScope.of(myProject.coroutineContext()), null);
-        }
+        return steps;
     }
 
     @RequiredWriteAction
