@@ -15,31 +15,34 @@
  */
 package org.jetbrains.idea.maven.importing.configurers;
 
+import consulo.module.Module;
+import consulo.project.Project;
+import consulo.virtualFileSystem.encoding.EncodingProjectManager;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
+import org.jetbrains.idea.maven.project.MavenProject;
+
 import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
 import java.nio.charset.UnsupportedCharsetException;
-
-import jakarta.annotation.Nonnull;
-
-import consulo.module.Module;
-import consulo.project.Project;
-import jakarta.annotation.Nullable;
-import org.jetbrains.idea.maven.project.MavenProject;
-import consulo.virtualFileSystem.encoding.EncodingProjectManager;
 
 /**
  * @author Sergey Evdokimov
  */
 public class MavenEncodingConfigurer extends MavenModuleConfigurer {
-  @Override
-  public void configure(@Nonnull MavenProject mavenProject, @Nonnull Project project, @Nullable Module module) {
-    String encoding = mavenProject.getEncoding();
-    if (encoding != null) {
-      try {
-        EncodingProjectManager.getInstance(project).setEncoding(mavenProject.getDirectoryFile(), Charset.forName(encoding));
-      }
-      catch (UnsupportedCharsetException ignored) {/**/}
-      catch (IllegalCharsetNameException ignored) {/**/}
+    @Override
+    public void configure(@Nonnull MavenProject mavenProject, @Nonnull Project project, @Nullable Module module) {
+        String encoding = mavenProject.getEncoding();
+        if (encoding == null) {
+            return;
+        }
+        
+        project.getUIAccess().execute(() -> {
+            try {
+                EncodingProjectManager.getInstance(project).setEncoding(mavenProject.getDirectoryFile(), Charset.forName(encoding));
+            }
+            catch (UnsupportedCharsetException | IllegalCharsetNameException ignored) {
+            }
+        });
     }
-  }
 }
