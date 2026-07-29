@@ -15,6 +15,7 @@
  */
 package org.jetbrains.idea.maven.project;
 
+import consulo.application.Application;
 import consulo.application.WriteAction;
 import consulo.codeEditor.EditorFactory;
 import consulo.component.messagebus.MessageBusConnection;
@@ -59,6 +60,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class MavenProjectsManagerWatcher {
     private static final Key<ConcurrentMap<Project, Integer>> CRC_WITHOUT_SPACES =
@@ -76,8 +78,9 @@ public class MavenProjectsManagerWatcher {
     private final MavenProjectsProcessor myReadingProcessor;
     private final MavenEmbeddersManager myEmbeddersManager;
 
-    private final List<VirtualFilePointer> mySettingsFilesPointers = new ArrayList<>();
-    private final List<LocalFileSystem.WatchRequest> myWatchedRoots = new ArrayList<>();
+    private final Object mySettingsFilesLock = new Object();
+    private final List<VirtualFilePointer> mySettingsFilesPointers = new CopyOnWriteArrayList<>();
+    private final List<LocalFileSystem.WatchRequest> myWatchedRoots = new CopyOnWriteArrayList<>();
 
     private final Set<Document> myChangedDocuments = new HashSet<>();
     private final MavenMergingUpdateQueue myChangedDocumentsQueue;
@@ -197,10 +200,19 @@ public class MavenProjectsManagerWatcher {
         updateSettingsFilePointers();
     }
 
+    /**
+     * Creating the pointers resolves paths through the VFS, so it must not run on the UI thread.
+     * The lock keeps a settings change from interleaving with the update started by {@link #start}.
+     */
     private void updateSettingsFilePointers() {
-        LocalFileSystem.getInstance().removeWatchedRoots(myWatchedRoots);
-        mySettingsFilesPointers.clear();
-        addFilePointer(myGeneralSettings.getEffectiveUserSettingsIoFile(), myGeneralSettings.getEffectiveGlobalSettingsIoFile());
+        myProject.getApplication().executeOnPooledThread(() -> {
+            synchronized (mySettingsFilesLock) {
+                LocalFileSystem.getInstance().removeWatchedRoots(myWatchedRoots);
+                myWatchedRoots.clear();
+                mySettingsFilesPointers.clear();
+                addFilePointer(myGeneralSettings.getEffectiveUserSettingsIoFile(), myGeneralSettings.getEffectiveGlobalSettingsIoFile());
+            }
+        });
     }
 
     private void addFilePointer(File... settingsFiles) {
