@@ -84,7 +84,7 @@ public class MavenTasksManager extends MavenSimpleProjectComponent implements Pe
     }
 
     @Override
-    public void afterLoadState() {
+    public void afterLoad(boolean first) {
         if (!isNormalProject()) {
             return;
         }

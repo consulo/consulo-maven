@@ -68,7 +68,7 @@ import java.util.List;
 @State(name = "MavenProjectNavigator", storages = {@Storage(StoragePathMacros.WORKSPACE_FILE)})
 @ServiceAPI(ComponentScope.PROJECT)
 @ServiceImpl
-public class MavenProjectsNavigator extends MavenSimpleProjectComponent implements PersistentStateComponentAsync<MavenProjectsNavigatorState>, Disposable {
+public class MavenProjectsNavigator extends MavenSimpleProjectComponent implements PersistentStateComponentWithAsyncGet<MavenProjectsNavigatorState>, Disposable {
     public static final String TOOL_WINDOW_ID = "Maven";
 
     private MavenProjectsNavigatorState myState = new MavenProjectsNavigatorState();
