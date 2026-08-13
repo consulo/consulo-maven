@@ -54,6 +54,8 @@ import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 
 import java.util.List;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.CompletableFuture;
 
 @ExtensionImpl
 public class MavenBeforeRunTasksProvider extends BeforeRunTaskProvider<MavenBeforeRunTask> {
@@ -122,7 +124,7 @@ public class MavenBeforeRunTasksProvider extends BeforeRunTaskProvider<MavenBefo
     @Nonnull
     @RequiredUIAccess
     @Override
-    public AsyncResult<Void> configureTask(RunConfiguration runConfiguration, MavenBeforeRunTask task) {
+    public CompletableFuture<Void> configureTask(RunConfiguration runConfiguration, MavenBeforeRunTask task) {
         MavenEditGoalDialog dialog = new MavenEditGoalDialog(myProject);
 
         dialog.setTitle(MavenTasksLocalize.mavenTasksSelectGoalTitle());
@@ -149,8 +151,12 @@ public class MavenBeforeRunTasksProvider extends BeforeRunTaskProvider<MavenBefo
             }
         }
 
-        AsyncResult<Void> result = dialog.showAsync();
-        result.doWhenDone(() -> {
+        CompletableFuture<Void> result = dialog.showAsync();
+        result.whenComplete((v, t) -> {
+            if (t != null) {
+                return;
+            }
+
             task.setProjectPath(dialog.getWorkDirectory() + "/pom.xml");
             task.setGoal(dialog.getGoals());
         });
@@ -165,7 +171,7 @@ public class MavenBeforeRunTasksProvider extends BeforeRunTaskProvider<MavenBefo
 
     @Nonnull
     @Override
-    public AsyncResult<Void> executeTaskAsync(
+    public CompletableFuture<Void> executeTaskAsync(
         UIAccess uiAccess,
         DataContext context,
         RunConfiguration configuration,
@@ -176,7 +182,7 @@ public class MavenBeforeRunTasksProvider extends BeforeRunTaskProvider<MavenBefo
         final MavenProject mavenProject = getMavenProject(task);
 
         if (project == null || project.isDisposed() || mavenProject == null) {
-            return AsyncResult.rejected();
+            return CompletableFuture.failedFuture(new CancellationException("project not found"));
         }
 
         final MavenExplicitProfiles explicitProfiles = MavenProjectsManager.getInstance(project).getExplicitProfiles();
@@ -197,10 +203,10 @@ public class MavenBeforeRunTasksProvider extends BeforeRunTaskProvider<MavenBefo
         MavenRunConfigurationType.setDelegate(environment);
 
         if (!runner.canRun(executor.getId(), environment.getRunProfile())) {
-            return AsyncResult.rejected();
+            return CompletableFuture.failedFuture(new CancellationException("can't run"));
         }
 
-        AsyncResult<Void> result = AsyncResult.undefined();
+        CompletableFuture<Void> result = new CompletableFuture<>();
 
         uiAccess.give(() -> {
             FileDocumentManager.getInstance().saveAllDocuments();
@@ -212,16 +218,16 @@ public class MavenBeforeRunTasksProvider extends BeforeRunTaskProvider<MavenBefo
                         @Override
                         public void processTerminated(@Nonnull ProcessEvent event) {
                             if (event.getExitCode() == 0) {
-                                result.setDone();
+                                result.complete(null);
                             }
                             else {
-                                result.setRejected();
+                                result.completeExceptionally(new CancellationException());
                             }
                         }
                     });
                 }
                 else {
-                    result.setRejected();
+                    result.completeExceptionally(new CancellationException());
                 }
             });
 
@@ -229,9 +235,9 @@ public class MavenBeforeRunTasksProvider extends BeforeRunTaskProvider<MavenBefo
                 runner.execute(environment);
             }
             catch (ExecutionException e) {
-                result.setRejected();
+                result.completeExceptionally(e);
             }
-        }).doWhenRejectedWithThrowable(result::rejectWithThrowable);
+        });
 
         return result;
     }
