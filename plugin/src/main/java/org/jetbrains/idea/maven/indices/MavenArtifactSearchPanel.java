@@ -30,6 +30,8 @@ import consulo.ui.ex.awt.event.DocumentAdapter;
 import consulo.ui.ex.awt.event.DoubleClickListener;
 import consulo.ui.ex.awt.tree.Tree;
 import consulo.ui.ex.awt.util.Alarm;
+import consulo.ui.ex.awtUnsafe.TargetAWT;
+import consulo.ui.font.Font;
 import consulo.util.lang.Comparing;
 import consulo.util.lang.Couple;
 import consulo.util.lang.Pair;
@@ -334,8 +336,10 @@ public class MavenArtifactSearchPanel extends JPanel {
             add(myRightComponent);
 
             Font font = EditorColorsManager.getInstance().getGlobalScheme().getFont(EditorFontType.PLAIN);
-            myLeftComponent.setFont(font);
-            myRightComponent.setFont(font);
+
+            java.awt.Font awtFont = TargetAWT.to(font);
+            myLeftComponent.setFont(awtFont);
+            myRightComponent.setFont(awtFont);
 
             setPreferredSize(new Dimension(2000, myLeftComponent.getPreferredSize().height));
 
