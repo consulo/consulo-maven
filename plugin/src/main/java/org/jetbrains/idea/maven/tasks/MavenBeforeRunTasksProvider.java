@@ -152,7 +152,7 @@ public class MavenBeforeRunTasksProvider extends BeforeRunTaskProvider<MavenBefo
         }
 
         CompletableFuture<Void> result = dialog.showAsync();
-        result.whenComplete((v, t) -> {
+        result = result.whenComplete((v, t) -> {
             if (t != null) {
                 return;
             }
