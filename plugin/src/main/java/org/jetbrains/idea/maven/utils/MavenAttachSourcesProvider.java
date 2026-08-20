@@ -19,6 +19,7 @@ import com.intellij.java.impl.codeInsight.AttachSourcesProvider;
 import consulo.annotation.access.RequiredReadAction;
 import consulo.annotation.component.ExtensionImpl;
 import consulo.language.psi.PsiFile;
+import consulo.localize.LocalizeValue;
 import consulo.maven.MavenNotificationGroup;
 import consulo.maven.rt.server.common.model.MavenArtifact;
 import consulo.maven.rt.server.common.model.MavenId;
@@ -41,6 +42,8 @@ import org.jetbrains.idea.maven.project.MavenProjectsManager;
 
 import jakarta.annotation.Nonnull;
 import java.util.*;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.CompletableFuture;
 
 @ExtensionImpl
 public class MavenAttachSourcesProvider implements AttachSourcesProvider {
@@ -66,37 +69,42 @@ public class MavenAttachSourcesProvider implements AttachSourcesProvider {
 
         return List.of(new AttachSourcesAction() {
             @Override
-            public String getName() {
-                return MavenProjectLocalize.mavenActionDownloadSources().get();
+            public LocalizeValue getName() {
+                return MavenProjectLocalize.mavenActionDownloadSources();
             }
 
             @Override
-            public String getBusyText() {
-                return MavenProjectLocalize.mavenActionDownloadSourcesBusyText().get();
+            public LocalizeValue getBusyText() {
+                return MavenProjectLocalize.mavenActionDownloadSourcesBusyText();
             }
 
             @Override
             @RequiredReadAction
-            public AsyncResult<Void> perform(@Nonnull List<LibraryOrderEntry> list, @Nonnull ComponentEvent<Component> uiEvent) {
+            public CompletableFuture<?> perform(@Nonnull List<LibraryOrderEntry> list, @Nonnull ComponentEvent<Component> uiEvent) {
                 // may have been changed by this time...
                 Collection<MavenProject> mavenProjects = getMavenProjects(psiFile);
                 if (mavenProjects.isEmpty()) {
-                    return AsyncResult.rejected();
+                    return CompletableFuture.failedFuture(new CancellationException());
                 }
 
                 MavenProjectsManager manager = MavenProjectsManager.getInstance(psiFile.getProject());
 
                 Collection<MavenArtifact> artifacts = findArtifacts(mavenProjects, orderEntries);
                 if (artifacts.isEmpty()) {
-                    return AsyncResult.rejected();
+                    return CompletableFuture.failedFuture(new CancellationException());
                 }
 
-                final AsyncResult<MavenArtifactDownloader.DownloadResult> result = AsyncResult.undefined();
+                final CompletableFuture<MavenArtifactDownloader.DownloadResult> result = new CompletableFuture<>();
                 manager.scheduleArtifactsDownloading(mavenProjects, artifacts, true, false, result);
 
-                AsyncResult<Void> resultWrapper = AsyncResult.undefined();
+                CompletableFuture<?> resultWrapper = new CompletableFuture<>();
 
-                result.doWhenDone(downloadResult -> {
+                result.whenComplete((downloadResult, t) -> {
+                    if (t != null) {
+                        resultWrapper.completeExceptionally(t);
+                        return;
+                    }
+                    
                     if (!downloadResult.unresolvedSources.isEmpty()) {
                         String message = "<html>Sources not found for:";
                         int count = 0;
@@ -121,10 +129,10 @@ public class MavenAttachSourcesProvider implements AttachSourcesProvider {
                     }
 
                     if (downloadResult.resolvedSources.isEmpty()) {
-                        resultWrapper.setRejected();
+                        resultWrapper.completeExceptionally(new CancellationException());
                     }
                     else {
-                        resultWrapper.setDone();
+                        resultWrapper.complete(null);
                     }
                 });
 

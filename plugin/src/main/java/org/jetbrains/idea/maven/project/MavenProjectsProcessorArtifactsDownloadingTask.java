@@ -25,6 +25,7 @@ import org.jetbrains.idea.maven.utils.MavenProcessCanceledException;
 import org.jetbrains.idea.maven.utils.MavenProgressIndicator;
 
 import java.util.Collection;
+import java.util.concurrent.CompletableFuture;
 
 public class MavenProjectsProcessorArtifactsDownloadingTask implements MavenProjectsProcessorTask {
     private final Collection<MavenProject> myProjects;
@@ -32,7 +33,7 @@ public class MavenProjectsProcessorArtifactsDownloadingTask implements MavenProj
     private final MavenProjectsTree myTree;
     private final boolean myDownloadSources;
     private final boolean myDownloadDocs;
-    private final AsyncResult<MavenArtifactDownloader.DownloadResult> myCallbackResult;
+    private final CompletableFuture<MavenArtifactDownloader.DownloadResult> myCallbackResult;
 
     public MavenProjectsProcessorArtifactsDownloadingTask(
         Collection<MavenProject> projects,
@@ -40,7 +41,7 @@ public class MavenProjectsProcessorArtifactsDownloadingTask implements MavenProj
         MavenProjectsTree tree,
         boolean downloadSources,
         boolean downloadDocs,
-        AsyncResult<MavenArtifactDownloader.DownloadResult> callbackResult
+        CompletableFuture<MavenArtifactDownloader.DownloadResult> callbackResult
     ) {
         myProjects = projects;
         myArtifacts = artifacts;
@@ -67,7 +68,7 @@ public class MavenProjectsProcessorArtifactsDownloadingTask implements MavenProj
             indicator
         );
         if (myCallbackResult != null) {
-            myCallbackResult.setDone(result);
+            myCallbackResult.complete(result);
         }
 
         Application.get().invokeLater(() -> VirtualFileManager.getInstance().asyncRefresh(null));

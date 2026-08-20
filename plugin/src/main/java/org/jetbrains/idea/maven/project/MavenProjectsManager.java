@@ -950,7 +950,7 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
         @Nullable final Collection<MavenArtifact> artifacts,
         final boolean sources,
         final boolean docs,
-        @Nullable final AsyncResult<MavenArtifactDownloader.DownloadResult> result
+        @Nullable final CompletableFuture<MavenArtifactDownloader.DownloadResult> result
     ) {
         if (!sources && !docs) {
             return;
