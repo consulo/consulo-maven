@@ -15,92 +15,123 @@
  */
 package org.jetbrains.idea.maven.wizards;
 
+import consulo.disposer.Disposable;
 import consulo.localize.LocalizeValue;
-import consulo.ui.annotation.RequiredUIAccess;
-import consulo.ui.ex.awt.DialogWrapper;
-import consulo.ui.ex.awt.event.DocumentAdapter;
-import consulo.util.lang.StringUtil;
 import consulo.maven.rt.server.common.model.MavenArchetype;
+import consulo.ui.AdvancedLabel;
+import consulo.ui.Component;
+import consulo.ui.TextAttribute;
+import consulo.ui.TextBox;
+import consulo.ui.annotation.RequiredUIAccess;
+import consulo.ui.ex.dialog.DialogDescriptor;
+import consulo.ui.util.FormBuilder;
+import consulo.util.lang.StringUtil;
+import org.jetbrains.idea.maven.localize.MavenProjectLocalize;
+import org.jspecify.annotations.Nullable;
 
-import javax.swing.*;
-import javax.swing.event.DocumentEvent;
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MavenAddArchetypeDialog extends DialogWrapper {
-    private JPanel myMainPanel;
-    private JTextField myGroupIdField;
-    private JTextField myArtifactIdField;
-    private JTextField myVersionField;
-    private JTextField myRepositoryField;
+/**
+ * Asks for the coordinates of an archetype which is not in any index, so it can be registered by hand.
+ */
+public class MavenAddArchetypeDialog extends DialogDescriptor {
+    private final TextBox myGroupIdBox = TextBox.create();
+    private final TextBox myArtifactIdBox = TextBox.create();
+    private final TextBox myVersionBox = TextBox.create();
+    private final TextBox myRepositoryBox = TextBox.create();
 
-    public MavenAddArchetypeDialog(Component parent) {
-        super(parent, false);
-        setTitle(LocalizeValue.localizeTODO("Add Archetype"));
+    private @Nullable AdvancedLabel myErrorLabel;
 
-        init();
-
-        DocumentAdapter l = new DocumentAdapter() {
-            @Override
-            protected void textChanged(DocumentEvent e) {
-                doValidateInput();
-            }
-        };
-
-        myGroupIdField.getDocument().addDocumentListener(l);
-        myArtifactIdField.getDocument().addDocumentListener(l);
-        myVersionField.getDocument().addDocumentListener(l);
-        myRepositoryField.getDocument().addDocumentListener(l);
-
-        doValidateInput();
+    public MavenAddArchetypeDialog() {
+        super(MavenProjectLocalize.mavenWizardAddArchetypeTitle());
     }
 
     @Override
-    protected JComponent createCenterPanel() {
-        return myMainPanel;
-    }
-
-    @Override
-    @RequiredUIAccess
-    public JComponent getPreferredFocusedComponent() {
-        return myGroupIdField;
-    }
-
-    @Override
-    protected String getHelpId() {
+    public String getHelpId() {
         return "Add_Archetype_Dialog";
     }
 
-    private void doValidateInput() {
-        List<String> errors = new ArrayList<>();
-        if (StringUtil.isEmptyOrSpaces(myGroupIdField.getText())) {
-            errors.add("GroupId");
-        }
-        if (StringUtil.isEmptyOrSpaces(myArtifactIdField.getText())) {
-            errors.add("ArtifactId");
-        }
-        if (StringUtil.isEmptyOrSpaces(myVersionField.getText())) {
-            errors.add("Version");
+    @RequiredUIAccess
+    @Override
+    public Component createCenterComponent(Disposable uiDisposable) {
+        AdvancedLabel errorLabel = myErrorLabel = AdvancedLabel.create();
+
+        for (TextBox box : List.of(myGroupIdBox, myArtifactIdBox, myVersionBox, myRepositoryBox)) {
+            box.addValueListener(event -> validateInput());
         }
 
-        if (errors.isEmpty()) {
-            clearErrorText();
-            getOKAction().setEnabled(true);
-            return;
-        }
-        String message = "Please specify " + StringUtil.join(errors, ", ");
-        setErrorText(message);
-        getOKAction().setEnabled(false);
-        getRootPane().revalidate();
+        FormBuilder builder = FormBuilder.create();
+        builder.addLabeled(MavenProjectLocalize.mavenWizardGroupId(), myGroupIdBox);
+        builder.addLabeled(MavenProjectLocalize.mavenWizardArtifactId(), myArtifactIdBox);
+        builder.addLabeled(MavenProjectLocalize.mavenWizardVersion(), myVersionBox);
+        builder.addLabeled(MavenProjectLocalize.mavenWizardRepositoryOptional(), myRepositoryBox);
+        builder.addBottom(errorLabel);
+
+        Component component = builder.build();
+
+        validateInput();
+
+        return component;
     }
 
+    @RequiredUIAccess
+    @Override
+    public Component getPreferredFocusedComponent() {
+        return myGroupIdBox;
+    }
+
+    @Override
+    public boolean doUpdateOkButtonState() {
+        return collectMissingFields().isEmpty();
+    }
+
+    /**
+     * @return the display names of the required fields which are still empty, in field order.
+     */
+    @RequiredUIAccess
+    private List<String> collectMissingFields() {
+        List<String> errors = new ArrayList<>();
+        if (StringUtil.isEmptyOrSpaces(myGroupIdBox.getValue())) {
+            errors.add(MavenProjectLocalize.mavenWizardGroupId().get());
+        }
+        if (StringUtil.isEmptyOrSpaces(myArtifactIdBox.getValue())) {
+            errors.add(MavenProjectLocalize.mavenWizardArtifactId().get());
+        }
+        if (StringUtil.isEmptyOrSpaces(myVersionBox.getValue())) {
+            errors.add(MavenProjectLocalize.mavenWizardVersion().get());
+        }
+        return errors;
+    }
+
+    @RequiredUIAccess
+    private void validateInput() {
+        AdvancedLabel errorLabel = myErrorLabel;
+        if (errorLabel == null) {
+            return;
+        }
+
+        List<String> errors = collectMissingFields();
+
+        LocalizeValue message = errors.isEmpty()
+            ? LocalizeValue.empty()
+            : MavenProjectLocalize.mavenWizardSpecifyFields(StringUtil.join(errors, ", "));
+
+        errorLabel.updatePresentation(presentation -> {
+            presentation.clearText();
+            presentation.append(message, TextAttribute.ERROR);
+        });
+
+        updateOkButtonState();
+    }
+
+    @RequiredUIAccess
     public MavenArchetype getArchetype() {
         return new MavenArchetype(
-            myGroupIdField.getText(),
-            myArtifactIdField.getText(),
-            myVersionField.getText(),
-            myRepositoryField.getText(),
+            StringUtil.notNullize(myGroupIdBox.getValue()),
+            StringUtil.notNullize(myArtifactIdBox.getValue()),
+            StringUtil.notNullize(myVersionBox.getValue()),
+            StringUtil.notNullize(myRepositoryBox.getValue()),
             null
         );
     }

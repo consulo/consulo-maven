@@ -16,132 +16,227 @@
  */
 package org.jetbrains.idea.maven.project;
 
+import consulo.application.util.concurrent.AppExecutorUtil;
 import consulo.content.bundle.Sdk;
 import consulo.content.bundle.SdkTable;
 import consulo.disposer.Disposable;
 import consulo.fileChooser.FileChooserDescriptorFactory;
+import consulo.fileChooser.FileChooserTextBoxBuilder;
 import consulo.localize.LocalizeValue;
 import consulo.maven.bundle.MavenBundleType;
-import consulo.module.ui.awt.SdkComboBox;
+import consulo.module.ui.BundleBox;
 import consulo.platform.base.icon.PlatformIconGroup;
-import consulo.ui.ex.awt.LabeledComponent;
-import consulo.ui.ex.awt.PanelWithAnchor;
-import consulo.ui.ex.awt.TextFieldWithBrowseButton;
-import consulo.ui.ex.awt.UIUtil;
-import consulo.ui.ex.awt.event.DocumentAdapter;
-import consulo.ui.ex.awt.util.Alarm;
+import consulo.ui.CheckBox;
+import consulo.ui.Component;
+import consulo.ui.TextBox;
+import consulo.ui.UIAccess;
+import consulo.ui.annotation.RequiredUIAccess;
+import consulo.ui.layout.DockLayout;
+import consulo.ui.layout.VerticalLayout;
+import consulo.ui.util.LabeledBuilder;
 import consulo.util.lang.Comparing;
 import consulo.util.lang.StringUtil;
 import consulo.util.lang.function.Predicates;
 import jakarta.annotation.Nonnull;
-import jakarta.annotation.Nullable;
 import org.jetbrains.idea.maven.localize.MavenProjectLocalize;
 import org.jetbrains.idea.maven.utils.MavenUtil;
+import org.jspecify.annotations.Nullable;
 
-import javax.swing.*;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import java.awt.*;
 import java.io.File;
+import java.util.concurrent.TimeUnit;
 
-public class MavenEnvironmentForm implements PanelWithAnchor {
-    private JPanel panel;
-    private LabeledComponent<TextFieldWithBrowseButton> settingsFileComponent;
-    private LabeledComponent<TextFieldWithBrowseButton> localRepositoryComponent;
-    private JCheckBox settingsOverrideCheckBox;
-    private JCheckBox localRepositoryOverrideCheckBox;
-    private JPanel myMavenBundlePanel;
-    private JComponent anchor;
+/**
+ * Maven bundle / user settings file / local repository, on the unified ui. Replaces the swing
+ * {@code .form} based panel.
+ * <p>
+ * The ui is built lazily by {@link #createComponent(Disposable)}; {@link #getData} / {@link #setData}
+ * may be called before that, so the plain fields below stay the source of truth.
+ */
+public class MavenEnvironmentForm {
+    private String myMavenBundleName = "";
+    private String myUserSettingsFile = "";
+    private String myLocalRepository = "";
 
-    private final PathOverrider userSettingsFileOverrider;
-    private final PathOverrider localRepositoryOverrider;
+    private @Nullable BundleBox myMavenBundleBox;
+    private @Nullable PathOverrider myUserSettingsFileOverrider;
+    private @Nullable PathOverrider myLocalRepositoryOverrider;
 
-    private boolean isUpdating = false;
-    private final Alarm myUpdateAlarm = new Alarm(Alarm.ThreadToUse.SWING_THREAD);
-
-    private final LabeledComponent<JComponent> myMavenComboBoxLabeled;
-    private final SdkComboBox myMavenBundleBox;
+    private boolean myUpdating = false;
+    private int myUpdateGeneration = 0;
 
     public MavenEnvironmentForm() {
-        myMavenBundleBox = new SdkComboBox(
+    }
+
+    @RequiredUIAccess
+    @Nonnull
+    public Component createComponent(Disposable uiDisposable) {
+        BundleBox mavenBundleBox = myMavenBundleBox = new BundleBox(
             SdkTable.getInstance(),
             Predicates.equalTo(MavenBundleType.getInstance()),
-            null,
             LocalizeValue.localizeTODO("Auto Select"),
             PlatformIconGroup.actionsFind()
         );
 
-        DocumentAdapter listener = new DocumentAdapter() {
-            @Override
-            protected void textChanged(DocumentEvent e) {
-                UIUtil.invokeLaterIfNeeded(() -> {
-                    if (isUpdating) {
-                        return;
-                    }
-                    if (!panel.isShowing()) {
-                        return;
-                    }
+        FileChooserTextBoxBuilder.Controller settingsFileBox = FileChooserTextBoxBuilder.create(null)
+            .uiDisposable(uiDisposable)
+            .fileChooserDescriptor(FileChooserDescriptorFactory.createSingleFileNoJarsDescriptor())
+            .dialogTitle(MavenProjectLocalize.mavenSelectMavenSettingsFile())
+            .build();
 
-                    myUpdateAlarm.cancelAllRequests();
-                    myUpdateAlarm.addRequest(
-                        () -> {
-                            isUpdating = true;
-                            userSettingsFileOverrider.updateDefault();
-                            localRepositoryOverrider.updateDefault();
-                            isUpdating = false;
-                        },
-                        100
-                    );
-                });
-            }
-        };
+        FileChooserTextBoxBuilder.Controller localRepositoryBox = FileChooserTextBoxBuilder.create(null)
+            .uiDisposable(uiDisposable)
+            .fileChooserDescriptor(FileChooserDescriptorFactory.createSingleFolderDescriptor())
+            .dialogTitle(MavenProjectLocalize.mavenSelectLocalRepository())
+            .build();
 
-        myMavenComboBoxLabeled = LabeledComponent.create(myMavenBundleBox, "Maven Bundle");
-        myMavenBundlePanel.add(myMavenComboBoxLabeled, BorderLayout.CENTER);
+        CheckBox settingsOverrideCheckBox = CheckBox.create(MavenProjectLocalize.mavenEnvironmentOverride());
+        CheckBox localRepositoryOverrideCheckBox = CheckBox.create(MavenProjectLocalize.mavenEnvironmentOverride());
 
-        userSettingsFileOverrider = new PathOverrider(
-            settingsFileComponent,
+        PathOverrider userSettingsFileOverrider = myUserSettingsFileOverrider = new PathOverrider(
+            settingsFileBox,
             settingsOverrideCheckBox,
-            listener,
+            this::scheduleDefaultsUpdate,
             () -> MavenUtil.resolveUserSettingsFile("")
         );
 
-        localRepositoryOverrider = new PathOverrider(
-            localRepositoryComponent,
+        PathOverrider localRepositoryOverrider = myLocalRepositoryOverrider = new PathOverrider(
+            localRepositoryBox,
             localRepositoryOverrideCheckBox,
-            listener,
-            () -> MavenUtil.resolveLocalRepository(
-                "",
-                getMavenHome(),
-                settingsFileComponent.getComponent().getText()
-            )
+            this::scheduleDefaultsUpdate,
+            () -> MavenUtil.resolveLocalRepository("", getMavenHome(), settingsFileBox.getValue())
         );
 
-        setAnchor(myMavenComboBoxLabeled.getLabel());
+        // push the state gathered before the ui existed
+        mavenBundleBox.setSelectedBundle(StringUtil.nullize(myMavenBundleName));
+        userSettingsFileOverrider.reset(myUserSettingsFile);
+        localRepositoryOverrider.reset(myLocalRepository);
+
+        VerticalLayout root = VerticalLayout.create();
+        root.add(LabeledBuilder.filled(MavenProjectLocalize.mavenEnvironmentBundle(), mavenBundleBox));
+        root.add(overridableLine(
+            MavenProjectLocalize.mavenEnvironmentUserSettingsFile(),
+            settingsFileBox.getComponent(),
+            settingsOverrideCheckBox
+        ));
+        root.add(overridableLine(
+            MavenProjectLocalize.mavenEnvironmentLocalRepository(),
+            localRepositoryBox.getComponent(),
+            localRepositoryOverrideCheckBox
+        ));
+        return root;
     }
 
+    @RequiredUIAccess
+    private static Component overridableLine(LocalizeValue label, TextBox textBox, CheckBox overrideCheckBox) {
+        DockLayout line = DockLayout.create();
+        line.center(LabeledBuilder.filled(label, textBox));
+        line.right(overrideCheckBox);
+        return line;
+    }
+
+    /**
+     * Recomputes the defaults of the non-overridden fields shortly after a text change, instead of on
+     * every keystroke - resolving the local repository reads settings.xml.
+     */
+    @RequiredUIAccess
+    private void scheduleDefaultsUpdate() {
+        if (myUpdating) {
+            return;
+        }
+
+        int generation = ++myUpdateGeneration;
+        UIAccess uiAccess = UIAccess.current();
+
+        AppExecutorUtil.getAppScheduledExecutorService().schedule(
+            () -> uiAccess.give(() -> {
+                if (generation != myUpdateGeneration) {
+                    return;
+                }
+
+                myUpdating = true;
+                try {
+                    PathOverrider userSettingsFileOverrider = myUserSettingsFileOverrider;
+                    if (userSettingsFileOverrider != null) {
+                        userSettingsFileOverrider.updateDefault();
+                    }
+
+                    PathOverrider localRepositoryOverrider = myLocalRepositoryOverrider;
+                    if (localRepositoryOverrider != null) {
+                        localRepositoryOverrider.updateDefault();
+                    }
+                }
+                finally {
+                    myUpdating = false;
+                }
+            }),
+            100,
+            TimeUnit.MILLISECONDS
+        );
+    }
+
+    @RequiredUIAccess
     public boolean isModified(MavenGeneralSettings data) {
         MavenGeneralSettings formData = new MavenGeneralSettings();
         setData(formData);
         return !formData.equals(data);
     }
 
+    /**
+     * Form to settings.
+     */
+    @RequiredUIAccess
     public void setData(MavenGeneralSettings data) {
-        data.setMavenBundleName(StringUtil.notNullize(myMavenBundleBox.getSelectedSdkName()));
-        data.setUserSettingsFile(userSettingsFileOverrider.getResult());
-        data.setLocalRepository(localRepositoryOverrider.getResult());
+        BundleBox mavenBundleBox = myMavenBundleBox;
+        if (mavenBundleBox != null) {
+            myMavenBundleName = StringUtil.notNullize(mavenBundleBox.getSelectedBundleName());
+        }
+
+        PathOverrider userSettingsFileOverrider = myUserSettingsFileOverrider;
+        if (userSettingsFileOverrider != null) {
+            myUserSettingsFile = userSettingsFileOverrider.getResult();
+        }
+
+        PathOverrider localRepositoryOverrider = myLocalRepositoryOverrider;
+        if (localRepositoryOverrider != null) {
+            myLocalRepository = localRepositoryOverrider.getResult();
+        }
+
+        data.setMavenBundleName(myMavenBundleName);
+        data.setUserSettingsFile(myUserSettingsFile);
+        data.setLocalRepository(myLocalRepository);
     }
 
+    /**
+     * Settings to form.
+     */
+    @RequiredUIAccess
     public void getData(MavenGeneralSettings data) {
-        String mavenHome = data.getMavenBundleName();
-        myMavenBundleBox.setSelectedSdk(StringUtil.nullize(mavenHome));
-        userSettingsFileOverrider.reset(data.getUserSettingsFile());
-        localRepositoryOverrider.reset(data.getLocalRepository());
+        myMavenBundleName = StringUtil.notNullize(data.getMavenBundleName());
+        myUserSettingsFile = StringUtil.notNullize(data.getUserSettingsFile());
+        myLocalRepository = StringUtil.notNullize(data.getLocalRepository());
+
+        BundleBox mavenBundleBox = myMavenBundleBox;
+        if (mavenBundleBox != null) {
+            mavenBundleBox.setSelectedBundle(StringUtil.nullize(myMavenBundleName));
+        }
+
+        PathOverrider userSettingsFileOverrider = myUserSettingsFileOverrider;
+        if (userSettingsFileOverrider != null) {
+            userSettingsFileOverrider.reset(myUserSettingsFile);
+        }
+
+        PathOverrider localRepositoryOverrider = myLocalRepositoryOverrider;
+        if (localRepositoryOverrider != null) {
+            localRepositoryOverrider.reset(myLocalRepository);
+        }
     }
 
     @Nonnull
     public String getMavenHome() {
-        Sdk selectedSdk = myMavenBundleBox.getSelectedSdk();
+        BundleBox mavenBundleBox = myMavenBundleBox;
+        String bundleName = mavenBundleBox == null ? myMavenBundleName : mavenBundleBox.getSelectedBundleName();
+
+        Sdk selectedSdk = StringUtil.isEmptyOrSpaces(bundleName) ? null : SdkTable.getInstance().findSdk(bundleName);
         if (selectedSdk == null) {
             File file = MavenUtil.resolveMavenHomeDirectory("");
             return file == null ? "" : file.getPath();
@@ -149,36 +244,7 @@ public class MavenEnvironmentForm implements PanelWithAnchor {
         return StringUtil.notNullize(selectedSdk.getHomePath());
     }
 
-    public JComponent createComponent(Disposable uiDisposable) {
-        settingsFileComponent.getComponent().addBrowseFolderListener(
-            MavenProjectLocalize.mavenSelectMavenSettingsFile().get(),
-            "",
-            null,
-            FileChooserDescriptorFactory.createSingleFileNoJarsDescriptor()
-        );
-        localRepositoryComponent.getComponent().addBrowseFolderListener(
-            MavenProjectLocalize.mavenSelectLocalRepository().get(),
-            "",
-            null,
-            FileChooserDescriptorFactory.createSingleFolderDescriptor()
-        );
-        return panel;
-    }
-
-    @Override
-    public JComponent getAnchor() {
-        return anchor;
-    }
-
-    @Override
-    public void setAnchor(JComponent anchor) {
-        this.anchor = anchor;
-        myMavenComboBoxLabeled.setAnchor(anchor);
-        settingsFileComponent.setAnchor(anchor);
-        localRepositoryComponent.setAnchor(anchor);
-    }
-
-    private static interface PathProvider {
+    private interface PathProvider {
         default String getPath() {
             File file = getFile();
             return file == null ? "" : file.getPath();
@@ -189,65 +255,72 @@ public class MavenEnvironmentForm implements PanelWithAnchor {
     }
 
     private static class PathOverrider {
-        private final TextFieldWithBrowseButton component;
-        private final JCheckBox checkBox;
-        private final PathProvider pathProvider;
+        private final TextBox myTextBox;
+        private final CheckBox myCheckBox;
+        private final PathProvider myPathProvider;
 
-        private Boolean isOverridden;
-        private String overrideText;
+        private Boolean myOverridden;
+        private String myOverrideText;
 
-        public PathOverrider(
-            LabeledComponent<TextFieldWithBrowseButton> component,
-            JCheckBox checkBox,
-            DocumentListener docListener,
+        @RequiredUIAccess
+        PathOverrider(
+            FileChooserTextBoxBuilder.Controller controller,
+            CheckBox checkBox,
+            Runnable textChangeListener,
             PathProvider pathProvider
         ) {
-            this.component = component.getComponent();
-            this.component.getTextField().getDocument().addDocumentListener(docListener);
-            this.checkBox = checkBox;
-            this.pathProvider = pathProvider;
-            checkBox.addActionListener(e -> update());
+            myTextBox = controller.getComponent();
+            myCheckBox = checkBox;
+            myPathProvider = pathProvider;
+
+            myTextBox.addValueListener(e -> textChangeListener.run());
+            myCheckBox.addValueListener(e -> update());
         }
 
+        @RequiredUIAccess
         private void update() {
-            boolean override = checkBox.isSelected();
-            if (Comparing.equal(isOverridden, override)) {
+            boolean override = myCheckBox.getValueOrError();
+            if (Comparing.equal(myOverridden, override)) {
                 return;
             }
 
-            isOverridden = override;
+            myOverridden = override;
 
-            component.setEditable(override);
-            component.setEnabled(override && checkBox.isEnabled());
+            myTextBox.setEditable(override);
+            myTextBox.setEnabled(override && myCheckBox.isEnabled());
 
             if (override) {
-                if (overrideText != null) {
-                    component.setText(overrideText);
+                if (myOverrideText != null) {
+                    myTextBox.setValue(myOverrideText);
                 }
             }
             else {
-                if (!StringUtil.isEmptyOrSpaces(component.getText())) {
-                    overrideText = component.getText();
+                if (!StringUtil.isEmptyOrSpaces(myTextBox.getValue())) {
+                    myOverrideText = myTextBox.getValue();
                 }
-                component.setText(pathProvider.getPath());
+                myTextBox.setValue(myPathProvider.getPath());
             }
         }
 
+        @RequiredUIAccess
         private void updateDefault() {
-            if (!checkBox.isSelected()) {
-                component.setText(pathProvider.getPath());
+            if (!myCheckBox.getValueOrError()) {
+                myTextBox.setValue(myPathProvider.getPath());
             }
         }
 
+        @RequiredUIAccess
         public void reset(String text) {
-            isOverridden = null;
-            checkBox.setSelected(!StringUtil.isEmptyOrSpaces(text));
-            overrideText = StringUtil.isEmptyOrSpaces(text) ? null : text;
+            myOverridden = null;
+            myOverrideText = StringUtil.isEmptyOrSpaces(text) ? null : text;
+            // don't fire - #update() below does the whole job at once
+            myCheckBox.setValue(!StringUtil.isEmptyOrSpaces(text), false);
             update();
         }
 
+        @RequiredUIAccess
         public String getResult() {
-            return checkBox.isSelected() ? component.getText().trim() : "";
+            return myCheckBox.getValueOrError() ? StringUtil.notNullize(myTextBox.getValue()).trim() : "";
         }
     }
 }

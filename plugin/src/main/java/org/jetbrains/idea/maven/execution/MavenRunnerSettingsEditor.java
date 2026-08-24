@@ -19,8 +19,10 @@ import consulo.configurable.ConfigurationException;
 import consulo.execution.configuration.ui.SettingsEditor;
 import consulo.project.Project;
 import consulo.ui.annotation.RequiredUIAccess;
+import consulo.ui.ex.awtUnsafe.TargetAWT;
 import consulo.util.lang.Pair;
 import jakarta.annotation.Nonnull;
+import org.jetbrains.idea.maven.localize.MavenRunnerLocalize;
 import org.jetbrains.idea.maven.project.MavenDisablePanelCheckbox;
 
 import javax.swing.*;
@@ -37,6 +39,7 @@ public class MavenRunnerSettingsEditor extends SettingsEditor<MavenRunConfigurat
         myPanel = new MavenRunnerPanel(project, true);
     }
 
+    @RequiredUIAccess
     @Override
     protected void resetEditorFrom(MavenRunConfiguration runConfiguration) {
         myUseProjectSettings.setSelected(runConfiguration.getRunnerSettings() == null);
@@ -50,6 +53,7 @@ public class MavenRunnerSettingsEditor extends SettingsEditor<MavenRunConfigurat
         }
     }
 
+    @RequiredUIAccess
     @Override
     protected void applyEditorTo(MavenRunConfiguration runConfiguration) throws ConfigurationException {
         if (myUseProjectSettings.isSelected()) {
@@ -71,8 +75,11 @@ public class MavenRunnerSettingsEditor extends SettingsEditor<MavenRunConfigurat
     @Override
     @RequiredUIAccess
     protected JComponent createEditor() {
+        // TODO MavenDisablePanelCheckbox is still swing - it walks the component tree to disable it
+        JComponent panel = (JComponent)TargetAWT.to(myPanel.createUIComponent(this));
+
         Pair<JPanel, JCheckBox> pair =
-            MavenDisablePanelCheckbox.createPanel(myPanel.createComponent(this), "Use project settings");
+            MavenDisablePanelCheckbox.createPanel(panel, MavenRunnerLocalize.mavenRunnerUseProjectSettings().get());
 
         myUseProjectSettings = pair.second;
         return pair.first;

@@ -15,115 +15,57 @@
  */
 package org.jetbrains.idea.maven.wizards;
 
-import com.intellij.uiDesigner.core.GridConstraints;
-import com.intellij.uiDesigner.core.GridLayoutManager;
 import consulo.disposer.Disposable;
-import consulo.ide.IdeBundle;
-import consulo.language.editor.refactoring.RefactoringBundle;
+import consulo.ide.localize.IdeLocalize;
+import consulo.localize.LocalizeValue;
 import consulo.maven.importProvider.MavenImportModuleContext;
 import consulo.platform.base.icon.PlatformIconGroup;
+import consulo.ui.CheckBox;
 import consulo.ui.Component;
+import consulo.ui.ComponentItemRender;
+import consulo.ui.Table;
+import consulo.ui.TableItemEditor;
+import consulo.ui.TextItemRender;
+import consulo.ui.TextAttribute;
+import consulo.ui.ValueComponent;
 import consulo.ui.annotation.RequiredUIAccess;
-import consulo.ui.ex.action.*;
-import consulo.ui.ex.awt.ElementsChooser;
-import consulo.ui.ex.awt.IdeBorderFactory;
-import consulo.ui.ex.awt.JBUI;
+import consulo.ui.ex.action.AnAction;
+import consulo.ui.ex.action.AnActionEvent;
+import consulo.ui.ex.action.ActionToolbarPosition;
+import consulo.ui.ex.toolbar.ToolbarDecoratorBuilder;
 import consulo.ui.ex.wizard.WizardStep;
 import consulo.ui.ex.wizard.WizardStepValidationException;
 import consulo.ui.image.Image;
-import org.jetbrains.idea.maven.project.MavenProject;
-import org.jetbrains.idea.maven.project.ProjectBundle;
-
+import consulo.ui.layout.LabeledLayout;
+import consulo.ui.model.FlatDataModel;
+import consulo.ui.model.MutableFlatDataModel;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
-import javax.swing.*;
+import org.jetbrains.idea.maven.localize.MavenProjectLocalize;
+import org.jetbrains.idea.maven.project.MavenProject;
+
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author Vladislav.Kaznacheev
  */
 public abstract class SelectImportedProjectsStep implements WizardStep<MavenImportModuleContext> {
-    private final JPanel panel;
-    protected final ElementsChooser<MavenProject> fileChooser;
     protected final MavenImportModuleContext myContext;
+
+    /**
+     * Source of truth for both columns - the table reads through these, so they survive the step
+     * being entered before its component is built.
+     */
+    private final List<MavenProject> myProjects = new ArrayList<>();
+    private final Set<MavenProject> myMarkedProjects = new LinkedHashSet<>();
+
+    private @Nullable MutableFlatDataModel<MavenProject> myModel;
 
     public SelectImportedProjectsStep(MavenImportModuleContext context) {
         myContext = context;
-        fileChooser = new ElementsChooser<>(true) {
-            @Override
-            protected String getItemText(@Nonnull MavenProject item) {
-                return getElementText(item);
-            }
-
-            @Override
-            protected Image getItemIcon(@Nonnull final MavenProject item) {
-                return getElementIcon(item);
-            }
-        };
-
-        panel = new JPanel(new GridLayoutManager(3, 1, JBUI.emptyInsets(), -1, -1));
-
-        panel.add(fileChooser, new GridConstraints(
-            0,
-            0,
-            1,
-            1,
-            GridConstraints.ANCHOR_NORTH,
-            GridConstraints.FILL_BOTH,
-            GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW,
-            GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW,
-            null,
-            null,
-            null
-        ));
-
-        final AnAction selectAllAction =
-            new AnAction(RefactoringBundle.message("select.all.button"), null, PlatformIconGroup.actionsSelectall()) {
-                @RequiredUIAccess
-                @Override
-                public void actionPerformed(@Nonnull AnActionEvent e) {
-                    fileChooser.setAllElementsMarked(true);
-                }
-
-                @Override
-                public boolean displayTextInToolbar() {
-                    return true;
-                }
-            };
-        final AnAction unselectAllAction =
-            new AnAction(RefactoringBundle.message("unselect.all.button"), null, PlatformIconGroup.actionsUnselectall()) {
-                @RequiredUIAccess
-                @Override
-                public void actionPerformed(@Nonnull AnActionEvent e) {
-                    fileChooser.setAllElementsMarked(false);
-                }
-
-                @Override
-                public boolean displayTextInToolbar() {
-                    return true;
-                }
-            };
-        ActionToolbar toolbar = ActionManager.getInstance()
-            .createActionToolbar(ActionPlaces.UNKNOWN, new DefaultActionGroup(selectAllAction, unselectAllAction), true);
-        toolbar.setTargetComponent(panel);
-        final JComponent actionToolbar = toolbar.getComponent();
-        panel.add(
-            actionToolbar,
-            new GridConstraints(
-                1,
-                0,
-                1,
-                1,
-                GridConstraints.ANCHOR_NORTH,
-                GridConstraints.FILL_HORIZONTAL,
-                GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints
-                    .SIZEPOLICY_WANT_GROW,
-                GridConstraints.SIZEPOLICY_CAN_SHRINK,
-                null,
-                null,
-                null
-            )
-        );
     }
 
     @Nullable
@@ -133,50 +75,118 @@ public abstract class SelectImportedProjectsStep implements WizardStep<MavenImpo
 
     protected abstract String getElementText(final MavenProject item);
 
-    @RequiredUIAccess
-    @Nonnull
-    @Override
-    public Component getComponent(@Nonnull MavenImportModuleContext context, @Nonnull Disposable disposable) {
-        throw new UnsupportedOperationException("desktop only");
-    }
-
-    @RequiredUIAccess
-    @Nonnull
-    @Override
-    public JComponent getSwingComponent(@Nonnull MavenImportModuleContext context, @Nonnull Disposable disposable) {
-        return panel;
-    }
-
     protected boolean isElementEnabled(MavenProject element) {
         return true;
     }
 
+    @RequiredUIAccess
+    @Nonnull
+    @Override
+    public Component getComponent(@Nonnull MavenImportModuleContext context, @Nonnull Disposable disposable) {
+        MutableFlatDataModel<MavenProject> model = FlatDataModel.of(new ArrayList<>(myProjects));
+        myModel = model;
+
+        Table<MavenProject> table = Table.create(model);
+        table.setShowHeader(false);
+
+        table.addColumn(LocalizeValue.empty(), myMarkedProjects::contains)
+            .setWidth(40)
+            .setEditor(new TableItemEditor<>() {
+                @RequiredUIAccess
+                @Override
+                public ValueComponent<Boolean> createComponent(MavenProject project) {
+                    return CheckBox.create(LocalizeValue.empty(), myMarkedProjects.contains(project));
+                }
+
+                @RequiredUIAccess
+                @Override
+                public void commit(MavenProject project, @Nullable Boolean value) {
+                    setMarked(project, Boolean.TRUE.equals(value));
+                    model.update(project);
+                }
+
+                @Override
+                public boolean isEditable(MavenProject project) {
+                    return isElementEnabled(project);
+                }
+            })
+            .setRender(ComponentItemRender.reusable(
+                () -> CheckBox.create(LocalizeValue.empty()),
+                (checkBox, item) -> checkBox.setValue(Boolean.TRUE.equals(item.getValue()))
+            ));
+
+        // typed local - setRender() is overloaded for text and component renders, a bare lambda is ambiguous
+        TextItemRender<MavenProject> projectRender = (presentation, item) -> {
+            MavenProject project = item.getValue();
+            if (project == null) {
+                return;
+            }
+
+            Image icon = getElementIcon(project);
+            if (icon != null) {
+                presentation.withIcon(icon);
+            }
+
+            // an ignored project can not be checked, so its name carries that signal
+            presentation.append(
+                getElementText(project),
+                isElementEnabled(project) ? TextAttribute.REGULAR : TextAttribute.GRAYED
+            );
+        };
+
+        table.addColumn(LocalizeValue.empty(), project -> project).setRender(projectRender);
+
+        Component decorated = ToolbarDecoratorBuilder.newBuilder(table)
+            .disableAll()
+            .withToolbarPosition(ActionToolbarPosition.BOTTOM)
+            .addExtraAction(new SetAllMarkedAction(
+                MavenProjectLocalize.mavenImportSelectAll(),
+                PlatformIconGroup.actionsSelectall(),
+                true
+            ))
+            .addExtraAction(new SetAllMarkedAction(
+                MavenProjectLocalize.mavenImportUnselectAll(),
+                PlatformIconGroup.actionsUnselectall(),
+                false
+            ))
+            .build();
+
+        return LabeledLayout.create(IdeLocalize.projectImportSelectTitle(MavenProjectLocalize.mavenName().get()), decorated);
+    }
+
+    private void setMarked(MavenProject project, boolean marked) {
+        if (marked) {
+            myMarkedProjects.add(project);
+        }
+        else {
+            myMarkedProjects.remove(project);
+        }
+    }
+
     @Override
     public void onStepEnter(@Nonnull MavenImportModuleContext context) {
-        fileChooser.clear();
+        myProjects.clear();
+        myMarkedProjects.clear();
+
         List<MavenProject> list = context.getList();
         if (list != null) {
             for (MavenProject element : list) {
-                boolean isEnabled = isElementEnabled(element);
-                fileChooser.addElement(element, isEnabled && getContext().isMarked(element));
-                if (!isEnabled) {
-                    fileChooser.disableElement(element);
+                myProjects.add(element);
+                if (isElementEnabled(element) && getContext().isMarked(element)) {
+                    myMarkedProjects.add(element);
                 }
             }
         }
 
-        fileChooser.setBorder(IdeBorderFactory.createTitledBorder(
-            IdeBundle.message(
-                "project.import.select.title",
-                ProjectBundle.message("maven.name")
-            ),
-            false
-        ));
+        MutableFlatDataModel<MavenProject> model = myModel;
+        if (model != null) {
+            model.replaceAll(myProjects);
+        }
     }
 
     @Override
     public void onStepLeave(@Nonnull MavenImportModuleContext context) {
-        context.setList(fileChooser.getMarkedElements());
+        context.setList(new ArrayList<>(myMarkedProjects));
 
         updateDataModel();
     }
@@ -184,8 +194,8 @@ public abstract class SelectImportedProjectsStep implements WizardStep<MavenImpo
     @Override
     public void validateStep(@Nonnull MavenImportModuleContext context) throws WizardStepValidationException {
         onStepLeave(context);
-        if (fileChooser.getMarkedElements().size() == 0) {
-            throw new WizardStepValidationException("Nothing found to import");
+        if (myMarkedProjects.isEmpty()) {
+            throw new WizardStepValidationException(MavenProjectLocalize.mavenImportNothingToImport().get());
         }
     }
 
@@ -194,5 +204,37 @@ public abstract class SelectImportedProjectsStep implements WizardStep<MavenImpo
 
     public MavenImportModuleContext getContext() {
         return myContext;
+    }
+
+    private class SetAllMarkedAction extends AnAction {
+        private final boolean myMarked;
+
+        private SetAllMarkedAction(LocalizeValue text, Image icon, boolean marked) {
+            super(text, LocalizeValue.empty(), icon);
+            myMarked = marked;
+        }
+
+        @RequiredUIAccess
+        @Override
+        public void actionPerformed(@Nonnull AnActionEvent e) {
+            MutableFlatDataModel<MavenProject> model = myModel;
+
+            for (MavenProject project : myProjects) {
+                if (!isElementEnabled(project)) {
+                    continue;
+                }
+
+                setMarked(project, myMarked);
+
+                if (model != null) {
+                    model.update(project);
+                }
+            }
+        }
+
+        @Override
+        public boolean displayTextInToolbar() {
+            return true;
+        }
     }
 }

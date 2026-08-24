@@ -19,8 +19,10 @@ import consulo.project.Project;
 import consulo.util.lang.Pair;
 import consulo.disposer.Disposable;
 import consulo.ui.annotation.RequiredUIAccess;
+import consulo.ui.ex.awtUnsafe.TargetAWT;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
+import org.jetbrains.idea.maven.localize.MavenRunnerLocalize;
 import org.jetbrains.idea.maven.project.MavenDisablePanelCheckbox;
 
 import javax.swing.*;
@@ -40,6 +42,10 @@ public abstract class MavenRunnerConfigurableWithUseProjectSettings extends Mave
     @Override
     @RequiredUIAccess
     public boolean isModified() {
+        if (myUseProjectSettings == null) {
+            return false;
+        }
+
         if (myUseProjectSettings.isSelected()) {
             return getState() != null;
         }
@@ -51,6 +57,10 @@ public abstract class MavenRunnerConfigurableWithUseProjectSettings extends Mave
     @Override
     @RequiredUIAccess
     public void apply() {
+        if (myUseProjectSettings == null) {
+            return;
+        }
+
         if (myUseProjectSettings.isSelected()) {
             setState(null);
         }
@@ -70,6 +80,10 @@ public abstract class MavenRunnerConfigurableWithUseProjectSettings extends Mave
     @Override
     @RequiredUIAccess
     public void reset() {
+        if (myUseProjectSettings == null) {
+            return;
+        }
+
         MavenRunnerSettings state = getState();
         myUseProjectSettings.setSelected(state == null);
 
@@ -85,8 +99,11 @@ public abstract class MavenRunnerConfigurableWithUseProjectSettings extends Mave
     @RequiredUIAccess
     @Override
     public JComponent createComponent(@Nonnull Disposable uiDisposable) {
+        // TODO MavenDisablePanelCheckbox is still swing - it walks the component tree to disable it
+        JComponent panel = (JComponent)TargetAWT.to(super.createUIComponent(uiDisposable));
+
         Pair<JPanel, JCheckBox> pair =
-            MavenDisablePanelCheckbox.createPanel(super.createComponent(uiDisposable), "Use project settings");
+            MavenDisablePanelCheckbox.createPanel(panel, MavenRunnerLocalize.mavenRunnerUseProjectSettings().get());
 
         myUseProjectSettings = pair.second;
         return pair.first;

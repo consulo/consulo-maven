@@ -25,16 +25,18 @@ import consulo.ui.Component;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.wizard.WizardStep;
 import consulo.ui.ex.wizard.WizardStepValidationException;
-import jakarta.annotation.Nullable;
-import org.jetbrains.idea.maven.execution.MavenPropertiesPanel;
+import consulo.ui.layout.DockLayout;
+import consulo.ui.layout.LabeledLayout;
+import consulo.ui.layout.VerticalLayout;
+import consulo.util.lang.StringUtil;
+import jakarta.annotation.Nonnull;
+import org.jetbrains.idea.maven.execution.MavenPropertiesTable;
+import org.jetbrains.idea.maven.localize.MavenProjectLocalize;
 import org.jetbrains.idea.maven.project.MavenEnvironmentForm;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.utils.MavenUtil;
+import org.jspecify.annotations.Nullable;
 
-import jakarta.annotation.Nonnull;
-
-import javax.swing.*;
-import java.awt.*;
 import java.io.File;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -46,44 +48,55 @@ import java.util.Map;
 public class SelectPropertiesStep implements WizardStep<MavenNewModuleContext> {
     private final Project myProjectOrNull;
 
-    private JPanel myMainPanel;
-    private JPanel myEnvironmentPanel;
-    private JPanel myPropertiesPanel;
+    private @Nullable MavenEnvironmentForm myEnvironmentForm;
+    private @Nullable MavenPropertiesTable myPropertiesTable;
 
-    private MavenEnvironmentForm myEnvironmentForm;
-    @Nullable
-    private MavenPropertiesPanel myMavenPropertiesPanel;
-
+    /**
+     * Source of truth for the table - the step can be entered before its component is built.
+     */
     private Map<String, String> mySelectedProps = Map.of();
 
     public SelectPropertiesStep() {
         myProjectOrNull = null;
     }
 
-    private void initComponents(@Nonnull Disposable uiDisposable) {
-        myEnvironmentForm = new MavenEnvironmentForm();
+    @RequiredUIAccess
+    @Nonnull
+    @Override
+    public Component getComponent(@Nonnull MavenNewModuleContext context, @Nonnull Disposable uiDisposable) {
+        MavenEnvironmentForm environmentForm = myEnvironmentForm = new MavenEnvironmentForm();
 
         Project project = myProjectOrNull == null ? ProjectManager.getInstance().getDefaultProject() : myProjectOrNull;
-        myEnvironmentForm.getData(MavenProjectsManager.getInstance(project).getGeneralSettings().clone());
+        environmentForm.getData(MavenProjectsManager.getInstance(project).getGeneralSettings().clone());
 
-        myEnvironmentPanel.add(myEnvironmentForm.createComponent(uiDisposable), BorderLayout.CENTER);
+        MavenPropertiesTable propertiesTable = myPropertiesTable = new MavenPropertiesTable(new HashMap<>());
+        propertiesTable.setDataFromMap(mySelectedProps);
 
-        myMavenPropertiesPanel = new MavenPropertiesPanel(new HashMap<>());
-        myPropertiesPanel.add(myMavenPropertiesPanel);
-        myMavenPropertiesPanel.setDataFromMap(mySelectedProps);
+        VerticalLayout root = VerticalLayout.create();
+        root.add(environmentForm.createComponent(uiDisposable));
+        root.add(LabeledLayout.create(
+            MavenProjectLocalize.mavenWizardProperties(),
+            DockLayout.create().center(propertiesTable.getComponent())
+        ));
+        return root;
     }
 
+    @RequiredUIAccess
     @Override
     public void onStepEnter(@Nonnull MavenNewModuleContext context) {
         MavenArchetype archetype = context.getArchetype();
+        if (archetype == null) {
+            return;
+        }
 
-        Map<String, String> props = new LinkedHashMap<String, String>();
+        Map<String, String> props = new LinkedHashMap<>();
 
         MavenId projectId = context.getProjectId();
-
-        props.put("groupId", projectId.getGroupId());
-        props.put("artifactId", projectId.getArtifactId());
-        props.put("version", projectId.getVersion());
+        if (projectId != null) {
+            props.put("groupId", projectId.getGroupId());
+            props.put("artifactId", projectId.getArtifactId());
+            props.put("version", projectId.getVersion());
+        }
 
         props.put("archetypeGroupId", archetype.groupId);
         props.put("archetypeArtifactId", archetype.artifactId);
@@ -92,36 +105,22 @@ public class SelectPropertiesStep implements WizardStep<MavenNewModuleContext> {
             props.put("archetypeRepository", archetype.repository);
         }
 
-        if (myMavenPropertiesPanel != null) {
-            myMavenPropertiesPanel.setDataFromMap(props);
-        }
-        else {
-            mySelectedProps = props;
+        mySelectedProps = props;
+
+        MavenPropertiesTable propertiesTable = myPropertiesTable;
+        if (propertiesTable != null) {
+            propertiesTable.setDataFromMap(props);
         }
     }
 
     @Override
     public void onStepLeave(@Nonnull MavenNewModuleContext context) {
         context.setEnvironmentForm(myEnvironmentForm);
-        if (myMavenPropertiesPanel != null) {
-            context.setPropertiesToCreateByArtifact(myMavenPropertiesPanel.getDataAsMap());
-        }
-        else {
-            context.setPropertiesToCreateByArtifact(mySelectedProps);
-        }
-    }
 
-    @RequiredUIAccess
-    @Nonnull
-    @Override
-    public Component getComponent(@Nonnull MavenNewModuleContext context, @Nonnull Disposable uiDisposable) {
-        throw new UnsupportedOperationException("desktop only");
-    }
-
-    @Override
-    public JComponent getSwingComponent(@Nonnull MavenNewModuleContext context, @Nonnull Disposable uiDisposable) {
-        initComponents(uiDisposable);
-        return myMainPanel;
+        MavenPropertiesTable propertiesTable = myPropertiesTable;
+        context.setPropertiesToCreateByArtifact(
+            propertiesTable == null ? mySelectedProps : propertiesTable.getDataAsMap()
+        );
     }
 
     @Override
@@ -131,13 +130,20 @@ public class SelectPropertiesStep implements WizardStep<MavenNewModuleContext> {
 
     @Override
     public void validateStep(@Nonnull MavenNewModuleContext context) throws WizardStepValidationException {
-        File mavenHome = MavenUtil.resolveMavenHomeDirectory(myEnvironmentForm.getMavenHome());
+        MavenEnvironmentForm environmentForm = myEnvironmentForm;
+        if (environmentForm == null) {
+            return;
+        }
+
+        File mavenHome = MavenUtil.resolveMavenHomeDirectory(environmentForm.getMavenHome());
         if (mavenHome == null) {
-            throw new WizardStepValidationException("Maven home directory is not specified");
+            throw new WizardStepValidationException(MavenProjectLocalize.mavenWizardNoMavenHome().get());
         }
 
         if (!MavenUtil.isValidMavenHome(mavenHome)) {
-            throw new WizardStepValidationException("Maven home directory is invalid: " + mavenHome);
+            throw new WizardStepValidationException(
+                MavenProjectLocalize.mavenWizardInvalidMavenHome(mavenHome.getPath()).get()
+            );
         }
     }
 }

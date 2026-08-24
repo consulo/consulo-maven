@@ -118,8 +118,20 @@ maven.run.configuration.error.file.not.found:
     text: pom.xml not found in the specified working directory.
 maven.run.configuration.name:
     text: Maven
+maven.runner.jre:
+    text: '&JRE'
 maven.runner.parameters.title:
     text: Parameters
+maven.runner.properties:
+    text: Properties
+maven.runner.run.in.background:
+    text: Run in &background
+maven.runner.skip.tests:
+    text: Skip &tests
+maven.runner.use.project.settings:
+    text: Use project settings
+maven.runner.vm.options:
+    text: '&VM Options'
 maven.running:
     text: Running
 maven.select.maven.home.directory:

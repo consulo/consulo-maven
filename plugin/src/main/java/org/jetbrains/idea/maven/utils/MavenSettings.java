@@ -23,6 +23,7 @@ import consulo.configurable.SearchableConfigurable;
 import consulo.disposer.Disposable;
 import consulo.localize.LocalizeValue;
 import consulo.project.Project;
+import consulo.ui.Component;
 import consulo.ui.annotation.RequiredUIAccess;
 import jakarta.annotation.Nonnull;
 import jakarta.inject.Inject;
@@ -34,7 +35,6 @@ import org.jetbrains.idea.maven.localize.MavenLocalize;
 import org.jetbrains.idea.maven.project.*;
 
 import jakarta.annotation.Nullable;
-import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -99,8 +99,8 @@ public class MavenSettings implements SearchableConfigurable.Parent, ProjectConf
 
     @RequiredUIAccess
     @Override
-    public JComponent createComponent(@Nonnull Disposable uiDisposable) {
-        return myConfigurable.createComponent(uiDisposable);
+    public Component createUIComponent(@Nonnull Disposable uiDisposable) {
+        return myConfigurable.createUIComponent(uiDisposable);
     }
 
     @RequiredUIAccess

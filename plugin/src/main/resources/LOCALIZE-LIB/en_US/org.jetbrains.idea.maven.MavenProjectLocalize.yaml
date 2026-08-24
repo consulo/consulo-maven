@@ -32,8 +32,54 @@ maven.downloading.pom.plugins:
     text: Downloading plugins for {0}...
 maven.downloading.sources:
     text: Downloading Maven sources...
+maven.environment.bundle:
+    text: Maven Bundle
+maven.environment.local.repository:
+    text: Local &repository
+maven.environment.override:
+    text: Override
+maven.environment.user.settings.file:
+    text: User &settings file
 maven.file.type.descr:
     text: Maven project files
+maven.general.always.update.snapshots:
+    text: Always update &snapshots
+maven.general.always.update.snapshots.tooltip:
+    text: Forces a check for updated releases and snapshots on remote repositories
+maven.general.checksum.policy:
+    text: '&Checksum policy:'
+maven.general.execute.goals.recursively:
+    text: Execute &goals recursively
+maven.general.execute.goals.recursively.tooltip:
+    text: <html>Add option <b>--non-recursive</b> if this option is not selected</html>
+maven.general.fail.policy:
+    text: 'Multiproject build &fail policy:'
+maven.general.output.level:
+    text: 'Output &level:'
+maven.general.override.compiler.policy:
+    text: 'Override built-in compiler policy:'
+maven.general.plugin.update.policy:
+    text: '&Plugin update policy:'
+maven.general.plugin.update.policy.note:
+    text: ignored by Maven 3+
+maven.general.print.exception.stack.traces:
+    text: Print &exception stack traces
+maven.general.print.exception.stack.traces.tooltip:
+    text: <html>Add option <b>--errors</b> to command line when run maven goals</html>
+maven.general.threads:
+    text: <html>Threads <small><i>(-T option):</i></small></html>
+maven.general.threads.tooltip:
+    text: Thread count, for instance 2.0C where C is core multiplied (option -T)
+maven.general.use.plugin.registry:
+    text: Use plugin &registry
+maven.general.use.plugin.registry.tooltip:
+    text: <html>Add option <b>--no-plugin-registry</b> if this option is not selected</html>
+maven.general.use.project.settings:
+    text: Use project settings
+maven.general.work.offline:
+    text: Work &offline
+maven.general.work.offline.tooltip:
+    text: <html>Add option <b>--offline</b> to command line when run maven goals</html>
 maven.ignore:
     text: Ignore Projects
 maven.ignore.edit:
@@ -50,6 +96,8 @@ maven.import.incompatible.modules.ignore:
     text: Ignore These Projects
 maven.import.incompatible.modules.recreate:
     text: Recreate
+maven.import.label.select.profiles:
+    text: 'Select profiles:'
 maven.import.label.select.root:
     text: '&Root directory'
 maven.import.message.delete.obsolete:
@@ -58,10 +106,50 @@ maven.import.message.delete.obsolete:
         {0}
 
         Do you want them to be removed from the project too?
+maven.import.nothing.to.import:
+    text: Nothing found to import
+maven.import.select.all:
+    text: Select All
 maven.import.title.module.dir:
     text: Select directory for IDEA module files (*.iml)
 maven.import.title.select.root:
     text: Select root directory
+maven.import.unselect.all:
+    text: Unselect All
+maven.importing.automatically.download:
+    text: 'Automatically download:'
+maven.importing.create.groups:
+    text: Create module &groups for multi-module Maven projects
+maven.importing.create.modules.for.aggregators:
+    text: Create Consulo &modules for aggregator projects (with 'pom' packaging)
+maven.importing.download.docs:
+    text: '&Documentation'
+maven.importing.download.sources:
+    text: Sou&rces
+maven.importing.embedder.vm.options:
+    text: 'VM options for importer:'
+maven.importing.exclude.target.folder:
+    text: Exclude build directory (%PROJECT_ROOT%/target)
+maven.importing.exclude.target.folder.tooltip:
+    text: If you select this option folder /target will be excluded from project during reimport. Compiler output (/target/classes and /target/test-classes) will be excluded anyway
+maven.importing.generated.sources.folder:
+    text: 'Generated sources folders:'
+maven.importing.import.automatically:
+    text: Import Maven projects &automatically
+maven.importing.import.automatically.tooltip:
+    text: Synchronize Maven project model and Consulo project model each time when pom.xml is changed
+maven.importing.keep.source.folders:
+    text: Keep source and test &folders on reimport
+maven.importing.search.recursively:
+    text: '&Search for projects recursively'
+maven.importing.update.folders.note:
+    text: <html>Consulo needs to execute one of the listed phases in order to discover all source folders that are configured via Maven plugins.<br><b>Note</b> that all test-* phases firstly generate and compile production sources.</html>
+maven.importing.update.folders.phase:
+    text: 'Phase to be used for folders &update:'
+maven.importing.use.maven.output:
+    text: Use Maven &output directories
+maven.importing.use.maven.output.tooltip:
+    text: Consulo compiler will use output directory defined in maven model (target/classes by default)
 maven.ingored.no.file:
     text: No Maven files
 maven.library.family.name:
@@ -120,6 +208,10 @@ maven.project.problem.unresolvedExtension:
     text: 'Unresolved build extension: ''''{0}'''''
 maven.project.problem.unresolvedPlugin:
     text: 'Unresolved plugin: ''''{0}'''''
+maven.property.table.name:
+    text: Name
+maven.property.table.value:
+    text: Value
 maven.property.download.javadocs:
     text: Download &JavaDocs
 maven.property.download.sources:
@@ -166,6 +258,38 @@ maven.updating.folders.finished:
     text: Finished Generating sources
 maven.updating.folders.pom:
     text: Generating sources for {0}...
+maven.wizard.add.archetype:
+    text: Add archetype...
+maven.wizard.add.archetype.title:
+    text: Add Archetype
+maven.wizard.artifact.id:
+    text: ArtifactId
+maven.wizard.create.from.archetype:
+    text: Create from archetype
+maven.wizard.group.id:
+    text: GroupId
+maven.wizard.inherit:
+    text: Inherit
+maven.wizard.invalid.maven.home:
+    text: 'Maven home directory is invalid: {0}'
+maven.wizard.loading.archetypes:
+    text: Loading archetype list...
+maven.wizard.no.maven.home:
+    text: Maven home directory is not specified
+maven.wizard.properties:
+    text: Properties
+maven.wizard.repository.optional:
+    text: Repository (optional)
+maven.wizard.specify.artifact.id:
+    text: Please, specify artifactId
+maven.wizard.specify.fields:
+    text: Please specify {0}
+maven.wizard.specify.group.id:
+    text: Please, specify groupId
+maven.wizard.specify.version:
+    text: Please, specify version
+maven.wizard.version:
+    text: Version
 maven.version.kind.selector.latest:
     text: Latest
 maven.version.kind.selector.release:

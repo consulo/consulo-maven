@@ -16,30 +16,53 @@
 package org.jetbrains.idea.maven.wizards;
 
 import consulo.disposer.Disposable;
+import consulo.localize.LocalizeValue;
 import consulo.maven.importProvider.MavenImportModuleContext;
 import consulo.maven.rt.server.common.model.MavenExplicitProfiles;
-import consulo.maven.rt.server.common.model.MavenProfileKind;
+import consulo.ui.Component;
+import consulo.ui.ComponentItemRender;
+import consulo.ui.Label;
+import consulo.ui.Table;
+import consulo.ui.TableItemEditor;
+import consulo.ui.TriStateCheckBox;
+import consulo.ui.ValueComponent;
 import consulo.ui.annotation.RequiredUIAccess;
-import consulo.ui.ex.awt.MultiStateElementsChooser;
 import consulo.ui.ex.wizard.WizardStep;
+import consulo.ui.layout.DockLayout;
+import consulo.ui.layout.ScrollableLayout;
+import consulo.ui.model.FlatDataModel;
+import consulo.ui.model.MutableFlatDataModel;
+import consulo.util.lang.ThreeState;
+import org.jetbrains.idea.maven.localize.MavenProjectLocalize;
+import org.jspecify.annotations.Nullable;
 
-import jakarta.annotation.Nonnull;
-import jakarta.annotation.Nullable;
-import javax.swing.*;
-import javax.swing.table.TableCellRenderer;
-import java.awt.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.*;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Vladislav.Kaznacheev
  */
 public class SelectProfilesStep implements WizardStep<MavenImportModuleContext> {
-    private JPanel panel;
-    private MultiStateElementsChooser<String, MavenProfileKind> profileChooser;
-    private MavenProfileKindMarkStateDescriptor myMarkStateDescriptor;
-
     private final MavenImportModuleContext myContext;
+
+    /**
+     * Source of truth for the checkbox column - the table reads through it, so it survives the step
+     * being entered before its component is built.
+     */
+    private final Map<String, ThreeState> myProfileStates = new LinkedHashMap<>();
+
+    /**
+     * Profiles turned on by their own activation rules. Only those may go indeterminate, the rest
+     * toggle between on and off.
+     */
+    private final Set<String> myActivatedProfiles = new LinkedHashSet<>();
+
+    private @Nullable MutableFlatDataModel<String> myModel;
 
     public SelectProfilesStep(MavenImportModuleContext context) {
         myContext = context;
@@ -50,162 +73,107 @@ public class SelectProfilesStep implements WizardStep<MavenImportModuleContext> 
         return !myContext.getProfiles().isEmpty();
     }
 
-    public void createUIComponents() {
-        myMarkStateDescriptor = new MavenProfileKindMarkStateDescriptor();
-        profileChooser = new MultiStateElementsChooser<>(true, myMarkStateDescriptor);
+    @RequiredUIAccess
+    @Override
+    public Component getComponent(MavenImportModuleContext context, Disposable uiDisposable) {
+        MutableFlatDataModel<String> model = FlatDataModel.of(new ArrayList<>(myProfileStates.keySet()));
+        myModel = model;
+
+        Table<String> table = Table.create(model);
+        table.setShowHeader(false);
+
+        table.addColumn(LocalizeValue.empty(), this::getState)
+            .setWidth(40)
+            .setRender(ComponentItemRender.reusable(
+                () -> TriStateCheckBox.create(LocalizeValue.empty()),
+                (checkBox, item) -> checkBox.setValue(item.getValue() == null ? ThreeState.NO : item.getValue())))
+            .setEditor(new TableItemEditor<>() {
+                @RequiredUIAccess
+                @Override
+                public ValueComponent<ThreeState> createComponent(String profile) {
+                    TriStateCheckBox checkBox = TriStateCheckBox.create(LocalizeValue.empty(), getState(profile));
+                    checkBox.setUnsureEnabled(myActivatedProfiles.contains(profile));
+                    return checkBox;
+                }
+
+                @RequiredUIAccess
+                @Override
+                public void commit(String profile, @Nullable ThreeState value) {
+                    myProfileStates.put(profile, value == null ? ThreeState.NO : value);
+                    model.update(profile);
+                }
+            });
+
+        table.addColumn(LocalizeValue.empty(), profile -> profile);
+
+        DockLayout root = DockLayout.create();
+        root.top(Label.create(MavenProjectLocalize.mavenImportLabelSelectProfiles()));
+        root.center(ScrollableLayout.create(table));
+        return root;
+    }
+
+    private ThreeState getState(String profile) {
+        return myProfileStates.getOrDefault(profile, ThreeState.NO);
     }
 
     @RequiredUIAccess
-    @Nonnull
     @Override
-    public consulo.ui.Component getComponent(@Nonnull MavenImportModuleContext context, @Nonnull Disposable uiDisposable) {
-        throw new UnsupportedOperationException("desktop only");
-    }
-
-    @Override
-    public JComponent getSwingComponent(@Nonnull MavenImportModuleContext context, @Nonnull Disposable uiDisposable) {
-        return panel;
-    }
-
-    @Override
-    public void onStepEnter(@Nonnull MavenImportModuleContext mavenImportModuleContext) {
+    public void onStepEnter(MavenImportModuleContext context) {
         List<String> allProfiles = myContext.getProfiles();
-        List<String> activatedProfiles = myContext.getActivatedProfiles();
-        MavenExplicitProfiles selectedProfiles = myContext.getSelectedProfiles();
-        List<String> enabledProfiles = new ArrayList<>(selectedProfiles.getEnabledProfiles());
-        List<String> disabledProfiles = new ArrayList<>(selectedProfiles.getDisabledProfiles());
-        enabledProfiles.retainAll(allProfiles); // mark only existing profiles
-        disabledProfiles.retainAll(allProfiles); // mark only existing profiles
 
-        myMarkStateDescriptor.setActivatedProfiles(activatedProfiles);
-        profileChooser.setElements(allProfiles, null);
-        profileChooser.markElements(enabledProfiles, MavenProfileKind.EXPLICIT);
-        profileChooser.markElements(disabledProfiles, MavenProfileKind.NONE);
+        myActivatedProfiles.clear();
+        myActivatedProfiles.addAll(myContext.getActivatedProfiles());
+        myActivatedProfiles.retainAll(allProfiles);
+
+        MavenExplicitProfiles selectedProfiles = myContext.getSelectedProfiles();
+        Collection<String> enabledProfiles = selectedProfiles.getEnabledProfiles();
+        Collection<String> disabledProfiles = selectedProfiles.getDisabledProfiles();
+
+        myProfileStates.clear();
+        for (String profile : allProfiles) {
+            myProfileStates.put(profile, initialState(profile, enabledProfiles, disabledProfiles));
+        }
+
+        MutableFlatDataModel<String> model = myModel;
+        if (model != null) {
+            model.replaceAll(allProfiles);
+        }
+    }
+
+    /**
+     * An explicitly enabled profile is on, an explicitly disabled one is off, and anything left is
+     * shown the way it would be resolved without a choice - indeterminate when its activation rules
+     * turn it on, off otherwise.
+     */
+    private ThreeState initialState(String profile, Collection<String> enabledProfiles, Collection<String> disabledProfiles) {
+        if (enabledProfiles.contains(profile)) {
+            return ThreeState.YES;
+        }
+        if (disabledProfiles.contains(profile)) {
+            return ThreeState.NO;
+        }
+        return myActivatedProfiles.contains(profile) ? ThreeState.UNSURE : ThreeState.NO;
     }
 
     @Override
-    public void onStepLeave(@Nonnull MavenImportModuleContext context) {
-        Collection<String> activatedProfiles = myMarkStateDescriptor.getActivatedProfiles();
+    public void onStepLeave(MavenImportModuleContext context) {
         MavenExplicitProfiles newSelectedProfiles = MavenExplicitProfiles.NONE.clone();
-        for (Map.Entry<String, MavenProfileKind> entry : profileChooser.getElementMarkStates().entrySet()) {
+
+        for (Map.Entry<String, ThreeState> entry : myProfileStates.entrySet()) {
             String profile = entry.getKey();
-            MavenProfileKind profileKind = entry.getValue();
-            switch (profileKind) {
-                case NONE:
-                    if (activatedProfiles.contains(profile)) {
+            switch (entry.getValue()) {
+                case YES -> newSelectedProfiles.getEnabledProfiles().add(profile);
+                // only worth recording when something has to be turned back off
+                case NO -> {
+                    if (myActivatedProfiles.contains(profile)) {
                         newSelectedProfiles.getDisabledProfiles().add(profile);
                     }
-                    break;
-                case EXPLICIT:
-                    newSelectedProfiles.getEnabledProfiles().add(profile);
-                    break;
-                case IMPLICIT:
-                    break;
+                }
+                case UNSURE -> {
+                }
             }
         }
+
         myContext.setSelectedProfiles(newSelectedProfiles);
-    }
-
-    private static class MavenProfileKindMarkStateDescriptor implements MultiStateElementsChooser.MarkStateDescriptor<String, MavenProfileKind> {
-        private Collection<String> myActivatedProfiles = Collections.emptySet();
-
-        public Collection<String> getActivatedProfiles() {
-            return myActivatedProfiles;
-        }
-
-        public void setActivatedProfiles(Collection<String> activatedProfiles) {
-            myActivatedProfiles = new HashSet<>(activatedProfiles);
-        }
-
-        @Nonnull
-        @Override
-        public MavenProfileKind getDefaultState(@Nonnull String element) {
-            return myActivatedProfiles.contains(element) ? MavenProfileKind.IMPLICIT : MavenProfileKind.NONE;
-        }
-
-        @Nonnull
-        @Override
-        public MavenProfileKind getNextState(@Nonnull String element, @Nonnull MavenProfileKind state) {
-            MavenProfileKind nextState;
-            switch (state) {
-                case NONE:
-                    nextState = MavenProfileKind.EXPLICIT;
-                    break;
-                case EXPLICIT:
-                    nextState = getDefaultState(element);
-                    break;
-                case IMPLICIT:
-                default:
-                    nextState = MavenProfileKind.NONE;
-                    break;
-            }
-            return nextState;
-        }
-
-        @Nullable
-        @Override
-        public MavenProfileKind getNextState(@Nonnull Map<String, MavenProfileKind> elementsWithStates) {
-            MavenProfileKind nextState = null;
-            for (Map.Entry<String, MavenProfileKind> entry : elementsWithStates.entrySet()) {
-                MavenProfileKind nextElementState = getNextState(entry.getKey(), entry.getValue());
-                if (nextState == null) {
-                    nextState = nextElementState;
-                }
-                else if (!nextState.equals(nextElementState)) {
-                    nextState = null;
-                    break;
-                }
-            }
-            return nextState;
-        }
-
-        @Override
-        public boolean isMarked(@Nonnull MavenProfileKind state) {
-            return state != MavenProfileKind.NONE;
-        }
-
-        @Nullable
-        @Override
-        public MavenProfileKind getMarkState(@Nullable Object value) {
-            return value instanceof MavenProfileKind ? (MavenProfileKind)value : null;
-        }
-
-        @Nullable
-        @Override
-        public TableCellRenderer getMarkRenderer() {
-            return new CheckboxTableCellRenderer();
-        }
-    }
-
-    private static class CheckboxTableCellRenderer extends JCheckBox implements TableCellRenderer {
-        public CheckboxTableCellRenderer() {
-            setHorizontalAlignment(SwingConstants.CENTER);
-            setBorder(null);
-        }
-
-        @Override
-        public Component getTableCellRendererComponent(
-            JTable table,
-            Object value,
-            boolean isSelected,
-            boolean hasFocus,
-            int row,
-            int column
-        ) {
-            if (isSelected) {
-                setForeground(table.getSelectionForeground());
-                super.setBackground(table.getSelectionBackground());
-            }
-            else {
-                setForeground(table.getForeground());
-                setBackground(table.getBackground());
-            }
-
-            MavenProfileKind state = (MavenProfileKind)value;
-            setSelected(state != MavenProfileKind.NONE);
-            setEnabled(state != MavenProfileKind.IMPLICIT);
-
-            return this;
-        }
     }
 }

@@ -21,23 +21,31 @@ import consulo.configurable.UnnamedConfigurable;
 import consulo.disposer.Disposable;
 import consulo.localize.LocalizeValue;
 import consulo.project.Project;
+import consulo.ui.Component;
+import consulo.ui.TextBox;
 import consulo.ui.annotation.RequiredUIAccess;
+import consulo.ui.ex.awtUnsafe.TargetAWT;
+import consulo.ui.layout.VerticalLayout;
+import consulo.ui.util.LabeledBuilder;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.jetbrains.idea.maven.localize.MavenProjectLocalize;
 import org.jetbrains.idea.maven.server.MavenServerManager;
 
 import javax.swing.*;
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class MavenImportingConfigurable implements SearchableConfigurable {
     private final MavenImportingSettings myImportingSettings;
-    private final MavenImportingSettingsForm mySettingsForm = new MavenImportingSettingsForm(false, false);
     private final List<UnnamedConfigurable> myAdditionalConfigurables;
 
-    private final JTextField myEmbedderVMOptions;
+    /**
+     * The ui is only built by {@link #createUIComponent(Disposable)} - this configurable is instantiated
+     * from the {@code MavenSettings} service constructor, which is not on the ui thread.
+     */
+    private @Nullable MavenImportingSettingsForm mySettingsForm;
+    private @Nullable TextBox myEmbedderVMOptions;
 
     public MavenImportingConfigurable(Project project) {
         myImportingSettings = MavenProjectsManager.getInstance(project).getImportingSettings();
@@ -46,33 +54,39 @@ public class MavenImportingConfigurable implements SearchableConfigurable {
         for (final AdditionalMavenImportingSettings additionalSettings : AdditionalMavenImportingSettings.EP_NAME.getExtensionList()) {
             myAdditionalConfigurables.add(additionalSettings.createConfigurable(project));
         }
-
-        myEmbedderVMOptions = new JTextField(30);
     }
 
     @RequiredUIAccess
     @Override
-    public JComponent createComponent(@Nonnull Disposable parent) {
-        final JPanel panel = mySettingsForm.getAdditionalSettingsPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+    public Component createUIComponent(@Nonnull Disposable parent) {
+        MavenImportingSettingsForm settingsForm = mySettingsForm = new MavenImportingSettingsForm(false, false);
+        TextBox embedderVMOptions = myEmbedderVMOptions = TextBox.create();
 
-        JPanel embedderVMOptionPanel = new JPanel(new BorderLayout());
-        JLabel vmOptionLabel = new JLabel("VM options for importer:");
-        embedderVMOptionPanel.add(vmOptionLabel, BorderLayout.WEST);
-        vmOptionLabel.setLabelFor(myEmbedderVMOptions);
-
-        embedderVMOptionPanel.add(myEmbedderVMOptions);
-        panel.add(embedderVMOptionPanel);
+        VerticalLayout panel = settingsForm.getAdditionalSettingsPanel();
+        panel.add(LabeledBuilder.filled(MavenProjectLocalize.mavenImportingEmbedderVmOptions(), embedderVMOptions));
 
         for (final UnnamedConfigurable additionalConfigurable : myAdditionalConfigurables) {
-            panel.add(additionalConfigurable.createComponent(parent));
+            Component uiComponent = additionalConfigurable.createUIComponent(parent);
+            if (uiComponent != null) {
+                panel.add(uiComponent);
+                continue;
+            }
+
+            // TODO extensions may still be swing-only
+            JComponent swingComponent = additionalConfigurable.createComponent(parent);
+            if (swingComponent != null) {
+                panel.add(TargetAWT.wrap(swingComponent));
+            }
         }
-        return mySettingsForm.createComponent();
+        return settingsForm.createComponent();
     }
 
     @Override
     @RequiredUIAccess
     public void disposeUIResources() {
+        mySettingsForm = null;
+        myEmbedderVMOptions = null;
+
         for (final UnnamedConfigurable additionalConfigurable : myAdditionalConfigurables) {
             additionalConfigurable.disposeUIResources();
         }
@@ -87,16 +101,26 @@ public class MavenImportingConfigurable implements SearchableConfigurable {
             }
         }
 
-        return !MavenServerManager.getInstance().getMavenEmbedderVMOptions().equals(myEmbedderVMOptions.getText())
-            || mySettingsForm.isModified(myImportingSettings);
+        MavenImportingSettingsForm settingsForm = mySettingsForm;
+        TextBox embedderVMOptions = myEmbedderVMOptions;
+        if (settingsForm == null || embedderVMOptions == null) {
+            return false;
+        }
+
+        return !MavenServerManager.getInstance().getMavenEmbedderVMOptions().equals(embedderVMOptions.getValueOrError())
+            || settingsForm.isModified(myImportingSettings);
     }
 
     @Override
     @RequiredUIAccess
     public void apply() throws ConfigurationException {
-        mySettingsForm.getData(myImportingSettings);
+        MavenImportingSettingsForm settingsForm = mySettingsForm;
+        TextBox embedderVMOptions = myEmbedderVMOptions;
+        if (settingsForm != null && embedderVMOptions != null) {
+            settingsForm.getData(myImportingSettings);
 
-        MavenServerManager.getInstance().setMavenEmbedderVMOptions(myEmbedderVMOptions.getText());
+            MavenServerManager.getInstance().setMavenEmbedderVMOptions(embedderVMOptions.getValueOrError());
+        }
 
         for (final UnnamedConfigurable additionalConfigurable : myAdditionalConfigurables) {
             additionalConfigurable.apply();
@@ -106,9 +130,13 @@ public class MavenImportingConfigurable implements SearchableConfigurable {
     @Override
     @RequiredUIAccess
     public void reset() {
-        mySettingsForm.setData(myImportingSettings);
+        MavenImportingSettingsForm settingsForm = mySettingsForm;
+        TextBox embedderVMOptions = myEmbedderVMOptions;
+        if (settingsForm != null && embedderVMOptions != null) {
+            settingsForm.setData(myImportingSettings);
 
-        myEmbedderVMOptions.setText(MavenServerManager.getInstance().getMavenEmbedderVMOptions());
+            embedderVMOptions.setValue(MavenServerManager.getInstance().getMavenEmbedderVMOptions());
+        }
 
         for (final UnnamedConfigurable additionalConfigurable : myAdditionalConfigurables) {
             additionalConfigurable.reset();

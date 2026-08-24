@@ -17,39 +17,52 @@
 package org.jetbrains.idea.maven.execution;
 
 import com.intellij.java.language.projectRoots.JavaSdkType;
-import consulo.content.bundle.SdkModel;
 import consulo.disposer.Disposable;
-import consulo.execution.ui.awt.EnvironmentVariablesComponent;
-import consulo.execution.ui.awt.RawCommandLineEditor;
+import consulo.execution.localize.ExecutionLocalize;
+import consulo.execution.ui.awt.EnvironmentVariablesTextFieldWithBrowseButton;
 import consulo.ide.setting.ShowSettingsUtil;
 import consulo.localize.LocalizeValue;
-import consulo.module.ui.awt.SdkComboBox;
+import consulo.module.ui.BundleBox;
 import consulo.platform.base.icon.PlatformIconGroup;
+import consulo.process.cmd.ParametersListUtil;
 import consulo.project.Project;
+import consulo.ui.CheckBox;
+import consulo.ui.Component;
+import consulo.ui.TextBoxWithExpandAction;
 import consulo.ui.annotation.RequiredUIAccess;
-import consulo.ui.ex.awt.IdeBorderFactory;
+import consulo.ui.layout.DockLayout;
+import consulo.ui.layout.LabeledLayout;
+import consulo.ui.layout.VerticalLayout;
+import consulo.ui.util.LabeledBuilder;
+import consulo.ui.util.TextWithMnemonic;
+import consulo.util.lang.StringUtil;
 import jakarta.annotation.Nonnull;
+import org.jetbrains.idea.maven.localize.MavenRunnerLocalize;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
+import org.jspecify.annotations.Nullable;
 
-import javax.swing.*;
-import java.awt.*;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
 
+/**
+ * Maven runner settings, on the unified ui. Replaces the swing {@code GridBagLayout} based panel.
+ */
 public class MavenRunnerPanel {
     protected final Project myProject;
     private final boolean myRunConfigurationMode;
 
-    private JCheckBox myRunInBackgroundCheckbox;
-    private RawCommandLineEditor myVMParametersEditor;
-    private EnvironmentVariablesComponent myEnvVariablesComponent;
-    private SdkComboBox myJdkCombo;
-    private JCheckBox mySkipTestsCheckBox;
-    private MavenPropertiesPanel myPropertiesPanel;
-
-    private Map<String, String> myProperties;
+    /**
+     * The ui is only built by {@link #createUIComponent(Disposable)} - the panel is instantiated from
+     * configurable/settings-editor constructors, which are not necessarily on the ui thread.
+     */
+    private @Nullable CheckBox myRunInBackgroundCheckbox;
+    private @Nullable TextBoxWithExpandAction myVMParametersEditor;
+    private @Nullable EnvironmentVariablesTextFieldWithBrowseButton myEnvVariablesComponent;
+    private @Nullable BundleBox myJdkCombo;
+    private @Nullable CheckBox mySkipTestsCheckBox;
+    private @Nullable MavenPropertiesTable myPropertiesTable;
 
     public MavenRunnerPanel(@Nonnull Project p, boolean isRunConfiguration) {
         myProject = p;
@@ -57,98 +70,63 @@ public class MavenRunnerPanel {
     }
 
     @RequiredUIAccess
-    public JComponent createComponent(@Nonnull Disposable uiDisposable) {
-        JPanel panel = new JPanel(new GridBagLayout());
+    @Nonnull
+    public Component createUIComponent(@Nonnull Disposable uiDisposable) {
+        CheckBox runInBackgroundCheckbox = myRunInBackgroundCheckbox =
+            CheckBox.create(MavenRunnerLocalize.mavenRunnerRunInBackground());
 
-        GridBagConstraints c = new GridBagConstraints();
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.anchor = GridBagConstraints.WEST;
-        c.insets.bottom = 5;
-
-        myRunInBackgroundCheckbox = new JCheckBox("Run in background");
-        myRunInBackgroundCheckbox.setMnemonic('b');
-        if (!myRunConfigurationMode) {
-            c.gridx = 0;
-            c.gridy++;
-            c.weightx = 1;
-            c.gridwidth = GridBagConstraints.REMAINDER;
-
-            panel.add(myRunInBackgroundCheckbox, c);
-        }
-        c.gridwidth = 1;
-
-        JLabel labelVMParameters = new JLabel("VM Options:");
-        labelVMParameters.setDisplayedMnemonic('v');
-        labelVMParameters.setLabelFor(myVMParametersEditor = new RawCommandLineEditor());
-        myVMParametersEditor.setDialogCaption(labelVMParameters.getText());
-
-        c.gridx = 0;
-        c.gridy++;
-        c.weightx = 0;
-        panel.add(labelVMParameters, c);
-
-        c.gridx = 1;
-        c.weightx = 1;
-        c.insets.left = 10;
-        panel.add(myVMParametersEditor, c);
-        c.insets.left = 0;
-
-        JLabel jdkLabel = new JLabel("JRE:");
-        jdkLabel.setDisplayedMnemonic('j');
-        SdkModel sdksModel = ShowSettingsUtil.getInstance().getSdksModel();
-        myJdkCombo = new SdkComboBox(
-            sdksModel,
-            it -> it instanceof JavaSdkType,
-            null,
-            LocalizeValue.localizeTODO("Auto Select"),
-            PlatformIconGroup.actionsFind()
+        TextBoxWithExpandAction vmParametersEditor = myVMParametersEditor = TextBoxWithExpandAction.create(
+            PlatformIconGroup.actionsShow(),
+            // the label carries a mnemonic, the expand dialog title must not
+            TextWithMnemonic.parse(MavenRunnerLocalize.mavenRunnerVmOptions().get()).getText(),
+            ParametersListUtil.DEFAULT_LINE_PARSER,
+            ParametersListUtil.DEFAULT_LINE_JOINER
         );
 
-        jdkLabel.setLabelFor(myJdkCombo);
-        c.gridx = 0;
-        c.gridy++;
-        c.weightx = 0;
-        panel.add(jdkLabel, c);
-        c.gridx = 1;
-        c.weightx = 1;
-        c.fill = GridBagConstraints.NONE;
-        c.insets.left = 10;
-        panel.add(myJdkCombo, c);
-        c.insets.left = 0;
-        c.fill = GridBagConstraints.HORIZONTAL;
+        BundleBox jdkCombo = myJdkCombo = BundleBox.builder(ShowSettingsUtil.getInstance().getSdksModel(), uiDisposable)
+            .withSdkTypeFilterByClass(JavaSdkType.class)
+            .withNoneItem(LocalizeValue.localizeTODO("Auto Select"), PlatformIconGroup.actionsFind())
+            .build();
 
-        myEnvVariablesComponent = new EnvironmentVariablesComponent();
-        myEnvVariablesComponent.setPassParentEnvs(true);
-        myEnvVariablesComponent.setLabelLocation(BorderLayout.WEST);
-        c.gridx = 0;
-        c.gridy++;
-        c.weightx = 1;
-        c.gridwidth = 2;
-        panel.add(myEnvVariablesComponent, c);
-        c.gridwidth = 1;
+        EnvironmentVariablesTextFieldWithBrowseButton envVariablesComponent = myEnvVariablesComponent =
+            new EnvironmentVariablesTextFieldWithBrowseButton();
+        envVariablesComponent.setPassParentEnvs(true);
 
-        JPanel propertiesPanel = new JPanel(new BorderLayout());
-        propertiesPanel.setBorder(IdeBorderFactory.createTitledBorder("Properties", false));
+        CheckBox skipTestsCheckBox = mySkipTestsCheckBox = CheckBox.create(MavenRunnerLocalize.mavenRunnerSkipTests());
 
-        propertiesPanel.add(mySkipTestsCheckBox = new JCheckBox("Skip tests"), BorderLayout.NORTH);
-        mySkipTestsCheckBox.setMnemonic('t');
+        MavenPropertiesTable propertiesTable = myPropertiesTable = new MavenPropertiesTable(collectProperties());
 
-        collectProperties();
-        propertiesPanel.add(myPropertiesPanel = new MavenPropertiesPanel(myProperties), BorderLayout.CENTER);
-        myPropertiesPanel.getEmptyText().setText(LocalizeValue.localizeTODO("No properties defined"));
+        VerticalLayout top = VerticalLayout.create();
+        if (!myRunConfigurationMode) {
+            top.add(runInBackgroundCheckbox);
+        }
+        top.add(LabeledBuilder.filled(MavenRunnerLocalize.mavenRunnerVmOptions(), vmParametersEditor));
+        top.add(DockLayout.create().left(LabeledBuilder.simple(MavenRunnerLocalize.mavenRunnerJre(), jdkCombo)));
+        top.add(LabeledBuilder.filled(
+            ExecutionLocalize.environmentVariablesComponentTitle(),
+            envVariablesComponent.getComponent()
+        ));
 
-        c.gridx = 0;
-        c.gridy++;
-        c.weightx = c.weighty = 1;
-        c.gridwidth = c.gridheight = GridBagConstraints.REMAINDER;
-        c.fill = GridBagConstraints.BOTH;
-        panel.add(propertiesPanel, c);
+        DockLayout propertiesPanel = DockLayout.create();
+        propertiesPanel.top(skipTestsCheckBox);
+        propertiesPanel.center(propertiesTable.getComponent());
 
-        return panel;
+        DockLayout root = DockLayout.create();
+        root.top(top);
+        root.center(LabeledLayout.create(MavenRunnerLocalize.mavenRunnerProperties(), propertiesPanel));
+        return root;
+    }
+
+    /**
+     * @return {@code true} once {@link #createUIComponent(Disposable)} has run - settings can only be
+     * read from, or pushed to, the ui after that.
+     */
+    protected final boolean isUiBuilt() {
+        return myPropertiesTable != null;
     }
 
     @SuppressWarnings("unchecked")
-    private void collectProperties() {
+    private Map<String, String> collectProperties() {
         MavenProjectsManager s = MavenProjectsManager.getInstance(myProject);
         Map<String, String> result = new LinkedHashMap<>();
 
@@ -157,28 +135,38 @@ public class MavenRunnerPanel {
             result.putAll((Map)properties);
         }
 
-        myProperties = result;
+        return result;
     }
 
+    @RequiredUIAccess
     protected void reset(MavenRunnerSettings data) {
-        myRunInBackgroundCheckbox.setSelected(data.isRunMavenInBackground());
-        myVMParametersEditor.setText(data.getVmOptions());
-        mySkipTestsCheckBox.setSelected(data.isSkipTests());
+        if (!isUiBuilt()) {
+            return;
+        }
 
-        myJdkCombo.setSelectedSdk(data.getJreName());
-        myPropertiesPanel.setDataFromMap(data.getMavenProperties());
+        myRunInBackgroundCheckbox.setValue(data.isRunMavenInBackground());
+        myVMParametersEditor.setValue(data.getVmOptions());
+        mySkipTestsCheckBox.setValue(data.isSkipTests());
+
+        myJdkCombo.setSelectedBundle(data.getJreName());
+        myPropertiesTable.setDataFromMap(data.getMavenProperties());
 
         myEnvVariablesComponent.setEnvs(data.getEnvironmentProperties());
         myEnvVariablesComponent.setPassParentEnvs(data.isPassParentEnv());
     }
 
+    @RequiredUIAccess
     protected void apply(MavenRunnerSettings data) {
-        data.setRunMavenInBackground(myRunInBackgroundCheckbox.isSelected());
-        data.setVmOptions(myVMParametersEditor.getText().trim());
-        data.setSkipTests(mySkipTestsCheckBox.isSelected());
-        data.setJreName(myJdkCombo.getSelectedSdkName());
+        if (!isUiBuilt()) {
+            return;
+        }
 
-        data.setMavenProperties(myPropertiesPanel.getDataAsMap());
+        data.setRunMavenInBackground(myRunInBackgroundCheckbox.getValueOrError());
+        data.setVmOptions(StringUtil.notNullize(myVMParametersEditor.getValue()).trim());
+        data.setSkipTests(mySkipTestsCheckBox.getValueOrError());
+        data.setJreName(myJdkCombo.getSelectedBundleName());
+
+        data.setMavenProperties(myPropertiesTable.getDataAsMap());
 
         data.setEnvironmentProperties(myEnvVariablesComponent.getEnvs());
         data.setPassParentEnv(myEnvVariablesComponent.isPassParentEnvs());

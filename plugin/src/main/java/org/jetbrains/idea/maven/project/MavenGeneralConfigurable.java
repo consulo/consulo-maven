@@ -17,11 +17,11 @@ package org.jetbrains.idea.maven.project;
 
 import consulo.configurable.SearchableConfigurable;
 import consulo.disposer.Disposable;
+import consulo.ui.Component;
 import consulo.ui.annotation.RequiredUIAccess;
 
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
-import javax.swing.*;
 
 /**
  * @author Sergey Evdokimov
@@ -34,13 +34,14 @@ public abstract class MavenGeneralConfigurable implements SearchableConfigurable
     @RequiredUIAccess
     @Nullable
     @Override
-    public JComponent createComponent(@Nonnull Disposable parentDisposable) {
+    public Component createUIComponent(@Nonnull Disposable parentDisposable) {
         if (myMavenGeneralPanel == null) {
             myMavenGeneralPanel = createGeneralPanel();
         }
         return myMavenGeneralPanel.createComponent(parentDisposable);
     }
 
+    @RequiredUIAccess
     protected MavenGeneralPanel createGeneralPanel() {
         return new MavenGeneralPanel();
     }
@@ -60,13 +61,17 @@ public abstract class MavenGeneralConfigurable implements SearchableConfigurable
     @RequiredUIAccess
     @Override
     public void apply() {
-        myMavenGeneralPanel.setData(getState());
+        if (myMavenGeneralPanel != null) {
+            myMavenGeneralPanel.setData(getState());
+        }
     }
 
     @RequiredUIAccess
     @Override
     public void reset() {
-        myMavenGeneralPanel.getData(getState());
+        if (myMavenGeneralPanel != null) {
+            myMavenGeneralPanel.getData(getState());
+        }
     }
 
     @RequiredUIAccess

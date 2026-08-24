@@ -18,8 +18,11 @@ package org.jetbrains.idea.maven.project;
 import consulo.configurable.ConfigurationException;
 import consulo.execution.configuration.ui.SettingsEditor;
 import consulo.project.Project;
+import consulo.ui.annotation.RequiredUIAccess;
+import consulo.ui.ex.awtUnsafe.TargetAWT;
 import consulo.util.lang.Pair;
 import org.jetbrains.idea.maven.execution.MavenRunConfiguration;
+import org.jetbrains.idea.maven.localize.MavenProjectLocalize;
 
 import jakarta.annotation.Nonnull;
 import javax.swing.*;
@@ -34,11 +37,13 @@ public class MavenGeneralSettingsEditor extends SettingsEditor<MavenRunConfigura
 
     private final Project myProject;
 
+    @RequiredUIAccess
     public MavenGeneralSettingsEditor(@Nonnull Project project) {
         myProject = project;
         myPanel = new MavenGeneralPanel();
     }
 
+    @RequiredUIAccess
     @Override
     protected void resetEditorFrom(MavenRunConfiguration s) {
         myUseProjectSettings.setSelected(s.getGeneralSettings() == null);
@@ -52,6 +57,7 @@ public class MavenGeneralSettingsEditor extends SettingsEditor<MavenRunConfigura
         }
     }
 
+    @RequiredUIAccess
     @Override
     protected void applyEditorTo(MavenRunConfiguration s) throws ConfigurationException {
         if (myUseProjectSettings.isSelected()) {
@@ -70,10 +76,15 @@ public class MavenGeneralSettingsEditor extends SettingsEditor<MavenRunConfigura
         }
     }
 
+    @RequiredUIAccess
     @Nonnull
     @Override
     protected JComponent createEditor() {
-        Pair<JPanel, JCheckBox> pair = MavenDisablePanelCheckbox.createPanel(myPanel.createComponent(this), "Use project settings");
+        // TODO MavenDisablePanelCheckbox is still swing - it walks the component tree to disable it
+        JComponent panel = (JComponent)TargetAWT.to(myPanel.createComponent(this));
+
+        Pair<JPanel, JCheckBox> pair =
+            MavenDisablePanelCheckbox.createPanel(panel, MavenProjectLocalize.mavenGeneralUseProjectSettings().get());
 
         myUseProjectSettings = pair.second;
         return pair.first;

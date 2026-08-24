@@ -25,6 +25,10 @@ public abstract class MavenRunnerConfigurable extends MavenRunnerPanel implement
     @Override
     @RequiredUIAccess
     public boolean isModified() {
+        if (!isUiBuilt()) {
+            return false;
+        }
+
         MavenRunnerSettings s = new MavenRunnerSettings();
         apply(s);
         return !s.equals(getState());

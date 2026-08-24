@@ -15,97 +15,161 @@
  */
 package org.jetbrains.idea.maven.project;
 
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JList;
-import javax.swing.JPanel;
+import consulo.localize.LocalizeValue;
+import consulo.ui.CheckBox;
+import consulo.ui.ComboBox;
+import consulo.ui.Component;
+import consulo.ui.HtmlLabel;
+import consulo.ui.Label;
+import consulo.ui.annotation.RequiredUIAccess;
+import consulo.ui.layout.DockLayout;
+import consulo.ui.layout.HorizontalLayout;
+import consulo.ui.layout.VerticalLayout;
+import consulo.ui.util.LabeledBuilder;
+import jakarta.annotation.Nonnull;
+import org.jetbrains.idea.maven.localize.MavenProjectLocalize;
 
-import consulo.ui.ex.awt.EnumComboBoxModel;
-import consulo.ui.ex.awt.ListCellRendererWrapper;
+import java.util.List;
 
+/**
+ * Maven importing settings, on the unified ui. Shared between the import wizard step and the
+ * {@code Settings | Build, Execution, Deployment | Maven | Importing} configurable.
+ */
 public class MavenImportingSettingsForm {
-    private JPanel myPanel;
+    private final CheckBox mySearchRecursivelyCheckBox;
 
-    private JCheckBox mySearchRecursivelyCheckBox;
+    private final CheckBox myImportAutomaticallyBox;
+    private final CheckBox myCreateModulesForAggregators;
+    private final CheckBox myCreateGroupsCheckBox;
+    private final CheckBox myKeepSourceFoldersCheckBox;
+    private final CheckBox myExcludeTargetFolderCheckBox;
+    private final CheckBox myUseMavenOutputCheckBox;
 
-    private JCheckBox myImportAutomaticallyBox;
-    private JCheckBox myCreateModulesForAggregators;
-    private JCheckBox myCreateGroupsCheckBox;
-    private JComboBox myUpdateFoldersOnImportPhaseComboBox;
-    private JCheckBox myKeepSourceFoldersCheckBox;
-    private JCheckBox myUseMavenOutputCheckBox;
-    private JCheckBox myDownloadSourcesCheckBox;
-    private JCheckBox myDownloadDocsCheckBox;
+    private final ComboBox<String> myUpdateFoldersOnImportPhaseComboBox;
+    private final ComboBox<MavenImportingSettings.GeneratedSourcesFolder> myGeneratedSourcesComboBox;
 
-    private JPanel myAdditionalSettingsPanel;
-    private JComboBox myGeneratedSourcesComboBox;
-    private JCheckBox myExcludeTargetFolderCheckBox;
+    private final CheckBox myDownloadSourcesCheckBox;
+    private final CheckBox myDownloadDocsCheckBox;
 
+    /**
+     * Extension point for {@link AdditionalMavenImportingSettings} - filled by the configurable, empty in the wizard.
+     */
+    private final VerticalLayout myAdditionalSettingsPanel = VerticalLayout.create();
+
+    private final Component myComponent;
+
+    @RequiredUIAccess
     public MavenImportingSettingsForm(boolean isImportStep, boolean isCreatingNewProject) {
+        mySearchRecursivelyCheckBox = CheckBox.create(MavenProjectLocalize.mavenImportingSearchRecursively());
         mySearchRecursivelyCheckBox.setVisible(isImportStep);
 
-        myUpdateFoldersOnImportPhaseComboBox.setModel(new DefaultComboBoxModel(MavenImportingSettings.UPDATE_FOLDERS_PHASES));
+        myImportAutomaticallyBox = CheckBox.create(MavenProjectLocalize.mavenImportingImportAutomatically());
+        myImportAutomaticallyBox.setToolTipText(MavenProjectLocalize.mavenImportingImportAutomaticallyTooltip());
 
-        myGeneratedSourcesComboBox.setModel(new EnumComboBoxModel<>(MavenImportingSettings.GeneratedSourcesFolder.class));
-        myGeneratedSourcesComboBox.setRenderer(new ListCellRendererWrapper() {
-            @Override
-            public void customize(JList list, Object value, int index, boolean selected, boolean hasFocus) {
-                if (value instanceof MavenImportingSettings.GeneratedSourcesFolder generatedSourcesFolder) {
-                    setText(generatedSourcesFolder.title);
-                }
-            }
-        });
+        myCreateModulesForAggregators = CheckBox.create(MavenProjectLocalize.mavenImportingCreateModulesForAggregators());
+        myCreateGroupsCheckBox = CheckBox.create(MavenProjectLocalize.mavenImportingCreateGroups());
+        myKeepSourceFoldersCheckBox = CheckBox.create(MavenProjectLocalize.mavenImportingKeepSourceFolders());
+
+        myExcludeTargetFolderCheckBox = CheckBox.create(MavenProjectLocalize.mavenImportingExcludeTargetFolder());
+        myExcludeTargetFolderCheckBox.setToolTipText(MavenProjectLocalize.mavenImportingExcludeTargetFolderTooltip());
+
+        myUseMavenOutputCheckBox = CheckBox.create(MavenProjectLocalize.mavenImportingUseMavenOutput());
+        myUseMavenOutputCheckBox.setToolTipText(MavenProjectLocalize.mavenImportingUseMavenOutputTooltip());
+
+        myGeneratedSourcesComboBox = ComboBox.create(MavenImportingSettings.GeneratedSourcesFolder.values());
+        myGeneratedSourcesComboBox.setTextRenderer(
+            folder -> folder == null ? LocalizeValue.empty() : LocalizeValue.of(folder.title)
+        );
+
+        myUpdateFoldersOnImportPhaseComboBox = ComboBox.create(List.of(MavenImportingSettings.UPDATE_FOLDERS_PHASES));
+
+        myDownloadSourcesCheckBox = CheckBox.create(MavenProjectLocalize.mavenImportingDownloadSources());
+        myDownloadDocsCheckBox = CheckBox.create(MavenProjectLocalize.mavenImportingDownloadDocs());
+
+        VerticalLayout root = VerticalLayout.create();
+        root.add(mySearchRecursivelyCheckBox);
+        root.add(myImportAutomaticallyBox);
+        root.add(myCreateModulesForAggregators);
+        root.add(myCreateGroupsCheckBox);
+        root.add(myKeepSourceFoldersCheckBox);
+        root.add(myExcludeTargetFolderCheckBox);
+        root.add(myUseMavenOutputCheckBox);
+
+        root.add(DockLayout.create().left(LabeledBuilder.simple(
+            MavenProjectLocalize.mavenImportingGeneratedSourcesFolder(),
+            myGeneratedSourcesComboBox
+        )));
+
+        root.add(DockLayout.create().left(LabeledBuilder.simple(
+            MavenProjectLocalize.mavenImportingUpdateFoldersPhase(),
+            myUpdateFoldersOnImportPhaseComboBox
+        )));
+
+        root.add(HtmlLabel.create(MavenProjectLocalize.mavenImportingUpdateFoldersNote()));
+
+        HorizontalLayout downloadLine = HorizontalLayout.create(5);
+        downloadLine.add(Label.create(MavenProjectLocalize.mavenImportingAutomaticallyDownload()));
+        downloadLine.add(myDownloadSourcesCheckBox);
+        downloadLine.add(myDownloadDocsCheckBox);
+        root.add(DockLayout.create().left(downloadLine));
+
+        root.add(myAdditionalSettingsPanel);
+
+        myComponent = root;
     }
 
-    public JComponent createComponent() {
-        return myPanel;
+    @Nonnull
+    public Component createComponent() {
+        return myComponent;
     }
 
+    @RequiredUIAccess
     public void getData(MavenImportingSettings data) {
-        data.setLookForNested(mySearchRecursivelyCheckBox.isSelected());
+        data.setLookForNested(mySearchRecursivelyCheckBox.getValueOrError());
 
-        data.setImportAutomatically(myImportAutomaticallyBox.isSelected());
-        data.setCreateModulesForAggregators(myCreateModulesForAggregators.isSelected());
-        data.setCreateModuleGroups(myCreateGroupsCheckBox.isSelected());
+        data.setImportAutomatically(myImportAutomaticallyBox.getValueOrError());
+        data.setCreateModulesForAggregators(myCreateModulesForAggregators.getValueOrError());
+        data.setCreateModuleGroups(myCreateGroupsCheckBox.getValueOrError());
 
-        data.setKeepSourceFolders(myKeepSourceFoldersCheckBox.isSelected());
-        data.setExcludeTargetFolder(myExcludeTargetFolderCheckBox.isSelected());
-        data.setUseMavenOutput(myUseMavenOutputCheckBox.isSelected());
+        data.setKeepSourceFolders(myKeepSourceFoldersCheckBox.getValueOrError());
+        data.setExcludeTargetFolder(myExcludeTargetFolderCheckBox.getValueOrError());
+        data.setUseMavenOutput(myUseMavenOutputCheckBox.getValueOrError());
 
-        data.setUpdateFoldersOnImportPhase((String)myUpdateFoldersOnImportPhaseComboBox.getSelectedItem());
-        data.setGeneratedSourcesFolder((MavenImportingSettings.GeneratedSourcesFolder)myGeneratedSourcesComboBox.getSelectedItem());
+        data.setUpdateFoldersOnImportPhase(myUpdateFoldersOnImportPhaseComboBox.getValue());
+        data.setGeneratedSourcesFolder(myGeneratedSourcesComboBox.getValue());
 
-        data.setDownloadSourcesAutomatically(myDownloadSourcesCheckBox.isSelected());
-        data.setDownloadDocsAutomatically(myDownloadDocsCheckBox.isSelected());
+        data.setDownloadSourcesAutomatically(myDownloadSourcesCheckBox.getValueOrError());
+        data.setDownloadDocsAutomatically(myDownloadDocsCheckBox.getValueOrError());
     }
 
+    @RequiredUIAccess
     public void setData(MavenImportingSettings data) {
-        mySearchRecursivelyCheckBox.setSelected(data.isLookForNested());
+        mySearchRecursivelyCheckBox.setValue(data.isLookForNested());
 
-        myImportAutomaticallyBox.setSelected(data.isImportAutomatically());
-        myCreateModulesForAggregators.setSelected(data.isCreateModulesForAggregators());
-        myCreateGroupsCheckBox.setSelected(data.isCreateModuleGroups());
+        myImportAutomaticallyBox.setValue(data.isImportAutomatically());
+        myCreateModulesForAggregators.setValue(data.isCreateModulesForAggregators());
+        myCreateGroupsCheckBox.setValue(data.isCreateModuleGroups());
 
-        myKeepSourceFoldersCheckBox.setSelected(data.isKeepSourceFolders());
-        myExcludeTargetFolderCheckBox.setSelected(data.isExcludeTargetFolder());
-        myUseMavenOutputCheckBox.setSelected(data.isUseMavenOutput());
+        myKeepSourceFoldersCheckBox.setValue(data.isKeepSourceFolders());
+        myExcludeTargetFolderCheckBox.setValue(data.isExcludeTargetFolder());
+        myUseMavenOutputCheckBox.setValue(data.isUseMavenOutput());
 
-        myUpdateFoldersOnImportPhaseComboBox.setSelectedItem(data.getUpdateFoldersOnImportPhase());
-        myGeneratedSourcesComboBox.setSelectedItem(data.getGeneratedSourcesFolder());
+        myUpdateFoldersOnImportPhaseComboBox.setValue(data.getUpdateFoldersOnImportPhase());
+        myGeneratedSourcesComboBox.setValue(data.getGeneratedSourcesFolder());
 
-        myDownloadSourcesCheckBox.setSelected(data.isDownloadSourcesAutomatically());
-        myDownloadDocsCheckBox.setSelected(data.isDownloadDocsAutomatically());
+        myDownloadSourcesCheckBox.setValue(data.isDownloadSourcesAutomatically());
+        myDownloadDocsCheckBox.setValue(data.isDownloadDocsAutomatically());
     }
 
+    @RequiredUIAccess
     public boolean isModified(MavenImportingSettings settings) {
         MavenImportingSettings formData = new MavenImportingSettings();
         getData(formData);
         return !formData.equals(settings);
     }
 
-    public JPanel getAdditionalSettingsPanel() {
+    @Nonnull
+    public VerticalLayout getAdditionalSettingsPanel() {
         return myAdditionalSettingsPanel;
     }
 }

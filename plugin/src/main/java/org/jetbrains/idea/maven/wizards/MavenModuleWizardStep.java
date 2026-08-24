@@ -15,42 +15,49 @@
  */
 package org.jetbrains.idea.maven.wizards;
 
-import consulo.application.ApplicationManager;
+import consulo.application.Application;
 import consulo.application.ApplicationPropertiesComponent;
 import consulo.disposer.Disposable;
-import consulo.disposer.Disposer;
+import consulo.localize.LocalizeValue;
 import consulo.maven.newProject.MavenNewModuleContext;
 import consulo.maven.rt.server.common.model.MavenArchetype;
 import consulo.maven.rt.server.common.model.MavenId;
 import consulo.project.Project;
+import consulo.ui.Button;
+import consulo.ui.CheckBox;
 import consulo.ui.Component;
+import consulo.ui.Label;
+import consulo.ui.TextAttribute;
+import consulo.ui.TextBox;
+import consulo.ui.Tree;
+import consulo.ui.TreeModel;
+import consulo.ui.TreeNode;
+import consulo.ui.UIAccess;
 import consulo.ui.annotation.RequiredUIAccess;
-import consulo.ui.ex.SimpleTextAttributes;
-import consulo.ui.ex.awt.AsyncProcessIcon;
-import consulo.ui.ex.awt.ScrollPaneFactory;
-import consulo.ui.ex.awt.UIUtil;
-import consulo.ui.ex.awt.speedSearch.SpeedSearchComparator;
-import consulo.ui.ex.awt.speedSearch.TreeSpeedSearch;
-import consulo.ui.ex.awt.tree.ColoredTreeCellRenderer;
-import consulo.ui.ex.awt.tree.Tree;
-import consulo.ui.ex.awt.tree.TreeUtil;
+import consulo.ui.ex.dialog.DialogService;
 import consulo.ui.ex.wizard.WizardStep;
 import consulo.ui.ex.wizard.WizardStepValidationException;
+import consulo.ui.layout.DockLayout;
+import consulo.ui.layout.LoadingLayout;
+import consulo.ui.layout.ScrollableLayout;
+import consulo.ui.layout.VerticalLayout;
+import consulo.ui.util.FormBuilder;
 import consulo.util.lang.StringUtil;
-import jakarta.annotation.Nullable;
+import jakarta.annotation.Nonnull;
 import org.jetbrains.idea.maven.indices.MavenIndicesManager;
-import org.jetbrains.idea.maven.navigator.SelectMavenProjectDialog;
+import org.jetbrains.idea.maven.localize.MavenProjectLocalize;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
+import org.jspecify.annotations.Nullable;
 
-import jakarta.annotation.Nonnull;
-
-import javax.swing.*;
-import javax.swing.tree.*;
-import java.awt.*;
-import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.*;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.function.Function;
 
 public class MavenModuleWizardStep implements WizardStep<MavenNewModuleContext> {
     private static final String INHERIT_GROUP_ID_KEY = "MavenModuleWizard.inheritGroupId";
@@ -58,6 +65,13 @@ public class MavenModuleWizardStep implements WizardStep<MavenNewModuleContext> 
     private static final String ARCHETYPE_ARTIFACT_ID_KEY = "MavenModuleWizard.archetypeArtifactIdKey";
     private static final String ARCHETYPE_GROUP_ID_KEY = "MavenModuleWizard.archetypeGroupIdKey";
     private static final String ARCHETYPE_VERSION_KEY = "MavenModuleWizard.archetypeVersionKey";
+
+    /**
+     * A group row and a version row can carry the same archetype - the first version stands for its
+     * group - so the value alone does not say which level a node sits on. The flag does.
+     */
+    private record ArchetypeNode(MavenArchetype archetype, boolean group) {
+    }
 
     private final Project myProjectOrNull;
     private final MavenNewModuleContext myContext;
@@ -67,120 +81,188 @@ public class MavenModuleWizardStep implements WizardStep<MavenNewModuleContext> 
     private String myInheritedGroupId;
     private String myInheritedVersion;
 
-    private JPanel myMainPanel;
+    /**
+     * Source of truth for the whole step - the step can be entered before its component exists, and the
+     * component is only a view over these.
+     */
+    private String myGroupId = "";
+    private String myArtifactId = "";
+    private String myVersion = "";
+    private boolean myInheritGroupId;
+    private boolean myInheritVersion;
+    private boolean myUseArchetype;
+    private @Nullable MavenArchetype mySelectedArchetype;
 
-    private JTextField myGroupIdField;
-    private JCheckBox myInheritGroupIdCheckBox;
-    private JTextField myArtifactIdField;
-    private JTextField myVersionField;
-    private JCheckBox myInheritVersionCheckBox;
+    /**
+     * Archetypes by "groupId:artifactId", newest version first within a group.
+     */
+    private Map<String, List<MavenArchetype>> myArchetypesByKey = Map.of();
 
-    private JCheckBox myUseArchetypeCheckBox;
-    private JButton myAddArchetypeButton;
-    private JScrollPane myArchetypesScrollPane;
-    private JPanel myArchetypesPanel;
-    private Tree myArchetypesTree;
-    private JScrollPane myArchetypeDescriptionScrollPane;
-    private JTextArea myArchetypeDescriptionField;
-
-    private Object myCurrentUpdaterMarker;
-    private final AsyncProcessIcon myLoadingIcon = new AsyncProcessIcon.Big(getClass() + ".loading");
-
-    private boolean skipUpdateUI;
+    private @Nullable TextBox myGroupIdBox;
+    private @Nullable TextBox myArtifactIdBox;
+    private @Nullable TextBox myVersionBox;
+    private @Nullable CheckBox myInheritGroupIdBox;
+    private @Nullable CheckBox myInheritVersionBox;
+    private @Nullable CheckBox myUseArchetypeBox;
+    private @Nullable Button myAddArchetypeButton;
+    private @Nullable Tree<ArchetypeNode> myArchetypesTree;
+    private @Nullable LoadingLayout<DockLayout> myArchetypesLayout;
+    private @Nullable Label myArchetypeDescriptionLabel;
 
     public MavenModuleWizardStep(MavenNewModuleContext context) {
         myProjectOrNull = null;
         myContext = context;
 
-        initComponents();
         loadSettings();
     }
 
-    private void initComponents() {
-        myArchetypesTree = new Tree();
-        myArchetypesTree.setModel(new DefaultTreeModel(new DefaultMutableTreeNode()));
-        myArchetypesScrollPane = ScrollPaneFactory.createScrollPane(myArchetypesTree);
+    @RequiredUIAccess
+    @Nonnull
+    @Override
+    public Component getComponent(@Nonnull MavenNewModuleContext context, @Nonnull Disposable uiDisposable) {
+        TextBox groupIdBox = myGroupIdBox = TextBox.create(myGroupId);
+        TextBox artifactIdBox = myArtifactIdBox = TextBox.create(myArtifactId);
+        TextBox versionBox = myVersionBox = TextBox.create(myVersion);
 
-        myArchetypesPanel.add(myArchetypesScrollPane, "archetypes");
+        groupIdBox.addValueListener(e -> myGroupId = StringUtil.notNullize(e.getValue()));
+        artifactIdBox.addValueListener(e -> myArtifactId = StringUtil.notNullize(e.getValue()));
+        versionBox.addValueListener(e -> myVersion = StringUtil.notNullize(e.getValue()));
 
-        JPanel loadingPanel = new JPanel(new GridBagLayout());
-        JPanel bp = new JPanel(new BorderLayout(10, 10));
-        bp.add(new JLabel("Loading archetype list..."), BorderLayout.NORTH);
-        bp.add(myLoadingIcon, BorderLayout.CENTER);
+        CheckBox inheritGroupIdBox = myInheritGroupIdBox =
+            CheckBox.create(MavenProjectLocalize.mavenWizardInherit(), myInheritGroupId);
+        CheckBox inheritVersionBox = myInheritVersionBox =
+            CheckBox.create(MavenProjectLocalize.mavenWizardInherit(), myInheritVersion);
 
-        loadingPanel.add(bp, new GridBagConstraints());
+        inheritGroupIdBox.addValueListener(e -> {
+            myInheritGroupId = Boolean.TRUE.equals(e.getValue());
+            updateComponents();
+        });
+        inheritVersionBox.addValueListener(e -> {
+            myInheritVersion = Boolean.TRUE.equals(e.getValue());
+            updateComponents();
+        });
 
-        myArchetypesPanel.add(ScrollPaneFactory.createScrollPane(loadingPanel), "loading");
-        ((CardLayout)myArchetypesPanel.getLayout()).show(myArchetypesPanel, "archetypes");
+        FormBuilder idForm = FormBuilder.create();
+        idForm.addLabeled(MavenProjectLocalize.mavenWizardGroupId(), DockLayout.create().center(groupIdBox).right(inheritGroupIdBox));
+        idForm.addLabeled(MavenProjectLocalize.mavenWizardArtifactId(), artifactIdBox);
+        idForm.addLabeled(MavenProjectLocalize.mavenWizardVersion(), DockLayout.create().center(versionBox).right(inheritVersionBox));
 
-        ActionListener updatingListener = e -> updateComponents();
-        myInheritGroupIdCheckBox.addActionListener(updatingListener);
-        myInheritVersionCheckBox.addActionListener(updatingListener);
+        CheckBox useArchetypeBox = myUseArchetypeBox =
+            CheckBox.create(MavenProjectLocalize.mavenWizardCreateFromArchetype(), myUseArchetype);
+        useArchetypeBox.addValueListener(e -> {
+            myUseArchetype = Boolean.TRUE.equals(e.getValue());
+            updateComponents();
+            archetypeMayBeChanged();
+        });
 
-        myUseArchetypeCheckBox.addActionListener(updatingListener);
-        myUseArchetypeCheckBox.addActionListener(e -> archetypeMayBeChanged());
+        Button addArchetypeButton = myAddArchetypeButton =
+            Button.create(MavenProjectLocalize.mavenWizardAddArchetype(), e -> doAddArchetype());
 
-        myAddArchetypeButton.addActionListener(e -> doAddArchetype());
+        Tree<ArchetypeNode> tree = myArchetypesTree = Tree.create(new ArchetypesTreeModel(), uiDisposable);
+        tree.setSpeedSearchConverter(node -> {
+            ArchetypeNode value = node.getValue();
+            if (value == null) {
+                return "";
+            }
+            MavenArchetype archetype = value.archetype();
+            return archetype.groupId + ":" + archetype.artifactId + ":" + archetype.version;
+        });
+        tree.addSelectListener(e -> {
+            TreeNode<ArchetypeNode> node = e.getValue();
+            ArchetypeNode value = node == null ? null : node.getValue();
+            mySelectedArchetype = value == null ? null : value.archetype();
 
-        myArchetypesTree.setRootVisible(false);
-        myArchetypesTree.setShowsRootHandles(true);
-        myArchetypesTree.setCellRenderer(new MyRenderer());
-        myArchetypesTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
-
-        myArchetypesTree.getSelectionModel().addTreeSelectionListener(e -> {
             updateArchetypeDescription();
             archetypeMayBeChanged();
         });
 
-        new TreeSpeedSearch(myArchetypesTree, path -> {
-            MavenArchetype info = getArchetypeInfoFromPathComponent(path.getLastPathComponent());
-            return info.groupId + ":" + info.artifactId + ":" + info.version;
-        }).setComparator(new SpeedSearchComparator(false));
+        LoadingLayout<DockLayout> archetypesLayout = myArchetypesLayout =
+            LoadingLayout.create(DockLayout.create(), uiDisposable);
+        archetypesLayout.setLoadingText(MavenProjectLocalize.mavenWizardLoadingArchetypes());
 
-        myArchetypeDescriptionField.setEditable(false);
-        myArchetypeDescriptionField.setBackground(UIUtil.getPanelBackground());
+        Label descriptionLabel = myArchetypeDescriptionLabel = Label.create();
+        descriptionLabel.setVisible(false);
+
+        VerticalLayout root = VerticalLayout.create();
+        root.add(idForm.build());
+        root.add(DockLayout.create().left(useArchetypeBox).right(addArchetypeButton));
+        root.add(archetypesLayout);
+        root.add(descriptionLabel);
+
+        loadArchetypes(mySelectedArchetype);
+        updateComponents();
+
+        return root;
+    }
+
+    @Override
+    public Component getPreferredFocusedComponent() {
+        return myGroupIdBox;
+    }
+
+    @RequiredUIAccess
+    private void loadArchetypes(@Nullable MavenArchetype toSelect) {
+        LoadingLayout<DockLayout> layout = myArchetypesLayout;
+        Tree<ArchetypeNode> tree = myArchetypesTree;
+        if (layout == null || tree == null) {
+            return;
+        }
+
+        UIAccess uiAccess = UIAccess.current();
+
+        layout.startLoading(
+            () -> MavenIndicesManager.getInstance().getArchetypes(),
+            (inner, archetypes) -> {
+                myArchetypesByKey = groupAndSortArchetypes(archetypes);
+
+                inner.center(ScrollableLayout.create(tree));
+
+                tree.refreshAll().whenComplete((ignored, throwable) -> uiAccess.give(() -> selectArchetype(tree, toSelect)));
+            }
+        );
+    }
+
+    @RequiredUIAccess
+    private void selectArchetype(Tree<ArchetypeNode> tree, @Nullable MavenArchetype toSelect) {
+        if (toSelect == null) {
+            return;
+        }
+
+        UIAccess uiAccess = UIAccess.current();
+
+        tree.getRootNode()
+            .findChildDeep(node -> !node.group() && node.archetype().equals(toSelect))
+            .whenComplete((node, throwable) -> {
+                if (node != null) {
+                    uiAccess.give(() -> tree.select(node));
+                }
+            });
     }
 
     private void archetypeMayBeChanged() {
         MavenArchetype selectedArchetype = getSelectedArchetype();
-        if (((myContext.getArchetype() == null) != (selectedArchetype == null))) {
+        if ((myContext.getArchetype() == null) != (selectedArchetype == null)) {
             myContext.setArchetype(selectedArchetype);
-            skipUpdateUI = true;
-            try {
-                //fireStateChanged();
-            }
-            finally {
-                skipUpdateUI = false;
-            }
         }
     }
 
-    @Override
-    public JComponent getSwingPreferredFocusedComponent() {
-        return myGroupIdField;
-    }
-
-    private MavenProject doSelectProject(MavenProject current) {
-        assert myProjectOrNull != null : "must not be called when creating a new project";
-
-        SelectMavenProjectDialog d = new SelectMavenProjectDialog(myProjectOrNull, current);
-        d.show();
-        if (!d.isOK()) {
-            return current;
-        }
-        return d.getResult();
-    }
-
+    @RequiredUIAccess
     private void doAddArchetype() {
-        MavenAddArchetypeDialog dialog = new MavenAddArchetypeDialog(myMainPanel);
-        dialog.show();
-        if (!dialog.isOK()) {
-            return;
-        }
+        UIAccess uiAccess = UIAccess.current();
 
-        MavenArchetype archetype = dialog.getArchetype();
-        MavenIndicesManager.getInstance().addArchetype(archetype);
-        updateArchetypesList(archetype);
+        MavenAddArchetypeDialog descriptor = new MavenAddArchetypeDialog();
+
+        Application.get().getInstance(DialogService.class).build(descriptor).showAsync().whenComplete((value, throwable) -> {
+            if (throwable != null || value == null) {
+                return;
+            }
+
+            uiAccess.give(() -> {
+                MavenArchetype archetype = descriptor.getArchetype();
+                MavenIndicesManager.getInstance().addArchetype(archetype);
+                loadArchetypes(archetype);
+            });
+        });
     }
 
     @Override
@@ -191,28 +273,19 @@ public class MavenModuleWizardStep implements WizardStep<MavenNewModuleContext> 
     }
 
     public void updateDataModel() {
-        // myContext.setProjectBuilder(myBuilder);
         myContext.setAggregatorProject(myAggregator);
         myContext.setParentProject(myParent);
 
-        myContext.setProjectId(new MavenId(
-            myGroupIdField.getText(),
-            myArtifactIdField.getText(),
-            myVersionField.getText()
-        ));
-        myContext.setInheritedOptions(
-            myInheritGroupIdCheckBox.isSelected(),
-            myInheritVersionCheckBox.isSelected()
-        );
+        myContext.setProjectId(new MavenId(myGroupId, myArtifactId, myVersion));
+        myContext.setInheritedOptions(myInheritGroupId, myInheritVersion);
 
         myContext.setArchetype(getSelectedArchetype());
     }
 
     private void loadSettings() {
-        myContext.setInheritedOptions(
-            getSavedValue(INHERIT_GROUP_ID_KEY, true),
-            getSavedValue(INHERIT_VERSION_KEY, true)
-        );
+        myInheritGroupId = getSavedValue(INHERIT_GROUP_ID_KEY, true);
+        myInheritVersion = getSavedValue(INHERIT_VERSION_KEY, true);
+        myContext.setInheritedOptions(myInheritGroupId, myInheritVersion);
 
         String archGroupId = getSavedValue(ARCHETYPE_GROUP_ID_KEY, null);
         String archArtifactId = getSavedValue(ARCHETYPE_ARTIFACT_ID_KEY, null);
@@ -226,8 +299,8 @@ public class MavenModuleWizardStep implements WizardStep<MavenNewModuleContext> 
     }
 
     private void saveSettings() {
-        saveValue(INHERIT_GROUP_ID_KEY, myInheritGroupIdCheckBox.isSelected());
-        saveValue(INHERIT_VERSION_KEY, myInheritVersionCheckBox.isSelected());
+        saveValue(INHERIT_GROUP_ID_KEY, myInheritGroupId);
+        saveValue(INHERIT_VERSION_KEY, myInheritVersion);
 
         MavenArchetype arch = getSelectedArchetype();
         saveValue(ARCHETYPE_GROUP_ID_KEY, arch == null ? null : arch.groupId);
@@ -249,49 +322,27 @@ public class MavenModuleWizardStep implements WizardStep<MavenNewModuleContext> 
     }
 
     private static void saveValue(String key, String value) {
-        ApplicationPropertiesComponent props = ApplicationPropertiesComponent.getInstance();
-        props.setValue(key, value);
-    }
-
-    @RequiredUIAccess
-    @Nonnull
-    @Override
-    public Component getComponent(@Nonnull MavenNewModuleContext context, @Nonnull Disposable uiDisposable) {
-        throw new UnsupportedOperationException("desktop only");
-    }
-
-    @Nonnull
-    @Override
-    public JComponent getSwingComponent(@Nonnull MavenNewModuleContext context, @Nonnull Disposable uiDisposable) {
-        Disposer.register(uiDisposable, myLoadingIcon);
-        return myMainPanel;
+        ApplicationPropertiesComponent.getInstance().setValue(key, value);
     }
 
     @Override
     public void validateStep(@Nonnull MavenNewModuleContext context) throws WizardStepValidationException {
-        if (StringUtil.isEmptyOrSpaces(myGroupIdField.getText())) {
-            throw new WizardStepValidationException("Please, specify groupId");
+        if (StringUtil.isEmptyOrSpaces(myGroupId)) {
+            throw new WizardStepValidationException(MavenProjectLocalize.mavenWizardSpecifyGroupId().get());
         }
 
-        if (StringUtil.isEmptyOrSpaces(myArtifactIdField.getText())) {
-            throw new WizardStepValidationException("Please, specify artifactId");
+        if (StringUtil.isEmptyOrSpaces(myArtifactId)) {
+            throw new WizardStepValidationException(MavenProjectLocalize.mavenWizardSpecifyArtifactId().get());
         }
 
-        if (StringUtil.isEmptyOrSpaces(myVersionField.getText())) {
-            throw new WizardStepValidationException("Please, specify version");
+        if (StringUtil.isEmptyOrSpaces(myVersion)) {
+            throw new WizardStepValidationException(MavenProjectLocalize.mavenWizardSpecifyVersion().get());
         }
     }
 
+    @RequiredUIAccess
     @Override
     public void onStepEnter(@Nonnull MavenNewModuleContext context) {
-        updateStep();
-    }
-
-    public void updateStep() {
-        if (skipUpdateUI) {
-            return;
-        }
-
         if (isMavenizedProject()) {
             MavenProject parent = myContext.findPotentialParentProject(myProjectOrNull);
             myAggregator = parent;
@@ -301,103 +352,79 @@ public class MavenModuleWizardStep implements WizardStep<MavenNewModuleContext> 
         MavenId projectId = myContext.getProjectId();
 
         if (projectId == null) {
-            myArtifactIdField.setText(myContext.getName());
-            myGroupIdField.setText(myParent == null ? myContext.getName() : myParent.getMavenId().getGroupId());
-            myVersionField.setText(myParent == null ? "1.0-SNAPSHOT" : myParent.getMavenId().getVersion());
+            myArtifactId = StringUtil.notNullize(myContext.getName());
+            myGroupId = myParent == null
+                ? StringUtil.notNullize(myContext.getName())
+                : myParent.getMavenId().getGroupId();
+            myVersion = myParent == null ? "1.0-SNAPSHOT" : myParent.getMavenId().getVersion();
         }
         else {
-            myArtifactIdField.setText(projectId.getArtifactId());
-            myGroupIdField.setText(projectId.getGroupId());
-            myVersionField.setText(projectId.getVersion());
+            myArtifactId = StringUtil.notNullize(projectId.getArtifactId());
+            myGroupId = StringUtil.notNullize(projectId.getGroupId());
+            myVersion = StringUtil.notNullize(projectId.getVersion());
         }
 
-        myInheritGroupIdCheckBox.setSelected(myContext.isInheritGroupId());
-        myInheritVersionCheckBox.setSelected(myContext.isInheritVersion());
+        myInheritGroupId = myContext.isInheritGroupId();
+        myInheritVersion = myContext.isInheritVersion();
 
-        MavenArchetype selectedArch = getSelectedArchetype();
-        if (selectedArch == null) {
-            selectedArch = myContext.getArchetype();
+        if (mySelectedArchetype == null) {
+            mySelectedArchetype = myContext.getArchetype();
         }
-        if (selectedArch != null) {
-            myUseArchetypeCheckBox.setSelected(true);
+        if (mySelectedArchetype != null) {
+            myUseArchetype = true;
         }
 
-        if (myArchetypesTree.getRowCount() == 0) {
-            updateArchetypesList(selectedArch);
-        }
+        pushToComponents();
         updateComponents();
     }
 
-    private void updateArchetypesList(final MavenArchetype selected) {
-        ApplicationManager.getApplication().assertIsDispatchThread();
-
-        myLoadingIcon.setBackground(myArchetypesTree.getBackground());
-
-        ((CardLayout)myArchetypesPanel.getLayout()).show(myArchetypesPanel, "loading");
-
-        final Object currentUpdaterMarker = new Object();
-        myCurrentUpdaterMarker = currentUpdaterMarker;
-
-        ApplicationManager.getApplication().executeOnPooledThread((Runnable)() -> {
-            final Set<MavenArchetype> archetypes = MavenIndicesManager.getInstance().getArchetypes();
-
-            SwingUtilities.invokeLater(() -> {
-                if (currentUpdaterMarker != myCurrentUpdaterMarker) {
-                    return; // Other updater has been run.
-                }
-
-                ((CardLayout)myArchetypesPanel.getLayout()).show(myArchetypesPanel, "archetypes");
-
-                TreeNode root = groupAndSortArchetypes(archetypes);
-                TreeModel model = new DefaultTreeModel(root);
-                myArchetypesTree.setModel(model);
-
-                if (selected != null) {
-                    TreePath path = findNodePath(selected, model, model.getRoot());
-                    if (path != null) {
-                        myArchetypesTree.expandPath(path.getParentPath());
-                        TreeUtil.selectPath(myArchetypesTree, path, true);
-                    }
-                }
-
-                updateArchetypeDescription();
-            });
-        });
+    @RequiredUIAccess
+    private void pushToComponents() {
+        if (myGroupIdBox != null) {
+            myGroupIdBox.setValue(myGroupId);
+        }
+        if (myArtifactIdBox != null) {
+            myArtifactIdBox.setValue(myArtifactId);
+        }
+        if (myVersionBox != null) {
+            myVersionBox.setValue(myVersion);
+        }
+        if (myInheritGroupIdBox != null) {
+            myInheritGroupIdBox.setValue(myInheritGroupId);
+        }
+        if (myInheritVersionBox != null) {
+            myInheritVersionBox.setValue(myInheritVersion);
+        }
+        if (myUseArchetypeBox != null) {
+            myUseArchetypeBox.setValue(myUseArchetype);
+        }
     }
 
+    @RequiredUIAccess
     private void updateArchetypeDescription() {
-        MavenArchetype sel = getSelectedArchetype();
-        String desc = sel == null ? null : sel.description;
-        if (StringUtil.isEmptyOrSpaces(desc)) {
-            myArchetypeDescriptionScrollPane.setVisible(false);
+        Label label = myArchetypeDescriptionLabel;
+        if (label == null) {
+            return;
+        }
+
+        MavenArchetype selected = getSelectedArchetype();
+        String description = selected == null ? null : selected.description;
+        if (StringUtil.isEmptyOrSpaces(description)) {
+            label.setVisible(false);
         }
         else {
-            myArchetypeDescriptionScrollPane.setVisible(true);
-            myArchetypeDescriptionField.setText(desc);
+            // there is no multiline label in the unified api, so let html do the wrapping
+            label.setText(LocalizeValue.of(
+                "<html><body><div width=\"400\">" + StringUtil.escapeXmlEntities(description) + "</div></body></html>"
+            ));
+            label.setVisible(true);
         }
-        myMainPanel.revalidate();
     }
 
-    @Nullable
-    private static TreePath findNodePath(MavenArchetype object, TreeModel model, Object parent) {
-        for (int i = 0; i < model.getChildCount(parent); i++) {
-            DefaultMutableTreeNode each = (DefaultMutableTreeNode)model.getChild(parent, i);
-            if (each.getUserObject().equals(object)) {
-                return new TreePath(each.getPath());
-            }
-
-            TreePath result = findNodePath(object, model, each);
-            if (result != null) {
-                return result;
-            }
-        }
-        return null;
-    }
-
-    private static TreeNode groupAndSortArchetypes(Set<MavenArchetype> archetypes) {
+    private static Map<String, List<MavenArchetype>> groupAndSortArchetypes(Collection<MavenArchetype> archetypes) {
         List<MavenArchetype> list = new ArrayList<>(archetypes);
 
-        Collections.sort(list, (o1, o2) -> {
+        list.sort((o1, o2) -> {
             String key1 = o1.groupId + ":" + o1.artifactId;
             String key2 = o2.groupId + ":" + o2.artifactId;
 
@@ -410,113 +437,101 @@ public class MavenModuleWizardStep implements WizardStep<MavenNewModuleContext> 
         });
 
         Map<String, List<MavenArchetype>> map = new TreeMap<>();
-
         for (MavenArchetype each : list) {
-            String key = each.groupId + ":" + each.artifactId;
-            List<MavenArchetype> versions = map.get(key);
-            if (versions == null) {
-                versions = new ArrayList<>();
-                map.put(key, versions);
-            }
-            versions.add(each);
+            map.computeIfAbsent(each.groupId + ":" + each.artifactId, key -> new ArrayList<>()).add(each);
         }
 
-        DefaultMutableTreeNode result = new DefaultMutableTreeNode("root", true);
-        for (List<MavenArchetype> each : map.values()) {
-            MavenArchetype eachArchetype = each.get(0);
-            DefaultMutableTreeNode node = new DefaultMutableTreeNode(eachArchetype, true);
-            for (MavenArchetype eachVersion : each) {
-                DefaultMutableTreeNode versionNode = new DefaultMutableTreeNode(eachVersion, false);
-                node.add(versionNode);
-            }
-            result.add(node);
-        }
-
-        return result;
+        return new LinkedHashMap<>(map);
     }
 
     private boolean isMavenizedProject() {
         return myProjectOrNull != null && MavenProjectsManager.getInstance(myProjectOrNull).isMavenizedProject();
     }
 
+    @RequiredUIAccess
     private void updateComponents() {
         if (myParent == null) {
-            myGroupIdField.setEnabled(true);
-            myVersionField.setEnabled(true);
-            myInheritGroupIdCheckBox.setEnabled(false);
-            myInheritVersionCheckBox.setEnabled(false);
+            if (myGroupIdBox != null) {
+                myGroupIdBox.setEnabled(true);
+            }
+            if (myVersionBox != null) {
+                myVersionBox.setEnabled(true);
+            }
+            if (myInheritGroupIdBox != null) {
+                myInheritGroupIdBox.setEnabled(false);
+            }
+            if (myInheritVersionBox != null) {
+                myInheritVersionBox.setEnabled(false);
+            }
         }
         else {
-            myGroupIdField.setEnabled(!myInheritGroupIdCheckBox.isSelected());
-            myVersionField.setEnabled(!myInheritVersionCheckBox.isSelected());
-
-            if (myInheritGroupIdCheckBox.isSelected()
-                || myGroupIdField.getText().equals(myInheritedGroupId)) {
-                myGroupIdField.setText(myParent.getMavenId().getGroupId());
+            if (myInheritGroupId || myGroupId.equals(myInheritedGroupId)) {
+                myGroupId = myParent.getMavenId().getGroupId();
             }
-            if (myInheritVersionCheckBox.isSelected()
-                || myVersionField.getText().equals(myInheritedVersion)) {
-                myVersionField.setText(myParent.getMavenId().getVersion());
+            if (myInheritVersion || myVersion.equals(myInheritedVersion)) {
+                myVersion = myParent.getMavenId().getVersion();
             }
-            myInheritedGroupId = myGroupIdField.getText();
-            myInheritedVersion = myVersionField.getText();
+            myInheritedGroupId = myGroupId;
+            myInheritedVersion = myVersion;
 
-            myInheritGroupIdCheckBox.setEnabled(true);
-            myInheritVersionCheckBox.setEnabled(true);
+            if (myGroupIdBox != null) {
+                myGroupIdBox.setValue(myGroupId);
+                myGroupIdBox.setEnabled(!myInheritGroupId);
+            }
+            if (myVersionBox != null) {
+                myVersionBox.setValue(myVersion);
+                myVersionBox.setEnabled(!myInheritVersion);
+            }
+            if (myInheritGroupIdBox != null) {
+                myInheritGroupIdBox.setEnabled(true);
+            }
+            if (myInheritVersionBox != null) {
+                myInheritVersionBox.setEnabled(true);
+            }
         }
 
-        boolean archetypesEnabled = myUseArchetypeCheckBox.isSelected();
-        myAddArchetypeButton.setEnabled(archetypesEnabled);
-        myArchetypesTree.setEnabled(archetypesEnabled);
-        myArchetypesTree.setBackground(archetypesEnabled ? UIUtil.getListBackground() : UIUtil.getPanelBackground());
-    }
-
-    private static String formatProjectString(MavenProject project) {
-        if (project == null) {
-            return "<none>";
+        if (myAddArchetypeButton != null) {
+            myAddArchetypeButton.setEnabled(myUseArchetype);
         }
-        return project.getMavenId().getDisplayString();
+        if (myArchetypesTree != null) {
+            myArchetypesTree.setEnabled(myUseArchetype);
+        }
     }
 
     @Nullable
     private MavenArchetype getSelectedArchetype() {
-        if (!myUseArchetypeCheckBox.isSelected() || myArchetypesTree.isSelectionEmpty()) {
-            return null;
-        }
-        return getArchetypeInfoFromPathComponent(myArchetypesTree.getLastSelectedPathComponent());
+        return myUseArchetype ? mySelectedArchetype : null;
     }
 
-    private static MavenArchetype getArchetypeInfoFromPathComponent(Object sel) {
-        return (MavenArchetype)((DefaultMutableTreeNode)sel).getUserObject();
-    }
-
-    private static class MyRenderer extends ColoredTreeCellRenderer {
+    private class ArchetypesTreeModel implements TreeModel<ArchetypeNode> {
         @Override
-        public void customizeCellRenderer(
-            JTree tree,
-            Object value,
-            boolean selected,
-            boolean expanded,
-            boolean leaf,
-            int row,
-            boolean hasFocus
-        ) {
-            Object userObject = ((DefaultMutableTreeNode)value).getUserObject();
-            if (!(userObject instanceof MavenArchetype)) {
-                return;
+        public void buildChildren(Function<ArchetypeNode, TreeNode<ArchetypeNode>> nodeFactory, @Nullable ArchetypeNode parentValue) {
+            if (parentValue == null) {
+                for (List<MavenArchetype> versions : myArchetypesByKey.values()) {
+                    TreeNode<ArchetypeNode> node = nodeFactory.apply(new ArchetypeNode(versions.get(0), true));
+                    node.setLeaf(false);
+                    node.setRenderer((item, presentation) -> {
+                        presentation.append(item.archetype().groupId + ":", TextAttribute.GRAY);
+                        presentation.append(item.archetype().artifactId, TextAttribute.REGULAR);
+                    });
+                }
             }
+            else if (parentValue.group()) {
+                MavenArchetype archetype = parentValue.archetype();
+                List<MavenArchetype> versions = myArchetypesByKey.get(archetype.groupId + ":" + archetype.artifactId);
+                if (versions == null) {
+                    return;
+                }
 
-            MavenArchetype info = (MavenArchetype)userObject;
-
-            if (leaf) {
-                append(info.artifactId, SimpleTextAttributes.GRAY_ATTRIBUTES);
-                append(":" + info.version, SimpleTextAttributes.REGULAR_ATTRIBUTES);
-            }
-            else {
-                append(info.groupId + ":", SimpleTextAttributes.GRAY_ATTRIBUTES);
-                append(info.artifactId, SimpleTextAttributes.REGULAR_ATTRIBUTES);
+                for (MavenArchetype version : versions) {
+                    TreeNode<ArchetypeNode> node = nodeFactory.apply(new ArchetypeNode(version, false));
+                    node.setLeaf(true);
+                    node.setRenderer((item, presentation) -> {
+                        presentation.append(item.archetype().artifactId, TextAttribute.GRAY);
+                        presentation.append(":" + item.archetype().version, TextAttribute.REGULAR);
+                    });
+                }
             }
         }
     }
 }
-

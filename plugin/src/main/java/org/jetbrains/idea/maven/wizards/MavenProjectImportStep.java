@@ -26,7 +26,6 @@ import consulo.maven.importProvider.MavenImportModuleContext;
 import consulo.ui.Button;
 import consulo.ui.Component;
 import consulo.ui.annotation.RequiredUIAccess;
-import consulo.ui.ex.awtUnsafe.TargetAWT;
 import consulo.ui.ex.wizard.WizardStep;
 import consulo.ui.layout.DockLayout;
 import consulo.ui.util.LabeledBuilder;
@@ -38,16 +37,17 @@ import org.jetbrains.idea.maven.project.MavenEnvironmentForm;
 import org.jetbrains.idea.maven.project.MavenGeneralSettings;
 import org.jetbrains.idea.maven.project.MavenImportingSettings;
 import org.jetbrains.idea.maven.project.MavenImportingSettingsForm;
-
-import javax.swing.*;
-import java.awt.*;
+import org.jspecify.annotations.Nullable;
 
 public class MavenProjectImportStep implements WizardStep<MavenImportModuleContext> {
-    private final JPanel myPanel;
-    private FileChooserTextBoxBuilder.Controller myRootPathController;
     private final MavenImportingSettingsForm myImportingSettingsForm;
     private final MavenImportModuleContext myContext;
 
+    private FileChooserTextBoxBuilder.@Nullable Controller myRootPathController;
+
+    /**
+     * Source of truth for the path field - the step can be entered before its component is built.
+     */
     private String myRootPath;
 
     @RequiredUIAccess
@@ -55,51 +55,40 @@ public class MavenProjectImportStep implements WizardStep<MavenImportModuleConte
         myContext = context;
 
         myImportingSettingsForm = new MavenImportingSettingsForm(true, context.isNewProject());
-
-        myPanel = new JPanel(new BorderLayout());
     }
 
     @RequiredUIAccess
     @Nonnull
     @Override
     public Component getComponent(@Nonnull MavenImportModuleContext context, @Nonnull Disposable disposable) {
-        throw new UnsupportedOperationException("destop only");
-    }
-
-    @RequiredUIAccess
-    @Nonnull
-    @Override
-    public JComponent getSwingComponent(@Nonnull MavenImportModuleContext context, @Nonnull Disposable disposable) {
-        myRootPathController = FileChooserTextBoxBuilder.create(context.getProject())
+        FileChooserTextBoxBuilder.Controller rootPathController = myRootPathController = FileChooserTextBoxBuilder.create(context.getProject())
             .uiDisposable(disposable)
             .fileChooserDescriptor(FileChooserDescriptorFactory.createSingleFolderDescriptor())
             .dialogTitle(MavenProjectLocalize.mavenImportTitleSelectRoot())
             .build();
 
         if (myRootPath != null) {
-            myRootPathController.setValue(myRootPath);
+            rootPathController.setValue(myRootPath);
         }
 
-        myPanel.add(TargetAWT.to(LabeledBuilder.filled(MavenProjectLocalize.mavenImportLabelSelectRoot(), myRootPathController.getComponent())), BorderLayout.NORTH);
+        Button envSettingsButton = Button.create(
+            MavenProjectLocalize.mavenImportEnvironmentSettings(),
+            e -> ShowSettingsUtil.getInstance().editConfigurable(context.getProject(), new MavenEnvironmentConfigurable())
+        );
 
-        myPanel.add(myImportingSettingsForm.createComponent(), BorderLayout.CENTER);
-
-        Button envSettingsButton = Button.create(MavenProjectLocalize.mavenImportEnvironmentSettings(), e -> {
-            ShowSettingsUtil.getInstance().editConfigurable(myPanel, new MavenEnvironmentConfigurable());
-        });
-
-        DockLayout bottom = DockLayout.create();
-        bottom.right(envSettingsButton);
-
-        myPanel.add(TargetAWT.to(bottom), BorderLayout.SOUTH);
-
-        return myPanel;
+        DockLayout root = DockLayout.create();
+        root.top(LabeledBuilder.filled(MavenProjectLocalize.mavenImportLabelSelectRoot(), rootPathController.getComponent()));
+        root.center(myImportingSettingsForm.createComponent());
+        root.bottom(DockLayout.create().right(envSettingsButton));
+        return root;
     }
 
+    @Nullable
     @Override
     @RequiredUIAccess
-    public JComponent getSwingPreferredFocusedComponent() {
-        return (JComponent) TargetAWT.to(myRootPathController.getComponent());
+    public Component getPreferredFocusedComponent() {
+        FileChooserTextBoxBuilder.Controller rootPathController = myRootPathController;
+        return rootPathController == null ? null : rootPathController.getComponent();
     }
 
     @Override
@@ -115,11 +104,11 @@ public class MavenProjectImportStep implements WizardStep<MavenImportModuleConte
             path = myContext.getPath();
         }
 
-        path = FileUtil.toSystemDependentName(path);
-        if (myRootPathController != null) {
-            myRootPathController.setValue(path);
-        } else {
-            myRootPath = path;
+        myRootPath = FileUtil.toSystemDependentName(path);
+
+        FileChooserTextBoxBuilder.Controller rootPathController = myRootPathController;
+        if (rootPathController != null) {
+            rootPathController.setValue(myRootPath);
         }
 
         myImportingSettingsForm.setData(getImportingSettings());
@@ -130,8 +119,12 @@ public class MavenProjectImportStep implements WizardStep<MavenImportModuleConte
     public void onStepLeave(@Nonnull MavenImportModuleContext mavenImportModuleContext) {
         MavenImportingSettings settings = getImportingSettings();
         myImportingSettingsForm.getData(settings);
-        suggestProjectNameAndPath(settings.getDedicatedModuleDir(), myRootPathController.getValue());
-        myContext.setRootDirectory(myContext.getProject(), myRootPathController.getValue());
+
+        FileChooserTextBoxBuilder.Controller rootPathController = myRootPathController;
+        String rootPath = rootPathController == null ? myRootPath : rootPathController.getValue();
+
+        suggestProjectNameAndPath(settings.getDedicatedModuleDir(), rootPath);
+        myContext.setRootDirectory(myContext.getProject(), rootPath);
     }
 
     protected void suggestProjectNameAndPath(final String alternativePath, final String path) {
@@ -159,7 +152,7 @@ public class MavenProjectImportStep implements WizardStep<MavenImportModuleConte
 
         @RequiredUIAccess
         @Override
-        public JComponent createComponent(@Nonnull Disposable uiDisposable) {
+        public Component createUIComponent(@Nonnull Disposable uiDisposable) {
             return myForm.createComponent(uiDisposable);
         }
 
