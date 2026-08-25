@@ -29,6 +29,7 @@ import consulo.ui.ValueComponent;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.wizard.WizardStep;
 import consulo.ui.layout.DockLayout;
+import consulo.ui.layout.LoadingLayout;
 import consulo.ui.layout.ScrollableLayout;
 import consulo.ui.model.FlatDataModel;
 import consulo.ui.model.MutableFlatDataModel;
@@ -51,8 +52,8 @@ public class SelectProfilesStep implements WizardStep<MavenImportModuleContext> 
     private final MavenImportModuleContext myContext;
 
     /**
-     * Source of truth for the checkbox column - the table reads through it, so it survives the step
-     * being entered before its component is built.
+     * Source of truth for the checkbox column - the table reads through it, so the answer the step
+     * hands back does not depend on a live table.
      */
     private final Map<String, ThreeState> myProfileStates = new LinkedHashMap<>();
 
@@ -62,22 +63,50 @@ public class SelectProfilesStep implements WizardStep<MavenImportModuleContext> 
      */
     private final Set<String> myActivatedProfiles = new LinkedHashSet<>();
 
-    private @Nullable MutableFlatDataModel<String> myModel;
+    private @Nullable LoadingLayout<DockLayout> myLoadingLayout;
 
     public SelectProfilesStep(MavenImportModuleContext context) {
         myContext = context;
     }
 
+    @RequiredUIAccess
     @Override
-    public boolean isVisible(MavenImportModuleContext context) {
-        return !myContext.getProfiles().isEmpty();
+    public Component getComponent(MavenImportModuleContext context, Disposable uiDisposable) {
+        LoadingLayout<DockLayout> loadingLayout = myLoadingLayout;
+        if (loadingLayout == null) {
+            myLoadingLayout = loadingLayout = LoadingLayout.create(DockLayout.create(), uiDisposable);
+            loadingLayout.setLoadingText(MavenProjectLocalize.mavenSearchingProfiles());
+            load(loadingLayout);
+        }
+        return loadingLayout;
     }
 
     @RequiredUIAccess
     @Override
-    public Component getComponent(MavenImportModuleContext context, Disposable uiDisposable) {
+    public void onStepEnter(MavenImportModuleContext context) {
+        LoadingLayout<DockLayout> loadingLayout = myLoadingLayout;
+        if (loadingLayout != null) {
+            load(loadingLayout);
+        }
+    }
+
+    @RequiredUIAccess
+    private void load(LoadingLayout<DockLayout> loadingLayout) {
+        if (myContext.isProfilesScanned()) {
+            loadingLayout.stopLoading(this::fillContent);
+        }
+        else {
+            loadingLayout.startLoading(myContext::scanProfiles, (root, scanned) -> fillContent(root));
+        }
+    }
+
+    @RequiredUIAccess
+    private void fillContent(DockLayout root) {
+        root.removeAll();
+
+        readProfileStates();
+
         MutableFlatDataModel<String> model = FlatDataModel.of(new ArrayList<>(myProfileStates.keySet()));
-        myModel = model;
 
         Table<String> table = Table.create(model);
         table.setShowHeader(false);
@@ -106,19 +135,15 @@ public class SelectProfilesStep implements WizardStep<MavenImportModuleContext> 
 
         table.addColumn(LocalizeValue.empty(), profile -> profile);
 
-        DockLayout root = DockLayout.create();
         root.top(Label.create(MavenProjectLocalize.mavenImportLabelSelectProfiles()));
         root.center(ScrollableLayout.create(table));
-        return root;
     }
 
     private ThreeState getState(String profile) {
         return myProfileStates.getOrDefault(profile, ThreeState.NO);
     }
 
-    @RequiredUIAccess
-    @Override
-    public void onStepEnter(MavenImportModuleContext context) {
+    private void readProfileStates() {
         List<String> allProfiles = myContext.getProfiles();
 
         myActivatedProfiles.clear();
@@ -132,11 +157,6 @@ public class SelectProfilesStep implements WizardStep<MavenImportModuleContext> 
         myProfileStates.clear();
         for (String profile : allProfiles) {
             myProfileStates.put(profile, initialState(profile, enabledProfiles, disabledProfiles));
-        }
-
-        MutableFlatDataModel<String> model = myModel;
-        if (model != null) {
-            model.replaceAll(allProfiles);
         }
     }
 

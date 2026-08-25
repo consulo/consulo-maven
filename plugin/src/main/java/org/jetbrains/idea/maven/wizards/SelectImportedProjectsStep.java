@@ -36,7 +36,9 @@ import consulo.ui.ex.toolbar.ToolbarDecoratorBuilder;
 import consulo.ui.ex.wizard.WizardStep;
 import consulo.ui.ex.wizard.WizardStepValidationException;
 import consulo.ui.image.Image;
+import consulo.ui.layout.DockLayout;
 import consulo.ui.layout.LabeledLayout;
+import consulo.ui.layout.LoadingLayout;
 import consulo.ui.model.FlatDataModel;
 import consulo.ui.model.MutableFlatDataModel;
 import jakarta.annotation.Nonnull;
@@ -56,13 +58,15 @@ public abstract class SelectImportedProjectsStep implements WizardStep<MavenImpo
     protected final MavenImportModuleContext myContext;
 
     /**
-     * Source of truth for both columns - the table reads through these, so they survive the step
-     * being entered before its component is built.
+     * Source of truth for both columns - the table reads through these, so the answer the step hands
+     * back does not depend on a live table.
      */
     private final List<MavenProject> myProjects = new ArrayList<>();
     private final Set<MavenProject> myMarkedProjects = new LinkedHashSet<>();
 
     private @Nullable MutableFlatDataModel<MavenProject> myModel;
+
+    private @Nullable LoadingLayout<DockLayout> myLoadingLayout;
 
     public SelectImportedProjectsStep(MavenImportModuleContext context) {
         myContext = context;
@@ -83,6 +87,40 @@ public abstract class SelectImportedProjectsStep implements WizardStep<MavenImpo
     @Nonnull
     @Override
     public Component getComponent(@Nonnull MavenImportModuleContext context, @Nonnull Disposable disposable) {
+        LoadingLayout<DockLayout> loadingLayout = myLoadingLayout;
+        if (loadingLayout == null) {
+            myLoadingLayout = loadingLayout = LoadingLayout.create(DockLayout.create(), disposable);
+            loadingLayout.setLoadingText(MavenProjectLocalize.mavenScanningProjects());
+            load(loadingLayout);
+        }
+        return loadingLayout;
+    }
+
+    @RequiredUIAccess
+    @Override
+    public void onStepEnter(@Nonnull MavenImportModuleContext context) {
+        LoadingLayout<DockLayout> loadingLayout = myLoadingLayout;
+        if (loadingLayout != null) {
+            load(loadingLayout);
+        }
+    }
+
+    @RequiredUIAccess
+    private void load(LoadingLayout<DockLayout> loadingLayout) {
+        if (myContext.isProjectTreeRead()) {
+            loadingLayout.stopLoading(this::fillContent);
+        }
+        else {
+            loadingLayout.startLoading(myContext::readProjectTree, (root, read) -> fillContent(root));
+        }
+    }
+
+    @RequiredUIAccess
+    private void fillContent(DockLayout root) {
+        root.removeAll();
+
+        readProjects();
+
         MutableFlatDataModel<MavenProject> model = FlatDataModel.of(new ArrayList<>(myProjects));
         myModel = model;
 
@@ -151,7 +189,22 @@ public abstract class SelectImportedProjectsStep implements WizardStep<MavenImpo
             ))
             .build();
 
-        return LabeledLayout.create(IdeLocalize.projectImportSelectTitle(MavenProjectLocalize.mavenName().get()), decorated);
+        root.center(LabeledLayout.create(IdeLocalize.projectImportSelectTitle(MavenProjectLocalize.mavenName().get()), decorated));
+    }
+
+    private void readProjects() {
+        myProjects.clear();
+        myMarkedProjects.clear();
+
+        List<MavenProject> list = myContext.getList();
+        if (list != null) {
+            for (MavenProject element : list) {
+                myProjects.add(element);
+                if (isElementEnabled(element) && myContext.isMarked(element)) {
+                    myMarkedProjects.add(element);
+                }
+            }
+        }
     }
 
     private void setMarked(MavenProject project, boolean marked) {
@@ -160,27 +213,6 @@ public abstract class SelectImportedProjectsStep implements WizardStep<MavenImpo
         }
         else {
             myMarkedProjects.remove(project);
-        }
-    }
-
-    @Override
-    public void onStepEnter(@Nonnull MavenImportModuleContext context) {
-        myProjects.clear();
-        myMarkedProjects.clear();
-
-        List<MavenProject> list = context.getList();
-        if (list != null) {
-            for (MavenProject element : list) {
-                myProjects.add(element);
-                if (isElementEnabled(element) && getContext().isMarked(element)) {
-                    myMarkedProjects.add(element);
-                }
-            }
-        }
-
-        MutableFlatDataModel<MavenProject> model = myModel;
-        if (model != null) {
-            model.replaceAll(myProjects);
         }
     }
 
