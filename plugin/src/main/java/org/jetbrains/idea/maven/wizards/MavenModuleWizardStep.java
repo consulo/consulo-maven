@@ -19,6 +19,7 @@ import consulo.application.Application;
 import consulo.application.ApplicationPropertiesComponent;
 import consulo.disposer.Disposable;
 import consulo.localize.LocalizeValue;
+import consulo.logging.Logger;
 import consulo.maven.newProject.MavenNewModuleContext;
 import consulo.maven.rt.server.common.model.MavenArchetype;
 import consulo.maven.rt.server.common.model.MavenId;
@@ -60,6 +61,8 @@ import java.util.TreeMap;
 import java.util.function.Function;
 
 public class MavenModuleWizardStep implements WizardStep<MavenNewModuleContext> {
+    private static final Logger LOG = Logger.getInstance(MavenModuleWizardStep.class);
+
     private static final String INHERIT_GROUP_ID_KEY = "MavenModuleWizard.inheritGroupId";
     private static final String INHERIT_VERSION_KEY = "MavenModuleWizard.inheritVersion";
     private static final String ARCHETYPE_ARTIFACT_ID_KEY = "MavenModuleWizard.archetypeArtifactIdKey";
@@ -183,11 +186,14 @@ public class MavenModuleWizardStep implements WizardStep<MavenNewModuleContext> 
         Label descriptionLabel = myArchetypeDescriptionLabel = Label.create();
         descriptionLabel.setVisible(false);
 
-        VerticalLayout root = VerticalLayout.create();
-        root.add(idForm.build());
-        root.add(DockLayout.create().left(useArchetypeBox).right(addArchetypeButton));
-        root.add(archetypesLayout);
-        root.add(descriptionLabel);
+        VerticalLayout top = VerticalLayout.create();
+        top.add(idForm.build());
+        top.add(DockLayout.create().left(useArchetypeBox).right(addArchetypeButton));
+
+        DockLayout root = DockLayout.create();
+        root.top(top);
+        root.center(archetypesLayout);
+        root.bottom(descriptionLabel);
 
         loadArchetypes(mySelectedArchetype);
         updateComponents();
@@ -211,7 +217,15 @@ public class MavenModuleWizardStep implements WizardStep<MavenNewModuleContext> 
         UIAccess uiAccess = UIAccess.current();
 
         layout.startLoading(
-            () -> MavenIndicesManager.getInstance().getArchetypes(),
+            () -> {
+                try {
+                    return MavenIndicesManager.getInstance().getArchetypes();
+                }
+                catch (Exception e) {
+                    LOG.error(e);
+                    return Set.<MavenArchetype>of();
+                }
+            },
             (inner, archetypes) -> {
                 myArchetypesByKey = groupAndSortArchetypes(archetypes);
 
@@ -370,7 +384,7 @@ public class MavenModuleWizardStep implements WizardStep<MavenNewModuleContext> 
         if (mySelectedArchetype == null) {
             mySelectedArchetype = myContext.getArchetype();
         }
-        if (mySelectedArchetype != null) {
+        if (myContext.getArchetype() != null) {
             myUseArchetype = true;
         }
 
