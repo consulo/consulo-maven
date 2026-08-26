@@ -18,6 +18,8 @@ package org.jetbrains.idea.maven.navigator.structure;
 import consulo.disposer.Disposer;
 import consulo.maven.rt.server.common.model.*;
 import consulo.project.Project;
+import consulo.ui.Tree;
+import consulo.ui.TreeNode;
 import consulo.ui.ex.awt.tree.*;
 import consulo.util.lang.StringUtil;
 import jakarta.annotation.Nonnull;
@@ -49,7 +51,10 @@ public class MavenProjectsStructure extends SimpleTreeStructure {
     private final MavenShortcutsManager myShortcutsManager;
     private final MavenProjectsNavigator myProjectsNavigator;
 
-    private final SimpleTreeBuilder myTreeBuilder;
+    private @Nullable SimpleTreeBuilder myTreeBuilder;
+    private @Nullable Tree<MavenSimpleNode> myUnifiedTree;
+    private @Nullable MavenTreeStructureModel myUnifiedModel;
+
     private final RootNode myRoot = new RootNode(this);
 
     private final Map<MavenProject, ProjectNode> myProjectToNodeMapping = new HashMap<>();
@@ -59,14 +64,24 @@ public class MavenProjectsStructure extends SimpleTreeStructure {
         MavenProjectsManager projectsManager,
         MavenTasksManager tasksManager,
         MavenShortcutsManager shortcutsManager,
-        MavenProjectsNavigator projectsNavigator,
-        SimpleTree tree
+        MavenProjectsNavigator projectsNavigator
     ) {
         myProject = project;
         myProjectsManager = projectsManager;
         myTasksManager = tasksManager;
         myShortcutsManager = shortcutsManager;
         myProjectsNavigator = projectsNavigator;
+    }
+
+    public MavenProjectsStructure(
+        Project project,
+        MavenProjectsManager projectsManager,
+        MavenTasksManager tasksManager,
+        MavenShortcutsManager shortcutsManager,
+        MavenProjectsNavigator projectsNavigator,
+        SimpleTree tree
+    ) {
+        this(project, projectsManager, tasksManager, shortcutsManager, projectsNavigator);
 
         configureTree(tree);
 
@@ -75,6 +90,11 @@ public class MavenProjectsStructure extends SimpleTreeStructure {
 
         myTreeBuilder.initRoot();
         myTreeBuilder.expand(myRoot, null);
+    }
+
+    public void setUnifiedView(Tree<MavenSimpleNode> tree, MavenTreeStructureModel model) {
+        myUnifiedTree = tree;
+        myUnifiedModel = model;
     }
 
     public MavenProjectsNavigator getProjectsNavigator() {
@@ -146,16 +166,51 @@ public class MavenProjectsStructure extends SimpleTreeStructure {
     }
 
     public void updateFrom(@Nullable SimpleNode node) {
-        if (node != null) {
-            myTreeBuilder.addSubtreeToUpdateByElement(node);
+        if (node == null) {
+            return;
         }
+
+        if (myTreeBuilder != null) {
+            myTreeBuilder.addSubtreeToUpdateByElement(node);
+            return;
+        }
+
+        refreshUnified(node, true);
     }
 
     public void updateUpTo(SimpleNode node) {
-        SimpleNode each = node;
+        if (myTreeBuilder != null) {
+            SimpleNode each = node;
+            while (each != null) {
+                updateFrom(each);
+                each = each.getParent();
+            }
+            return;
+        }
+
+        refreshUnified(node, true);
+        SimpleNode each = node.getParent();
         while (each != null) {
-            updateFrom(each);
+            refreshUnified(each, false);
             each = each.getParent();
+        }
+    }
+
+    private void refreshUnified(SimpleNode node, boolean withChildren) {
+        Tree<MavenSimpleNode> tree = myUnifiedTree;
+        MavenTreeStructureModel model = myUnifiedModel;
+        if (tree == null || model == null || !(node instanceof MavenSimpleNode mavenNode)) {
+            return;
+        }
+
+        if (mavenNode == myRoot) {
+            tree.refreshAll();
+            return;
+        }
+
+        TreeNode<MavenSimpleNode> handle = model.getHandle(mavenNode);
+        if (handle != null) {
+            tree.refreshItem(handle, withChildren);
         }
     }
 
@@ -235,7 +290,9 @@ public class MavenProjectsStructure extends SimpleTreeStructure {
     }
 
     public void accept(Predicate<SimpleNode> visitor) {
-        ((SimpleTree)myTreeBuilder.getTree()).accept(myTreeBuilder, visitor);
+        if (myTreeBuilder != null) {
+            ((SimpleTree)myTreeBuilder.getTree()).accept(myTreeBuilder, visitor);
+        }
     }
 
     public void updateGoals() {
@@ -258,7 +315,21 @@ public class MavenProjectsStructure extends SimpleTreeStructure {
     }
 
     public void select(SimpleNode node) {
-        myTreeBuilder.select(node, null);
+        if (myTreeBuilder != null) {
+            myTreeBuilder.select(node, null);
+            return;
+        }
+
+        Tree<MavenSimpleNode> tree = myUnifiedTree;
+        MavenTreeStructureModel model = myUnifiedModel;
+        if (tree == null || model == null || !(node instanceof MavenSimpleNode mavenNode)) {
+            return;
+        }
+
+        TreeNode<MavenSimpleNode> handle = model.getHandle(mavenNode);
+        if (handle != null) {
+            tree.select(handle);
+        }
     }
 
     private ProjectNode findNodeFor(MavenProject project) {

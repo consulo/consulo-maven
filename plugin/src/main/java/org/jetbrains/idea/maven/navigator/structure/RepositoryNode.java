@@ -20,9 +20,8 @@ public final class RepositoryNode extends MavenSimpleNode {
         myId = id;
         myUrl = url;
         myLocal = local;
-        PresentationData presentation = getTemplatePresentation();
-        presentation.setIcon(getDefaultIcon());
-        setNameAndTooltip(presentation, myId, null, myLocal ? getPresentablePath(myUrl) : myUrl);
+        setIcon(getDefaultIcon());
+        setNameAndTooltip(getTemplatePresentation(), myId, null, myLocal ? getPresentablePath(myUrl) : myUrl);
     }
 
     private static String getPresentablePath(String path) {

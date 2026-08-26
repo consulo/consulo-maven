@@ -15,15 +15,15 @@
  */
 package org.jetbrains.idea.maven.navigator.actions;
 
-import consulo.ui.ex.action.AnActionEvent;
+import consulo.ui.Tree;
 import consulo.ui.annotation.RequiredUIAccess;
+import consulo.ui.ex.action.AnActionEvent;
 import org.jetbrains.idea.maven.utils.MavenDataKeys;
 import org.jetbrains.idea.maven.utils.actions.MavenAction;
 import org.jetbrains.idea.maven.utils.actions.MavenActionUtil;
 
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
-import javax.swing.*;
 
 public abstract class MavenTreeAction extends MavenAction {
     @Override
@@ -32,24 +32,21 @@ public abstract class MavenTreeAction extends MavenAction {
     }
 
     @Nullable
-    protected static JTree getTree(AnActionEvent e) {
-        return e.getData(MavenDataKeys.MAVEN_PROJECTS_TREE);
+    protected static Tree<?> getTree(AnActionEvent e) {
+        Tree<?> tree = e.getData(MavenDataKeys.MAVEN_PROJECTS_TREE);
+        return tree != null && tree.isExpandCollapseAllSupported() ? tree : null;
     }
 
     public static class CollapseAll extends MavenTreeAction {
         @RequiredUIAccess
         @Override
         public void actionPerformed(@Nonnull AnActionEvent e) {
-            JTree tree = getTree(e);
+            Tree<?> tree = getTree(e);
             if (tree == null) {
                 return;
             }
 
-            int row = tree.getRowCount() - 1;
-            while (row >= 0) {
-                tree.collapseRow(row);
-                row--;
-            }
+            tree.collapseAll();
         }
     }
 
@@ -57,14 +54,12 @@ public abstract class MavenTreeAction extends MavenAction {
         @RequiredUIAccess
         @Override
         public void actionPerformed(@Nonnull AnActionEvent e) {
-            JTree tree = getTree(e);
+            Tree<?> tree = getTree(e);
             if (tree == null) {
                 return;
             }
 
-            for (int i = 0; i < tree.getRowCount(); i++) {
-                tree.expandRow(i);
-            }
+            tree.expandAll();
         }
     }
 }

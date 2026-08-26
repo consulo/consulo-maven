@@ -21,7 +21,7 @@ class RepositoriesNode extends GroupNode {
 
     RepositoriesNode(MavenProjectsStructure structure, ProjectNode parent) {
         super(structure, parent);
-        getTemplatePresentation().setIcon(MavenIconGroup.profilesclosed());
+        setIcon(MavenIconGroup.profilesclosed());
     }
 
     @Override

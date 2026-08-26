@@ -3,6 +3,7 @@ package org.jetbrains.idea.maven.navigator.structure;
 import consulo.maven.rt.server.common.model.MavenProfileKind;
 import consulo.navigation.Navigatable;
 import consulo.navigation.NavigatableAdapter;
+import consulo.platform.base.icon.PlatformIconGroup;
 import consulo.ui.ex.popup.IPopupChooserBuilder;
 import consulo.ui.ex.popup.JBPopupFactory;
 import consulo.util.collection.ContainerUtil;
@@ -13,6 +14,7 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
+import org.jetbrains.idea.maven.localize.MavenProjectLocalize;
 import org.jetbrains.idea.maven.dom.model.MavenDomProfile;
 import org.jetbrains.idea.maven.dom.model.MavenDomProfiles;
 import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
@@ -48,6 +50,18 @@ public class ProfileNode extends MavenSimpleNode {
 
     public void setState(MavenProfileKind state) {
         myState = state;
+    }
+
+    @Override
+    protected void doUpdate() {
+        setIcon(myState == MavenProfileKind.EXPLICIT ? PlatformIconGroup.actionsChecked() : null);
+
+        if (myState == MavenProfileKind.IMPLICIT) {
+            setNameAndTooltip(getName(), null, MavenProjectLocalize.mavenProfileStateAutoActivated().get());
+        }
+        else {
+            setNameAndTooltip(getName(), null);
+        }
     }
 
     @Override

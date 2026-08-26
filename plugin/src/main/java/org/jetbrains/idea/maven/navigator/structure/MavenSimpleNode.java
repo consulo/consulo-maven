@@ -1,13 +1,14 @@
 package org.jetbrains.idea.maven.navigator.structure;
 
 import consulo.annotation.access.RequiredReadAction;
+import consulo.dataContext.DataContext;
 import consulo.navigation.Navigatable;
 import consulo.project.Project;
-import consulo.ui.ex.JBColor;
+import consulo.ui.color.ColorValue;
+import consulo.ui.event.details.InputDetails;
 import consulo.ui.ex.SimpleTextAttributes;
 import consulo.ui.ex.awt.tree.CachingSimpleNode;
 import consulo.ui.ex.awt.tree.SimpleNode;
-import consulo.ui.ex.awt.tree.SimpleTree;
 import consulo.ui.ex.tree.NodeDescriptor;
 import consulo.ui.ex.tree.PresentationData;
 import consulo.util.lang.StringUtil;
@@ -17,8 +18,6 @@ import jakarta.annotation.Nullable;
 import org.jetbrains.idea.maven.navigator.MavenNavigationUtil;
 import org.jetbrains.idea.maven.utils.MavenUIUtil;
 
-import java.awt.*;
-import java.awt.event.InputEvent;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -194,12 +193,14 @@ public abstract class MavenSimpleNode extends CachingSimpleNode {
 
     private SimpleTextAttributes prepareAttributes(SimpleTextAttributes from) {
         MavenProjectsStructure.ErrorLevel level = getTotalErrorLevel();
-        Color waveColor = level == MavenProjectsStructure.ErrorLevel.NONE ? null : JBColor.RED;
+        ColorValue waveColor = level == MavenProjectsStructure.ErrorLevel.NONE
+            ? null
+            : SimpleTextAttributes.ERROR_ATTRIBUTES.foreground();
         int style = from.getStyle();
         if (waveColor != null) {
             style |= SimpleTextAttributes.STYLE_WAVED;
         }
-        return new SimpleTextAttributes(from.getBgColor(), from.getFgColor(), waveColor, style);
+        return SimpleTextAttributes.of(from.background(), from.foreground(), waveColor, style);
     }
 
     @Nullable
@@ -224,10 +225,12 @@ public abstract class MavenSimpleNode extends CachingSimpleNode {
     }
 
     @Override
-    public void handleDoubleClickOrEnter(SimpleTree tree, InputEvent inputEvent) {
+    public boolean handleDoubleClickOrEnter(DataContext context, @Nullable InputDetails inputDetails) {
         String actionId = getActionId();
         if (actionId != null) {
-            MavenUIUtil.executeAction(actionId, inputEvent);
+            MavenUIUtil.executeAction(actionId, context, inputDetails);
+            return true;
         }
+        return false;
     }
 }

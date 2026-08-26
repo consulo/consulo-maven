@@ -18,6 +18,7 @@ package org.jetbrains.idea.maven.navigator;
 import consulo.annotation.access.RequiredReadAction;
 import consulo.application.HelpManager;
 import consulo.dataContext.DataSink;
+import consulo.dataContext.UiDataProvider;
 import consulo.execution.action.Location;
 import consulo.language.psi.PsiFile;
 import consulo.language.psi.PsiManager;
@@ -26,38 +27,42 @@ import consulo.maven.rt.server.common.model.MavenConstants;
 import consulo.maven.rt.server.common.model.MavenProfileKind;
 import consulo.navigation.Navigatable;
 import consulo.project.Project;
+import consulo.ui.Component;
+import consulo.ui.Tree;
+import consulo.ui.TreeNode;
+import consulo.ui.annotation.RequiredUIAccess;
+import consulo.ui.event.ContextMenuEvent;
 import consulo.ui.ex.action.ActionGroup;
 import consulo.ui.ex.action.ActionManager;
+import consulo.ui.ex.action.ActionPopupMenu;
 import consulo.ui.ex.action.ActionToolbar;
-import consulo.ui.ex.action.DefaultActionGroup;
-import consulo.ui.ex.awt.PopupHandler;
-import consulo.ui.ex.awt.ScrollPaneFactory;
-import consulo.ui.ex.awt.SimpleToolWindowPanel;
-import consulo.ui.ex.awt.dnd.FileCopyPasteUtil;
-import consulo.ui.ex.awt.tree.SimpleTree;
+import consulo.ui.ex.action.ActionToolbarFactory;
+import consulo.ui.layout.DockLayout;
+import consulo.ui.layout.ScrollableLayout;
 import consulo.util.collection.ContainerUtil;
-import consulo.util.dataholder.Key;
 import consulo.util.lang.StringUtil;
 import consulo.virtualFileSystem.VirtualFile;
 import consulo.virtualFileSystem.util.VirtualFileUtil;
-import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.jetbrains.idea.maven.execution.MavenGoalLocation;
 import org.jetbrains.idea.maven.navigator.structure.*;
 import org.jetbrains.idea.maven.project.MavenProject;
-import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.utils.MavenDataKeys;
-import org.jetbrains.idea.maven.utils.actions.MavenActionUtil;
 
-import javax.swing.*;
-import java.awt.*;
-import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.StringTokenizer;
 
-public class MavenProjectsNavigatorPanel extends SimpleToolWindowPanel {
+public class MavenProjectsNavigatorPanel implements UiDataProvider {
     private final Project myProject;
-    private final SimpleTree myTree;
+    private final Tree<MavenSimpleNode> myTree;
+    private final DockLayout myRoot;
 
     private final Comparator<String> myGoalOrderComparator = new Comparator<>() {
         private Map<String, Integer> standardGoalOrder;
@@ -80,53 +85,53 @@ public class MavenProjectsNavigatorPanel extends SimpleToolWindowPanel {
         }
     };
 
-    public MavenProjectsNavigatorPanel(Project project, SimpleTree tree) {
-        super(true, true);
+    @RequiredUIAccess
+    public MavenProjectsNavigatorPanel(Project project, Tree<MavenSimpleNode> tree) {
         myProject = project;
         myTree = tree;
 
-        final ActionManager actionManager = ActionManager.getInstance();
-        ActionToolbar actionToolbar = actionManager.createActionToolbar("Maven Navigator Toolbar",
-            (DefaultActionGroup) actionManager.getAction("Maven.NavigatorActionsToolbar"),
-            true
+        ActionManager actionManager = ActionManager.getInstance();
+
+        ActionToolbar toolbar = ActionToolbarFactory.getInstance().createActionToolbar(
+            "Maven Navigator Toolbar",
+            (ActionGroup) actionManager.getAction("Maven.NavigatorActionsToolbar"),
+            ActionToolbar.Style.HORIZONTAL
         );
+        toolbar.setTargetUIComponent(tree);
 
-        actionToolbar.setTargetComponent(tree);
-        setToolbar(actionToolbar.getComponent());
-        setContent(ScrollPaneFactory.createScrollPane(myTree));
+        myRoot = DockLayout.create();
+        myRoot.top(toolbar.getUIComponent());
+        myRoot.center(ScrollableLayout.create(tree));
 
-        setTransferHandler(new MyTransferHandler(project));
+        myRoot.putUserData(UiDataProvider.KEY, this);
 
-        myTree.addMouseListener(new PopupHandler() {
-            @Override
-            public void invokePopup(final Component comp, final int x, final int y) {
-                final String id = getMenuId(getSelectedNodes(MavenSimpleNode.class));
-                if (id != null) {
-                    final ActionGroup actionGroup = (ActionGroup) actionManager.getAction(id);
-                    if (actionGroup != null) {
-                        actionManager.createActionPopupMenu("", actionGroup).getComponent().show(comp, x, y);
-                    }
-                }
-            }
+        tree.addContextMenuListener(this::showContextMenu);
+    }
 
-            @Nullable
-            private String getMenuId(Collection<? extends MavenSimpleNode> nodes) {
-                String id = null;
-                for (MavenSimpleNode node : nodes) {
-                    String menuId = node.getMenuId();
-                    if (menuId == null) {
-                        return null;
-                    }
-                    if (id == null) {
-                        id = menuId;
-                    }
-                    else if (!id.equals(menuId)) {
-                        return null;
-                    }
-                }
-                return id;
-            }
-        });
+    public Component getComponent() {
+        return myRoot;
+    }
+
+    @RequiredUIAccess
+    private void showContextMenu(ContextMenuEvent event) {
+        List<MavenSimpleNode> nodes = getSelectedNodes(MavenSimpleNode.class);
+        if (nodes.isEmpty()) {
+            return;
+        }
+
+        String menuId = nodes.get(0).getMenuId();
+        if (menuId == null) {
+            return;
+        }
+
+        ActionManager actionManager = ActionManager.getInstance();
+        if (!(actionManager.getAction(menuId) instanceof ActionGroup group)) {
+            return;
+        }
+
+        ActionPopupMenu menu = actionManager.createActionPopupMenu("", group);
+        menu.setTargetComponent(myTree);
+        menu.show(event.getComponent(), event.getInputDetails().getX(), event.getInputDetails().getY());
     }
 
     @Override
@@ -141,7 +146,6 @@ public class MavenProjectsNavigatorPanel extends SimpleToolWindowPanel {
         sink.lazy(MavenDataKeys.MAVEN_PROFILES, this::extractProfiles);
         sink.lazy(MavenDataKeys.MAVEN_DEPENDENCIES, this::extractDependencies);
         sink.set(MavenDataKeys.MAVEN_PROJECTS_TREE, myTree);
-        super.uiDataSnapshot(sink);
     }
 
     private VirtualFile extractVirtualFile() {
@@ -259,7 +263,12 @@ public class MavenProjectsNavigatorPanel extends SimpleToolWindowPanel {
     }
 
     private <T extends MavenSimpleNode> List<T> getSelectedNodes(Class<T> aClass) {
-        return MavenProjectsStructure.getSelectedNodes(myTree, aClass);
+        TreeNode<MavenSimpleNode> node = myTree.getSelectedNode();
+        MavenSimpleNode value = node == null ? null : node.getValue();
+        if (aClass.isInstance(value)) {
+            return List.of(aClass.cast(value));
+        }
+        return List.of();
     }
 
     private List<ProjectNode> getSelectedProjectNodes() {
@@ -279,50 +288,5 @@ public class MavenProjectsNavigatorPanel extends SimpleToolWindowPanel {
             return projectNode;
         }
         return MavenProjectsStructure.getCommonProjectNode(getSelectedNodes(MavenSimpleNode.class));
-    }
-
-    private static class MyTransferHandler extends TransferHandler {
-
-        private final Project myProject;
-
-        private MyTransferHandler(Project project) {
-            myProject = project;
-        }
-
-        @Override
-        public boolean importData(final TransferSupport support) {
-            if (canImport(support)) {
-                List<VirtualFile> pomFiles = new ArrayList<>();
-
-                final List<File> fileList = FileCopyPasteUtil.getFileList(support.getTransferable());
-                if (fileList == null) {
-                    return false;
-                }
-
-                MavenProjectsManager manager = MavenProjectsManager.getInstance(myProject);
-
-                for (File file : fileList) {
-                    VirtualFile virtualFile = VirtualFileUtil.findFileByIoFile(file, true);
-                    if (file.isFile() && virtualFile != null && MavenActionUtil.isMavenProjectFile(virtualFile) && !manager.isManagedFile
-                        (virtualFile)) {
-                        pomFiles.add(virtualFile);
-                    }
-                }
-
-                if (pomFiles.isEmpty()) {
-                    return false;
-                }
-
-                manager.addManagedFilesOrUnignore(pomFiles);
-
-                return true;
-            }
-            return false;
-        }
-
-        @Override
-        public boolean canImport(final TransferSupport support) {
-            return FileCopyPasteUtil.isFileListFlavorAvailable(support.getDataFlavors());
-        }
     }
 }

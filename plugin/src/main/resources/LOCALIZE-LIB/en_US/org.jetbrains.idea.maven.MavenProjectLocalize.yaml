@@ -178,6 +178,8 @@ maven.profile.deactivate:
     text: Deactivate
 maven.profile.default:
     text: Use default
+maven.profile.state.auto.activated:
+    text: auto-activated
 maven.project.changed:
     text: Maven projects need to be imported
 maven.project.enableAutoImport:

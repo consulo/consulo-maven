@@ -1,14 +1,13 @@
 package org.jetbrains.idea.maven.navigator.structure;
 
+import consulo.dataContext.DataContext;
 import consulo.execution.ProgramRunnerUtil;
+import consulo.ui.event.details.InputDetails;
 import consulo.execution.RunnerAndConfigurationSettings;
 import consulo.execution.executor.DefaultRunExecutor;
-import consulo.ui.ex.awt.tree.SimpleTree;
 import consulo.util.lang.StringUtil;
 import jakarta.annotation.Nullable;
 import org.jetbrains.idea.maven.execution.MavenRunConfiguration;
-
-import java.awt.event.InputEvent;
 
 public class RunConfigurationNode extends MavenSimpleNode {
     private final RunnerAndConfigurationSettings mySettings;
@@ -47,7 +46,8 @@ public class RunConfigurationNode extends MavenSimpleNode {
     }
 
     @Override
-    public void handleDoubleClickOrEnter(SimpleTree tree, InputEvent inputEvent) {
+    public boolean handleDoubleClickOrEnter(DataContext context, @Nullable InputDetails inputDetails) {
         ProgramRunnerUtil.executeConfiguration(mySettings, DefaultRunExecutor.getRunExecutorInstance());
+        return true;
     }
 }

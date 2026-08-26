@@ -3,7 +3,6 @@ package org.jetbrains.idea.maven.navigator.structure;
 import consulo.maven.icon.MavenIconGroup;
 import consulo.maven.rt.server.common.model.MavenProjectProblem;
 import consulo.platform.base.icon.PlatformIconGroup;
-import consulo.ui.ex.JBColor;
 import consulo.ui.ex.SimpleTextAttributes;
 import consulo.util.lang.ObjectUtil;
 import consulo.util.lang.StringUtil;
@@ -138,7 +137,7 @@ public class ProjectNode extends GroupNode {
     @Override
     protected SimpleTextAttributes getPlainAttributes() {
         if (myMavenProjectsStructure.getProjectsManager().isIgnored(myMavenProject)) {
-            return new SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN, JBColor.GRAY);
+            return SimpleTextAttributes.GRAY_ATTRIBUTES;
         }
         return super.getPlainAttributes();
     }
@@ -227,10 +226,7 @@ public class ProjectNode extends GroupNode {
     protected void setNameAndTooltip(String name, @Nullable String tooltip, SimpleTextAttributes attributes) {
         super.setNameAndTooltip(name, tooltip, attributes);
         if (myMavenProjectsStructure.getProjectsNavigator().getShowVersions()) {
-            addColoredFragment(
-                ":" + myMavenProject.getMavenId().getVersion(),
-                new SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN, JBColor.GRAY)
-            );
+            addColoredFragment(":" + myMavenProject.getMavenId().getVersion(), SimpleTextAttributes.GRAY_ATTRIBUTES);
         }
     }
 

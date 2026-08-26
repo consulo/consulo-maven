@@ -1,14 +1,13 @@
 package org.jetbrains.idea.maven.navigator.structure;
 
 import consulo.platform.base.icon.PlatformIconGroup;
+import consulo.ui.color.ColorValue;
 import consulo.ui.ex.SimpleTextAttributes;
 import consulo.util.lang.StringUtil;
 import jakarta.annotation.Nullable;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.idea.maven.execution.MavenRunner;
 import org.jetbrains.idea.maven.project.MavenProject;
-
-import java.awt.*;
 
 public abstract class GoalNode extends MavenSimpleNode {
     private final MavenProject myMavenProject;
@@ -64,11 +63,11 @@ public abstract class GoalNode extends MavenSimpleNode {
         SimpleTextAttributes original = super.getPlainAttributes();
 
         int style = original.getStyle();
-        Color color = original.getFgColor();
+        ColorValue color = original.foreground();
         boolean custom = false;
 
         if ("test".equals(myGoal) && MavenRunner.getInstance(myMavenProjectsStructure.getProject()).getSettings().isSkipTests()) {
-            color = SimpleTextAttributes.GRAYED_ATTRIBUTES.getFgColor();
+            color = SimpleTextAttributes.GRAYED_ATTRIBUTES.foreground();
             style |= SimpleTextAttributes.STYLE_STRIKEOUT;
             custom = true;
         }
@@ -77,7 +76,7 @@ public abstract class GoalNode extends MavenSimpleNode {
             custom = true;
         }
         if (custom) {
-            return original.derive(style, color, null, null);
+            return original.deriveColors(style, color, null, null);
         }
         return original;
     }

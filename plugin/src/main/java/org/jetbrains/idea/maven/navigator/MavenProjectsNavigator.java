@@ -25,15 +25,13 @@ import consulo.execution.event.RunManagerListener;
 import consulo.execution.event.RunManagerListenerEvent;
 import consulo.application.Application;
 import consulo.maven.rt.server.common.server.NativeMavenProjectHolder;
-import consulo.platform.base.icon.PlatformIconGroup;
 import consulo.project.Project;
 import consulo.project.ui.wm.ToolWindowManager;
 import consulo.project.ui.wm.ToolWindowManagerListener;
+import consulo.ui.Tree;
 import consulo.ui.UIAction;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.action.*;
-import consulo.ui.ex.awt.JBHtmlEditorKit;
-import consulo.ui.ex.awt.tree.SimpleTree;
-import consulo.ui.ex.awt.tree.TreeState;
 import consulo.ui.ex.content.Content;
 import consulo.ui.ex.content.ContentFactory;
 import consulo.ui.ex.content.ContentManager;
@@ -41,26 +39,22 @@ import consulo.ui.ex.toolWindow.ToolWindow;
 import consulo.util.collection.ContainerUtil;
 import consulo.util.concurrent.coroutine.Coroutine;
 import consulo.util.lang.Pair;
-import consulo.util.xml.serializer.WriteExternalException;
 import jakarta.annotation.Nullable;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
-import org.jdom.Element;
 import org.jetbrains.annotations.TestOnly;
 import org.jetbrains.idea.maven.execution.MavenRunner;
 import org.jetbrains.idea.maven.navigator.structure.MavenProjectsStructure;
+import org.jetbrains.idea.maven.navigator.structure.MavenSimpleNode;
+import org.jetbrains.idea.maven.navigator.structure.MavenTreeStructureModel;
 import org.jetbrains.idea.maven.project.*;
 import org.jetbrains.idea.maven.tasks.MavenShortcutsManager;
 import org.jetbrains.idea.maven.tasks.MavenTasksManager;
-import org.jetbrains.idea.maven.utils.MavenLog;
 import org.jetbrains.idea.maven.utils.MavenSimpleProjectComponent;
 import org.jetbrains.idea.maven.utils.MavenUtil;
 
 import jakarta.annotation.Nonnull;
 
-import javax.swing.*;
-import javax.swing.tree.TreeSelectionModel;
-import java.awt.*;
 import java.util.Collections;
 import java.util.List;
 
@@ -77,7 +71,7 @@ public class MavenProjectsNavigator extends MavenSimpleProjectComponent implemen
     private MavenTasksManager myTasksManager;
     private MavenShortcutsManager myShortcutsManager;
 
-    private SimpleTree myTree;
+    private Tree<MavenSimpleNode> myTree;
     private MavenProjectsStructure myStructure;
 
     @Nonnull
@@ -104,18 +98,7 @@ public class MavenProjectsNavigator extends MavenSimpleProjectComponent implemen
 
     @Override
     public Coroutine<?, MavenProjectsNavigatorState> getStateAsync() {
-        return UIAction.apply(i -> {
-            if (myStructure != null) {
-                try {
-                    myState.treeState = new Element("root");
-                    TreeState.createOn(myTree).writeExternal(myState.treeState);
-                }
-                catch (WriteExternalException e) {
-                    MavenLog.LOG.warn(e);
-                }
-            }
-            return myState;
-        }).toCoroutine();
+        return UIAction.apply(i -> myState).toCoroutine();
     }
 
     @Override
@@ -181,8 +164,7 @@ public class MavenProjectsNavigator extends MavenSimpleProjectComponent implemen
 
     @TestOnly
     public void initForTests() {
-        initTree();
-        initStructure();
+        myStructure = new MavenProjectsStructure(myProject, myProjectsManager, myTasksManager, myShortcutsManager, this);
     }
 
 
@@ -227,17 +209,13 @@ public class MavenProjectsNavigator extends MavenSimpleProjectComponent implemen
         });
     }
 
+    @RequiredUIAccess
     public void initToolWindow(ToolWindow toolWindow) {
         initTree();
-        JPanel panel = new MavenProjectsNavigatorPanel(myProject, myTree);
-
-        AnAction removeAction = EmptyAction.wrap(ActionManager.getInstance().getAction("Maven.RemoveRunConfiguration"));
-        removeAction.registerCustomShortcutSet(CommonShortcuts.getDelete(), myTree, myProject);
-        AnAction editSource = EmptyAction.wrap(ActionManager.getInstance().getAction("Maven.EditRunConfiguration"));
-        editSource.registerCustomShortcutSet(CommonShortcuts.getEditSource(), myTree, myProject);
+        MavenProjectsNavigatorPanel panel = new MavenProjectsNavigatorPanel(myProject, myTree);
 
         final ContentFactory contentFactory = ContentFactory.getInstance();
-        final Content content = contentFactory.createContent(panel, "", false);
+        final Content content = contentFactory.createUIContent(panel.getComponent(), "", false);
         ContentManager contentManager = toolWindow.getContentManager();
         contentManager.addContent(content);
         contentManager.setSelectedContent(content, false);
@@ -272,49 +250,13 @@ public class MavenProjectsNavigator extends MavenSimpleProjectComponent implemen
         toolWindow.setAdditionalGearActions(group.build());
     }
 
+    @RequiredUIAccess
     private void initTree() {
-        myTree = new SimpleTree() {
-            private final JEditorPane myLabel;
+        myStructure = new MavenProjectsStructure(myProject, myProjectsManager, myTasksManager, myShortcutsManager, this);
 
-            {
-                myLabel = new JEditorPane("text/html", "");
-                myLabel.setOpaque(false);
-                myLabel.setEditorKit(JBHtmlEditorKit.create());
-                String text = ProjectBundle.message("maven.navigator.nothing.to.display",
-                    MavenUtil.formatHtmlImage(PlatformIconGroup.generalAdd()),
-                    MavenUtil.formatHtmlImage(PlatformIconGroup
-                        .actionsRefresh())
-                );
-                myLabel.setText(text);
-            }
-
-            @Override
-            protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                if (myProjectsManager.hasProjects()) {
-                    return;
-                }
-
-                myLabel.setFont(getFont());
-                myLabel.setBackground(getBackground());
-                myLabel.setForeground(getForeground());
-                Rectangle bounds = getBounds();
-                Dimension size = myLabel.getPreferredSize();
-                myLabel.setBounds(0, 0, size.width, size.height);
-
-                int x = (bounds.width - size.width) / 2;
-                Graphics g2 = g.create(bounds.x + x, bounds.y + 20, bounds.width, bounds.height);
-                try {
-                    myLabel.paint(g2);
-                }
-                finally {
-                    g2.dispose();
-                }
-            }
-        };
-        myTree.getEmptyText().clear();
-
-        myTree.getSelectionModel().setSelectionMode(TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
+        MavenTreeStructureModel model = new MavenTreeStructureModel(myStructure);
+        myTree = Tree.create(model, this);
+        myStructure.setUnifiedView(myTree, model);
     }
 
     @TestOnly
@@ -334,26 +276,21 @@ public class MavenProjectsNavigator extends MavenSimpleProjectComponent implemen
             return;
         }
 
+        if (myStructure == null) {
+            return;
+        }
+
         ToolWindow toolWindow = getToolWindow();
         if (toolWindow == null) {
             return;
         }
-        MavenUtil.invokeLater(myProject, () ->
-        {
+
+        myProject.getUIAccess().give(() -> {
             if (!toolWindow.isVisible()) {
                 return;
             }
 
-            boolean shouldCreate = myStructure == null;
-            if (shouldCreate) {
-                initStructure();
-            }
-
             r.run();
-
-            if (shouldCreate) {
-                TreeState.createFrom(myState.treeState).applyTo(myTree);
-            }
         });
     }
 
@@ -363,10 +300,6 @@ public class MavenProjectsNavigator extends MavenSimpleProjectComponent implemen
             return null;
         }
         return ToolWindowManager.getInstance(myProject).getToolWindow(TOOL_WINDOW_ID);
-    }
-
-    private void initStructure() {
-        myStructure = new MavenProjectsStructure(myProject, myProjectsManager, myTasksManager, myShortcutsManager, this, myTree);
     }
 
     private void scheduleStructureUpdate() {
