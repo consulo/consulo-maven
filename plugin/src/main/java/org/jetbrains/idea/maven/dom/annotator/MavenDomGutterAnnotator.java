@@ -16,16 +16,19 @@
 
 package org.jetbrains.idea.maven.dom.annotator;
 
+import consulo.annotation.access.RequiredReadAction;
+import consulo.application.Application;
 import consulo.language.editor.annotation.AnnotationHolder;
 import consulo.language.editor.annotation.Annotator;
-import consulo.language.editor.ui.PsiElementListCellRenderer;
 import consulo.language.editor.ui.navigation.NavigationGutterIconBuilder;
+import consulo.language.editor.ui.navigation.TargetPresentationProvider;
 import consulo.language.psi.PsiElement;
+import consulo.localize.LocalizeValue;
 import consulo.maven.icon.MavenIconGroup;
+import consulo.navigation.NavigationService;
+import consulo.navigation.TargetPresentation;
 import consulo.platform.base.icon.PlatformIconGroup;
 import consulo.project.Project;
-import consulo.ui.annotation.RequiredUIAccess;
-import consulo.ui.image.Image;
 import consulo.util.collection.ContainerUtil;
 import consulo.util.lang.StringUtil;
 import consulo.xml.codeInsight.navigation.DomNavigationGutterIconBuilder;
@@ -58,9 +61,9 @@ public class MavenDomGutterAnnotator implements Annotator {
                 DomNavigationGutterIconBuilder.create(PlatformIconGroup.gutterOverridenmethod(), DependencyConverter.INSTANCE);
             iconBuilder
                 .setTargets(children)
-                .setPopupTitle(MavenDomLocalize.navigateParentDependencyTitle().get())
-                .setCellRenderer(MyListCellRenderer.INSTANCE)
-                .setTooltipText(MavenDomLocalize.overridingDependencyTitle().get())
+                .setPopupTitle(MavenDomLocalize.navigateParentDependencyTitle())
+                .setPresentationProvider(MavenProjectPresentationProvider.INSTANCE)
+                .setTooltipText(MavenDomLocalize.overridingDependencyTitle())
                 .install(holder, dependency.getXmlTag());
         }
     }
@@ -78,7 +81,7 @@ public class MavenDomGutterAnnotator implements Annotator {
                 DomNavigationGutterIconBuilder.create(PlatformIconGroup.gutterOverridingmethod(), DependencyConverter.INSTANCE);
             iconBuilder
                 .setTargets(children)
-                .setTooltipText(MavenDomLocalize.overridenDependencyTitle().get())
+                .setTooltipText(MavenDomLocalize.overridenDependencyTitle())
                 .install(holder, tag);
         }
     }
@@ -146,7 +149,7 @@ public class MavenDomGutterAnnotator implements Annotator {
 
             iconBuilder
                 .setTargets(Collections.singletonList(managingPlugin))
-                .setTooltipText(MavenDomLocalize.overridenPluginTitle().get())
+                .setTooltipText(MavenDomLocalize.overridenPluginTitle())
                 .install(holder, xmlTag);
         }
     }
@@ -165,9 +168,9 @@ public class MavenDomGutterAnnotator implements Annotator {
 
             iconBuilder
                 .setTargets(children)
-                .setPopupTitle(MavenDomLocalize.navigateParentPluginTitle().get())
-                .setCellRenderer(MyListCellRenderer.INSTANCE)
-                .setTooltipText(MavenDomLocalize.overridingPluginTitle().get())
+                .setPopupTitle(MavenDomLocalize.navigateParentPluginTitle())
+                .setPresentationProvider(MavenProjectPresentationProvider.INSTANCE)
+                .setTooltipText(MavenDomLocalize.overridingPluginTitle())
                 .install(holder, xmlTag);
         }
     }
@@ -179,7 +182,7 @@ public class MavenDomGutterAnnotator implements Annotator {
         if (parent != null) {
             NavigationGutterIconBuilder.create(MavenIconGroup.parentproject(), MavenProjectConverter.INSTANCE)
                 .setTargets(parent)
-                .setTooltipText(MavenDomLocalize.parentPomTitle().get())
+                .setTooltipText(MavenDomLocalize.parentPomTitle())
                 .install(holder, mavenDomParent.getXmlElement());
         }
     }
@@ -192,9 +195,9 @@ public class MavenDomGutterAnnotator implements Annotator {
             if (children.size() > 0) {
                 NavigationGutterIconBuilder.create(MavenIconGroup.childrenprojects(), MavenProjectConverter.INSTANCE)
                     .setTargets(children)
-                    .setCellRenderer(MyListCellRenderer.INSTANCE)
-                    .setPopupTitle(MavenDomLocalize.navigateChildrenPomsTitle().get())
-                    .setTooltipText(MavenDomLocalize.childrenPomsTitle().get())
+                    .setPresentationProvider(MavenProjectPresentationProvider.INSTANCE)
+                    .setPopupTitle(MavenDomLocalize.navigateChildrenPomsTitle())
+                    .setTooltipText(MavenDomLocalize.childrenPomsTitle())
                     .install(holder, model.getXmlElement());
             }
         }
@@ -204,44 +207,39 @@ public class MavenDomGutterAnnotator implements Annotator {
         return dependency.getParentOfType(MavenDomDependencyManagement.class, false) != null;
     }
 
-    private static class MyListCellRenderer extends PsiElementListCellRenderer<XmlTag> {
-        public static final MyListCellRenderer INSTANCE = new MyListCellRenderer();
+    private static class MavenProjectPresentationProvider implements TargetPresentationProvider<PsiElement> {
+        public static final MavenProjectPresentationProvider INSTANCE = new MavenProjectPresentationProvider();
 
         @Override
-        @RequiredUIAccess
-        public String getElementText(XmlTag tag) {
-            DomElement domElement = DomManager.getDomManager(tag.getProject()).getDomElement(tag);
-            if (domElement != null) {
-                MavenDomProjectModel model = domElement.getParentOfType(MavenDomProjectModel.class, false);
-                if (model != null) {
-                    MavenProject mavenProject = MavenDomUtil.findProject(model);
-                    if (mavenProject != null) {
-                        return mavenProject.getDisplayName();
-                    }
+        @RequiredReadAction
+        public TargetPresentation getPresentation(PsiElement element) {
+            return Application.get().getInstance(NavigationService.class)
+                .presentationBuilder(LocalizeValue.of(getText(element)))
+                .withIcon(MavenIconGroup.mavenlogo())
+                .build();
+        }
 
-                    String name = model.getName().getStringValue();
-                    if (!StringUtil.isEmptyOrSpaces(name)) {
-                        return name;
+        @RequiredReadAction
+        private static String getText(PsiElement element) {
+            if (element instanceof XmlTag tag) {
+                DomElement domElement = DomManager.getDomManager(tag.getProject()).getDomElement(tag);
+                if (domElement != null) {
+                    MavenDomProjectModel model = domElement.getParentOfType(MavenDomProjectModel.class, false);
+                    if (model != null) {
+                        MavenProject mavenProject = MavenDomUtil.findProject(model);
+                        if (mavenProject != null) {
+                            return mavenProject.getDisplayName();
+                        }
+
+                        String name = model.getName().getStringValue();
+                        if (!StringUtil.isEmptyOrSpaces(name)) {
+                            return name;
+                        }
                     }
                 }
             }
 
-            return tag.getContainingFile().getName();
-        }
-
-        @Override
-        protected String getContainerText(XmlTag element, String name) {
-            return null;
-        }
-
-        @Override
-        protected Image getIcon(PsiElement element) {
-            return MavenIconGroup.mavenlogo();
-        }
-
-        @Override
-        protected int getIconFlags() {
-            return 0;
+            return element.getContainingFile().getName();
         }
     }
 
