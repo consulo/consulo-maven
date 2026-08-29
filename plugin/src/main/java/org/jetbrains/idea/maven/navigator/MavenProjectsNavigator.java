@@ -21,6 +21,7 @@ import consulo.annotation.component.ServiceImpl;
 import consulo.application.Application;
 import consulo.component.persist.*;
 import consulo.disposer.Disposable;
+import consulo.disposer.Disposer;
 import consulo.execution.event.RunManagerListener;
 import consulo.execution.event.RunManagerListenerEvent;
 import consulo.application.Application;
@@ -255,7 +256,8 @@ public class MavenProjectsNavigator extends MavenSimpleProjectComponent implemen
         myStructure = new MavenProjectsStructure(myProject, myProjectsManager, myTasksManager, myShortcutsManager, this);
 
         MavenTreeStructureModel model = new MavenTreeStructureModel(myStructure);
-        myTree = Tree.create(model, this);
+        myTree = Tree.create(model);
+        Disposer.register(this, myTree.destroyHook());
         myStructure.setUnifiedView(myTree, model);
     }
 

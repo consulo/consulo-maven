@@ -18,6 +18,7 @@ package org.jetbrains.idea.maven.wizards;
 import consulo.application.Application;
 import consulo.application.ApplicationPropertiesComponent;
 import consulo.disposer.Disposable;
+import consulo.disposer.Disposer;
 import consulo.localize.LocalizeValue;
 import consulo.logging.Logger;
 import consulo.maven.newProject.MavenNewModuleContext;
@@ -161,7 +162,8 @@ public class MavenModuleWizardStep implements WizardStep<MavenNewModuleContext> 
         Button addArchetypeButton = myAddArchetypeButton =
             Button.create(MavenProjectLocalize.mavenWizardAddArchetype(), e -> doAddArchetype());
 
-        Tree<ArchetypeNode> tree = myArchetypesTree = Tree.create(new ArchetypesTreeModel(), uiDisposable);
+        Tree<ArchetypeNode> tree = myArchetypesTree = Tree.create(new ArchetypesTreeModel());
+        Disposer.register(uiDisposable, tree.destroyHook());
         tree.setSpeedSearchConverter(node -> {
             ArchetypeNode value = node.getValue();
             if (value == null) {
