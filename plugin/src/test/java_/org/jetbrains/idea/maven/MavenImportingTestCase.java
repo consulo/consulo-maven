@@ -23,7 +23,6 @@ import consulo.content.bundle.Sdk;
 import consulo.content.library.Library;
 import consulo.ide.impl.compiler.CompilerWorkspaceConfiguration;
 import consulo.compiler.scope.ModuleCompileScope;
-import consulo.ide.impl.idea.compiler.impl.TranslatingCompilerFilesMonitorImpl;
 import consulo.application.ReadAction;
 import consulo.compiler.scope.CompileScope;
 import consulo.module.Module;
@@ -42,7 +41,6 @@ import com.intellij.util.PathUtil;
 import consulo.application.util.Semaphore;
 import consulo.ui.ex.awt.UIUtil;
 import consulo.compiler.ModuleCompilerPathsManager;
-import consulo.ide.impl.compiler.TranslatingCompilerFilesMonitor;
 import consulo.roots.ContentFolderScopes;
 import consulo.roots.impl.ProductionContentFolderTypeProvider;
 import consulo.roots.impl.TestContentFolderTypeProvider;
@@ -624,10 +622,7 @@ public abstract class MavenImportingTestCase extends MavenTestCase
 		CompilerWorkspaceConfiguration.getInstance(myProject).CLEAR_OUTPUT_DIRECTORY = true;
 		//CompilerManagerImpl.testSetup();
 
-		List<VirtualFile> roots = Arrays.asList(ProjectRootManager.getInstance(myProject).getContentRoots());
-		TranslatingCompilerFilesMonitor.getInstance().scanSourceContent(new TranslatingCompilerFilesMonitorImpl.ProjectRef(myProject), roots, roots.size(), true);
-
-		final CompileScope scope = new ModuleCompileScope(myProject, modules.toArray(new Module[modules.size()]), false);
+		final CompileScope scope = new ModuleCompileScope(myProject, modules.toArray(new Module[modules.size()]), false, true);
 
 		final Semaphore semaphore = new Semaphore();
 		semaphore.down();

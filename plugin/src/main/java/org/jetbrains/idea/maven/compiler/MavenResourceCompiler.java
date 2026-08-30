@@ -22,6 +22,8 @@ import consulo.compiler.*;
 import consulo.compiler.scope.CompileScope;
 import consulo.compiler.util.CompilerUtil;
 import consulo.index.io.data.IOUtil;
+import consulo.language.content.ProductionContentFolderTypeProvider;
+import consulo.language.content.TestContentFolderTypeProvider;
 import consulo.localize.LocalizeValue;
 import consulo.maven.rt.server.common.model.MavenResource;
 import consulo.module.Module;
@@ -50,9 +52,11 @@ import org.jetbrains.idea.maven.utils.MavenLog;
 import org.jetbrains.idea.maven.utils.MavenUtil;
 
 import jakarta.annotation.Nonnull;
-import jakarta.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import java.io.*;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Pattern;
@@ -285,7 +289,10 @@ public class MavenResourceCompiler implements ClassPostProcessingCompiler {
         boolean tests,
         List<MyProcessingItem> result
     ) {
-        String outputDir = CompilerPaths.getModuleOutputPath(module, tests);
+        String outputDir = CompilerPaths.getModuleOutputPath(
+            module,
+            tests ? TestContentFolderTypeProvider.getInstance() : ProductionContentFolderTypeProvider.getInstance()
+        );
         if (outputDir == null) {
             context.newError(LocalizeValue.localizeTODO("Maven: Module '" + module.getName() + "'output is not specified")).add();
             return;
@@ -376,15 +383,12 @@ public class MavenResourceCompiler implements ClassPostProcessingCompiler {
                     }
 
                     String outputPath = outputDir + "/" + relPath;
-                    long outputFileTimestamp = -1;
-                    File outputFile = new File(outputPath);
-                    if (outputFile.exists()) {
-                        outputFileTimestamp = outputFile.lastModified();
-                    }
+                    long outputFileTimestamp = CompilerUtil.lastModified(Path.of(outputPath));
                     boolean isFiltered = isSourceRootFiltered && !nonFilteredExtensions.contains(file.getExtension());
                     result.add(new MyProcessingItem(
                         module,
-                        file,
+                        file.toNioPath(),
+                        isFiltered ? file.getCharset().name() : null,
                         outputPath,
                         outputFileTimestamp,
                         isFiltered,
@@ -446,27 +450,26 @@ public class MavenResourceCompiler implements ClassPostProcessingCompiler {
             context.getProgressIndicator().checkCanceled();
 
             MyProcessingItem eachItem = (MyProcessingItem)items[i];
-            VirtualFile sourceVirtualFile = LocalFileSystem.getInstance().findFileByIoFile(eachItem.getFile());
-            assert sourceVirtualFile != null;
-            File sourceFile = new File(sourceVirtualFile.getPath());
+            Path sourceFile = eachItem.getFile();
+            String sourceFileUrl = VirtualFileUtil.pathToUrl(FileUtil.toSystemIndependentName(sourceFile.toString()));
             File outputFile = new File(eachItem.getOutputPath());
 
             try {
                 outputFile.getParentFile().mkdirs();
 
                 boolean shouldFilter = eachItem.isFiltered();
-                if (shouldFilter && sourceFile.length() > 10 * 1024 * 1024) {
+                if (shouldFilter && Files.size(sourceFile) > 10 * 1024 * 1024) {
                     context.newWarning(LocalizeValue.localizeTODO(
                             "Maven: File is too big to be filtered. Most likely it is a binary file and should be excluded from filtering."
                         ))
-                        .url(sourceVirtualFile.getPath())
+                        .url(sourceFileUrl)
                         .add();
                     shouldFilter = false;
                 }
 
                 if (shouldFilter) {
-                    String charset = sourceVirtualFile.getCharset().name();
-                    String text = new String(Files.readAllBytes(sourceFile.toPath()), charset);
+                    String charset = eachItem.getCharsetName();
+                    String text = new String(Files.readAllBytes(sourceFile), charset);
 
                     PrintWriter printWriter = new PrintWriter(outputFile, charset);
                     try {
@@ -483,7 +486,7 @@ public class MavenResourceCompiler implements ClassPostProcessingCompiler {
                     }
                 }
                 else {
-                    FileUtil.copy(sourceFile, outputFile, FilePermissionCopier.BY_NIO2);
+                    FileUtil.copy(sourceFile.toFile(), outputFile, FilePermissionCopier.BY_NIO2);
                 }
 
                 eachItem.getValidityState().setOutputFileTimestamp(outputFile.lastModified());
@@ -493,11 +496,10 @@ public class MavenResourceCompiler implements ClassPostProcessingCompiler {
             catch (IOException e) {
                 MavenLog.LOG.info(e);
                 context.newError(LocalizeValue.localizeTODO("Maven: Cannot process resource file: " + e.getMessage()))
-                    .url(sourceVirtualFile.getPath())
+                    .url(sourceFileUrl)
                     .add();
             }
         }
-        CompilerUtil.refreshIOFiles(filesToRefresh);
         return result.toArray(new ProcessingItem[result.size()]);
     }
 
@@ -523,7 +525,8 @@ public class MavenResourceCompiler implements ClassPostProcessingCompiler {
 
     private static class MyProcessingItem implements ProcessingItem {
         private final Module myModule;
-        private final VirtualFile mySourceFile;
+        private final Path mySourceFile;
+        private final @Nullable String myCharsetName;
         private final String myOutputPath;
         private final boolean myFiltered;
         private final Properties myProperties;
@@ -532,7 +535,8 @@ public class MavenResourceCompiler implements ClassPostProcessingCompiler {
 
         public MyProcessingItem(
             Module module,
-            VirtualFile sourceFile,
+            Path sourceFile,
+            @Nullable String charsetName,
             String outputPath,
             long outputFileTimestamp,
             boolean isFiltered,
@@ -542,17 +546,27 @@ public class MavenResourceCompiler implements ClassPostProcessingCompiler {
         ) {
             myModule = module;
             mySourceFile = sourceFile;
+            myCharsetName = charsetName;
             myOutputPath = outputPath;
             myFiltered = isFiltered;
             myProperties = properties;
             myEscapeString = escapeString;
-            myState = new MyValididtyState(sourceFile.getTimeStamp(), outputFileTimestamp, isFiltered, propertiesHashCode, escapeString);
+            myState = new MyValididtyState(
+                CompilerUtil.lastModified(sourceFile),
+                outputFileTimestamp,
+                isFiltered,
+                propertiesHashCode,
+                escapeString
+            );
         }
 
         @Override
-        @Nonnull
-        public File getFile() {
-            return VirtualFileUtil.virtualToIoFile(mySourceFile);
+        public Path getFile() {
+            return mySourceFile;
+        }
+
+        public @Nullable String getCharsetName() {
+            return myCharsetName;
         }
 
         public String getOutputPath() {

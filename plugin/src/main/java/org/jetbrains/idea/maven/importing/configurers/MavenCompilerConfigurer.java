@@ -50,11 +50,11 @@ public class MavenCompilerConfigurer extends MavenModuleConfigurer
 		if(archetypeResourcesDir != null)
 		{
 
-			if(!compilerManager.isExcludedFromCompilation(archetypeResourcesDir))
+			if(!compilerManager.isExcludedFromCompilation(archetypeResourcesDir.toNioPath()))
 			{
 				ExcludedEntriesConfiguration cfg = compilerManager.getExcludedEntriesConfiguration();
 
-				cfg.addExcludeEntryDescription(new ExcludeEntryDescription(archetypeResourcesDir, true, false, project));
+				cfg.addExcludeEntryDescription(new ExcludeEntryDescription(archetypeResourcesDir.getUrl(), true, false, project));
 			}
 		}
 	}
