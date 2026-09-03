@@ -107,7 +107,7 @@ public class MavenImportingSettingsForm {
 
         root.add(HtmlLabel.create(MavenProjectLocalize.mavenImportingUpdateFoldersNote()));
 
-        HorizontalLayout downloadLine = HorizontalLayout.create(5);
+        HorizontalLayout downloadLine = HorizontalLayout.create();
         downloadLine.add(Label.create(MavenProjectLocalize.mavenImportingAutomaticallyDownload()));
         downloadLine.add(myDownloadSourcesCheckBox);
         downloadLine.add(myDownloadDocsCheckBox);

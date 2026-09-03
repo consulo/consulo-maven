@@ -147,12 +147,12 @@ public class MavenGeneralPanel {
             myFailPolicyCombo
         )));
 
-        HorizontalLayout pluginUpdateLine = HorizontalLayout.create(5);
+        HorizontalLayout pluginUpdateLine = HorizontalLayout.create();
         pluginUpdateLine.add(LabeledBuilder.simple(MavenProjectLocalize.mavenGeneralPluginUpdatePolicy(), myPluginUpdatePolicyCombo));
         pluginUpdateLine.add(Label.create(MavenProjectLocalize.mavenGeneralPluginUpdatePolicyNote()));
         root.add(DockLayout.create().left(pluginUpdateLine));
 
-        HorizontalLayout threadsLine = HorizontalLayout.create(5);
+        HorizontalLayout threadsLine = HorizontalLayout.create();
         threadsLine.add(HtmlLabel.create(MavenProjectLocalize.mavenGeneralThreads()));
         threadsLine.add(myThreadsBox);
         root.add(DockLayout.create().left(threadsLine));
