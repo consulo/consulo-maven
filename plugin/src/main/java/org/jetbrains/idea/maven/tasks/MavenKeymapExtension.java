@@ -45,14 +45,19 @@ import org.jetbrains.idea.maven.utils.actions.MavenActionUtil;
 
 import java.io.File;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Predicate;
 
 @ExtensionImpl
 public class MavenKeymapExtension implements KeymapExtension {
     @Override
-    public KeymapGroup createGroup(Predicate<AnAction> condition, ComponentManager project) {
+    public CompletableFuture<KeymapGroup> createGroupAsync(Predicate<AnAction> condition, ComponentManager project) {
+        return CompletableFuture.completedFuture(createGroup(condition, project));
+    }
+
+    private static KeymapGroup createGroup(Predicate<AnAction> condition, ComponentManager project) {
         KeymapGroup result =
-            KeymapGroupFactory.getInstance().createGroup(MavenTasksLocalize.mavenTasksActionGroupName().get(), AllIcons.Nodes.ConfigFolder);
+            KeymapGroupFactory.getInstance().createGroup(MavenTasksLocalize.mavenTasksActionGroupName(), AllIcons.Nodes.ConfigFolder);
         if (project == null) {
             return result;
         }
