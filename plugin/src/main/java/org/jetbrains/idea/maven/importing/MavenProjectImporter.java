@@ -247,15 +247,20 @@ public class MavenProjectImporter {
                     if (state.projectsHaveChanges) {
                         removeOutdatedCompilerConfigSettings();
 
+                        List<MavenModuleConfigurer> configurers = MavenModuleConfigurer.getConfigurers();
                         for (MavenProject mavenProject : myAllProjects) {
                             Module module = myMavenProjectToModule.get(mavenProject);
                             if (module != null && module.isDisposed()) {
                                 module = null;
                             }
 
-                            for (MavenModuleConfigurer configurer : MavenModuleConfigurer.getConfigurers()) {
+                            for (MavenModuleConfigurer configurer : configurers) {
                                 configurer.configure(mavenProject, myProject, module);
                             }
+                        }
+
+                        for (MavenModuleConfigurer configurer : configurers) {
+                            configurer.afterConfigure(myProject);
                         }
                     }
                 }
