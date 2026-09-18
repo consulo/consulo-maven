@@ -59,6 +59,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
 public class MavenModuleWizardStep implements WizardStep<MavenNewModuleContext> {
@@ -341,19 +342,22 @@ public class MavenModuleWizardStep implements WizardStep<MavenNewModuleContext> 
         ApplicationPropertiesComponent.getInstance().setValue(key, value);
     }
 
+    @RequiredUIAccess
     @Override
-    public void validateStep(@Nonnull MavenNewModuleContext context) throws WizardStepValidationException {
+    public CompletableFuture<?> validateStep(@Nonnull MavenNewModuleContext context) {
         if (StringUtil.isEmptyOrSpaces(myGroupId)) {
-            throw new WizardStepValidationException(MavenProjectLocalize.mavenWizardSpecifyGroupId().get());
+            return CompletableFuture.failedFuture(new WizardStepValidationException(MavenProjectLocalize.mavenWizardSpecifyGroupId().get()));
         }
 
         if (StringUtil.isEmptyOrSpaces(myArtifactId)) {
-            throw new WizardStepValidationException(MavenProjectLocalize.mavenWizardSpecifyArtifactId().get());
+            return CompletableFuture.failedFuture(new WizardStepValidationException(MavenProjectLocalize.mavenWizardSpecifyArtifactId().get()));
         }
 
         if (StringUtil.isEmptyOrSpaces(myVersion)) {
-            throw new WizardStepValidationException(MavenProjectLocalize.mavenWizardSpecifyVersion().get());
+            return CompletableFuture.failedFuture(new WizardStepValidationException(MavenProjectLocalize.mavenWizardSpecifyVersion().get()));
         }
+
+        return null;
     }
 
     @RequiredUIAccess

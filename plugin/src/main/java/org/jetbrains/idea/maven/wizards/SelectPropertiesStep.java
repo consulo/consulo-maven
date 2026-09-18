@@ -41,6 +41,7 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * @author Sergey Evdokimov
@@ -128,22 +129,25 @@ public class SelectPropertiesStep implements WizardStep<MavenNewModuleContext> {
         return context.getArchetype() != null;
     }
 
+    @RequiredUIAccess
     @Override
-    public void validateStep(@Nonnull MavenNewModuleContext context) throws WizardStepValidationException {
+    public CompletableFuture<?> validateStep(@Nonnull MavenNewModuleContext context){
         MavenEnvironmentForm environmentForm = myEnvironmentForm;
         if (environmentForm == null) {
-            return;
+            return CompletableFuture.completedFuture(null);
         }
 
         File mavenHome = MavenUtil.resolveMavenHomeDirectory(environmentForm.getMavenHome());
         if (mavenHome == null) {
-            throw new WizardStepValidationException(MavenProjectLocalize.mavenWizardNoMavenHome().get());
+            return CompletableFuture.failedFuture(new WizardStepValidationException(MavenProjectLocalize.mavenWizardNoMavenHome().get()));
         }
 
         if (!MavenUtil.isValidMavenHome(mavenHome)) {
-            throw new WizardStepValidationException(
+            return CompletableFuture.failedFuture(new WizardStepValidationException(
                 MavenProjectLocalize.mavenWizardInvalidMavenHome(mavenHome.getPath()).get()
-            );
+            ));
         }
+
+        return CompletableFuture.completedFuture(null);
     }
 }

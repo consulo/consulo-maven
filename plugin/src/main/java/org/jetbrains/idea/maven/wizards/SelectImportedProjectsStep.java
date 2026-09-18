@@ -20,18 +20,11 @@ import consulo.ide.localize.IdeLocalize;
 import consulo.localize.LocalizeValue;
 import consulo.maven.importProvider.MavenImportModuleContext;
 import consulo.platform.base.icon.PlatformIconGroup;
-import consulo.ui.CheckBox;
-import consulo.ui.Component;
-import consulo.ui.ComponentItemRender;
-import consulo.ui.Table;
-import consulo.ui.TableItemEditor;
-import consulo.ui.TextItemRender;
-import consulo.ui.TextAttribute;
-import consulo.ui.ValueComponent;
+import consulo.ui.*;
 import consulo.ui.annotation.RequiredUIAccess;
+import consulo.ui.ex.action.ActionToolbarPosition;
 import consulo.ui.ex.action.AnAction;
 import consulo.ui.ex.action.AnActionEvent;
-import consulo.ui.ex.action.ActionToolbarPosition;
 import consulo.ui.ex.toolbar.ToolbarDecoratorBuilder;
 import consulo.ui.ex.wizard.WizardStep;
 import consulo.ui.ex.wizard.WizardStepValidationException;
@@ -50,6 +43,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * @author Vladislav.Kaznacheev
@@ -223,12 +217,16 @@ public abstract class SelectImportedProjectsStep implements WizardStep<MavenImpo
         updateDataModel();
     }
 
+    @RequiredUIAccess
     @Override
-    public void validateStep(@Nonnull MavenImportModuleContext context) throws WizardStepValidationException {
+    public CompletableFuture<?> validateStep(MavenImportModuleContext context) {
         onStepLeave(context);
+
         if (myMarkedProjects.isEmpty()) {
-            throw new WizardStepValidationException(MavenProjectLocalize.mavenImportNothingToImport().get());
+            return CompletableFuture.failedFuture(new WizardStepValidationException(MavenProjectLocalize.mavenImportNothingToImport().get()));
         }
+
+        return null;
     }
 
     public void updateDataModel() {
