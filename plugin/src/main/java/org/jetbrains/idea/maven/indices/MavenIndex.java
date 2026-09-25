@@ -16,8 +16,8 @@
 package org.jetbrains.idea.maven.indices;
 
 import consulo.index.io.EnumeratorStringDescriptor;
-import consulo.index.io.PersistentEnumeratorBase;
 import consulo.index.io.PersistentHashMap;
+import consulo.index.io.VersionUpdatedException;
 import consulo.index.io.data.DataExternalizer;
 import consulo.maven.rt.server.common.model.MavenArtifactInfo;
 import consulo.maven.rt.server.common.model.MavenId;
@@ -178,7 +178,7 @@ public class MavenIndex {
                 doOpen();
             }
             catch (Exception e1) {
-                final boolean versionUpdated = e1.getCause() instanceof PersistentEnumeratorBase.VersionUpdatedException;
+                final boolean versionUpdated = e1.getCause() instanceof VersionUpdatedException;
                 if (!versionUpdated) {
                     MavenLog.LOG.warn(e1);
                 }
@@ -694,7 +694,7 @@ public class MavenIndex {
         }
 
         private PersistentHashMap<String, Set<String>> createPersistentMap(final File f) throws IOException {
-            return new PersistentHashMap<>(f, new EnumeratorStringDescriptor(), new SetDescriptor());
+            return new PersistentHashMap<>(f.toPath(), new EnumeratorStringDescriptor(), new SetDescriptor());
         }
 
         public void close(boolean releaseIndexContext) throws MavenIndexException {
