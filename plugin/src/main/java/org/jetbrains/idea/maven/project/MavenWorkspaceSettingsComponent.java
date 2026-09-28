@@ -15,6 +15,7 @@
  */
 package org.jetbrains.idea.maven.project;
 
+import consulo.externalSystem.autoimport.ExternalSystemProjectTrackerSettings;
 import consulo.annotation.component.ComponentScope;
 import consulo.annotation.component.ServiceAPI;
 import consulo.annotation.component.ServiceImpl;
@@ -59,9 +60,20 @@ public class MavenWorkspaceSettingsComponent implements PersistentStateComponent
     @Override
     public void loadState(MavenWorkspaceSettings state) {
         mySettings = state;
+        migrateSettings(mySettings);
     }
 
     public MavenWorkspaceSettings getSettings() {
         return mySettings;
+    }
+
+    @SuppressWarnings("deprecation")
+    private void migrateSettings(MavenWorkspaceSettings settings) {
+        MavenImportingSettings importingSettings = settings.importingSettings;
+        if (importingSettings.isImportAutomatically()) {
+            importingSettings.setImportAutomatically(false);
+            ExternalSystemProjectTrackerSettings projectTrackerSettings = ExternalSystemProjectTrackerSettings.getInstance(myProject);
+            projectTrackerSettings.setAutoReloadType(ExternalSystemProjectTrackerSettings.AutoReloadType.ALL);
+        }
     }
 }

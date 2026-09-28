@@ -141,8 +141,7 @@ public class MavenModuleImportProvider implements ModuleImportProvider<MavenImpo
             }
 
             MavenProjectsManager manager = MavenProjectsManager.getInstance(project);
-            manager.addManagedFilesWithProfiles(MavenUtil.collectFiles(context.mySelectedProjects), selectedProfiles);
-            manager.waitForReadingCompletion();
+            manager.addManagedFilesWithProfilesNoUpdate(MavenUtil.collectFiles(context.mySelectedProjects), selectedProfiles);
 
             project.getInstance(ProjectRunOneService.class)
                 .register(MavenProjectRunOnceExtension.ID, new MavenProjectRunOnceExtension.Maven(""));

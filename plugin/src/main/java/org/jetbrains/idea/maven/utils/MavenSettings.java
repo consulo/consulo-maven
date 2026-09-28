@@ -84,7 +84,7 @@ public class MavenSettings implements SearchableConfigurable.Parent, ProjectConf
     @Nullable
     @Override
     public String getParentId() {
-        return "execution";
+        return "build.tools";
     }
 
     @Override

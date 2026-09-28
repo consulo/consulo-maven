@@ -38,7 +38,6 @@ import java.util.List;
 public class MavenImportingSettingsForm {
     private final CheckBox mySearchRecursivelyCheckBox;
 
-    private final CheckBox myImportAutomaticallyBox;
     private final CheckBox myCreateModulesForAggregators;
     private final CheckBox myCreateGroupsCheckBox;
     private final CheckBox myKeepSourceFoldersCheckBox;
@@ -63,8 +62,6 @@ public class MavenImportingSettingsForm {
         mySearchRecursivelyCheckBox = CheckBox.create(MavenProjectLocalize.mavenImportingSearchRecursively());
         mySearchRecursivelyCheckBox.setVisible(isImportStep);
 
-        myImportAutomaticallyBox = CheckBox.create(MavenProjectLocalize.mavenImportingImportAutomatically());
-        myImportAutomaticallyBox.setToolTipText(MavenProjectLocalize.mavenImportingImportAutomaticallyTooltip());
 
         myCreateModulesForAggregators = CheckBox.create(MavenProjectLocalize.mavenImportingCreateModulesForAggregators());
         myCreateGroupsCheckBox = CheckBox.create(MavenProjectLocalize.mavenImportingCreateGroups());
@@ -88,7 +85,6 @@ public class MavenImportingSettingsForm {
 
         VerticalLayout root = VerticalLayout.create();
         root.add(mySearchRecursivelyCheckBox);
-        root.add(myImportAutomaticallyBox);
         root.add(myCreateModulesForAggregators);
         root.add(myCreateGroupsCheckBox);
         root.add(myKeepSourceFoldersCheckBox);
@@ -127,7 +123,6 @@ public class MavenImportingSettingsForm {
     public void getData(MavenImportingSettings data) {
         data.setLookForNested(mySearchRecursivelyCheckBox.getValueOrError());
 
-        data.setImportAutomatically(myImportAutomaticallyBox.getValueOrError());
         data.setCreateModulesForAggregators(myCreateModulesForAggregators.getValueOrError());
         data.setCreateModuleGroups(myCreateGroupsCheckBox.getValueOrError());
 
@@ -146,7 +141,6 @@ public class MavenImportingSettingsForm {
     public void setData(MavenImportingSettings data) {
         mySearchRecursivelyCheckBox.setValue(data.isLookForNested());
 
-        myImportAutomaticallyBox.setValue(data.isImportAutomatically());
         myCreateModulesForAggregators.setValue(data.isCreateModulesForAggregators());
         myCreateGroupsCheckBox.setValue(data.isCreateModuleGroups());
 

@@ -87,13 +87,16 @@ public class MavenImportingSettings implements Cloneable {
         this.lookForNested = lookForNested;
     }
 
+    @Deprecated
+    @DeprecationInfo("Auto-import is driven by the external system project tracker; the value is read once to migrate it")
     public boolean isImportAutomatically() {
         return importAutomatically;
     }
 
+    @Deprecated
+    @DeprecationInfo("Auto-import is driven by the external system project tracker; the value is read once to migrate it")
     public void setImportAutomatically(boolean importAutomatically) {
         this.importAutomatically = importAutomatically;
-        fireAutoImportChanged();
     }
 
     @Nonnull
@@ -313,12 +316,6 @@ public class MavenImportingSettings implements Cloneable {
         myListeners.remove(l);
     }
 
-    private void fireAutoImportChanged() {
-        for (Listener each : myListeners) {
-            each.autoImportChanged();
-        }
-    }
-
     private void fireCreateModuleGroupsChanged() {
         for (Listener each : myListeners) {
             each.createModuleGroupsChanged();
@@ -332,8 +329,6 @@ public class MavenImportingSettings implements Cloneable {
     }
 
     public interface Listener {
-        void autoImportChanged();
-
         void createModuleGroupsChanged();
 
         void createModuleForAggregatorsChanged();

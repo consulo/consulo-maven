@@ -22,7 +22,6 @@ import consulo.configurable.Configurable;
 import consulo.configurable.ConfigurationException;
 import consulo.configurable.SearchableConfigurable;
 import consulo.disposer.Disposable;
-import consulo.disposer.Disposer;
 import consulo.localize.LocalizeValue;
 import consulo.project.Project;
 import consulo.ui.annotation.RequiredUIAccess;
@@ -31,18 +30,20 @@ import consulo.ui.ex.JBColor;
 import consulo.ui.ex.awt.*;
 import consulo.ui.ex.awt.table.JBTable;
 import consulo.ui.ex.awt.util.ListUtil;
+import consulo.ui.ex.awt.util.TimerUtil;
 import consulo.ui.ex.awtUnsafe.TargetAWT;
+import consulo.ui.image.Image;
 import consulo.util.lang.StringUtil;
 import jakarta.annotation.Nonnull;
 import org.jetbrains.idea.maven.localize.MavenIndicesLocalize;
 import org.jetbrains.idea.maven.services.MavenRepositoryServicesManager;
 import org.jetbrains.idea.maven.utils.library.RepositoryAttachHandler;
+import org.jspecify.annotations.Nullable;
 
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.*;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.net.MalformedURLException;
@@ -63,9 +64,7 @@ public class MavenRepositoriesConfigurable extends BaseConfigurable implements S
     private JButton myTestButton;
     private JButton myEditButton;
 
-    private AsyncProcessIcon myUpdatingIcon;
-    private Timer myRepaintTimer;
-    private ActionListener myTimerListener;
+    private @Nullable Timer myRepaintTimer;
     private final Project myProject;
     private final CollectionListModel<String> myModel = new CollectionListModel<>();
 
@@ -259,24 +258,24 @@ public class MavenRepositoriesConfigurable extends BaseConfigurable implements S
         myIndicesTable.getColumnModel().getColumn(2).setPreferredWidth(50);
         myIndicesTable.getColumnModel().getColumn(3).setPreferredWidth(20);
 
-        myUpdatingIcon = new AsyncProcessIcon(MavenIndicesLocalize.mavenIndicesUpdating().get());
-        myUpdatingIcon.resume();
-
-        myTimerListener = e -> myIndicesTable.repaint();
-        myRepaintTimer = UIUtil.createNamedTimer("Maven repaint", AsyncProcessIcon.CYCLE_LENGTH / 20, myTimerListener);
-        myRepaintTimer.start();
+        stopRepaintTimer();
+        Timer timer = TimerUtil.createNamedTimer("Maven repaint", 500, e -> myIndicesTable.repaint());
+        timer.start();
+        myRepaintTimer = timer;
     }
 
     @Override
     @RequiredUIAccess
     public void disposeUIResources() {
-        if (myRepaintTimer == null) {
-            return; // has not yet been initialized and reset
-        }
+        stopRepaintTimer();
+    }
 
-        myRepaintTimer.removeActionListener(myTimerListener);
-        myRepaintTimer.stop();
-        Disposer.dispose(myUpdatingIcon);
+    private void stopRepaintTimer() {
+        Timer timer = myRepaintTimer;
+        if (timer != null) {
+            timer.stop();
+            myRepaintTimer = null;
+        }
     }
 
     private class MyTableModel extends AbstractTableModel {
@@ -399,16 +398,19 @@ public class MavenRepositoriesConfigurable extends BaseConfigurable implements S
             Dimension size = getSize();
             switch (myState) {
                 case UPDATING:
-                    myUpdatingIcon.setBackground(getBackground());
-                    myUpdatingIcon.setSize(size.width, size.height);
-                    myUpdatingIcon.paint(g);
+                    paintCentered(g, size, Image.busy());
                     break;
                 case WAITING:
-                    int x = (size.width - AllIcons.Process.Step_passive.getWidth()) / 2;
-                    int y = (size.height - AllIcons.Process.Step_passive.getHeight()) / 2;
-                    TargetAWT.to(AllIcons.Process.Step_passive).paintIcon(this, g, x, y);
+                    paintCentered(g, size, AllIcons.Process.Step_passive);
                     break;
             }
+        }
+
+        private void paintCentered(Graphics g, Dimension size, Image image) {
+            Icon icon = TargetAWT.to(image);
+            int x = (size.width - icon.getIconWidth()) / 2;
+            int y = (size.height - icon.getIconHeight()) / 2;
+            icon.paintIcon(this, g, x, y);
         }
     }
 

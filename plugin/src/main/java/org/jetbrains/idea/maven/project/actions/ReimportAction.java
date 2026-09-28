@@ -15,6 +15,7 @@
  */
 package org.jetbrains.idea.maven.project.actions;
 
+import consulo.document.FileDocumentManager;
 import consulo.ui.ex.action.AnActionEvent;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.utils.actions.MavenActionUtil;
@@ -27,6 +28,7 @@ public class ReimportAction extends MavenProjectsManagerAction {
 
     @Override
     protected void perform(MavenProjectsManager manager) {
+        FileDocumentManager.getInstance().saveAllDocuments();
         manager.forceUpdateAllProjectsOrFindAllAvailablePomFiles();
     }
 }

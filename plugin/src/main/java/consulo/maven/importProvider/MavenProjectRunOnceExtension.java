@@ -4,6 +4,7 @@ import consulo.annotation.component.ExtensionImpl;
 import consulo.project.Project;
 import consulo.project.ProjectRunOnceExtension;
 import jakarta.inject.Inject;
+import org.jetbrains.idea.maven.buildtool.MavenSyncSpec;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 
 /**
@@ -40,6 +41,6 @@ public class MavenProjectRunOnceExtension implements ProjectRunOnceExtension<Mav
         MavenProjectsManager manager = MavenProjectsManager.getInstance(myProject);
 
         manager.doInit(); // do init - activity can run after
-        manager.scheduleImportAndResolve();
+        manager.scheduleUpdateAllMavenProjects(MavenSyncSpec.full("MavenProjectRunOnceExtension.run", true));
     }
 }

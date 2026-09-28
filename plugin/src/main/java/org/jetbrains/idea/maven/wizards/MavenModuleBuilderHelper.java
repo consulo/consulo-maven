@@ -47,7 +47,6 @@ import org.jetbrains.idea.maven.execution.MavenRunnerParameters;
 import org.jetbrains.idea.maven.execution.MavenRunnerSettings;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
-import org.jetbrains.idea.maven.project.MavenProjectsManagerWatcher;
 import org.jetbrains.idea.maven.utils.MavenLog;
 import org.jetbrains.idea.maven.utils.MavenUtil;
 
@@ -56,7 +55,9 @@ import jakarta.annotation.Nonnull;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 public class MavenModuleBuilderHelper {
@@ -115,10 +116,7 @@ public class MavenModuleBuilderHelper {
                 updateProjectPom(project, file);
 
                 if (myAggregatorProject != null) {
-                    MavenDomProjectModel model = MavenDomUtil.getMavenDomProjectModel(project, myAggregatorProject.getFile());
-                    model.getPackaging().setStringValue("pom");
-                    MavenDomModule module = model.getModules().addModule();
-                    module.setValue(getPsiFile(project, file));
+                    setPomPackagingForAggregatorProject(project, file);
                 }
             }
         }.execute().getResultObject();
@@ -129,7 +127,7 @@ public class MavenModuleBuilderHelper {
 
         if (myAggregatorProject == null) {
             MavenProjectsManager manager = MavenProjectsManager.getInstance(project);
-            manager.addManagedFiles(Collections.singletonList(pom));
+            manager.addManagedFilesOrUnignoreNoUpdate(Collections.singletonList(pom));
         }
 
         if (myArchetype == null) {
@@ -142,6 +140,9 @@ public class MavenModuleBuilderHelper {
                 MavenLog.LOG.info(e);
             }
         }
+
+        MavenLog.LOG.info(getClass().getSimpleName() + " forceUpdateAllProjectsOrFindAllAvailablePomFiles");
+        MavenProjectsManager.getInstance(project).forceUpdateAllProjectsOrFindAllAvailablePomFiles();
 
         // execute when current dialog is closed (e.g. Project Structure)
         MavenUtil.invokeLater(
@@ -192,17 +193,43 @@ public class MavenModuleBuilderHelper {
 
                 CodeStyleManager.getInstance(project).reformat(getPsiFile(project, pom));
 
-                pom.putUserData(MavenProjectsManagerWatcher.FORCE_IMPORT_AND_RESOLVE_ON_REFRESH, Boolean.TRUE);
-                try {
-                    Document doc = FileDocumentManager.getInstance().getDocument(pom);
-                    PsiDocumentManager.getInstance(project).doPostponedOperationsAndUnblockDocument(doc);
-                    FileDocumentManager.getInstance().saveDocument(doc);
+                List<VirtualFile> pomFiles = new ArrayList<>(2);
+                pomFiles.add(pom);
+
+                if (!FileUtil.namesEqual(MavenConstants.POM_XML, myParentProject.getFile().getName())) {
+                    pomFiles.add(myParentProject.getFile());
+                    MavenProjectsManager.getInstance(project).scheduleForceUpdateMavenProject(myParentProject);
                 }
-                finally {
-                    pom.putUserData(MavenProjectsManagerWatcher.FORCE_IMPORT_AND_RESOLVE_ON_REFRESH, null);
-                }
+
+                unblockAndSaveDocuments(project, pomFiles.toArray(VirtualFile.EMPTY_ARRAY));
             }
         }.execute();
+    }
+
+    @RequiredWriteAction
+    private void setPomPackagingForAggregatorProject(Project project, VirtualFile file) {
+        VirtualFile aggregatorProjectFile = myAggregatorProject.getFile();
+        MavenDomProjectModel model = MavenDomUtil.getMavenDomProjectModel(project, aggregatorProjectFile);
+        if (model == null) {
+            return;
+        }
+        model.getPackaging().setStringValue("pom");
+        MavenDomModule module = model.getModules().addModule();
+        module.setValue(getPsiFile(project, file));
+        unblockAndSaveDocuments(project, aggregatorProjectFile);
+    }
+
+    private static void unblockAndSaveDocuments(Project project, VirtualFile... files) {
+        FileDocumentManager fileDocumentManager = FileDocumentManager.getInstance();
+        PsiDocumentManager psiDocumentManager = PsiDocumentManager.getInstance(project);
+        for (VirtualFile file : files) {
+            Document document = fileDocumentManager.getDocument(file);
+            if (document == null) {
+                continue;
+            }
+            psiDocumentManager.doPostponedOperationsAndUnblockDocument(document);
+            fileDocumentManager.saveDocument(document);
+        }
     }
 
     @RequiredReadAction

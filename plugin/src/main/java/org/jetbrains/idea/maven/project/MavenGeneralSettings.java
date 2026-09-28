@@ -15,6 +15,8 @@
  */
 package org.jetbrains.idea.maven.project;
 
+import consulo.disposer.Disposable;
+import consulo.disposer.Disposer;
 import consulo.util.collection.Lists;
 import consulo.util.lang.Comparing;
 import consulo.util.lang.StringUtil;
@@ -72,13 +74,19 @@ public class MavenGeneralSettings implements Cloneable {
     }
 
     public void changed() {
+        changed(true);
+    }
+
+    public void changed(boolean fireUpdate) {
         if (myBulkUpdateLevel > 0) {
             return;
         }
 
         myEffectiveLocalRepositoryCache = null;
         myDefaultPluginsCache = null;
-        fireChanged();
+        if (fireUpdate) {
+            fireChanged();
+        }
     }
 
     @Property
@@ -421,12 +429,21 @@ public class MavenGeneralSettings implements Cloneable {
         this.overrideCompilePolicy = overrideCompilePolicy;
     }
 
+    public void addListener(Listener l, Disposable parentDisposable) {
+        addListener(l);
+        Disposer.register(parentDisposable, () -> removeListener(l));
+    }
+
     public void addListener(Listener l) {
         myListeners.add(l);
     }
 
     public void removeListener(Listener l) {
         myListeners.remove(l);
+    }
+
+    public void copyListeners(MavenGeneralSettings another) {
+        myListeners.addAll(another.myListeners);
     }
 
     private void fireChanged() {

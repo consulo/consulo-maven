@@ -72,10 +72,6 @@ public class MavenRehighlighter extends MavenSimpleProjectComponent {
             }
 
             @Override
-            public void projectsScheduled() {
-            }
-
-            @Override
             public void importAndResolveScheduled() {
             }
         });
