@@ -20,12 +20,10 @@ import consulo.ui.CheckBox;
 import consulo.ui.ComboBox;
 import consulo.ui.Component;
 import consulo.ui.HtmlLabel;
-import consulo.ui.Label;
 import consulo.ui.annotation.RequiredUIAccess;
-import consulo.ui.layout.DockLayout;
 import consulo.ui.layout.HorizontalLayout;
 import consulo.ui.layout.VerticalLayout;
-import consulo.ui.util.LabeledBuilder;
+import consulo.ui.util.FormBuilder;
 import jakarta.annotation.Nonnull;
 import org.jetbrains.idea.maven.localize.MavenProjectLocalize;
 
@@ -55,6 +53,8 @@ public class MavenImportingSettingsForm {
      */
     private final VerticalLayout myAdditionalSettingsPanel = VerticalLayout.create();
 
+    private final FormBuilder myForm;
+
     private final Component myComponent;
 
     @RequiredUIAccess
@@ -83,6 +83,14 @@ public class MavenImportingSettingsForm {
         myDownloadSourcesCheckBox = CheckBox.create(MavenProjectLocalize.mavenImportingDownloadSources());
         myDownloadDocsCheckBox = CheckBox.create(MavenProjectLocalize.mavenImportingDownloadDocs());
 
+        myForm = FormBuilder.create();
+        myForm.addLabeled(MavenProjectLocalize.mavenImportingGeneratedSourcesFolder(), myGeneratedSourcesComboBox);
+        myForm.addLabeled(MavenProjectLocalize.mavenImportingUpdateFoldersPhase(), myUpdateFoldersOnImportPhaseComboBox);
+        myForm.addLabeled(
+            MavenProjectLocalize.mavenImportingAutomaticallyDownload(),
+            HorizontalLayout.create().add(myDownloadSourcesCheckBox).add(myDownloadDocsCheckBox)
+        );
+
         VerticalLayout root = VerticalLayout.create();
         root.add(mySearchRecursivelyCheckBox);
         root.add(myCreateModulesForAggregators);
@@ -90,25 +98,8 @@ public class MavenImportingSettingsForm {
         root.add(myKeepSourceFoldersCheckBox);
         root.add(myExcludeTargetFolderCheckBox);
         root.add(myUseMavenOutputCheckBox);
-
-        root.add(DockLayout.create().left(LabeledBuilder.simple(
-            MavenProjectLocalize.mavenImportingGeneratedSourcesFolder(),
-            myGeneratedSourcesComboBox
-        )));
-
-        root.add(DockLayout.create().left(LabeledBuilder.simple(
-            MavenProjectLocalize.mavenImportingUpdateFoldersPhase(),
-            myUpdateFoldersOnImportPhaseComboBox
-        )));
-
+        root.add(myForm.build());
         root.add(HtmlLabel.create(MavenProjectLocalize.mavenImportingUpdateFoldersNote()));
-
-        HorizontalLayout downloadLine = HorizontalLayout.create();
-        downloadLine.add(Label.create(MavenProjectLocalize.mavenImportingAutomaticallyDownload()));
-        downloadLine.add(myDownloadSourcesCheckBox);
-        downloadLine.add(myDownloadDocsCheckBox);
-        root.add(DockLayout.create().left(downloadLine));
-
         root.add(myAdditionalSettingsPanel);
 
         myComponent = root;
@@ -117,6 +108,11 @@ public class MavenImportingSettingsForm {
     @Nonnull
     public Component createComponent() {
         return myComponent;
+    }
+
+    @RequiredUIAccess
+    public void addLabeled(LocalizeValue label, Component component) {
+        myForm.addLabeled(label, component);
     }
 
     @RequiredUIAccess

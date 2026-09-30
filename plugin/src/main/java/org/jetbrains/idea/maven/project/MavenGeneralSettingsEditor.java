@@ -18,14 +18,11 @@ package org.jetbrains.idea.maven.project;
 import consulo.configurable.ConfigurationException;
 import consulo.execution.configuration.ui.SettingsEditor;
 import consulo.project.Project;
+import consulo.ui.CheckBox;
+import consulo.ui.Component;
 import consulo.ui.annotation.RequiredUIAccess;
-import consulo.ui.ex.awtUnsafe.TargetAWT;
-import consulo.util.lang.Pair;
 import org.jetbrains.idea.maven.execution.MavenRunConfiguration;
 import org.jetbrains.idea.maven.localize.MavenProjectLocalize;
-
-import jakarta.annotation.Nonnull;
-import javax.swing.*;
 
 /**
  * @author Sergey Evdokimov
@@ -33,20 +30,21 @@ import javax.swing.*;
 public class MavenGeneralSettingsEditor extends SettingsEditor<MavenRunConfiguration> {
     private final MavenGeneralPanel myPanel;
 
-    private JCheckBox myUseProjectSettings;
+    private final CheckBox myUseProjectSettings;
 
     private final Project myProject;
 
     @RequiredUIAccess
-    public MavenGeneralSettingsEditor(@Nonnull Project project) {
+    public MavenGeneralSettingsEditor(Project project) {
         myProject = project;
         myPanel = new MavenGeneralPanel();
+        myUseProjectSettings = CheckBox.create(MavenProjectLocalize.mavenGeneralUseProjectSettings());
     }
 
     @RequiredUIAccess
     @Override
     protected void resetEditorFrom(MavenRunConfiguration s) {
-        myUseProjectSettings.setSelected(s.getGeneralSettings() == null);
+        myUseProjectSettings.setValue(s.getGeneralSettings() == null);
 
         if (s.getGeneralSettings() == null) {
             MavenGeneralSettings settings = MavenProjectsManager.getInstance(myProject).getGeneralSettings();
@@ -60,7 +58,7 @@ public class MavenGeneralSettingsEditor extends SettingsEditor<MavenRunConfigura
     @RequiredUIAccess
     @Override
     protected void applyEditorTo(MavenRunConfiguration s) throws ConfigurationException {
-        if (myUseProjectSettings.isSelected()) {
+        if (myUseProjectSettings.getValueOrError()) {
             s.setGeneralSettings(null);
         }
         else {
@@ -76,18 +74,10 @@ public class MavenGeneralSettingsEditor extends SettingsEditor<MavenRunConfigura
         }
     }
 
-    @RequiredUIAccess
-    @Nonnull
     @Override
-    protected JComponent createEditor() {
-        // TODO MavenDisablePanelCheckbox is still swing - it walks the component tree to disable it
-        JComponent panel = (JComponent)TargetAWT.to(myPanel.createComponent(this));
-
-        Pair<JPanel, JCheckBox> pair =
-            MavenDisablePanelCheckbox.createPanel(panel, MavenProjectLocalize.mavenGeneralUseProjectSettings().get());
-
-        myUseProjectSettings = pair.second;
-        return pair.first;
+    @RequiredUIAccess
+    protected Component createUIComponent() {
+        return MavenDisablePanelCheckbox.createPanel(myPanel.createComponent(this), myUseProjectSettings);
     }
 
     public Project getProject() {

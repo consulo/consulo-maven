@@ -15,88 +15,31 @@
  */
 package org.jetbrains.idea.maven.project;
 
-import consulo.ui.ex.JBColor;
-import consulo.ui.ex.awt.JBUI;
-import consulo.util.lang.Pair;
-import jakarta.annotation.Nonnull;
-
-import javax.swing.*;
-import java.awt.*;
-import java.util.HashSet;
-import java.util.Set;
+import consulo.ui.CheckBox;
+import consulo.ui.Component;
+import consulo.ui.Separator;
+import consulo.ui.annotation.RequiredUIAccess;
+import consulo.ui.layout.DockLayout;
 
 /**
  * @author Sergey Evdokimov
  */
-public class MavenDisablePanelCheckbox extends JCheckBox {
-    private final JComponent myPanel;
-    private Set<JComponent> myDisabledComponents;
-
-    public MavenDisablePanelCheckbox(String text, @Nonnull JComponent panel) {
-        super(text);
-        myPanel = panel;
-
-        addChangeListener(e -> {
-            if (MavenDisablePanelCheckbox.this.isSelected()) {
-                if (myDisabledComponents == null) {
-                    myDisabledComponents = new HashSet<>();
-                    disable(myPanel);
-                }
-            }
-            else if (myDisabledComponents != null) {
-                enable(myPanel);
-                myDisabledComponents = null;
-            }
-        });
+public final class MavenDisablePanelCheckbox {
+    private MavenDisablePanelCheckbox() {
     }
 
-    private void disable(JComponent c) {
-        if (c.isEnabled()) {
-            myDisabledComponents.add(c);
-            c.setEnabled(false);
-        }
+    @RequiredUIAccess
+    public static Component createPanel(Component component, CheckBox checkbox) {
+        component.setEnabled(!checkbox.getValueOrError());
+        checkbox.addValueListener(event -> component.setEnabled(!Boolean.TRUE.equals(event.getValue())));
 
-        for (Component component : c.getComponents()) {
-            if (component instanceof JComponent jComponent) {
-                disable(jComponent);
-            }
-        }
-    }
+        DockLayout panel = DockLayout.create();
+        panel.top(Separator.horizontal());
+        panel.center(component);
 
-    private void enable(JComponent c) {
-        if (myDisabledComponents.contains(c)) {
-            c.setEnabled(true);
-        }
-
-        for (Component component : c.getComponents()) {
-            if (component instanceof JComponent jComponent) {
-                enable(jComponent);
-            }
-        }
-    }
-
-    public static Pair<JPanel, JCheckBox> createPanel(JComponent component, String title) {
-        JPanel panel = new JPanel(new BorderLayout()) {
-            @Override
-            public void setEnabled(boolean enabled) {
-                super.setEnabled(enabled);
-                Color c = enabled ? JBColor.GRAY : JBColor.LIGHT_GRAY;
-                setBorder(BorderFactory.createCompoundBorder(
-                    BorderFactory.createMatteBorder(1, 0, 0, 0, c),
-                    BorderFactory.createEmptyBorder(10, 0, 0, 0)
-                ));
-            }
-        };
-        panel.setEnabled(true);
-        panel.add(component);
-
-        JCheckBox checkbox = new MavenDisablePanelCheckbox(title, panel);
-
-        JPanel res = new JPanel(new BorderLayout(0, 10));
-        res.setBorder(JBUI.Borders.empty(5, 0, 0, 0));
-        res.add(checkbox, BorderLayout.NORTH);
-        res.add(panel, BorderLayout.CENTER);
-
-        return Pair.create(res, checkbox);
+        DockLayout layout = DockLayout.create();
+        layout.top(checkbox);
+        layout.center(panel);
+        return layout;
     }
 }

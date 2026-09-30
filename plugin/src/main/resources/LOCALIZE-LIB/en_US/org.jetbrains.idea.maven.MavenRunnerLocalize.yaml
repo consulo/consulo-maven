@@ -130,6 +130,24 @@ maven.runner.skip.tests:
     text: Skip &tests
 maven.runner.use.project.settings:
     text: Use project settings
+maven.runner.working.directory:
+    text: Working directory
+maven.runner.command.line:
+    text: Command line
+maven.runner.profiles:
+    text: Profiles (separated with space)
+maven.runner.profiles.hint:
+    text: Add prefix "-" to disable profile, e.g. "-test"
+maven.runner.resolve.workspace.artifacts:
+    text: Resolve Workspace artifacts
+maven.runner.resolve.workspace.artifacts.tooltip:
+    text: In case of multi-project workspace, dependencies will be looked for in the workspace first, and only after that in local repository.
+maven.runner.select.maven.module:
+    text: Maven Module
+maven.runner.select.maven.project:
+    text: Select Maven Project
+maven.runner.no.maven.projects:
+    text: Maven projects not found
 maven.runner.vm.options:
     text: '&VM Options'
 maven.running:

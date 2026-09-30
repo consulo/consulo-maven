@@ -19,7 +19,9 @@ import consulo.fileChooser.FileChooserDescriptor;
 import consulo.fileChooser.FileChooserTextBoxBuilder;
 import consulo.language.editor.completion.CompletionResultSet;
 import consulo.language.editor.completion.lookup.LookupElementBuilder;
-import consulo.language.editor.ui.awt.EditorTextField;
+import consulo.language.editor.ui.EditorBox;
+import consulo.language.editor.ui.EditorBoxBuilder;
+import consulo.language.editor.ui.EditorBoxBuilderFactory;
 import consulo.language.editor.ui.awt.TextFieldCompletionProvider;
 import consulo.localize.LocalizeValue;
 import consulo.maven.icon.MavenIconGroup;
@@ -27,25 +29,19 @@ import consulo.maven.rt.server.common.model.MavenConstants;
 import consulo.process.cmd.ParametersList;
 import consulo.process.cmd.ParametersListUtil;
 import consulo.project.Project;
+import consulo.ui.CheckBox;
+import consulo.ui.Component;
 import consulo.ui.annotation.RequiredUIAccess;
-import consulo.ui.ex.JBColor;
-import consulo.ui.ex.RelativePoint;
 import consulo.ui.ex.action.AnActionEvent;
 import consulo.ui.ex.action.DumbAwareAction;
-import consulo.ui.ex.awt.FormBuilder;
-import consulo.ui.ex.awt.JBCheckBox;
-import consulo.ui.ex.awt.JBLabel;
-import consulo.ui.ex.awt.UIUtil;
-import consulo.ui.ex.awtUnsafe.TargetAWT;
+import consulo.ui.util.FormBuilder;
+import consulo.util.lang.StringUtil;
 import consulo.virtualFileSystem.VirtualFile;
-import jakarta.annotation.Nonnull;
-import jakarta.annotation.Nullable;
 import org.jetbrains.idea.maven.execution.cmd.ParametersListLexer;
 import org.jetbrains.idea.maven.localize.MavenRunnerLocalize;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
+import org.jspecify.annotations.Nullable;
 
-import javax.swing.*;
-import java.awt.*;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -54,22 +50,22 @@ import java.util.Map;
  * @author Vladislav.Kaznacheev
  */
 public class MavenRunnerParametersPanel {
-    private EditorTextField myGoalsEditor;
-    @Nullable
-    private EditorTextField myProfilesEditor;
-    @Nullable
-    private JCheckBox myResolveToWorkspaceCheckBox;
+    private final FileChooserTextBoxBuilder.Controller myWorkingDirectory;
+    private final EditorBox myGoalsEditor;
+    private final @Nullable EditorBox myProfilesEditor;
+    private final @Nullable CheckBox myResolveToWorkspaceCheckBox;
 
-    private FileChooserTextBoxBuilder.Controller myWorkingDirectory;
-    private FormBuilder myFormBuilder = FormBuilder.createFormBuilder();
+    private final Component myComponent;
 
     @RequiredUIAccess
-    public MavenRunnerParametersPanel(@Nonnull final Project project) {
+    public MavenRunnerParametersPanel(Project project) {
         this(project, true, true);
     }
 
     @RequiredUIAccess
-    public MavenRunnerParametersPanel(@Nonnull final Project project, boolean withResolveLocal, boolean withProfiles) {
+    public MavenRunnerParametersPanel(Project project, boolean withResolveLocal, boolean withProfiles) {
+        FormBuilder formBuilder = FormBuilder.create();
+
         FileChooserTextBoxBuilder workDirBuilder = FileChooserTextBoxBuilder.create(project);
         workDirBuilder.dialogTitle(MavenRunnerLocalize.mavenSelectMavenProjectFile());
         workDirBuilder.fileChooserDescriptor(new FileChooserDescriptor(false, true, false, false, false, false) {
@@ -81,89 +77,66 @@ public class MavenRunnerParametersPanel {
         });
 
         workDirBuilder.firstActions(new DumbAwareAction(
-            LocalizeValue.localizeTODO("Maven Module"),
+            MavenRunnerLocalize.mavenRunnerSelectMavenModule(),
             LocalizeValue.empty(),
             MavenIconGroup.mavenlogo()
         ) {
             @RequiredUIAccess
             @Override
-            public void actionPerformed(@Nonnull AnActionEvent anActionEvent) {
+            public void actionPerformed(AnActionEvent e) {
                 MavenProjectsManager manager = MavenProjectsManager.getInstance(project);
 
                 MavenSelectProjectPopup.buildPopup(manager, p -> myWorkingDirectory.setValue(p.getDirectory()))
-                    .show(new RelativePoint(MouseInfo.getPointerInfo().getLocation()));
+                    .showUnderneathOf(e);
             }
         });
 
         myWorkingDirectory = workDirBuilder.build();
         myWorkingDirectory.getComponent().setVisibleLength(0);
 
-        myFormBuilder.addLabeledComponent("Working directory", TargetAWT.to(myWorkingDirectory.getComponent()));
+        formBuilder.addLabeled(MavenRunnerLocalize.mavenRunnerWorkingDirectory(), myWorkingDirectory.getComponent());
 
+        EditorBoxBuilderFactory editorBoxBuilderFactory = project.getApplication().getInstance(EditorBoxBuilderFactory.class);
+
+        EditorBoxBuilder goalsBuilder = editorBoxBuilderFactory.create(project);
         if (!project.isDefault()) {
-            TextFieldCompletionProvider profilesCompletionProvider = new TextFieldCompletionProvider(true) {
-                @Override
-                public final void addCompletionVariants(
-                    @Nonnull String text,
-                    int offset,
-                    @Nonnull String prefix,
-                    @Nonnull CompletionResultSet result
-                ) {
-                    MavenProjectsManager manager = MavenProjectsManager.getInstance(project);
-                    for (String profile : manager.getAvailableProfiles()) {
-                        result.addElement(LookupElementBuilder.create(ParametersListUtil.join(profile)));
-                    }
-                }
+            goalsBuilder = goalsBuilder.completion(new MavenArgumentsCompletionProvider(project));
+        }
+        myGoalsEditor = goalsBuilder.build();
+        formBuilder.addLabeled(MavenRunnerLocalize.mavenRunnerCommandLine(), myGoalsEditor);
 
-                @Nonnull
-                @Override
-                public String getPrefix(@Nonnull String currentTextPrefix) {
-                    ParametersListLexer lexer = new ParametersListLexer(currentTextPrefix);
-                    while (lexer.nextToken()) {
-                        if (lexer.getTokenEnd() == currentTextPrefix.length()) {
-                            String prefix = lexer.getCurrentToken();
-                            if (prefix.startsWith("-") || prefix.startsWith("!")) {
-                                prefix = prefix.substring(1);
-                            }
-                            return prefix;
-                        }
-                    }
-
-                    return "";
-                }
-            };
-
-            myGoalsEditor = new MavenArgumentsCompletionProvider(project).createEditor(project);
-            myFormBuilder.addLabeledComponent("Command line", myGoalsEditor);
-
-            if (withProfiles) {
-                myProfilesEditor = profilesCompletionProvider.createEditor(project);
-                myFormBuilder.addLabeledComponent("Profiles (separated with space)", myProfilesEditor);
-                JLabel label = new JBLabel("add prefix '-' to disable profile, e.g. '-test'");
-                label.setFont(UIUtil.getLabelFont(UIUtil.FontSize.SMALL));
-                label.setForeground(JBColor.GRAY);
-
-                myFormBuilder.addComponentToRightColumn(label);
+        if (withProfiles) {
+            EditorBoxBuilder profilesBuilder = editorBoxBuilderFactory.create(project)
+                .placeholder(MavenRunnerLocalize.mavenRunnerProfilesHint());
+            if (!project.isDefault()) {
+                profilesBuilder = profilesBuilder.completion(new ProfilesCompletionProvider(project));
             }
+            myProfilesEditor = profilesBuilder.build();
+            formBuilder.addLabeled(MavenRunnerLocalize.mavenRunnerProfiles(), myProfilesEditor);
+        }
+        else {
+            myProfilesEditor = null;
         }
 
         if (withResolveLocal) {
-            myResolveToWorkspaceCheckBox = new JBCheckBox("Resolve Workspace artifacts");
-            myResolveToWorkspaceCheckBox.setToolTipText(
-                "In case of multi-project workspace, dependencies will be looked for in the workspace first, " +
-                    "and only after that in local repository."
-            );
+            CheckBox resolveToWorkspaceCheckBox = CheckBox.create(MavenRunnerLocalize.mavenRunnerResolveWorkspaceArtifacts());
+            resolveToWorkspaceCheckBox.setToolTipText(MavenRunnerLocalize.mavenRunnerResolveWorkspaceArtifactsTooltip());
+            myResolveToWorkspaceCheckBox = resolveToWorkspaceCheckBox;
 
-            myFormBuilder.addComponent(myResolveToWorkspaceCheckBox);
+            formBuilder.addBottom(resolveToWorkspaceCheckBox);
         }
+        else {
+            myResolveToWorkspaceCheckBox = null;
+        }
+
+        myComponent = formBuilder.build();
     }
 
-    @Nonnull
-    public JComponent createComponent() {
-        return myFormBuilder.getPanel();
+    public Component getComponent() {
+        return myComponent;
     }
 
-    public EditorTextField getGoalsEditor() {
+    public EditorBox getGoalsEditor() {
         return myGoalsEditor;
     }
 
@@ -179,20 +152,20 @@ public class MavenRunnerParametersPanel {
     }
 
     @RequiredUIAccess
-    protected void setData(final MavenRunnerParameters data) {
+    protected void setData(MavenRunnerParameters data) {
         data.setWorkingDirPath(myWorkingDirectory.getValue());
-        data.setGoals(ParametersListUtil.parse(myGoalsEditor.getText()));
+        data.setGoals(ParametersListUtil.parse(StringUtil.notNullize(myGoalsEditor.getValue())));
         if (myResolveToWorkspaceCheckBox != null) {
-            data.setResolveToWorkspace(myResolveToWorkspaceCheckBox.isSelected());
+            data.setResolveToWorkspace(myResolveToWorkspaceCheckBox.getValueOrError());
         }
 
         if (myProfilesEditor != null) {
             Map<String, Boolean> profilesMap = new LinkedHashMap<>();
 
-            List<String> profiles = ParametersListUtil.parse(myProfilesEditor.getText());
+            List<String> profiles = ParametersListUtil.parse(StringUtil.notNullize(myProfilesEditor.getValue()));
 
             for (String profile : profiles) {
-                Boolean isEnabled = true;
+                boolean isEnabled = true;
                 if (profile.startsWith("-") || profile.startsWith("!")) {
                     profile = profile.substring(1);
                     if (profile.isEmpty()) {
@@ -209,12 +182,12 @@ public class MavenRunnerParametersPanel {
     }
 
     @RequiredUIAccess
-    protected void getData(final MavenRunnerParameters data) {
+    protected void getData(MavenRunnerParameters data) {
         myWorkingDirectory.setValue(data.getWorkingDirPath());
-        myGoalsEditor.setText(ParametersList.join(data.getGoals()));
+        myGoalsEditor.setValue(ParametersList.join(data.getGoals()));
 
         if (myResolveToWorkspaceCheckBox != null) {
-            myResolveToWorkspaceCheckBox.setSelected(data.isResolveToWorkspace());
+            myResolveToWorkspaceCheckBox.setValue(data.isResolveToWorkspace());
         }
 
         if (myProfilesEditor != null) {
@@ -230,7 +203,40 @@ public class MavenRunnerParametersPanel {
                 parametersList.add(profileName);
             }
 
-            myProfilesEditor.setText(parametersList.getParametersString());
+            myProfilesEditor.setValue(parametersList.getParametersString());
+        }
+    }
+
+    private static class ProfilesCompletionProvider extends TextFieldCompletionProvider {
+        private final Project myProject;
+
+        ProfilesCompletionProvider(Project project) {
+            super(true);
+            myProject = project;
+        }
+
+        @Override
+        public final void addCompletionVariants(String text, int offset, String prefix, CompletionResultSet result) {
+            MavenProjectsManager manager = MavenProjectsManager.getInstance(myProject);
+            for (String profile : manager.getAvailableProfiles()) {
+                result.addElement(LookupElementBuilder.create(ParametersListUtil.join(profile)));
+            }
+        }
+
+        @Override
+        public String getPrefix(String currentTextPrefix) {
+            ParametersListLexer lexer = new ParametersListLexer(currentTextPrefix);
+            while (lexer.nextToken()) {
+                if (lexer.getTokenEnd() == currentTextPrefix.length()) {
+                    String prefix = lexer.getCurrentToken();
+                    if (prefix.startsWith("-") || prefix.startsWith("!")) {
+                        prefix = prefix.substring(1);
+                    }
+                    return prefix;
+                }
+            }
+
+            return "";
         }
     }
 }

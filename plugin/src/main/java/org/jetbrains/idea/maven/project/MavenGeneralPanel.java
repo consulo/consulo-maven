@@ -22,14 +22,12 @@ import consulo.localize.LocalizeValue;
 import consulo.ui.CheckBox;
 import consulo.ui.ComboBox;
 import consulo.ui.Component;
-import consulo.ui.HtmlLabel;
 import consulo.ui.Label;
 import consulo.ui.TextBox;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.layout.DockLayout;
-import consulo.ui.layout.HorizontalLayout;
 import consulo.ui.layout.VerticalLayout;
-import consulo.ui.util.LabeledBuilder;
+import consulo.ui.util.FormBuilder;
 import consulo.util.lang.StringUtil;
 import jakarta.annotation.Nonnull;
 import org.jetbrains.idea.maven.execution.MavenExecutionOptions;
@@ -59,7 +57,7 @@ public class MavenGeneralPanel {
 
     private final MavenEnvironmentForm myMavenPathsForm = new MavenEnvironmentForm();
 
-    private final Component myOverrideCompilerLine;
+    private boolean myShowOverrideCompilerBox;
 
     @RequiredUIAccess
     public MavenGeneralPanel() {
@@ -102,12 +100,6 @@ public class MavenGeneralPanel {
 
         myThreadsBox = TextBox.create();
         myThreadsBox.setToolTipText(MavenProjectLocalize.mavenGeneralThreadsTooltip());
-
-        myOverrideCompilerLine = DockLayout.create().left(LabeledBuilder.simple(
-            MavenProjectLocalize.mavenGeneralOverrideCompilerPolicy(),
-            myOverrideBuiltInCompilerBox
-        ));
-        myOverrideCompilerLine.setVisible(false);
     }
 
     @RequiredUIAccess
@@ -117,9 +109,8 @@ public class MavenGeneralPanel {
         return comboBox;
     }
 
-    @RequiredUIAccess
     public void showOverrideCompilerBox() {
-        myOverrideCompilerLine.setVisible(true);
+        myShowOverrideCompilerBox = true;
     }
 
     @RequiredUIAccess
@@ -132,32 +123,23 @@ public class MavenGeneralPanel {
         root.add(myProduceExceptionErrorMessagesCheckBox);
         root.add(myAlwaysUpdateSnapshotsCheckBox);
 
-        root.add(myOverrideCompilerLine);
+        FormBuilder form = FormBuilder.create();
+        if (myShowOverrideCompilerBox) {
+            form.addLabeled(MavenProjectLocalize.mavenGeneralOverrideCompilerPolicy(), myOverrideBuiltInCompilerBox);
+        }
+        form.addLabeled(MavenProjectLocalize.mavenGeneralOutputLevel(), myOutputLevelCombo);
+        form.addLabeled(MavenProjectLocalize.mavenGeneralChecksumPolicy(), myChecksumPolicyCombo);
+        form.addLabeled(MavenProjectLocalize.mavenGeneralFailPolicy(), myFailPolicyCombo);
+        form.addLabeled(
+            MavenProjectLocalize.mavenGeneralPluginUpdatePolicy(),
+            DockLayout.create()
+                .center(myPluginUpdatePolicyCombo)
+                .right(Label.create(MavenProjectLocalize.mavenGeneralPluginUpdatePolicyNote()))
+        );
+        form.addLabeled(MavenProjectLocalize.mavenGeneralThreads(), myThreadsBox);
+        myMavenPathsForm.addToForm(form, uiDisposable);
 
-        root.add(DockLayout.create().left(LabeledBuilder.simple(
-            MavenProjectLocalize.mavenGeneralOutputLevel(),
-            myOutputLevelCombo
-        )));
-        root.add(DockLayout.create().left(LabeledBuilder.simple(
-            MavenProjectLocalize.mavenGeneralChecksumPolicy(),
-            myChecksumPolicyCombo
-        )));
-        root.add(DockLayout.create().left(LabeledBuilder.simple(
-            MavenProjectLocalize.mavenGeneralFailPolicy(),
-            myFailPolicyCombo
-        )));
-
-        HorizontalLayout pluginUpdateLine = HorizontalLayout.create();
-        pluginUpdateLine.add(LabeledBuilder.simple(MavenProjectLocalize.mavenGeneralPluginUpdatePolicy(), myPluginUpdatePolicyCombo));
-        pluginUpdateLine.add(Label.create(MavenProjectLocalize.mavenGeneralPluginUpdatePolicyNote()));
-        root.add(DockLayout.create().left(pluginUpdateLine));
-
-        HorizontalLayout threadsLine = HorizontalLayout.create();
-        threadsLine.add(HtmlLabel.create(MavenProjectLocalize.mavenGeneralThreads()));
-        threadsLine.add(myThreadsBox);
-        root.add(DockLayout.create().left(threadsLine));
-
-        root.add(myMavenPathsForm.createComponent(uiDisposable));
+        root.add(form.build());
         return root;
     }
 

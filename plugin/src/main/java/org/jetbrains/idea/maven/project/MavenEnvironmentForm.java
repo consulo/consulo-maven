@@ -32,8 +32,7 @@ import consulo.ui.TextBox;
 import consulo.ui.UIAccess;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.layout.DockLayout;
-import consulo.ui.layout.VerticalLayout;
-import consulo.ui.util.LabeledBuilder;
+import consulo.ui.util.FormBuilder;
 import consulo.util.lang.Comparing;
 import consulo.util.lang.StringUtil;
 import consulo.util.lang.function.Predicates;
@@ -70,6 +69,13 @@ public class MavenEnvironmentForm {
     @RequiredUIAccess
     @Nonnull
     public Component createComponent(Disposable uiDisposable) {
+        FormBuilder form = FormBuilder.create();
+        addToForm(form, uiDisposable);
+        return form.build();
+    }
+
+    @RequiredUIAccess
+    public void addToForm(FormBuilder form, Disposable uiDisposable) {
         BundleBox mavenBundleBox = myMavenBundleBox = new BundleBox(
             SdkTable.getInstance(),
             Predicates.equalTo(MavenBundleType.getInstance()),
@@ -111,27 +117,18 @@ public class MavenEnvironmentForm {
         userSettingsFileOverrider.reset(myUserSettingsFile);
         localRepositoryOverrider.reset(myLocalRepository);
 
-        VerticalLayout root = VerticalLayout.create();
-        root.add(LabeledBuilder.filled(MavenProjectLocalize.mavenEnvironmentBundle(), mavenBundleBox));
-        root.add(overridableLine(
-            MavenProjectLocalize.mavenEnvironmentUserSettingsFile(),
-            settingsFileBox.getComponent(),
-            settingsOverrideCheckBox
-        ));
-        root.add(overridableLine(
-            MavenProjectLocalize.mavenEnvironmentLocalRepository(),
-            localRepositoryBox.getComponent(),
-            localRepositoryOverrideCheckBox
-        ));
-        return root;
-    }
-
-    @RequiredUIAccess
-    private static Component overridableLine(LocalizeValue label, TextBox textBox, CheckBox overrideCheckBox) {
-        DockLayout line = DockLayout.create();
-        line.center(LabeledBuilder.filled(label, textBox));
-        line.right(overrideCheckBox);
-        return line;
+        form.addLabeled(
+            LocalizeValue.join(MavenProjectLocalize.mavenEnvironmentBundle(), LocalizeValue.colon()),
+            mavenBundleBox.getComponent()
+        );
+        form.addLabeled(
+            LocalizeValue.join(MavenProjectLocalize.mavenEnvironmentUserSettingsFile(), LocalizeValue.colon()),
+            DockLayout.create().center(settingsFileBox.getComponent()).right(settingsOverrideCheckBox)
+        );
+        form.addLabeled(
+            LocalizeValue.join(MavenProjectLocalize.mavenEnvironmentLocalRepository(), LocalizeValue.colon()),
+            DockLayout.create().center(localRepositoryBox.getComponent()).right(localRepositoryOverrideCheckBox)
+        );
     }
 
     /**

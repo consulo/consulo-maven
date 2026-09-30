@@ -65,11 +65,12 @@ public class MavenEditGoalDialog extends DialogWrapper {
 
     @Nonnull
     public String getGoals() {
-        return myRunnerParametersPanel.getGoalsEditor().getText();
+        return StringUtil.notNullize(myRunnerParametersPanel.getGoalsEditor().getValue());
     }
 
+    @RequiredUIAccess
     public void setGoals(@Nonnull String goals) {
-        myRunnerParametersPanel.getGoalsEditor().setText(goals);
+        myRunnerParametersPanel.getGoalsEditor().setValue(goals);
     }
 
     @Nonnull
@@ -87,12 +88,12 @@ public class MavenEditGoalDialog extends DialogWrapper {
 
     @Override
     protected JComponent createCenterPanel() {
-        return myRunnerParametersPanel.createComponent();
+        return (JComponent) TargetAWT.to(myRunnerParametersPanel.getComponent());
     }
 
     @Override
     @RequiredUIAccess
     public JComponent getPreferredFocusedComponent() {
-        return myRunnerParametersPanel.getGoalsEditor();
+        return (JComponent) TargetAWT.to(myRunnerParametersPanel.getGoalsEditor());
     }
 }

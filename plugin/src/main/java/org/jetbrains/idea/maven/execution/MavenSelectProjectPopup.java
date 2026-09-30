@@ -15,143 +15,85 @@
  */
 package org.jetbrains.idea.maven.execution;
 
-import consulo.ide.impl.ui.impl.PopupChooserBuilder;
 import consulo.maven.icon.MavenIconGroup;
-import consulo.ui.annotation.RequiredUIAccess;
-import consulo.ui.ex.awt.speedSearch.TreeSpeedSearch;
-import consulo.ui.ex.awt.tree.NodeRenderer;
-import consulo.ui.ex.awt.tree.Tree;
+import consulo.ui.ex.popup.BaseListPopupStep;
 import consulo.ui.ex.popup.JBPopup;
 import consulo.ui.ex.popup.JBPopupFactory;
-import consulo.util.lang.ref.SimpleReference;
-import jakarta.annotation.Nonnull;
+import consulo.ui.ex.popup.PopupStep;
+import consulo.ui.image.Image;
+import org.jetbrains.idea.maven.localize.MavenRunnerLocalize;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.utils.MavenProjectNamer;
 
-import javax.swing.*;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.TreePath;
-import java.util.Arrays;
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
-/**
- * @author Sergey Evdokimov
- */
 public class MavenSelectProjectPopup {
-    @Nonnull
-    public static JBPopup buildPopup(MavenProjectsManager projectsManager, @Nonnull final Consumer<MavenProject> callback) {
+    public static JBPopup buildPopup(MavenProjectsManager projectsManager, Consumer<MavenProject> callback) {
         List<MavenProject> projectList = projectsManager.getProjects();
         if (projectList.isEmpty()) {
-            return JBPopupFactory.getInstance().createMessage("Maven projects not found");
+            return JBPopupFactory.getInstance().createMessage(MavenRunnerLocalize.mavenRunnerNoMavenProjects().get());
         }
 
-        DefaultMutableTreeNode root = buildTree(projectsManager, projectList);
+        Map<MavenProject, String> projectsNameMap = MavenProjectNamer.generateNameMap(projectList);
 
-        final Map<MavenProject, String> projectsNameMap = MavenProjectNamer.generateNameMap(projectList);
-
-        final Tree projectTree = new Tree(root);
-        projectTree.setRootVisible(false);
-        projectTree.setCellRenderer(new NodeRenderer() {
-            @RequiredUIAccess
+        return JBPopupFactory.getInstance().createListPopup(new BaseListPopupStep<>(
+            MavenRunnerLocalize.mavenRunnerSelectMavenProject().get(),
+            orderByAggregators(projectsManager, projectList)
+        ) {
             @Override
-            public void customizeCellRenderer(
-                @Nonnull JTree tree,
-                Object value,
-                boolean selected,
-                boolean expanded,
-                boolean leaf,
-                int row,
-                boolean hasFocus
-            ) {
-                if (value instanceof DefaultMutableTreeNode) {
-                    MavenProject mavenProject = (MavenProject)((DefaultMutableTreeNode)value).getUserObject();
-                    value = projectsNameMap.get(mavenProject);
-                    setIcon(MavenIconGroup.mavenlogo());
-                }
+            public String getTextFor(MavenProject value) {
+                return projectsNameMap.get(value);
+            }
 
-                super.customizeCellRenderer(tree, value, selected, expanded, leaf, row, hasFocus);
+            @Override
+            public Image getIconFor(MavenProject value) {
+                return MavenIconGroup.mavenlogo();
+            }
+
+            @Override
+            public boolean isSpeedSearchEnabled() {
+                return true;
+            }
+
+            @Override
+            public PopupStep onChosen(MavenProject selectedValue, boolean finalChoice) {
+                return doFinalStep(() -> callback.accept(selectedValue));
             }
         });
-
-        new TreeSpeedSearch(
-            projectTree,
-            o -> {
-                Object lastPathComponent = o.getLastPathComponent();
-                if (!(lastPathComponent instanceof DefaultMutableTreeNode)) {
-                    return null;
-                }
-
-                Object userObject = ((DefaultMutableTreeNode)lastPathComponent).getUserObject();
-
-                //noinspection SuspiciousMethodCalls
-                return projectsNameMap.get(userObject);
-            }
-        );
-
-        final SimpleReference<JBPopup> popupRef = SimpleReference.create();
-
-        Runnable clickCallBack = () -> {
-            TreePath path = projectTree.getSelectionPath();
-            if (path == null) {
-                return;
-            }
-
-            Object lastPathComponent = path.getLastPathComponent();
-            if (!(lastPathComponent instanceof DefaultMutableTreeNode)) {
-                return;
-            }
-
-            Object object = ((DefaultMutableTreeNode)lastPathComponent).getUserObject();
-            if (object == null) {
-                return; // may be it's the root
-            }
-
-            callback.accept((MavenProject)object);
-
-            popupRef.get().closeOk(null);
-        };
-
-        JBPopup popup = new PopupChooserBuilder(projectTree)
-            .setTitle("Select maven project")
-            .setResizable(true)
-            .setItemChoosenCallback(clickCallBack).setAutoselectOnMouseMove(true)
-            .setCloseOnEnter(false)
-            .createPopup();
-
-        popupRef.set(popup);
-
-        return popup;
     }
 
-    private static DefaultMutableTreeNode buildTree(MavenProjectsManager projectsManager, List<MavenProject> projectList) {
-        MavenProject[] projects = projectList.toArray(new MavenProject[projectList.size()]);
-        Arrays.sort(projects, new MavenProjectNamer.MavenProjectComparator());
+    private static List<MavenProject> orderByAggregators(MavenProjectsManager projectsManager, List<MavenProject> projectList) {
+        List<MavenProject> projects = new ArrayList<>(projectList);
+        projects.sort(new MavenProjectNamer.MavenProjectComparator());
 
-        Map<MavenProject, DefaultMutableTreeNode> projectsToNode = new HashMap<>();
-        for (MavenProject mavenProject : projects) {
-            projectsToNode.put(mavenProject, new DefaultMutableTreeNode(mavenProject));
-        }
-
-        DefaultMutableTreeNode root = new DefaultMutableTreeNode();
-
-        for (MavenProject mavenProject : projects) {
-            DefaultMutableTreeNode parent;
-
-            MavenProject aggregator = projectsManager.findAggregator(mavenProject);
+        Map<MavenProject, List<MavenProject>> modules = new LinkedHashMap<>();
+        List<MavenProject> roots = new ArrayList<>();
+        for (MavenProject project : projects) {
+            MavenProject aggregator = projectsManager.findAggregator(project);
             if (aggregator != null) {
-                parent = projectsToNode.get(aggregator);
+                modules.computeIfAbsent(aggregator, it -> new ArrayList<>()).add(project);
             }
             else {
-                parent = root;
+                roots.add(project);
             }
-
-            parent.add(projectsToNode.get(mavenProject));
         }
 
-        return root;
+        List<MavenProject> result = new ArrayList<>(projects.size());
+        for (MavenProject root : roots) {
+            collect(root, modules, result);
+        }
+        return result;
+    }
+
+    private static void collect(MavenProject project, Map<MavenProject, List<MavenProject>> modules, List<MavenProject> result) {
+        result.add(project);
+        for (MavenProject module : modules.getOrDefault(project, List.of())) {
+            collect(module, modules, result);
+        }
     }
 }

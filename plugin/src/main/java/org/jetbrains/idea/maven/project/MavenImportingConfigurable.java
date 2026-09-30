@@ -26,7 +26,6 @@ import consulo.ui.TextBox;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.awtUnsafe.TargetAWT;
 import consulo.ui.layout.VerticalLayout;
-import consulo.ui.util.LabeledBuilder;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.jetbrains.idea.maven.localize.MavenProjectLocalize;
@@ -62,8 +61,9 @@ public class MavenImportingConfigurable implements SearchableConfigurable {
         MavenImportingSettingsForm settingsForm = mySettingsForm = new MavenImportingSettingsForm(false, false);
         TextBox embedderVMOptions = myEmbedderVMOptions = TextBox.create();
 
+        settingsForm.addLabeled(MavenProjectLocalize.mavenImportingEmbedderVmOptions(), embedderVMOptions);
+
         VerticalLayout panel = settingsForm.getAdditionalSettingsPanel();
-        panel.add(LabeledBuilder.filled(MavenProjectLocalize.mavenImportingEmbedderVmOptions(), embedderVMOptions));
 
         for (final UnnamedConfigurable additionalConfigurable : myAdditionalConfigurables) {
             Component uiComponent = additionalConfigurable.createUIComponent(parent);

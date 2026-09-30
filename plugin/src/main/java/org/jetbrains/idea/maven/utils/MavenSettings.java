@@ -68,15 +68,19 @@ public class MavenSettings implements SearchableConfigurable.Parent, ProjectConf
             }
         };
 
+        boolean unified = myProject.getApplication().isUnifiedApplication();
+
         myChildren = new ArrayList<>();
         myChildren.add(new MavenImportingConfigurable(myProject));
-        myChildren.add(new MavenIgnoredFilesConfigurable(myProject));
+        if (!unified) {
+            myChildren.add(new MavenIgnoredFilesConfigurable(myProject));
+        }
 
         myChildren.add(new MyMavenRunnerConfigurable(project));
 
         //myChildren.add(new MavenTestRunningConfigurable(project));
 
-        if (!myProject.isDefault()) {
+        if (!unified && !myProject.isDefault()) {
             myChildren.add(new MavenRepositoriesConfigurable(myProject));
         }
     }

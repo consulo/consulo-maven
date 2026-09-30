@@ -67,7 +67,7 @@ maven.general.print.exception.stack.traces:
 maven.general.print.exception.stack.traces.tooltip:
     text: <html>Add option <b>--errors</b> to command line when run maven goals</html>
 maven.general.threads:
-    text: <html>Threads <small><i>(-T option):</i></small></html>
+    text: 'Threads (-T option):'
 maven.general.threads.tooltip:
     text: Thread count, for instance 2.0C where C is core multiplied (option -T)
 maven.general.use.plugin.registry:

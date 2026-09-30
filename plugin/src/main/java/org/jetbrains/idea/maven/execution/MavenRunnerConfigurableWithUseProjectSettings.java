@@ -15,25 +15,22 @@
  */
 package org.jetbrains.idea.maven.execution;
 
-import consulo.project.Project;
-import consulo.util.lang.Pair;
 import consulo.disposer.Disposable;
+import consulo.project.Project;
+import consulo.ui.CheckBox;
+import consulo.ui.Component;
 import consulo.ui.annotation.RequiredUIAccess;
-import consulo.ui.ex.awtUnsafe.TargetAWT;
-import jakarta.annotation.Nonnull;
-import jakarta.annotation.Nullable;
 import org.jetbrains.idea.maven.localize.MavenRunnerLocalize;
 import org.jetbrains.idea.maven.project.MavenDisablePanelCheckbox;
-
-import javax.swing.*;
+import org.jspecify.annotations.Nullable;
 
 /**
  * @author Sergey Evdokimov
  */
 public abstract class MavenRunnerConfigurableWithUseProjectSettings extends MavenRunnerConfigurable {
-    private JCheckBox myUseProjectSettings;
+    private @Nullable CheckBox myUseProjectSettings;
 
-    public MavenRunnerConfigurableWithUseProjectSettings(@Nonnull Project project) {
+    public MavenRunnerConfigurableWithUseProjectSettings(Project project) {
         super(project, true);
     }
 
@@ -42,11 +39,12 @@ public abstract class MavenRunnerConfigurableWithUseProjectSettings extends Mave
     @Override
     @RequiredUIAccess
     public boolean isModified() {
-        if (myUseProjectSettings == null) {
+        CheckBox useProjectSettings = myUseProjectSettings;
+        if (useProjectSettings == null) {
             return false;
         }
 
-        if (myUseProjectSettings.isSelected()) {
+        if (useProjectSettings.getValueOrError()) {
             return getState() != null;
         }
         else {
@@ -57,11 +55,12 @@ public abstract class MavenRunnerConfigurableWithUseProjectSettings extends Mave
     @Override
     @RequiredUIAccess
     public void apply() {
-        if (myUseProjectSettings == null) {
+        CheckBox useProjectSettings = myUseProjectSettings;
+        if (useProjectSettings == null) {
             return;
         }
 
-        if (myUseProjectSettings.isSelected()) {
+        if (useProjectSettings.getValueOrError()) {
             setState(null);
         }
         else {
@@ -80,12 +79,13 @@ public abstract class MavenRunnerConfigurableWithUseProjectSettings extends Mave
     @Override
     @RequiredUIAccess
     public void reset() {
-        if (myUseProjectSettings == null) {
+        CheckBox useProjectSettings = myUseProjectSettings;
+        if (useProjectSettings == null) {
             return;
         }
 
         MavenRunnerSettings state = getState();
-        myUseProjectSettings.setSelected(state == null);
+        useProjectSettings.setValue(state == null);
 
         if (state == null) {
             MavenRunnerSettings settings = MavenRunner.getInstance(myProject).getSettings();
@@ -98,14 +98,10 @@ public abstract class MavenRunnerConfigurableWithUseProjectSettings extends Mave
 
     @RequiredUIAccess
     @Override
-    public JComponent createComponent(@Nonnull Disposable uiDisposable) {
-        // TODO MavenDisablePanelCheckbox is still swing - it walks the component tree to disable it
-        JComponent panel = (JComponent)TargetAWT.to(super.createUIComponent(uiDisposable));
+    public Component createUIComponent(Disposable uiDisposable) {
+        CheckBox useProjectSettings = CheckBox.create(MavenRunnerLocalize.mavenRunnerUseProjectSettings());
+        myUseProjectSettings = useProjectSettings;
 
-        Pair<JPanel, JCheckBox> pair =
-            MavenDisablePanelCheckbox.createPanel(panel, MavenRunnerLocalize.mavenRunnerUseProjectSettings().get());
-
-        myUseProjectSettings = pair.second;
-        return pair.first;
+        return MavenDisablePanelCheckbox.createPanel(super.createUIComponent(uiDisposable), useProjectSettings);
     }
 }

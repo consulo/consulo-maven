@@ -33,7 +33,7 @@ import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.layout.DockLayout;
 import consulo.ui.layout.LabeledLayout;
 import consulo.ui.layout.VerticalLayout;
-import consulo.ui.util.LabeledBuilder;
+import consulo.ui.util.FormBuilder;
 import consulo.ui.util.TextWithMnemonic;
 import consulo.util.lang.StringUtil;
 import jakarta.annotation.Nonnull;
@@ -96,16 +96,19 @@ public class MavenRunnerPanel {
 
         MavenPropertiesTable propertiesTable = myPropertiesTable = new MavenPropertiesTable(collectProperties());
 
+        FormBuilder form = FormBuilder.create();
+        form.addLabeled(LocalizeValue.join(MavenRunnerLocalize.mavenRunnerVmOptions(), LocalizeValue.colon()), vmParametersEditor);
+        form.addLabeled(LocalizeValue.join(MavenRunnerLocalize.mavenRunnerJre(), LocalizeValue.colon()), jdkCombo.getComponent());
+        form.addLabeled(
+            LocalizeValue.join(ExecutionLocalize.environmentVariablesComponentTitle(), LocalizeValue.colon()),
+            envVariablesComponent.getComponent()
+        );
+
         VerticalLayout top = VerticalLayout.create();
         if (!myRunConfigurationMode) {
             top.add(runInBackgroundCheckbox);
         }
-        top.add(LabeledBuilder.filled(MavenRunnerLocalize.mavenRunnerVmOptions(), vmParametersEditor));
-        top.add(DockLayout.create().left(LabeledBuilder.simple(MavenRunnerLocalize.mavenRunnerJre(), jdkCombo)));
-        top.add(LabeledBuilder.filled(
-            ExecutionLocalize.environmentVariablesComponentTitle(),
-            envVariablesComponent.getComponent()
-        ));
+        top.add(form.build());
 
         DockLayout propertiesPanel = DockLayout.create();
         propertiesPanel.top(skipTestsCheckBox);
