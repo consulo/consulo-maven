@@ -84,6 +84,10 @@ maven.ignore:
     text: Ignore Projects
 maven.ignore.edit:
     text: Edit Ignored Files...
+maven.ignored.files.list:
+    text: Ignored files
+maven.ignored.files.patterns:
+    text: 'Path patterns (comma-separated, ''*'' and ''?'' wildcards allowed)'
 maven.import.dependency.type.description:
     text: Comma separated list of dependency types that should be imported
 maven.import.environment.settings:

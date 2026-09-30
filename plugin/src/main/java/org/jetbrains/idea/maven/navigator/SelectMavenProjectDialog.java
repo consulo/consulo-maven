@@ -15,10 +15,8 @@
  */
 package org.jetbrains.idea.maven.navigator;
 
-import consulo.ui.ex.awt.tree.NullNode;
-import consulo.ui.ex.awt.tree.SimpleNode;
-
 import consulo.project.Project;
+import consulo.ui.ex.tree.SimpleNode;
 import jakarta.annotation.Nonnull;
 import org.jetbrains.idea.maven.navigator.structure.MavenSimpleNode;
 import org.jetbrains.idea.maven.navigator.structure.ProjectNode;
@@ -57,14 +55,10 @@ public class SelectMavenProjectDialog extends SelectFromMavenProjectsDialog {
     @Override
     protected void doOKAction() {
         SimpleNode node = getSelectedNode();
-        if (node instanceof NullNode) {
-            node = null;
-        }
-
-        if (node instanceof MavenSimpleNode mavenSimpleNode) {
-            node = mavenSimpleNode.findParent(ProjectNode.class);
-        }
-        myResult = node instanceof ProjectNode projectNode ? projectNode.getMavenProject() : null;
+        ProjectNode projectNode = node instanceof ProjectNode selectedProjectNode
+            ? selectedProjectNode
+            : node instanceof MavenSimpleNode mavenSimpleNode ? mavenSimpleNode.findParent(ProjectNode.class) : null;
+        myResult = projectNode == null ? null : projectNode.getMavenProject();
 
         super.doOKAction();
     }

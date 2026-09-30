@@ -7,8 +7,8 @@ import consulo.project.Project;
 import consulo.ui.color.ColorValue;
 import consulo.ui.event.details.InputDetails;
 import consulo.ui.ex.SimpleTextAttributes;
-import consulo.ui.ex.awt.tree.CachingSimpleNode;
-import consulo.ui.ex.awt.tree.SimpleNode;
+import consulo.ui.ex.tree.CachingSimpleNode;
+import consulo.ui.ex.tree.SimpleNode;
 import consulo.ui.ex.tree.NodeDescriptor;
 import consulo.ui.ex.tree.PresentationData;
 import consulo.util.lang.StringUtil;
@@ -31,7 +31,7 @@ public abstract class MavenSimpleNode extends CachingSimpleNode {
     private MavenProjectsStructure.ErrorLevel myTotalErrorLevel = null;
 
     public MavenSimpleNode(MavenProjectsStructure mavenProjectsStructure, MavenSimpleNode parent) {
-        super(mavenProjectsStructure.getProject(), null);
+        super(null);
         myMavenProjectsStructure = mavenProjectsStructure;
         setParent(parent);
     }
@@ -228,7 +228,7 @@ public abstract class MavenSimpleNode extends CachingSimpleNode {
     public boolean handleDoubleClickOrEnter(DataContext context, @Nullable InputDetails inputDetails) {
         String actionId = getActionId();
         if (actionId != null) {
-            MavenUIUtil.executeAction(actionId, context, inputDetails);
+            MavenUIUtil.executeAction(actionId, context);
             return true;
         }
         return false;

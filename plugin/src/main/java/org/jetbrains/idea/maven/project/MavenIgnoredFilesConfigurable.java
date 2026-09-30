@@ -21,63 +21,118 @@ import consulo.configurable.SearchableConfigurable;
 import consulo.disposer.Disposable;
 import consulo.localize.LocalizeValue;
 import consulo.project.Project;
+import consulo.ui.CheckBox;
+import consulo.ui.Component;
+import consulo.ui.ComponentItemRender;
+import consulo.ui.Table;
+import consulo.ui.TableItemEditor;
+import consulo.ui.TextArea;
+import consulo.ui.ValueComponent;
 import consulo.ui.annotation.RequiredUIAccess;
-import consulo.ui.ex.awt.ElementsChooser;
+import consulo.ui.layout.DockLayout;
+import consulo.ui.layout.LabeledLayout;
+import consulo.ui.layout.ScrollableLayout;
+import consulo.ui.model.FlatDataModel;
+import consulo.ui.model.MutableFlatDataModel;
 import consulo.util.io.FileUtil;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import org.jetbrains.idea.maven.localize.MavenProjectLocalize;
-import org.jetbrains.idea.maven.utils.MavenUIUtil;
 import org.jetbrains.idea.maven.utils.MavenUtil;
 import org.jetbrains.idea.maven.utils.Strings;
 
-import jakarta.annotation.Nonnull;
-import jakarta.annotation.Nullable;
-import javax.swing.*;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class MavenIgnoredFilesConfigurable implements SearchableConfigurable, Configurable.NoScroll {
     private static final char SEPARATOR = ',';
 
     private final MavenProjectsManager myManager;
 
-    private Collection<String> myOriginallyIgnoredFilesPaths;
-    private String myOriginallyIgnoredFilesPatterns;
+    private final MutableFlatDataModel<String> myFiles = FlatDataModel.of(List.of());
+    private final Set<String> myIgnoredFiles = new HashSet<>();
 
-    private JPanel myMainPanel;
-    private ElementsChooser<String> myIgnoredFilesPathsChooser;
-    private JTextArea myIgnoredFilesPattersEditor;
+    private Collection<String> myOriginallyIgnoredFilesPaths = List.of();
+    private String myOriginallyIgnoredFilesPatterns = "";
+
+    @Nullable
+    private TextArea myIgnoredFilesPatternsEditor;
 
     public MavenIgnoredFilesConfigurable(Project project) {
         myManager = MavenProjectsManager.getInstance(project);
     }
 
-    private void createUIComponents() {
-        myIgnoredFilesPathsChooser = new ElementsChooser<>(true);
-        myIgnoredFilesPathsChooser.getEmptyText().setText(MavenProjectLocalize.mavenIngoredNoFile().get());
-    }
-
     @Override
     @RequiredUIAccess
-    public JComponent createComponent(@Nonnull Disposable uiDisposable) {
-        return myMainPanel;
+    public Component createUIComponent(@Nonnull Disposable uiDisposable) {
+        TextArea patternsEditor = TextArea.create();
+        myIgnoredFilesPatternsEditor = patternsEditor;
+
+        Table<String> filesTable = Table.create(myFiles);
+        filesTable.setShowHeader(false);
+        filesTable.addColumn(LocalizeValue.empty(), myIgnoredFiles::contains)
+            .setWidth(40)
+            .setRender(ComponentItemRender.reusable(
+                () -> CheckBox.create(LocalizeValue.empty()),
+                (checkBox, item) -> checkBox.setValue(Boolean.TRUE.equals(item.getValue()))
+            ))
+            .setEditor(new TableItemEditor<>() {
+                @Override
+                public ValueComponent<Boolean> createComponent(String path) {
+                    return CheckBox.create(LocalizeValue.empty(), myIgnoredFiles.contains(path));
+                }
+
+                @Override
+                public void commit(String path, @Nullable Boolean value) {
+                    if (Boolean.TRUE.equals(value)) {
+                        myIgnoredFiles.add(path);
+                    }
+                    else {
+                        myIgnoredFiles.remove(path);
+                    }
+                }
+            });
+        filesTable.addColumn(LocalizeValue.empty(), path -> path);
+
+        return DockLayout.create()
+            .top(LabeledLayout.create(MavenProjectLocalize.mavenIgnoredFilesPatterns(), DockLayout.create().center(patternsEditor)))
+            .center(LabeledLayout.create(
+                MavenProjectLocalize.mavenIgnoredFilesList(),
+                DockLayout.create().center(ScrollableLayout.create(filesTable))
+            ));
     }
 
     @Override
     @RequiredUIAccess
     public void disposeUIResources() {
+        myIgnoredFilesPatternsEditor = null;
     }
 
     @Override
     @RequiredUIAccess
     public boolean isModified() {
-        return !MavenUtil.equalAsSets(myOriginallyIgnoredFilesPaths, myIgnoredFilesPathsChooser.getMarkedElements()) ||
-            !myOriginallyIgnoredFilesPatterns.equals(myIgnoredFilesPattersEditor.getText());
+        TextArea patternsEditor = myIgnoredFilesPatternsEditor;
+        if (patternsEditor == null) {
+            return false;
+        }
+
+        return !MavenUtil.equalAsSets(myOriginallyIgnoredFilesPaths, getIgnoredFiles())
+            || !myOriginallyIgnoredFilesPatterns.equals(patternsEditor.getValue());
     }
 
     @Override
     @RequiredUIAccess
     public void apply() throws ConfigurationException {
-        myManager.setIgnoredFilesPaths(myIgnoredFilesPathsChooser.getMarkedElements());
-        myManager.setIgnoredFilesPatterns(Strings.tokenize(myIgnoredFilesPattersEditor.getText(), Strings.WHITESPACE + SEPARATOR));
+        TextArea patternsEditor = myIgnoredFilesPatternsEditor;
+        if (patternsEditor == null) {
+            return;
+        }
+
+        myManager.setIgnoredFilesPaths(getIgnoredFiles());
+        myManager.setIgnoredFilesPatterns(Strings.tokenize(patternsEditor.getValue(), Strings.WHITESPACE + SEPARATOR));
     }
 
     @Override
@@ -86,13 +141,31 @@ public class MavenIgnoredFilesConfigurable implements SearchableConfigurable, Co
         myOriginallyIgnoredFilesPaths = myManager.getIgnoredFilesPaths();
         myOriginallyIgnoredFilesPatterns = Strings.detokenize(myManager.getIgnoredFilesPatterns(), SEPARATOR);
 
-        MavenUIUtil.setElements(
-            myIgnoredFilesPathsChooser,
-            MavenUtil.collectPaths(myManager.getProjectsFiles()),
-            myOriginallyIgnoredFilesPaths,
-            FileUtil::comparePaths
-        );
-        myIgnoredFilesPattersEditor.setText(myOriginallyIgnoredFilesPatterns);
+        List<String> files = new ArrayList<>(MavenUtil.collectPaths(myManager.getProjectsFiles()));
+        files.sort(FileUtil::comparePaths);
+
+        myIgnoredFiles.clear();
+        for (String file : files) {
+            if (myOriginallyIgnoredFilesPaths.contains(file)) {
+                myIgnoredFiles.add(file);
+            }
+        }
+        myFiles.replaceAll(files);
+
+        TextArea patternsEditor = myIgnoredFilesPatternsEditor;
+        if (patternsEditor != null) {
+            patternsEditor.setValue(myOriginallyIgnoredFilesPatterns);
+        }
+    }
+
+    private List<String> getIgnoredFiles() {
+        List<String> ignoredFiles = new ArrayList<>();
+        for (String file : myFiles) {
+            if (myIgnoredFiles.contains(file)) {
+                ignoredFiles.add(file);
+            }
+        }
+        return ignoredFiles;
     }
 
     @Override

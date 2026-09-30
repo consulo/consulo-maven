@@ -15,25 +15,28 @@
  */
 package org.jetbrains.idea.maven.navigator;
 
+import consulo.disposer.Disposer;
 import consulo.project.Project;
+import consulo.ui.Tree;
+import consulo.ui.TreeNode;
 import consulo.ui.ex.awt.DialogWrapper;
-import consulo.ui.ex.awt.ScrollPaneFactory;
-import consulo.ui.ex.awt.tree.SimpleNode;
-import consulo.ui.ex.awt.tree.SimpleTree;
+import consulo.ui.ex.awtUnsafe.TargetAWT;
+import consulo.ui.ex.tree.SimpleNode;
+import consulo.ui.layout.ScrollableLayout;
 import org.jetbrains.idea.maven.navigator.structure.MavenProjectsStructure;
 import org.jetbrains.idea.maven.navigator.structure.MavenSimpleNode;
+import org.jetbrains.idea.maven.navigator.structure.MavenTreeStructureModel;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.tasks.MavenShortcutsManager;
 import org.jetbrains.idea.maven.tasks.MavenTasksManager;
 
 import jakarta.annotation.Nullable;
 import javax.swing.*;
-import javax.swing.tree.TreeSelectionModel;
 import java.awt.*;
 
 public class SelectFromMavenProjectsDialog extends DialogWrapper {
     private final Project myProject;
-    private final SimpleTree myTree;
+    private final Tree<MavenSimpleNode> myTree;
     private final NodeSelector mySelector;
 
     public SelectFromMavenProjectsDialog(
@@ -47,16 +50,12 @@ public class SelectFromMavenProjectsDialog extends DialogWrapper {
         mySelector = selector;
         setTitle(title);
 
-        myTree = new SimpleTree();
-        myTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
-
         MavenProjectsStructure treeStructure = new MavenProjectsStructure(
             myProject,
             MavenProjectsManager.getInstance(myProject),
             MavenTasksManager.getInstance(myProject),
             MavenShortcutsManager.getInstance(myProject),
-            MavenProjectsNavigator.getInstance(myProject),
-            myTree
+            MavenProjectsNavigator.getInstance(myProject)
         ) {
             @Override
             protected Class<? extends MavenSimpleNode>[] getVisibleNodesClasses() {
@@ -73,6 +72,11 @@ public class SelectFromMavenProjectsDialog extends DialogWrapper {
                 return false;
             }
         };
+
+        MavenTreeStructureModel model = new MavenTreeStructureModel(treeStructure);
+        myTree = Tree.create(model);
+        Disposer.register(getDisposable(), myTree.destroyHook());
+        treeStructure.setUnifiedView(myTree, model);
         treeStructure.update();
 
         final SimpleNode[] selection = new SimpleNode[]{null};
@@ -83,23 +87,31 @@ public class SelectFromMavenProjectsDialog extends DialogWrapper {
             selection[0] = each;
             return true;
         });
-        if (selection[0] != null) {
-            treeStructure.select(selection[0]);
+
+        SimpleNode selectedNode = selection[0];
+        if (selectedNode != null) {
+            myTree.expandAll().whenComplete((result, error) -> myProject.getUIAccess().give(() -> {
+                if (!isDisposed()) {
+                    treeStructure.select(selectedNode);
+                }
+            }));
         }
 
         init();
     }
 
+    @Nullable
     protected SimpleNode getSelectedNode() {
-        return myTree.getNodeFor(myTree.getSelectionPath());
+        TreeNode<MavenSimpleNode> node = myTree.getSelectedNode();
+        return node == null ? null : node.getValue();
     }
 
     @Nullable
     @Override
     protected JComponent createCenterPanel() {
-        final JScrollPane pane = ScrollPaneFactory.createScrollPane(myTree);
-        pane.setPreferredSize(new Dimension(320, 400));
-        return pane;
+        JComponent component = (JComponent) TargetAWT.to(ScrollableLayout.create(myTree));
+        component.setPreferredSize(new Dimension(320, 400));
+        return component;
     }
 
     protected interface NodeSelector {

@@ -26,7 +26,6 @@ import consulo.ui.ex.awt.tree.SimpleTree;
 import consulo.util.concurrent.coroutine.Coroutine;
 import consulo.util.concurrent.coroutine.CoroutineContext;
 import consulo.util.concurrent.coroutine.CoroutineScope;
-import consulo.ui.event.details.InputDetails;
 import consulo.util.concurrent.coroutine.step.CodeExecution;
 import org.jspecify.annotations.Nullable;
 
@@ -44,23 +43,22 @@ import java.util.TreeSet;
 public class MavenUIUtil {
     @RequiredUIAccess
     public static void executeAction(String actionId, InputEvent e) {
-        executeAction(actionId, DataManager.getInstance().getDataContext(e.getComponent()), e, null);
+        executeAction(actionId, DataManager.getInstance().getDataContext(e.getComponent()), e);
     }
 
     @RequiredUIAccess
-    public static void executeAction(String actionId, DataContext context, @Nullable InputDetails inputDetails) {
-        executeAction(actionId, context, null, inputDetails);
+    public static void executeAction(String actionId, DataContext context) {
+        executeAction(actionId, context, null);
     }
 
     @RequiredUIAccess
-    private static void executeAction(String actionId, DataContext context, @Nullable InputEvent e, @Nullable InputDetails inputDetails) {
+    private static void executeAction(String actionId, DataContext context, @Nullable InputEvent e) {
         final ActionManager actionManager = ActionManager.getInstance();
         final AnAction action = actionManager.getAction(actionId);
         if (action != null) {
             Presentation presentation = new Presentation();
 
-            final AnActionEvent event =
-                new AnActionEvent(e, context, "", presentation, actionManager, 0, false, false, inputDetails);
+            final AnActionEvent event = new AnActionEvent(e, context, "", presentation, actionManager, 0);
 
             UIAccess uiAccess = UIAccess.current();
 

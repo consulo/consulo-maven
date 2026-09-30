@@ -1,3 +1,7 @@
+maven.index.kind.local:
+    text: Local
+maven.index.kind.remote:
+    text: Remote
 maven.index.type:
     text: Type
 maven.index.updated:
@@ -12,8 +16,34 @@ maven.indices.updating:
     text: Updating Maven Repository Indices...
 maven.indices.updating.index:
     text: Updating [{0}] {1}
+maven.repositories.indexed:
+    text: Indexed Maven Repositories
+maven.repositories.service.add:
+    text: Add Service URL
+maven.repositories.service.edit:
+    text: Edit Service URL
+maven.repositories.service.test:
+    text: Test Connection
+maven.repositories.service.test.failed:
+    text: No repositories found
+maven.repositories.service.test.failed.title:
+    text: Service Connection Failed
+maven.repositories.service.test.success:
+    text: '{0,choice,1#1 repository|1<{0} repositories} found'
+maven.repositories.service.test.success.title:
+    text: Service Connection Successful
+maven.repositories.service.url:
+    text: 'Artifactory or Nexus service URL:'
+maven.repositories.service.url.invalid:
+    text: Enter a URL with a host
+maven.repositories.services:
+    text: Artifactory or Nexus Service URLs
+maven.repositories.services.empty:
+    text: No services
 maven.repositories.title:
     text: Repositories
+maven.repositories.update:
+    text: '&Update'
 repository.plugin.corrupt:
     text: '{0} not a Maven 2 plugin file'
 repository.plugin.title:

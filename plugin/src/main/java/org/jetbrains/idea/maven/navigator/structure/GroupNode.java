@@ -1,6 +1,6 @@
 package org.jetbrains.idea.maven.navigator.structure;
 
-import consulo.ui.ex.awt.tree.SimpleNode;
+import consulo.ui.ex.tree.SimpleNode;
 
 import java.util.Collections;
 import java.util.List;
