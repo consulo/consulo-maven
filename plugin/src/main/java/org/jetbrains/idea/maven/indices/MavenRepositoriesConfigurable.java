@@ -30,7 +30,6 @@ import consulo.ui.InputBoxBuilder;
 import consulo.ui.InputProblem;
 import consulo.ui.ListBox;
 import consulo.ui.MessageBoxes;
-import consulo.ui.SelectionMode;
 import consulo.ui.Space;
 import consulo.ui.Table;
 import consulo.ui.annotation.RequiredUIAccess;
@@ -96,7 +95,7 @@ public class MavenRepositoriesConfigurable implements SearchableConfigurable, Co
     @RequiredUIAccess
     public Component createUIComponent(@Nonnull Disposable uiDisposable) {
         Table<MavenIndex> indicesTable = Table.create(myIndices);
-        indicesTable.setSelectionMode(SelectionMode.MULTIPLE);
+        indicesTable.setAllowMultipleSelect(true);
         indicesTable.addColumn(MavenIndicesLocalize.mavenIndexUrl(), MavenIndex::getRepositoryPathOrUrl);
         indicesTable.addColumn(MavenIndicesLocalize.mavenIndexType(), MavenRepositoriesConfigurable::getKindText)
             .setRender((presentation, item) -> presentation.append(item.getValue()));
