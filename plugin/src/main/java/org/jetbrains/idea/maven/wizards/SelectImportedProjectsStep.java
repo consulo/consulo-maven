@@ -226,7 +226,7 @@ public abstract class SelectImportedProjectsStep implements WizardStep<MavenImpo
             return CompletableFuture.failedFuture(new WizardStepValidationException(MavenProjectLocalize.mavenImportNothingToImport().get()));
         }
 
-        return null;
+        return CompletableFuture.completedFuture(null);
     }
 
     public void updateDataModel() {

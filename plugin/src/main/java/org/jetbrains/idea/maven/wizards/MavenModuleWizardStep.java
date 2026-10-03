@@ -357,7 +357,7 @@ public class MavenModuleWizardStep implements WizardStep<MavenNewModuleContext> 
             return CompletableFuture.failedFuture(new WizardStepValidationException(MavenProjectLocalize.mavenWizardSpecifyVersion().get()));
         }
 
-        return null;
+        return CompletableFuture.completedFuture(null);
     }
 
     @RequiredUIAccess
