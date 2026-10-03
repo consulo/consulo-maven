@@ -239,6 +239,10 @@ public class MavenProjectsNavigator extends MavenSimpleProjectComponent implemen
         };
         myProject.getMessageBus().connect(this).subscribe(ToolWindowManagerListener.class, listener);
 
+        // the content is created while the tool window is being shown, so the listener above misses that first show -
+        // and projects restored from the tree cache fire no update events which could fill the structure
+        scheduleStructureUpdate();
+
         ActionManager actionManager = ActionManager.getInstance();
 
         ActionGroup.Builder group = ActionGroup.newImmutableBuilder();
