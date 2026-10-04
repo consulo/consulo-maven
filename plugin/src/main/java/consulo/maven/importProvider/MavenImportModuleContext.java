@@ -8,12 +8,12 @@ import consulo.dataContext.DataManager;
 import consulo.language.editor.CommonDataKeys;
 import consulo.logging.Logger;
 import consulo.maven.rt.server.common.model.MavenExplicitProfiles;
-import consulo.maven.rt.server.common.model.MavenId;
 import consulo.module.creation.importing.ModuleImportContext;
 import consulo.project.Project;
 import consulo.project.ProjectManager;
 import consulo.virtualFileSystem.LocalFileSystem;
 import consulo.virtualFileSystem.VirtualFile;
+import org.jetbrains.idea.maven.localize.MavenProjectLocalize;
 import org.jetbrains.idea.maven.project.*;
 import org.jetbrains.idea.maven.utils.*;
 import org.jspecify.annotations.Nullable;
@@ -142,7 +142,7 @@ public class MavenImportModuleContext extends ModuleImportContext {
         }
 
         boolean finished = runConfigurationProcess(indicator -> {
-            indicator.setText(ProjectBundle.message("maven.locating.files"));
+            indicator.setText(MavenProjectLocalize.mavenLocatingFiles());
 
             myImportRoot = LocalFileSystem.getInstance().refreshAndFindFileByPath(rootPath);
             if (myImportRoot == null) {
@@ -188,28 +188,28 @@ public class MavenImportModuleContext extends ModuleImportContext {
         });
     }
 
-    private void collectProfiles(MavenProgressIndicator process) {
-        process.setText(ProjectBundle.message("maven.searching.profiles"));
+    private void collectProfiles(MavenProgressIndicator process) throws MavenProcessCanceledException {
+        process.setText(MavenProjectLocalize.mavenSearchingProfiles());
+
+        // an aggregator pom rarely declares profiles itself - they live in parents and modules, so read the whole reactor
+        MavenProjectsTree tree = new MavenProjectsTree();
+        tree.addManagedFilesWithProfiles(myFiles, MavenExplicitProfiles.NONE);
+        tree.updateAll(false, getGeneralSettings(), process);
 
         Set<String> availableProfiles = new LinkedHashSet<>();
         Set<String> activatedProfiles = new LinkedHashSet<>();
-        MavenProjectReader reader = new MavenProjectReader();
-        MavenGeneralSettings generalSettings = getGeneralSettings();
-        MavenProjectReaderProjectLocator locator = new MavenProjectReaderProjectLocator() {
-            @Override
-            public VirtualFile findProjectFile(MavenId coordinates) {
-                return null;
-            }
-        };
-        for (VirtualFile f : myFiles) {
-            MavenProject project = new MavenProject(f);
-            process.setText2(ProjectBundle.message("maven.reading.pom", f.getPath()));
-            project.read(generalSettings, MavenExplicitProfiles.NONE, reader, locator);
+        for (MavenProject project : tree.getProjects()) {
             availableProfiles.addAll(project.getProfilesIds());
             activatedProfiles.addAll(project.getActivatedProfilesIds().getEnabledProfiles());
         }
         myProfiles = new ArrayList<>(availableProfiles);
         myActivatedProfiles = new ArrayList<>(activatedProfiles);
+
+        // the tree was read without explicit profiles - reuse it unless another selection was already made
+        if (MavenExplicitProfiles.NONE.equals(mySelectedProfiles)) {
+            mySelectedProjects = tree.getRootProjects();
+            myMavenProjectTree = tree;
+        }
     }
 
     private static boolean runConfigurationProcess(MavenTask task) {
