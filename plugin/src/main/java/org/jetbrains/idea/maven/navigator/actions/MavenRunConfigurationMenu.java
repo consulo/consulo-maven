@@ -19,6 +19,7 @@ import consulo.application.dumb.DumbAware;
 import consulo.execution.ProgramRunnerUtil;
 import consulo.execution.RunnerAndConfigurationSettings;
 import consulo.execution.executor.Executor;
+import consulo.execution.executor.ExecutorGroup;
 import consulo.execution.executor.ExecutorRegistry;
 import consulo.execution.runner.ProgramRunner;
 import consulo.execution.runner.RunnerRegistry;
@@ -27,6 +28,9 @@ import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.action.*;
 import jakarta.annotation.Nonnull;
 import org.jetbrains.idea.maven.utils.MavenDataKeys;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Sergey Evdokimov
@@ -49,10 +53,22 @@ public class MavenRunConfigurationMenu extends DefaultActionGroup implements Dum
             return;
         }
 
-        Executor[] executors = ExecutorRegistry.getInstance().getRegisteredExecutors();
-        for (int i = executors.length; --i >= 0; ) {
-            final ProgramRunner runner = RunnerRegistry.getInstance().getRunner(executors[i].getId(), settings.getConfiguration());
-            AnAction action = new ExecuteMavenRunConfigurationAction(executors[i], runner != null, project, settings);
+        List<Executor> executors = new ArrayList<>();
+        for (Executor executor : ExecutorRegistry.getInstance().getRegisteredExecutors()) {
+            if (executor instanceof ExecutorGroup<?> executorGroup) {
+                executors.addAll(executorGroup.childExecutors());
+            }
+            else {
+                executors.add(executor);
+            }
+        }
+        for (int i = executors.size(); --i >= 0; ) {
+            Executor executor = executors.get(i);
+            if (!executor.isApplicable(project)) {
+                continue;
+            }
+            ProgramRunner runner = RunnerRegistry.getInstance().getRunner(executor.getId(), settings.getConfiguration());
+            AnAction action = new ExecuteMavenRunConfigurationAction(executor, runner != null, project, settings);
             addAction(action, Constraints.FIRST);
         }
     }
