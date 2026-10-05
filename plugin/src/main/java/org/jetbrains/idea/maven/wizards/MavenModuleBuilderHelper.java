@@ -22,6 +22,7 @@ import consulo.application.Result;
 import consulo.application.util.TempFileService;
 import consulo.document.Document;
 import consulo.document.FileDocumentManager;
+import consulo.localize.LocalizeValue;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.util.io.FilePermissionCopier;
 import consulo.util.io.FileUtil;
@@ -300,6 +301,6 @@ public class MavenModuleBuilderHelper {
     }
 
     private void showError(Project project, Throwable e) {
-        MavenUtil.showError(project, "Failed to create a Maven project", e);
+        MavenUtil.showError(project, LocalizeValue.localizeTODO("Failed to create a Maven project"), e);
     }
 }

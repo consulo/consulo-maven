@@ -38,7 +38,6 @@ import consulo.ide.impl.idea.execution.rmi.RemoteProcessSupport;
 import consulo.java.execution.OwnSimpleJavaParameters;
 import consulo.java.execution.projectRoots.OwnJdkUtil;
 import consulo.java.language.bundle.JavaSdkTypeUtil;
-import consulo.localize.LocalizeValue;
 import consulo.maven.rt.m3.common.MavenServer3CommonMarkerRt;
 import consulo.maven.rt.m3.server.MavenServer30MarkerRt;
 import consulo.maven.rt.m32.server.MavenServer32MarkerRt;
@@ -48,6 +47,7 @@ import consulo.maven.rt.server.common.model.MavenExplicitProfiles;
 import consulo.maven.rt.server.common.model.MavenModel;
 import consulo.maven.rt.server.common.server.*;
 import consulo.maven.util.MavenJdkUtil;
+import consulo.platform.Platform;
 import consulo.process.ExecutionException;
 import consulo.process.ProcessHandler;
 import consulo.process.ProcessHandlerBuilder;
@@ -140,9 +140,9 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
         ShutDownTracker.getInstance().registerShutdownTask(() -> shutdown(false));
     }
 
-    @SuppressWarnings("ConstantConditions")
-    @Override
     @Nonnull
+    @Override
+    @SuppressWarnings("ConstantConditions")
     protected synchronized MavenServer create() throws RemoteException {
         MavenServer result;
         try {
@@ -211,7 +211,7 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
         return new CommandLineState(null) {
             @Nonnull
             private OwnSimpleJavaParameters createJavaParameters() throws ExecutionException {
-                final OwnSimpleJavaParameters params = new OwnSimpleJavaParameters();
+                OwnSimpleJavaParameters params = new OwnSimpleJavaParameters();
 
                 params.setWorkingDirectory(ContainerPathManager.get().getBinPath());
 
@@ -219,11 +219,11 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
                 defs.putAll(MavenUtil.getPropertiesFromMavenOpts());
 
                 // pass ssl-related options
-                for (Map.Entry<Object, Object> each : System.getProperties().entrySet()) {
-                    Object key = each.getKey();
-                    Object value = each.getValue();
-                    if (key instanceof String && value instanceof String && ((String)key).startsWith("javax.net.ssl")) {
-                        defs.put((String)key, (String)value);
+                for (Map.Entry<String, String> each : Platform.current().jvm().getRuntimeProperties().entrySet()) {
+                    String key = each.getKey();
+                    String value = each.getValue();
+                    if (key.startsWith("javax.net.ssl")) {
+                        defs.put(key, value);
                     }
                 }
 
@@ -274,7 +274,8 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
                 params.getClassPath().addAllFiles(collectClassPathAndLibsFolder(mainClassRef));
                 params.setMainClass(mainClassRef.get());
 
-                String embedderXmx = System.getProperty("idea.maven.embedder.xmx");
+                Platform platform = Platform.current();
+                String embedderXmx = platform.jvm().getRuntimeProperty("idea.maven.embedder.xmx");
                 if (embedderXmx != null) {
                     params.getVMParametersList().add("-Xmx" + embedderXmx);
                 }
@@ -284,18 +285,18 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
                     }
                 }
 
-                String mavenEmbedderDebugPort = System.getProperty("idea.maven.embedder.debug.port");
+                String mavenEmbedderDebugPort = platform.jvm().getRuntimeProperty("idea.maven.embedder.debug.port");
                 if (mavenEmbedderDebugPort != null) {
                     params.getVMParametersList()
                         .addParametersString("-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=" + mavenEmbedderDebugPort);
                 }
 
-                String mavenEmbedderParameters = System.getProperty("idea.maven.embedder.parameters");
+                String mavenEmbedderParameters = platform.jvm().getRuntimeProperty("idea.maven.embedder.parameters");
                 if (mavenEmbedderParameters != null) {
                     params.getProgramParametersList().addParametersString(mavenEmbedderParameters);
                 }
 
-                String mavenEmbedderCliOptions = System.getProperty(MavenServerEmbedder.MAVEN_EMBEDDER_CLI_ADDITIONAL_ARGS);
+                String mavenEmbedderCliOptions = platform.jvm().getRuntimeProperty(MavenServerEmbedder.MAVEN_EMBEDDER_CLI_ADDITIONAL_ARGS);
                 if (mavenEmbedderCliOptions != null) {
                     params.getVMParametersList()
                         .addProperty(MavenServerEmbedder.MAVEN_EMBEDDER_CLI_ADDITIONAL_ARGS, mavenEmbedderCliOptions);
@@ -341,8 +342,8 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
         return null;
     }
 
-    @SuppressWarnings("unused")
     @Nullable
+    @SuppressWarnings("unused")
     public String getMavenVersion(@Nullable File mavenHome) {
         return MavenUtil.getMavenVersion(mavenHome);
     }
@@ -350,7 +351,6 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
     public String getCurrentMavenVersion() {
         return getMavenVersion(myState.mavenBundleName);
     }
-
 
     @Nonnull
     public List<File> collectClassPathAndLibsFolder(SimpleReference<String> mainClassRef) {

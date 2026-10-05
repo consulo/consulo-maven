@@ -135,6 +135,7 @@ public class MavenModulePsiReference extends MavenPsiReference implements LocalQ
         }
 
         @Override
+        @RequiredReadAction
         public void applyFix(@Nonnull Project project, @Nonnull ProblemDescriptor d) {
             try {
                 VirtualFile modulePom = createModulePom();
@@ -153,7 +154,7 @@ public class MavenModulePsiReference extends MavenPsiReference implements LocalQ
                 );
             }
             catch (IOException e) {
-                MavenUtil.showError(project, "Cannot create a module", e);
+                MavenUtil.showError(project, LocalizeValue.localizeTODO("Cannot create a module"), e);
             }
         }
 

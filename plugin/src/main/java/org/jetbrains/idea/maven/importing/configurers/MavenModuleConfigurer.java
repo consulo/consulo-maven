@@ -15,6 +15,7 @@
  */
 package org.jetbrains.idea.maven.importing.configurers;
 
+import consulo.platform.Platform;
 import consulo.project.Project;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
@@ -30,33 +31,35 @@ import java.util.List;
  */
 public abstract class MavenModuleConfigurer {
 
-  public abstract void configure(@Nonnull MavenProject mavenProject, @Nonnull Project project, @Nullable Module module);
+    public abstract void configure(@Nonnull MavenProject mavenProject, @Nonnull Project project, @Nullable Module module);
 
-  /**
-   * Called once after every project has been through {@link #configure}, for configurers which must apply what they
-   * collected in a single step rather than per module.
-   */
-  public void afterConfigure(@Nonnull Project project) {
-  }
-
-  /**
-   * A fresh list per import: a configurer may collect state across the modules of one import and apply it in
-   * {@link #afterConfigure}, so instances must not be shared between imports or projects.
-   */
-  public static List<MavenModuleConfigurer> getConfigurers() {
-    List<MavenModuleConfigurer> configurers = new ArrayList<>();
-
-    for (MavenModuleConfigurer configurer : new MavenModuleConfigurer[]{
-      new MavenCompilerConfigurer(),
-      new MavenEncodingConfigurer(),
-      new MavenAnnotationProcessorConfigurer()}) {
-
-      if (!Boolean.parseBoolean(System.getProperty("idea.maven.disable." + configurer.getClass().getSimpleName()))) {
-        configurers.add(configurer);
-      }
+    /**
+     * Called once after every project has been through {@link #configure}, for configurers which must apply what they
+     * collected in a single step rather than per module.
+     */
+    public void afterConfigure(@Nonnull Project project) {
     }
 
-    return configurers;
-  }
+    /**
+     * A fresh list per import: a configurer may collect state across the modules of one import and apply it in
+     * {@link #afterConfigure}, so instances must not be shared between imports or projects.
+     */
+    public static List<MavenModuleConfigurer> getConfigurers() {
+        List<MavenModuleConfigurer> configurers = new ArrayList<>();
 
+        for (MavenModuleConfigurer configurer : new MavenModuleConfigurer[]{
+            new MavenCompilerConfigurer(),
+            new MavenEncodingConfigurer(),
+            new MavenAnnotationProcessorConfigurer()
+        }) {
+
+            String disableClass =
+                Platform.current().jvm().getRuntimeProperty("idea.maven.disable." + configurer.getClass().getSimpleName());
+            if (!Boolean.parseBoolean(disableClass)) {
+                configurers.add(configurer);
+            }
+        }
+
+        return configurers;
+    }
 }

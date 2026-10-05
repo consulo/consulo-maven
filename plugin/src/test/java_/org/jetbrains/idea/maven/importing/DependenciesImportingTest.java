@@ -19,9 +19,11 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import consulo.application.Application;
 import consulo.content.library.LibraryTablesRegistrar;
+import consulo.platform.Platform;
 import consulo.util.io.FileUtil;
 import org.jetbrains.idea.maven.MavenCustomRepositoryHelper;
 import org.jetbrains.idea.maven.MavenImportingTestCase;
@@ -1018,7 +1020,7 @@ public abstract class DependenciesImportingTest extends MavenImportingTestCase {
   }
 
   public void testDependencyWithEnvironmentProperty() throws Exception {
-    String javaHome = FileUtil.toSystemIndependentName(System.getProperty("java.home"));
+    String javaHome = FileUtil.toSystemIndependentName(Objects.requireNonNull(Platform.current().jvm().getRuntimeProperty("java.home")));
 
     importProject("<groupId>test</groupId>" +
                   "<artifactId>project</artifactId>" +
@@ -1041,7 +1043,7 @@ public abstract class DependenciesImportingTest extends MavenImportingTestCase {
   }
 
   public void testDependencyWithEnvironmentENVProperty() throws Exception {
-    String envDir = FileUtil.toSystemIndependentName(System.getenv(getEnvVar()));
+    String envDir = FileUtil.toSystemIndependentName(Objects.requireNonNull(Platform.current().os().getEnvironmentVariable(getEnvVar())));
     if (envDir.endsWith("/")) envDir = envDir.substring(0, envDir.length() - 1);
 
     importProject("<groupId>test</groupId>" +

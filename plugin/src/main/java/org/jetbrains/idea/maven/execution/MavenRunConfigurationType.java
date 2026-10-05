@@ -17,7 +17,7 @@ package org.jetbrains.idea.maven.execution;
 
 import com.intellij.java.execution.impl.DefaultJavaProgramRunner;
 import consulo.annotation.component.ExtensionImpl;
-import consulo.application.ApplicationManager;
+import consulo.application.Application;
 import consulo.compiler.execution.CompileStepBeforeRun;
 import consulo.compiler.execution.CompileStepBeforeRunNoErrorCheck;
 import consulo.execution.BeforeRunTask;
@@ -35,6 +35,7 @@ import consulo.localize.LocalizeValue;
 import consulo.maven.icon.MavenIconGroup;
 import consulo.process.ExecutionException;
 import consulo.project.Project;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.image.Image;
 import consulo.util.dataholder.Key;
 import consulo.util.lang.StringUtil;
@@ -51,7 +52,6 @@ import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.project.MavenWorkspaceSettingsComponent;
 import org.jetbrains.idea.maven.utils.MavenUtil;
 
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -73,7 +73,7 @@ public class MavenRunConfigurationType implements ConfigurationType {
             @Nonnull
             @Override
             public String getId() {
-                // return not localized string - do not break compability
+                // return not localized string - do not break compatibility
                 return "Maven";
             }
 
@@ -89,7 +89,7 @@ public class MavenRunConfigurationType implements ConfigurationType {
 
             @Override
             public RunConfiguration createConfiguration(String name, RunConfiguration template) {
-                MavenRunConfiguration cfg = (MavenRunConfiguration)super.createConfiguration(name, template);
+                MavenRunConfiguration cfg = (MavenRunConfiguration) super.createConfiguration(name, template);
 
                 if (!StringUtil.isEmptyOrSpaces(cfg.getRunnerParameters().getWorkingDirPath())) {
                     return cfg;
@@ -163,7 +163,7 @@ public class MavenRunConfigurationType implements ConfigurationType {
     public static String generateName(Project project, MavenRunnerParameters runnerParameters) {
         StringBuilder stringBuilder = new StringBuilder();
 
-        final String name = getMavenProjectName(project, runnerParameters);
+        String name = getMavenProjectName(project, runnerParameters);
         if (!StringUtil.isEmptyOrSpaces(name)) {
             stringBuilder.append(name);
             stringBuilder.append(" ");
@@ -176,7 +176,7 @@ public class MavenRunConfigurationType implements ConfigurationType {
         return stringBuilder.toString();
     }
 
-    private static void listGoals(final StringBuilder stringBuilder, final List<String> goals) {
+    private static void listGoals(StringBuilder stringBuilder, List<String> goals) {
         int index = 0;
         for (String goal : goals) {
             if (index != 0) {
@@ -194,9 +194,8 @@ public class MavenRunConfigurationType implements ConfigurationType {
     }
 
     @Nullable
-    private static String getMavenProjectName(final Project project, final MavenRunnerParameters runnerParameters) {
-        final VirtualFile virtualFile =
-            LocalFileSystem.getInstance().refreshAndFindFileByPath(runnerParameters.getWorkingDirPath() + "/pom.xml");
+    private static String getMavenProjectName(Project project, MavenRunnerParameters runnerParameters) {
+        VirtualFile virtualFile = LocalFileSystem.getInstance().refreshAndFindFileByPath(runnerParameters.getWorkingDirPath() + "/pom.xml");
         if (virtualFile != null) {
             MavenProject mavenProject = MavenProjectsManager.getInstance(project).findProject(virtualFile);
             if (mavenProject != null) {
@@ -208,7 +207,7 @@ public class MavenRunConfigurationType implements ConfigurationType {
         return null;
     }
 
-
+    @RequiredUIAccess
     public static void runConfiguration(
         Project project,
         MavenRunnerParameters params,
@@ -217,6 +216,7 @@ public class MavenRunConfigurationType implements ConfigurationType {
         runConfiguration(project, params, null, null, callback);
     }
 
+    @RequiredUIAccess
     public static void runConfiguration(
         Project project,
         @Nonnull MavenRunnerParameters params,
@@ -240,7 +240,7 @@ public class MavenRunConfigurationType implements ConfigurationType {
             runner.execute(env);
         }
         catch (ExecutionException e) {
-            MavenUtil.showError(project, "Failed to execute Maven goal", e);
+            MavenUtil.showError(project, LocalizeValue.localizeTODO("Failed to execute Maven goal"), e);
         }
     }
 
@@ -252,9 +252,9 @@ public class MavenRunConfigurationType implements ConfigurationType {
     ) {
         MavenRunConfigurationType type = ConfigurationTypeUtil.findConfigurationType(MavenRunConfigurationType.class);
 
-        final RunnerAndConfigurationSettings settings =
+        RunnerAndConfigurationSettings settings =
             RunManager.getInstance(project).createRunConfiguration(generateName(project, params), type.myFactory);
-        MavenRunConfiguration runConfiguration = (MavenRunConfiguration)settings.getConfiguration();
+        MavenRunConfiguration runConfiguration = (MavenRunConfiguration) settings.getConfiguration();
         runConfiguration.setRunnerParameters(params);
         runConfiguration.setGeneralSettings(generalSettings);
         runConfiguration.setRunnerSettings(runnerSettings);
@@ -262,12 +262,14 @@ public class MavenRunConfigurationType implements ConfigurationType {
         return settings;
     }
 
-    public static @NotNull RunnerAndConfigurationSettings createRunnerAndConfigurationSettings(@Nullable MavenGeneralSettings generalSettings,
-                                                                                               @Nullable MavenRunnerSettings runnerSettings,
-                                                                                               @NotNull MavenRunnerParameters params,
-                                                                                               @NotNull Project project,
-                                                                                               @NotNull String name,
-                                                                                               boolean isDelegate) {
+    public static @NotNull RunnerAndConfigurationSettings createRunnerAndConfigurationSettings(
+        @Nullable MavenGeneralSettings generalSettings,
+        @Nullable MavenRunnerSettings runnerSettings,
+        @NotNull MavenRunnerParameters params,
+        @NotNull Project project,
+        @NotNull String name,
+        boolean isDelegate
+    ) {
         MavenRunConfigurationType type = ConfigurationTypeUtil.findConfigurationType(MavenRunConfigurationType.class);
 
         RunnerAndConfigurationSettings settings = RunManager.getInstance(project).createRunConfiguration(name, type.myFactory);
@@ -284,14 +286,17 @@ public class MavenRunConfigurationType implements ConfigurationType {
         return settings;
     }
 
-    public static void runConfiguration(Project project,
-                                        @NotNull MavenRunnerParameters params,
-                                        @Nullable MavenGeneralSettings settings,
-                                        @Nullable MavenRunnerSettings runnerSettings,
-                                        @Nullable ProgramRunner.Callback callback,
-                                        boolean isDelegateBuild) {
-
-        RunnerAndConfigurationSettings configSettings = createRunnerAndConfigurationSettings(settings,
+    @RequiredUIAccess
+    public static void runConfiguration(
+        Project project,
+        @NotNull MavenRunnerParameters params,
+        @Nullable MavenGeneralSettings settings,
+        @Nullable MavenRunnerSettings runnerSettings,
+        @Nullable ProgramRunner.Callback callback,
+        boolean isDelegateBuild
+    ) {
+        RunnerAndConfigurationSettings configSettings = createRunnerAndConfigurationSettings(
+            settings,
             runnerSettings,
             params,
             project,
@@ -304,12 +309,12 @@ public class MavenRunConfigurationType implements ConfigurationType {
         ExecutionEnvironment environment = new ExecutionEnvironment(executor, runner, configSettings, project);
         environment.putUserData(IS_DELEGATE_BUILD, isDelegateBuild);
         environment.setCallback(callback);
-        ApplicationManager.getApplication().invokeAndWait(() -> {
+        Application.get().invokeAndWait(() -> {
             try {
                 runner.execute(environment);
             }
             catch (ExecutionException e) {
-                MavenUtil.showError(project, RunnerBundle.message("notification.title.failed.to.execute.maven.goal"), e);
+                MavenUtil.showError(project, MavenRunnerLocalize.notificationTitleFailedToExecuteMavenGoal(), e);
             }
         });
     }

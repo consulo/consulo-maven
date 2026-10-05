@@ -14,8 +14,6 @@
  *  limitations under the License.
  * =========================================================================
  */
-
-
 package org.jetbrains.idea.maven.execution;
 
 import com.intellij.java.language.LanguageLevel;
@@ -36,6 +34,7 @@ import consulo.maven.rt.server.common.server.MavenServerUtil;
 import consulo.maven.util.MavenJdkUtil;
 import consulo.module.Module;
 import consulo.module.ModuleManager;
+import consulo.platform.Platform;
 import consulo.process.ExecutionException;
 import consulo.process.cmd.ParametersList;
 import consulo.project.Project;
@@ -79,8 +78,8 @@ public class MavenExternalParameters {
     @Deprecated // Use createJavaParameters(Project,MavenRunnerParameters, MavenGeneralSettings,MavenRunnerSettings,MavenRunConfiguration)
     @RequiredReadAction
     public static OwnJavaParameters createJavaParameters(
-        @Nullable final Project project,
-        @Nonnull final MavenRunnerParameters parameters,
+        @Nullable Project project,
+        @Nonnull MavenRunnerParameters parameters,
         @Nullable MavenGeneralSettings coreSettings,
         @Nullable MavenRunnerSettings runnerSettings
     ) throws ExecutionException {
@@ -88,10 +87,8 @@ public class MavenExternalParameters {
     }
 
     @RequiredReadAction
-    public static OwnJavaParameters createJavaParameters(
-        @Nullable final Project project,
-        @Nonnull final MavenRunnerParameters parameters
-    ) throws ExecutionException {
+    public static OwnJavaParameters createJavaParameters(@Nullable Project project, @Nonnull MavenRunnerParameters parameters)
+        throws ExecutionException {
         return createJavaParameters(project, parameters, null, null, null);
     }
 
@@ -106,13 +103,13 @@ public class MavenExternalParameters {
      */
     @RequiredReadAction
     public static OwnJavaParameters createJavaParameters(
-        @Nullable final Project project,
-        @Nonnull final MavenRunnerParameters parameters,
+        @Nullable Project project,
+        @Nonnull MavenRunnerParameters parameters,
         @Nullable MavenGeneralSettings coreSettings,
         @Nullable MavenRunnerSettings runnerSettings,
         @Nullable MavenRunConfiguration runConfiguration
     ) throws ExecutionException {
-        final OwnJavaParameters params = new OwnJavaParameters();
+        OwnJavaParameters params = new OwnJavaParameters();
 
         Application.get().assertReadAccessAllowed();
 
@@ -125,8 +122,8 @@ public class MavenExternalParameters {
 
         params.setWorkingDirectory(parameters.getWorkingDirFile());
 
-        final String mavenHome = resolveMavenHome(coreSettings, project, runConfiguration);
-        final String mavenVersion = MavenUtil.getMavenVersion(mavenHome);
+        String mavenHome = resolveMavenHome(coreSettings, project, runConfiguration);
+        String mavenVersion = MavenUtil.getMavenVersion(mavenHome);
 
         LanguageLevel defaultRunLevel = MavenJdkUtil.getDefaultRunLevel(mavenVersion);
 
@@ -321,7 +318,7 @@ public class MavenExternalParameters {
     }
 
     public static void addVMParameters(ParametersList parametersList, String mavenHome, MavenRunnerSettings runnerSettings) {
-        parametersList.addParametersString(System.getenv(MAVEN_OPTS));
+        parametersList.addParametersString(Platform.current().os().getEnvironmentVariable(MAVEN_OPTS));
 
         parametersList.addParametersString(runnerSettings.getVmOptions());
 
@@ -379,7 +376,7 @@ public class MavenExternalParameters {
         @Nullable Project project,
         @Nullable MavenRunConfiguration runConfiguration
     ) throws ExecutionException {
-        final File file = MavenUtil.resolveMavenHomeDirectory(coreSettings.getMavenBundleName());
+        File file = MavenUtil.resolveMavenHomeDirectory(coreSettings.getMavenBundleName());
 
         if (file == null) {
             throw createExecutionException(
@@ -454,7 +451,7 @@ public class MavenExternalParameters {
     }
 
     @SuppressWarnings({"HardCodedStringLiteral"})
-    private static List<String> getMavenClasspathEntries(final String mavenHome) {
+    private static List<String> getMavenClasspathEntries(String mavenHome) {
         File mavenHomeBootAsFile = new File(new File(mavenHome, "core"), "boot");
         // if the dir "core/boot" does not exist we are using a Maven version > 2.0.5
         // in this case the classpath must be constructed from the dir "boot"
@@ -541,7 +538,7 @@ public class MavenExternalParameters {
     private static class ProjectSettingsOpenerExecutionException extends WithHyperlinkExecutionException {
         private final Project myProject;
 
-        public ProjectSettingsOpenerExecutionException(final String s, Project project) {
+        public ProjectSettingsOpenerExecutionException(String s, Project project) {
             super(s);
             myProject = project;
         }
@@ -556,7 +553,7 @@ public class MavenExternalParameters {
     private static class ProjectJdkSettingsOpenerExecutionException extends WithHyperlinkExecutionException {
         private final Project myProject;
 
-        public ProjectJdkSettingsOpenerExecutionException(final String s, Project project) {
+        public ProjectJdkSettingsOpenerExecutionException(String s, Project project) {
             super(s);
             myProject = project;
         }
@@ -569,10 +566,9 @@ public class MavenExternalParameters {
     }
 
     private static class RunConfigurationOpenerExecutionException extends WithHyperlinkExecutionException {
-
         private final MavenRunConfiguration myRunConfiguration;
 
-        public RunConfigurationOpenerExecutionException(final String s, MavenRunConfiguration runConfiguration) {
+        public RunConfigurationOpenerExecutionException(String s, MavenRunConfiguration runConfiguration) {
             super(s);
             myRunConfiguration = runConfiguration;
         }

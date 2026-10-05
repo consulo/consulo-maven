@@ -26,6 +26,7 @@ import consulo.module.Module;
 import consulo.module.content.ModuleRootManager;
 import consulo.module.content.layer.orderEntry.LibraryOrderEntry;
 import consulo.module.content.layer.orderEntry.OrderEntry;
+import consulo.platform.Platform;
 import consulo.util.io.FileUtil;
 import org.jetbrains.idea.maven.MavenImportingTestCase;
 import org.jetbrains.idea.maven.importing.MavenRootModelAdapter;
@@ -519,7 +520,7 @@ public abstract class MavenProjectsManagerTest extends MavenImportingTestCase {
   }
 
   public void testResolvingEnvVariableInRepositoryPath() throws Exception {
-    String temp = System.getenv(getEnvVar());
+    String temp = Platform.current().os().getEnvironmentVariable(getEnvVar());
     updateSettingsXml("<localRepository>${env." + getEnvVar() + "}/tmpRepo</localRepository>");
 
     File repo = new File(temp + "/tmpRepo").getCanonicalFile();

@@ -17,11 +17,12 @@ package org.jetbrains.idea.maven.project;
 
 import com.intellij.testFramework.PlatformTestUtil;
 import consulo.application.WriteAction;
-import consulo.application.util.SystemInfo;
 import consulo.ide.impl.idea.util.Function;
 import consulo.language.editor.WriteCommandAction;
 import consulo.maven.rt.server.common.idea.maven.model.*;
 import consulo.maven.rt.server.common.model.*;
+import consulo.platform.Platform;
+import consulo.platform.PlatformOperatingSystem;
 import consulo.util.collection.ArrayUtil;
 import consulo.util.collection.ContainerUtil;
 import consulo.util.io.FileUtil;
@@ -588,8 +589,9 @@ public abstract class MavenProjectReaderTest extends MavenTestCase
 				"<packaging>${env." + getEnvVar() + "}</packaging>");
 
 		MavenModel p = readProject(myProjectPom);
-		assertEquals(System.getProperty("java.home"), p.getName());
-		assertEquals(System.getenv(getEnvVar()), p.getPackaging());
+		Platform platform = Platform.current();
+		assertEquals(platform.jvm().getRuntimeProperty("java.home"), p.getName());
+		assertEquals(platform.os().getEnvironmentVariable(getEnvVar()), p.getPackaging());
 	}
 
 	public void testExpandingPropertiesFromProfiles() throws Exception
@@ -1276,13 +1278,14 @@ public abstract class MavenProjectReaderTest extends MavenTestCase
 
 	public void testActivatingProfilesByOS() throws Exception
 	{
-		String os = SystemInfo.isWindows ? "windows" : SystemInfo.isMac ? "mac" : "unix";
+		PlatformOperatingSystem os = Platform.current().os();
+		String osName = os.isWindows() ? "windows" : os.isMac() ? "mac" : "unix";
 
 		createProjectPom("<profiles>" +
 				"  <profile>" +
 				"    <id>one</id>" +
 				"    <activation>" +
-				"      <os><family>" + os + "</family></os>" +
+				"      <os><family>" + osName + "</family></os>" +
 				"    </activation>" +
 				"  </profile>" +
 				"  <profile>" +
@@ -1338,7 +1341,7 @@ public abstract class MavenProjectReaderTest extends MavenTestCase
 				"    <activation>" +
 				"      <property>" +
 				"        <name>os.name</name>" +
-				"        <value>" + System.getProperty("os.name") + "</value>" +
+				"        <value>" + Platform.current().jvm().getRuntimeProperty("os.name") + "</value>" +
 				"      </property>" +
 				"    </activation>" +
 				"  </profile>" +
@@ -1358,7 +1361,7 @@ public abstract class MavenProjectReaderTest extends MavenTestCase
 
 	public void testActivatingProfilesByEnvProperty() throws Exception
 	{
-		String value = System.getenv(getEnvVar());
+		String value = Platform.current().os().getEnvironmentVariable(getEnvVar());
 
 		createProjectPom("<profiles>" +
 				"  <profile>" +

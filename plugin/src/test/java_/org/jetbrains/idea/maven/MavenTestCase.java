@@ -15,23 +15,24 @@
  */
 package org.jetbrains.idea.maven;
 
-import consulo.application.ApplicationManager;
-import consulo.application.Result;
-import consulo.application.WriteAction;
-import consulo.application.progress.EmptyProgressIndicator;
-import consulo.application.util.SystemInfo;
-import consulo.language.editor.WriteCommandAction;
-import consulo.module.Module;
-import consulo.module.ModuleManager;
-import consulo.project.Project;
-import consulo.ui.ex.awt.UIUtil;
-import consulo.util.io.FileUtil;
-import consulo.virtualFileSystem.LocalFileSystem;
-import consulo.virtualFileSystem.VirtualFile;
 import com.intellij.testFramework.UsefulTestCase;
 import com.intellij.testFramework.fixtures.IdeaProjectTestFixture;
 import com.intellij.testFramework.fixtures.IdeaTestFixtureFactory;
+import consulo.application.Application;
+import consulo.application.Result;
+import consulo.application.WriteAction;
+import consulo.application.progress.EmptyProgressIndicator;
+import consulo.language.editor.WriteCommandAction;
+import consulo.module.Module;
+import consulo.module.ModuleManager;
+import consulo.platform.Platform;
+import consulo.project.Project;
+import consulo.ui.annotation.RequiredUIAccess;
+import consulo.ui.ex.awt.UIUtil;
 import consulo.util.collection.Sets;
+import consulo.util.io.FileUtil;
+import consulo.virtualFileSystem.LocalFileSystem;
+import consulo.virtualFileSystem.VirtualFile;
 import org.intellij.lang.annotations.Language;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.idea.maven.indices.MavenIndicesManager;
@@ -43,8 +44,8 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.List;
 import java.util.*;
+import java.util.List;
 
 public abstract class MavenTestCase extends UsefulTestCase
 {
@@ -88,29 +89,16 @@ public abstract class MavenTestCase extends UsefulTestCase
 
 		restoreSettingsFile();
 
-		UIUtil.invokeAndWaitIfNeeded(new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				ApplicationManager.getApplication().runWriteAction(new Runnable()
-				{
-					@Override
-					public void run()
-					{
-						try
-						{
-							setUpInWriteAction();
-						}
-						catch(Exception e)
-						{
-							throw new RuntimeException(e);
-						}
-					}
-				});
-			}
-		});
-
+		UIUtil.invokeAndWaitIfNeeded((Runnable) () -> Application.get().runWriteAction(() -> {
+            try
+            {
+                setUpInWriteAction();
+            }
+            catch(Exception e)
+            {
+                throw new RuntimeException(e);
+            }
+        }));
 	}
 
 	private static void ensureTempDirCreated()
@@ -142,21 +130,16 @@ public abstract class MavenTestCase extends UsefulTestCase
 	protected void tearDown() throws Exception
 	{
 		myProject = null;
-		UIUtil.invokeAndWaitIfNeeded(new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				try
-				{
-					tearDownFixtures();
-				}
-				catch(Exception e)
-				{
-					throw new RuntimeException(e);
-				}
-			}
-		});
+		UIUtil.invokeAndWaitIfNeeded((Runnable) () -> {
+            try
+            {
+                tearDownFixtures();
+            }
+            catch(Exception e)
+            {
+                throw new RuntimeException(e);
+            }
+        });
 		if(!FileUtil.delete(myDir) && myDir.exists())
 		{
 			System.err.println("Cannot delete " + myDir);
@@ -195,17 +178,17 @@ public abstract class MavenTestCase extends UsefulTestCase
 		myTestFixture = null;
 	}
 
-	private void resetClassFields(final Class<?> aClass)
+	private void resetClassFields(Class<?> aClass)
 	{
 		if(aClass == null)
 		{
 			return;
 		}
 
-		final Field[] fields = aClass.getDeclaredFields();
+		Field[] fields = aClass.getDeclaredFields();
 		for(Field field : fields)
 		{
-			final int modifiers = field.getModifiers();
+			int modifiers = field.getModifiers();
 			if((modifiers & Modifier.FINAL) == 0
 					&& (modifiers & Modifier.STATIC) == 0
 					&& !field.getType().isPrimitive())
@@ -272,7 +255,7 @@ public abstract class MavenTestCase extends UsefulTestCase
 
 	protected static String getRoot()
 	{
-		if(SystemInfo.isWindows)
+		if(Platform.current().os().isWindows())
 		{
 			return "c:";
 		}
@@ -281,11 +264,11 @@ public abstract class MavenTestCase extends UsefulTestCase
 
 	protected static String getEnvVar()
 	{
-		if(SystemInfo.isWindows)
+		if(Platform.current().os().isWindows())
 		{
 			return "TEMP";
 		}
-		else if(SystemInfo.isLinux)
+		else if(Platform.current().os().isLinux())
 		{
 			return "HOME";
 		}
@@ -371,8 +354,10 @@ public abstract class MavenTestCase extends UsefulTestCase
 
 	private static String createSettingsXmlContent(String content)
 	{
-		String mirror = System.getProperty("idea.maven.test.mirror",
-				"http://maven.labs.intellij.net:8081/nexus/content/groups/public/");
+		String mirror = Platform.current().jvm().getRuntimeProperty(
+		    "idea.maven.test.mirror",
+            "http://maven.labs.intellij.net:8081/nexus/content/groups/public/"
+        );
 		return "<settings>" +
 				content +
 				"<mirrors>" +
@@ -415,13 +400,12 @@ public abstract class MavenTestCase extends UsefulTestCase
 		return createPomFile(createProjectSubDir(relativePath), xml);
 	}
 
-	protected VirtualFile createPomFile(final VirtualFile dir, String xml) throws IOException
+	protected VirtualFile createPomFile(VirtualFile dir, String xml) throws IOException
 	{
 		VirtualFile f = dir.findChild("pom.xml");
 		if(f == null)
 		{
-			f = WriteAction.compute(() ->
-			{
+			f = WriteAction.compute(() -> {
 				VirtualFile res = dir.createChildData(null, "pom.xml");
 				return res;
 			});
@@ -431,9 +415,8 @@ public abstract class MavenTestCase extends UsefulTestCase
 		return f;
 	}
 
-	@NonNls
 	@Language(value = "XML")
-	public static String createPomXml(@NonNls @Language(value = "XML", prefix = "<xml>", suffix = "</xml>") String xml)
+	public static String createPomXml(@Language(value = "XML", prefix = "<xml>", suffix = "</xml>") String xml)
 	{
 		return "<?xml version=\"1.0\"?>" +
 				"<project xmlns=\"http://maven.apache.org/POM/4.0.0\"" +
@@ -479,13 +462,12 @@ public abstract class MavenTestCase extends UsefulTestCase
 		return createProfilesFile(createProjectSubDir(relativePath), content);
 	}
 
-	private static VirtualFile createProfilesFile(final VirtualFile dir, String content) throws IOException
+	private static VirtualFile createProfilesFile(VirtualFile dir, String content) throws IOException
 	{
 		VirtualFile f = dir.findChild("profiles.xml");
 		if(f == null)
 		{
-			f = WriteAction.compute(() ->
-			{
+			f = WriteAction.compute(() -> {
 				VirtualFile res = dir.createChildData(null, "profiles.xml");
 				return res;
 			});
@@ -559,17 +541,18 @@ public abstract class MavenTestCase extends UsefulTestCase
 		return LocalFileSystem.getInstance().refreshAndFindFileByIoFile(f);
 	}
 
-	protected VirtualFile createProjectSubFile(String relativePath, String content) throws IOException
+	@RequiredUIAccess
+    protected VirtualFile createProjectSubFile(String relativePath, String content) throws IOException
 	{
 		VirtualFile file = createProjectSubFile(relativePath);
 		setFileContent(file, content, false);
 		return file;
 	}
 
-	private static void setFileContent(final VirtualFile file, final String content, final boolean advanceStamps) throws IOException
+	@RequiredUIAccess
+    private static void setFileContent(VirtualFile file, String content, boolean advanceStamps) throws IOException
 	{
-		WriteAction.run(() ->
-		{
+		WriteAction.run(() -> {
 			if(advanceStamps)
 			{
 				file.setBinaryContent(content.getBytes(), -1, file.getTimeStamp() + 4000);
@@ -608,10 +591,10 @@ public abstract class MavenTestCase extends UsefulTestCase
 
 	protected static <T, U> void assertOrderedElementsAreEqual(Collection<U> actual, T... expected)
 	{
-		String s = "\nexpected: " + Arrays.asList(expected) + "\nactual: " + new ArrayList<U>(actual);
+		String s = "\nexpected: " + Arrays.asList(expected) + "\nactual: " + new ArrayList<>(actual);
 		assertEquals(s, expected.length, actual.size());
 
-		List<U> actualList = new ArrayList<U>(actual);
+		List<U> actualList = new ArrayList<>(actual);
 		for(int i = 0; i < expected.length; i++)
 		{
 			T expectedElement = expected[i];
@@ -628,7 +611,7 @@ public abstract class MavenTestCase extends UsefulTestCase
 
 	protected static <T> void assertDoNotContain(List<T> actual, T... expected)
 	{
-		List<T> actualCopy = new ArrayList<T>(actual);
+		List<T> actualCopy = new ArrayList<>(actual);
 		actualCopy.removeAll(Arrays.asList(expected));
 		assertEquals(actual.toString(), actualCopy.size(), actual.size());
 	}
@@ -662,6 +645,6 @@ public abstract class MavenTestCase extends UsefulTestCase
 
 	private static String getTestMavenHome()
 	{
-		return System.getProperty("idea.maven.test.home");
+		return Platform.current().jvm().getRuntimeProperty("idea.maven.test.home");
 	}
 }
