@@ -15,7 +15,8 @@
  */
 package org.jetbrains.idea.maven.model.impl;
 
-import consulo.application.util.SystemInfo;
+import consulo.platform.Platform;
+import consulo.platform.PlatformOperatingSystem;
 import consulo.process.cmd.ParametersListUtil;
 import consulo.util.collection.Sets;
 import consulo.util.io.FileUtil;
@@ -40,7 +41,7 @@ public class MavenProjectConfiguration {
     public static final Set<String> DEFAULT_FILTERING_EXCLUDED_EXTENSIONS;
 
     static {
-        final Set<String> set = Sets.newHashSet(FileUtil.PATH_HASHING_STRATEGY);
+        Set<String> set = Sets.newHashSet(FileUtil.PATH_HASHING_STRATEGY);
         set.addAll(Arrays.asList("jpg", "jpeg", "gif", "bmp", "png"));
         DEFAULT_FILTERING_EXCLUDED_EXTENSIONS = Collections.unmodifiableSet(set);
     }
@@ -80,8 +81,8 @@ public class MavenProjectConfiguration {
 
     @Nullable
     public String resolveProperty(
-        final String propName,
-        final MavenModuleResourceConfiguration moduleConfig,
+        String propName,
+        MavenModuleResourceConfiguration moduleConfig,
         Map<String, String> additionalProperties
     ) {
         boolean hasPrefix = false;
@@ -155,12 +156,12 @@ public class MavenProjectConfiguration {
     private static Map<String, String> getMavenOptsProperties() {
         Map<String, String> res = ourPropertiesFromMvnOpts;
         if (res == null) {
-            String mavenOpts = System.getenv("MAVEN_OPTS");
+            String mavenOpts = Platform.current().os().getEnvironmentVariable("MAVEN_OPTS");
             if (mavenOpts != null) {
                 res = new HashMap<>();
-                final String[] split = ParametersListUtil.parseToArray(mavenOpts);
+                String[] split = ParametersListUtil.parseToArray(mavenOpts);
                 for (String parameter : split) {
-                    final Matcher matcher = PROPERTY_PATTERN.matcher(parameter);
+                    Matcher matcher = PROPERTY_PATTERN.matcher(parameter);
                     if (matcher.matches()) {
                         res.put(matcher.group(1), matcher.group(2));
                     }
@@ -182,21 +183,22 @@ public class MavenProjectConfiguration {
         Properties res = ourSystemProperties;
         if (res == null) {
             res = new Properties();
-            res.putAll(System.getProperties());
+            res.putAll(Platform.current().jvm().getRuntimeProperties());
 
             for (Iterator<Object> itr = res.keySet().iterator(); itr.hasNext(); ) {
-                final String propertyName = itr.next().toString();
+                String propertyName = itr.next().toString();
                 if (propertyName.startsWith("idea.")) {
                     itr.remove();
                 }
             }
 
-            for (Map.Entry<String, String> entry : System.getenv().entrySet()) {
+            PlatformOperatingSystem os = Platform.current().os();
+            for (Map.Entry<String, String> entry : os.environmentVariables().entrySet()) {
                 String key = entry.getKey();
                 if (key.startsWith("=")) {
                     continue;
                 }
-                if (SystemInfo.isWindows) {
+                if (os.isWindows()) {
                     key = key.toUpperCase();
                 }
                 res.setProperty("env." + key, entry.getValue());

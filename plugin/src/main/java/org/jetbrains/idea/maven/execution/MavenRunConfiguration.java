@@ -65,10 +65,10 @@ public class MavenRunConfiguration extends LocatableConfigurationBase implements
     public SettingsEditor<? extends RunConfiguration> getConfigurationEditor() {
         SettingsEditorGroup<MavenRunConfiguration> group = new SettingsEditorGroup<>();
 
-        group.addEditor(MavenRunnerLocalize.mavenRunnerParametersTitle().get(), new MavenRunnerParametersSettingEditor(getProject()));
-        group.addEditor(MavenProjectLocalize.mavenTabGeneral().get(), new MavenGeneralSettingsEditor(getProject()));
-        group.addEditor(MavenRunnerLocalize.mavenTabRunner().get(), new MavenRunnerSettingsEditor(getProject()));
-        group.addEditor(ExecutionLocalize.logsTabTitle().get(), new LogConfigurationPanel<>());
+        group.addEditor(MavenRunnerLocalize.mavenRunnerParametersTitle(), new MavenRunnerParametersSettingEditor(getProject()));
+        group.addEditor(MavenProjectLocalize.mavenTabGeneral(), new MavenGeneralSettingsEditor(getProject()));
+        group.addEditor(MavenRunnerLocalize.mavenTabRunner(), new MavenRunnerSettingsEditor(getProject()));
+        group.addEditor(ExecutionLocalize.logsTabTitle(), new LogConfigurationPanel<>());
         return group;
     }
 
@@ -84,7 +84,7 @@ public class MavenRunConfiguration extends LocatableConfigurationBase implements
     }
 
     @Override
-    public RunProfileState getState(@Nonnull final Executor executor, @Nonnull final ExecutionEnvironment env) throws ExecutionException {
+    public RunProfileState getState(@Nonnull Executor executor, @Nonnull ExecutionEnvironment env) throws ExecutionException {
         return new MavenCommandLineState(env, this);
     }
 

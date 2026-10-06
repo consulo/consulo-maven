@@ -158,6 +158,8 @@ maven.select.maven.project.file:
     text: Select Maven project file
 maven.tab.runner:
     text: Runner
+notification.title.failed.to.execute.maven.goal:
+    text: Failed to execute Maven goal
 output.pause:
     text: Pause Output
 output.pause.resume:

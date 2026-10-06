@@ -15,21 +15,21 @@
  */
 package org.jetbrains.idea.maven.dom;
 
-import java.util.Arrays;
-import java.util.List;
-
+import com.intellij.lang.properties.IProperty;
+import consulo.language.psi.PsiDirectory;
+import consulo.language.psi.PsiElement;
 import consulo.language.psi.PsiManager;
+import consulo.language.psi.PsiReference;
+import consulo.maven.rt.server.common.model.MavenExplicitProfiles;
+import consulo.platform.Platform;
+import consulo.virtualFileSystem.VirtualFile;
 import org.jetbrains.idea.maven.dom.model.MavenDomProfiles;
 import org.jetbrains.idea.maven.dom.model.MavenDomProfilesModel;
 import org.jetbrains.idea.maven.dom.model.MavenDomSettingsModel;
-import consulo.maven.rt.server.common.model.MavenExplicitProfiles;
 import org.jetbrains.idea.maven.vfs.MavenPropertiesVirtualFileSystem;
-import com.intellij.lang.properties.IProperty;
-import consulo.application.util.SystemInfo;
-import consulo.virtualFileSystem.VirtualFile;
-import consulo.language.psi.PsiDirectory;
-import consulo.language.psi.PsiElement;
-import consulo.language.psi.PsiReference;
+
+import java.util.Arrays;
+import java.util.List;
 
 public abstract class MavenPropertyCompletionAndResolutionTest extends MavenDomTestCase {
   @Override
@@ -695,7 +695,7 @@ public abstract class MavenPropertyCompletionAndResolutionTest extends MavenDomT
   }
 
   public void testUpperCaseEnvPropertiesOnWindows() throws Exception {
-    if (!SystemInfo.isWindows) return;
+    if (!Platform.current().os().isWindows()) return;
 
     createProjectPom("<groupId>test</groupId>" +
                      "<artifactId>project</artifactId>" +
@@ -707,11 +707,11 @@ public abstract class MavenPropertyCompletionAndResolutionTest extends MavenDomT
     assertNotNull(ref);
 
     PsiElement resolved = ref.resolve();
-    assertEquals(System.getenv("Path").replaceAll("[^A-Za-z]", ""), ((IProperty)resolved).getValue().replaceAll("[^A-Za-z]", ""));
+    assertEquals(Platform.current().os().getEnvironmentVariable("Path").replaceAll("[^A-Za-z]", ""), ((IProperty)resolved).getValue().replaceAll("[^A-Za-z]", ""));
   }
 
   public void testCaseInsencitiveOnWindows() throws Exception {
-    if (!SystemInfo.isWindows) return;
+    if (!Platform.current().os().isWindows()) return;
 
     createProjectPom("<groupId>test</groupId>" +
                      "<artifactId>project</artifactId>" +
@@ -723,7 +723,7 @@ public abstract class MavenPropertyCompletionAndResolutionTest extends MavenDomT
   }
 
   public void testNotUpperCaseEnvPropertiesOnWindows() throws Exception {
-    if (!SystemInfo.isWindows) return;
+    if (!Platform.current().os().isWindows()) return;
 
     createProjectPom("<groupId>test</groupId>" +
                      "<artifactId>project</artifactId>" +

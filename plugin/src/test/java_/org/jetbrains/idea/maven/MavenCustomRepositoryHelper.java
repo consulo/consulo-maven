@@ -19,57 +19,62 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 
+import consulo.platform.Platform;
 import consulo.util.io.FilePermissionCopier;
 import consulo.util.io.FileUtil;
 import consulo.virtualFileSystem.LocalFileSystem;
 
 public class MavenCustomRepositoryHelper {
-  private final File myTempDir;
-  private final File myWorkingData;
-  private final String[] mySubFolders;
+    private final File myTempDir;
+    private final File myWorkingData;
+    private final String[] mySubFolders;
 
-  public MavenCustomRepositoryHelper(File tempDir, String... subFolders) throws IOException {
-    myTempDir = tempDir;
-    mySubFolders = subFolders;
+    public MavenCustomRepositoryHelper(File tempDir, String... subFolders) throws IOException {
+        myTempDir = tempDir;
+        mySubFolders = subFolders;
 
-    myWorkingData = new File(myTempDir, "testData");
+        myWorkingData = new File(myTempDir, "testData");
 
-    for (String each : mySubFolders) {
-      addTestData(each);
+        for (String each : mySubFolders) {
+            addTestData(each);
+        }
     }
-  }
 
-  public void addTestData(String relativePath) throws IOException {
-    File to = new File(myWorkingData, relativePath);
-    FileUtil.copyDir(new File(getOriginalTestDataPath(), relativePath), to, FilePermissionCopier.BY_NIO2);
-    LocalFileSystem.getInstance().refreshIoFiles(Collections.singleton(to));
-  }
+    public void addTestData(String relativePath) throws IOException {
+        File to = new File(myWorkingData, relativePath);
+        FileUtil.copyDir(new File(getOriginalTestDataPath(), relativePath), to, FilePermissionCopier.BY_NIO2);
+        LocalFileSystem.getInstance().refreshIoFiles(Collections.singleton(to));
+    }
 
-  private String getOriginalTestDataPath() {
-    String sourcesDir = System.getProperty("maven.sources.dir", "");
-    return FileUtil.toSystemIndependentName(sourcesDir + "/src/test/data");
-  }
+    private String getOriginalTestDataPath() {
+        String sourcesDir = Platform.current().jvm().getRuntimeProperty("maven.sources.dir", "");
+        return FileUtil.toSystemIndependentName(sourcesDir + "/src/test/data");
+    }
 
-  public String getTestDataPath(String relativePath) {
-    String path = getTestData(relativePath).getPath();
-    return FileUtil.toSystemIndependentName(path);
-  }
+    public String getTestDataPath(String relativePath) {
+        String path = getTestData(relativePath).getPath();
+        return FileUtil.toSystemIndependentName(path);
+    }
 
-  public File getTestData(String relativePath) {
-    return new File(myWorkingData, relativePath);
-  }
+    public File getTestData(String relativePath) {
+        return new File(myWorkingData, relativePath);
+    }
 
-  public void delete(String relativePath) {
-    FileUtil.delete(new File(getTestDataPath(relativePath)));
-  }
+    public void delete(String relativePath) {
+        FileUtil.delete(new File(getTestDataPath(relativePath)));
+    }
 
-  public void copy(String fromRelativePath, String toRelativePath) throws IOException {
-    File from = new File(getTestDataPath(fromRelativePath));
-    File to = new File(getTestDataPath(toRelativePath));
+    public void copy(String fromRelativePath, String toRelativePath) throws IOException {
+        File from = new File(getTestDataPath(fromRelativePath));
+        File to = new File(getTestDataPath(toRelativePath));
 
-    if (from.isDirectory()) FileUtil.copyDir(from, to, FilePermissionCopier.BY_NIO2);
-    else FileUtil.copy(from, to, FilePermissionCopier.BY_NIO2);
+        if (from.isDirectory()) {
+            FileUtil.copyDir(from, to, FilePermissionCopier.BY_NIO2);
+        }
+        else {
+            FileUtil.copy(from, to, FilePermissionCopier.BY_NIO2);
+        }
 
-    LocalFileSystem.getInstance().refreshIoFiles(Collections.singleton(to));
-  }
+        LocalFileSystem.getInstance().refreshIoFiles(Collections.singleton(to));
+    }
 }

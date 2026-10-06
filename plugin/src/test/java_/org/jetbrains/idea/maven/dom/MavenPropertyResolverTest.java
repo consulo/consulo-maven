@@ -20,6 +20,7 @@ import consulo.document.FileDocumentManager;
 import consulo.document.Document;
 import consulo.language.psi.PsiDocumentManager;
 import consulo.module.Module;
+import consulo.platform.Platform;
 import consulo.virtualFileSystem.VirtualFile;
 import org.jetbrains.idea.maven.MavenImportingTestCase;
 
@@ -223,8 +224,9 @@ public abstract class MavenPropertyResolverTest extends MavenImportingTestCase {
   }
 
   public void testResolvingSystemProperties() throws Exception {
-    String javaHome = System.getProperty("java.home");
-    String tempDir = System.getenv(getEnvVar());
+    Platform platform = Platform.current();
+    String javaHome = platform.jvm().getRuntimeProperty("java.home");
+    String tempDir = platform.os().getEnvironmentVariable(getEnvVar());
 
     importProject("<groupId>test</groupId>" +
                   "<artifactId>project</artifactId>" +

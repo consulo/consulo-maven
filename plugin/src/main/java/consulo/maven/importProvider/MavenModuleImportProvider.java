@@ -8,9 +8,10 @@ import consulo.module.ModifiableModuleModel;
 import consulo.module.Module;
 import consulo.module.creation.importing.ModuleImportProvider;
 import consulo.module.creation.ui.UnifiedProjectOrModuleNameStep;
+import consulo.platform.Platform;
+import consulo.platform.PlatformJvm;
 import consulo.project.Project;
 import consulo.project.ProjectRunOneService;
-import consulo.project.startup.StartupManager;
 import consulo.ui.ex.wizard.WizardStep;
 import consulo.ui.image.Image;
 import consulo.util.concurrent.coroutine.Coroutine;
@@ -21,7 +22,6 @@ import consulo.virtualFileSystem.util.VirtualFileUtil;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.jetbrains.idea.maven.MavenIcons;
-import org.jetbrains.idea.maven.importing.MavenDefaultModifiableModelsProvider;
 import org.jetbrains.idea.maven.localize.MavenProjectLocalize;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
@@ -34,7 +34,6 @@ import org.jetbrains.idea.maven.wizards.SelectProfilesStep;
 
 import java.io.File;
 import java.util.Collection;
-import java.util.List;
 import java.util.function.Consumer;
 
 /**
@@ -125,15 +124,16 @@ public class MavenModuleImportProvider implements ModuleImportProvider<MavenImpo
             settings.generalSettings = context.getGeneralSettings();
             settings.importingSettings = context.getImportingSettings();
 
-            String settingsFile = System.getProperty("idea.maven.import.settings.file");
+            PlatformJvm jvm = Platform.current().jvm();
+            String settingsFile = jvm.getRuntimeProperty("idea.maven.import.settings.file");
             if (!StringUtil.isEmptyOrSpaces(settingsFile)) {
                 settings.generalSettings.setUserSettingsFile(settingsFile.trim());
             }
 
             MavenExplicitProfiles selectedProfiles = context.getSelectedProfiles();
 
-            String enabledProfilesList = System.getProperty("idea.maven.import.enabled.profiles");
-            String disabledProfilesList = System.getProperty("idea.maven.import.disabled.profiles");
+            String enabledProfilesList = jvm.getRuntimeProperty("idea.maven.import.enabled.profiles");
+            String disabledProfilesList = jvm.getRuntimeProperty("idea.maven.import.disabled.profiles");
             if (enabledProfilesList != null || disabledProfilesList != null) {
                 selectedProfiles = selectedProfiles.clone();
                 appendProfilesFromString(selectedProfiles.getEnabledProfiles(), enabledProfilesList);

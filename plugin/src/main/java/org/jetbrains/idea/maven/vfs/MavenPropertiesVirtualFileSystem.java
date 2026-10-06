@@ -16,17 +16,16 @@
 package org.jetbrains.idea.maven.vfs;
 
 import com.intellij.lang.properties.IProperty;
+import consulo.annotation.access.RequiredReadAction;
 import consulo.annotation.component.ExtensionImpl;
-import consulo.project.Project;
-import consulo.application.util.SystemInfo;
-import consulo.virtualFileSystem.VirtualFileManager;
 import consulo.ide.impl.idea.openapi.vfs.ex.dummy.DummyFileSystem;
+import consulo.platform.Platform;
+import consulo.platform.PlatformOperatingSystem;
+import consulo.project.Project;
 import consulo.virtualFileSystem.VirtualFile;
-import org.jetbrains.annotations.NonNls;
-
+import consulo.virtualFileSystem.VirtualFileManager;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
-
 import org.jetbrains.idea.maven.dom.MavenDomUtil;
 
 import java.util.Map;
@@ -34,12 +33,9 @@ import java.util.Properties;
 
 @ExtensionImpl
 public class MavenPropertiesVirtualFileSystem extends DummyFileSystem {
-    @NonNls
     public static final String PROTOCOL = "maven-properties";
 
-    @NonNls
     public static final String SYSTEM_PROPERTIES_FILE = "System.properties";
-    @NonNls
     public static final String ENV_PROPERTIES_FILE = "Environment.properties";
 
     public static final String[] PROPERTIES_FILES = new String[]{SYSTEM_PROPERTIES_FILE, ENV_PROPERTIES_FILE};
@@ -61,12 +57,10 @@ public class MavenPropertiesVirtualFileSystem extends DummyFileSystem {
         if (mySystemPropertiesFile == null) {
             Properties systemProperties = new Properties();
 
-            for (Map.Entry<Object, Object> entry : System.getProperties().entrySet()) {
-                if (entry.getKey() instanceof String && entry.getValue() instanceof String) {
-                    String key = (String)entry.getKey();
-                    if (!key.startsWith("idea.")) {
-                        systemProperties.setProperty(key, (String)entry.getValue());
-                    }
+            for (Map.Entry<String, String> entry : Platform.current().jvm().getRuntimeProperties().entrySet()) {
+                String key = entry.getKey();
+                if (!key.startsWith("idea.")) {
+                    systemProperties.setProperty(key, entry.getValue());
                 }
             }
 
@@ -80,12 +74,13 @@ public class MavenPropertiesVirtualFileSystem extends DummyFileSystem {
         if (myEnvPropertiesFile == null) {
             Properties envProperties = new Properties();
 
-            for (Map.Entry<String, String> each : System.getenv().entrySet()) {
+            PlatformOperatingSystem os = Platform.current().os();
+            for (Map.Entry<String, String> each : os.environmentVariables().entrySet()) {
                 String key = each.getKey();
                 if (key.startsWith("=")) {
                     continue;
                 }
-                envProperties.setProperty(SystemInfo.isWindows ? key.toUpperCase() : key, each.getValue());
+                envProperties.setProperty(os.isWindows() ? key.toUpperCase() : key, each.getValue());
             }
 
             myEnvPropertiesFile = new MavenPropertiesVirtualFile(ENV_PROPERTIES_FILE, envProperties, this);
@@ -96,11 +91,11 @@ public class MavenPropertiesVirtualFileSystem extends DummyFileSystem {
 
     //@Override
     //public boolean isPhysical() {
-    //  return false;
+    //    return false;
     //}
 
     @Override
-    public synchronized VirtualFile findFileByPath(@Nonnull @NonNls String path) {
+    public synchronized VirtualFile findFileByPath(@Nonnull String path) {
         if (path.equals(SYSTEM_PROPERTIES_FILE)) {
             return getSystemPropertiesFile();
         }
@@ -113,11 +108,13 @@ public class MavenPropertiesVirtualFileSystem extends DummyFileSystem {
     }
 
     @Nullable
+    @RequiredReadAction
     public IProperty findSystemProperty(Project project, @Nonnull String propertyName) {
         return MavenDomUtil.findProperty(project, getSystemPropertiesFile(), propertyName);
     }
 
     @Nullable
+    @RequiredReadAction
     public IProperty findEnvProperty(Project project, @Nonnull String propertyName) {
         return MavenDomUtil.findProperty(project, getEnvPropertiesFile(), propertyName);
     }

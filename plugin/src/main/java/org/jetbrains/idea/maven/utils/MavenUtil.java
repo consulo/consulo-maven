@@ -40,6 +40,7 @@ import consulo.language.editor.template.TemplateManager;
 import consulo.language.psi.PsiFile;
 import consulo.language.psi.PsiManager;
 import consulo.language.util.ModuleUtilCore;
+import consulo.localize.LocalizeValue;
 import consulo.maven.MavenNotificationGroup;
 import consulo.maven.bundle.MavenBundleType;
 import consulo.maven.icon.MavenIconGroup;
@@ -56,9 +57,7 @@ import consulo.process.cmd.ParametersList;
 import consulo.project.DumbService;
 import consulo.project.Project;
 import consulo.project.startup.StartupManager;
-import consulo.project.ui.notification.Notification;
-import consulo.project.ui.notification.NotificationType;
-import consulo.project.ui.notification.Notifications;
+import consulo.project.ui.notification.NotificationService;
 import consulo.ui.ModalityState;
 import consulo.ui.UIAccess;
 import consulo.ui.annotation.RequiredUIAccess;
@@ -135,7 +134,7 @@ public class MavenUtil {
     public static Map<String, String> getPropertiesFromMavenOpts() {
         Map<String, String> res = ourPropertiesFromMvnOpts;
         if (res == null) {
-            String mavenOpts = System.getenv("MAVEN_OPTS");
+            String mavenOpts = Platform.current().os().getEnvironmentVariable("MAVEN_OPTS");
             if (mavenOpts != null) {
                 ParametersList mavenOptsList = new ParametersList();
                 mavenOptsList.addParametersString(mavenOpts);
@@ -244,9 +243,12 @@ public class MavenUtil {
         return !isNoBackgroundMode() && UIAccess.current().isInModalContext();
     }
 
-    public static void showError(Project project, String title, Throwable e) {
-        MavenLog.LOG.warn(title, e);
-        Notifications.Bus.notify(new Notification(MavenNotificationGroup.ROOT, title, e.getMessage(), NotificationType.ERROR), project);
+    public static void showError(Project project, LocalizeValue title, Throwable e) {
+        MavenLog.LOG.warn(title.get(), e);
+        NotificationService.getInstance().newError(MavenNotificationGroup.ROOT)
+            .title(title)
+            .content(LocalizeValue.of(e))
+            .notify(project);
     }
 
     public static File getPluginSystemDir(String folder) {

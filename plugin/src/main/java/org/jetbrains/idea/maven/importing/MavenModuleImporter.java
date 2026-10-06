@@ -17,9 +17,8 @@ package org.jetbrains.idea.maven.importing;
 
 import com.google.common.collect.ImmutableMap;
 import com.intellij.java.language.LanguageLevel;
+import consulo.annotation.access.RequiredReadAction;
 import consulo.application.ReadAction;
-import consulo.application.concurrent.coroutine.WriteLock;
-import consulo.content.OrderRootType;
 import consulo.content.base.BinariesOrderRootType;
 import consulo.content.base.DocumentationOrderRootType;
 import consulo.content.base.SourcesOrderRootType;
@@ -38,7 +37,7 @@ import consulo.module.content.layer.ModifiableRootModel;
 import consulo.module.content.layer.orderEntry.DependencyScope;
 import consulo.module.content.layer.orderEntry.LibraryOrderEntry;
 import consulo.module.content.layer.orderEntry.ModuleExtensionWithSdkOrderEntry;
-import consulo.util.concurrent.coroutine.CoroutineStep;
+import consulo.platform.Platform;
 import consulo.util.lang.StringUtil;
 import consulo.virtualFileSystem.VirtualFile;
 import consulo.virtualFileSystem.archive.ArchiveVfsUtil;
@@ -48,7 +47,6 @@ import jakarta.annotation.Nullable;
 import org.jdom.Element;
 import org.jetbrains.idea.maven.execution.MavenRunner;
 import org.jetbrains.idea.maven.project.*;
-import org.jetbrains.idea.maven.utils.MavenUtil;
 import org.jetbrains.idea.maven.utils.library.RepositoryLibraryProperties;
 
 import java.util.LinkedHashMap;
@@ -64,7 +62,8 @@ public class MavenModuleImporter {
         "JDK_1_4", LanguageLevel.JDK_1_4,
         "JDK_1_5", LanguageLevel.JDK_1_5,
         "JDK_1_6", LanguageLevel.JDK_1_6,
-        "JDK_1_7", LanguageLevel.JDK_1_7);
+        "JDK_1_7", LanguageLevel.JDK_1_7
+    );
 
     private final Module myModule;
     private final MavenProjectsTree myMavenTree;
@@ -77,13 +76,15 @@ public class MavenModuleImporter {
     private final MavenModifiableModelsProvider myModifiableModelsProvider;
     private MavenRootModelAdapter myRootModelAdapter;
 
-    public MavenModuleImporter(Module module,
-                               MavenProjectsTree mavenTree,
-                               MavenProject mavenProject,
-                               @Nullable MavenProjectChanges changes,
-                               Map<MavenProject, String> mavenProjectToModuleName,
-                               MavenImportingSettings settings,
-                               MavenModifiableModelsProvider modifiableModelsProvider) {
+    public MavenModuleImporter(
+        Module module,
+        MavenProjectsTree mavenTree,
+        MavenProject mavenProject,
+        @Nullable MavenProjectChanges changes,
+        Map<MavenProject, String> mavenProjectToModuleName,
+        MavenImportingSettings settings,
+        MavenModifiableModelsProvider modifiableModelsProvider
+    ) {
         myModule = module;
         myMavenTree = mavenTree;
         myMavenProject = mavenProject;
@@ -97,11 +98,12 @@ public class MavenModuleImporter {
         return myRootModelAdapter.getRootModel();
     }
 
+    @RequiredReadAction
     public void config(boolean isNewlyCreatedModule, MavenImportSession session) {
         myRootModelAdapter = new MavenRootModelAdapter(myMavenProject, myModule, myModifiableModelsProvider);
         myRootModelAdapter.init(isNewlyCreatedModule);
 
-        final ModifiableRootModel rootModel = myModifiableModelsProvider.getRootModel(myModule);
+        ModifiableRootModel rootModel = myModifiableModelsProvider.getRootModel(myModule);
 
         JavaMutableModuleExtensionImpl javaModuleExtension = rootModel.getExtensionWithoutCheck(JavaMutableModuleExtensionImpl.class);
         javaModuleExtension.setEnabled(true);
@@ -143,7 +145,7 @@ public class MavenModuleImporter {
     }
 
     private LanguageLevel configureLanguageLevel() {
-        if ("false".equalsIgnoreCase(System.getProperty("idea.maven.configure.language.level"))) {
+        if ("false".equalsIgnoreCase(Platform.current().jvm().getRuntimeProperty("idea.maven.configure.language.level"))) {
             return LanguageLevel.HIGHEST;
         }
 
@@ -181,7 +183,12 @@ public class MavenModuleImporter {
         return level;
     }
 
-    private void configureJavaSdk(LanguageLevel level, JavaMutableModuleExtensionImpl javaMutableModuleExtension, MavenImportSession session) {
+    @RequiredReadAction
+    private void configureJavaSdk(
+        LanguageLevel level,
+        JavaMutableModuleExtensionImpl javaMutableModuleExtension,
+        MavenImportSession session
+    ) {
         Sdk targetSdk = session.getOrCalculate(level, languageLevel -> {
             MavenRunner mavenRunner = MavenRunner.getInstance(javaMutableModuleExtension.getProject());
             return MavenJdkUtil.findSdkOfLevel(languageLevel, mavenRunner.getState().getJreName());
@@ -195,8 +202,8 @@ public class MavenModuleImporter {
             return;
         }
 
-        for (final MavenImporter importer : getSuitableImporters()) {
-            final MavenProjectChanges changes;
+        for (MavenImporter importer : getSuitableImporters()) {
+            MavenProjectChanges changes;
             if (myMavenProjectChanges == null) {
                 if (importer.processChangedModulesOnly()) {
                     continue;
@@ -211,13 +218,13 @@ public class MavenModuleImporter {
         }
     }
 
-    public void configFacets(final List<MavenProjectsProcessorTask> postTasks) {
+    public void configFacets(List<MavenProjectsProcessorTask> postTasks) {
         if (myModule.isDisposed()) {
             return;
         }
 
-        for (final MavenImporter importer : getSuitableImporters()) {
-            final MavenProjectChanges changes;
+        for (MavenImporter importer : getSuitableImporters()) {
+            MavenProjectChanges changes;
             if (myMavenProjectChanges == null) {
                 if (importer.processChangedModulesOnly()) {
                     continue;
@@ -228,7 +235,16 @@ public class MavenModuleImporter {
                 changes = myMavenProjectChanges;
             }
 
-            importer.process(myModifiableModelsProvider, myModule, myRootModelAdapter, myMavenTree, myMavenProject, changes, myMavenProjectToModuleName, postTasks);
+            importer.process(
+                myModifiableModelsProvider,
+                myModule,
+                myRootModelAdapter,
+                myMavenTree,
+                myMavenProject,
+                changes,
+                myMavenProjectToModuleName,
+                postTasks
+            );
         }
     }
 
@@ -241,7 +257,7 @@ public class MavenModuleImporter {
     }
 
     private void configDependencies() {
-        Set<String> dependencyTypesFromSettings = ReadAction.compute(() ->{
+        Set<String> dependencyTypesFromSettings = ReadAction.compute(() -> {
             if (myModule.getProject().isDisposed()) {
                 return null;
             }
@@ -252,7 +268,8 @@ public class MavenModuleImporter {
         for (MavenArtifact artifact : myMavenProject.getDependencies()) {
             String dependencyType = artifact.getType();
 
-            if (!dependencyTypesFromSettings.contains(dependencyType) && !myMavenProject.getDependencyTypesFromImporters(SupportedRequestType.FOR_IMPORT).contains(dependencyType)) {
+            if (!dependencyTypesFromSettings.contains(dependencyType)
+                && !myMavenProject.getDependencyTypesFromImporters(SupportedRequestType.FOR_IMPORT).contains(dependencyType)) {
                 continue;
             }
 
@@ -267,16 +284,33 @@ public class MavenModuleImporter {
                 boolean isTestJar = MavenConstants.TYPE_TEST_JAR.equals(artifact.getType()) || "tests".equals(artifact.getClassifier());
                 myRootModelAdapter.addModuleDependency(myMavenProjectToModuleName.get(depProject), scope, isTestJar);
 
-                Element buildHelperCfg = depProject.getPluginGoalConfiguration("org.codehaus.mojo", "build-helper-maven-plugin", "attach-artifact");
+                Element buildHelperCfg = depProject.getPluginGoalConfiguration(
+                    "org.codehaus.mojo",
+                    "build-helper-maven-plugin",
+                    "attach-artifact"
+                );
                 if (buildHelperCfg != null) {
                     addAttachArtifactDependency(buildHelperCfg, scope, depProject, artifact);
                 }
 
-                if (artifact.getClassifier() != null && !"system".equals(artifact.getScope()) && !"false".equals(System.getProperty("idea.maven" +
-                    "" +
-                    ".classifier.dep"))) {
-                    MavenArtifact a = new MavenArtifact(artifact.getGroupId(), artifact.getArtifactId(), artifact.getVersion(), artifact.getBaseVersion(), artifact.getType(),
-                        artifact.getClassifier(), artifact.getScope(), artifact.isOptional(), artifact.getExtension(), null, myMavenProject.getLocalRepository(), false, false);
+                if (artifact.getClassifier() != null
+                    && !"system".equals(artifact.getScope())
+                    && !"false".equals(Platform.current().jvm().getRuntimeProperty("idea.maven.classifier.dep"))) {
+                    MavenArtifact a = new MavenArtifact(
+                        artifact.getGroupId(),
+                        artifact.getArtifactId(),
+                        artifact.getVersion(),
+                        artifact.getBaseVersion(),
+                        artifact.getType(),
+                        artifact.getClassifier(),
+                        artifact.getScope(),
+                        artifact.isOptional(),
+                        artifact.getExtension(),
+                        null,
+                        myMavenProject.getLocalRepository(),
+                        false,
+                        false
+                    );
 
                     myRootModelAdapter.addLibraryDependency(a, scope, myModifiableModelsProvider, myMavenProject);
                 }
@@ -303,7 +337,12 @@ public class MavenModuleImporter {
         }
     }
 
-    private void addAttachArtifactDependency(@Nonnull Element buildHelperCfg, @Nonnull DependencyScope scope, @Nonnull MavenProject mavenProject, @Nonnull MavenArtifact artifact) {
+    private void addAttachArtifactDependency(
+        @Nonnull Element buildHelperCfg,
+        @Nonnull DependencyScope scope,
+        @Nonnull MavenProject mavenProject,
+        @Nonnull MavenArtifact artifact
+    ) {
         Library.ModifiableModel libraryModel = null;
 
         for (Element artifactsElement : buildHelperCfg.getChildren("artifacts")) {

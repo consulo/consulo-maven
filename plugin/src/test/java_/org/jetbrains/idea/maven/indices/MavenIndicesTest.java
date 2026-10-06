@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import consulo.platform.Platform;
 import consulo.util.io.FilePermissionCopier;
 import consulo.util.io.FileUtil;
 import org.apache.lucene.index.Term;
@@ -31,7 +32,6 @@ import consulo.maven.rt.server.common.model.MavenArtifactInfo;
 import org.jetbrains.idea.maven.server.MavenIndexerWrapper;
 import consulo.maven.rt.server.common.server.MavenServerIndexer;
 import org.jetbrains.idea.maven.server.MavenServerManager;
-import consulo.application.util.SystemInfo;
 
 public abstract class MavenIndicesTest extends MavenIndicesTestCase {
   private MavenCustomRepositoryHelper myRepositoryHelper;
@@ -171,7 +171,7 @@ public abstract class MavenIndicesTest extends MavenIndicesTestCase {
   public void testDoNotAddSameIndexTwice() throws Exception {
     MavenIndex local = myIndices.add("local", myRepositoryHelper.getTestDataPath("foo"), MavenIndex.Kind.LOCAL);
 
-    if (!SystemInfo.isFileSystemCaseSensitive) {
+    if (!Platform.current().fs().isCaseSensitive()) {
       assertSame(local, myIndices.add("local", myRepositoryHelper.getTestDataPath("FOO"), MavenIndex.Kind.LOCAL));
     }
     assertSame(local, myIndices.add("local", myRepositoryHelper.getTestDataPath("foo") + "/\\", MavenIndex.Kind.LOCAL));

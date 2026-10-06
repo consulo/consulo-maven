@@ -15,8 +15,10 @@
  */
 package org.jetbrains.idea.maven.project.actions;
 
+import consulo.annotation.access.RequiredWriteAction;
 import consulo.application.Result;
 import consulo.language.editor.WriteCommandAction;
+import consulo.localize.LocalizeValue;
 import consulo.navigation.OpenFileDescriptorFactory;
 import consulo.project.Project;
 import consulo.ui.annotation.RequiredUIAccess;
@@ -75,6 +77,7 @@ public abstract class MavenOpenOrCreateFilesAction extends MavenAction {
         if (files.size() == 1 && virtualFiles.isEmpty()) {
             new WriteCommandAction(project, e.getPresentation().getText()) {
                 @Override
+                @RequiredWriteAction
                 protected void run(Result result) throws Throwable {
                     File file = files.get(0);
                     try {
@@ -84,7 +87,7 @@ public abstract class MavenOpenOrCreateFilesAction extends MavenAction {
                         MavenUtil.runFileTemplate(project, newFile, getFileTemplate());
                     }
                     catch (IOException ex) {
-                        MavenUtil.showError(project, "Cannot create " + file.getName(), ex);
+                        MavenUtil.showError(project, LocalizeValue.localizeTODO("Cannot create " + file.getName()), ex);
                     }
                 }
             }.execute();
