@@ -117,7 +117,13 @@ public class MavenRootModelAdapter {
     }
 
     public void clearSourceFolders() {
+        String projectDirUrl = toUrl(myMavenProject.getDirectory()).getUrl();
         for (ContentEntry each : myRootModel.getContentEntries()) {
+            if (!isEqualOrAncestor(each.getUrl(), projectDirUrl)) {
+                myRootModel.removeContentEntry(each);
+                continue;
+            }
+
             for (ContentFolder contentFolder : each.getFolders(LanguageContentFolderScopes.all(false))) {
                 each.removeFolder(contentFolder);
             }
@@ -144,7 +150,7 @@ public class MavenRootModelAdapter {
         Url url = toUrl(path);
         ContentEntry e = getContentRootFor(url);
         if (e == null) {
-            return;
+            e = myRootModel.addContentEntry(url.getUrl());
         }
         unregisterAll(path, true, true);
         unregisterAll(path, false, true);

@@ -32,7 +32,6 @@ import consulo.util.collection.MultiMap;
 import consulo.util.concurrent.coroutine.Coroutine;
 import consulo.util.io.FileUtil;
 import jakarta.annotation.Nonnull;
-import org.jdom.Element;
 import org.jetbrains.idea.maven.project.MavenImportingSettings;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
@@ -151,9 +150,6 @@ public class MavenFoldersImporter {
             contentFolders.putValue(TestResourceContentFolderTypeProvider.getInstance(), directory);
         }
 
-        addBuilderHelperPaths("add-source", ProductionContentFolderTypeProvider.getInstance(), contentFolders);
-        addBuilderHelperPaths("add-test-source", TestContentFolderTypeProvider.getInstance(), contentFolders);
-
         MultiMap<ContentFolderTypeProvider, PathWithGenerated> allFolders = new MultiMap<>();
 
         for (Map.Entry<ContentFolderTypeProvider, Collection<String>> entry : contentFolders.entrySet()) {
@@ -166,18 +162,6 @@ public class MavenFoldersImporter {
 
         for (PathWithGenerated each : normalize(allFolders)) {
             myModel.addSourceFolder(each.path().getPath(), each.type(), each.generated());
-        }
-    }
-
-    private void addBuilderHelperPaths(String goal, ContentFolderTypeProvider typeProvider, MultiMap<ContentFolderTypeProvider, String> folders) {
-        Element configurationElement = myMavenProject.getPluginGoalConfiguration("org.codehaus.mojo", "build-helper-maven-plugin", goal);
-        if (configurationElement != null) {
-            Element sourcesElement = configurationElement.getChild("sources");
-            if (sourcesElement != null) {
-                for (Element element : sourcesElement.getChildren()) {
-                    folders.putValue(typeProvider, element.getTextTrim());
-                }
-            }
         }
     }
 

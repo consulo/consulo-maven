@@ -24,14 +24,12 @@ import consulo.project.Project;
 import consulo.ui.Component;
 import consulo.ui.TextBox;
 import consulo.ui.annotation.RequiredUIAccess;
-import consulo.ui.ex.awtUnsafe.TargetAWT;
 import consulo.ui.layout.VerticalLayout;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.jetbrains.idea.maven.localize.MavenProjectLocalize;
 import org.jetbrains.idea.maven.server.MavenServerManager;
 
-import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -69,13 +67,6 @@ public class MavenImportingConfigurable implements SearchableConfigurable {
             Component uiComponent = additionalConfigurable.createUIComponent(parent);
             if (uiComponent != null) {
                 panel.add(uiComponent);
-                continue;
-            }
-
-            // TODO extensions may still be swing-only
-            JComponent swingComponent = additionalConfigurable.createComponent(parent);
-            if (swingComponent != null) {
-                panel.add(TargetAWT.wrap(swingComponent));
             }
         }
         return settingsForm.createComponent();

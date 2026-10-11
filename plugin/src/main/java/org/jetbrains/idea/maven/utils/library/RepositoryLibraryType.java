@@ -24,13 +24,16 @@ import consulo.content.library.ui.LibraryEditorComponent;
 import consulo.content.library.ui.LibraryPropertiesEditor;
 import consulo.maven.icon.MavenIconGroup;
 import consulo.project.Project;
+import consulo.ui.Component;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.image.Image;
 import consulo.virtualFileSystem.VirtualFile;
 
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
-import javax.swing.*;
+
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * @author nik
@@ -60,14 +63,18 @@ public class RepositoryLibraryType extends LibraryType<RepositoryLibraryProperti
         return "From Maven...";
     }
 
-    @Override
     @RequiredUIAccess
-    public NewLibraryConfiguration createNewLibrary(
-        @Nonnull JComponent parentComponent,
+    @Override
+    public CompletableFuture<NewLibraryConfiguration> createNewLibrary(
+        @Nullable Component parentComponent,
         @Nullable VirtualFile contextDirectory,
         @Nonnull Project project
     ) {
-        return RepositoryAttachHandler.chooseLibraryAndDownload(project, null, parentComponent);
+        NewLibraryConfiguration configuration = RepositoryAttachHandler.chooseLibraryAndDownload(project, null, null);
+        if (configuration == null) {
+            return CompletableFuture.failedFuture(new CancellationException());
+        }
+        return CompletableFuture.completedFuture(configuration);
     }
 
     @Override

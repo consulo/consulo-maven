@@ -89,7 +89,7 @@ public class MavenModelDocumentationProvider implements LanguageDocumentationPro
         }
 
         if (e instanceof FakePsiElement fakePsiElement) {
-            return fakePsiElement.getPresentableText();
+            return fakePsiElement.getPresentableText().get();
         }
 
         boolean property = MavenDomUtil.isMavenProperty(e);
