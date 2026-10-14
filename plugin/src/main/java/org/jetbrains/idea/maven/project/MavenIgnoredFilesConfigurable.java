@@ -23,7 +23,7 @@ import consulo.localize.LocalizeValue;
 import consulo.project.Project;
 import consulo.ui.CheckBox;
 import consulo.ui.Component;
-import consulo.ui.ComponentItemRender;
+import consulo.ui.ComponentItemRenderer;
 import consulo.ui.Table;
 import consulo.ui.TableItemEditor;
 import consulo.ui.TextArea;
@@ -75,17 +75,19 @@ public class MavenIgnoredFilesConfigurable implements SearchableConfigurable, Co
         filesTable.setShowHeader(false);
         filesTable.addColumn(LocalizeValue.empty(), myIgnoredFiles::contains)
             .setWidth(40)
-            .setRender(ComponentItemRender.reusable(
+            .setRenderer(ComponentItemRenderer.reusable(
                 () -> CheckBox.create(LocalizeValue.empty()),
                 (checkBox, item) -> checkBox.setValue(Boolean.TRUE.equals(item.getValue()))
             ))
             .setEditor(new TableItemEditor<>() {
                 @Override
+                @RequiredUIAccess
                 public ValueComponent<Boolean> createComponent(String path) {
                     return CheckBox.create(LocalizeValue.empty(), myIgnoredFiles.contains(path));
                 }
 
                 @Override
+                @RequiredUIAccess
                 public void commit(String path, @Nullable Boolean value) {
                     if (Boolean.TRUE.equals(value)) {
                         myIgnoredFiles.add(path);
