@@ -20,12 +20,19 @@ import consulo.ide.localize.IdeLocalize;
 import consulo.localize.LocalizeValue;
 import consulo.maven.importProvider.MavenImportModuleContext;
 import consulo.platform.base.icon.PlatformIconGroup;
-import consulo.ui.*;
+import consulo.ui.CheckBox;
+import consulo.ui.Component;
+import consulo.ui.ComponentItemRenderer;
+import consulo.ui.Table;
+import consulo.ui.TableItemEditor;
+import consulo.ui.TextAttribute;
+import consulo.ui.TextItemRenderer;
+import consulo.ui.ValueComponent;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.action.ActionToolbarPosition;
 import consulo.ui.ex.action.AnAction;
 import consulo.ui.ex.action.AnActionEvent;
-import consulo.ui.ex.toolbar.ToolbarDecoratorBuilder;
+import consulo.ui.ex.toolbar.ToolbarDecoratorBuilderFactory;
 import consulo.ui.ex.wizard.WizardStep;
 import consulo.ui.ex.wizard.WizardStepValidationException;
 import consulo.ui.image.Image;
@@ -35,9 +42,9 @@ import consulo.ui.layout.LoadingLayout;
 import consulo.ui.model.FlatDataModel;
 import consulo.ui.model.MutableFlatDataModel;
 import jakarta.annotation.Nonnull;
-import jakarta.annotation.Nullable;
 import org.jetbrains.idea.maven.localize.MavenProjectLocalize;
 import org.jetbrains.idea.maven.project.MavenProject;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -66,20 +73,19 @@ public abstract class SelectImportedProjectsStep implements WizardStep<MavenImpo
         myContext = context;
     }
 
-    @Nullable
-    protected Image getElementIcon(final MavenProject item) {
+    protected @Nullable Image getElementIcon(MavenProject item) {
         return null;
     }
 
-    protected abstract String getElementText(final MavenProject item);
+    protected abstract String getElementText(MavenProject item);
 
     protected boolean isElementEnabled(MavenProject element) {
         return true;
     }
 
-    @RequiredUIAccess
     @Nonnull
     @Override
+    @RequiredUIAccess
     public Component getComponent(@Nonnull MavenImportModuleContext context, @Nonnull Disposable disposable) {
         LoadingLayout<DockLayout> loadingLayout = myLoadingLayout;
         if (loadingLayout == null) {
@@ -90,8 +96,8 @@ public abstract class SelectImportedProjectsStep implements WizardStep<MavenImpo
         return loadingLayout;
     }
 
-    @RequiredUIAccess
     @Override
+    @RequiredUIAccess
     public void onStepEnter(@Nonnull MavenImportModuleContext context) {
         LoadingLayout<DockLayout> loadingLayout = myLoadingLayout;
         if (loadingLayout != null) {
@@ -124,14 +130,14 @@ public abstract class SelectImportedProjectsStep implements WizardStep<MavenImpo
         table.addColumn(LocalizeValue.empty(), myMarkedProjects::contains)
             .setWidth(40)
             .setEditor(new TableItemEditor<>() {
-                @RequiredUIAccess
                 @Override
+                @RequiredUIAccess
                 public ValueComponent<Boolean> createComponent(MavenProject project) {
                     return CheckBox.create(LocalizeValue.empty(), myMarkedProjects.contains(project));
                 }
 
-                @RequiredUIAccess
                 @Override
+                @RequiredUIAccess
                 public void commit(MavenProject project, @Nullable Boolean value) {
                     setMarked(project, Boolean.TRUE.equals(value));
                     model.update(project);
@@ -142,13 +148,13 @@ public abstract class SelectImportedProjectsStep implements WizardStep<MavenImpo
                     return isElementEnabled(project);
                 }
             })
-            .setRender(ComponentItemRender.reusable(
+            .setRenderer(ComponentItemRenderer.reusable(
                 () -> CheckBox.create(LocalizeValue.empty()),
                 (checkBox, item) -> checkBox.setValue(Boolean.TRUE.equals(item.getValue()))
             ));
 
         // typed local - setRender() is overloaded for text and component renders, a bare lambda is ambiguous
-        TextItemRender<MavenProject> projectRender = (presentation, item) -> {
+        TextItemRenderer<MavenProject> projectRender = (presentation, item) -> {
             MavenProject project = item.getValue();
             if (project == null) {
                 return;
@@ -166,9 +172,9 @@ public abstract class SelectImportedProjectsStep implements WizardStep<MavenImpo
             );
         };
 
-        table.addColumn(LocalizeValue.empty(), project -> project).setRender(projectRender);
+        table.addColumn(LocalizeValue.empty(), project -> project).setRenderer(projectRender);
 
-        Component decorated = ToolbarDecoratorBuilder.newBuilder(table)
+        Component decorated = ToolbarDecoratorBuilderFactory.getInstance().create(table)
             .disableAll()
             .withToolbarPosition(ActionToolbarPosition.BOTTOM)
             .addExtraAction(new SetAllMarkedAction(
@@ -217,13 +223,13 @@ public abstract class SelectImportedProjectsStep implements WizardStep<MavenImpo
         updateDataModel();
     }
 
-    @RequiredUIAccess
     @Override
+    @RequiredUIAccess
     public CompletableFuture<?> validateStep(MavenImportModuleContext context) {
         onStepLeave(context);
 
         if (myMarkedProjects.isEmpty()) {
-            return CompletableFuture.failedFuture(new WizardStepValidationException(MavenProjectLocalize.mavenImportNothingToImport().get()));
+            return CompletableFuture.failedFuture(new WizardStepValidationException(MavenProjectLocalize.mavenImportNothingToImport()));
         }
 
         return CompletableFuture.completedFuture(null);
@@ -244,8 +250,8 @@ public abstract class SelectImportedProjectsStep implements WizardStep<MavenImpo
             myMarked = marked;
         }
 
-        @RequiredUIAccess
         @Override
+        @RequiredUIAccess
         public void actionPerformed(@Nonnull AnActionEvent e) {
             MutableFlatDataModel<MavenProject> model = myModel;
 

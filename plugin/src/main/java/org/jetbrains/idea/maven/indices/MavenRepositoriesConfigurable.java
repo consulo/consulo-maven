@@ -98,12 +98,12 @@ public class MavenRepositoriesConfigurable implements SearchableConfigurable, Co
         indicesTable.setAllowMultipleSelect(true);
         indicesTable.addColumn(MavenIndicesLocalize.mavenIndexUrl(), MavenIndex::getRepositoryPathOrUrl);
         indicesTable.addColumn(MavenIndicesLocalize.mavenIndexType(), MavenRepositoriesConfigurable::getKindText)
-            .setRender((presentation, item) -> presentation.append(item.getValue()));
+            .setRenderer((presentation, item) -> presentation.append(item.getValue()));
         indicesTable.addColumn(MavenIndicesLocalize.mavenIndexUpdated(), MavenRepositoriesConfigurable::getUpdatedText)
-            .setRender((presentation, item) -> presentation.append(item.getValue()));
+            .setRenderer((presentation, item) -> presentation.append(item.getValue()));
         indicesTable.addColumn(LocalizeValue.empty(), this::getUpdatingState)
             .setWidth(40)
-            .setRender((presentation, item) -> {
+            .setRenderer((presentation, item) -> {
                 Image icon = getStateIcon(item.getValue());
                 if (icon != null) {
                     presentation.withIcon(icon);
@@ -230,6 +230,7 @@ public class MavenRepositoriesConfigurable implements SearchableConfigurable, Co
         return urls;
     }
 
+    @RequiredUIAccess
     private CompletableFuture<String> askServiceUrl(Component owner, LocalizeValue title, String value) {
         return InputBoxBuilder.text()
             .title(title)

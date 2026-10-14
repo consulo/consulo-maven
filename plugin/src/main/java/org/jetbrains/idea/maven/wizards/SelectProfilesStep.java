@@ -20,7 +20,7 @@ import consulo.localize.LocalizeValue;
 import consulo.maven.importProvider.MavenImportModuleContext;
 import consulo.maven.rt.server.common.model.MavenExplicitProfiles;
 import consulo.ui.Component;
-import consulo.ui.ComponentItemRender;
+import consulo.ui.ComponentItemRenderer;
 import consulo.ui.Label;
 import consulo.ui.Table;
 import consulo.ui.TableItemEditor;
@@ -113,7 +113,7 @@ public class SelectProfilesStep implements WizardStep<MavenImportModuleContext> 
 
         table.addColumn(LocalizeValue.empty(), this::getState)
             .setWidth(40)
-            .setRender(ComponentItemRender.reusable(
+            .setRenderer(ComponentItemRenderer.reusable(
                 () -> TriStateCheckBox.create(LocalizeValue.empty()),
                 (checkBox, item) -> checkBox.setValue(item.getValue() == null ? ThreeState.NO : item.getValue())))
             .setEditor(new TableItemEditor<>() {
