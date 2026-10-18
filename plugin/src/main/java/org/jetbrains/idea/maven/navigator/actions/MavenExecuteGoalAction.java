@@ -17,13 +17,11 @@ package org.jetbrains.idea.maven.navigator.actions;
 
 import consulo.content.bundle.Sdk;
 import consulo.ide.setting.ShowSettingsUtil;
+import consulo.localize.LocalizeValue;
 import consulo.maven.MavenNotificationGroup;
 import consulo.process.cmd.ParametersList;
 import consulo.project.Project;
-import consulo.project.ui.notification.Notification;
-import consulo.project.ui.notification.NotificationType;
-import consulo.project.ui.notification.Notifications;
-import consulo.project.ui.notification.event.NotificationListener;
+import consulo.project.ui.notification.NotificationService;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.action.AnActionEvent;
 import consulo.ui.ex.action.DumbAwareAction;
@@ -38,7 +36,6 @@ import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.utils.MavenUtil;
 
-import javax.swing.event.HyperlinkEvent;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
@@ -95,20 +92,15 @@ public class MavenExecuteGoalAction extends DumbAwareAction {
 
         Pair<File, Sdk> mavenHome = MavenUtil.resolveMavenHome(projectsManager.getGeneralSettings().getMavenBundleName());
         if (mavenHome == null) {
-            Notification notification = new Notification(MavenNotificationGroup.ROOT,
-                "Failed to execute goal",
-                MavenRunnerLocalize.externalMavenHomeNoDefaultWithFix().get(),
-                NotificationType.ERROR,
-                new NotificationListener.Adapter() {
-                    @Override
-                    @RequiredUIAccess
-                    protected void hyperlinkActivated(@Nonnull Notification notification, @Nonnull HyperlinkEvent e) {
-                        ShowSettingsUtil.getInstance().showSettingsDialog(project, MavenLocalize.mavenName().get());
-                    }
-                }
-            );
+            NotificationService.getInstance().newError(MavenNotificationGroup.ROOT)
+                .title(LocalizeValue.localizeTODO("Failed to execute goal"))
+                .content(MavenRunnerLocalize.externalMavenHomeNoDefaultWithFix())
+                .hyperlinkListener((notification, hyperlinkEvent) -> {
+                    notification.expire();
 
-            Notifications.Bus.notify(notification, project);
+                    ShowSettingsUtil.getInstance().showSettingsDialog(project, MavenLocalize.mavenName().get());
+                })
+                .notify(project);
             return;
         }
 

@@ -27,12 +27,10 @@ import consulo.module.content.ProjectRootManager;
 import consulo.module.content.layer.orderEntry.LibraryOrderEntry;
 import consulo.module.content.layer.orderEntry.OrderEntry;
 import consulo.project.Project;
-import consulo.project.ui.notification.Notification;
-import consulo.project.ui.notification.NotificationType;
-import consulo.project.ui.notification.Notifications;
+import consulo.project.ui.notification.NotificationService;
 import consulo.ui.Component;
 import consulo.ui.event.ComponentEvent;
-import consulo.util.concurrent.AsyncResult;
+import jakarta.annotation.Nonnull;
 import jakarta.inject.Inject;
 import org.jetbrains.idea.maven.importing.MavenRootModelAdapter;
 import org.jetbrains.idea.maven.localize.MavenProjectLocalize;
@@ -40,7 +38,6 @@ import org.jetbrains.idea.maven.project.MavenArtifactDownloader;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 
-import jakarta.annotation.Nonnull;
 import java.util.*;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
@@ -104,7 +101,7 @@ public class MavenAttachSourcesProvider implements AttachSourcesProvider {
                         resultWrapper.completeExceptionally(t);
                         return;
                     }
-                    
+
                     if (!downloadResult.unresolvedSources.isEmpty()) {
                         String message = "<html>Sources not found for:";
                         int count = 0;
@@ -117,15 +114,11 @@ public class MavenAttachSourcesProvider implements AttachSourcesProvider {
                         }
                         message += "</html>";
 
-                        final String finalMessage = message;
-                        myProject.getApplication().invokeLater(() -> Notifications.Bus.notify(
-                            new Notification(MavenNotificationGroup.ROOT,
-                                "Cannot download sources",
-                                finalMessage,
-                                NotificationType.WARNING
-                            ),
-                            psiFile.getProject()
-                        ));
+                        NotificationService.getInstance()
+                            .newWarn(MavenNotificationGroup.ROOT)
+                            .title(LocalizeValue.localizeTODO("Cannot download sources"))
+                            .content(LocalizeValue.localizeTODO(message))
+                            .notify(psiFile.getProject());
                     }
 
                     if (downloadResult.resolvedSources.isEmpty()) {

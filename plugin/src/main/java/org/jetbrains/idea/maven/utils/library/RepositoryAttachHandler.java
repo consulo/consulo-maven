@@ -15,25 +15,24 @@
  */
 package org.jetbrains.idea.maven.utils.library;
 
-import consulo.application.*;
+import consulo.application.Application;
+import consulo.application.WriteAction;
 import consulo.application.progress.ProgressIndicator;
 import consulo.application.progress.ProgressManager;
 import consulo.application.progress.Task;
 import consulo.application.util.function.Processor;
-import consulo.content.OrderRootType;
 import consulo.content.base.BinariesOrderRootType;
 import consulo.content.base.DocumentationOrderRootType;
 import consulo.content.base.SourcesOrderRootType;
 import consulo.content.library.NewLibraryConfiguration;
 import consulo.content.library.OrderRoot;
 import consulo.content.library.ui.LibraryEditor;
+import consulo.localize.LocalizeValue;
 import consulo.maven.MavenNotificationGroup;
 import consulo.maven.rt.server.common.model.*;
 import consulo.platform.base.localize.CommonLocalize;
 import consulo.project.Project;
-import consulo.project.ui.notification.Notification;
-import consulo.project.ui.notification.NotificationType;
-import consulo.project.ui.notification.Notifications;
+import consulo.project.ui.notification.NotificationService;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.awt.DialogWrapper;
 import consulo.ui.ex.awt.Messages;
@@ -46,6 +45,8 @@ import consulo.util.lang.ref.Ref;
 import consulo.virtualFileSystem.VirtualFile;
 import consulo.virtualFileSystem.VirtualFileManager;
 import consulo.virtualFileSystem.util.VirtualFileUtil;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import org.jetbrains.idea.maven.buildtool.MavenSyncConsole;
 import org.jetbrains.idea.maven.importing.MavenExtraArtifactType;
 import org.jetbrains.idea.maven.project.MavenEmbeddersManager;
@@ -57,8 +58,6 @@ import org.jetbrains.idea.maven.utils.MavenProcessCanceledException;
 import org.jetbrains.idea.maven.utils.MavenProgressIndicator;
 import org.jetbrains.idea.maven.utils.RepositoryAttachDialog;
 
-import jakarta.annotation.Nonnull;
-import jakarta.annotation.Nullable;
 import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
@@ -102,12 +101,13 @@ public class RepositoryAttachHandler {
             dialog.getRepositories(),
             artifacts -> {
                 if (!artifacts.isEmpty()) {
-                    WriteAction.run(() -> {});
+                    WriteAction.run(() -> {
+                    });
                     final List<OrderRoot> roots = createRoots(artifacts, copyTo);
                     result.set(new NewLibraryConfiguration(
-                            coord,
-                            RepositoryLibraryType.getInstance(),
-                            new RepositoryLibraryProperties(coord)
+                        coord,
+                        RepositoryLibraryType.getInstance(),
+                        new RepositoryLibraryProperties(coord)
                     ) {
                         @Override
                         public void addRoots(@Nonnull LibraryEditor editor) {
@@ -130,12 +130,11 @@ public class RepositoryAttachHandler {
                         sb.append("</li>");
                     }
                     sb.append("</ol>");
-                    Notifications.Bus.notify(new Notification(
-                        MavenNotificationGroup.REPOSITORY,
-                        title,
-                        sb.toString(),
-                        NotificationType.INFORMATION
-                    ), project);
+
+                    NotificationService.getInstance().newInfo(MavenNotificationGroup.REPOSITORY)
+                        .title(LocalizeValue.localizeTODO(title))
+                        .content(LocalizeValue.localizeTODO(sb.toString()))
+                        .notify(project);
                 }
                 return true;
             }

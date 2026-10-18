@@ -58,8 +58,6 @@ import org.jetbrains.idea.maven.rt.m3.MavenArtifactResolvedM3RtMarker;
 import org.jetbrains.idea.maven.rt.m31.MavenArtifactResolvedM31RtMarker;
 import org.jetbrains.idea.maven.utils.MavenUtil;
 
-import javax.swing.event.HyperlinkEvent;
-import javax.swing.event.HyperlinkListener;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -584,24 +582,17 @@ public class MavenExternalParameters {
         }
     }
 
-    private static abstract class WithHyperlinkExecutionException extends ExecutionException implements HyperlinkListener, NotificationListener {
+    private static abstract class WithHyperlinkExecutionException extends ExecutionException implements NotificationListener {
         public WithHyperlinkExecutionException(String s) {
             super(s);
         }
 
         protected abstract void hyperlinkClicked();
 
-        @Override
-        public final void hyperlinkUpdate(HyperlinkEvent e) {
-            if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
-                hyperlinkClicked();
-            }
-        }
-
-        @Override
         @RequiredUIAccess
-        public final void hyperlinkUpdate(@Nonnull Notification notification, @Nonnull HyperlinkEvent event) {
-            hyperlinkUpdate(event);
+        @Override
+        public void hyperlinkActivated(Notification notification, consulo.ui.event.HyperlinkEvent hyperlinkEvent) {
+            hyperlinkClicked();
         }
     }
 }
