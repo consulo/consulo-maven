@@ -15,84 +15,40 @@
  */
 package org.jetbrains.idea.maven.tasks;
 
+import com.dslplatform.json.CompiledJson;
 import consulo.execution.BeforeRunTask;
 import consulo.util.io.FileUtil;
-import org.jdom.Element;
+import consulo.util.lang.StringUtil;
+import consulo.util.xml.serializer.annotation.Attribute;
 import org.jetbrains.idea.maven.project.MavenProject;
+import org.jspecify.annotations.Nullable;
 
-public class MavenBeforeRunTask extends BeforeRunTask<MavenBeforeRunTask> {
-    private String myProjectPath;
-    private String myGoal;
+@CompiledJson
+public class MavenBeforeRunTask extends BeforeRunTask {
+    private @Nullable String myProjectPath;
+    private @Nullable String myGoal;
 
-    public MavenBeforeRunTask() {
-        super(MavenBeforeRunTasksProvider.ID);
-    }
-
-    public String getProjectPath() {
+    @Attribute("file")
+    public @Nullable String getProjectPath() {
         return myProjectPath;
     }
 
-    public void setProjectPath(String projectPath) {
-        myProjectPath = projectPath;
+    public void setProjectPath(@Nullable String projectPath) {
+        myProjectPath = StringUtil.nullize(projectPath, true);
     }
 
-    public String getGoal() {
+    @Attribute("goal")
+    public @Nullable String getGoal() {
         return myGoal;
     }
 
-    public void setGoal(String goal) {
-        myGoal = goal;
+    public void setGoal(@Nullable String goal) {
+        myGoal = StringUtil.nullize(goal, true);
     }
 
     public boolean isFor(MavenProject project, String goal) {
         return !(myProjectPath == null || myGoal == null)
             && FileUtil.pathsEqual(project.getPath(), myProjectPath)
             && goal.equals(myGoal);
-    }
-
-    @Override
-    public void writeExternal(Element element) {
-        super.writeExternal(element);
-        if (myProjectPath != null) {
-            element.setAttribute("file", myProjectPath);
-        }
-        if (myGoal != null) {
-            element.setAttribute("goal", myGoal);
-        }
-    }
-
-    @Override
-    public void readExternal(Element element) {
-        super.readExternal(element);
-        myProjectPath = element.getAttributeValue("file");
-        myGoal = element.getAttributeValue("goal");
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        if (!super.equals(o)) {
-            return false;
-        }
-
-        MavenBeforeRunTask that = (MavenBeforeRunTask)o;
-
-        if (myGoal != null ? !myGoal.equals(that.myGoal) : that.myGoal != null) {
-            return false;
-        }
-        return myProjectPath != null ? myProjectPath.equals(that.myProjectPath) : that.myProjectPath == null;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + (myProjectPath != null ? myProjectPath.hashCode() : 0);
-        result = 31 * result + (myGoal != null ? myGoal.hashCode() : 0);
-        return result;
     }
 }

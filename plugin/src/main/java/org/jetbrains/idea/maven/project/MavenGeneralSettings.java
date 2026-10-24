@@ -421,6 +421,47 @@ public class MavenGeneralSettings implements Cloneable {
         }
     }
 
+    /**
+     * Settings made from the options of a run configuration, without notifying the listeners or the maven server.
+     */
+    public static MavenGeneralSettings fromOptions(MavenGeneralSettingsOptions options) {
+        MavenGeneralSettings settings = new MavenGeneralSettings();
+        settings.workOffline = options.isWorkOffline();
+        settings.mavenBundleName = StringUtil.notNullize(options.getMavenBundleName());
+        settings.mavenSettingsFile = StringUtil.notNullize(options.getUserSettingsFile());
+        settings.overriddenLocalRepository = StringUtil.notNullize(options.getLocalRepository());
+        settings.printErrorStackTraces = options.isPrintErrorStackTraces();
+        settings.usePluginRegistry = options.isUsePluginRegistry();
+        settings.nonRecursive = options.isNonRecursive();
+        settings.alwaysUpdateSnapshots = options.isAlwaysUpdateSnapshots();
+        settings.threads = options.getThreads();
+        settings.overrideCompilePolicy = options.getOverrideCompilePolicy();
+        settings.outputLevel = options.getOutputLevel();
+        settings.checksumPolicy = options.getChecksumPolicy();
+        settings.failureBehavior = options.getFailureBehavior();
+        settings.pluginUpdatePolicy = options.getPluginUpdatePolicy();
+        return settings;
+    }
+
+    public MavenGeneralSettingsOptions toOptions() {
+        MavenGeneralSettingsOptions options = new MavenGeneralSettingsOptions();
+        options.setWorkOffline(workOffline);
+        options.setMavenBundleName(mavenBundleName);
+        options.setUserSettingsFile(mavenSettingsFile);
+        options.setLocalRepository(overriddenLocalRepository);
+        options.setPrintErrorStackTraces(printErrorStackTraces);
+        options.setUsePluginRegistry(usePluginRegistry);
+        options.setNonRecursive(nonRecursive);
+        options.setAlwaysUpdateSnapshots(alwaysUpdateSnapshots);
+        options.setThreads(threads);
+        options.setOverrideCompilePolicy(overrideCompilePolicy);
+        options.setOutputLevel(outputLevel);
+        options.setChecksumPolicy(checksumPolicy);
+        options.setFailureBehavior(failureBehavior);
+        options.setPluginUpdatePolicy(pluginUpdatePolicy);
+        return options;
+    }
+
     public MaveOverrideCompilerPolicy getOverrideCompilePolicy() {
         return overrideCompilePolicy;
     }

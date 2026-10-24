@@ -270,9 +270,11 @@ public class MavenResumeAction extends AnAction implements AnActionWithSyncUpdat
     ) {
         if (hasResumeFromParameter(runConfiguration)) { // This runConfiguration was created by other MavenResumeAction.
             MavenRunConfiguration clonedRunConf = runConfiguration.clone();
-            List<String> clonedGoals = clonedRunConf.getRunnerParameters().getGoals();
+            MavenRunnerParameters clonedParameters = clonedRunConf.getRunnerParameters();
+            List<String> clonedGoals = clonedParameters.getGoals();
             clonedGoals.remove(clonedGoals.size() - 1);
             clonedGoals.remove(clonedGoals.size() - 1);
+            clonedRunConf.setRunnerParameters(clonedParameters);
             try {
                 javaParameters = clonedRunConf.createJavaParameters(project);
             }
@@ -314,7 +316,8 @@ public class MavenResumeAction extends AnAction implements AnActionWithSyncUpdat
         try {
             MavenRunConfiguration runConfiguration = ((MavenRunConfiguration) myEnvironment.getRunProfile()).clone();
 
-            List<String> goals = runConfiguration.getRunnerParameters().getGoals();
+            MavenRunnerParameters parameters = runConfiguration.getRunnerParameters();
+            List<String> goals = parameters.getGoals();
 
             if (goals.size() > 2 && "-rf".equals(goals.get(goals.size() - 2))) {
                 // This runConfiguration was created by other MavenResumeAction.
@@ -324,6 +327,7 @@ public class MavenResumeAction extends AnAction implements AnActionWithSyncUpdat
                 goals.add("-rf");
                 goals.add(myResumeModuleId);
             }
+            runConfiguration.setRunnerParameters(parameters);
 
             myRunner.execute(new ExecutionEnvironmentBuilder(myEnvironment).contentToReuse(null).build());
         }

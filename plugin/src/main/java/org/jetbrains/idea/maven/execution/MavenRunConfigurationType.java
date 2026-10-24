@@ -109,14 +109,15 @@ public class MavenRunConfigurationType implements ConfigurationType {
 
                 VirtualFile directory = projects.get(0).getDirectoryFile();
 
-                cfg.getRunnerParameters().setWorkingDirPath(directory.getPath());
+                cfg.getOptions().setWorkingDirectory(directory.getPath());
 
                 return cfg;
             }
 
             @Override
-            public void configureBeforeRunTaskDefaults(Key<? extends BeforeRunTask> providerID, BeforeRunTask task) {
-                if (providerID == CompileStepBeforeRun.ID || providerID == CompileStepBeforeRunNoErrorCheck.ID) {
+            public void configureBeforeRunTaskDefaults(BeforeRunTask task) {
+                if (task instanceof CompileStepBeforeRun.MakeBeforeRunTask
+                    || task instanceof CompileStepBeforeRunNoErrorCheck.MakeBeforeRunTaskNoErrorCheck) {
                     task.setEnabled(false);
                 }
             }

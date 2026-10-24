@@ -47,6 +47,7 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
                     <compilerArgs>
+                        <arg>-Adsljson.generatedmarker</arg>
                         <arg>-Xmaxerrs</arg>
                         <arg>1000</arg>
                     </compilerArgs>

@@ -168,3 +168,9 @@ output.resume:
     text: Resume Output
 popup.title.maven.goals:
     text: Maven Goals
+run.configuration.fragment.general.settings:
+    text: Override general settings
+run.configuration.fragment.profiles:
+    text: Profiles
+run.configuration.fragment.runner.settings:
+    text: Override runner settings

@@ -15,49 +15,185 @@
  */
 package org.jetbrains.idea.maven.tasks.actions;
 
-import consulo.execution.ui.awt.BaseExecuteBeforeRunDialog;
+import consulo.application.Application;
+import consulo.disposer.Disposable;
+import consulo.disposer.Disposer;
+import consulo.execution.BeforeRunTask;
+import consulo.execution.RunManager;
+import consulo.execution.configuration.ConfigurationFactory;
+import consulo.execution.configuration.ConfigurationType;
+import consulo.execution.configuration.RunConfiguration;
+import consulo.execution.localize.ExecutionLocalize;
 import consulo.project.Project;
-import consulo.util.dataholder.Key;
+import consulo.ui.CheckBoxTree;
+import consulo.ui.CheckBoxTreePolicy;
+import consulo.ui.Component;
+import consulo.ui.TreeModel;
+import consulo.ui.TreeNode;
+import consulo.ui.UIAccess;
+import consulo.ui.WidthAndHeight;
+import consulo.ui.annotation.RequiredUIAccess;
+import consulo.ui.ex.dialog.DialogDescriptor;
+import consulo.ui.ex.dialog.DialogService;
+import consulo.ui.layout.ScrollableLayout;
 import org.jetbrains.idea.maven.localize.MavenTasksLocalize;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.tasks.MavenBeforeRunTask;
-import org.jetbrains.idea.maven.tasks.MavenBeforeRunTasksProvider;
+import org.jspecify.annotations.Nullable;
 
-public class MavenExecuteBeforeRunDialog extends BaseExecuteBeforeRunDialog<MavenBeforeRunTask> {
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+
+/**
+ * Picks the run configurations, and the configuration types whose templates, run a maven goal before they launch.
+ */
+public class MavenExecuteBeforeRunDialog extends DialogDescriptor {
+    private final Project myProject;
     private final MavenProject myMavenProject;
     private final String myGoal;
+    private final Map<ConfigurationType, List<RunConfiguration>> myConfigurations = new LinkedHashMap<>();
 
-    public MavenExecuteBeforeRunDialog(Project project, MavenProject mavenProject, String goal) {
-        super(project);
+    private @Nullable CheckBoxTree<Object> myTree;
+
+    private MavenExecuteBeforeRunDialog(Project project, MavenProject mavenProject, String goal) {
+        super(ExecutionLocalize.executeBeforeRunDebugDialogTitle(MavenTasksLocalize.mavenTasksGoal()));
+        myProject = project;
         myMavenProject = mavenProject;
         myGoal = goal;
-        init();
+
+        RunManager runManager = RunManager.getInstance(project);
+        for (ConfigurationType type : runManager.getConfigurationFactories()) {
+            List<RunConfiguration> configurations = new ArrayList<>();
+            Set<String> addedNames = new HashSet<>();
+            for (RunConfiguration configuration : runManager.getConfigurations(type)) {
+                if (addedNames.add(configuration.getName())) {
+                    configurations.add(configuration);
+                }
+            }
+            myConfigurations.put(type, configurations);
+        }
+    }
+
+    @RequiredUIAccess
+    public static CompletableFuture<?> show(Project project, MavenProject mavenProject, String goal) {
+        MavenExecuteBeforeRunDialog descriptor = new MavenExecuteBeforeRunDialog(project, mavenProject, goal);
+        return Application.get().getInstance(DialogService.class)
+            .build(descriptor)
+            .showAsync()
+            .thenAcceptAsync(value -> descriptor.apply(), UIAccess.current());
     }
 
     @Override
-    protected String getTargetDisplayString() {
-        return MavenTasksLocalize.mavenTasksGoal().get();
+    public @Nullable WidthAndHeight getInitialSize() {
+        return WidthAndHeight.ofFont(40, 25);
     }
 
+    @RequiredUIAccess
     @Override
-    protected Key<MavenBeforeRunTask> getTaskID() {
-        return MavenBeforeRunTasksProvider.ID;
+    public Component createCenterComponent(Disposable uiDisposable) {
+        CheckBoxTree<Object> tree = CheckBoxTree.create(createModel());
+        Disposer.register(uiDisposable, tree.destroyHook());
+        tree.setCheckPolicy(CheckBoxTreePolicy.INDEPENDENT);
+        myTree = tree;
+
+        for (Map.Entry<ConfigurationType, List<RunConfiguration>> entry : myConfigurations.entrySet()) {
+            if (isAssigned(entry.getKey())) {
+                tree.setChecked(entry.getKey(), true);
+            }
+            for (RunConfiguration configuration : entry.getValue()) {
+                if (isAssigned(configuration)) {
+                    tree.setChecked(configuration, true);
+                }
+            }
+        }
+
+        return ScrollableLayout.create(tree);
     }
 
-    @Override
-    protected boolean isRunning(MavenBeforeRunTask task) {
-        return task.isFor(myMavenProject, myGoal);
+    private TreeModel<Object> createModel() {
+        return (nodeFactory, parentValue) -> {
+            if (parentValue == null) {
+                for (ConfigurationType type : myConfigurations.keySet()) {
+                    TreeNode<Object> node = nodeFactory.apply(type);
+                    node.setLeaf(myConfigurations.get(type).isEmpty());
+                    node.setRenderer((value, presentation) -> {
+                        presentation.withIcon(type.getIcon());
+                        presentation.append(type.getDisplayName());
+                    });
+                }
+            }
+            else if (parentValue instanceof ConfigurationType type) {
+                for (RunConfiguration configuration : myConfigurations.getOrDefault(type, List.of())) {
+                    TreeNode<Object> node = nodeFactory.apply(configuration);
+                    node.setLeaf(true);
+                    node.setRenderer((value, presentation) -> {
+                        presentation.withIcon(configuration.getIcon());
+                        presentation.append(configuration.getName());
+                    });
+                }
+            }
+        };
     }
 
-    @Override
-    protected void update(MavenBeforeRunTask task) {
-        task.setProjectPath(myMavenProject.getPath());
-        task.setGoal(myGoal);
+    @RequiredUIAccess
+    private void apply() {
+        CheckBoxTree<Object> tree = myTree;
+        if (tree == null) {
+            return;
+        }
+
+        RunManager runManager = RunManager.getInstance(myProject);
+        for (Map.Entry<ConfigurationType, List<RunConfiguration>> entry : myConfigurations.entrySet()) {
+            boolean typeChecked = tree.isChecked(entry.getKey());
+            for (ConfigurationFactory factory : entry.getKey().getConfigurationFactories()) {
+                update(runManager, runManager.getConfigurationTemplate(factory).getConfiguration(), typeChecked);
+            }
+            for (RunConfiguration configuration : entry.getValue()) {
+                update(runManager, configuration, tree.isChecked(configuration));
+            }
+        }
     }
 
-    @Override
-    protected void clear(MavenBeforeRunTask task) {
-        task.setProjectPath(null);
-        task.setGoal(null);
+    private boolean isAssigned(ConfigurationType type) {
+        RunManager runManager = RunManager.getInstance(myProject);
+        for (ConfigurationFactory factory : type.getConfigurationFactories()) {
+            if (isAssigned(runManager.getConfigurationTemplate(factory).getConfiguration())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean isAssigned(RunConfiguration configuration) {
+        for (MavenBeforeRunTask task : RunManager.getInstance(myProject).getBeforeRunTasks(configuration, MavenBeforeRunTask.class)) {
+            if (task.isFor(myMavenProject, myGoal)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void update(RunManager runManager, RunConfiguration configuration, boolean enabled) {
+        if (isAssigned(configuration) == enabled) {
+            return;
+        }
+
+        List<BeforeRunTask> tasks = new ArrayList<>(runManager.getBeforeRunTasks(configuration));
+        if (enabled) {
+            MavenBeforeRunTask task = new MavenBeforeRunTask();
+            task.setProjectPath(myMavenProject.getPath());
+            task.setGoal(myGoal);
+            task.setEnabled(true);
+            tasks.add(task);
+        }
+        else {
+            tasks.removeIf(task -> task instanceof MavenBeforeRunTask mavenTask && mavenTask.isFor(myMavenProject, myGoal));
+        }
+        runManager.setBeforeRunTasks(configuration, tasks, false);
     }
 }

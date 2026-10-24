@@ -23,7 +23,6 @@ import consulo.util.lang.Pair;
 import jakarta.annotation.Nullable;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.tasks.MavenBeforeRunTask;
-import org.jetbrains.idea.maven.tasks.MavenBeforeRunTasksProvider;
 import org.jetbrains.idea.maven.utils.MavenDataKeys;
 import org.jetbrains.idea.maven.utils.actions.MavenActionUtil;
 import org.jetbrains.idea.maven.utils.actions.MavenToggleAction;
@@ -41,7 +40,7 @@ public class ToggleBeforeRunTaskAction extends MavenToggleAction {
         final DataContext context = e.getDataContext();
         final Pair<MavenProject, String> desc = getTaskDesc(context);
         if (desc != null) {
-            for (MavenBeforeRunTask each : getRunManager(context).getBeforeRunTasks(MavenBeforeRunTasksProvider.ID)) {
+            for (MavenBeforeRunTask each : getRunManager(context).getBeforeRunTasks(MavenBeforeRunTask.class)) {
                 if (each.isFor(desc.first, desc.second)) {
                     return true;
                 }
@@ -56,7 +55,7 @@ public class ToggleBeforeRunTaskAction extends MavenToggleAction {
         final DataContext context = e.getDataContext();
         final Pair<MavenProject, String> desc = getTaskDesc(context);
         if (desc != null) {
-            new MavenExecuteBeforeRunDialog(MavenActionUtil.getProject(context), desc.first, desc.second).show();
+            MavenExecuteBeforeRunDialog.show(MavenActionUtil.getProject(context), desc.first, desc.second);
         }
     }
 

@@ -18,67 +18,93 @@ package org.jetbrains.idea.maven.execution;
 import com.intellij.java.execution.configurations.RemoteConnectionCreator;
 import consulo.annotation.access.RequiredReadAction;
 import consulo.execution.configuration.ConfigurationFactory;
+import consulo.execution.configuration.LegacyRunConfigurationConverter;
 import consulo.execution.configuration.LocatableConfigurationBase;
-import consulo.execution.configuration.RunConfiguration;
 import consulo.execution.configuration.RunProfileState;
-import consulo.execution.configuration.log.ui.LogConfigurationPanel;
-import consulo.execution.configuration.ui.SettingsEditor;
-import consulo.execution.configuration.ui.SettingsEditorGroup;
+import consulo.execution.configuration.fragment.RunConfigurationFragment;
 import consulo.execution.executor.Executor;
-import consulo.execution.localize.ExecutionLocalize;
 import consulo.execution.runner.ExecutionEnvironment;
 import consulo.java.debugger.impl.GenericDebugRunnerConfiguration;
 import consulo.java.execution.configurations.OwnJavaParameters;
 import consulo.module.Module;
 import consulo.process.ExecutionException;
 import consulo.project.Project;
-import consulo.ui.annotation.RequiredUIAccess;
-import consulo.util.xml.serializer.InvalidDataException;
-import consulo.util.xml.serializer.WriteExternalException;
+import consulo.util.lang.StringUtil;
 import consulo.util.xml.serializer.XmlSerializer;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.jdom.Element;
-import org.jetbrains.idea.maven.localize.MavenProjectLocalize;
-import org.jetbrains.idea.maven.localize.MavenRunnerLocalize;
 import org.jetbrains.idea.maven.project.MavenGeneralSettings;
-import org.jetbrains.idea.maven.project.MavenGeneralSettingsEditor;
+import org.jetbrains.idea.maven.project.MavenGeneralSettingsFragment;
+import org.jetbrains.idea.maven.project.MavenGeneralSettingsOptions;
+
+import java.util.List;
 
 public class MavenRunConfiguration extends LocatableConfigurationBase implements GenericDebugRunnerConfiguration {
-    private MavenSettings mySettings;
-
     protected MavenRunConfiguration(Project project, ConfigurationFactory factory, String name) {
         super(project, factory, name);
-        mySettings = new MavenSettings(project);
     }
 
     @Override
     public MavenRunConfiguration clone() {
-        MavenRunConfiguration clone = (MavenRunConfiguration)super.clone();
-        clone.mySettings = mySettings.clone();
-        return clone;
+        return (MavenRunConfiguration) super.clone();
     }
 
-    @Nonnull
     @Override
-    @RequiredUIAccess
-    public SettingsEditor<? extends RunConfiguration> getConfigurationEditor() {
-        SettingsEditorGroup<MavenRunConfiguration> group = new SettingsEditorGroup<>();
+    protected Class<MavenRunConfigurationOptions> getOptionsClass() {
+        return MavenRunConfigurationOptions.class;
+    }
 
-        group.addEditor(MavenRunnerLocalize.mavenRunnerParametersTitle(), new MavenRunnerParametersSettingEditor(getProject()));
-        group.addEditor(MavenProjectLocalize.mavenTabGeneral(), new MavenGeneralSettingsEditor(getProject()));
-        group.addEditor(MavenRunnerLocalize.mavenTabRunner(), new MavenRunnerSettingsEditor(getProject()));
-        group.addEditor(ExecutionLocalize.logsTabTitle(), new LogConfigurationPanel<>());
-        return group;
+    @Override
+    public MavenRunConfigurationOptions getOptions() {
+        return (MavenRunConfigurationOptions) super.getOptions();
+    }
+
+    @Override
+    protected void convertLegacyState(LegacyRunConfigurationConverter converter) {
+        super.convertLegacyState(converter);
+
+        MavenRunConfigurationOptions options = new MavenRunConfigurationOptions();
+
+        Element mavenSettingsElement = converter.getElement().getChild(MavenRunConfigurationLegacyState.TAG);
+        MavenRunConfigurationLegacyState old = mavenSettingsElement == null
+            ? null
+            : XmlSerializer.deserialize(mavenSettingsElement, MavenRunConfigurationLegacyState.class);
+        if (old != null) {
+            MavenRunnerParameters parameters = old.myRunnerParameters;
+            if (parameters != null) {
+                parameters.fixAfterLoadingFromOldFormat();
+                setRunnerParameters(options, parameters);
+            }
+
+            MavenGeneralSettings generalSettings = old.myGeneralSettings;
+            options.setGeneralSettings(generalSettings == null ? null : generalSettings.toOptions());
+
+            MavenRunnerSettings runnerSettings = old.myRunnerSettings;
+            options.setRunnerSettings(runnerSettings == null ? null : MavenRunnerSettingsOptions.of(runnerSettings));
+        }
+
+        converter.setOptions(options);
+    }
+
+    @Override
+    public List<RunConfigurationFragment<?>> createFragments() {
+        return List.of(
+            new MavenRunnerParametersFragment(),
+            new MavenProfilesFragment(),
+            new MavenResolveToWorkspaceFragment(),
+            new MavenGeneralSettingsFragment(),
+            new MavenRunnerSettingsFragment()
+        );
     }
 
     @RequiredReadAction
     public OwnJavaParameters createJavaParameters(@Nullable Project project) throws ExecutionException {
         return MavenExternalParameters.createJavaParameters(
             project,
-            mySettings.myRunnerParameters,
-            mySettings.myGeneralSettings,
-            mySettings.myRunnerSettings,
+            getRunnerParameters(),
+            getGeneralSettings(),
+            getRunnerSettings(),
             this
         );
     }
@@ -90,95 +116,68 @@ public class MavenRunConfiguration extends LocatableConfigurationBase implements
 
     @Override
     @Nonnull
-    public consulo.module.Module[] getModules() {
+    public Module[] getModules() {
         return Module.EMPTY_ARRAY;
     }
 
+    /**
+     * A copy of the general settings used instead of the project ones, {@code null} for the project settings.
+     */
     @Nullable
     public MavenGeneralSettings getGeneralSettings() {
-        return mySettings.myGeneralSettings;
+        MavenGeneralSettingsOptions options = getOptions().getGeneralSettings();
+        return options == null ? null : MavenGeneralSettings.fromOptions(options);
     }
 
     public void setGeneralSettings(@Nullable MavenGeneralSettings settings) {
-        mySettings.myGeneralSettings = settings;
+        getOptions().setGeneralSettings(settings == null ? null : settings.toOptions());
     }
 
+    /**
+     * A copy of the runner settings used instead of the project ones, {@code null} for the project settings.
+     */
     @Nullable
     public MavenRunnerSettings getRunnerSettings() {
-        return mySettings.myRunnerSettings;
+        MavenRunnerSettingsOptions options = getOptions().getRunnerSettings();
+        return options == null ? null : options.toSettings();
     }
 
     public void setRunnerSettings(@Nullable MavenRunnerSettings settings) {
-        mySettings.myRunnerSettings = settings;
+        getOptions().setRunnerSettings(settings == null ? null : MavenRunnerSettingsOptions.of(settings));
     }
 
+    /**
+     * A copy of the parameters; changes are kept by {@link #setRunnerParameters(MavenRunnerParameters)}.
+     */
     public MavenRunnerParameters getRunnerParameters() {
-        return mySettings.myRunnerParameters;
+        MavenRunConfigurationOptions options = getOptions();
+        MavenRunnerParameters parameters = new MavenRunnerParameters(
+            StringUtil.notNullize(options.getWorkingDirectory()),
+            true,
+            options.getGoals(),
+            options.getProfiles()
+        );
+        parameters.setResolveToWorkspace(options.isResolveToWorkspace());
+        return parameters;
     }
 
     public void setRunnerParameters(MavenRunnerParameters p) {
-        mySettings.myRunnerParameters = p;
+        setRunnerParameters(getOptions(), p);
     }
 
-    @Override
-    public void readExternal(Element element) throws InvalidDataException {
-        super.readExternal(element);
-
-        Element mavenSettingsElement = element.getChild(MavenSettings.TAG);
-        if (mavenSettingsElement != null) {
-            mySettings = XmlSerializer.deserialize(mavenSettingsElement, MavenSettings.class);
-            if (mySettings == null) {
-                mySettings = new MavenSettings();
-            }
-
-            if (mySettings.myRunnerParameters == null) {
-                mySettings.myRunnerParameters = new MavenRunnerParameters();
-            }
-
-            // fix old settings format
-            mySettings.myRunnerParameters.fixAfterLoadingFromOldFormat();
-        }
-    }
-
-    @Override
-    public void writeExternal(Element element) throws WriteExternalException {
-        super.writeExternal(element);
-        element.addContent(XmlSerializer.serialize(mySettings));
+    private static void setRunnerParameters(MavenRunConfigurationOptions options, MavenRunnerParameters p) {
+        options.setWorkingDirectory(p.getWorkingDirPath());
+        options.setGoals(p.getGoals());
+        options.setProfiles(p.getProfilesMap());
+        options.setResolveToWorkspace(p.isResolveToWorkspace());
     }
 
     @Override
     public String suggestedName() {
-        return MavenRunConfigurationType.generateName(getProject(), mySettings.myRunnerParameters);
+        return MavenRunConfigurationType.generateName(getProject(), getRunnerParameters());
     }
 
     public RemoteConnectionCreator createRemoteConnectionCreator(OwnJavaParameters javaParameters) {
         return new MavenExtRemoteConnectionCreator(javaParameters, this);
-    }
-
-    public static class MavenSettings implements Cloneable {
-        public static final String TAG = "MavenSettings";
-
-        public MavenGeneralSettings myGeneralSettings;
-        public MavenRunnerSettings myRunnerSettings;
-        public MavenRunnerParameters myRunnerParameters;
-
-        /* reflection only */
-        public MavenSettings() {
-        }
-
-        public MavenSettings(Project project) {
-            this(null, null, new MavenRunnerParameters());
-        }
-
-        private MavenSettings(@Nullable MavenGeneralSettings cs, @Nullable MavenRunnerSettings rs, MavenRunnerParameters rp) {
-            myGeneralSettings = cs == null ? null : cs.clone();
-            myRunnerSettings = rs == null ? null : rs.clone();
-            myRunnerParameters = rp.clone();
-        }
-
-        @Override
-        protected MavenSettings clone() {
-            return new MavenSettings(myGeneralSettings, myRunnerSettings, myRunnerParameters);
-        }
     }
 }

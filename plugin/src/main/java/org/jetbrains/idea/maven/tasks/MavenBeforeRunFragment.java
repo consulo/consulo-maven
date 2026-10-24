@@ -17,10 +17,13 @@ package org.jetbrains.idea.maven.tasks;
 
 import consulo.annotation.component.ExtensionImpl;
 import consulo.dataContext.DataContext;
+import consulo.disposer.Disposable;
 import consulo.document.FileDocumentManager;
-import consulo.execution.BeforeRunTaskProvider;
+import consulo.execution.BeforeRunFragment;
 import consulo.execution.RunnerAndConfigurationSettings;
 import consulo.execution.configuration.RunConfiguration;
+import consulo.execution.configuration.fragment.RunConfigurationFragmentEditor;
+import consulo.execution.configuration.fragment.RunConfigurationFragmentLayout;
 import consulo.execution.executor.DefaultRunExecutor;
 import consulo.execution.executor.Executor;
 import consulo.execution.runner.ExecutionEnvironment;
@@ -37,54 +40,50 @@ import consulo.project.Project;
 import consulo.ui.UIAccess;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.image.Image;
-import consulo.util.concurrent.AsyncResult;
-import consulo.util.dataholder.Key;
 import consulo.util.lang.StringUtil;
 import consulo.virtualFileSystem.LocalFileSystem;
 import consulo.virtualFileSystem.VirtualFile;
 import jakarta.annotation.Nonnull;
-import jakarta.annotation.Nullable;
 import jakarta.inject.Inject;
-import org.jetbrains.idea.maven.execution.MavenEditGoalDialog;
 import org.jetbrains.idea.maven.execution.MavenRunConfigurationType;
 import org.jetbrains.idea.maven.execution.MavenRunnerParameters;
+import org.jetbrains.idea.maven.execution.MavenRunnerParametersPanel;
 import org.jetbrains.idea.maven.execution.build.DelegateBuildRunner;
 import org.jetbrains.idea.maven.localize.MavenTasksLocalize;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 
 @ExtensionImpl
-public class MavenBeforeRunTasksProvider extends BeforeRunTaskProvider<MavenBeforeRunTask> {
-    public static final Key<MavenBeforeRunTask> ID = Key.create("Maven.BeforeRunTask");
+public class MavenBeforeRunFragment implements BeforeRunFragment<MavenBeforeRunTask> {
+    public static final String ID = "Maven.BeforeRunTask";
+
     private final Project myProject;
 
     @Inject
-    public MavenBeforeRunTasksProvider(Project project) {
+    public MavenBeforeRunFragment(Project project) {
         myProject = project;
     }
 
-    @Nonnull
     @Override
-    public Key<MavenBeforeRunTask> getId() {
+    public String getId() {
         return ID;
     }
 
-    @Nonnull
     @Override
     public LocalizeValue getName() {
         return MavenTasksLocalize.mavenTasksBeforeRunEmpty();
     }
 
     @Override
-    public Image getIcon(@Nonnull RunConfiguration runConfiguration) {
+    public @Nullable Image getIcon(RunConfiguration configuration) {
         return MavenIconGroup.mavenlogo();
     }
 
-    @Nonnull
     @Override
     public LocalizeValue getDescription(MavenBeforeRunTask task) {
         MavenProject mavenProject = getMavenProject(task);
@@ -94,6 +93,11 @@ public class MavenBeforeRunTasksProvider extends BeforeRunTaskProvider<MavenBefo
 
         String desc = mavenProject.getDisplayName() + ": " + StringUtil.notNullize(task.getGoal()).trim();
         return MavenTasksLocalize.mavenTasksBeforeRun(desc);
+    }
+
+    @Override
+    public Class<MavenBeforeRunTask> getStateClass() {
+        return MavenBeforeRunTask.class;
     }
 
     @Nullable
@@ -121,47 +125,41 @@ public class MavenBeforeRunTasksProvider extends BeforeRunTaskProvider<MavenBefo
         return new MavenBeforeRunTask();
     }
 
-    @Nonnull
     @RequiredUIAccess
     @Override
-    public CompletableFuture<Void> configureTask(RunConfiguration runConfiguration, MavenBeforeRunTask task) {
-        MavenEditGoalDialog dialog = new MavenEditGoalDialog(myProject);
+    public RunConfigurationFragmentEditor<MavenBeforeRunTask> createEditor(RunConfiguration configuration, Disposable parent) {
+        MavenRunnerParametersPanel panel = new MavenRunnerParametersPanel(myProject, false, false);
 
-        dialog.setTitle(MavenTasksLocalize.mavenTasksSelectGoalTitle());
-
-        if (task.getGoal() == null) {
-            // just created empty task.
-            MavenProjectsManager projectsManager = MavenProjectsManager.getInstance(myProject);
-            List<MavenProject> rootProjects = projectsManager.getRootProjects();
-            if (rootProjects.size() > 0) {
-                dialog.setSelectedMavenProject(rootProjects.get(0));
-            }
-            else {
-                dialog.setSelectedMavenProject(null);
-            }
-        }
-        else {
-            dialog.setGoals(task.getGoal());
-            MavenProject mavenProject = getMavenProject(task);
-            if (mavenProject != null) {
-                dialog.setSelectedMavenProject(mavenProject);
-            }
-            else {
-                dialog.setSelectedMavenProject(null);
-            }
-        }
-
-        CompletableFuture<Void> result = dialog.showAsync();
-        result = result.whenComplete((v, t) -> {
-            if (t != null) {
-                return;
+        return new RunConfigurationFragmentEditor<>() {
+            @RequiredUIAccess
+            @Override
+            public void addRows(RunConfigurationFragmentLayout layout) {
+                panel.addRows(layout);
             }
 
-            task.setProjectPath(dialog.getWorkDirectory() + "/pom.xml");
-            task.setGoal(dialog.getGoals());
-        });
+            @RequiredUIAccess
+            @Override
+            public void reset(MavenBeforeRunTask task) {
+                MavenProject mavenProject;
+                if (task.getGoal() == null) {
+                    List<MavenProject> rootProjects = MavenProjectsManager.getInstance(myProject).getRootProjects();
+                    mavenProject = rootProjects.isEmpty() ? null : rootProjects.get(0);
+                }
+                else {
+                    panel.getGoalsEditor().setValue(task.getGoal());
+                    mavenProject = getMavenProject(task);
+                }
+                panel.getWorkingDirectory().setValue(mavenProject == null ? "" : mavenProject.getDirectory());
+            }
 
-        return result;
+            @RequiredUIAccess
+            @Override
+            public void apply(MavenBeforeRunTask task) {
+                String workingDirectory = panel.getWorkingDirectory().getValue();
+                task.setProjectPath(StringUtil.isEmptyOrSpaces(workingDirectory) ? null : workingDirectory + "/pom.xml");
+                task.setGoal(panel.getGoalsEditor().getValue());
+            }
+        };
     }
 
     @Override
@@ -169,9 +167,8 @@ public class MavenBeforeRunTasksProvider extends BeforeRunTaskProvider<MavenBefo
         return task.getGoal() != null && task.getProjectPath() != null;
     }
 
-    @Nonnull
     @Override
-    public CompletableFuture<Void> executeTaskAsync(
+    public CompletableFuture<?> executeAsync(
         UIAccess uiAccess,
         DataContext context,
         RunConfiguration configuration,
@@ -190,7 +187,7 @@ public class MavenBeforeRunTasksProvider extends BeforeRunTaskProvider<MavenBefo
         MavenRunnerParameters params = new MavenRunnerParameters(
             true,
             mavenProject.getDirectory(),
-            ParametersListUtil.parse(task.getGoal()),
+            ParametersListUtil.parse(StringUtil.notNullize(task.getGoal())),
             explicitProfiles
         );
 

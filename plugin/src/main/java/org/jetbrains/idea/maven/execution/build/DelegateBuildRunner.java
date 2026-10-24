@@ -41,7 +41,7 @@ public class DelegateBuildRunner extends DefaultProgramRunner {
      * inside MavenCommandLineState.doDelegateBuildExecute()).
      *
      * We still create a RunContentDescriptor so callers that set a ProgramRunner.Callback
-     * (e.g. MavenCompilerRunner, MavenBeforeRunTasksProvider) can obtain the ProcessHandler.
+     * (e.g. MavenCompilerRunner, MavenBeforeRunFragment) can obtain the ProcessHandler.
      */
     @RequiredUIAccess
     @Override
