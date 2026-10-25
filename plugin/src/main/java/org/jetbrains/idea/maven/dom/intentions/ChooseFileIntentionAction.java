@@ -19,7 +19,7 @@ import consulo.annotation.component.ExtensionImpl;
 import consulo.application.Result;
 import consulo.codeEditor.Editor;
 import consulo.fileChooser.FileChooserDescriptor;
-import consulo.fileChooser.IdeaFileChooser;
+import consulo.fileChooser.FileChooserFactory;
 import consulo.language.editor.WriteCommandAction;
 import consulo.language.editor.intention.IntentionAction;
 import consulo.language.editor.intention.IntentionMetaData;
@@ -76,16 +76,28 @@ public class ChooseFileIntentionAction implements IntentionAction {
     public void invoke(@Nonnull Project project, Editor editor, PsiFile file) throws IncorrectOperationException {
         final MavenDomDependency dep = getDependency(file, editor);
 
-        final VirtualFile[] files;
-        if (myFileChooser == null) {
-            final FileChooserDescriptor descriptor = new FileChooserDescriptor(true, false, true, true, false, false);
-            final PsiFile currentValue = dep != null ? dep.getSystemPath().getValue() : null;
-            final VirtualFile toSelect = currentValue == null ? null : currentValue.getVirtualFile();
-            files = IdeaFileChooser.chooseFiles(descriptor, project, toSelect);
+        if (myFileChooser != null) {
+            setSystemPath(project, dep, myFileChooser.get());
+            return;
         }
-        else {
-            files = myFileChooser.get();
-        }
+
+        final FileChooserDescriptor descriptor = new FileChooserDescriptor(true, false, true, true, false, false);
+        final PsiFile currentValue = dep != null ? dep.getSystemPath().getValue() : null;
+        final VirtualFile currentFile = currentValue == null ? null : currentValue.getVirtualFile();
+        FileChooserFactory.getInstance()
+            .newBuilder(descriptor)
+            .project(project)
+            .toSelect(currentFile == null ? null : currentFile.getFileSystem().getNioPath(currentFile))
+            .showMultipleAsVirtualFiles()
+            .whenComplete((files, error) -> {
+                if (error == null) {
+                    setSystemPath(project, dep, files.toArray(VirtualFile.EMPTY_ARRAY));
+                }
+            });
+    }
+
+    @RequiredUIAccess
+    private static void setSystemPath(Project project, @Nullable MavenDomDependency dep, @Nullable VirtualFile[] files) {
         if (files == null || files.length == 0) {
             return;
         }

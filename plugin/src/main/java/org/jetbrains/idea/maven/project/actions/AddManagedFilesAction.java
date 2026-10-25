@@ -16,7 +16,7 @@
 package org.jetbrains.idea.maven.project.actions;
 
 import consulo.fileChooser.FileChooserDescriptor;
-import consulo.fileChooser.IdeaFileChooser;
+import consulo.fileChooser.FileChooserFactory;
 import consulo.language.editor.PlatformDataKeys;
 import consulo.project.Project;
 import consulo.ui.annotation.RequiredUIAccess;
@@ -26,7 +26,6 @@ import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.utils.actions.MavenAction;
 import org.jetbrains.idea.maven.utils.actions.MavenActionUtil;
 
-import java.util.Arrays;
 
 public class AddManagedFilesAction extends MavenAction {
     @Override
@@ -50,11 +49,15 @@ public class AddManagedFilesAction extends MavenAction {
         Project project = MavenActionUtil.getProject(e.getDataContext());
         VirtualFile fileToSelect = e.getData(PlatformDataKeys.VIRTUAL_FILE);
 
-        VirtualFile[] files = IdeaFileChooser.chooseFiles(singlePomSelection, project, fileToSelect);
-        if (files.length == 0) {
-            return;
-        }
-
-        manager.addManagedFiles(Arrays.asList(files));
+        FileChooserFactory.getInstance()
+            .newBuilder(singlePomSelection)
+            .project(project)
+            .toSelect(fileToSelect == null ? null : fileToSelect.getFileSystem().getNioPath(fileToSelect))
+            .showMultipleAsVirtualFiles()
+            .whenComplete((files, error) -> {
+                if (error == null && !files.isEmpty()) {
+                    manager.addManagedFiles(files);
+                }
+            });
     }
 }

@@ -20,7 +20,6 @@ import consulo.component.PropertiesComponent;
 import consulo.disposer.Disposer;
 import consulo.fileChooser.FileChooserDescriptor;
 import consulo.fileChooser.FileChooserDescriptorFactory;
-import consulo.fileChooser.FileChooserDialog;
 import consulo.maven.rt.server.common.model.MavenArtifactInfo;
 import consulo.maven.rt.server.common.model.MavenRepositoryInfo;
 import consulo.platform.base.icon.PlatformIconGroup;
@@ -135,7 +134,6 @@ public class RepositoryAttachDialog extends DialogWrapper {
                 }
             }
             final FileChooserDescriptor descriptor = FileChooserDescriptorFactory.createSingleFolderDescriptor();
-            descriptor.putUserData(FileChooserDialog.PREFER_LAST_OVER_TO_SELECT, Boolean.TRUE);
             myDirectoryField.addBrowseFolderListener(
                 ProjectLocalize.fileChooserDirectoryForDownloadedLibrariesTitle().get(),
                 ProjectLocalize.fileChooserDirectoryForDownloadedLibrariesDescription().get(),
