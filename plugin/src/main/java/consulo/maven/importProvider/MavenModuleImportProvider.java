@@ -33,6 +33,8 @@ import org.jetbrains.idea.maven.wizards.SelectImportedProjectsStep;
 import org.jetbrains.idea.maven.wizards.SelectProfilesStep;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.function.Consumer;
 
@@ -61,12 +63,12 @@ public class MavenModuleImportProvider implements ModuleImportProvider<MavenImpo
     }
 
     @Override
-    public boolean canImport(@Nonnull File fileOrDirectory) {
-        if (fileOrDirectory.isDirectory()) {
-            return new File(fileOrDirectory, MavenConstants.POM_XML).exists();
+    public boolean canImport(@Nonnull Path fileOrDirectory) {
+        if (Files.isDirectory(fileOrDirectory)) {
+            return Files.exists(fileOrDirectory.resolve(MavenConstants.POM_XML));
         }
         else {
-            return MavenConstants.POM_XML.equals(fileOrDirectory.getName());
+            return MavenConstants.POM_XML.equals(fileOrDirectory.getFileName().toString());
         }
     }
 

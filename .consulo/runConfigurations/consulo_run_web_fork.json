@@ -1,0 +1,33 @@
+{
+  "name": "consulo:run-web-fork",
+  "type": "MavenRunConfiguration",
+  "factoryName": "Maven",
+  "options": {
+    "goals": [
+      "consulo:run-web-fork",
+      "-pl",
+      ":org.jetbrains.idea.maven"
+    ],
+    "runnerSettings": {
+      "vmOptions": null,
+      "mavenProperties": {},
+      "skipTests": true,
+      "jreName": "25.0",
+      "passParentEnv": true,
+      "environmentProperties": {},
+      "runMavenInBackground": true
+    },
+    "workingDirectory": "$PROJECT_DIR$",
+    "resolveToWorkspace": true
+  },
+  "beforeRun": [
+    {
+      "id": "Maven.BeforeRunTask",
+      "state": {
+        "enabled": true,
+        "projectPath": "$PROJECT_DIR$/pom.xml",
+        "goal": "package"
+      }
+    }
+  ]
+}
