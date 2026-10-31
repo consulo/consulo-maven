@@ -2,7 +2,7 @@ package org.jetbrains.idea.maven.execution;
 
 import consulo.annotation.component.ExtensionImpl;
 import consulo.dataContext.DataContext;
-import consulo.ide.runAnything.*;
+import consulo.execution.runAnything.*;
 import consulo.maven.icon.MavenIconGroup;
 import consulo.maven.rt.server.common.model.MavenConstants;
 import consulo.maven.rt.server.common.model.MavenExplicitProfiles;
