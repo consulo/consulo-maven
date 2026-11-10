@@ -16,7 +16,6 @@
 package org.jetbrains.idea.maven.dom.refactorings;
 
 import consulo.annotation.component.ExtensionImpl;
-import consulo.application.ApplicationManager;
 import consulo.codeEditor.Editor;
 import consulo.dataContext.DataContext;
 import consulo.language.editor.LangDataKeys;
@@ -26,7 +25,6 @@ import consulo.language.editor.refactoring.rename.RenameDialog;
 import consulo.language.psi.PsiElement;
 import consulo.language.psi.PsiFile;
 import consulo.project.Project;
-import consulo.ui.ex.awt.DialogWrapper;
 import org.jetbrains.idea.maven.dom.references.MavenTargetUtil;
 
 import jakarta.annotation.Nonnull;
@@ -51,14 +49,7 @@ public class MavenPropertyRenameHandler extends PsiElementRenameHandler {
         }
 
         RenameDialog dialog = new RenameDialog(project, element, null, dataContext.getData(PlatformDataKeys.EDITOR));
-        if (ApplicationManager.getApplication().isUnitTestMode()) {
-            String name = dataContext.getData(DEFAULT_NAME);
-            dialog.performRename(name);
-            dialog.close(DialogWrapper.OK_EXIT_CODE);
-        }
-        else {
-            dialog.show();
-        }
+        RenameDialog.showRenameDialog(dataContext, dialog);
     }
 
     private static PsiElement findTarget(DataContext context) {
