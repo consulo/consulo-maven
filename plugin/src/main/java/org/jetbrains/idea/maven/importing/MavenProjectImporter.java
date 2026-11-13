@@ -45,7 +45,7 @@ import consulo.util.concurrent.coroutine.step.CodeExecution;
 import consulo.util.dataholder.Key;
 import consulo.util.lang.Pair;
 import consulo.util.lang.StringUtil;
-import consulo.virtualFileSystem.LocalFileSystem;
+import consulo.virtualFileSystem.RefreshQueue;
 import consulo.virtualFileSystem.VirtualFile;
 import jakarta.annotation.Nullable;
 import org.jetbrains.idea.maven.buildtool.MavenSyncConsole;
@@ -383,7 +383,7 @@ public class MavenProjectImporter {
     }
 
     private static void doRefreshFiles(Set<File> files) {
-        LocalFileSystem.getInstance().refreshIoFiles(files);
+        RefreshQueue.getInstance().refreshPaths(false, false, null, files.stream().map(File::toPath).toList());
     }
 
     private void scheduleRefreshResolvedArtifacts(List<MavenProjectsProcessorTask> postTasks) {

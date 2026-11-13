@@ -21,7 +21,7 @@ import consulo.localize.LocalizeValue;
 import consulo.maven.rt.server.common.model.*;
 import consulo.project.Project;
 import consulo.util.lang.Pair;
-import consulo.virtualFileSystem.LocalFileSystem;
+import consulo.virtualFileSystem.RefreshQueue;
 import org.jetbrains.idea.maven.importing.MavenExtraArtifactType;
 import org.jetbrains.idea.maven.localize.MavenProjectLocalize;
 import org.jetbrains.idea.maven.server.MavenEmbedderWrapper;
@@ -120,7 +120,7 @@ public class MavenArtifactDownloader {
                 parentsToRefresh.add(file.getParentFile());
             }
 
-            LocalFileSystem.getInstance().refreshIoFiles(parentsToRefresh, isAsync, false, null);
+            RefreshQueue.getInstance().refreshPaths(isAsync, false, null, parentsToRefresh.stream().map(File::toPath).toList());
         }
     }
 

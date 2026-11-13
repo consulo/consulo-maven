@@ -33,6 +33,7 @@ import consulo.util.io.FileUtil;
 import consulo.util.lang.Comparing;
 import consulo.util.lang.Pair;
 import consulo.virtualFileSystem.LocalFileSystem;
+import consulo.virtualFileSystem.RefreshQueue;
 import consulo.virtualFileSystem.VirtualFile;
 import org.jdom.Element;
 import org.jdom.output.Format;
@@ -1388,7 +1389,7 @@ public class MavenProjectsTree {
         }
         finally {
             if (filesToRefresh.size() > 0) {
-                LocalFileSystem.getInstance().refreshIoFiles(filesToRefresh);
+                RefreshQueue.getInstance().refreshPaths(false, false, null, filesToRefresh.stream().map(File::toPath).toList());
             }
 
             embeddersManager.release(embedder);
