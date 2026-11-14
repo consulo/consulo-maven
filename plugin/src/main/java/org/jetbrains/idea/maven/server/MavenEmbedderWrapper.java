@@ -106,7 +106,7 @@ public abstract class MavenEmbedderWrapper extends RemoteObjectWrapper<MavenServ
         @Nonnull final Collection<String> inactiveProfiles
     ) throws MavenProcessCanceledException {
         return perform((RetriableCancelable<MavenServerExecutionResult>)() -> getOrCreateWrappee().resolveProject(
-            new File(file.getPath()),
+            toServerFile(file),
             activeProfiles,
             inactiveProfiles
         ));
@@ -119,7 +119,7 @@ public abstract class MavenEmbedderWrapper extends RemoteObjectWrapper<MavenServ
         @Nonnull final Collection<String> inactiveProfiles
     ) throws MavenProcessCanceledException {
         return perform((RetriableCancelable<String>)() -> getOrCreateWrappee().evaluateEffectivePom(
-            new File(file.getPath()),
+            toServerFile(file),
             new ArrayList<>(activeProfiles),
             new ArrayList<>(inactiveProfiles)
         ));
@@ -193,7 +193,7 @@ public abstract class MavenEmbedderWrapper extends RemoteObjectWrapper<MavenServ
         @Nonnull final List<String> goals
     ) throws MavenProcessCanceledException {
         return perform((RetriableCancelable<MavenServerExecutionResult>)() -> getOrCreateWrappee().execute(
-            new File(file.getPath()),
+            toServerFile(file),
             activeProfiles,
             inactiveProfiles,
             goals,
@@ -214,7 +214,7 @@ public abstract class MavenEmbedderWrapper extends RemoteObjectWrapper<MavenServ
         final boolean alsoMakeDependents
     ) throws MavenProcessCanceledException {
         return perform((RetriableCancelable<MavenServerExecutionResult>)() -> getOrCreateWrappee().execute(
-            new File(file.getPath()),
+            toServerFile(file),
             activeProfiles,
             inactiveProfiles,
             goals,
@@ -337,5 +337,12 @@ public abstract class MavenEmbedderWrapper extends RemoteObjectWrapper<MavenServ
             this.failOnUnresolvedDependency = failOnUnresolvedDependency;
             this.alwaysUpdateSnapshot = alwaysUpdateSnapshot;
         }
+    }
+
+    /**
+     * The file as the server sees it - by its path on its machine, not by the path of the virtual file system.
+     */
+    private static File toServerFile(VirtualFile file) {
+        return new File(file.isInLocalLikeFileSystem() ? file.toNioPath().toString() : file.getPath());
     }
 }

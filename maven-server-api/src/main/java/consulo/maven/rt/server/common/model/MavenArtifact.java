@@ -17,6 +17,7 @@ package consulo.maven.rt.server.common.model;
 
 import java.io.File;
 import java.io.Serializable;
+import java.util.function.Predicate;
 
 import jakarta.annotation.Nullable;
 
@@ -130,11 +131,18 @@ public class MavenArtifact implements Serializable, MavenCoordinate {
   }
 
   public boolean isResolved() {
+    return isResolved(File::exists);
+  }
+
+  /**
+   * @param fileExists the check of the file on the machine of the repository - another machine than this one for a server of it
+   */
+  public boolean isResolved(Predicate<File> fileExists) {
     if (myResolved && !myStubbed) {
       long currentTime = System.currentTimeMillis();
 
       if (myLastFileCheckTimeStamp + 2000 < currentTime) { // File.exists() is a slow operation, don't run it more than once a second
-        if (!myFile.exists()) {
+        if (!fileExists.test(myFile)) {
           return false; // Don't cache result if file is not exist.
         }
 

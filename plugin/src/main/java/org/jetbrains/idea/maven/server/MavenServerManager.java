@@ -34,7 +34,6 @@ import consulo.execution.configuration.CommandLineState;
 import consulo.execution.configuration.RunProfileState;
 import consulo.execution.executor.Executor;
 import consulo.execution.runner.ProgramRunner;
-import consulo.ide.impl.idea.execution.rmi.RemoteProcessSupport;
 import consulo.java.execution.OwnSimpleJavaParameters;
 import consulo.java.execution.projectRoots.OwnJdkUtil;
 import consulo.java.language.bundle.JavaSdkTypeUtil;
@@ -78,9 +77,12 @@ import org.jetbrains.idea.maven.utils.MavenProgressIndicator;
 import org.jetbrains.idea.maven.utils.MavenUtil;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 
 @State(name = "MavenVersion", storages = @Storage("mavenVersion.xml"))
@@ -88,13 +90,15 @@ import java.util.function.Predicate;
 @ServiceAPI(ComponentScope.APPLICATION)
 @ServiceImpl
 public class MavenServerManager extends RemoteObjectWrapper<MavenServer> implements PersistentStateComponent<MavenServerManager.State> {
-    private static final String MAIN_CLASS_V3 = "consulo.maven.rt.m3.server.RemoteMavenServer";
+    static final String MAIN_CLASS_V3 = "consulo.maven.rt.m3.server.RemoteMavenServer";
     private static final String MAIN_CLASS_V32 = "consulo.maven.rt.m32.server.RemoteMavenServer";
     private static final String MAIN_CLASS_V40 = "consulo.maven.rt.m40.server.RemoteMavenServer";
 
     private static final String DEFAULT_VM_OPTIONS = "-Xmx512m";
 
-    private final RemoteProcessSupport<Object, MavenServer, Object> mySupport;
+    private @Nullable LocalMavenServerRemoteProcessSupport mySupport;
+    // the servers of the machines of projects, by the target id
+    private final Map<String, MavenServerConnector> myConnectors = new ConcurrentHashMap<>();
 
     private final RemoteMavenServerLogger myLogger = new RemoteMavenServerLogger();
     private final RemoteMavenServerDownloadListener myDownloadListener = new RemoteMavenServerDownloadListener();
@@ -121,22 +125,6 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
     public MavenServerManager() {
         super(null);
 
-        mySupport = new RemoteProcessSupport<>(MavenServer.class) {
-            @Override
-            protected void fireModificationCountChanged() {
-            }
-
-            @Override
-            protected String getName(Object file) {
-                return MavenServerManager.class.getSimpleName();
-            }
-
-            @Override
-            protected RunProfileState getRunProfileState(Object target, Object configuration, Executor executor) throws ExecutionException {
-                return createRunProfileState();
-            }
-        };
-
         ShutDownTracker.getInstance().registerShutdownTask(() -> shutdown(false));
     }
 
@@ -146,29 +134,71 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
     protected synchronized MavenServer create() throws RemoteException {
         MavenServer result;
         try {
+            Sdk jdk = getSdkForRun(MavenJdkUtil.getDefaultRunLevel(getCurrentMavenVersion()), null);
+            if (jdk == null) {
+                throw new IllegalArgumentException("JDK is not found");
+            }
+            if (mySupport == null) {
+                mySupport = new LocalMavenServerRemoteProcessSupport(jdk, myState.vmOptions, null, null);
+            }
             result = mySupport.acquire(this, "");
         }
         catch (Exception e) {
             throw new RemoteException("Cannot start maven service", e);
         }
 
-        myLoggerExported = UnicastRemoteObject.exportObject(myLogger, 0) != null;
-        if (!myLoggerExported) {
-            throw new RemoteException("Cannot export logger object");
-        }
-
-        myDownloadListenerExported = UnicastRemoteObject.exportObject(myDownloadListener, 0) != null;
-        if (!myDownloadListenerExported) {
-            throw new RemoteException("Cannot export download listener object");
-        }
-
-        result.set(myLogger, myDownloadListener);
+        attachListeners(result);
 
         return result;
     }
 
+    /**
+     * The logger and the download listener of the IDE - one pair for the servers of all machines.
+     */
+    synchronized void attachListeners(MavenServer server) throws RemoteException {
+        if (!myLoggerExported) {
+            myLoggerExported = UnicastRemoteObject.exportObject(myLogger, 0) != null;
+            if (!myLoggerExported) {
+                throw new RemoteException("Cannot export logger object");
+            }
+        }
+
+        if (!myDownloadListenerExported) {
+            myDownloadListenerExported = UnicastRemoteObject.exportObject(myDownloadListener, 0) != null;
+            if (!myDownloadListenerExported) {
+                throw new RemoteException("Cannot export download listener object");
+            }
+        }
+
+        server.set(myLogger, myDownloadListener);
+    }
+
+    /**
+     * The server of the machine of the project - this manager for a project of the local machine.
+     */
+    public RemoteObjectWrapper<MavenServer> getConnector(Project project) {
+        String targetId = project.getPlatformTargetId();
+        if (targetId == null || !MavenRemoteProcessSupportFactory.forProject(project).isApplicable(project)) {
+            return this;
+        }
+        return myConnectors.computeIfAbsent(targetId, id -> {
+            Sdk jdk = getSdkForRun(MavenJdkUtil.getDefaultRunLevel(getCurrentMavenVersion()), id);
+            if (jdk == null) {
+                throw new IllegalArgumentException("JDK of " + project.getPlatform().getName() + " is not found");
+            }
+            return new MavenServerConnector(project, jdk, myState.vmOptions);
+        });
+    }
+
     public synchronized void shutdown(boolean wait) {
-        mySupport.stopAll(wait);
+        if (mySupport != null) {
+            mySupport.stopAll(wait);
+            mySupport = null;
+        }
+        for (MavenServerConnector connector : myConnectors.values()) {
+            connector.shutdown(wait);
+        }
+        myConnectors.clear();
         cleanup();
     }
 
@@ -197,136 +227,17 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
     }
 
     @Nullable
-    private Sdk getSdkForRun(@Nonnull LanguageLevel languageLevel) throws ExecutionException {
+    private Sdk getSdkForRun(@Nonnull LanguageLevel languageLevel, @Nullable String platformTargetId) {
         String name = myState.jdkName;
 
         if (name != null) {
-            return SdkTable.getInstance().findSdk(name);
+            Sdk sdk = SdkTable.getInstance().findSdk(name);
+            if (sdk != null && Objects.equals(sdk.getPlatformTargetId(), platformTargetId)) {
+                return sdk;
+            }
         }
 
-        return MavenJdkUtil.findSdkOfLevel(languageLevel, null);
-    }
-
-    private RunProfileState createRunProfileState() throws ExecutionException {
-        return new CommandLineState(null) {
-            @Nonnull
-            private OwnSimpleJavaParameters createJavaParameters() throws ExecutionException {
-                OwnSimpleJavaParameters params = new OwnSimpleJavaParameters();
-
-                params.setWorkingDirectory(ContainerPathManager.get().getBinPath());
-
-                Map<String, String> defs = new HashMap<>();
-                defs.putAll(MavenUtil.getPropertiesFromMavenOpts());
-
-                // pass ssl-related options
-                for (Map.Entry<String, String> each : Platform.current().jvm().getRuntimeProperties().entrySet()) {
-                    String key = each.getKey();
-                    String value = each.getValue();
-                    if (key.startsWith("javax.net.ssl")) {
-                        defs.put(key, value);
-                    }
-                }
-
-                defs.put("java.awt.headless", "true");
-                for (Map.Entry<String, String> each : defs.entrySet()) {
-                    params.getVMParametersList().defineProperty(each.getKey(), each.getValue());
-                }
-
-                boolean xmxSet = false;
-
-                if (myState.vmOptions != null) {
-                    ParametersList mavenOptsList = new ParametersList();
-                    mavenOptsList.addParametersString(myState.vmOptions);
-
-                    for (String param : mavenOptsList.getParameters()) {
-                        if (param.startsWith("-Xmx")) {
-                            xmxSet = true;
-                        }
-
-                        params.getVMParametersList().add(param);
-                    }
-                }
-
-                String currentMavenVersion = getCurrentMavenVersion();
-
-                Sdk jdk = getSdkForRun(MavenJdkUtil.getDefaultRunLevel(currentMavenVersion));
-                if (jdk == null) {
-                    throw new IllegalArgumentException("JDK is not found");
-                }
-                params.setJdk(jdk);
-
-                // better work MavenLeakDetector
-                if (JavaSdkTypeUtil.isOfVersionOrHigher(jdk, JavaSdkVersion.JDK_1_9)) {
-                    params.getVMParametersList().add("--add-opens");
-                    params.getVMParametersList().add("java.base/java.lang=ALL-UNNAMED");
-                }
-
-                params.getVMParametersList().addProperty(MavenServerEmbedder.MAVEN_EMBEDDER_VERSION, currentMavenVersion);
-
-                List<String> classPath = new ArrayList<>();
-
-                classPath.add(ClassPathUtil.getJarPathForClass(RemoteServer.class)); // consulo-util-rmi
-                classPath.add(ClassPathUtil.getJarPathForClass(Document.class)); // jdom
-                ContainerUtil.addIfNotNull(classPath, ClassPathUtil.getJarPathForClass(Query.class));
-                params.getClassPath().addAll(classPath);
-
-                SimpleReference<String> mainClassRef = new SimpleReference<>(MAIN_CLASS_V3);
-                params.getClassPath().addAllFiles(collectClassPathAndLibsFolder(mainClassRef));
-                params.setMainClass(mainClassRef.get());
-
-                Platform platform = Platform.current();
-                String embedderXmx = platform.jvm().getRuntimeProperty("idea.maven.embedder.xmx");
-                if (embedderXmx != null) {
-                    params.getVMParametersList().add("-Xmx" + embedderXmx);
-                }
-                else {
-                    if (!xmxSet) {
-                        params.getVMParametersList().add("-Xmx512m");
-                    }
-                }
-
-                String mavenEmbedderDebugPort = platform.jvm().getRuntimeProperty("idea.maven.embedder.debug.port");
-                if (mavenEmbedderDebugPort != null) {
-                    params.getVMParametersList()
-                        .addParametersString("-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=" + mavenEmbedderDebugPort);
-                }
-
-                String mavenEmbedderParameters = platform.jvm().getRuntimeProperty("idea.maven.embedder.parameters");
-                if (mavenEmbedderParameters != null) {
-                    params.getProgramParametersList().addParametersString(mavenEmbedderParameters);
-                }
-
-                String mavenEmbedderCliOptions = platform.jvm().getRuntimeProperty(MavenServerEmbedder.MAVEN_EMBEDDER_CLI_ADDITIONAL_ARGS);
-                if (mavenEmbedderCliOptions != null) {
-                    params.getVMParametersList()
-                        .addProperty(MavenServerEmbedder.MAVEN_EMBEDDER_CLI_ADDITIONAL_ARGS, mavenEmbedderCliOptions);
-                }
-
-                return params;
-            }
-
-            @Nonnull
-            @Override
-            public ExecutionResult execute(@Nonnull Executor executor, @Nonnull ProgramRunner runner) throws ExecutionException {
-                ProcessHandler processHandler = startProcess();
-                return new DefaultExecutionResult(null, processHandler, AnAction.EMPTY_ARRAY);
-            }
-
-            @Override
-            @Nonnull
-            protected ProcessHandler startProcess() throws ExecutionException {
-                OwnSimpleJavaParameters params = createJavaParameters();
-                Sdk sdk = params.getJdk();
-                assert sdk != null : "SDK should be defined";
-
-                GeneralCommandLine commandLine = OwnJdkUtil.setupJVMCommandLine(params);
-
-                return ProcessHandlerBuilder.create(commandLine)
-                    .shouldDestroyProcessRecursively(false)
-                    .silentReader()
-                    .build();
-            }
-        };
+        return MavenJdkUtil.findSdkOfLevel(languageLevel, null, platformTargetId);
     }
 
     public static File getMavenLibDirectory() {
@@ -415,7 +326,8 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
     }
 
     public MavenEmbedderWrapper createEmbedder(final Project project, final boolean alwaysOnline) {
-        return new MavenEmbedderWrapper(this) {
+        RemoteObjectWrapper<MavenServer> connector = getConnector(project);
+        return new MavenEmbedderWrapper(connector) {
             @Nonnull
             @Override
             protected MavenServerEmbedder create() throws RemoteException {
@@ -427,7 +339,11 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
 
                 //FIXME [VISTALL] settings.setProjectJdk(MavenUtil.getSdkPath(ProjectRootManager.getInstance(project).getProjectSdk()));
 
-                return MavenServerManager.this.getOrCreateWrappee().createEmbedder(settings);
+                if (connector != MavenServerManager.this) {
+                    settings = toServerSettings(settings, project.getPlatform());
+                }
+
+                return connector.getOrCreateWrappee().createEmbedder(settings);
             }
         };
     }
@@ -486,6 +402,20 @@ public class MavenServerManager extends RemoteObjectWrapper<MavenServer> impleme
                 ? MavenServerSettings.UpdatePolicy.ALWAYS_UPDATE
                 : MavenServerSettings.UpdatePolicy.DO_NOT_UPDATE
         );
+        return result;
+    }
+
+    /**
+     * The settings of a server of another machine: the files of the IDE machine are not there - the server takes the
+     * maven home it runs with, the settings and the local repository of the user of that machine.
+     */
+    private static MavenServerSettings toServerSettings(MavenServerSettings settings, Platform platform) {
+        MavenServerSettings result = settings.clone();
+        result.setMavenHome(null);
+        result.setGlobalSettingsFile(null);
+        Path userSettings = platform.user().homePath().resolve(".m2").resolve("settings.xml");
+        result.setUserSettingsFile(Files.isRegularFile(userSettings) ? new File(userSettings.toString()) : null);
+        result.setLocalRepository(null);
         return result;
     }
 

@@ -83,7 +83,7 @@ public class MavenCommandLineState extends JavaCommandLineState implements Remot
         DefaultBuildDescriptor descriptor =
             new DefaultBuildDescriptor(taskId, LocalizeValue.of(myConfiguration.getName()), workingDir, System.currentTimeMillis());
 
-        ProcessHandler processHandler = startProcess();
+        ProcessHandler processHandler = startMavenProcess();
 
         if (MavenRunConfigurationType.isDelegate(getEnvironment())) {
             return doDelegateBuildExecute(executor, runner, taskId, descriptor, processHandler, targetFileMapper);

@@ -519,7 +519,7 @@ public class MavenExternalParameters {
         }
     }
 
-    private static String encodeProfiles(Map<String, Boolean> profiles) {
+    static String encodeProfiles(Map<String, Boolean> profiles) {
         StringBuilder stringBuilder = new StringBuilder();
         for (Map.Entry<String, Boolean> entry : profiles.entrySet()) {
             if (stringBuilder.length() != 0) {

@@ -68,7 +68,7 @@ public class DependencyNode extends BaseDependenciesNode {
     }
 
     public void updateDependency() {
-        setErrorLevel(myArtifact.isResolved() ? MavenProjectsStructure.ErrorLevel.NONE : MavenProjectsStructure.ErrorLevel.ERROR);
+        setErrorLevel(myMavenProject.isResolved(myArtifact) ? MavenProjectsStructure.ErrorLevel.NONE : MavenProjectsStructure.ErrorLevel.ERROR);
     }
 
     @Override

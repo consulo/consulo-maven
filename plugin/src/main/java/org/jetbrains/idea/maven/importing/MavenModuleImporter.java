@@ -191,7 +191,9 @@ public class MavenModuleImporter {
     ) {
         Sdk targetSdk = session.getOrCalculate(level, languageLevel -> {
             MavenRunner mavenRunner = MavenRunner.getInstance(javaMutableModuleExtension.getProject());
-            return MavenJdkUtil.findSdkOfLevel(languageLevel, mavenRunner.getState().getJreName());
+            // a bundle of the machine of the project
+            return MavenJdkUtil.findSdkOfLevel(languageLevel, mavenRunner.getState().getJreName(),
+                javaMutableModuleExtension.getProject().getPlatformTargetId());
         });
 
         javaMutableModuleExtension.getInheritableSdk().set(null, targetSdk);

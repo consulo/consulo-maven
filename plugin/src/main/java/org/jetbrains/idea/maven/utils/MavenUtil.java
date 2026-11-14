@@ -70,6 +70,8 @@ import consulo.util.lang.Pair;
 import consulo.util.lang.StringUtil;
 import consulo.virtualFileSystem.LocalFileSystem;
 import consulo.virtualFileSystem.VirtualFile;
+import consulo.virtualFileSystem.VirtualFileManager;
+import consulo.virtualFileSystem.archive.ArchiveFileSystem;
 import consulo.virtualFileSystem.archive.ArchiveVfsUtil;
 import consulo.virtualFileSystem.util.VirtualFileUtil;
 import jakarta.annotation.Nonnull;
@@ -297,7 +299,7 @@ public class MavenUtil {
     }
 
     public static List<String> collectPaths(List<VirtualFile> files) {
-        return ContainerUtil.map(files, VirtualFile::getPath);
+        return ContainerUtil.map(files, MavenUtil::getPath);
     }
 
     public static List<VirtualFile> collectFiles(Collection<MavenProject> projects) {
@@ -960,5 +962,61 @@ public class MavenUtil {
 
     public static String getEjbClientArtifactName(Module module) {
         return module.getName() + ":ejb-client";
+    }
+
+    /**
+     * The path of the file on its machine - the paths of the maven model are paths of the machine of the project, the path
+     * of a virtual file of another machine names that machine too.
+     */
+    public static String getPath(VirtualFile file) {
+        if (file.isInLocalFileSystem() || !file.isInLocalLikeFileSystem()) {
+            return file.getPath();
+        }
+        return FileUtil.toSystemIndependentName(file.toNioPath().toString());
+    }
+
+    /**
+     * The file of a path of the maven model - on the machine of {@code anchor}.
+     */
+    @Nullable
+    public static VirtualFile findFileByPath(VirtualFile anchor, String path) {
+        if (anchor.isInLocalFileSystem() || !anchor.isInLocalLikeFileSystem()) {
+            return LocalFileSystem.getInstance().findFileByPath(path);
+        }
+        return VirtualFileManager.getInstance().findFileByNioPath(anchor.toNioPath().getFileSystem().getPath(path));
+    }
+
+    /**
+     * A path of the maven model as a path of the machine of {@code anchor}.
+     */
+    public static java.nio.file.Path toNioPath(VirtualFile anchor, String path) {
+        if (anchor.isInLocalFileSystem() || !anchor.isInLocalLikeFileSystem()) {
+            return java.nio.file.Path.of(path);
+        }
+        return anchor.toNioPath().getFileSystem().getPath(path);
+    }
+
+    /**
+     * The url of the root of an archive of the maven model (a jar of a repository) - on the machine of {@code anchor}.
+     */
+    public static String toArchiveRootUrl(VirtualFile anchor, String archiveProtocol, String path) {
+        if (!anchor.isInLocalFileSystem() && anchor.isInLocalLikeFileSystem()) {
+            String url = ArchiveVfsUtil.getArchiveRootUrl(archiveProtocol, toNioPath(anchor, path));
+            if (url != null) {
+                return url;
+            }
+        }
+        return VirtualFileManager.constructUrl(archiveProtocol, path) + ArchiveFileSystem.ARCHIVE_SEPARATOR;
+    }
+
+    /**
+     * The url of a path of the maven model - on the machine of {@code anchor}.
+     */
+    public static String toUrl(VirtualFile anchor, String path) {
+        if (anchor.isInLocalFileSystem() || !anchor.isInLocalLikeFileSystem()) {
+            return VirtualFileUtil.pathToUrl(path);
+        }
+        String url = VirtualFileManager.getInstance().getUrl(anchor.toNioPath().getFileSystem().getPath(path));
+        return url != null ? url : VirtualFileUtil.pathToUrl(path);
     }
 }

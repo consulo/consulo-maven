@@ -27,8 +27,10 @@ import consulo.util.lang.Comparing;
 import consulo.util.lang.Couple;
 import consulo.util.lang.Pair;
 import consulo.util.lang.StringUtil;
+import consulo.util.io.URLUtil;
 import consulo.virtualFileSystem.LocalFileSystem;
 import consulo.virtualFileSystem.VirtualFile;
+import consulo.virtualFileSystem.VirtualFileManager;
 import org.jdom.Element;
 import org.jetbrains.idea.maven.buildtool.MavenSyncConsole;
 import org.jetbrains.idea.maven.importing.MavenExtraArtifactType;
@@ -42,6 +44,7 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -69,7 +72,9 @@ public class MavenProject {
 
         // should read full byte content first!!!
 
-        VirtualFile file = LocalFileSystem.getInstance().findFileByPath(path);
+        VirtualFile file = path.contains(URLUtil.SCHEME_SEPARATOR)
+            ? VirtualFileManager.getInstance().findFileByUrl(path)
+            : LocalFileSystem.getInstance().findFileByPath(path);
         if (file == null) {
             return null;
         }
@@ -93,7 +98,8 @@ public class MavenProject {
     }
 
     public void write(@Nonnull DataOutputStream out) throws IOException {
-        out.writeUTF(getPath());
+        // the url names the machine of the file too
+        out.writeUTF(myFile.getUrl());
 
         BufferExposingByteArrayOutputStream bs = new BufferExposingByteArrayOutputStream();
         try (ObjectOutputStream os = new ObjectOutputStream(bs)) {
@@ -294,12 +300,12 @@ public class MavenProject {
 
     @Nonnull
     public String getPath() {
-        return myFile.getPath();
+        return MavenUtil.getPath(myFile);
     }
 
     @Nonnull
     public String getDirectory() {
-        return myFile.getParent().getPath();
+        return MavenUtil.getPath(myFile.getParent());
     }
 
     @Nonnull
@@ -734,7 +740,7 @@ public class MavenProject {
         result.addAll(state.myReadingProblems);
 
         for (Map.Entry<String, String> each : state.myModulesPathsAndNames.entrySet()) {
-            if (LocalFileSystem.getInstance().findFileByPath(each.getKey()) == null) {
+            if (MavenUtil.findFileByPath(file, each.getKey()) == null) {
                 result.add(createDependencyProblem(file, MavenProjectLocalize.mavenProjectProblemModulenotfound(each.getValue()).get()));
             }
         }
@@ -753,7 +759,7 @@ public class MavenProject {
     }
 
     private static void validateDependencies(VirtualFile file, State state, List<MavenProjectProblem> result) {
-        for (MavenArtifact each : getUnresolvedDependencies(state)) {
+        for (MavenArtifact each : getUnresolvedDependencies(file, state)) {
             result.add(createDependencyProblem(
                 file,
                 MavenProjectLocalize.mavenProjectProblemUnresolveddependency(each.getDisplayStringWithType()).get()
@@ -784,12 +790,12 @@ public class MavenProject {
         return !state.myUnresolvedArtifactIds.contains(state.myParentId);
     }
 
-    private static List<MavenArtifact> getUnresolvedDependencies(State state) {
+    private static List<MavenArtifact> getUnresolvedDependencies(VirtualFile file, State state) {
         synchronized (state) {
             if (state.myUnresolvedDependenciesCache == null) {
                 List<MavenArtifact> result = new ArrayList<>();
                 for (MavenArtifact each : state.myDependencies) {
-                    if (!each.isResolved()) {
+                    if (!isResolved(file, each)) {
                         result.add(each);
                     }
                 }
@@ -838,12 +844,10 @@ public class MavenProject {
 
     @Nonnull
     public List<VirtualFile> getExistingModuleFiles() {
-        LocalFileSystem fs = LocalFileSystem.getInstance();
-
         List<VirtualFile> result = new ArrayList<>();
         Set<String> pathsInStack = getModulePaths();
         for (String each : pathsInStack) {
-            VirtualFile f = fs.findFileByPath(each);
+            VirtualFile f = MavenUtil.findFileByPath(myFile, each);
             if (f != null) {
                 result.add(f);
             }
@@ -949,7 +953,18 @@ public class MavenProject {
 
     public boolean hasUnresolvedArtifacts() {
         State state = myState;
-        return !isParentResolved(state) || !getUnresolvedDependencies(state).isEmpty() || !getUnresolvedExtensions(state).isEmpty();
+        return !isParentResolved(state) || !getUnresolvedDependencies(myFile, state).isEmpty() || !getUnresolvedExtensions(state).isEmpty();
+    }
+
+    /**
+     * Whether the artifact is in the repository of the machine of the project.
+     */
+    public boolean isResolved(MavenArtifact artifact) {
+        return isResolved(myFile, artifact);
+    }
+
+    private static boolean isResolved(VirtualFile anchor, MavenArtifact artifact) {
+        return artifact.isResolved(file -> Files.exists(MavenUtil.toNioPath(anchor, file.getPath())));
     }
 
     public boolean hasUnresolvedPlugins() {

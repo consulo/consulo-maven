@@ -34,6 +34,7 @@ import consulo.maven.rt.server.common.server.NativeMavenProjectHolder;
 import consulo.module.Module;
 import consulo.module.content.ModuleRootManager;
 import consulo.module.content.ProjectRootManager;
+import consulo.platform.Platform;
 import consulo.project.Project;
 import consulo.project.startup.StartupManager;
 import consulo.project.ui.notification.NotificationGroup;
@@ -256,6 +257,11 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
 
         if (myProjectsTree == null) {
             myProjectsTree = new MavenProjectsTree();
+        }
+        // the managed files are files of the machine of the project
+        Platform platform = myProject.getPlatform();
+        if (platform != Platform.current()) {
+            myProjectsTree.setFileSystem(platform.fs().getPath("/").getFileSystem());
         }
         applyStateToTree();
         myProjectsTree.addListener(myProjectsTreeDispatcher.getMulticaster());

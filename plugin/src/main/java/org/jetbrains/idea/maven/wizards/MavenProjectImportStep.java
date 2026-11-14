@@ -37,7 +37,11 @@ import org.jetbrains.idea.maven.project.MavenEnvironmentForm;
 import org.jetbrains.idea.maven.project.MavenGeneralSettings;
 import org.jetbrains.idea.maven.project.MavenImportingSettings;
 import org.jetbrains.idea.maven.project.MavenImportingSettingsForm;
+import org.jetbrains.idea.maven.utils.MavenUtil;
 import org.jspecify.annotations.Nullable;
+
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 
 public class MavenProjectImportStep implements WizardStep<MavenImportModuleContext> {
     private final MavenImportingSettingsForm myImportingSettingsForm;
@@ -98,7 +102,7 @@ public class MavenProjectImportStep implements WizardStep<MavenImportModuleConte
 
         String path;
         if (rootDirectory != null) {
-            path = rootDirectory.getPath();
+            path = MavenUtil.getPath(rootDirectory);
         }
         else {
             path = myContext.getPath();
@@ -108,6 +112,9 @@ public class MavenProjectImportStep implements WizardStep<MavenImportModuleConte
 
         FileChooserTextBoxBuilder.Controller rootPathController = myRootPathController;
         if (rootPathController != null) {
+            // the root is a path of the machine of the imported project
+            FileSystem fileSystem = myContext.getNioPath().getFileSystem();
+            rootPathController.setFileSystem(fileSystem == FileSystems.getDefault() ? null : fileSystem);
             rootPathController.setValue(myRootPath);
         }
 

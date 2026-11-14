@@ -45,11 +45,15 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
+import org.jetbrains.idea.maven.utils.MavenUtil;
 import org.jetbrains.idea.maven.utils.Path;
 import org.jetbrains.idea.maven.utils.Url;
 import org.jetbrains.idea.maven.utils.library.RepositoryLibraryProperties;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.util.stream.Stream;
 
 public class MavenRootModelAdapter {
     private final MavenProject myMavenProject;
@@ -136,8 +140,12 @@ public class MavenRootModelAdapter {
 
     public void addSourceFolder(String path, ContentFolderTypeProvider contentFolderTypeProvider, boolean ifNotEmpty, boolean generated) {
         if (ifNotEmpty) {
-            String[] childs = new File(toPath(path).getPath()).list();
-            if (childs == null || childs.length == 0) {
+            try (Stream<java.nio.file.Path> children = Files.list(MavenUtil.toNioPath(myMavenProject.getFile(), toPath(path).getPath()))) {
+                if (children.findAny().isEmpty()) {
+                    return;
+                }
+            }
+            catch (IOException e) {
                 return;
             }
         }
@@ -189,7 +197,7 @@ public class MavenRootModelAdapter {
     }
 
     private boolean exists(String path) {
-        return new File(toPath(path).getPath()).exists();
+        return Files.exists(MavenUtil.toNioPath(myMavenProject.getFile(), toPath(path).getPath()));
     }
 
     public void addExcludedFolder(String path) {
@@ -276,7 +284,8 @@ public class MavenRootModelAdapter {
     }
 
     private Url toUrl(String path) {
-        return toPath(path).toUrl();
+        // a url of the machine of the project
+        return new Url(MavenUtil.toUrl(myMavenProject.getFile(), toPath(path).getPath()));
     }
 
     public Path toPath(String path) {
@@ -323,7 +332,7 @@ public class MavenRootModelAdapter {
         orderEntry.setScope(scope);
 
         Library.ModifiableModel modifiableModel = library.getModifiableModel();
-        updateUrl(modifiableModel, BinariesOrderRootType.ID, artifact, null, null, true);
+        updateUrl(modifiableModel, BinariesOrderRootType.ID, artifact, null, myMavenProject, true);
         modifiableModel.commit();
     }
 
@@ -342,7 +351,7 @@ public class MavenRootModelAdapter {
         }
         Library.ModifiableModel libraryModel = provider.getLibraryModel(library);
 
-        updateUrl(libraryModel, BinariesOrderRootType.ID, artifact, null, null, true);
+        updateUrl(libraryModel, BinariesOrderRootType.ID, artifact, null, project, true);
         updateUrl(libraryModel, SourcesOrderRootType.ID, artifact, MavenExtraArtifactType.SOURCES, project, false);
         updateUrl(libraryModel, DocumentationOrderRootType.ID, artifact, MavenExtraArtifactType.DOCS, project, false);
 
@@ -362,7 +371,8 @@ public class MavenRootModelAdapter {
 
 
         String newPath = artifact.getPathForExtraArtifact(classifier, extension);
-        String newUrl = VirtualFileManager.constructUrl(JarArchiveFileType.INSTANCE.getProtocol(), newPath) + ArchiveFileSystem.ARCHIVE_SEPARATOR;
+        // a jar of the repository of the machine of the project
+        String newUrl = MavenUtil.toArchiveRootUrl(project.getFile(), JarArchiveFileType.INSTANCE.getProtocol(), newPath);
 
         boolean urlExists = false;
 

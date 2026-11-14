@@ -11,8 +11,8 @@ import consulo.maven.rt.server.common.model.MavenExplicitProfiles;
 import consulo.module.creation.importing.ModuleImportContext;
 import consulo.project.Project;
 import consulo.project.ProjectManager;
-import consulo.virtualFileSystem.LocalFileSystem;
 import consulo.virtualFileSystem.VirtualFile;
+import consulo.virtualFileSystem.VirtualFileManager;
 import org.jetbrains.idea.maven.localize.MavenProjectLocalize;
 import org.jetbrains.idea.maven.project.*;
 import org.jetbrains.idea.maven.utils.*;
@@ -54,7 +54,7 @@ public class MavenImportModuleContext extends ModuleImportContext {
 
     @Override
     public void setFileToImport(String path) {
-        VirtualFile file = LocalFileSystem.getInstance().refreshAndFindFileByPath(path);
+        VirtualFile file = VirtualFileManager.getInstance().refreshAndFindFileByNioPath(toNioPath(path));
         myImportRoot = file == null || file.isDirectory() ? file : file.getParent();
     }
 
@@ -144,7 +144,7 @@ public class MavenImportModuleContext extends ModuleImportContext {
         boolean finished = runConfigurationProcess(indicator -> {
             indicator.setText(MavenProjectLocalize.mavenLocatingFiles());
 
-            myImportRoot = LocalFileSystem.getInstance().refreshAndFindFileByPath(rootPath);
+            myImportRoot = VirtualFileManager.getInstance().refreshAndFindFileByNioPath(toNioPath(rootPath));
             if (myImportRoot == null) {
                 throw new MavenProcessCanceledException();
             }

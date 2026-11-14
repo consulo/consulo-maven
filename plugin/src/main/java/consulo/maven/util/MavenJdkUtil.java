@@ -11,6 +11,7 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author VISTALL
@@ -37,10 +38,18 @@ public class MavenJdkUtil {
 
     @Nullable
     public static Sdk findSdkOfLevel(@Nonnull LanguageLevel languageLevel, @Nullable String runtimeJdkName) {
+        return findSdkOfLevel(languageLevel, runtimeJdkName, null);
+    }
+
+    /**
+     * @param platformTargetId the machine of the bundle - {@code null} for the local one
+     */
+    @Nullable
+    public static Sdk findSdkOfLevel(@Nonnull LanguageLevel languageLevel, @Nullable String runtimeJdkName, @Nullable String platformTargetId) {
         SdkTable sdkTable = SdkTable.getInstance();
         if (runtimeJdkName != null) {
             Sdk sdk = sdkTable.findSdk(runtimeJdkName);
-            if (sdk != null) {
+            if (sdk != null && Objects.equals(sdk.getPlatformTargetId(), platformTargetId)) {
                 JavaSdkVersion version = JavaSdkTypeUtil.getVersion(sdk);
                 if (version != null && version.getMaxLanguageLevel().isAtLeast(languageLevel)) {
                     return sdk;
@@ -48,7 +57,7 @@ public class MavenJdkUtil {
             }
         }
 
-        List<Sdk> list = JavaSdkTypeUtil.getAllJavaSdks();
+        List<Sdk> list = ContainerUtil.filter(JavaSdkTypeUtil.getAllJavaSdks(), sdk -> Objects.equals(sdk.getPlatformTargetId(), platformTargetId));
         ContainerUtil.weightSort(list, sdk ->
         {
             JavaSdkVersion version = JavaSdkTypeUtil.getVersion(sdk);

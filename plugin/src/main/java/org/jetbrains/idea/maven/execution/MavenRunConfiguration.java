@@ -111,6 +111,10 @@ public class MavenRunConfiguration extends LocatableConfigurationBase implements
 
     @Override
     public RunProfileState getState(@Nonnull Executor executor, @Nonnull ExecutionEnvironment env) throws ExecutionException {
+        // a project of another machine runs the mvn script there
+        if (getProject().getPlatformTargetId() != null) {
+            return new MavenShCommandLineState(env, this);
+        }
         return new MavenCommandLineState(env, this);
     }
 

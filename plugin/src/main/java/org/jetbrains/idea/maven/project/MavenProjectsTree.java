@@ -35,6 +35,7 @@ import consulo.util.lang.Pair;
 import consulo.virtualFileSystem.LocalFileSystem;
 import consulo.virtualFileSystem.RefreshQueue;
 import consulo.virtualFileSystem.VirtualFile;
+import consulo.virtualFileSystem.VirtualFileManager;
 import org.jdom.Element;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
@@ -49,6 +50,8 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import consulo.application.util.concurrent.AppExecutorUtil;
 
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -71,6 +74,8 @@ public class MavenProjectsTree {
 
     // TODO replace with sets
     private volatile Set<String> myManagedFilesPaths = new LinkedHashSet<>();
+    // the machine of the managed files - their paths are paths of it
+    private volatile FileSystem myFileSystem = FileSystems.getDefault();
     private volatile List<String> myIgnoredFilesPaths = new ArrayList<>();
     private volatile List<String> myIgnoredFilesPatterns = new ArrayList<>();
     private volatile Pattern myIgnoredFilesPatternsCache;
@@ -207,7 +212,17 @@ public class MavenProjectsTree {
         resetManagedFilesPathsAndProfiles(MavenUtil.collectPaths(files), profiles);
     }
 
+    /**
+     * The machine of the managed files - the one of the project.
+     */
+    public void setFileSystem(FileSystem fileSystem) {
+        myFileSystem = fileSystem;
+    }
+
     public void addManagedFilesWithProfiles(List<VirtualFile> files, MavenExplicitProfiles profiles) {
+        if (!files.isEmpty() && files.get(0).isInLocalLikeFileSystem() && !files.get(0).isInLocalFileSystem()) {
+            myFileSystem = files.get(0).toNioPath().getFileSystem();
+        }
         List<String> newFiles;
         MavenExplicitProfiles newProfiles;
         synchronized (myStateLock) {
@@ -231,7 +246,10 @@ public class MavenProjectsTree {
     public List<VirtualFile> getExistingManagedFiles() {
         List<VirtualFile> result = new ArrayList<>();
         for (String path : getManagedFilesPaths()) {
-            VirtualFile f = LocalFileSystem.getInstance().refreshAndFindFileByPath(path);
+            FileSystem fileSystem = myFileSystem;
+            VirtualFile f = fileSystem == FileSystems.getDefault()
+                ? LocalFileSystem.getInstance().refreshAndFindFileByPath(path)
+                : VirtualFileManager.getInstance().refreshAndFindFileByNioPath(fileSystem.getPath(path));
             if (f != null) {
                 result.add(f);
             }

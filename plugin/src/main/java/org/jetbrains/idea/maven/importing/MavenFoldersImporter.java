@@ -32,13 +32,17 @@ import consulo.util.collection.MultiMap;
 import consulo.util.concurrent.coroutine.Coroutine;
 import consulo.util.io.FileUtil;
 import jakarta.annotation.Nonnull;
+import org.jetbrains.idea.maven.utils.MavenUtil;
 import org.jetbrains.idea.maven.project.MavenImportingSettings;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.utils.Path;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.*;
+import java.util.stream.Stream;
 
 public class MavenFoldersImporter {
     private record PathWithGenerated(Path path, ContentFolderTypeProvider type, boolean generated) {
@@ -212,13 +216,10 @@ public class MavenFoldersImporter {
                 true);
         }
 
-        File[] targetChildren = targetDir.listFiles();
+        File[] targetChildren = getChildDirectories(targetDir);
 
-        if (targetChildren != null) {
+        if (targetChildren.length > 0) {
             for (File f : targetChildren) {
-                if (!f.isDirectory()) {
-                    continue;
-                }
 
                 if (FileUtil.pathsEqual(generatedDir, f.getPath())) {
                     configGeneratedSourceFolder(importers, f, ProductionContentFolderTypeProvider.getInstance());
@@ -277,11 +278,7 @@ public class MavenFoldersImporter {
                                         @Nonnull File dir,
                                         @Nonnull ContentFolderTypeProvider typeProvider,
                                         boolean generated) {
-        for (File f : getChildren(dir)) {
-            if (!f.isDirectory()) {
-                continue;
-            }
-
+        for (File f : getChildDirectories(dir)) {
             if (isExcludeGenerationSourceFolder(importers, f, typeProvider)) {
                 continue;
             }
@@ -303,8 +300,17 @@ public class MavenFoldersImporter {
         return false;
     }
 
-    private static File[] getChildren(File dir) {
-        File[] result = dir.listFiles();
-        return result == null ? ArrayUtil.EMPTY_FILE_ARRAY : result;
+    /**
+     * The directories of a directory of the machine of the project - the files hold their paths there.
+     */
+    private File[] getChildDirectories(File dir) {
+        try (Stream<java.nio.file.Path> children = Files.list(MavenUtil.toNioPath(myMavenProject.getFile(), dir.getPath()))) {
+            return children.filter(Files::isDirectory)
+                .map(child -> new File(FileUtil.toSystemIndependentName(child.toString())))
+                .toArray(File[]::new);
+        }
+        catch (IOException e) {
+            return ArrayUtil.EMPTY_FILE_ARRAY;
+        }
     }
 }
