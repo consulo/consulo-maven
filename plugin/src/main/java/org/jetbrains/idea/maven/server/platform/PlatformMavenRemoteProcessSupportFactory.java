@@ -25,7 +25,7 @@ import org.jetbrains.idea.maven.server.MavenRemoteProcessSupportFactory;
 import org.jspecify.annotations.Nullable;
 
 /**
- * The maven server of a project of another machine runs on that machine (JetBrains: {@code EelMavenRemoteProcessSupportFactory}).
+ * The maven server of a project of another machine runs on that machine.
  */
 @ExtensionImpl
 public class PlatformMavenRemoteProcessSupportFactory implements MavenRemoteProcessSupportFactory {

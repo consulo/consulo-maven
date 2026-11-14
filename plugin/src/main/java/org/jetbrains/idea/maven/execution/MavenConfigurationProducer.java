@@ -30,6 +30,7 @@ import consulo.maven.rt.server.common.model.MavenExplicitProfiles;
 import consulo.virtualFileSystem.VirtualFile;
 import jakarta.annotation.Nonnull;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
+import org.jetbrains.idea.maven.utils.MavenUtil;
 
 import java.util.List;
 
@@ -79,7 +80,7 @@ public class MavenConfigurationProducer extends RuntimeConfigurationProducer {
             List<String> goals = mavenGoalLocation.getGoals();
             MavenExplicitProfiles profiles = MavenProjectsManager.getInstance(l.getProject()).getExplicitProfiles();
 
-            return new MavenRunnerParameters(true, f.getParent().getPath(), goals, profiles);
+            return new MavenRunnerParameters(true, MavenUtil.getPath(f.getParent()), goals, profiles);
         }
         return null;
     }

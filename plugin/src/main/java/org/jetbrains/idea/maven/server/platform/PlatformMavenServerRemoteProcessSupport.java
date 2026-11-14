@@ -53,7 +53,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * The maven server on the machine of the project (JetBrains: {@code EelMavenServerRemoteProcessSupport}): the classpath is
+ * The maven server on the machine of the project: the classpath is
  * transferred to that machine, the ports of the server are forwarded to the same ports of the IDE machine, the port of the
  * objects the IDE exports (the dead hand, the listeners of the server) is published back on that machine.
  */
@@ -166,7 +166,7 @@ public class PlatformMavenServerRemoteProcessSupport extends AbstractMavenServer
     }
 
     /**
-     * {@code java} of the bundle of the machine, with the classpath transferred to it (JetBrains: {@code EelMavenCmdState}).
+     * {@code java} of the bundle of the machine, with the classpath transferred to it.
      */
     private class PlatformMavenCmdState extends MavenServerCMDState {
         PlatformMavenCmdState(Sdk jdk, @Nullable String vmOptions, @Nullable Integer debugPort) {

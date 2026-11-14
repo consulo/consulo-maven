@@ -18,45 +18,88 @@
  */
 package org.jetbrains.idea.maven.execution;
 
+import com.intellij.java.execution.configurations.RemoteConnection;
 import consulo.application.platform.PlatformTransfer;
 import consulo.container.plugin.PluginManager;
 import consulo.content.bundle.Sdk;
 import consulo.content.bundle.SdkTable;
 import consulo.execution.runner.ExecutionEnvironment;
 import consulo.maven.util.MavenJdkUtil;
+import consulo.platform.ForwardedPort;
 import consulo.platform.Platform;
+import consulo.process.CommandLineUtil;
 import consulo.process.ExecutionException;
 import consulo.process.ProcessHandler;
 import consulo.process.ProcessHandlerBuilder;
+import consulo.process.event.ProcessEvent;
+import consulo.process.event.ProcessListener;
 import consulo.process.cmd.GeneralCommandLine;
 import consulo.process.cmd.ParametersList;
 import consulo.project.Project;
+import consulo.util.io.URLUtil;
 import consulo.util.lang.StringUtil;
+import consulo.virtualFileSystem.StandardFileSystems;
+import consulo.virtualFileSystem.VirtualFile;
+import consulo.virtualFileSystem.VirtualFileManager;
 import org.jetbrains.idea.maven.localize.MavenRunnerLocalize;
 import org.jetbrains.idea.maven.project.MavenGeneralSettings;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.server.MavenServerManager;
+import org.jetbrains.idea.maven.utils.MavenLog;
 import org.jetbrains.idea.maven.utils.MavenUtil;
+import org.jspecify.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Random;
+import java.util.stream.Collectors;
 
 /**
  * Runs the goals with the {@code mvn} script of the maven distribution through a shell of the machine of the project
- * (JetBrains: {@code MavenShCommandLineState}) - the distribution and the event listener are transferred to that machine.
+ * - the distribution and the event listener are transferred to that machine.
  */
 public class MavenShCommandLineState extends MavenCommandLineState {
     private final MavenRunConfiguration myConfiguration;
+    // the agent of a debugged maven and its port forwarded to the IDE machine
+    private @Nullable String myDebugAgent;
+    private @Nullable ForwardedPort myDebugPort;
 
     public MavenShCommandLineState(ExecutionEnvironment environment, MavenRunConfiguration configuration) {
         super(environment, configuration);
         myConfiguration = configuration;
+    }
+
+    /**
+     * The maven JVM listens on a port of the machine of the project - the debugger attaches through a forwarded port.
+     */
+    @Override
+    public @Nullable RemoteConnection createRemoteConnection(ExecutionEnvironment environment) {
+        Platform platform = myConfiguration.getProject().getPlatform();
+        // a port of the machine of the project - free ports of this machine say nothing about it
+        int port = 30000 + new Random().nextInt(20000);
+        try {
+            myDebugPort = platform.net().forward("127.0.0.1", port);
+        }
+        catch (IOException e) {
+            MavenLog.LOG.warn("Cannot forward the debug port of maven: " + e.getMessage());
+            return null;
+        }
+        myDebugAgent = "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=127.0.0.1:" + port;
+        return new RemoteConnection(true, myDebugPort.host(), String.valueOf(myDebugPort.port()), false);
+    }
+
+    @Override
+    public boolean isPollConnection() {
+        return true;
     }
 
     @Override
@@ -68,12 +111,16 @@ public class MavenShCommandLineState extends MavenCommandLineState {
         GeneralCommandLine commandLine = new GeneralCommandLine();
         commandLine.withPlatform(platform);
         commandLine.withCharset(StandardCharsets.UTF_8);
-        commandLine.withWorkingDirectory(platform.fs().getPath(myConfiguration.getRunnerParameters().getWorkingDirPath()));
+        commandLine.withWorkingDirectory(getWorkingDirectory(platform));
         commandLine.withExePath(windows ? "cmd.exe" : "/bin/sh");
         if (windows) {
+            // cmd.exe handles the quotes of its command line badly - the parameters go to a script
             commandLine.addParameter("/c");
+            commandLine.addParameter(writeParamsToBat(collectArguments(platform), platform));
         }
-        commandLine.addParameters(collectArguments(platform).getList());
+        else {
+            commandLine.addParameters(collectArguments(platform).getList());
+        }
         commandLine.withEnvironment(getEnv(platform));
 
         ProcessHandler handler = ProcessHandlerBuilder.create(commandLine)
@@ -82,7 +129,70 @@ public class MavenShCommandLineState extends MavenCommandLineState {
             .shouldDestroyProcessRecursively(true)
             .build();
         setupProcessHandler(handler);
+        ForwardedPort debugPort = myDebugPort;
+        if (debugPort != null) {
+            handler.addProcessListener(new ProcessListener() {
+                @Override
+                public void processTerminated(ProcessEvent event) {
+                    debugPort.close();
+                }
+            });
+        }
         return handler;
+    }
+
+    /**
+     * A {@code .bat} of the parameters on the machine of the project:
+     * a {@code -D} value with spaces goes through an environment variable of the script.
+     *
+     * @return the path of the script on that machine
+     */
+    private static String writeParamsToBat(ParametersList params, Platform platform) throws ExecutionException {
+        StringBuilder tmpData = new StringBuilder();
+        Map<String, String> mapEnv = new LinkedHashMap<>();
+        List<String> batParams = new ArrayList<>();
+
+        int counter = 0;
+        for (String param : params.getList()) {
+            if (param.startsWith("-D") && param.contains(" ")) {
+                int eqIndex = param.indexOf('=');
+                if (eqIndex == -1 || eqIndex == param.length() - 1) {
+                    batParams.add(param);
+                }
+                else {
+                    String varName = "IDEA_MVN_TMP_" + ++counter;
+                    String paramValue = param.substring(eqIndex + 1);
+                    String paramName = param.substring(2, eqIndex);
+                    mapEnv.put(varName, paramValue.replace("%", "%%"));
+                    batParams.add("-D" + paramName + "=%" + varName + "%");
+                }
+            }
+            else {
+                batParams.add(param);
+            }
+        }
+
+        mapEnv.forEach((name, value) -> tmpData.append("@set ").append(name).append("=").append(value).append("\r\n"));
+        if (tmpData.length() > 0) {
+            tmpData.append("\r\n");
+        }
+        tmpData.append("@").append(batParams.stream()
+            .map(param -> CommandLineUtil.escapeParameterOnWindows(param, true))
+            .collect(Collectors.joining(" ")));
+
+        try {
+            Path tmpBat = Files.createTempFile("mvn-idea-exec", ".bat");
+            try {
+                Files.writeString(tmpBat, tmpData.toString());
+                return transfer(tmpBat, platform).toString();
+            }
+            finally {
+                Files.deleteIfExists(tmpBat);
+            }
+        }
+        catch (IOException e) {
+            throw new ExecutionException("Cannot write the maven script: " + e.getMessage(), e);
+        }
     }
 
     private MavenRunnerSettings getMavenRunnerSettings() {
@@ -93,6 +203,22 @@ public class MavenShCommandLineState extends MavenCommandLineState {
     private MavenGeneralSettings getMavenGeneralSettings() {
         MavenGeneralSettings settings = myConfiguration.getGeneralSettings();
         return settings != null ? settings : MavenProjectsManager.getInstance(myConfiguration.getProject()).getGeneralSettings();
+    }
+
+    /**
+     * The working directory on the machine of the project - a configuration of an older version may hold the path of the
+     * virtual file system ({@code <platform id>/path}).
+     */
+    private Path getWorkingDirectory(Platform platform) {
+        String path = myConfiguration.getRunnerParameters().getWorkingDirPath();
+        Path directory = platform.fs().getPath(path);
+        if (!directory.isAbsolute()) {
+            VirtualFile file = VirtualFileManager.getInstance().findFileByUrl(StandardFileSystems.PLATFORM_PROTOCOL + URLUtil.SCHEME_SEPARATOR + path);
+            if (file != null && file.isInLocalLikeFileSystem()) {
+                return file.toNioPath();
+            }
+        }
+        return directory;
     }
 
     private ParametersList collectArguments(Platform platform) throws ExecutionException {
@@ -207,6 +333,9 @@ public class MavenShCommandLineState extends MavenCommandLineState {
                 optsBuilder.append(' ');
             }
             optsBuilder.append("-Dfile.encoding=UTF-8");
+        }
+        if (myDebugAgent != null) {
+            optsBuilder.append(' ').append(myDebugAgent);
         }
         map.put("MAVEN_OPTS", optsBuilder.toString());
         map.putAll(runnerSettings.getEnvironmentProperties());

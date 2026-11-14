@@ -36,6 +36,7 @@ import org.jetbrains.idea.maven.localize.MavenTasksLocalize;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.utils.MavenSimpleProjectComponent;
+import org.jetbrains.idea.maven.utils.MavenUtil;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -103,7 +104,7 @@ public class MavenTasksManager extends MavenSimpleProjectComponent implements Pe
                 }
                 parametersList.add(new MavenRunnerParameters(
                     true,
-                    file.getParent().getPath(),
+                    MavenUtil.getPath(file.getParent()),
                     Arrays.asList(each.getGoal()),
                     myProjectsManager.getExplicitProfiles()
                 ));

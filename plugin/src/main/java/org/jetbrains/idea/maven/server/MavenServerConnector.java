@@ -24,7 +24,7 @@ import java.rmi.RemoteException;
 
 /**
  * The maven server of the machine of a project - started by the {@link MavenRemoteProcessSupportFactory} applicable to
- * the project (JetBrains: {@code MavenServerConnectorImpl}).
+ * the project.
  */
 public class MavenServerConnector extends RemoteObjectWrapper<MavenServer> {
     private final Project myProject;
