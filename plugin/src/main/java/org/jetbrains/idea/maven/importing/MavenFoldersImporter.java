@@ -27,7 +27,6 @@ import consulo.module.ModuleManager;
 import consulo.module.content.ModifiableModelCommitter;
 import consulo.module.content.layer.ModifiableRootModel;
 import consulo.project.Project;
-import consulo.util.collection.ArrayUtil;
 import consulo.util.collection.MultiMap;
 import consulo.util.concurrent.coroutine.Coroutine;
 import consulo.util.io.FileUtil;
@@ -39,10 +38,7 @@ import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.utils.Path;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.util.*;
-import java.util.stream.Stream;
 
 public class MavenFoldersImporter {
     private record PathWithGenerated(Path path, ContentFolderTypeProvider type, boolean generated) {
@@ -304,13 +300,6 @@ public class MavenFoldersImporter {
      * The directories of a directory of the machine of the project - the files hold their paths there.
      */
     private File[] getChildDirectories(File dir) {
-        try (Stream<java.nio.file.Path> children = Files.list(MavenUtil.toNioPath(myMavenProject.getFile(), dir.getPath()))) {
-            return children.filter(Files::isDirectory)
-                .map(child -> new File(FileUtil.toSystemIndependentName(child.toString())))
-                .toArray(File[]::new);
-        }
-        catch (IOException e) {
-            return ArrayUtil.EMPTY_FILE_ARRAY;
-        }
+        return MavenUtil.listDirectories(myMavenProject.getFile(), dir.getPath());
     }
 }

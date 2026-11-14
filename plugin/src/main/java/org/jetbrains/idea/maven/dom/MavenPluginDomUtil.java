@@ -21,7 +21,6 @@ import consulo.maven.rt.server.common.model.MavenId;
 import consulo.maven.rt.server.common.model.MavenPlugin;
 import consulo.project.Project;
 import consulo.util.lang.StringUtil;
-import consulo.virtualFileSystem.LocalFileSystem;
 import consulo.virtualFileSystem.VirtualFile;
 import consulo.virtualFileSystem.archive.ArchiveVfsUtil;
 import consulo.xml.dom.DomElement;
@@ -33,6 +32,7 @@ import org.jetbrains.idea.maven.dom.plugin.MavenDomPluginModel;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.utils.MavenArtifactUtil;
+import org.jetbrains.idea.maven.utils.MavenUtil;
 
 import jakarta.annotation.Nonnull;
 
@@ -129,7 +129,7 @@ public class MavenPluginDomUtil {
             version,
             "jar"
         );
-        VirtualFile pluginFile = LocalFileSystem.getInstance().findFileByIoFile(file);
+        VirtualFile pluginFile = MavenUtil.findRepositoryFile(project, file);
         if (pluginFile == null) {
             return null;
         }

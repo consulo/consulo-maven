@@ -17,6 +17,8 @@ package org.jetbrains.idea.maven.utils;
 
 import consulo.annotation.access.RequiredReadAction;
 import consulo.application.Application;
+import consulo.application.platform.PlatformTarget;
+import consulo.application.platform.PlatformTargetManager;
 import consulo.application.progress.ProgressIndicator;
 import consulo.application.progress.ProgressManager;
 import consulo.application.progress.Task;
@@ -77,6 +79,7 @@ import consulo.virtualFileSystem.util.VirtualFileUtil;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.jetbrains.idea.maven.localize.MavenLocalize;
+import org.jetbrains.idea.maven.project.MavenGeneralSettings;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.server.MavenServerManager;
@@ -92,12 +95,14 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+import java.util.stream.Stream;
 import java.util.zip.CRC32;
 
 public class MavenUtil {
@@ -770,7 +775,7 @@ public class MavenUtil {
 
         for (MavenProject mavenProject : manager.getProjects()) {
             for (MavenPlugin plugin : mavenProject.getPlugins()) {
-                MavenPluginInfo pluginInfo = MavenArtifactUtil.readPluginInfo(manager.getLocalRepository(), plugin.getMavenId());
+                MavenPluginInfo pluginInfo = MavenArtifactUtil.readPluginInfo(manager.getLocalRepositoryPath(), plugin.getMavenId());
                 if (pluginInfo != null) {
                     for (MavenPluginInfo.Mojo mojo : pluginInfo.getMojos()) {
                         goals.add(mojo.getDisplayName());
@@ -976,6 +981,98 @@ public class MavenUtil {
     }
 
     /**
+     * The local repository of the machine of the project - see {@link #getLocalRepository(VirtualFile, MavenGeneralSettings)}.
+     */
+    public static File getLocalRepository(Project project, MavenGeneralSettings settings) {
+        Platform platform = project.getPlatform();
+        if (platform == Platform.current()) {
+            return settings.getEffectiveLocalRepository();
+        }
+        if (!StringUtil.isEmptyOrSpaces(settings.getLocalRepository())) {
+            return new File(settings.getLocalRepository().trim());
+        }
+        return new File(FileUtil.toSystemIndependentName(platform.user().homePath().resolve(".m2").resolve("repository").toString()));
+    }
+
+    /**
+     * The virtual file of a file of the repository of the machine of the project.
+     */
+    @Nullable
+    public static VirtualFile findRepositoryFile(Project project, File file) {
+        if (project.getPlatform() == Platform.current()) {
+            return LocalFileSystem.getInstance().findFileByIoFile(file);
+        }
+        return VirtualFileManager.getInstance().findFileByNioPath(toNioPath(project, file.getPath()));
+    }
+
+    /**
+     * Whether a file of the repository of the machine of the project exists.
+     */
+    public static boolean repositoryFileExists(Project project, File file) {
+        return Files.exists(toNioPath(project, file.getPath()));
+    }
+
+    /**
+     * The directories of a directory of the maven model - on the machine of {@code anchor}, by their paths there.
+     */
+    public static File[] listDirectories(VirtualFile anchor, String directory) {
+        try (Stream<Path> children = Files.list(toNioPath(anchor, directory))) {
+            return children.filter(Files::isDirectory)
+                .map(child -> new File(FileUtil.toSystemIndependentName(child.toString())))
+                .toArray(File[]::new);
+        }
+        catch (IOException e) {
+            return new File[0];
+        }
+    }
+
+    /**
+     * Whether a directory of the maven model has children - on the machine of {@code anchor}.
+     */
+    public static boolean hasChildren(VirtualFile anchor, String directory) {
+        try (Stream<Path> children = Files.list(toNioPath(anchor, directory))) {
+            return children.findAny().isPresent();
+        }
+        catch (IOException e) {
+            return false;
+        }
+    }
+
+    /**
+     * The local repository of a maven project on the machine of the project.
+     */
+    public static Path getLocalRepositoryPath(MavenProject project) {
+        return toNioPath(project.getFile(), project.getLocalRepository().getPath());
+    }
+
+    /**
+     * A path of the maven model as a path of the machine of the project.
+     */
+    public static Path toNioPath(Project project, String path) {
+        Platform platform = project.getPlatform();
+        return platform == Platform.current() ? Path.of(path) : platform.fs().getPath(path);
+    }
+
+    /**
+     * The local repository of the machine of {@code anchor}: the one of the settings, else the default one of the user of
+     * that machine - the repository of the IDE machine is not there.
+     */
+    public static File getLocalRepository(VirtualFile anchor, MavenGeneralSettings settings) {
+        if (anchor.isInLocalFileSystem() || !anchor.isInLocalLikeFileSystem()) {
+            return settings.getEffectiveLocalRepository();
+        }
+        if (!StringUtil.isEmptyOrSpaces(settings.getLocalRepository())) {
+            return new File(settings.getLocalRepository().trim());
+        }
+        PlatformTarget target = Application.get().getInstance(PlatformTargetManager.class).findTargetOf(anchor.toNioPath());
+        Platform platform = target == null ? null : target.getPlatform();
+        if (platform == null) {
+            return settings.getEffectiveLocalRepository();
+        }
+        return new File(FileUtil.toSystemIndependentName(platform.user().homePath().resolve(".m2").resolve("repository").toString()));
+    }
+
+    /**
      * The file of a path of the maven model - on the machine of {@code anchor}.
      */
     @Nullable
@@ -989,9 +1086,9 @@ public class MavenUtil {
     /**
      * A path of the maven model as a path of the machine of {@code anchor}.
      */
-    public static java.nio.file.Path toNioPath(VirtualFile anchor, String path) {
+    public static Path toNioPath(VirtualFile anchor, String path) {
         if (anchor.isInLocalFileSystem() || !anchor.isInLocalLikeFileSystem()) {
-            return java.nio.file.Path.of(path);
+            return Path.of(path);
         }
         return anchor.toNioPath().getFileSystem().getPath(path);
     }

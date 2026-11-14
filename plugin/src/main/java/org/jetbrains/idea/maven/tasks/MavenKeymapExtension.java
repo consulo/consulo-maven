@@ -40,10 +40,12 @@ import org.jetbrains.idea.maven.localize.MavenTasksLocalize;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.utils.MavenArtifactUtil;
 import org.jetbrains.idea.maven.utils.MavenPluginInfo;
+import org.jetbrains.idea.maven.utils.MavenUtil;
 import org.jetbrains.idea.maven.utils.actions.MavenAction;
 import org.jetbrains.idea.maven.utils.actions.MavenActionUtil;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Predicate;
@@ -158,13 +160,13 @@ public class MavenKeymapExtension implements KeymapExtension {
         result.addAll(MavenConstants.PHASES);
 
         for (MavenPlugin each : project.getDeclaredPlugins()) {
-            collectGoals(project.getLocalRepository(), each, result);
+            collectGoals(MavenUtil.getLocalRepositoryPath(project), each, result);
         }
 
         return new ArrayList<>(result);
     }
 
-    private static void collectGoals(File repository, MavenPlugin plugin, LinkedHashSet<String> list) {
+    private static void collectGoals(Path repository, MavenPlugin plugin, LinkedHashSet<String> list) {
         MavenPluginInfo info = MavenArtifactUtil.readPluginInfo(repository, plugin.getMavenId());
         if (info == null) {
             return;

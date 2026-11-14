@@ -71,6 +71,7 @@ import org.jetbrains.idea.maven.utils.MavenSimpleProjectComponent;
 import org.jetbrains.idea.maven.utils.MavenTask;
 import org.jetbrains.idea.maven.utils.MavenUtil;
 
+import java.nio.file.Path;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
@@ -170,8 +171,18 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
         return MavenWorkspaceSettingsComponent.getInstance(myProject).getSettings();
     }
 
+    /**
+     * The local repository of the machine of the project - as a path of that machine.
+     */
     public File getLocalRepository() {
-        return getGeneralSettings().getEffectiveLocalRepository();
+        return MavenUtil.getLocalRepository(myProject, getGeneralSettings());
+    }
+
+    /**
+     * {@link #getLocalRepository()} on the machine of the project.
+     */
+    public Path getLocalRepositoryPath() {
+        return MavenUtil.toNioPath(myProject, getLocalRepository().getPath());
     }
 
     public MavenSyncConsole getSyncConsole() {

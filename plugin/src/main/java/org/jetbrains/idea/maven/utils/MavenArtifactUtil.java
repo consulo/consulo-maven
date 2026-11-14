@@ -25,10 +25,11 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
+import java.util.zip.ZipInputStream;
 
 @SuppressWarnings({"UtilityClassWithoutPrivateConstructor"})
 public class MavenArtifactUtil {
@@ -38,16 +39,25 @@ public class MavenArtifactUtil {
     };
     public static final String MAVEN_PLUGIN_DESCRIPTOR = "META-INF/maven/plugin.xml";
 
-    private static final Map<File, MavenPluginInfo> ourPluginInfoCache = Collections.synchronizedMap(new HashMap<File, MavenPluginInfo>());
+    private static final Map<Path, MavenPluginInfo> ourPluginInfoCache = Collections.synchronizedMap(new HashMap<Path, MavenPluginInfo>());
 
     @Nullable
     public static MavenPluginInfo readPluginInfo(File localRepository, MavenId mavenId) {
-        File file = getArtifactFile(localRepository, mavenId.getGroupId(), mavenId.getArtifactId(), mavenId.getVersion(), "jar");
+        return readPluginInfo(localRepository.toPath(), mavenId);
+    }
 
-        MavenPluginInfo result = ourPluginInfoCache.get(file);
+    /**
+     * @param localRepository the repository on its machine - the plugin is read there
+     */
+    @Nullable
+    public static MavenPluginInfo readPluginInfo(Path localRepository, MavenId mavenId) {
+        File file = getArtifactFile(new File(localRepository.toString()), mavenId.getGroupId(), mavenId.getArtifactId(), mavenId.getVersion(), "jar");
+        Path path = localRepository.getFileSystem().getPath(file.getPath());
+
+        MavenPluginInfo result = ourPluginInfoCache.get(path);
         if (result == null) {
-            result = createPluginDocument(file);
-            ourPluginInfoCache.put(file, result);
+            result = createPluginDocument(path);
+            ourPluginInfoCache.put(path, result);
         }
         return result;
     }
@@ -161,29 +171,23 @@ public class MavenArtifactUtil {
     }
 
     @Nullable
-    private static MavenPluginInfo createPluginDocument(File file) {
+    private static MavenPluginInfo createPluginDocument(Path file) {
         try {
-            if (!file.exists()) {
+            if (!Files.isRegularFile(file)) {
                 return null;
             }
 
-            ZipFile jar = new ZipFile(file);
-            try {
-                ZipEntry entry = jar.getEntry(MAVEN_PLUGIN_DESCRIPTOR);
-
-                if (entry == null) {
-                    MavenLog.LOG.info(IndicesBundle.message("repository.plugin.corrupt", file));
-                    return null;
-                }
-
-                try (InputStream is = jar.getInputStream(entry)) {
-                    byte[] bytes = StreamUtil.loadFromStream(is);
-                    return new MavenPluginInfo(bytes);
+            // streamed - the jar may be on another machine
+            try (ZipInputStream jar = new ZipInputStream(Files.newInputStream(file))) {
+                ZipEntry entry;
+                while ((entry = jar.getNextEntry()) != null) {
+                    if (MAVEN_PLUGIN_DESCRIPTOR.equals(entry.getName())) {
+                        return new MavenPluginInfo(StreamUtil.loadFromStream(jar));
+                    }
                 }
             }
-            finally {
-                jar.close();
-            }
+            MavenLog.LOG.info(IndicesBundle.message("repository.plugin.corrupt", file));
+            return null;
         }
         catch (IOException e) {
             MavenLog.LOG.info(e);

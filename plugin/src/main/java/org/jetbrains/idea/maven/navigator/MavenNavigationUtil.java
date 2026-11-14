@@ -36,6 +36,7 @@ import org.jetbrains.idea.maven.dom.model.MavenDomDependency;
 import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.utils.MavenArtifactUtil;
+import org.jetbrains.idea.maven.utils.MavenUtil;
 
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
@@ -150,7 +151,7 @@ public class MavenNavigationUtil {
     @Nullable
     public static VirtualFile getArtifactFile(Project project, MavenId id) {
         final File file = MavenArtifactUtil.getArtifactFile(MavenProjectsManager.getInstance(project).getLocalRepository(), id);
-        return file.exists() ? LocalFileSystem.getInstance().findFileByIoFile(file) : null;
+        return MavenUtil.findRepositoryFile(project, file);
     }
 
     @Nullable

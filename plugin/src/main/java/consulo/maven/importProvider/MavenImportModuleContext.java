@@ -54,7 +54,8 @@ public class MavenImportModuleContext extends ModuleImportContext {
 
     @Override
     public void setFileToImport(String path) {
-        VirtualFile file = VirtualFileManager.getInstance().refreshAndFindFileByNioPath(toNioPath(path));
+        // the file was chosen in the file chooser - it is in the virtual file system already, no refresh on the UI thread
+        VirtualFile file = VirtualFileManager.getInstance().findFileByNioPath(getNioPath().getFileSystem().getPath(path));
         myImportRoot = file == null || file.isDirectory() ? file : file.getParent();
     }
 
@@ -144,7 +145,7 @@ public class MavenImportModuleContext extends ModuleImportContext {
         boolean finished = runConfigurationProcess(indicator -> {
             indicator.setText(MavenProjectLocalize.mavenLocatingFiles());
 
-            myImportRoot = VirtualFileManager.getInstance().refreshAndFindFileByNioPath(toNioPath(rootPath));
+            myImportRoot = VirtualFileManager.getInstance().refreshAndFindFileByNioPath(getNioPath().getFileSystem().getPath(rootPath));
             if (myImportRoot == null) {
                 throw new MavenProcessCanceledException();
             }

@@ -40,6 +40,7 @@ import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.project.MavenProjectsTree;
 import org.jetbrains.idea.maven.utils.MavenMergingUpdateQueue;
 import org.jetbrains.idea.maven.utils.MavenSimpleProjectComponent;
+import org.jetbrains.idea.maven.utils.MavenUtil;
 
 import jakarta.annotation.Nullable;
 import java.io.File;
@@ -213,7 +214,7 @@ public class MavenProjectIndicesManager extends MavenSimpleProjectComponent {
         }
         File file = new File(getLocalRepository(), relPath);
 
-        return file.exists();
+        return MavenUtil.repositoryFileExists(myProject, file);
     }
 
     public boolean hasArtifactId(String groupId, String artifactId) {

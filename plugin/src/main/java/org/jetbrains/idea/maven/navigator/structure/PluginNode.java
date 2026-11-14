@@ -34,7 +34,7 @@ public class PluginNode extends GoalsGroupNode {
     public void updatePlugin() {
         boolean hadPluginInfo = myPluginInfo != null;
 
-        myPluginInfo = MavenArtifactUtil.readPluginInfo(myMavenProjectsStructure.getProjectsManager().getLocalRepository(), myPlugin.getMavenId());
+        myPluginInfo = MavenArtifactUtil.readPluginInfo(myMavenProjectsStructure.getProjectsManager().getLocalRepositoryPath(), myPlugin.getMavenId());
 
         boolean hasPluginInfo = myPluginInfo != null;
 

@@ -15,12 +15,12 @@
  */
 package org.jetbrains.idea.maven.project;
 
-import consulo.virtualFileSystem.LocalFileSystem;
 import consulo.virtualFileSystem.VirtualFile;
 import consulo.maven.rt.server.common.model.MavenConstants;
 import consulo.maven.rt.server.common.model.MavenId;
 import jakarta.annotation.Nonnull;
 import org.jetbrains.idea.maven.utils.MavenArtifactUtil;
+import org.jetbrains.idea.maven.utils.MavenUtil;
 
 import jakarta.annotation.Nullable;
 import java.io.File;
@@ -61,9 +61,10 @@ public abstract class MavenParentProjectFileProcessor<RESULT_TYPE> {
         }
 
         if (result == null) {
+            // the repository of the machine of the project
             File parentIoFile =
-                MavenArtifactUtil.getArtifactFile(generalSettings.getEffectiveLocalRepository(), parentDesc.getParentId(), "pom");
-            parentFile = LocalFileSystem.getInstance().findFileByIoFile(parentIoFile);
+                MavenArtifactUtil.getArtifactFile(MavenUtil.getLocalRepository(projectFile, generalSettings), parentDesc.getParentId(), "pom");
+            parentFile = MavenUtil.findFileByPath(projectFile, parentIoFile.getPath());
             if (parentFile != null) {
                 result = processRepositoryParent(parentFile);
             }

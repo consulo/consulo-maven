@@ -27,7 +27,6 @@ import consulo.maven.rt.server.common.model.MavenId;
 import consulo.project.Project;
 import consulo.util.collection.ArrayUtil;
 import consulo.util.lang.StringUtil;
-import consulo.virtualFileSystem.LocalFileSystem;
 import consulo.virtualFileSystem.VirtualFile;
 import consulo.xml.dom.*;
 import consulo.xml.util.xml.impl.GenericDomValueReference;
@@ -39,6 +38,7 @@ import org.jetbrains.idea.maven.localize.MavenDomLocalize;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.utils.MavenArtifactUtil;
+import org.jetbrains.idea.maven.utils.MavenUtil;
 
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
@@ -220,7 +220,7 @@ public abstract class MavenArtifactCoordinatesConverter extends ResolvingConvert
                 return null;
             }
 
-            VirtualFile virtualFile = LocalFileSystem.getInstance().findFileByIoFile(file);
+            VirtualFile virtualFile = MavenUtil.findRepositoryFile(psiManager.getProject(), file);
             if (virtualFile == null) {
                 return null;
             }

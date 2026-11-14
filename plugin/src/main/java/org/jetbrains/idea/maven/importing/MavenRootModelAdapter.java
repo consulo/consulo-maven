@@ -51,9 +51,7 @@ import org.jetbrains.idea.maven.utils.Url;
 import org.jetbrains.idea.maven.utils.library.RepositoryLibraryProperties;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
-import java.util.stream.Stream;
 
 public class MavenRootModelAdapter {
     private final MavenProject myMavenProject;
@@ -140,12 +138,7 @@ public class MavenRootModelAdapter {
 
     public void addSourceFolder(String path, ContentFolderTypeProvider contentFolderTypeProvider, boolean ifNotEmpty, boolean generated) {
         if (ifNotEmpty) {
-            try (Stream<java.nio.file.Path> children = Files.list(MavenUtil.toNioPath(myMavenProject.getFile(), toPath(path).getPath()))) {
-                if (children.findAny().isEmpty()) {
-                    return;
-                }
-            }
-            catch (IOException e) {
+            if (!MavenUtil.hasChildren(myMavenProject.getFile(), toPath(path).getPath())) {
                 return;
             }
         }

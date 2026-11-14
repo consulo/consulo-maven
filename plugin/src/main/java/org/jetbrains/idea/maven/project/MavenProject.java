@@ -132,7 +132,8 @@ public class MavenProject {
         }
 
         newState.myReadingProblems = readerResult.readingProblems;
-        newState.myLocalRepository = settings.getEffectiveLocalRepository();
+        // the repository of the machine of the project
+        newState.myLocalRepository = MavenUtil.getLocalRepository(myFile, settings);
 
         newState.myActivatedProfilesIds = readerResult.activatedProfiles;
 
@@ -768,7 +769,7 @@ public class MavenProject {
     }
 
     private static void validateExtensions(VirtualFile file, State state, List<MavenProjectProblem> result) {
-        for (MavenArtifact each : getUnresolvedExtensions(state)) {
+        for (MavenArtifact each : getUnresolvedExtensions(file, state)) {
             result.add(createDependencyProblem(
                 file,
                 MavenProjectLocalize.mavenProjectProblemUnresolvedextension(each.getDisplayStringSimple()).get()
@@ -777,7 +778,7 @@ public class MavenProject {
     }
 
     private static void validatePlugins(VirtualFile file, State state, List<MavenProjectProblem> result) {
-        for (MavenPlugin each : getUnresolvedPlugins(state)) {
+        for (MavenPlugin each : getUnresolvedPlugins(file, state)) {
             result.add(createDependencyProblem(file, MavenProjectLocalize.mavenProjectProblemUnresolvedplugin(each).get()));
         }
     }
@@ -805,7 +806,7 @@ public class MavenProject {
         }
     }
 
-    private static List<MavenArtifact> getUnresolvedExtensions(State state) {
+    private static List<MavenArtifact> getUnresolvedExtensions(VirtualFile file, State state) {
         synchronized (state) {
             if (state.myUnresolvedExtensionsCache == null) {
                 List<MavenArtifact> result = new ArrayList<>();
@@ -813,7 +814,7 @@ public class MavenProject {
                     // Collect only extensions that were attempted to be resolved.
                     // It is because embedder does not even try to resolve extensions that
                     // are not necessary.
-                    if (state.myUnresolvedArtifactIds.contains(each.getMavenId()) && !pomFileExists(state.myLocalRepository, each)) {
+                    if (state.myUnresolvedArtifactIds.contains(each.getMavenId()) && !pomFileExists(file, state.myLocalRepository, each)) {
                         result.add(each);
                     }
                 }
@@ -823,16 +824,23 @@ public class MavenProject {
         }
     }
 
-    private static boolean pomFileExists(File localRepository, MavenArtifact artifact) {
-        return MavenArtifactUtil.hasArtifactFile(localRepository, artifact.getMavenId(), "pom");
+    private static boolean pomFileExists(VirtualFile anchor, File localRepository, MavenArtifact artifact) {
+        return artifactFileExists(anchor, MavenArtifactUtil.getArtifactFile(localRepository, artifact.getMavenId(), "pom"));
     }
 
-    private static List<MavenPlugin> getUnresolvedPlugins(State state) {
+    /**
+     * Whether a file of the repository exists - on the machine of the project.
+     */
+    private static boolean artifactFileExists(VirtualFile anchor, File file) {
+        return Files.exists(MavenUtil.toNioPath(anchor, file.getPath()));
+    }
+
+    private static List<MavenPlugin> getUnresolvedPlugins(VirtualFile file, State state) {
         synchronized (state) {
             if (state.myUnresolvedPluginsCache == null) {
                 List<MavenPlugin> result = new ArrayList<>();
                 for (MavenPlugin each : getDeclaredPlugins(state)) {
-                    if (!MavenArtifactUtil.hasArtifactFile(state.myLocalRepository, each.getMavenId())) {
+                    if (!artifactFileExists(file, MavenArtifactUtil.getArtifactFile(state.myLocalRepository, each.getMavenId(), "jar"))) {
                         result.add(each);
                     }
                 }
@@ -953,7 +961,7 @@ public class MavenProject {
 
     public boolean hasUnresolvedArtifacts() {
         State state = myState;
-        return !isParentResolved(state) || !getUnresolvedDependencies(myFile, state).isEmpty() || !getUnresolvedExtensions(state).isEmpty();
+        return !isParentResolved(state) || !getUnresolvedDependencies(myFile, state).isEmpty() || !getUnresolvedExtensions(myFile, state).isEmpty();
     }
 
     /**
@@ -968,7 +976,7 @@ public class MavenProject {
     }
 
     public boolean hasUnresolvedPlugins() {
-        return !getUnresolvedPlugins(myState).isEmpty();
+        return !getUnresolvedPlugins(myFile, myState).isEmpty();
     }
 
     @Nonnull
@@ -1090,6 +1098,7 @@ public class MavenProject {
     public File getLocalRepository() {
         return myState.myLocalRepository;
     }
+
 
     @Nonnull
     public List<MavenRemoteRepository> getRemoteRepositories() {
