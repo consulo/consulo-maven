@@ -24,6 +24,7 @@ import consulo.container.plugin.PluginManager;
 import consulo.content.bundle.Sdk;
 import consulo.content.bundle.SdkTable;
 import consulo.execution.runner.ExecutionEnvironment;
+import consulo.java.execution.configurations.OwnJavaParameters;
 import consulo.maven.util.MavenJdkUtil;
 import consulo.platform.ForwardedPort;
 import consulo.platform.Platform;
@@ -343,9 +344,21 @@ public class MavenShCommandLineState extends MavenCommandLineState {
     }
 
     /**
-     * The home of the bundle of the runner when it is of the machine of the project, else a bundle of that machine.
+     * The home of the bundle maven runs with on the machine of the project.
      */
     private String getJavaHome(Platform platform) throws ExecutionException {
+        Sdk sdk = getJdk();
+        Path home = sdk == null ? null : sdk.getHomeNioPath();
+        if (home == null || !Files.isDirectory(home)) {
+            throw new ExecutionException(MavenRunnerLocalize.mavenJavaNotResolved().get());
+        }
+        return home.toString();
+    }
+
+    /**
+     * The bundle of the runner when it is of the machine of the project, else a bundle of that machine.
+     */
+    private @Nullable Sdk getJdk() {
         String targetId = myConfiguration.getProject().getPlatformTargetId();
         String jreName = getMavenRunnerSettings().getJreName();
         Sdk sdk = jreName == null ? null : SdkTable.getInstance().findSdk(jreName);
@@ -353,10 +366,19 @@ public class MavenShCommandLineState extends MavenCommandLineState {
             String mavenVersion = MavenServerManager.getInstance().getCurrentMavenVersion();
             sdk = MavenJdkUtil.findSdkOfLevel(MavenJdkUtil.getDefaultRunLevel(mavenVersion), null, targetId);
         }
-        Path home = sdk == null ? null : sdk.getHomeNioPath();
-        if (home == null || !Files.isDirectory(home)) {
-            throw new ExecutionException(MavenRunnerLocalize.mavenJavaNotResolved().get());
+        return sdk;
+    }
+
+    /**
+     * The JRE of the parameters is the one maven runs with - the debugger compares the JRE it attaches to with it.
+     */
+    @Override
+    protected OwnJavaParameters createJavaParameters() throws ExecutionException {
+        OwnJavaParameters parameters = super.createJavaParameters();
+        Sdk jdk = getJdk();
+        if (jdk != null) {
+            parameters.setJdk(jdk);
         }
-        return home.toString();
+        return parameters;
     }
 }
