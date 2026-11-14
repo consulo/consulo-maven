@@ -987,12 +987,7 @@ public class MavenUtil {
      * Whether the machine of the project is reachable right now - the files of a disconnected machine are not readable.
      */
     public static boolean isPlatformReachable(Project project) {
-        Platform platform = project.getPlatform();
-        if (platform == Platform.current()) {
-            return true;
-        }
-        PlatformTarget target = Application.get().getInstance(PlatformTargetManager.class).findTarget(platform.getId());
-        return target != null && target.getPlatform() != null;
+        return Application.get().getInstance(PlatformTargetManager.class).isReachable(project.getPlatform());
     }
 
     /**
@@ -1017,6 +1012,9 @@ public class MavenUtil {
         if (project.getPlatform() == Platform.current()) {
             return LocalFileSystem.getInstance().findFileByIoFile(file);
         }
+        if (!isPlatformReachable(project)) {
+            return null;
+        }
         return VirtualFileManager.getInstance().findFileByNioPath(toNioPath(project, file.getPath()));
     }
 
@@ -1024,6 +1022,9 @@ public class MavenUtil {
      * Whether a file of the repository of the machine of the project exists.
      */
     public static boolean repositoryFileExists(Project project, File file) {
+        if (!isPlatformReachable(project)) {
+            return false;
+        }
         return Files.exists(toNioPath(project, file.getPath()));
     }
 
