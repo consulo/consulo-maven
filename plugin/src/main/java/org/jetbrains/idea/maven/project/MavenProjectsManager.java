@@ -175,14 +175,30 @@ public class MavenProjectsManager extends MavenSimpleProjectComponent implements
      * The local repository of the machine of the project - as a path of that machine.
      */
     public File getLocalRepository() {
-        return MavenUtil.getLocalRepository(myProject, getGeneralSettings());
+        try {
+            return MavenUtil.getLocalRepository(myProject, getGeneralSettings());
+        }
+        catch (IllegalStateException e) {
+            // the machine of the project is not reachable right now - the repository of the last read stays
+            List<MavenProject> rootProjects = myProjectsTree.getRootProjects();
+            if (rootProjects.isEmpty()) {
+                throw e;
+            }
+            return rootProjects.get(0).getLocalRepository();
+        }
     }
 
     /**
-     * {@link #getLocalRepository()} on the machine of the project.
+     * {@link #getLocalRepository()} on the machine of the project, null while that machine is not reachable.
      */
+    @Nullable
     public Path getLocalRepositoryPath() {
-        return MavenUtil.toNioPath(myProject, getLocalRepository().getPath());
+        try {
+            return MavenUtil.toNioPath(myProject, getLocalRepository().getPath());
+        }
+        catch (IllegalStateException e) {
+            return null;
+        }
     }
 
     public MavenSyncConsole getSyncConsole() {

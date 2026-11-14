@@ -773,9 +773,10 @@ public class MavenUtil {
         Set<String> goals = new HashSet<>();
         goals.addAll(MavenConstants.PHASES);
 
-        for (MavenProject mavenProject : manager.getProjects()) {
+        Path localRepository = manager.getLocalRepositoryPath();
+        for (MavenProject mavenProject : localRepository == null ? List.<MavenProject>of() : manager.getProjects()) {
             for (MavenPlugin plugin : mavenProject.getPlugins()) {
-                MavenPluginInfo pluginInfo = MavenArtifactUtil.readPluginInfo(manager.getLocalRepositoryPath(), plugin.getMavenId());
+                MavenPluginInfo pluginInfo = MavenArtifactUtil.readPluginInfo(localRepository, plugin.getMavenId());
                 if (pluginInfo != null) {
                     for (MavenPluginInfo.Mojo mojo : pluginInfo.getMojos()) {
                         goals.add(mojo.getDisplayName());
@@ -977,7 +978,21 @@ public class MavenUtil {
         if (file.isInLocalFileSystem() || !file.isInLocalLikeFileSystem()) {
             return file.getPath();
         }
-        return FileUtil.toSystemIndependentName(file.toNioPath().toString());
+        Path path = file.getFileSystem().getNioPath(file);
+        // the machine is not reachable right now - its path is the presentable one
+        return FileUtil.toSystemIndependentName(path == null ? file.getPresentableUrl() : path.toString());
+    }
+
+    /**
+     * Whether the machine of the project is reachable right now - the files of a disconnected machine are not readable.
+     */
+    public static boolean isPlatformReachable(Project project) {
+        Platform platform = project.getPlatform();
+        if (platform == Platform.current()) {
+            return true;
+        }
+        PlatformTarget target = Application.get().getInstance(PlatformTargetManager.class).findTarget(platform.getId());
+        return target != null && target.getPlatform() != null;
     }
 
     /**

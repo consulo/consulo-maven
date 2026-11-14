@@ -143,6 +143,10 @@ public class MavenProjectsStructure extends SimpleTreeStructure {
     }
 
     public void updateProjects(List<MavenProject> updated, Collection<MavenProject> deleted) {
+        if (!MavenUtil.isPlatformReachable(myProject)) {
+            // the files of the projects are not readable now - the nodes keep their state until the machine is back
+            return;
+        }
         for (MavenProject each : updated) {
             ProjectNode node = findNodeFor(each);
             if (node == null) {

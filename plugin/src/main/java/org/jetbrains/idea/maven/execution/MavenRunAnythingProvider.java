@@ -15,6 +15,7 @@ import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.utils.MavenArtifactUtil;
 
+import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -166,11 +167,12 @@ public class MavenRunAnythingProvider extends RunAnythingCommandLineProvider {
             return Collections.emptyList();
         }
         MavenProject mavenProject = getMavenProject(context, projectsManager);
-        if (mavenProject == null) {
+        Path localRepository = projectsManager.getLocalRepositoryPath();
+        if (mavenProject == null || localRepository == null) {
             return Collections.emptyList();
         }
         return mavenProject.getDeclaredPlugins().stream()
-            .map(pluginInfoHolder -> MavenArtifactUtil.readPluginInfo(projectsManager.getLocalRepositoryPath(), new MavenId(pluginInfoHolder.getGroupId(), pluginInfoHolder.getArtifactId())))
+            .map(pluginInfoHolder -> MavenArtifactUtil.readPluginInfo(localRepository, new MavenId(pluginInfoHolder.getGroupId(), pluginInfoHolder.getArtifactId())))
             .filter(Objects::nonNull)
             .flatMap(pluginInfo -> pluginInfo.getMojos().stream())
             .map(mojo -> mojo.getDisplayName())

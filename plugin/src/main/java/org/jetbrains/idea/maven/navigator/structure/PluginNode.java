@@ -5,6 +5,8 @@ import org.jetbrains.idea.maven.MavenIcons;
 import org.jetbrains.idea.maven.utils.MavenArtifactUtil;
 import org.jetbrains.idea.maven.utils.MavenPluginInfo;
 
+import java.nio.file.Path;
+
 public class PluginNode extends GoalsGroupNode {
     private final MavenPlugin myPlugin;
     private MavenPluginInfo myPluginInfo;
@@ -32,9 +34,15 @@ public class PluginNode extends GoalsGroupNode {
     }
 
     public void updatePlugin() {
+        Path localRepository = myMavenProjectsStructure.getProjectsManager().getLocalRepositoryPath();
+        if (localRepository == null) {
+            // the machine of the project is not reachable right now - the goals read before stay
+            return;
+        }
+
         boolean hadPluginInfo = myPluginInfo != null;
 
-        myPluginInfo = MavenArtifactUtil.readPluginInfo(myMavenProjectsStructure.getProjectsManager().getLocalRepositoryPath(), myPlugin.getMavenId());
+        myPluginInfo = MavenArtifactUtil.readPluginInfo(localRepository, myPlugin.getMavenId());
 
         boolean hasPluginInfo = myPluginInfo != null;
 
